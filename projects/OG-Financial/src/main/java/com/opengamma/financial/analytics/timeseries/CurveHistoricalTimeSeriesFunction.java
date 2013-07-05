@@ -75,12 +75,12 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
       HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeries != null) {
         if (timeSeries.getTimeSeries().isEmpty()) {
-          s_logger.warn("Time series for {} is empty", id);
+          s_logger.info("Time series for {} is empty", id);
         } else {
           bundle.add(dataField, id, timeSeries);
         }
       } else {
-        s_logger.warn("Couldn't get time series for {}", id);
+        s_logger.info("Couldn't get time series for {}", id);
       }
       if (node instanceof PointsCurveNodeWithIdentifier) {
         final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
@@ -89,12 +89,12 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
         timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
         if (timeSeries != null) {
           if (timeSeries.getTimeSeries().isEmpty()) {
-            s_logger.warn("Time series for {} is empty", id);
+            s_logger.info("Time series for {} is empty", id);
           } else {
             bundle.add(dataField, id, timeSeries);
           }
         } else {
-          s_logger.warn("Couldn't get time series for {}", id);
+          s_logger.info("Couldn't get time series for {}", id);
         }
       }
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
@@ -120,12 +120,12 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
         final HistoricalTimeSeries priceIndexSeries = timeSeriesSource.getHistoricalTimeSeries(priceIndexField, priceIndexId, resolutionKey, startDate, includeStart, endDate, true);
         if (priceIndexSeries != null) {
           if (priceIndexSeries.getTimeSeries().isEmpty()) {
-            s_logger.warn("Time series for {} is empty", priceIndexId);
+            s_logger.info("Time series for {} is empty", priceIndexId);
           } else {
             bundle.add(dataField, priceIndexId, timeSeries);
           }
         } else {
-          s_logger.warn("Couldn't get time series for {}", priceIndexId);
+          s_logger.info("Couldn't get time series for {}", priceIndexId);
         }
       }
     }

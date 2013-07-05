@@ -41,6 +41,7 @@ import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpread
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.config.ConfigSource;
@@ -109,6 +110,21 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
+    final Set<ValueRequirement> exogenousRequirements = new HashSet<>();
+    if (curveConstructionConfiguration.getExogenousConfigurations() != null) {
+      final List<String> exogenousConfigurations = curveConstructionConfiguration.getExogenousConfigurations();
+      for (final String name : exogenousConfigurations) {
+        //TODO deal with arbitrary depth
+        final ValueProperties properties = ValueProperties.builder()
+            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CONSTRUCTION_CONFIG, name)
+            .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
+            .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
+            .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
+          .get();
+        exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+      }
+    }
     final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
@@ -119,7 +135,13 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-        final InflationProviderDiscount knownData = null;
+        //TODO requires that the discounting curves are supplied externally
+        InflationProviderDiscount knownData;
+        if (exogenousRequirements.isEmpty()) {
+          knownData = new InflationProviderDiscount();
+        } else {
+          knownData = new InflationProviderDiscount((MulticurveProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE));
+        }
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         ValueProperties bundleProperties = null;
@@ -201,6 +223,7 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
             .get();
         requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
         requirements.add(new ValueRequirement(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties));
+        requirements.addAll(exogenousRequirements);
         return requirements;
       }
 
@@ -275,7 +298,7 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
               marketDataForCurve[k] = marketData;
               parameterGuessForCurves.add(marketData);
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot,
-                  timeSeries);
+                  timeSeries, curveName);
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
             } // Node points - end
             for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
@@ -286,7 +309,7 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
                   //should this map check that the curve name has not already been entered?
                   inflation.add(new IndexPrice(curveName, currency));
                 } catch (final IllegalArgumentException e) {
-                  throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for discounting curves");
+                  throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for inflation curves");
                 }
               } else {
                 throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
@@ -316,6 +339,17 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
           return new GeneratorPriceIndexCurveInterpolated(MATURITY_CALCULATOR, interpolator);
         }
         throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
+      }
+
+
+      @Override
+      public boolean canHandleMissingRequirements() {
+        return true;
+      }
+
+      @Override
+      public boolean canHandleMissingInputs() {
+        return true;
       }
     };
   }
