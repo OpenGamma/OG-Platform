@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
+import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
 import com.opengamma.integration.copier.portfolio.rowparser.ExchangeTradedRowParser;
@@ -106,48 +107,66 @@ public class PortfolioLoaderResource {
                                   //@FormDataParam("dataField") String dataField
                                   //@FormDataParam("dataProvider") String dataProvider
   ) throws IOException {
-
-    String dataField = getString(formData, "dataField");
-    String dataProvider = getString(formData, "dataProvider");
-    String portfolioName = getString(formData, "portfolioName");
     FormDataBodyPart fileBodyPart = getBodyPart(formData, "file");
-    String fileName = fileBodyPart.getFormDataContentDisposition().getFileName();
     Object fileEntity = fileBodyPart.getEntity();
-    // fields can be separated by whitespace or a comma with whitespace
-    String[] dataFields = dataField.split("(\\s*,\\s*|\\s+)");
-    if (!(fileEntity instanceof BodyPartEntity)) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-
+    String fileName = fileBodyPart.getFormDataContentDisposition().getFileName();
     InputStream fileStream = new WorkaroundInputStream(((BodyPartEntity) fileEntity).getInputStream());
-    //String fileContent = IOUtils.toString(fileStream);
-    s_logger.info("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, dataProvider: {}",
-                  new Object[]{fileName, portfolioName, dataField, dataProvider});
 
-    final PortfolioReader portfolioReader;
-    final ResolvingPortfolioCopier copier = new ResolvingPortfolioCopier(_historicalTimeSeriesMaster,
-                                                                   _historicalTimeSeriesProvider,
-                                                                   _referenceDataProvider,
-                                                                   dataProvider,
-                                                                   dataFields);
     if(fileName.toLowerCase().endsWith("xml")) {
-      portfolioReader = returnPorfolioReader(fileStream).iterator().next();
+      //xml can contain multiple portfolios
+      for (PortfolioReader portfolioReader : returnPorfolioReader(fileStream)) {
+        xmlPortfolioCopy(portfolioReader);
+      }
+      return Response.ok("Upload complete").build();
     } else {
+      String dataField = getString(formData, "dataField");
+      String dataProvider = getString(formData, "dataProvider");
+      String portfolioName = getString(formData, "portfolioName");
+      // fields can be separated by whitespace or a comma with whitespace
+      String[] dataFields = dataField.split("(\\s*,\\s*|\\s+)");
+
+      s_logger.info("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, dataProvider: {}",
+                    new Object[]{fileName, portfolioName, dataField, dataProvider});
+
+      if (!(fileEntity instanceof BodyPartEntity)) {
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      }
+      final ResolvingPortfolioCopier copier = new ResolvingPortfolioCopier(_historicalTimeSeriesMaster,
+                                                                           _historicalTimeSeriesProvider,
+                                                                           _referenceDataProvider,
+                                                                           dataProvider,
+                                                                           dataFields);
+      final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster,
+                                                                        _securityMaster, false, false, false, true);
       SheetFormat format = getFormatForFileName(fileName);
       RowParser rowParser = new ExchangeTradedRowParser(_securityProvider);
-      portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
+      final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
+      StreamingOutput streamingOutput = new StreamingOutput() {
+        @Override
+        public void write(OutputStream output) throws IOException, WebApplicationException {
+          // TODO callback for progress updates as portoflio is copied
+          copier.copy(portfolioReader, portfolioWriter);
+          output.write("Upload complete".getBytes());
+        }
+      };
+      // close stuff
+      portfolioReader.close();
+      portfolioWriter.close();
+      return Response.ok(streamingOutput).build();
     }
-    final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster,
-        _securityMaster, false, false, false, true);
-    StreamingOutput streamingOutput = new StreamingOutput() {
-      @Override
-      public void write(OutputStream output) throws IOException, WebApplicationException {
-        // TODO callback for progress updates as portoflio is copied
-        copier.copy(portfolioReader, portfolioWriter);
-        output.write("Upload complete".getBytes());
-      }
-    };
-    return Response.ok(streamingOutput).build();
+  }
+
+  private void xmlPortfolioCopy(PortfolioReader portfolioReader) {
+
+    SimplePortfolioCopier copier = new SimplePortfolioCopier(null);
+    final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioReader.getPortfolioName(),
+                                                                      _portfolioMaster, _positionMaster,
+                                                                      _securityMaster, false, false, false, true);
+    // Call the portfolio loader with the supplied arguments
+    copier.copy(portfolioReader, portfolioWriter);
+    // close stuff
+    portfolioReader.close();
+    portfolioWriter.close();
   }
 
   private Iterable<? extends PortfolioReader> returnPorfolioReader(InputStream fileStream) {

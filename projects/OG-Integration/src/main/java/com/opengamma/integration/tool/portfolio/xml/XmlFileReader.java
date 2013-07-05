@@ -47,6 +47,7 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
    */
   public XmlFileReader(InputStream inputStream, SchemaRegister schemaRegister) {
 
+    // Create a ByteArrayInputStream to ensure reset() is available
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try {
       org.apache.commons.io.IOUtils.copy(inputStream, baos);
@@ -60,6 +61,7 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
     SchemaVersion version = extractSchemaVersion(bais);
     PortfolioConversion converter = schemaRegister.getConverterForSchema(version);
 
+    //reset after schema version is extracted
     bais.reset();
 
     if (converter != null) {
