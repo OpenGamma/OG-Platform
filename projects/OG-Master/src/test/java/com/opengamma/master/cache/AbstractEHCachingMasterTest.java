@@ -23,8 +23,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * Common properties and methods for testing EHCaching masters. This abstract class declares document variables of
  * generic type without initial values, and provides a populate method which can be called by a test subclass to
@@ -181,17 +179,6 @@ public abstract class AbstractEHCachingMasterTest<M extends AbstractChangeProvid
               (_fromCorrection == null || vc.getCorrectedTo() == null || vc.getCorrectedTo().isAfter(_fromCorrection)) &&
               (_toCorrection == null || vc.getCorrectedTo() != null && vc.getCorrectedTo().isBefore(_toCorrection));
     }
-  }
-
-  /**
-   * Returns an empty cache manager
-   * @return the cache manager
-   */
-  protected CacheManager getCleanCacheManager() {
-    CacheManager cacheManager = CacheManager.getInstance();
-    cacheManager.clearAll();
-    cacheManager.removalAll();
-    return cacheManager;
   }
 
 }
