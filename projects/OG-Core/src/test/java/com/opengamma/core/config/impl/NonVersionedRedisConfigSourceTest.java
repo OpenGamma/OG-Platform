@@ -20,11 +20,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.redis.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test(enabled=true)
+@Test(enabled=false, groups=TestGroup.UNIT)
 public class NonVersionedRedisConfigSourceTest extends AbstractRedisTestCase {
   
   public void putDeleteGetAll() {
