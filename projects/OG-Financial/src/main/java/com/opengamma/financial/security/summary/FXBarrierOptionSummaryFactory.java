@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.summary;
@@ -8,7 +8,7 @@ package com.opengamma.financial.security.summary;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 
 /**
- * Summary factory for {@link FXBarrierOption}.
+ * Summary factory for {@link FXBarrierOptionSecurity}.
  */
 public class FXBarrierOptionSummaryFactory implements SummaryFactory<FXBarrierOptionSecurity> {
 
@@ -18,7 +18,7 @@ public class FXBarrierOptionSummaryFactory implements SummaryFactory<FXBarrierOp
   }
 
   @Override
-  public Summary getSummary(FXBarrierOptionSecurity security) {
+  public Summary getSummary(final FXBarrierOptionSecurity security) {
     return SummaryBuilder.create(security)
         .with(SummaryField.DESCRIPTION, security.getPutCurrency() + "/" + security.getCallCurrency())
         .with(SummaryField.MATURITY, security.getExpiry())

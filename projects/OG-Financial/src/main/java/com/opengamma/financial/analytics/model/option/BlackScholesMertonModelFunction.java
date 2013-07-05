@@ -23,9 +23,10 @@ import com.opengamma.financial.security.option.ExerciseTypeVisitor;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
- * 
+ *
  *
  */
+@Deprecated
 public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _model = new BlackScholesMertonModel();
 
@@ -49,22 +50,22 @@ public class BlackScholesMertonModelFunction extends StandardOptionDataAnalyticO
     return option.getExerciseType().accept(
       new ExerciseTypeVisitor<OptionDefinition>() {
         @Override
-        public OptionDefinition visitAmericanExerciseType(AmericanExerciseType exerciseType) {
+        public OptionDefinition visitAmericanExerciseType(final AmericanExerciseType exerciseType) {
           return new AmericanVanillaOptionDefinition(option.getStrike(), option.getExpiry(), option.getOptionType() == OptionType.CALL);
         }
-  
+
         @Override
-        public OptionDefinition visitAsianExerciseType(AsianExerciseType exerciseType) {
+        public OptionDefinition visitAsianExerciseType(final AsianExerciseType exerciseType) {
           throw new OpenGammaRuntimeException("Unsupported option type: Asian");
         }
-  
+
         @Override
-        public OptionDefinition visitBermudanExerciseType(BermudanExerciseType exerciseType) {
+        public OptionDefinition visitBermudanExerciseType(final BermudanExerciseType exerciseType) {
           throw new OpenGammaRuntimeException("Unsupported option type: Bermudan");
         }
-  
+
         @Override
-        public OptionDefinition visitEuropeanExerciseType(EuropeanExerciseType exerciseType) {
+        public OptionDefinition visitEuropeanExerciseType(final EuropeanExerciseType exerciseType) {
           return new EuropeanVanillaOptionDefinition(option.getStrike(), option.getExpiry(), option.getOptionType() == OptionType.CALL);
         }
       }

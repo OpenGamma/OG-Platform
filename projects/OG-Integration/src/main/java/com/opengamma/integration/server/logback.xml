@@ -6,8 +6,11 @@
     </layout>
   </appender>
 
+  <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
+
   <root level="warn">
     <appender-ref ref="STDOUT" />
+    <appender-ref ref="BRIDGE" />
   </root>
   <logger name="org.hibernate" level="warn" />
   <logger name="org.springframework" level="warn" />

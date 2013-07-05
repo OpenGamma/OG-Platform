@@ -36,9 +36,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  *
  */
+@Deprecated
 public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override

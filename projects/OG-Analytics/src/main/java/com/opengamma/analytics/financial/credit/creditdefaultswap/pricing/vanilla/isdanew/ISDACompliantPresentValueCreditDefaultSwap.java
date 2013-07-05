@@ -6,20 +6,15 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.getIntegrationNodesAsDates;
-import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.toLocalDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.truncateList;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.CalibrateHazardRateTermStructureISDAMethod;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.MathException;
@@ -34,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *This prices a CDS using the ISDA methodology. The API of the public functions mimic as far a possible the ISDA high level ISDA c
  *functions. However this is NOT a line-by-line translation of the ISDA code. We find agreement with ISDA to better than 1 part in 10^12
- *on a test suit of 200 example.   
+ *on a test suit of 200 example.
  */
 public class ISDACompliantPresentValueCreditDefaultSwap {
 
@@ -59,26 +54,29 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
   }
 
   /**
-   * Get the value of the premium leg for unit notional and unit (fractional) spread<p>
+   * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis 
+   * points divided by 10,000) <p>
    * This mimics the ISDA c function <b>JpmcdsCdsFeeLegPV</b>
-   * @param today The 'current' date 
+   * @param today The 'current' date
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
    * is at the end.
    * @param endDate The protection end date (the protection ends at end of day)
-   * @param payAccOnDefault Is the accrued premium paid in the event of a default 
+   * @param payAccOnDefault Is the accrued premium paid in the event of a default
    * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
    * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
-   *  - <b>Note</b> in this code NONE is not allowed 
-   * @param yieldCurve Curve from which payments are discounted 
-   * @param hazardRateCurve Curve giving survival probability 
-   * @param protectStart Does protection start at the beginning of the day 
-   * @param priceType Clean or Dirty price. The clean price removes the accrued premium if the trade is between payment times. 
-   * @return unit notional RPV01
+   *  - <b>Note</b> in this code NONE is not allowed
+   * @param yieldCurve Curve from which payments are discounted
+   * @param hazardRateCurve Curve giving survival probability
+   * @param protectStart Does protection start at the beginning of the day
+   * @param priceType Clean or Dirty price. The clean price removes the accrued premium if the trade is between payment times.
+   * @return 10,000 times the RPV01 (on a notional of 1)
    */
-  public double calculateRPV01(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, StubType stubType, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, final boolean protectStart, final PriceType priceType) {
+  public double pvPremiumLegPerUnitSpread(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
+      final boolean payAccOnDefault, final Period tenor, final StubType stubType, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve,
+      final boolean protectStart, final PriceType priceType) {
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
     ArgumentChecker.notNull(valueDate, "null valueDate");
@@ -148,7 +146,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
   }
 
   /**
-   * Computes the risky present value of a premium payment<p> 
+   * Computes the risky present value of a premium payment<p>
    * This mimics the ISDA c code function <b>FeePaymentPVWithTimeLine<b>
    * @param today
    * @param valueDate
@@ -190,18 +188,18 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @param yieldCurve
    * @param hazardRateCurve
    * @param integrationSchedule
-   * @return
+   * @return The single period accrual on default
    */
   private double calculateSinglePeriodAccrualOnDefault(final LocalDate today, final LocalDate offsetStepinDate, final LocalDate offsetAccStartDate, final LocalDate offsetAccEndDate,
-      final double accTime, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, LocalDate[] integrationSchedule) {
+      final double accTime, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, final LocalDate[] integrationSchedule) {
 
-    LocalDate[] truncatedDateList = truncateList(offsetAccStartDate, offsetAccEndDate, integrationSchedule);
+    final LocalDate[] truncatedDateList = truncateList(offsetAccStartDate, offsetAccEndDate, integrationSchedule);
     final int nItems = truncatedDateList.length;
 
     // max(offsetStepinDate,offsetAccStartDate)
     LocalDate subStartDate = offsetStepinDate.isAfter(offsetAccStartDate) ? offsetStepinDate : offsetAccStartDate;
 
-    double tAcc = ACT_365.getDayCountFraction(offsetAccStartDate, offsetAccEndDate); // This is hardcoded to ACT/365 in ISDA code
+    final double tAcc = ACT_365.getDayCountFraction(offsetAccStartDate, offsetAccEndDate); // This is hardcoded to ACT/365 in ISDA code
     final double accRate = accTime / tAcc;
     double t = ACT_365.getDayCountFraction(today, subStartDate);
 
@@ -249,8 +247,8 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
   }
 
   /**
-   * Calculate the accrued premium at the start of a trade 
-   * @param premiumLegSchedule 
+   * Calculate the accrued premium at the start of a trade
+   * @param premiumLegSchedule
    * @param stepinDate The trade effective date
    * @return  accrued premium
    */
@@ -279,17 +277,17 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
   /**
    * Get the value of the protection leg for unit notional<p>
    *This mimics the ISDA c function <b>JpmcdsCdsContingentLegPV</b>
-   * @param today The 'current' date 
+   * @param today The 'current' date
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
    * is at the end.
    * @param endDate The protection end date (the protection ends at end of day)
-   * @param yieldCurve Curve from which payments are discounted 
-   * @param hazardRateCurve Curve giving survival probability 
-   * @param recoveryRate The recovery rate of the protected debt 
+   * @param yieldCurve Curve from which payments are discounted
+   * @param hazardRateCurve Curve giving survival probability
+   * @param recoveryRate The recovery rate of the protected debt
    * @param protectStart Does protection start at the beginning of the day
-   * @return unit notional PV of protection (or contingent) leg 
+   * @return unit notional PV of protection (or contingent) leg
    */
   public double calculateProtectionLeg(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
       final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, final double recoveryRate, final boolean protectStart) {
@@ -383,12 +381,12 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
   /**
    * Get the RPV01 of the premium leg  - i.e. the value of the leg per point of spread (expressed as a fraction, so 1bs is 0.0001) <p>
    * This exists to duplicate the function of the same name from PresentValueCreditDefaultSwap. <b>Note</b> this  version agrees
-   *  with the ISDA c library. 
+   *  with the ISDA c library.
    * @param valuationDate The valuation date - this is taken to be the same as today
-   * @param cds Description of the CDS 
+   * @param cds Description of the CDS
    * @param yieldCurve The discount curve
-   * @param hazardRateCurve The survival curve 
-   * @param priceType Clean or dirty 
+   * @param hazardRateCurve The survival curve
+   * @param priceType Clean or dirty
    * @return The RPV01 of the premium leg
    * @deprecated use calculateRPV01
   */
@@ -409,19 +407,19 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
     final LocalDate endDate = cds.getMaturityDate().toLocalDate();
 
     return cds.getNotional()
-        * calculateRPV01(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(),
+        * pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(),
             ISDACompliantDateYieldCurve.fromISDADateCurve(yieldCurve), ISDACompliantDateCreditCurve.fromHazardRateCurve(hazardRateCurve), cds.getProtectionStart(), priceType);
   }
 
   /**
    * Get the value of the contingent (or protection) leg<p>
    * This exists to duplicate the function of the same name from PresentValueCreditDefaultSwap. <b>Note</b> this  version agrees
-   *  with the ISDA c library. 
+   *  with the ISDA c library.
    * @param valuationDate The valuation date - this is taken to be the same as today
-   * @param cds Description of the CDS 
+   * @param cds Description of the CDS
    * @param yieldCurve The discount curve
-   * @param hazardRateCurve The survival curve 
-   * @return Present Value of protection (or contingent) leg 
+   * @param hazardRateCurve The survival curve
+   * @return Present Value of protection (or contingent) leg
    * @deprecated use calculateProtectionLeg
    */
   @Deprecated

@@ -59,6 +59,7 @@ public class ResultsFormatter {
                   zonedDateTimeFormatter,
                   localDateDoubleTimeSeriesFormatter,
                   new YieldCurveFormatter(),
+                  new PriceIndexCurveFormatter(),
                   new ISDADateCurveFormatter(),
                   new HazardRateCurveFormatter(),
                   new NodalObjectsCurveFormatter(), //TODO is not a general formatter - used only for (Tenor, Double) curves

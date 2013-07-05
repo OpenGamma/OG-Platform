@@ -73,8 +73,8 @@ public class InflationBuildingCurveSimpleTestUS {
 
   private static final double NOTIONAL = 1.0;
 
-  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
-  private static final IndexPrice US_CPI = GENERATOR_INFALTION_SWAP.getIndexPrice();
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFLATION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
+  private static final IndexPrice US_CPI = GENERATOR_INFLATION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
@@ -93,10 +93,10 @@ public class InflationBuildingCurveSimpleTestUS {
   /** Market values for the CPI USD curve */
   public static final double[] CPI_USD_MARKET_QUOTES = new double[] {0.0200, 0.0200, 0.0250, 0.0260, 0.0200, 0.0270, 0.0280, 0.0290, 0.0300, 0.0310, 0.0320, 0.0330, 0.0330, 0.0330, 0.0330 };
   /** Generators for the CPI USD curve */
-  public static final GeneratorInstrument<? extends GeneratorAttribute>[] CPI_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
-      GENERATOR_INFALTION_SWAP,
-      GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
-      GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP };
+  public static final GeneratorInstrument<? extends GeneratorAttribute>[] CPI_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP,
+      GENERATOR_INFLATION_SWAP,
+      GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP,
+      GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP };
   /** Tenors for the CPI USD curve */
   public static final Period[] CPI_USD_TENOR = new Period[] {Period.ofYears(1),
       Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), Period.ofYears(7),

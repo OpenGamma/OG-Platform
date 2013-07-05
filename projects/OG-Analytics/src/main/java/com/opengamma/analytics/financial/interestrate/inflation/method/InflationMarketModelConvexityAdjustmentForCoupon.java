@@ -9,7 +9,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolationWithMargin;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthlyWithMargin;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
@@ -23,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 public class InflationMarketModelConvexityAdjustmentForCoupon {
 
   /**
-   * Computes the convexity adjustment for year on year inflation swap with a monthly index.
+   * Computes the convexity adjustment for year on year inflation coupon with a monthly index.
    * @param coupon The year on year coupon.
    * @param inflationConvexity The inflation provider.
    * @return The convexity adjustment.
@@ -51,12 +53,68 @@ public class InflationMarketModelConvexityAdjustmentForCoupon {
   }
 
   /**
-   * Computes the convexity adjustment for year on year inflation swap with an interpolated index.
+   * Computes the convexity adjustment for year on year inflation coupon with an interpolated index.
    * @param coupon The year on year coupon.
    * @param inflationConvexity The inflation provider.
    * @return The convexity adjustment.
    */
   public double getYearOnYearConvexityAdjustment(final CouponInflationYearOnYearInterpolation coupon, final InflationConvexityAdjustmentProviderInterface inflationConvexity) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflationConvexity, "Inflation");
+
+    final double firstFixingTime = coupon.getWeightStart() * coupon.getReferenceStartTime()[0] + (1 - coupon.getWeightStart()) * coupon.getReferenceStartTime()[1];
+    final double secondFixingTime = coupon.getWeightEnd() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeightEnd()) * coupon.getReferenceEndTime()[1];
+    final double firstNaturalPaymentTime = coupon.getNaturalPaymentStartTime();
+    final double secondNaturalPaymentTime = coupon.getNaturalPaymentEndTime();
+    final double paymentTime = coupon.getPaymentTime();
+    final double volatilityStart = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexAtmVolatility()[0];
+    final double volatilityEnd = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexAtmVolatility()[1];
+    final double correlationInflation = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexCorrelation().getZValue(firstFixingTime, secondFixingTime);
+    final double correlationInflationRateStart = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexRateCorrelation().getYValue(firstFixingTime);
+    final double correlationInflationRateEnd = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexRateCorrelation().getYValue(secondFixingTime);
+    final double volBondForwardStart = getVolBondForward(firstNaturalPaymentTime, paymentTime, inflationConvexity);
+    final double volBondForwardEnd = getVolBondForward(secondNaturalPaymentTime, paymentTime, inflationConvexity);
+    final double adjustment = volatilityStart * (volatilityStart - volatilityEnd * correlationInflation - volBondForwardStart * correlationInflationRateStart) * firstNaturalPaymentTime
+        + volatilityEnd * volBondForwardEnd * correlationInflationRateEnd * secondNaturalPaymentTime;
+    return Math.exp(adjustment);
+
+  }
+
+  /**
+   * Computes the convexity adjustment for year on year inflation coupon with margin with a monthly index.
+   * @param coupon The year on year coupon.
+   * @param inflationConvexity The inflation provider.
+   * @return The convexity adjustment.
+   */
+  public double getYearOnYearConvexityAdjustment(final CouponInflationYearOnYearMonthlyWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflationConvexity) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflationConvexity, "Inflation");
+
+    final double firstFixingTime = coupon.getReferenceStartTime();
+    final double secondFixingTime = coupon.getReferenceEndTime();
+    final double firstNaturalPaymentTime = coupon.getNaturalPaymentStartTime();
+    final double secondNaturalPaymentTime = coupon.getNaturalPaymentEndTime();
+    final double paymentTime = coupon.getPaymentTime();
+    final double volatilityStart = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexAtmVolatility()[0];
+    final double volatilityEnd = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexAtmVolatility()[1];
+    final double correlationInflation = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexCorrelation().getZValue(firstFixingTime, secondFixingTime);
+    final double correlationInflationRateStart = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexRateCorrelation().getYValue(firstFixingTime);
+    final double correlationInflationRateEnd = inflationConvexity.getInflationConvexityAdjustmentParameters().getPriceIndexRateCorrelation().getYValue(secondFixingTime);
+    final double volBondForwardStart = getVolBondForward(firstNaturalPaymentTime, paymentTime, inflationConvexity);
+    final double volBondForwardEnd = getVolBondForward(secondNaturalPaymentTime, paymentTime, inflationConvexity);
+    final double adjustment = volatilityStart * (volatilityStart - volatilityEnd * correlationInflation - volBondForwardStart * correlationInflationRateStart) * firstNaturalPaymentTime
+        + volatilityEnd * volBondForwardEnd * correlationInflationRateEnd * secondNaturalPaymentTime;
+    return Math.exp(adjustment);
+
+  }
+
+  /**
+   * Computes the convexity adjustment for year on year inflation coupon with margin with an interpolated index.
+   * @param coupon The year on year coupon.
+   * @param inflationConvexity The inflation provider.
+   * @return The convexity adjustment.
+   */
+  public double getYearOnYearConvexityAdjustment(final CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflationConvexity) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflationConvexity, "Inflation");
 
@@ -173,7 +231,7 @@ public class InflationMarketModelConvexityAdjustmentForCoupon {
     ArgumentChecker.isTrue(startTime <= endTime, null);
     final IborIndex iborIndex = inflationConvexity.getBlackSmileIborCapParameters().getIndex();
     final int liborTenorInMonth = iborIndex.getTenor().getMonths();
-    final int numberOfperiod = (int) Math.round((endTime - startTime) / liborTenorInMonth);
+    final int numberOfperiod = (int) Math.round((endTime - startTime) * 12 / liborTenorInMonth);
 
     if (numberOfperiod == 0) {
       return 0.0;

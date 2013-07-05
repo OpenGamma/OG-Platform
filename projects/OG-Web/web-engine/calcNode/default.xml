@@ -8,7 +8,8 @@
   <!-- Global EH Cache Manager -->
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
-  </bean>
+    <property name="configLocation" value="default-ehcache.xml" />
+</bean>
 
   <!-- Source of slave threads -->  
   <bean id="slaveThreads" class="com.opengamma.util.ExecutorServiceFactoryBean">

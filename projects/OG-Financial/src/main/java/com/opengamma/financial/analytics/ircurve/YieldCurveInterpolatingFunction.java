@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -34,36 +34,36 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
 
 /**
- * Allows dumb clients to get interpolated {@link YieldCurve}s  
+ * Allows dumb clients to get interpolated {@link YieldCurve}s
  */
 public class YieldCurveInterpolatingFunction extends AbstractFunction {
   private final Currency _currency;
   private final String _curveName;
-  
+
   private ValueSpecification _interpolatedCurveResult;
   private Set<ValueSpecification> _results;
-  
+
   public YieldCurveInterpolatingFunction(final String currency, final String curveDefinitionName) {
     this(Currency.of(currency), curveDefinitionName);
   }
 
-  public YieldCurveInterpolatingFunction(Currency currency, String curveDefinitionName) {
+  public YieldCurveInterpolatingFunction(final Currency currency, final String curveDefinitionName) {
     _currency = currency;
     _curveName = curveDefinitionName;
-    
+
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
     final ComputationTargetSpecification currencySpec = ComputationTargetSpecification.of(_currency);
-    
+
     _interpolatedCurveResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INTERPOLATED, currencySpec,
         createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get());
     _results = Sets.newHashSet(_interpolatedCurveResult);
   }
 
   /**
-   * 
+   *
    */
   private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
 
@@ -77,15 +77,15 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-        ComputationTarget target, Set<ValueRequirement> desiredValues) {
-      NodalDoublesCurve curve = interpolateCurve((YieldCurve) inputs.getValue(_curveRequirement));
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+        final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+      final NodalDoublesCurve curve = interpolateCurve((YieldCurve) inputs.getValue(_curveRequirement));
       return Sets.newHashSet(new ComputedValue(_interpolatedCurveResult, curve));
     }
 
     @Override
-    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-        ValueRequirement desiredValue) {
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+        final ValueRequirement desiredValue) {
       if (canApplyTo(context, target)) {
         return _requirements;
       }
@@ -93,56 +93,56 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       return _results;
     }
-    
+
     @Override
     public ComputationTargetType getTargetType() {
       return ComputationTargetType.CURRENCY;
     }
 
     @Override
-    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       return _currency.equals(target.getValue());
     }
   }
 
 
-  private static NodalDoublesCurve interpolateCurve(YieldCurve yieldCurve) {
-    Curve<Double, Double> curve = yieldCurve.getCurve();
+  private static NodalDoublesCurve interpolateCurve(final YieldCurve yieldCurve) {
+    final Curve<Double, Double> curve = yieldCurve.getCurve();
     return interpolateCurve(curve);
   }
 
-  public static NodalDoublesCurve interpolateCurve(Curve<Double, Double> curve) {
+  public static NodalDoublesCurve interpolateCurve(final Curve<Double, Double> curve) {
     if (curve instanceof InterpolatedDoublesCurve) {
-      InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve;
+      final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve;
 
       // This is a hack for now as it's all about to change
-      Interpolator1DDataBundle interpolatorBundle = interpolatedCurve.getDataBundle();
-      double first = interpolatorBundle.firstKey();
-      double last = interpolatorBundle.lastKey();
+      final Interpolator1DDataBundle interpolatorBundle = interpolatedCurve.getDataBundle();
+      final double first = interpolatorBundle.firstKey();
+      final double last = interpolatorBundle.lastKey();
 
       return interpolateCurve(curve, first, last);
 
     } else {
-      double first = 1. / 12;
-      double last = 30;
-      
+      final double first = 1. / 12;
+      final double last = 30;
+
       return interpolateCurve(curve, first, last);
     }
   }
 
-  private static NodalDoublesCurve interpolateCurve(Curve<Double, Double> curve, double first, double last) {
-    int steps = 100;
-    
-    List<Double> xs = new ArrayList<Double>(steps);
-    List<Double> ys = new ArrayList<Double>(steps);
-    
+  private static NodalDoublesCurve interpolateCurve(final Curve<Double, Double> curve, final double first, final double last) {
+    final int steps = 100;
+
+    final List<Double> xs = new ArrayList<Double>(steps);
+    final List<Double> ys = new ArrayList<Double>(steps);
+
     // Output 100 points equally spaced along the curve
-    double step = (last - first) / (steps - 1);
+    final double step = (last - first) / (steps - 1);
     for (int i = 0; i < steps; i++) {
-      double t = first + step * i;
+      final double t = first + step * i;
       xs.add(t);
       ys.add(curve.getYValue(t));
     }
@@ -151,8 +151,8 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
 
 
   @Override
-  public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
-    ValueRequirement curveReq = new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final ValueRequirement curveReq = new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
         ComputationTargetSpecification.of(_currency),
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
     return new CompiledImpl(curveReq);

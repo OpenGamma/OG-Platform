@@ -33,8 +33,8 @@ import com.opengamma.util.tuple.DoublesPair;
  * Base class for ISDA CDS pricing functions
  *
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
- * @see ISDAApproxHazardCurveFunction
- * @see ISDAApproxFlatSpreadFunction
+ * @see ISDAApproxCDSPriceHazardCurveFunction
+ * @see ISDAApproxCDSPriceFlatSpreadFunction
  */
 public abstract class ISDAApproxCDSPriceFunction extends NonCompiledInvoker {
 

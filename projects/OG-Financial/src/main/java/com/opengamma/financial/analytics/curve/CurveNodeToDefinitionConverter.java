@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -25,12 +25,19 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
@@ -43,6 +50,7 @@ import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
@@ -51,27 +59,43 @@ import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculat
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Converts {@link CurveNode}s into {@InstrumentDefinition}s.
  */
 public class CurveNodeToDefinitionConverter {
+  /** The convention source */
   private final ConventionSource _conventionSource;
+  /** The holiday source */
   private final HolidaySource _holidaySource;
+  /** The region source */
   private final RegionSource _regionSource;
 
+  /**
+   * @param conventionSource The convention source, not null
+   * @param holidaySource The holiday source, not null
+   * @param regionSource The region source, not null
+   */
   public CurveNodeToDefinitionConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
@@ -81,16 +105,32 @@ public class CurveNodeToDefinitionConverter {
     _regionSource = regionSource;
   }
 
-  public InstrumentDefinition<?> getDefinitionForNode(final CurveNode node, final ExternalId marketDataId, final ZonedDateTime now, final SnapshotDataBundle marketValues) {
+  /**
+   * Converts a {@link CurveNode} into an {@InstrumentDefinition}, which will be used in curve construction.
+   * @param node The curve node, not null
+   * @param marketDataId The market data id, not null
+   * @param now The curve construction time, not null
+   * @param marketValues The market data values for these nodes, not null
+   * @param timeSeries The historical time series needed for these nodes, not null
+   * @param curveName The curve name, not null
+   * @return An instrument definition for this node
+   */
+  public InstrumentDefinition<?> getDefinitionForNode(final CurveNode node, final ExternalId marketDataId, final ZonedDateTime now, final SnapshotDataBundle marketValues, //CSIGNORE
+      final HistoricalTimeSeriesBundle timeSeries, final String curveName) {
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(now, "now");
     ArgumentChecker.notNull(marketValues, "market values");
+    ArgumentChecker.notNull(timeSeries, "time series");
+    ArgumentChecker.notNull(curveName, "curve name");
     final CurveNodeVisitor<InstrumentDefinition<?>> nodeVisitor = new CurveNodeVisitor<InstrumentDefinition<?>>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public InstrumentDefinition<?> visitCashNode(final CashNode cashNode) {
         final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + cashNode.getConvention() + " was null");
+        }
         final Double rate = marketValues.getDataPoint(marketDataId);
         if (rate == null) {
           throw new OpenGammaRuntimeException("Could not get market data for " + marketDataId);
@@ -127,9 +167,6 @@ public class CurveNodeToDefinitionConverter {
           final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, convention.getName());
           return new DepositIborDefinition(currency, startDate, endDate, 1, rate, accrualFactor, iborIndex);
         } else {
-          if (convention == null) {
-            throw new OpenGammaRuntimeException("Could not get convention with id " + cashNode.getConvention());
-          }
           throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
         }
       }
@@ -168,7 +205,7 @@ public class CurveNodeToDefinitionConverter {
           indexConvention = (IborIndexConvention) convention;
         } else {
           if (convention == null) {
-            throw new OpenGammaRuntimeException("Could not get convention with id " + fraNode.getConvention());
+            throw new OpenGammaRuntimeException("Convention with id " + fraNode.getConvention() + " was null");
           }
           throw new OpenGammaRuntimeException("Could not handle underlying convention of type " + convention.getClass());
         }
@@ -274,7 +311,13 @@ public class CurveNodeToDefinitionConverter {
       @Override
       public InstrumentDefinition<?> visitSwapNode(final SwapNode swapNode) {
         final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
+        if (payLegConvention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
+        }
         final Convention receiveLegConvention = _conventionSource.getConvention(swapNode.getReceiveLegConvention());
+        if (receiveLegConvention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
+        }
         final AnnuityDefinition<? extends PaymentDefinition> payLeg;
         final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
         if (payLegConvention instanceof SwapFixedLegConvention) {
@@ -288,9 +331,6 @@ public class CurveNodeToDefinitionConverter {
         } else if (payLegConvention instanceof OISLegConvention) {
           payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, true);
         } else {
-          if (payLegConvention == null) {
-            throw new OpenGammaRuntimeException("Pay leg convention was null");
-          }
           throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
         }
         if (receiveLegConvention instanceof SwapFixedLegConvention) {
@@ -304,17 +344,81 @@ public class CurveNodeToDefinitionConverter {
         } else if (receiveLegConvention instanceof OISLegConvention) {
           receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, false);
         } else {
-          if (receiveLegConvention == null) {
-            throw new OpenGammaRuntimeException("Receive leg convention was null");
-          }
           throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
         }
         return new SwapDefinition(payLeg, receiveLeg);
       }
 
+      @SuppressWarnings({"synthetic-access" })
       @Override
-      public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
-        throw new NotImplementedException();
+      public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode inflationNode) {
+        Convention convention = _conventionSource.getConvention(inflationNode.getFixedLegConvention());
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getFixedLegConvention() + " was null");
+        }
+        if (!(convention instanceof SwapFixedLegConvention)) {
+          throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
+        }
+        final SwapFixedLegConvention fixedLegConvention = (SwapFixedLegConvention) convention;
+        convention = _conventionSource.getConvention(inflationNode.getInflationLegConvention());
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
+        }
+        if (!(convention instanceof InflationLegConvention)) {
+          throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
+        }
+        final InflationLegConvention inflationLegConvention = (InflationLegConvention) convention;
+        final Double rate = marketValues.getDataPoint(marketDataId);
+        if (rate == null) {
+          throw new OpenGammaRuntimeException("Could not get market data for " + marketDataId);
+        }
+        convention = _conventionSource.getConvention(inflationLegConvention.getPriceIndexConvention());
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+        }
+        if (!(convention instanceof PriceIndexConvention)) {
+          throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
+        }
+        final PriceIndexConvention priceIndexConvention = (PriceIndexConvention) convention;
+        final int settlementDays = fixedLegConvention.getDaysToSettle();
+        final Period tenor = inflationNode.getTenor().getPeriod();
+        final double notional = 1;
+        //TODO business day convention and currency are in both conventions - should we enforce that they're the same or use
+        // different ones for each leg?
+        final BusinessDayConvention businessDayConvention = fixedLegConvention.getBusinessDayConvention();
+        final boolean endOfMonth = fixedLegConvention.isIsEOM();
+        final Currency currency = priceIndexConvention.getCurrency();
+        final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, priceIndexConvention.getRegion());
+        final ZoneId zone = now.getZone(); //TODO time zone set to midnight UTC
+        final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now, settlementDays, calendar).toLocalDate().atStartOfDay(zone);
+        final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, calendar, endOfMonth).toLocalDate().atStartOfDay(zone);
+        final CouponFixedCompoundingDefinition fixedCoupon = CouponFixedCompoundingDefinition.from(currency, settlementDate, paymentDate, notional, tenor,
+            rate);
+        final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, priceIndexConvention.getPriceIndexId());
+        if (ts == null) {
+          throw new OpenGammaRuntimeException("Could not get price index time series with id " + priceIndexConvention.getPriceIndexId());
+        }
+        final LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
+        final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries = convertTimeSeries(zone, localDateTS);
+        final int conventionalMonthLag = inflationLegConvention.getMonthLag();
+        final int monthLag = inflationLegConvention.getSpotLag();
+        final IndexPrice index = new IndexPrice(curveName, currency);
+        switch (inflationNode.getInflationNodeType()) {
+          case INTERPOLATED:
+          {
+            final CouponInflationZeroCouponInterpolationDefinition inflationCoupon = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate,
+                -notional, index, priceIndexTimeSeries, conventionalMonthLag, monthLag, false);
+            return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon);
+          }
+          case MONTHLY:
+          {
+            final CouponInflationZeroCouponMonthlyDefinition inflationCoupon = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, -notional,
+                index, priceIndexTimeSeries, conventionalMonthLag, monthLag, false);
+            return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon);
+          }
+          default:
+            throw new OpenGammaRuntimeException("Could not handle inflation nodes of type " + inflationNode.getInflationNodeType());
+        }
       }
 
       @SuppressWarnings("synthetic-access")
@@ -375,6 +479,16 @@ public class CurveNodeToDefinitionConverter {
             paymentPeriod, isEOM);
       }
 
+      private ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
+        // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
+        final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
+        for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
+          final LocalDate date = it.nextTime();
+          final ZonedDateTime zdt = date.atStartOfDay(timeZone);
+          bld.put(zdt, it.currentValueFast());
+        }
+        return bld.build();
+      }
     };
     return node.accept(nodeVisitor);
   }

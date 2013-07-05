@@ -54,7 +54,7 @@ public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACo
     this(baseDate, dates, dayCount, makeISDACompliantCurve(baseDate, dates, rates, dayCount));
   }
 
-  protected ISDACompliantDateCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, final ISDACompliantCurve baseCurve) {
+  private ISDACompliantDateCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, final ISDACompliantCurve baseCurve) {
     super(baseCurve);
     _baseDate = baseDate;
     _dates = dates;

@@ -17,8 +17,9 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
- * 
+ *
  */
+@Deprecated
 public class SupershareOptionModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
   private final AnalyticOptionModel<SupershareOptionDefinition, StandardOptionDataBundle> _model = new SupershareOptionModel();
 

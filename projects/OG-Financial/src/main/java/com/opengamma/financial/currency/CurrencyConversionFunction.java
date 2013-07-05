@@ -208,7 +208,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       // Resolved output is the input with the currency wild-carded, and the function ID the same
       final ValueSpecification value = input.getKey();
       final Set<String> currencies = value.getProperties().getValues(ValuePropertyNames.CURRENCY);
-      if (currencies.size() != 1) {
+      if (currencies == null || currencies.size() != 1) {
         // This will fail at the getAdditionalRequirements
         return null;
       }

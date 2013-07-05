@@ -178,7 +178,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
           CDSAnalytic cds = new CDSAnalytic(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectionStart, RECOVERY_RATE);
           AnalyticCDSPricer analPricer = new AnalyticCDSPricer();
           protectionLeg_new = NOTIONAL * analPricer.protectionLeg(cds, yieldCurve, res.creditCurve);
-          double rpv01_clean_new = NOTIONAL * analPricer.rpv01(cds, yieldCurve, res.creditCurve, PriceType.CLEAN);
+          double rpv01_clean_new = NOTIONAL * analPricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, res.creditCurve, PriceType.CLEAN);
           premLeg_clean_new = res.fracSpread * rpv01_clean_new;
         } catch (Exception e) {
         }
@@ -187,11 +187,11 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
       // price with code written to mimic ISDA c - i.e. date logic in the analytics
       double rpv01_clean_ISDA = NOTIONAL
-          * PRICER.calculateRPV01(today, stepinDate, valueDate, startDate, endDate, true, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.CLEAN);
+          * PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, true, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.CLEAN);
       double rpv01_clean_ISDA_noAccOnDefault = NOTIONAL
-          * PRICER.calculateRPV01(today, stepinDate, valueDate, startDate, endDate, false, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.CLEAN);
+          * PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, false, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.CLEAN);
       double rpv01_dirty_ISDA = NOTIONAL
-          * PRICER.calculateRPV01(today, stepinDate, valueDate, startDate, endDate, true, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.DIRTY);
+          * PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, true, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.DIRTY);
       double contLeg_ISDA = NOTIONAL * PRICER.calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, yieldCurve, res.creditCurve, RECOVERY_RATE, protectionStart);
 
       double premLeg_clean_ISDA = res.fracSpread * rpv01_clean_ISDA;
@@ -213,7 +213,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
           assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
           assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
 
-          // tests date free vs date-faull code
+          // tests date free vs date-full code
           assertEquals("Premium Leg:", premLeg_clean_ISDA, premLeg_clean_new, 1e-13 * NOTIONAL);
           assertEquals("Protection Leg:", contLeg_ISDA, protectionLeg_new, 1e-16 * NOTIONAL);
         } catch (AssertionError e) {
@@ -227,7 +227,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
         assertEquals("Accrued Premium: ", res.accruedPremium, accruedPrem, 1e-15 * NOTIONAL); // the accrued is trivial, so should be highly accurate
         assertEquals("Accrued Days: ", res.accruedDays, accruedDays);
 
-        // tests date free vs date-faull code
+        // tests date free vs date-full code
         assertEquals("Premium Leg:", premLeg_clean_ISDA, premLeg_clean_new, 1e-13 * NOTIONAL);
         assertEquals("Protection Leg:", contLeg_ISDA, protectionLeg_new, 1e-16 * NOTIONAL);
       }

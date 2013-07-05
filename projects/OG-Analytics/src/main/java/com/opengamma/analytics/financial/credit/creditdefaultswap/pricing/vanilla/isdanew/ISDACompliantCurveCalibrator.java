@@ -22,8 +22,12 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
+
 /**
- * 
+ * This should be viewed as "proof of concept" code, since it used the code that has date logic mixed with the analytics (this was to
+ * mimic the structure of the ISDA c code). This should <b>not</b> be used for production credit (hazard) curve calibration/bootstrapping,
+ * ISDACompliantCreditCurveCalibrator should be used.
+ *   
  */
 public class ISDACompliantCurveCalibrator {
 
@@ -118,7 +122,7 @@ public class ISDACompliantCurveCalibrator {
     public Double evaluate(Double x) {
       // TODO this direct access is unpleasant
       ISDACompliantDateCreditCurve hazardCurve = (ISDACompliantDateCreditCurve) _hazardCurve.withRate(x, _index);
-      final double rpv01 = PRICER.calculateRPV01(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart, PriceType.CLEAN);
+      final double rpv01 = PRICER.pvPremiumLegPerUnitSpread(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart, PriceType.CLEAN);
       final double protectLeg = PRICER.calculateProtectionLeg(_today, _stepinDate, _valueDate, _startDate, _endDate, _yieldCurve, hazardCurve, _rr, _protectStart);
       final double pv = protectLeg - _couponRate * rpv01;
       return pv;

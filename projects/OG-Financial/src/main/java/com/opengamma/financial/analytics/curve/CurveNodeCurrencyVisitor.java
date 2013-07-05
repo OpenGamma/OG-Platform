@@ -28,6 +28,7 @@ import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -35,7 +36,6 @@ import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
-import com.opengamma.financial.convention.ZeroCouponInflationConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -125,16 +125,16 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
-    final Convention zeroCouponConvention = _conventionSource.getConvention(node.getZeroCouponConvention());
-    if (zeroCouponConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get zero coupon convention with id " + node.getZeroCouponConvention());
+    final Convention inflationLegConvention = _conventionSource.getConvention(node.getInflationLegConvention());
+    if (inflationLegConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get inflation leg convention with id " + node.getInflationLegConvention());
     }
-    if (!(zeroCouponConvention instanceof ZeroCouponInflationConvention)) {
-      throw new OpenGammaRuntimeException("Type of convention " + zeroCouponConvention + " was not ZeroCouponInflationConvention");
+    if (!(inflationLegConvention instanceof InflationLegConvention)) {
+      throw new OpenGammaRuntimeException("Type of convention " + inflationLegConvention + " was not InflationLegConvention");
     }
-    final Convention priceIndexConvention = _conventionSource.getConvention(((ZeroCouponInflationConvention) zeroCouponConvention).getPriceIndex());
+    final Convention priceIndexConvention = _conventionSource.getConvention(((InflationLegConvention) inflationLegConvention).getPriceIndexConvention());
     if (priceIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get price index convention with id " + ((ZeroCouponInflationConvention) zeroCouponConvention).getPriceIndex());
+      throw new OpenGammaRuntimeException("Could not get price index convention with id " + ((InflationLegConvention) inflationLegConvention).getPriceIndexConvention());
     }
     return getCurrencies(priceIndexConvention);
   }

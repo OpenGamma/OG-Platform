@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -121,12 +121,12 @@ public final class HistoricalTimeSeriesFunctionUtils {
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
         properties.get());
   }
-  
-  /** Creates a ValueRequirement for {@link ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST}. 
-   *  See {@link HistoricalTimeSeriesLatestSecurityValueFunction} which does the heavy lifting 
+
+  /** Creates a ValueRequirement for {@link ValueRequirementNames#HISTORICAL_TIME_SERIES_LATEST}.
+   *  See {@link HistoricalTimeSeriesLatestSecurityValueFunction} which does the heavy lifting
    *  @param security {@link Security} for which value is required
    *  @param dataField Name of time series value. Example "Close"
-   *  @param constraints {@link ValueProperties} 
+   *  @param constraints {@link ValueProperties}
    *  @return The {@link ValueRequirement} "Historical Time Series (latest value)"
    */
   public static ValueRequirement createHTSLatestRequirement(final Security security, final String dataField, final ValueProperties constraints) {
@@ -189,7 +189,7 @@ public final class HistoricalTimeSeriesFunctionUtils {
 
   /**
    * Reduces any parameters of value name {@link ValueRequirementNames#HISTORICAL_TIME_SERIES} to a single {@link HistoricalTimeSeriesBundle}.
-   * 
+   *
    * @param executionContext the execution context, must contain a {@link HistoricalTimeSeriesSource}
    * @param inputs the function inputs
    * @return the time series bundle, not null

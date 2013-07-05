@@ -26,6 +26,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -37,6 +38,7 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -45,7 +47,6 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
-import com.opengamma.financial.convention.ZeroCouponInflationConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -106,8 +107,10 @@ public class CurveNodeCurrencyVisitorTest {
       SWAP_3M_IBOR_ID);
   private static final CompoundingIborLegConvention COMPOUNDING_IBOR = new CompoundingIborLegConvention("USD Compounding Libor", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Compounding Libor")),
       LIBOR_3M_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING);
-  private static final PriceIndexConvention PRICE_INDEX = new PriceIndexConvention("USD CPI", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD CPI")), Currency.USD, US);
-  private static final ZeroCouponInflationConvention ZERO_COUPON_INFLATION = new ZeroCouponInflationConvention("ZCI", ExternalIdBundle.of(ExternalId.of(SCHEME, "ZCI")), PRICE_INDEX_ID, MODIFIED_FOLLOWING, ACT_360, false, 3, 2, "Linear");
+  private static final PriceIndexConvention PRICE_INDEX = new PriceIndexConvention("USD CPI", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD CPI")), Currency.USD, US,
+      ExternalId.of("TS", "CPI"));
+  private static final InflationLegConvention INFLATION_LEG = new InflationLegConvention("ZCI", ExternalIdBundle.of(ExternalId.of(SCHEME, "ZCI")), MODIFIED_FOLLOWING, ACT_360, false,
+      3, 2, PRICE_INDEX_ID);
   private static final CMSLegConvention CMS = new CMSLegConvention("USD CMS", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD CMS")), SWAP_INDEX_ID, Tenor.SIX_MONTHS, false);
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final ConventionSource CONVENTION_SOURCE;
@@ -128,7 +131,7 @@ public class CurveNodeCurrencyVisitorTest {
     CONVENTIONS.put(SWAP_6M_EURIBOR_ID, SWAP_6M_EURIBOR);
     CONVENTIONS.put(COMPOUNDING_IBOR_ID, COMPOUNDING_IBOR);
     CONVENTIONS.put(PRICE_INDEX_ID, PRICE_INDEX);
-    CONVENTIONS.put(ZERO_COUPON_INFLATION_ID, ZERO_COUPON_INFLATION);
+    CONVENTIONS.put(ZERO_COUPON_INFLATION_ID, INFLATION_LEG);
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
     VISITOR = new CurveNodeCurrencyVisitor(CONVENTION_SOURCE);
   }
@@ -253,22 +256,22 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullZeroCouponInflationConvention() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
     node.accept(EMPTY_CONVENTIONS);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullPriceIndexConvention() {
     final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(ZERO_COUPON_INFLATION_ID, ZERO_COUPON_INFLATION);
+    map.put(ZERO_COUPON_INFLATION_ID, INFLATION_LEG);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.MONTHLY, "TEST");
     node.accept(visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testWrongTypeZeroCouponInflationConvention() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, SWAP_3M_IBOR_ID, FIXED_LEG_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, SWAP_3M_IBOR_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
     node.accept(VISITOR);
   }
 
@@ -359,7 +362,7 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test
   public void testZeroCouponInflationNode() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, "TEST");
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
     final Set<Currency> currencies = node.accept(VISITOR);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());

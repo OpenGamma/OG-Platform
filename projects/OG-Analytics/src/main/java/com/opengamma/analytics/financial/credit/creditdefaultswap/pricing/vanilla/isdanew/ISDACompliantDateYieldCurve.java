@@ -51,7 +51,14 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
     _dates = dates;
     _dayCount = dayCount;
   }
-
+  
+  private ISDACompliantDateYieldCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, final ISDACompliantYieldCurve baseCurve) {
+    super(baseCurve);
+    _baseDate = baseDate;
+    _dates = dates;
+    _dayCount = dayCount;
+  }
+  
   /**
    * Converter from the old ISDADateCurve to ISDACompliantYieldCurve. Not this only works if offset = 0.0 and and baseDate is set.
    * @param yieldCurve a ISDADateCurve yieldCurve 
@@ -95,11 +102,11 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
   }
   
   @Override
-  public ISDACompliantDateCurve withRate(final double rate, final int index) {
-    ISDACompliantCurve temp = super.withRate(rate, index);
-    return new ISDACompliantDateCurve(_baseDate, _dates, _dayCount, temp);
+  public ISDACompliantDateYieldCurve withRate(final double rate, final int index) {
+    ISDACompliantYieldCurve temp = super.withRate(rate, index);
+    return new ISDACompliantDateYieldCurve(_baseDate, _dates, _dayCount, temp);
   }
-
+ 
 
   @Override
   public double getZeroRate(LocalDate date) {

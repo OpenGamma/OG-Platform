@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -18,23 +18,16 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Generic calibration engine for interest rate instruments.
- * @param <DATA_TYPE> The type of the data for the base calculator.
+ * Generic calibration engine for interest rate instruments. This calibrate a model using calculators.
+ * @param <DATA_TYPE> The type of the data for the base calculator
  */
-public abstract class CalibrationEngine<DATA_TYPE extends ParameterProviderInterface> {
+public abstract class CalibrationEngineWithCalculators<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithPrices<DATA_TYPE> {
 
   /**
-   * The calibration basket.
-   */
-  private final List<InstrumentDerivative> _basket;
-  /**
-   * The calculator used to compute calibrating prices.
-   */
+  * The calculator used to compute calibrating prices.
+  */
   private final List<InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount>> _calculators;
-  /**
-   * The calibrating prices.
-   */
-  private final List<Double> _calibrationPrice;
+
   /**
    * The exchange rate to convert the present values in a unique currency.
    */
@@ -44,19 +37,29 @@ public abstract class CalibrationEngine<DATA_TYPE extends ParameterProviderInter
    */
   private final Currency _ccy;
 
-  //TODO: Should there exists also a way to add an instrument with its direct price (not the calculator)?
-
   /**
    * Constructor of the calibration engine. The basket and calculator list are empty.
    * @param fxMatrix The exchange rate to convert the present values in a unique currency.
    * @param ccy The unique currency in which all present values are converted.
    */
-  public CalibrationEngine(final FXMatrix fxMatrix, final Currency ccy) {
-    _basket = new ArrayList<InstrumentDerivative>();
+  public CalibrationEngineWithCalculators(final FXMatrix fxMatrix, final Currency ccy) {
+    super(fxMatrix, ccy);
     _calculators = new ArrayList<InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount>>();
-    _calibrationPrice = new ArrayList<Double>();
     _fxMatrix = fxMatrix;
     _ccy = ccy;
+  }
+
+  /**
+   * Computes the price of the instrument in the calibration basket using the engine calculator and the yield curves.
+   * @param data Data.
+   */
+  public void computeCalibrationPrice(DATA_TYPE data) {
+    int nbInstrument = getBasket().size();
+    for (int loopins = 0; loopins < nbInstrument; loopins++) {
+      MultipleCurrencyAmount pvMCA = getBasket().get(loopins).accept(_calculators.get(loopins), data);
+      double pv = _fxMatrix.convert(pvMCA, _ccy).getAmount();
+      getCalibrationPrice().set(loopins, pv);
+    }
   }
 
   /**
@@ -65,9 +68,9 @@ public abstract class CalibrationEngine<DATA_TYPE extends ParameterProviderInter
    * @param calculator The calculator.
    */
   public void addInstrument(final InstrumentDerivative instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
-    _basket.add(instrument);
+    getBasket().add(instrument);
     _calculators.add(calculator);
-    _calibrationPrice.add(0.0);
+    getCalibrationPrice().add(0.0);
   }
 
   /**
@@ -83,46 +86,11 @@ public abstract class CalibrationEngine<DATA_TYPE extends ParameterProviderInter
   }
 
   /**
-   * Computes the price of the instrument in the calibration basket using the engine calculator and the yield curves.
-   * @param data Data.
-   */
-  public void computeCalibrationPrice(DATA_TYPE data) {
-    int nbInstrument = _basket.size();
-    for (int loopins = 0; loopins < nbInstrument; loopins++) {
-      MultipleCurrencyAmount pvMCA = _basket.get(loopins).accept(_calculators.get(loopins), data);
-      double pv = _fxMatrix.convert(pvMCA, _ccy).getAmount();
-      _calibrationPrice.set(loopins, pv);
-    }
-  }
-
-  /**
-   * Calibrate the model using a given curve bundle.
-   * @param data Data.
-   */
-  public abstract void calibrate(DATA_TYPE data);
-
-  /**
-   * Gets the instrument basket.
-   * @return The basket.
-   */
-  public List<InstrumentDerivative> getBasket() {
-    return _basket;
-  }
-
-  /**
    * Gets the method list.
    * @return the method.
    */
   public List<InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount>> getMethod() {
     return _calculators;
-  }
-
-  /**
-   * Gets the _calibrationPrice field.
-   * @return the _calibrationPrice
-   */
-  public List<Double> getCalibrationPrice() {
-    return _calibrationPrice;
   }
 
 }

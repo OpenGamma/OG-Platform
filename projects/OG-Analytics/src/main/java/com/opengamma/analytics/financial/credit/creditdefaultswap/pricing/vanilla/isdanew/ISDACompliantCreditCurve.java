@@ -26,4 +26,14 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
     return getDiscountFactor(t);
   }
 
+  @Override
+  public ISDACompliantCreditCurve withRates(final double[] r) {
+    return new ISDACompliantCreditCurve(super.withRates(r));
+  }
+
+  @Override
+  public ISDACompliantCreditCurve withRate(final double rate, final int index) {
+    return new ISDACompliantCreditCurve(super.withRate(rate, index));
+  }
+
 }

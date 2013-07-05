@@ -17,8 +17,9 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
- * 
+ *
  */
+@Deprecated
 public class AsymmetricPowerOptionModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
   private final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> _model = new AsymmetricPowerOptionModel();
 

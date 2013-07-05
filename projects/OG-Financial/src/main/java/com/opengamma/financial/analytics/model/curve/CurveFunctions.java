@@ -62,6 +62,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(FXMatrixFunction.class, curveConfigName));
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
       functions.add(functionConfiguration(MulticurveProviderDiscountingFunction.class, curveConfigName));
+      functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
     }
 
     @Override

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.option;
@@ -16,9 +16,10 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
- * 
+ *
  *
  */
+@Deprecated
 public class ModifiedCorradoSuSkewnessKurtosisModelFunction extends SkewKurtosisDataOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> _model = new ModifiedCorradoSuSkewnessKurtosisModel();
 

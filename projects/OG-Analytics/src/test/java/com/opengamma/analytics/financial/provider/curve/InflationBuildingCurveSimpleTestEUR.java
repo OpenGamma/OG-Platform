@@ -73,8 +73,8 @@ public class InflationBuildingCurveSimpleTestEUR {
 
   private static final double NOTIONAL = 1.0;
 
-  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("EURHICP");
-  private static final IndexPrice EUR_HICP = GENERATOR_INFALTION_SWAP.getIndexPrice();
+  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFLATION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("EURHICP");
+  private static final IndexPrice EUR_HICP = GENERATOR_INFLATION_SWAP.getIndexPrice();
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
@@ -95,10 +95,10 @@ public class InflationBuildingCurveSimpleTestEUR {
   public static final double[] HICP_EUR_MARKET_QUOTES = new double[] {0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200 };
 
   /** Generators for the HICP EUR curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] HICP_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
-      GENERATOR_INFALTION_SWAP,
-      GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP,
-      GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP, GENERATOR_INFALTION_SWAP };
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] HICP_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP,
+      GENERATOR_INFLATION_SWAP,
+      GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP,
+      GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP, GENERATOR_INFLATION_SWAP };
   /** Tenors for the HICP EUR curve */
   private static final Period[] HICP_EUR_TENOR = new Period[] {Period.ofYears(1),
       Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), Period.ofYears(7),

@@ -200,7 +200,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
    * @param derivative The derivative
    * @param data The market data
    * @param desiredValue The desired value
-   * @return
+   * @return The result
    */
   protected abstract Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue);
 

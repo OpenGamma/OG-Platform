@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.generator;
@@ -34,7 +34,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   private static final ZonedDateTime TRADE_DATE = LocalDate.of(2013, 9, 5).atStartOfDay(ZoneOffset.UTC);

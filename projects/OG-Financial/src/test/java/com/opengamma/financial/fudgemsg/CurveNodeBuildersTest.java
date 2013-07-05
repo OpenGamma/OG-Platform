@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -117,11 +118,11 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testZeroCouponInflationNodeBuilder() {
-    ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), "TEST");
+    ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), InflationNodeType.MONTHLY, "TEST");
     assertEquals(node, cycleObject(ZeroCouponInflationNode.class, node));
-    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), "TEST", null);
+    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), InflationNodeType.MONTHLY, "TEST", null);
     assertEquals(node, cycleObject(ZeroCouponInflationNode.class, node));
-    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), "TEST", "Name");
+    node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ExternalId.of("convention", "CPI"), ExternalId.of("convention", "Fixed"), InflationNodeType.MONTHLY, "TEST", "Name");
     assertEquals(node, cycleObject(ZeroCouponInflationNode.class, node));
   }
 

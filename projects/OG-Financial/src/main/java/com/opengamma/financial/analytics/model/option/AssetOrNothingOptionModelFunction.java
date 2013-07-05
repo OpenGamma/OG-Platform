@@ -18,8 +18,9 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
- * 
+ *
  */
+@Deprecated
 public class AssetOrNothingOptionModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
   private final AnalyticOptionModel<AssetOrNothingOptionDefinition, StandardOptionDataBundle> _model = new AssetOrNothingOptionModel();
 

@@ -37,7 +37,7 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
   }
 
   /**
-   * @param reference The code for this curve (e.g. a currency)
+   * @param reference The code for this curve (e.g. a currency), not null
    */
   public DiscountingCurveTypeConfiguration(final String reference) {
     super();

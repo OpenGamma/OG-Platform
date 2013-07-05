@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated;
@@ -17,10 +17,11 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackMultiValuedFunction;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexigitalOptionCallSpreadBlackMultiValuedFunctionNew
+ * @see FXDigitalCallSpreadBlackMultiValuedFunction
  */
 @Deprecated
 public abstract class FXDigitalCallSpreadBlackMultiValuedFunctionDeprecated extends FXDigitalCallSpreadBlackFunctionDeprecated {

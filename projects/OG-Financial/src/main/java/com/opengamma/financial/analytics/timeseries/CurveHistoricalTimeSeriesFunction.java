@@ -13,8 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -32,6 +34,11 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.financial.convention.Convention;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.InflationLegConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -68,12 +75,12 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
       HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeries != null) {
         if (timeSeries.getTimeSeries().isEmpty()) {
-          s_logger.warn("Time series for {} is empty", id);
+          s_logger.info("Time series for {} is empty", id);
         } else {
           bundle.add(dataField, id, timeSeries);
         }
       } else {
-        s_logger.warn("Couldn't get time series for {}", id);
+        s_logger.info("Couldn't get time series for {}", id);
       }
       if (node instanceof PointsCurveNodeWithIdentifier) {
         final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
@@ -82,12 +89,43 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
         timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
         if (timeSeries != null) {
           if (timeSeries.getTimeSeries().isEmpty()) {
-            s_logger.warn("Time series for {} is empty", id);
+            s_logger.info("Time series for {} is empty", id);
           } else {
             bundle.add(dataField, id, timeSeries);
           }
         } else {
-          s_logger.warn("Couldn't get time series for {}", id);
+          s_logger.info("Couldn't get time series for {}", id);
+        }
+      }
+      if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
+        final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
+        final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+        Convention convention = conventionSource.getConvention(inflationNode.getInflationLegConvention());
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
+        }
+        if (!(convention instanceof InflationLegConvention)) {
+          throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
+        }
+        final InflationLegConvention inflationLegConvention = (InflationLegConvention) convention;
+        convention = conventionSource.getConvention(inflationLegConvention.getPriceIndexConvention());
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+        }
+        if (!(convention instanceof PriceIndexConvention)) {
+          throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
+        }
+        final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
+        final ExternalIdBundle priceIndexId = ExternalIdBundle.of(((PriceIndexConvention) convention).getPriceIndexId());
+        final HistoricalTimeSeries priceIndexSeries = timeSeriesSource.getHistoricalTimeSeries(priceIndexField, priceIndexId, resolutionKey, startDate, includeStart, endDate, true);
+        if (priceIndexSeries != null) {
+          if (priceIndexSeries.getTimeSeries().isEmpty()) {
+            s_logger.info("Time series for {} is empty", priceIndexId);
+          } else {
+            bundle.add(dataField, priceIndexId, timeSeries);
+          }
+        } else {
+          s_logger.info("Couldn't get time series for {}", priceIndexId);
         }
       }
     }

@@ -280,12 +280,14 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   protected abstract ExternalScheme getUniqueIdDomain();
 
   /**
-   * Connects to the underlying market data provider. You can rely on the fact that this method is only called when getConnectionStatus() == ConnectionStatus.NOT_CONNECTED.
+   * Connects to the underlying market data provider. You can rely on the fact that this method
+   * is only called when getConnectionStatus() == ConnectionStatus.NOT_CONNECTED.
    */
   protected abstract void doConnect();
 
   /**
-   * Connects to the underlying market data provider. You can rely on the fact that this method is only called when getConnectionStatus() == ConnectionStatus.CONNECTED.
+   * Disconnects from the underlying market data provider. You can rely on the fact that this
+   * method is only called when getConnectionStatus() == ConnectionStatus.CONNECTED.
    */
   protected abstract void doDisconnect();
 
@@ -911,10 +913,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         s_logger.info("Unsubscribed from {}", subscription);
 
       } else {
-        s_logger
-            .warn(
-                "Received unsubscription request for non-active subscription: {}",
-                subscription);
+        s_logger.warn("Received unsubscription request for non-active subscription: {}", subscription);
       }
 
     } finally {
@@ -998,8 +997,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     return getSubscriptions().contains(subscription);
   }
 
-  public void liveDataReceived(String securityUniqueId,
-      FudgeMsg liveDataFields) {
+  public void liveDataReceived(String securityUniqueId, FudgeMsg liveDataFields) {
     s_logger.debug("Live data received: {}", liveDataFields);
 
     _numMarketDataUpdatesReceived.incrementAndGet();

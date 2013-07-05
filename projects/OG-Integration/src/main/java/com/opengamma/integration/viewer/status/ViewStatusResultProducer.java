@@ -5,9 +5,7 @@
  */
 package com.opengamma.integration.viewer.status;
 
-import java.io.File;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,23 +20,6 @@ import freemarker.template.Template;
  * View status result producer
  */
 public class ViewStatusResultProducer {
-  
-  /**
-   * The name of directory holding the freemarker templates.
-   */
-  private static final String FTL_LOCATION = "viewstatus-ftl";
-  /**
-   * The directory holding the freemamker templates.
-   */
-  private static final File FTL_DIRECTORY;
-  static {
-    URL resource = ViewStatusResultProducer.class.getClassLoader().getResource(FTL_LOCATION);
-    if (resource == null) {
-      throw new OpenGammaRuntimeException("File not found in classpath: " + FTL_LOCATION);
-    }
-    FTL_DIRECTORY = new File(resource.getFile());
-  }
-  
   /**
    * Produce view result with the given aggregation parameters
    * 
@@ -60,7 +41,7 @@ public class ViewStatusResultProducer {
     StringWriter stringWriter = new StringWriter();
     Configuration cfg = new Configuration();
     try {
-      cfg.setDirectoryForTemplateLoading(FTL_DIRECTORY);
+      cfg.setClassForTemplateLoading(ViewStatusResultProducer.class, "");
       String templateName = getTemplateName(format);
       Template template = cfg.getTemplate(templateName);
       Map<String, Object> input = new HashMap<String, Object>();
