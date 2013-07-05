@@ -42,13 +42,26 @@ public class AnalyticCDSPricer {
    * @param yieldCurve The yield (or discount) curve  
    * @param creditCurve the credit (or survival) curve 
    * @param fractionalSpread The <b>fraction</b> spread 
+  * @param cleanOrDirty Clean or dirty price 
+   * @return The PV on unit notional 
+   */
+  public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread, final PriceType cleanOrDirty) {
+    // TODO check for any repeat calculations
+    final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, cleanOrDirty);
+    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
+    return proLeg - fractionalSpread * rpv01;
+  }
+
+  /**
+   * Present value (clean price)(for the payer of premiums (i.e. the buyer of protection) 
+  * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param fractionalSpread The <b>fraction</b> spread 
    * @return The PV 
    */
   public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread) {
-    // TODO check for any repeat calculations
-    final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
-    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
-    return proLeg - fractionalSpread * rpv01;
+    return pv(cds, yieldCurve, creditCurve, fractionalSpread, PriceType.CLEAN);
   }
 
   /**
