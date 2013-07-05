@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.config.ConfigSource;
@@ -34,6 +35,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -41,6 +43,11 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.financial.convention.Convention;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.InflationLegConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -81,7 +88,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
           if (ts != null) {
             bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
           } else {
-            s_logger.warn("Could not get historical time series for " + ids);
+            s_logger.warn("Could not get historical time series for {}", ids);
           }
           if (node instanceof PointsCurveNodeWithIdentifier) {
             final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
@@ -91,7 +98,37 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
             if (ts != null) {
               bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
             } else {
-              s_logger.warn("Could not get historical time series for " + ids);
+              s_logger.warn("Could not get historical time series for {}", ids);
+            }
+          }
+          if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
+            final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
+            final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+            Convention convention = conventionSource.getConvention(inflationNode.getInflationLegConvention());
+            if (convention == null) {
+              throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
+            }
+            if (!(convention instanceof InflationLegConvention)) {
+              throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
+            }
+            final InflationLegConvention inflationLegConvention = (InflationLegConvention) convention;
+            convention = conventionSource.getConvention(inflationLegConvention.getPriceIndexConvention());
+            if (convention == null) {
+              throw new OpenGammaRuntimeException("Convention with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+            }
+            if (!(convention instanceof PriceIndexConvention)) {
+              throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
+            }
+            ids = ExternalIdBundle.of(((PriceIndexConvention) convention).getPriceIndexId());
+            final HistoricalTimeSeries priceIndexSeries = bundleForCurve.get(dataField, ids);
+            if (priceIndexSeries != null) {
+              if (priceIndexSeries.getTimeSeries().isEmpty()) {
+                s_logger.warn("Could for get historical time series for {}", ids);
+              } else {
+                bundle.add(dataField, ids, bundleForCurve.get(dataField, ids));
+              }
+            } else {
+              s_logger.info("Couldn't get time series for {}", ids);
             }
           }
         }
