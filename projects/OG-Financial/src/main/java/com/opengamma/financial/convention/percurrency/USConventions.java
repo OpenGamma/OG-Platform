@@ -8,9 +8,11 @@ package com.opengamma.financial.convention.percurrency;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.EURODOLLAR_FUTURE;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FIXED_SWAP_LEG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.INFLATION_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.LIBOR;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_SWAP_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OVERNIGHT;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.PRICE_INDEX;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.VANILLA_IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
@@ -26,9 +28,11 @@ import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculat
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
+import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
@@ -60,8 +64,11 @@ public class USConventions {
     final String vanillaIborLegConventionName = getConventionName(Currency.USD, tenorString, VANILLA_IBOR_LEG);
     final String oisLegConventionName = getConventionName(Currency.USD, OIS_SWAP_LEG);
     final String eurodollarFutureConventionName = EURODOLLAR_FUTURE;
+    final String inflationConventionName = getConventionName(Currency.USD, INFLATION_LEG);
+    final String priceIndexName = getConventionName(Currency.USD, PRICE_INDEX);
     final ExternalId libor3mConventionId = ExternalId.of(SCHEME_NAME, liborConventionName);
     final ExternalId overnightConventionId = ExternalId.of(SCHEME_NAME, overnightConventionName);
+    final ExternalId priceIndexId = ExternalId.of(SCHEME_NAME, priceIndexName);
     final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(Currency.USD, DEPOSIT), ACT_360, MODIFIED_FOLLOWING, 0, false, Currency.USD, US);
     final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(Currency.USD, LIBOR), ACT_360, MODIFIED_FOLLOWING, 2, false, Currency.USD,
         LocalTime.of(11, 00), NYLON, US, "");
@@ -74,6 +81,10 @@ public class USConventions {
         Tenor.THREE_MONTHS, 1, 2, MODIFIED_FOLLOWING, false);
     final Convention edFutureConvention = new InterestRateFutureConvention(eurodollarFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE)),
         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), US, libor3mConventionId);
+    final PriceIndexConvention priceIndexConvention = new PriceIndexConvention(priceIndexName, getIds(Currency.USD, PRICE_INDEX), Currency.USD, US,
+        ExternalSchemes.bloombergTickerSecurityId("US0003M Index"));
+    final Convention inflationConvention = new InflationLegConvention(inflationConventionName, getIds(Currency.USD, INFLATION_LEG), MODIFIED_FOLLOWING, ACT_360, false, 3, 2,
+        priceIndexId);
     conventionMaster.add(depositConvention);
     conventionMaster.add(liborConvention);
     conventionMaster.add(overnightConvention);
@@ -81,6 +92,8 @@ public class USConventions {
     conventionMaster.add(overnightLegConvention);
     conventionMaster.add(fixedLegConvention);
     conventionMaster.add(edFutureConvention);
+    conventionMaster.add(priceIndexConvention);
+    conventionMaster.add(inflationConvention);
   }
 
 }
