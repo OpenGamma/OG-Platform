@@ -20,8 +20,9 @@ import com.opengamma.analytics.financial.credit.StubType;
 public class AnalyticCDSPricerTest {
 
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
+  private static final AnalyticCDSPricer PRICER_CORRECT = new AnalyticCDSPricer(true);
 
-  @Test(enabled=false)
+  @Test(enabled = false)
   public void timingTest() {
 
     final int warmup = 1000;
@@ -97,15 +98,20 @@ public class AnalyticCDSPricerTest {
 
   }
 
-  @Test(enabled=false)
+  @Test
+  // (enabled=false)
   public void sensitivityTest() {
-    final double[] ccTimes = new double[] {0.25, 0.5, 1.01, 2.0, 3.0, 5.0, 7.2, 10.0, 20.0};
-    final double[] ccRates = new double[] {0.005, 0.006, 0.07, 0.08, 0.09, 0.09, 0.07, 0.065, 0.06};
-    final double[] ycTimes = new double[] {1 / 52., 1 / 12., 1 / 4., 1 / 2., 3 / 4., 1.0, 2.1, 5.2, 11.0, 30.0};
-    final double[] ycRates = new double[] {0.000, 0.0006, 0.007, 0.01, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05};
+    final double[] ccTimes = new double[] {0.25, 0.5, 1.001, 2.0, 3.0, 5.0, 7.2, 10.0, 20.0};
+    final double[] ccNormalRates = new double[] {0.05, 0.06, 0.07, 0.08, 0.09, 0.09, 0.07, 0.065, 0.06};
+    final double[] ccLowRates = new double[] {0.00, 0.00, 1e-6, 2e-4, 5e-4, 0.001, 0.0015, 0.002, 0.0015};
+    final double[] ycTimes = new double[] {1 / 52., 1 / 12., 1 / 4., 1 / 2., 3 / 4., 1.0, 2.1, 5.0, 11.0, 30.0};
+    final double[] ycNormalRates = new double[] {0.004, 0.006, 0.007, 0.01, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05};
+    final double[] ycLowRates = new double[] {0.00, 0.00, 0.00, 0.0, 0.00, 0.0005, 0.001, 0.0015, 0.002, 0.0015};
 
-    final ISDACompliantCreditCurve creditCurve = new ISDACompliantCreditCurve(ccTimes, ccRates);
-    final ISDACompliantYieldCurve yieldCurve = new ISDACompliantYieldCurve(ycTimes, ycRates);
+    final ISDACompliantCreditCurve creditCurveLow = new ISDACompliantCreditCurve(ccTimes, ccLowRates);
+    final ISDACompliantCreditCurve creditCurveNorm = new ISDACompliantCreditCurve(ccTimes, ccNormalRates);
+    final ISDACompliantYieldCurve yieldCurveLow = new ISDACompliantYieldCurve(ycTimes, ycLowRates);
+    final ISDACompliantYieldCurve yieldCurveNorm = new ISDACompliantYieldCurve(ycTimes, ycNormalRates);
 
     LocalDate today = LocalDate.of(2013, 7, 2); // Tuesday
     LocalDate stepin = today.plusDays(1); // this is usually 1
@@ -117,22 +123,65 @@ public class AnalyticCDSPricerTest {
 
     CDSAnalytic cds = new CDSAnalytic(today, stepin, valueDate, startDate, endDate, payAccOnDefault, Period.ofMonths(3), StubType.FRONTSHORT, false, 0.4);
 
+    for (int count = 0; count < 1; count++) {
+      final AnalyticCDSPricer pricer = count == 0 ? PRICER : PRICER_CORRECT;
+      creditCurveSenseTest(pricer, cds, yieldCurveLow, creditCurveLow);
+      creditCurveSenseTest(pricer, cds, yieldCurveLow, creditCurveNorm);
+      creditCurveSenseTest(pricer, cds, yieldCurveNorm, creditCurveLow);
+      creditCurveSenseTest(pricer, cds, yieldCurveNorm, creditCurveNorm);
+    }
+
+    // final int n = ccTimes.length;
+    // for (int i = 0; i < n; i++) {
+    // final double fdProSenseLL = fdProtectionLegSense(cds, yieldCurveLow, creditCurveLow, i);
+    // final double fdProSenseLN = fdProtectionLegSense(cds, yieldCurveLow, creditCurveNorm, i);
+    // final double fdProSenseNL = fdProtectionLegSense(cds, yieldCurveNorm, creditCurveLow, i);
+    // final double fdProSenseNN = fdProtectionLegSense(cds, yieldCurveNorm, creditCurveNorm, i);
+    // final double analProSenseLL = PRICER.protectionLegCreditSensitivity(cds, yieldCurveLow, creditCurveLow, i);
+    // final double analProSenseLN = PRICER.protectionLegCreditSensitivity(cds, yieldCurveLow, creditCurveNorm, i);
+    // final double analProSenseNL = PRICER.protectionLegCreditSensitivity(cds, yieldCurveNorm, creditCurveLow, i);
+    // final double analProSenseNN = PRICER.protectionLegCreditSensitivity(cds, yieldCurveNorm, creditCurveNorm, i);
+    //
+    // final double fdRPV01SenseLL = fdRPV01Sense(cds, yieldCurveLow, creditCurveLow, i,PRICER);
+    // final double fdRPV01SenseLN = fdRPV01Sense(cds, yieldCurveLow, creditCurveNorm, i,PRICER);
+    // final double fdRPV01SenseNL = fdRPV01Sense(cds, yieldCurveNorm, creditCurveLow, i,PRICER);
+    // final double fdRPV01SenseNN = fdRPV01Sense(cds, yieldCurveNorm, creditCurveNorm, i,PRICER);
+    // final double analRPV01SenseLL = PRICER.rpv01CreditSensitivity(cds, yieldCurveLow, creditCurveLow, i);
+    // final double analRPV01SenseLN = PRICER.rpv01CreditSensitivity(cds, yieldCurveLow, creditCurveNorm, i);
+    // final double analRPV01SenseNL = PRICER.rpv01CreditSensitivity(cds, yieldCurveNorm, creditCurveLow, i);
+    // final double analRPV01SenseNN = PRICER.rpv01CreditSensitivity(cds, yieldCurveNorm, creditCurveNorm, i);
+    // //
+    // assertEquals("ProSenseLL " + i, fdProSenseLL, analProSenseLL, 1e-10);
+    // assertEquals("ProSenseLN " + i, fdProSenseLN, analProSenseLN, 1e-9);
+    // assertEquals("ProSenseNL " + i, fdProSenseNL, analProSenseNL, 1e-9);
+    // assertEquals("ProSenseNN " + i, fdProSenseNN, analProSenseNN, 1e-9);
+    //
+    // // these errors are consistent with the accuracy for finite difference
+    // assertEquals("RPV01SenseLL " + i, fdRPV01SenseLL, analRPV01SenseLL, 1e-8);
+    // assertEquals("RPV01SenseLN " + i, fdRPV01SenseLN, analRPV01SenseLN, 5e-8);
+    // assertEquals("RPV01SenseNL " + i, fdRPV01SenseNL, analRPV01SenseNL, 1e-8);
+    // assertEquals("RPV01SenseNN " + i, fdRPV01SenseNN, analRPV01SenseNN, 2e-8);
+    //
+    // // System.out.println(fdRPV01SenseNN + "\t" + analRPV01SenseNN);
+    // // System.out.println(fdProSenseLL + "\t" + analProSenseLL);
+    // // System.out.println(fdProSenseNL + "\t" + analProSenseNL);
+
+  }
+
+  private void creditCurveSenseTest(final AnalyticCDSPricer pricer, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     final int n = creditCurve.getNumberOfKnots();
     for (int i = 0; i < n; i++) {
       final double fdProSense = fdProtectionLegSense(cds, yieldCurve, creditCurve, i);
-      final double analProSense = PRICER.protectionLegCreditSensitivity(cds, yieldCurve, creditCurve, i);
-
-      final double fdRPV01Sense = fdRPV01Sense(cds, yieldCurve, creditCurve, i);
-      final double analRPV01Sense = PRICER.rpv01CreditSensitivity(cds, yieldCurve, creditCurve, i);
-
-      assertEquals("ProSense " + i, fdProSense, analProSense, 1e-8);
-      assertEquals("RPV01Sense " + i, fdRPV01Sense, analRPV01Sense, 1e-8);
-
-      // System.out.println(fdRPV01Sense + "\t" + analRPV01Sense);
+      final double analProSense = pricer.protectionLegCreditSensitivity(cds, yieldCurve, creditCurve, i);
+      final double fdRPV01Sense = fdRPV01Sense(cds, yieldCurve, creditCurve, i, pricer);
+      final double analRPV01Sense = pricer.rpv01CreditSensitivity(cds, yieldCurve, creditCurve, i);
+      assertEquals("ProSense " + i, fdProSense, analProSense, 1e-9);
+      assertEquals("RPV01Sense " + i, fdRPV01Sense, analRPV01Sense, 5e-8);
     }
   }
 
-  @Test(enabled=false)
+  @Test
+  // (enabled=false)
   public void sensitivityParallelShiftTest() {
     final double[] ccTimes = new double[] {0.25, 0.5, 1.00000001, 2.0, 3.0, 5.0, 7.2, 10.0, 20.0};
     final double[] ccRates = new double[] {0.05, 0.06, 0.07, 0.05, 0.09, 0.09, 0.07, 0.065, 0.06};
@@ -160,15 +209,15 @@ public class AnalyticCDSPricerTest {
     assertEquals(fd, anal, 1e-8);
   }
 
-  private double fdRPV01Sense(final CDSAnalytic cds, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+  private double fdRPV01Sense(final CDSAnalytic cds, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve creditCurve, final int creditCurveNode, final AnalyticCDSPricer pricer) {
 
     final double h = creditCurve.getZeroRateAtIndex(creditCurveNode);
-    final double eps = 1e-4 * Math.max(0.001, h);
+    final double eps = 1e-3 * Math.max(1e-3, h);
 
     final ISDACompliantCreditCurve ccUp = creditCurve.withRate(h + eps, creditCurveNode);
     final ISDACompliantCreditCurve ccDown = creditCurve.withRate(h - eps, creditCurveNode);
-    final double up = PRICER.rpv01(cds, yieldCurve, ccUp, PriceType.DIRTY); // clean or dirty has no effect on sensitivity
-    final double down = PRICER.rpv01(cds, yieldCurve, ccDown, PriceType.DIRTY);
+    final double up = pricer.rpv01(cds, yieldCurve, ccUp, PriceType.DIRTY); // clean or dirty has no effect on sensitivity
+    final double down = pricer.rpv01(cds, yieldCurve, ccDown, PriceType.DIRTY);
     return (up - down) / 2 / eps;
   }
 
@@ -176,7 +225,7 @@ public class AnalyticCDSPricerTest {
 
     final int n = creditCurve.getNumberOfKnots();
     final double h = 0.5 * (creditCurve.getZeroRateAtIndex(0) + creditCurve.getZeroRateAtIndex(n - 1));
-    final double eps = 1e-5 * h;
+    final double eps = 1e-4 * h;
 
     final double[] rUp = creditCurve.getKnotZeroRates();
     final double[] rDown = creditCurve.getKnotZeroRates();
@@ -192,7 +241,7 @@ public class AnalyticCDSPricerTest {
   private double fdProtectionLegSense(final CDSAnalytic cds, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
 
     final double h = creditCurve.getZeroRateAtIndex(creditCurveNode);
-    final double eps = 1e-4 * Math.max(0.001, h);
+    final double eps = 1e-4 * Math.max(1e-3, h);
 
     final ISDACompliantCreditCurve ccUp = creditCurve.withRate(h + eps, creditCurveNode);
     final ISDACompliantCreditCurve ccDown = creditCurve.withRate(h - eps, creditCurveNode);
