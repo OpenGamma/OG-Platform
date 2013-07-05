@@ -113,7 +113,7 @@ public class PortfolioLoaderResource {
     InputStream fileStream = new WorkaroundInputStream(((BodyPartEntity) fileEntity).getInputStream());
 
     if(fileName.toLowerCase().endsWith("xml")) {
-      //xml can contain multiple portfolios
+      // xml can contain multiple portfolios
       for (PortfolioReader portfolioReader : returnPorfolioReader(fileStream)) {
         xmlPortfolioCopy(portfolioReader);
       }
@@ -149,9 +149,6 @@ public class PortfolioLoaderResource {
           output.write("Upload complete".getBytes());
         }
       };
-      // close stuff
-      portfolioReader.close();
-      portfolioWriter.close();
       return Response.ok(streamingOutput).build();
     }
   }

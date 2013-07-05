@@ -13,8 +13,6 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.copier.sheet.SheetFormat;
-import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
-import com.opengamma.integration.tool.portfolio.xml.XmlFileReader;
 import com.opengamma.util.ArgumentChecker;
 
 /**
