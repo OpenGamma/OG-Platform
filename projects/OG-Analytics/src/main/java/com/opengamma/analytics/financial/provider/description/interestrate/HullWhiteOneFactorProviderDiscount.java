@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -24,7 +24,7 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
    * @param parameters The Hull-White one factor parameters.
    * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
    */
-  public HullWhiteOneFactorProviderDiscount(final MulticurveProviderDiscount multicurves, HullWhiteOneFactorPiecewiseConstantParameters parameters, Currency ccyHW) {
+  public HullWhiteOneFactorProviderDiscount(final MulticurveProviderDiscount multicurves, final HullWhiteOneFactorPiecewiseConstantParameters parameters, final Currency ccyHW) {
     super(multicurves, parameters, ccyHW);
   }
 
@@ -43,7 +43,7 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
    */
   @Override
   public HullWhiteOneFactorProviderDiscount copy() {
-    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    final MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
     return new HullWhiteOneFactorProviderDiscount(multicurveProvider, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
@@ -104,8 +104,8 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
   /**
    * Set all the curves contains in another provider. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other provider.
-   * TODO: REVIEW: Should we check that the curve are already present? Should we update the HW parameters.
    */
+  // TODO: REVIEW: Should we check that the curve are already present? Should we update the HW parameters.
   public void setAll(final HullWhiteOneFactorProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     getMulticurveProvider().setAll(other.getMulticurveProvider());
@@ -115,7 +115,7 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     getMulticurveProvider().replaceCurve(ccy, curve);
@@ -125,24 +125,24 @@ public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvid
    * Replaces the forward curve for a given index.
    * @param index The index.
    * @param curve The yield curve used for forward.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     getMulticurveProvider().replaceCurve(index, curve);
   }
 
-  public HullWhiteOneFactorProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
+  public HullWhiteOneFactorProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
     return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
   public HullWhiteOneFactorProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
   public HullWhiteOneFactorProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new HullWhiteOneFactorProviderDiscount(decoratedMulticurve, getHullWhiteParameters(), getHullWhiteCurrency());
   }
 
