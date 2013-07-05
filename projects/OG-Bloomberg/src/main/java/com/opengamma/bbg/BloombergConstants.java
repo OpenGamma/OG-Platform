@@ -155,6 +155,7 @@ public final class BloombergConstants {
   public static final String BLOOMBERG_SECURITIES_REQUEST = "securities";
   public static final String REF_DATA_SVC_NAME = "//blp/refdata";
   public static final String AUTH_SVC_NAME = "//blp/apiauth";
+  public static final String MKT_DATA_SVC_NAME = "//blp/mktdata";
   public static final String BLOOMBERG_REFERENCE_DATA_REQUEST = "ReferenceDataRequest";
   public static final String BLOOMBERG_HISTORICAL_DATA_REQUEST = "HistoricalDataRequest";
   public static final String BLOOMBERG_INVALID_SECURITY = "INVALID_SECURITY";

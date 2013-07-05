@@ -8,6 +8,7 @@ package com.opengamma.livedata.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.ConnectionUnavailableException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 
@@ -21,11 +22,27 @@ public abstract class AbstractEventDispatcher extends TerminatableJob {
     .getLogger(AbstractEventDispatcher.class);
   
   private static final long MAX_WAIT_MILLISECONDS = 1000;
-  
+  /** Default period to wait before retrying if no connection is available. */
+  private static final long RETRY_PERIOD = 30000;
+  /** Period to wait before retrying if no connection is available. */
+  private final long _retryPeriod;
+  /** The server associated with this dispatcher. */
   private StandardLiveDataServer _server;
-  
+
+  /**
+   * @param server The server associated with this dispatcher
+   */
   public AbstractEventDispatcher(StandardLiveDataServer server) {
+    this(server, RETRY_PERIOD);
+  }
+
+  /**
+   * @param server The server associated with this dispatcher
+   * @param retryPeriod Period to wait before retrying if no connection is available.
+   */
+  public AbstractEventDispatcher(StandardLiveDataServer server, long retryPeriod) {
     ArgumentChecker.notNull(server, "Live Data Server");
+    _retryPeriod = retryPeriod;
     _server = server;
   }
   
@@ -40,8 +57,16 @@ public abstract class AbstractEventDispatcher extends TerminatableJob {
   protected void runOneCycle() {
     try {
       dispatch(MAX_WAIT_MILLISECONDS);
+    } catch (ConnectionUnavailableException e) {
+      s_logger.warn("No connection to underlying data provider available, failed to dispatch. Waiting for "
+                        + _retryPeriod + "ms before retrying", e);
+      try {
+        Thread.sleep(_retryPeriod);
+      } catch (InterruptedException e1) {
+        s_logger.warn("Interrupted waiting to retry", e1);
+      }
     } catch (RuntimeException e) {
-      s_logger.error("Failed to dispatch", e);      
+      s_logger.error("Failed to dispatch", e);
     }
   }
   
