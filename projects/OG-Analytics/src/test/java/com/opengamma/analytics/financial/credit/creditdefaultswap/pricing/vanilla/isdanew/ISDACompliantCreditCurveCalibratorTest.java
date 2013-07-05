@@ -98,7 +98,7 @@ public class ISDACompliantCreditCurveCalibratorTest {
       assertEquals(0.0, pv, 1e-8); // on a notional of 1e7
 
       // test against 'old' pricer as well
-      double rpv01 = TEST_PRICER.calculateRPV01(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, YIELD_CURVE, hcDate, protectionStart, PriceType.CLEAN);
+      double rpv01 = TEST_PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, YIELD_CURVE, hcDate, protectionStart, PriceType.CLEAN);
       double proLeg = TEST_PRICER.calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDates[i], YIELD_CURVE, hcDate, recovery, protectionStart);
       double pv2 = 1e7 * (proLeg - coupons[i] * rpv01);
       assertEquals(0.0, pv2, 1e-7); // we drop a slight bit of accuracy here
