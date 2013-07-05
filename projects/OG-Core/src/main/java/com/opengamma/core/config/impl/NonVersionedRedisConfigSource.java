@@ -69,6 +69,12 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
   private static final byte[] CLASS_NAME_AS_BYTES = "CLASS".getBytes(Charsets.UTF_8);
   private static final byte[] ITEM_NAME_AS_BYTES = "ITEM".getBytes(Charsets.UTF_8);
   
+  /**
+   * The default scheme for unique identifiers.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "RedisCfg";
+
+  
   public NonVersionedRedisConfigSource(JedisPool jedisPool) {
     this(jedisPool, "");
   }
@@ -171,7 +177,7 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
     ArgumentChecker.notNull(object, "object");
     ArgumentChecker.isTrue(clazz.isAssignableFrom(object.getClass()), "Unable to assign " + object.getClass() + " to " + clazz);
     
-    UniqueId uniqueId = UniqueId.of("UUID", GUIDGenerator.generate().toString());
+    UniqueId uniqueId = UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     FudgeObjectWriter objectWriter = getFudgeContext().createObjectWriter(baos);

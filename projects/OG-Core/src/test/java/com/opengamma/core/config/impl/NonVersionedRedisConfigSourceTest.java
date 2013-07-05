@@ -24,7 +24,7 @@ import com.opengamma.util.redis.AbstractRedisTestCase;
 /**
  * 
  */
-@Test(enabled=false)
+@Test(enabled=true)
 public class NonVersionedRedisConfigSourceTest extends AbstractRedisTestCase {
   
   public void putDeleteGetAll() {
@@ -102,6 +102,7 @@ public class NonVersionedRedisConfigSourceTest extends AbstractRedisTestCase {
     ExternalIdBundle bundle1 = constructIdBundle("Test", "1");
     UniqueId uniqueId = configSource.put(ExternalIdBundle.class, "uniqueIdTest", bundle1);
     assertNotNull(uniqueId);
+    assertEquals(NonVersionedRedisConfigSource.IDENTIFIER_SCHEME_DEFAULT, uniqueId.getScheme());
     
     ConfigItem<?> configItem = configSource.get(uniqueId);
     assertNotNull(configItem);
