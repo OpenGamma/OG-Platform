@@ -5,8 +5,8 @@
  */
 package com.opengamma.master.cache;
 
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.when;
 
 import org.mockito.ArgumentMatcher;
@@ -72,7 +72,7 @@ public abstract class AbstractEHCachingMasterTest<M extends AbstractChangeProvid
    * Creates a fresh mock master and configures it to respond as though it contains the above documents
    * @return the mock master
    */
-  protected AbstractChangeProvidingMaster populateMockMaster(M mockUnderlyingMaster) {
+  protected AbstractChangeProvidingMaster<D> populateMockMaster(M mockUnderlyingMaster) {
 
     ChangeManager changeManager = new BasicChangeManager();
     when(mockUnderlyingMaster.changeManager()).thenReturn(changeManager);
