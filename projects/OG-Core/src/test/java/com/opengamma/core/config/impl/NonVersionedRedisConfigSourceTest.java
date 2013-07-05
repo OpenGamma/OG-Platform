@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.redis.AbstractRedisTestCase;
 
 /**
@@ -94,6 +95,19 @@ public class NonVersionedRedisConfigSourceTest extends AbstractRedisTestCase {
     result = configSource.getLatestByName(ExternalIdBundle.class, "bundle-2");
     assertNotNull(result);
     assertEquals("2", result.getValue(ExternalScheme.of("Test")));
+  }
+  
+  public void uniqueIdTest() {
+    NonVersionedRedisConfigSource configSource = new NonVersionedRedisConfigSource(getJedisPool(), getRedisPrefix());
+    ExternalIdBundle bundle1 = constructIdBundle("Test", "1");
+    UniqueId uniqueId = configSource.put(ExternalIdBundle.class, "uniqueIdTest", bundle1);
+    assertNotNull(uniqueId);
+    
+    ConfigItem<?> configItem = configSource.get(uniqueId);
+    assertNotNull(configItem);
+    assertEquals(bundle1, configItem.getValue());
+    assertEquals(ExternalIdBundle.class, configItem.getType());
+    assertEquals(uniqueId, configItem.getUniqueId());
   }
   
   private static ExternalIdBundle constructIdBundle(String scheme, String value) {
