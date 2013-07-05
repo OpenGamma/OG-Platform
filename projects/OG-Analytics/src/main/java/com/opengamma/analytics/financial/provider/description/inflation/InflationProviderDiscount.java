@@ -1,15 +1,18 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -24,7 +27,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
- * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
+ * The forward rate are computed as the ratio of discount factors stored in {@link YieldAndDiscountCurve}.
  */
 public class InflationProviderDiscount implements InflationProviderInterface {
 
@@ -46,7 +49,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    */
   public InflationProviderDiscount() {
     _multicurveProvider = new MulticurveProviderDiscount();
-    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _priceIndexCurves = new LinkedHashMap<>();
     setInflationCurves();
   }
 
@@ -56,7 +59,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    */
   public InflationProviderDiscount(final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderDiscount(fxMatrix);
-    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _priceIndexCurves = new LinkedHashMap<>();
     setInflationCurves();
   }
 
@@ -85,7 +88,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   public InflationProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
       final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
-    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _priceIndexCurves = new LinkedHashMap<>();
     setInflationCurves();
   }
 
@@ -106,41 +109,23 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    */
   public InflationProviderDiscount(final MulticurveProviderDiscount multicurve) {
     _multicurveProvider = multicurve;
-    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _priceIndexCurves = new LinkedHashMap<>();
     setInflationCurves();
   }
 
   private void setInflationCurves() {
-    _allCurves = new LinkedHashMap<String, PriceIndexCurve>();
-
+    _allCurves = new LinkedHashMap<>();
     final Set<IndexPrice> inlfationIndexSet = _priceIndexCurves.keySet();
     for (final IndexPrice index : inlfationIndexSet) {
       final String name = _priceIndexCurves.get(index).getName();
       _allCurves.put(name, _priceIndexCurves.get(index));
     }
-
-    /* final Set<Currency> ccySet = _multicurveProvider.getCurrencies();
-     for (final Currency ccy : ccySet) {
-       final String name = _multicurveProvider.getName(ccy);
-       _allCurves.put(name, _multicurveProvider.getCurve(ccy));
-     }
-     final Set<IborIndex> indexSet = _multicurveProvider.getIndexesIbor();
-     for (final IborIndex index : indexSet) {
-       final String name = _multicurveProvider.getName(index);
-       _allCurves.put(name, _multicurveProvider.getCurve(index));
-     }
-     final Set<IndexON> indexONSet = _multicurveProvider.getIndexesON();
-     for (final IndexON index : indexONSet) {
-       final String name = _multicurveProvider.getName(index);
-       _allCurves.put(name, _multicurveProvider.getCurve(index));
-     }*/
-
   }
 
   @Override
   public InflationProviderDiscount copy() {
     final MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
-    final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
+    final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<>(_priceIndexCurves);
     return new InflationProviderDiscount(multicurveProvider, priceIndexCurves);
   }
 
@@ -187,6 +172,14 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   /**
+   * Gets the price index curve map.
+   * @return An unmodifiable copy of the price index curve map
+   */
+  public Map<IndexPrice, PriceIndexCurve> getPriceIndexCurves() {
+    return Collections.unmodifiableMap(_priceIndexCurves);
+  }
+
+  /**
    * Sets the price index curve for a price index.
    * @param index The price index.
    * @param curve The curve.
@@ -206,8 +199,14 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     return _multicurveProvider;
   }
 
+  /**
+   * Replaces the curve for a price index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the curve replaced
+   */
   public InflationProviderDiscount withPriceIndex(final IndexPrice index, final PriceIndexCurve replacement) {
-    final Map<IndexPrice, PriceIndexCurve> newPriceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
+    final Map<IndexPrice, PriceIndexCurve> newPriceIndexCurves = new LinkedHashMap<>(_priceIndexCurves);
     newPriceIndexCurves.put(index, replacement);
     final InflationProviderDiscount decorated = new InflationProviderDiscount(_multicurveProvider, newPriceIndexCurves);
     return decorated;
@@ -292,7 +291,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Returns all curves names. The order is the natural order of String.
    */
   public Set<String> getAllNames() {
-    final Set<String> names = new TreeSet<String>();
+    final Set<String> names = new TreeSet<>();
     names.addAll(_multicurveProvider.getAllNames());
     final Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
     for (final IndexPrice price : priceSet) {
@@ -331,8 +330,8 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   /**
    * Set all the curves contains in another bundle. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other bundle.
-   * TODO: REVIEW: Should we check that the curve are already present?
    */
+  // TODO: REVIEW: Should we check that the curve are already present?
   public void setAll(final InflationProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     _multicurveProvider.setAll(other.getMulticurveProvider());
@@ -344,7 +343,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present
+   * @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(ccy, curve);
@@ -354,7 +353,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Replaces the forward curve for a given index.
    * @param index The index.
    * @param curve The yield curve used for forward.
-   *  @throws IllegalArgumentException if curve name NOT already present
+   * @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(index, curve);
@@ -364,7 +363,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    * Replaces the discounting curve for a price index.
    * @param index The price index.
    * @param curve The price curve for the index.
-   *  @throws IllegalArgumentException if curve name NOT already present
+   * @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
     ArgumentChecker.notNull(index, "Price index");
@@ -381,13 +380,10 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     final YieldAndDiscountCurve curve = _multicurveProvider.getCurve(name);
     if (!(inflationCurve == null)) {
       return inflationCurve.getNumberOfParameters();
-    }
-    else if (!(curve == null) && (inflationCurve == null)) {
+    } else if (curve != null) {
       return curve.getNumberOfParameters();
     }
-    else {
-      throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
-    }
+    throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
   }
 
   @Override
@@ -447,5 +443,33 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   public InflationProviderInterface getInflationProvider() {
     return this;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _multicurveProvider.hashCode();
+    result = prime * result + _priceIndexCurves.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof InflationProviderDiscount)) {
+      return false;
+    }
+    final InflationProviderDiscount other = (InflationProviderDiscount) obj;
+    if (!ObjectUtils.equals(_multicurveProvider, other._multicurveProvider)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_priceIndexCurves, other._priceIndexCurves)) {
+      return false;
+    }
+    return true;
+  }
+
 
 }
