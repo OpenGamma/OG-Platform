@@ -108,17 +108,20 @@ public class PortfolioLoaderResource {
                                   //@FormDataParam("dataProvider") String dataProvider
   ) throws IOException {
     FormDataBodyPart fileBodyPart = getBodyPart(formData, "file");
-    Object fileEntity = fileBodyPart.getEntity();
-    String fileName = fileBodyPart.getFormDataContentDisposition().getFileName();
-    InputStream fileStream = new WorkaroundInputStream(((BodyPartEntity) fileEntity).getInputStream());
+    FormDataBodyPart filexmlBodyPart = getBodyPart(formData, "filexml");
 
-    if(fileName.toLowerCase().endsWith("xml")) {
+    if(filexmlBodyPart.getFormDataContentDisposition().getFileName().toLowerCase().endsWith("xml")) {
       // xml can contain multiple portfolios
-      for (PortfolioReader portfolioReader : returnPorfolioReader(fileStream)) {
+      Object filexmlEntity = filexmlBodyPart.getEntity();
+      InputStream filexmlStream = new WorkaroundInputStream(((BodyPartEntity) filexmlEntity).getInputStream());
+      for (PortfolioReader portfolioReader : returnPorfolioReader(filexmlStream)) {
         xmlPortfolioCopy(portfolioReader);
       }
       return Response.ok("Upload complete").build();
     } else {
+      Object fileEntity = fileBodyPart.getEntity();
+      String fileName = fileBodyPart.getFormDataContentDisposition().getFileName();
+      InputStream fileStream = new WorkaroundInputStream(((BodyPartEntity) fileEntity).getInputStream());
       String dataField = getString(formData, "dataField");
       String dataProvider = getString(formData, "dataProvider");
       String portfolioName = getString(formData, "portfolioName");
