@@ -10,7 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthlyWithMargin;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -182,7 +182,7 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
   }
 
   @Override
-  public CouponInflationYearOnYearMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CouponInflationYearOnYearMonthlyWithMargin toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -195,7 +195,7 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
     final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
     final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
     final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
+    return new CouponInflationYearOnYearMonthlyWithMargin(_factor, getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
         referenceEndTime, naturalPaymentEndTime, _payNotional);
   }
 
@@ -225,7 +225,7 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
     final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
     final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
     final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
+    return new CouponInflationYearOnYearMonthlyWithMargin(_factor, getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
         referenceEndTime, naturalPaymentEndTime, _payNotional);
   }
 

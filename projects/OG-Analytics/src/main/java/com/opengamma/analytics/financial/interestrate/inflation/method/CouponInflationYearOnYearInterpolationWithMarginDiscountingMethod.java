@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.analytics.financial.interestrate.inflation.method;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolationWithMargin;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
@@ -21,9 +20,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Pricing method for inflation Year on Year. The price is computed by index estimation and discounting.
+ *  Pricing method for inflation Year on Year with a margin. The price is computed by index estimation and discounting.
  */
-public class CouponInflationYearOnYearInterpolationDiscountingMethod {
+public class CouponInflationYearOnYearInterpolationWithMarginDiscountingMethod {
 
   /**
    * Computes the net amount of the Year on Year coupon with reference index at start of the month.
@@ -32,12 +31,12 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
    * @return The net amount.
    */
 
-  public MultipleCurrencyAmount netAmount(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
+  public MultipleCurrencyAmount netAmount(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
     final double estimatedIndexStart = indexEstimationStart(coupon, inflation);
     final double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
-    final double na = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
+    final double na = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0) + coupon.getFactor()) * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), na);
   }
 
@@ -47,7 +46,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
    * @param inflation The inflation provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
+  public MultipleCurrencyAmount presentValue(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
     final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -60,7 +59,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
    * @param inflation The inflation provider.
    * @return The estimated index for the reference start date.
    */
-  public double indexEstimationStart(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
+  public double indexEstimationStart(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationProviderInterface inflation) {
     final double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[0]);
     final double estimatedIndexMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[1]);
     return coupon.getWeightStart() * estimatedIndexMonth0 + (1 - coupon.getWeightStart()) * estimatedIndexMonth1;
@@ -73,7 +72,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
    * @param inflation The inflation provider.
    * @return The estimated index for the reference end date.
    */
-  public double indexEstimationEnd(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
+  public double indexEstimationEnd(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationProviderInterface inflation) {
     final double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
     final double estimatedIndexMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
     return coupon.getWeightEnd() * estimatedIndexMonth0 + (1 - coupon.getWeightEnd()) * estimatedIndexMonth1;
@@ -85,7 +84,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
    * @param inflation The inflation provider.
    * @return The present value sensitivity.
    */
-  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
     final double estimatedIndexStartMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[0]);
@@ -97,7 +96,7 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
     final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;
-    final double discountFactorBar = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
+    final double discountFactorBar = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0) + coupon.getFactor()) * coupon.getNotional() * pvBar;
     final double estimatedIndexEndBar = 1.0 / estimatedIndexStart * discountFactor * coupon.getNotional() * pvBar;
     final double estimatedIndexStartBar = -estimatedIndexEnd / (estimatedIndexStart * estimatedIndexStart) * discountFactor * coupon.getNotional() * pvBar;
     final double estimatedIndexEndMonth1bar = (1 - coupon.getWeightEnd()) * estimatedIndexEndBar;
