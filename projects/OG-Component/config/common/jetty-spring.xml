@@ -56,6 +56,23 @@
     </property>
   </bean>
 
+  <!-- Create logs directory -->
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetClass">
+      <value>org.apache.commons.io.FileUtils</value>
+    </property>
+    <property name="targetMethod">
+      <value>forceMkdir</value>
+    </property>
+    <property name="arguments">
+      <list>
+        <bean class="java.io.File">
+          <constructor-arg value="${jetty.log.dir}" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+
   <!-- Handler for request logging -->
   <bean id="requestLogHandler" class="org.eclipse.jetty.server.handler.RequestLogHandler">
     <property name="requestLog">
