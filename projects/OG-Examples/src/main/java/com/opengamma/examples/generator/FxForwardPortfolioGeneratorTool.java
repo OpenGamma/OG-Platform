@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.generator;
@@ -12,7 +12,6 @@ import com.opengamma.financial.generator.PortfolioNodeGenerator;
 import com.opengamma.financial.generator.PositionGenerator;
 import com.opengamma.financial.generator.SimplePositionGenerator;
 import com.opengamma.financial.generator.StaticNameGenerator;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
 
 /**
  * Utility for constructing a random FX Forward portfolio.
@@ -23,7 +22,7 @@ public class FxForwardPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
     final FXForwardSecurityGenerator securities = new FXForwardSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<FXForwardSecurity>(securities, getSecurityPersister(), getCounterPartyGenerator());
+    final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
     return new LeafPortfolioNodeGenerator(new StaticNameGenerator("FX Forwards"), positions, portfolioSize);
   }
 
