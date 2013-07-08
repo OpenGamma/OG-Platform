@@ -201,7 +201,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
   //-----------------------------------------------------------------------
   /**
    * Gets the flag indicating if the component is active.
-   * This can be used from configuration to disable the jetty server.
+   * This can be used from configuration to disable the Jetty server.
    * True by default.
    * @return the value of the property
    */
@@ -211,7 +211,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   /**
    * Sets the flag indicating if the component is active.
-   * This can be used from configuration to disable the jetty server.
+   * This can be used from configuration to disable the Jetty server.
    * True by default.
    * @param active  the new value of the property
    */
@@ -221,7 +221,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   /**
    * Gets the the {@code active} property.
-   * This can be used from configuration to disable the jetty server.
+   * This can be used from configuration to disable the Jetty server.
    * True by default.
    * @return the property, not null
    */
