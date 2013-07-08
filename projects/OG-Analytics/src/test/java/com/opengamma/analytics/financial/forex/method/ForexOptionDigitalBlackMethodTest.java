@@ -134,7 +134,8 @@ public class ForexOptionDigitalBlackMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(forexOption.getUnderlyingForex().getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(forexOption.getUnderlyingForex().getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(TimeCalculator.getTimeBetween(REFERENCE_DATE, expiryDate), strike, forward));
+    //TODO final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(TimeCalculator.getTimeBetween(REFERENCE_DATE, expiryDate), strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(TimeCalculator.getTimeBetween(REFERENCE_DATE, expiryDate), forward, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = isCall ? 1 : -1;
@@ -161,7 +162,8 @@ public class ForexOptionDigitalBlackMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(forexOption.getUnderlyingForex().getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(forexOption.getUnderlyingForex().getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
+    // TODO    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, forward, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = isCall ? 1 : -1;
@@ -215,7 +217,8 @@ public class ForexOptionDigitalBlackMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(forexOption.getUnderlyingForex().getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(forexOption.getUnderlyingForex().getPaymentTime());
     final double forward = 1 / SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, 1 / forward));
+    // TODO   final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, 1 / forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, 1.0 / forward, 1.0 / forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
     final double dM = Math.log(forward * strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double omega = isCall ? -1.0 : 1.0;
@@ -327,7 +330,8 @@ public class ForexOptionDigitalBlackMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // USD
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // EUR
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
+    //TODO final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, forward, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOptionCall.getExpirationTime());
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double deltaSpotCall = dfDomestic * notional * strike * NORMAL.getPDF(dM) / (sigmaRootT * SPOT);
@@ -435,7 +439,8 @@ public class ForexOptionDigitalBlackMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(forexForward.getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(forexForward.getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(forexOptionCall.getExpirationTime(), strike, forward));
+    //TODO final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(forexOptionCall.getExpirationTime(), strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(forexOptionCall.getExpirationTime(), forward, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOptionCall.getExpirationTime());
     final int omega = isCall ? 1 : -1;
     // Finite difference
@@ -524,7 +529,8 @@ public class ForexOptionDigitalBlackMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(FOREX_DIGITAL_CALL_DOM.getUnderlyingForex().getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(FOREX_DIGITAL_CALL_DOM.getUnderlyingForex().getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strike, forward));
+    //TODO    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), forward, forward));
     final double sigmaRootTPlus = (volatility + shift) * Math.sqrt(FOREX_DIGITAL_CALL_DOM.getExpirationTime());
     final double dMPlus = Math.log(forward / strike) / sigmaRootTPlus - 0.5 * sigmaRootTPlus;
     final double pvPlus = Math.abs(FOREX_DIGITAL_CALL_DOM.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dMPlus)
