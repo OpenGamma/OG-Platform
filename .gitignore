@@ -9,9 +9,11 @@ common/tests.properties
 common/db.properties
 common/deploy.properties
 /projects/*
+!/projects/pom.xml
 !/projects/OG-Parent
 !/projects/OG-Analytics
 !/projects/OG-Bloomberg
+!/projects/OG-BloombergExample
 !/projects/OG-Component
 !/projects/OG-Core
 !/projects/OG-Client
@@ -33,7 +35,6 @@ common/deploy.properties
 !/projects/OG-Util
 !/projects/OG-UtilDB
 !/projects/OG-Web
-!/projects/OG-BloombergExample
 repository/
 ivy/
 bootstrap/
