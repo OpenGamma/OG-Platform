@@ -18,6 +18,7 @@ public class PerCurrencyConventionHelper {
   public static final String LIBOR = "Libor";
   public static final String JIBOR = "Jibor";
   public static final String FRA = "FRA";
+  public static final String OIS_FIXED_LEG = "OIS Fixed Leg";
   public static final String FIXED_SWAP_LEG = "Fixed Swap Leg";
   public static final String VANILLA_IBOR_LEG = "Vanilla Ibor Leg";
   public static final String OIS_SWAP_LEG = "OIS Swap Leg";

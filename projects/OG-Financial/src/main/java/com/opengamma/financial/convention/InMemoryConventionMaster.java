@@ -17,6 +17,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+
 /**
  *
  */
@@ -48,7 +49,8 @@ public class InMemoryConventionMaster implements ConventionMaster {
     final FXSpotConvention usdCadSpot = new FXSpotConvention("USD/CAD FX Spot", ExternalIdBundle.of(ExternalId.of("CONVENTION", "USD/CAD FX Spot")), 1, us);
     final FXForwardAndSwapConvention usdCadForward = new FXForwardAndSwapConvention("USD/CAD FX Forward", ExternalIdBundle.of(ExternalId.of("CONVENTION", "USD/CAD FX Forward")),
         ExternalId.of("CONVENTION", "USD/CAD FX Spot"), following, false, us);
-    final FXSpotConvention fxSpot = new FXSpotConvention("FX Spot", ExternalIdBundle.of(ExternalId.of("CONVENTION", "FX Spot")), 1, us);
+    final FXSpotConvention fxSpot = new FXSpotConvention("FX Spot", ExternalIdBundle.of(ExternalId.of("CONVENTION", "FX Spot")), 2, us);
+    // TODO: Holiday should not be US only.
     final FXForwardAndSwapConvention fxForward = new FXForwardAndSwapConvention("FX Forward", ExternalIdBundle.of(ExternalId.of("CONVENTION", "FX Forward")),
         ExternalId.of("CONVENTION", "FX Spot"), following, false, us);
     add(usdCadSpot);

@@ -258,7 +258,9 @@ public class CurveNodeToDefinitionConverter {
         final int daysToSettle = spotConvention.getDaysToSettle();
         final ExternalId settlementRegion = forwardConvention.getSettlementRegion();
         final Calendar settlementCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, settlementRegion);
-        final ZonedDateTime exchangeDate = ScheduleCalculator.getAdjustedDate(now.plus(forwardTenor.getPeriod()), daysToSettle, settlementCalendar);
+        final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, daysToSettle, settlementCalendar);
+        final ZonedDateTime exchangeDate = ScheduleCalculator.getAdjustedDate(spotDate, forwardTenor.getPeriod(), forwardConvention.getBusinessDayConvention(), settlementCalendar,
+            forwardConvention.isIsEOM());
         return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, payAmount, -receiveAmount);
       }
 

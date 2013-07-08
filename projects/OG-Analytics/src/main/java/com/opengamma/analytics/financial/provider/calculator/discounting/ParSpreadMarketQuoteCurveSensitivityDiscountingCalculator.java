@@ -5,8 +5,10 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
+import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
-import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -60,7 +62,8 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_STIR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
-  private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
+  private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
+  private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -111,15 +114,14 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
 
   //     -----     Forex     -----
 
-  /**
-   * The par spread is the spread that should be added to the forex forward points to have a zero value.
-   * @param fx The forex swap.
-   * @param multicurves The multi-curves provider.
-   * @return The spread.
-   */
   @Override
   public MulticurveSensitivity visitForexSwap(final ForexSwap fx, final MulticurveProviderInterface multicurves) {
     return METHOD_FOREX_SWAP.parSpreadCurveSensitivity(fx, multicurves);
+  }
+
+  @Override
+  public MulticurveSensitivity visitForex(final Forex fx, final MulticurveProviderInterface multicurves) {
+    return METHOD_FOREX.parSpreadCurveSensitivity(fx, multicurves);
   }
 
 }
