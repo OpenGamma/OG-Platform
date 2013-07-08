@@ -11,7 +11,7 @@ $.register_module({
                 width: 600, height: 420,
                 type: 'input',
                 title: 'import',
-                custom: '<iframe id="import" src="import.ftl" width="500" height="270" marginheight="0" marginwidth="0"\
+                custom: '<iframe id="import" src="import.ftl" width="100%" height="270" marginheight="0" marginwidth="0"\
                          frameborder="0" />',
                 buttons: {
                     'Start Import': function () {

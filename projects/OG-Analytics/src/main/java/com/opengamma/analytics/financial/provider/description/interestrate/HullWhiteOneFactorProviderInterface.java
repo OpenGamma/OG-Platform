@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.util.money.Currency;
 
 /**
- * Interface for swaption SABR parameters provider for one underlying.
+ * Interface for a Hull-White one-factor parameters provider.
  */
 public interface HullWhiteOneFactorProviderInterface extends ParameterProviderInterface {
 
@@ -17,6 +17,7 @@ public interface HullWhiteOneFactorProviderInterface extends ParameterProviderIn
    * Create a new copy of the provider.
    * @return The bundle.
    */
+  @Override
   HullWhiteOneFactorProviderInterface copy();
 
   /**

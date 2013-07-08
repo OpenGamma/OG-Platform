@@ -6,6 +6,7 @@
 package com.opengamma.integration.tool.portfolio.xml;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
@@ -80,10 +81,10 @@ public abstract class PortfolioConversion {
    * @param file  the file to read, not null
    * @return the converted file, not null
    */
-  public Iterable<VersionedPortfolioHandler> convertPortfolio(File file) {
+  public Iterable<VersionedPortfolioHandler> convertPortfolio(InputStream inputStream) {
     try {
       Unmarshaller unmarshaller = createUnmarshaller();
-      return _portfolioConverter.convert(unmarshaller.unmarshal(file));
+      return _portfolioConverter.convert(unmarshaller.unmarshal(inputStream));
     } catch (JAXBException e) {
       throw new OpenGammaRuntimeException("Error parsing XML content", e);
     }

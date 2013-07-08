@@ -230,5 +230,25 @@ public final class ValueUtils {
     }
     return null;
   }
+  
+  public static Value[][] transpose(final Value[][] range) {
+    final int rowCount = range.length;
+    final int columnCount = rowCount > 0 ? range[0].length : 0;
+    final Value[][] transposedRange = new Value[columnCount][rowCount];
+    int i = 0;
+    int j;
+    for (Value[] row : range) {
+      if (row.length != columnCount) {
+        throw new IllegalArgumentException("Unexpected jagged input range");
+      }
+      j = 0;
+      for (Value value : row) {
+        transposedRange[j][i] = value;
+        j++;
+      }
+      i++;
+    }
+    return transposedRange;
+  }
 
 }

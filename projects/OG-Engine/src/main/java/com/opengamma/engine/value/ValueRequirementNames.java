@@ -191,6 +191,10 @@ public final class ValueRequirementNames {
    * The FX matrix associated with a bundle of curves.
    */
   public static final String FX_MATRIX = "FX Matrix";
+  /** 
+   * A set of parameters for the Hull-White one factor model.
+   */
+  public static final String HULL_WHITE_ONE_FACTOR_PARAMETERS = "Hull-White One Factor Parameters";
   /**
    * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
    * ignoring the type of instrument etc.).
