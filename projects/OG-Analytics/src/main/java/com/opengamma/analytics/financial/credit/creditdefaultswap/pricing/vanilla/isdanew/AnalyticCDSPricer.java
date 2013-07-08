@@ -194,7 +194,6 @@ public class AnalyticCDSPricer {
         }
         t0 = t1;
       }
-      // TODO the Taylor expansions
 
       pv += tPV;
       ht0 = ht1;

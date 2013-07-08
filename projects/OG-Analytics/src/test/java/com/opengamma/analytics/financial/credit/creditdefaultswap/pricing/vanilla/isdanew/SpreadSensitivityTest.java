@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.apache.tools.ant.taskdefs.Mkdir;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
@@ -16,6 +15,7 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
+import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -83,7 +83,7 @@ public class SpreadSensitivityTest {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000;
     }
 
-    final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, SpreadBumpType.ADDITIVE_PARALLEL);
+    final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
     // System.out.println(cdv01);
     assertEquals("", fromExcel, cdv01, 1e-13 * NOTIONAL);
   }
@@ -115,6 +115,36 @@ public class SpreadSensitivityTest {
 
     final double price = NOTIONAL * PRICER.pv(CDS, YIELD_CURVE, creditCurve, 50 / 10000.);
     System.out.println(price);
+  }
+
+  @Test(enabled = false)
+  public void bucketCreditDVO1Test() {
+    final double dealSpread = DEAL_SPREAD / 10000;
+    final double[] mrkSpreads = new double[NUM_MARKET_CDS];
+    for (int i = 0; i < NUM_MARKET_CDS; i++) {
+      mrkSpreads[i] = PAR_SPREADS[i] / 10000;
+    }
+
+    final double[] bucketCdv01 = CDV01_CAL.bucketedCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
+    for (int i = 0; i < NUM_MARKET_CDS; i++) {
+      System.out.println(bucketCdv01[i] * NOTIONAL / 10000);
+    }
+
+  }
+
+  @Test(enabled = false)
+  public void bucketFlatCreditDVO1Test() {
+    final double dealSpread = DEAL_SPREAD / 10000;
+    final double[] mrkSpreads = new double[NUM_MARKET_CDS];
+    for (int i = 0; i < NUM_MARKET_CDS; i++) {
+      mrkSpreads[i] = PAR_SPREADS[i] / 10000;
+    }
+
+    final double[] bucketCdv01 = CDV01_CAL.bucketedFlatCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
+    for (int i = 0; i < NUM_MARKET_CDS; i++) {
+      System.out.println(bucketCdv01[i] * NOTIONAL / 10000);
+    }
+
   }
 
 }

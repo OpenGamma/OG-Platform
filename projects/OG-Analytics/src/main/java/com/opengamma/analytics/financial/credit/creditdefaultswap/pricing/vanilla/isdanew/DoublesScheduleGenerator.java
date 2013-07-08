@@ -29,9 +29,23 @@ public abstract class DoublesScheduleGenerator {
    * @return A list of times used to split CDS pricing integrals into analytic pieces.
    */
   public static double[] getIntegrationsPoints(final double start, final double end, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+    return getIntegrationsPoints(start, end, yieldCurve.getKnotTimes(), creditCurve.getKnotTimes());
+  }
 
-    double[] set1 = truncateSetExclusive(start, end, yieldCurve.getKnotTimes());
-    double[] set2 = truncateSetExclusive(start, end, creditCurve.getKnotTimes());
+  /**
+   * Combines two sets of numbers and return only the values  strictly between the specified 
+   * start and end. The start and end values are added at the beginning and end of the list. If two times are very close (defined as 
+   * less than half a day - 1/730 years different) only the smaller value is kept (with the exception of the end value which takes 
+   * precedence). 
+   * @param start First time in the list
+   * @param end last time in the list
+   * @param setA the first set
+   * @param setB the second
+   * @return Combined list between first and last value
+   */
+  public static double[] getIntegrationsPoints(final double start, final double end, final double[] setA, final double[] setB) {
+    double[] set1 = truncateSetExclusive(start, end, setA);
+    double[] set2 = truncateSetExclusive(start, end, setB);
     final int n1 = set1.length;
     final int n2 = set2.length;
     final int n = n1 + n2;

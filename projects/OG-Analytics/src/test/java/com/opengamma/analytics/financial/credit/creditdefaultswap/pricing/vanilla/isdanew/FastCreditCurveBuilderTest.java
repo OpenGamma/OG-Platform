@@ -5,22 +5,12 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
-import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.Arrays;
-
 import org.testng.annotations.Test;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder.Pricer;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
  * 
@@ -121,7 +111,7 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
   public void internalPricerTest() {
     AnalyticCDSPricer testedPricer = new AnalyticCDSPricer();
 
-    Pricer pricer = BUILDER.new Pricer(CDS, YIELD_CURVE, CREDIT_CURVE, DEAL_SPREAD / 10000.);
+    Pricer pricer = BUILDER.new Pricer(CDS, YIELD_CURVE, CREDIT_CURVE_KNOTS, DEAL_SPREAD / 10000.);
 
     final double proLeg1 = testedPricer.protectionLeg(CDS, YIELD_CURVE, CREDIT_CURVE);
     final double proLeg2 = pricer.protectionLeg(CREDIT_CURVE);
