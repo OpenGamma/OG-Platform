@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -152,6 +154,9 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   protected final String toPositionRedisKey(UniqueId uniqueId) {
     return toRedisKey(uniqueId, "POS-");
   }
+  
+  // TODO kirk 2013-07-08 -- NAME-* needs toRedisKey as well.
+  // http://jira.opengamma.com/browse/PLAT-3858
   
   // ---------------------------------------------------------------------------------------
   // DATA MANIPULATION
@@ -387,6 +392,25 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       
     }
     return portfolio;
+  }
+  
+  public List<String> getAllPortfolioNames() {
+    List<String> result = new LinkedList<String>();
+    Jedis jedis = getJedisPool().getResource();
+    try {
+      Set<String> keyNames = jedis.keys("NAME-*");
+      for (String keyName : keyNames) {
+        String portfolioName = keyName.substring(5);
+        result.add(portfolioName);
+      }
+
+      getJedisPool().returnResource(jedis);
+    } catch (Exception e) {
+      s_logger.error("Unable to get portfolio names", e);
+      getJedisPool().returnBrokenResource(jedis);
+      throw new OpenGammaRuntimeException("Unable to get portfolio names", e);
+    }
+    return result;
   }
 
   // ---------------------------------------------------------------------------------------
