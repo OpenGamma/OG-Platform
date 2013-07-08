@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -21,25 +21,25 @@ import com.opengamma.financial.generator.PositionGenerator;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.financial.generator.SimplePositionGenerator;
 import com.opengamma.financial.generator.StaticNameGenerator;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
-import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Generates a portfolio of approximately ATM FX options.
+ * Generates a portfolio of FX forwards.
  */
-public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
-  /** The list of options */
-  private static final List<FXOptionSecurity> FX_OPTIONS = new ArrayList<>();
+public class FXForwardPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+  /** The list of forwards */
+  private static final List<FXForwardSecurity> FX_FORWARDS = new ArrayList<>();
   /** The spot rates for a currency pair */
   private static final List<Pair<UnorderedCurrencyPair, Double>> SPOT_RATES = new ArrayList<>();
-  /** The strike formatter */
-  private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("###.###");
+  /** The region */
+  private static final ExternalId REGION = ExternalId.of("Region", "US");
+  /** The forward rate formatter */
+  private static final DecimalFormat RATE_FORMATTER = new DecimalFormat("###.###");
 
   static {
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), 1.328));
@@ -49,78 +49,75 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.JPY), 80.));
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), 1.2));
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY), 100.));
-    final ExerciseType european = new EuropeanExerciseType();
-    final Random rng = new Random(1237);
+    final Random rng = new Random(1239);
     final ZonedDateTime date = DateUtils.getUTCDate(2015, 2, 1);
     for (int i = 0; i < 100; i++) {
       final int n = rng.nextInt(6);
       final Pair<UnorderedCurrencyPair, Double> pair = SPOT_RATES.get(n);
       final UnorderedCurrencyPair ccys = pair.getFirst();
       final double spot = pair.getSecond();
-      final Currency putCurrency, callCurrency;
-      final double putAmount, callAmount;
-      double strike;
+      final Currency payCurrency, receiveCurrency;
+      final double payAmount, receiveAmount;
+      final double forwardRate;
       if (rng.nextBoolean()) {
-        putCurrency = ccys.getFirstCurrency();
-        putAmount = 100000 * (1 + rng.nextInt(10)) / 100.;
-        callCurrency = ccys.getSecondCurrency();
-        callAmount = putAmount * spot * (1 + rng.nextDouble() / 20);
-        strike = putAmount / callAmount;
+        payCurrency = ccys.getFirstCurrency();
+        payAmount = 100000 * (1 + rng.nextInt(10)) / 100.;
+        receiveCurrency = ccys.getSecondCurrency();
+        receiveAmount = payAmount * spot * (1 + rng.nextDouble() / 20);
+        forwardRate = payAmount / receiveAmount;
       } else {
-        callCurrency = ccys.getFirstCurrency();
-        callAmount = 100000 * (1 + rng.nextInt(10)) / 100.;
-        putCurrency = ccys.getSecondCurrency();
-        putAmount = callAmount * spot * (1 + rng.nextDouble() / 20);
-        strike = putAmount / callAmount;
+        receiveCurrency = ccys.getFirstCurrency();
+        receiveAmount = 100000 * (1 + rng.nextInt(10)) / 100.;
+        payCurrency = ccys.getSecondCurrency();
+        payAmount = receiveAmount * spot * (1 + rng.nextDouble() / 20);
+        forwardRate = payAmount / receiveAmount;
       }
-      final boolean isLong = rng.nextBoolean() ? true : false;
-      final Expiry expiry = new Expiry(date.plusMonths(rng.nextInt(20)));
-      final ZonedDateTime settlementDate = expiry.getExpiry().plusDays(2);
-      final FXOptionSecurity option = new FXOptionSecurity(putCurrency, callCurrency, putAmount, callAmount, expiry, settlementDate, isLong, european);
+      final ZonedDateTime maturity = date.plusMonths(rng.nextInt(20));
+      FXForwardSecurity forward = new FXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, maturity, REGION);
       final StringBuilder sb = new StringBuilder();
-      sb.append(isLong ? "Long " : "Short ");
-      sb.append(expiry.getExpiry().toLocalDate());
+      sb.append(maturity.toLocalDate());
       sb.append(" ");
-      sb.append(putCurrency);
+      sb.append(payCurrency);
       sb.append("/");
-      sb.append(callCurrency);
+      sb.append(receiveCurrency);
       sb.append(" @ ");
-      sb.append(STRIKE_FORMATTER.format(strike));
-      option.setName(sb.toString());
-      FX_OPTIONS.add(option);
+      sb.append(RATE_FORMATTER.format(forwardRate));
+      forward.setName(sb.toString());
+      FX_FORWARDS.add(forward);
     }
   }
 
   @Override
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
-    final SecurityGenerator<FXOptionSecurity> securities = createFXOptionSecurityGenerator();
+    final SecurityGenerator<FXForwardSecurity> securities = createFXForwardSecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("FX Options"), positions, FX_OPTIONS.size());
+    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("FX Forwards"), positions, FX_FORWARDS.size());
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }
 
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
-    final SecurityGenerator<FXOptionSecurity> securities = createFXOptionSecurityGenerator();
+    final SecurityGenerator<FXForwardSecurity> securities = createFXForwardSecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("FX Options"), positions, FX_OPTIONS.size());
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("FX Forwards"), positions, FX_FORWARDS.size());
   }
 
-  private SecurityGenerator<FXOptionSecurity> createFXOptionSecurityGenerator() {
-    final SecurityGenerator<FXOptionSecurity> securities = new SecurityGenerator<FXOptionSecurity>() {
+  private SecurityGenerator<FXForwardSecurity> createFXForwardSecurityGenerator() {
+    final SecurityGenerator<FXForwardSecurity> securities = new SecurityGenerator<FXForwardSecurity>() {
       private int _count;
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public FXOptionSecurity createSecurity() {
-        final FXOptionSecurity fxOption = FX_OPTIONS.get(_count++);
-        return fxOption;
+      public FXForwardSecurity createSecurity() {
+        final FXForwardSecurity fxForward = FX_FORWARDS.get(_count++);
+        return fxForward;
       }
 
     };
     configure(securities);
     return securities;
   }
+
 }
