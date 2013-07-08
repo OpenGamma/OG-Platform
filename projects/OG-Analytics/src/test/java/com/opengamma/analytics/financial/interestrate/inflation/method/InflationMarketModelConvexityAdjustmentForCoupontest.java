@@ -85,5 +85,6 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     double convexityAdjustment = CONVEXITY_ADJUSTMENT_FUNCTION.getYearOnYearConvexityAdjustment(YEAR_ON_YEAR, PARAMETER_INTERFACE);
     convexityAdjustment = Math.exp(convexityAdjustment);
 
+    // TODO : finish this test
   }
 }

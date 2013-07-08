@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.generator;
@@ -39,21 +39,34 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Creates a portfolio of USD constant-maturity swaps, cap-floors and cap-floor CMS spreads.
  */
 public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+  /** Following business day convention */
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  /** The region */
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("US+GB");
+  /** Act/360 day-count */
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  /** The currency */
   private static final Currency CURRENCY = Currency.USD;
+  /** The counterparty */
   private static final String COUNTERPARTY = "Cpty";
+  /** 3m Libor ticker */
   private static final ExternalId LIBOR_3M = ExternalSchemes.syntheticSecurityId("USDLIBORP3M");
+  /** 6m Libor ticker */
   private static final ExternalId LIBOR_6M = ExternalSchemes.syntheticSecurityId("USDLIBORP6M");
+  /** The tenors */
   private static final Tenor[] TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS, Tenor.TEN_YEARS, Tenor.ofYears(25)};
+  /** The strikes */
   private static final double[] STRIKES = new double[] {0.01, 0.02, 0.03};
-  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2012, 8, 1);
+  /** The trade date */
+  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2013, 7, 1);
+  /** The pay tenors */
   private static final Tenor[] PAY_TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.FIVE_YEARS};
+  /** The receive tenors */
   private static final Tenor[] RECEIVE_TENORS = new Tenor[] {Tenor.TWO_YEARS, Tenor.TEN_YEARS};
+  /** The strike formatter */
   private static final DecimalFormat FORMAT = new DecimalFormat("##.##");
 
   @Override
@@ -71,10 +84,17 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     return rootNode;
   }
 
+  /**
+   * Generates cap-floors.
+   */
   private class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurity> implements PortfolioNodeGenerator {
+    /** The notional */
     private final double _notional = 10000000;
+    /** The trade date */
     private final ZonedDateTime _tradeDate;
+    /** The tenors */
     private final Tenor[] _tenors;
+    /** The strikes */
     private final double[] _strikes;
 
     public CapFloorSecurityGenerator(final ZonedDateTime tradeDate, final Tenor[] tenors, final double[] strikes) {
@@ -83,6 +103,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       _strikes = strikes;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public PortfolioNode createPortfolioNode() {
       final SimplePortfolioNode node = new SimplePortfolioNode("CM Cap/Floor");
@@ -105,6 +126,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       return null;
     }
 
+    @SuppressWarnings("synthetic-access")
     private CapFloorSecurity createCapFloor(final Tenor tenor, final double strike) {
       final ZonedDateTime maturityDate = _tradeDate.plus(tenor.getPeriod());
       final boolean payer = Math.random() < 0.5 ? true : false;
@@ -120,9 +142,15 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     }
   }
 
+  /**
+   * Generates constant-maturity swaps.
+   */
   private class CMSSwapSecurityGenerator extends SecurityGenerator<SwapSecurity> implements PortfolioNodeGenerator {
+    /** The notional */
     private final InterestRateNotional _notional = new InterestRateNotional(Currency.USD, 150000000);
+    /** The trade date */
     private final ZonedDateTime _tradeDate;
+    /** The tenors */
     private final Tenor[] _tenors;
 
     public CMSSwapSecurityGenerator(final ZonedDateTime tradeDate, final Tenor[] tenors) {
@@ -130,6 +158,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       _tenors = tenors;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public PortfolioNode createPortfolioNode() {
       final SimplePortfolioNode node = new SimplePortfolioNode("CM Swap");
@@ -150,6 +179,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       return null;
     }
 
+    @SuppressWarnings("synthetic-access")
     private SwapSecurity createSwap(final Tenor tenor) {
       final ZonedDateTime maturityDate = _tradeDate.plus(tenor.getPeriod());
       ExternalId iborReferenceRate;
@@ -184,12 +214,21 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     }
   }
 
+  /**
+   * Generates cap-floor CMS spreads.
+   */
   private class CMSCapFloorSpreadSecurityGenerator extends SecurityGenerator<CapFloorSecurity> implements PortfolioNodeGenerator {
+    /** The notional */
     private final double _notional = 34000000;
+    /** The trade date */
     private final ZonedDateTime _tradeDate;
+    /** The pay tenors */
     private final Tenor[] _payTenors;
+    /** The receive tenors */
     private final Tenor[] _receiveTenors;
+    /** The maturities */
     private final Tenor[] _maturities;
+    /** The strikes */
     private final double[] _strikes;
 
     public CMSCapFloorSpreadSecurityGenerator(final ZonedDateTime tradeDate, final Tenor[] payTenors, final Tenor[] receiveTenors,
@@ -201,6 +240,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       _strikes = strikes;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public PortfolioNode createPortfolioNode() {
       final SimplePortfolioNode node = new SimplePortfolioNode("CM Cap / Floor Spread");
@@ -227,6 +267,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       return null;
     }
 
+    @SuppressWarnings("synthetic-access")
     private CapFloorCMSSpreadSecurity createCMSCapFloorSpread(final Tenor payTenor, final Tenor receiveTenor, final Tenor maturity, final double strike) {
       final ZonedDateTime maturityDate = _tradeDate.plus(maturity.getPeriod());
       final boolean payer = Math.random() < 0.5 ? true : false;

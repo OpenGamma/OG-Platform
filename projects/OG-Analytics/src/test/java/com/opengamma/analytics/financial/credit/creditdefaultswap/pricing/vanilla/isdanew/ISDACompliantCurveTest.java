@@ -19,12 +19,11 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void getRTTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     final int n = t.length;
     double[] rt = new double[n];
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
 
       rt[i] = r[i] * t[i];
     }
@@ -42,21 +41,17 @@ public class ISDACompliantCurveTest {
 
       else if (ti >= t[t.length - 1]) {
         rTCalculatedi = ti * r[t.length - 1];
-      }
-      else {
+      } else {
         int indexpointi = Arrays.binarySearch(t, ti);
         if (indexpointi >= 0) {
           rTCalculatedi = t[indexpointi] * r[indexpointi];
-        }
-        else {
+        } else {
           indexpointi = -(1 + indexpointi);
           if (indexpointi == 0) {
             rTCalculatedi = ti * r[0];
-          }
-          else if (indexpointi == n) {
+          } else if (indexpointi == n) {
             rTCalculatedi = ti * r[n - 1];
-          }
-          else {
+          } else {
             final double t1 = t[indexpointi - 1];
             final double t2 = t[indexpointi];
             final double dt = t2 - t1;
@@ -72,12 +67,11 @@ public class ISDACompliantCurveTest {
   @Test
   public void getNodeSensitivity() {
 
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     final int n = t.length;
     double[] rt = new double[n];
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
 
       rt[i] = r[i] * t[i];
     }
@@ -96,21 +90,17 @@ public class ISDACompliantCurveTest {
 
       else if (ti >= t[t.length - 1]) {
         rTCalculatedi[t.length - 1] = 1.0;
-      }
-      else {
+      } else {
         int indexpointi = Arrays.binarySearch(t, ti);
         if (indexpointi >= 0) {
           rTCalculatedi[indexpointi] = 1.0;
-        }
-        else {
+        } else {
           indexpointi = -(1 + indexpointi);
           if (indexpointi == 0) {
             rTCalculatedi[0] = 1.0;
-          }
-          else if (indexpointi == n) {
+          } else if (indexpointi == n) {
             rTCalculatedi[n - 1] = 1.0;
-          }
-          else {
+          } else {
             final double t1 = t[indexpointi - 1];
             final double t2 = t[indexpointi];
             final double dt = t2 - t1;
@@ -129,8 +119,8 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void getNodeSensitivityvsFiniteDifferenceTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     final int n = t.length;
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
 
@@ -156,8 +146,8 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void getSingleNodeSensitivityvsNodesensitivityTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
     double ti = 0.001;
     final int iterationMax = 1000000;
@@ -177,8 +167,8 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void getSingleNodeSensitivityvsSingleNodeDiscountFactorsensitivityTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
     double ti = 0.001;
     final int iterationMax = 10000;
@@ -200,9 +190,9 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void withRatesTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r1 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
-    double[] r2 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r1 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
+    double[] r2 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r1);
     curve.withRates(r2);
     for (int i = 0; i < t.length; i++) {
@@ -214,9 +204,9 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void withRateTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r1 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
-    double[] r2 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 3.0, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r1 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
+    double[] r2 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 3.0, 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r1);
     ISDACompliantCurve newcurve = curve.withRate(3.0, 5);
     for (int i = 0; i < t.length; i++) {
@@ -229,9 +219,9 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void withDiscountFactorTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r1 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
-    double[] r2 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, -Math.log(0.6) / t[5], 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r1 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
+    double[] r2 = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, -Math.log(0.6) / t[5], 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r1);
     ISDACompliantCurve newcurve = curve.withDiscountFactor(.6, 5);
     for (int i = 0; i < t.length; i++) {
@@ -245,8 +235,8 @@ public class ISDACompliantCurveTest {
   @Test
   public void getZeroRateTest() {
 
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
     double ti = 0.001;
     final int iterationMax = 1000000;
@@ -258,16 +248,16 @@ public class ISDACompliantCurveTest {
 
   @Test
   public void getNumberOfKnotsTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
     assertEquals("length", curve.getNumberOfKnots(), t.length, EPS);
   }
 
   @Test
   public void senseTest() {
-    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
-    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
     ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
 
     final int n = curve.getNumberOfKnots();
@@ -296,6 +286,37 @@ public class ISDACompliantCurveTest {
 
   }
 
+  @Test
+  public void discountFactorSenseTest() {
+    double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
+    ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
+
+    final int n = curve.getNumberOfKnots();
+    final int nExamples = 200;
+    for (int jj = 0; jj < nExamples; jj++) {
+      final double time = jj * 11.0 / (nExamples - 1);
+      final double[] fd = fdDiscountFactorSense(curve, time);
+
+      for (int i = 0; i < n; i++) {
+        final double anal = curve.getSingleNodeDiscountFactorSensitivity(time, i);
+        assertEquals("Time: " + time, fd[i], anal, 1e-10);
+      }
+    }
+
+//    // check nodes
+//    for (int jj = 0; jj < n; jj++) {
+//      final double[] anal = curve.getNodeSensitivity(t[jj]);
+//      for (int i = 0; i < n; i++) {
+//        final double anal2 = curve.getSingleNodeSensitivity(t[jj], i);
+//        final double expected = i == jj ? 1.0 : 0.0;
+//        assertEquals(expected, anal[i], 0.0);
+//        assertEquals(expected, anal2, 0.0);
+//      }
+//    }
+
+  }
+
   private double[] fdSense(final ISDACompliantCurve curve, final double t) {
     final int n = curve.getNumberOfKnots();
     final double[] res = new double[n];
@@ -305,6 +326,20 @@ public class ISDACompliantCurveTest {
       final ISDACompliantCurve curveDown = curve.withRate(r - EPS, i);
       final double up = curveUp.getZeroRate(t);
       final double down = curveDown.getZeroRate(t);
+      res[i] = (up - down) / 2 / EPS;
+    }
+    return res;
+  }
+
+  private double[] fdDiscountFactorSense(final ISDACompliantCurve curve, final double t) {
+    final int n = curve.getNumberOfKnots();
+    final double[] res = new double[n];
+    for (int i = 0; i < n; i++) {
+      final double r = curve.getZeroRateAtIndex(i);
+      final ISDACompliantCurve curveUp = curve.withRate(r + EPS, i);
+      final ISDACompliantCurve curveDown = curve.withRate(r - EPS, i);
+      final double up = curveUp.getDiscountFactor(t);
+      final double down = curveDown.getDiscountFactor(t);
       res[i] = (up - down) / 2 / EPS;
     }
     return res;

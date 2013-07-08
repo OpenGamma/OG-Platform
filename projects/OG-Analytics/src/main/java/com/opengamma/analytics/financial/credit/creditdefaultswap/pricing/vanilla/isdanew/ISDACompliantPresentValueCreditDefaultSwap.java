@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -54,7 +54,9 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
   }
 
   /**
-   * Get the value of the premium leg for unit notional and unit (fractional) spread<p>
+   * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis 
+   * points divided by 10,000) <p>
    * This mimics the ISDA c function <b>JpmcdsCdsFeeLegPV</b>
    * @param today The 'current' date
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
@@ -70,10 +72,11 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
    * @param hazardRateCurve Curve giving survival probability
    * @param protectStart Does protection start at the beginning of the day
    * @param priceType Clean or Dirty price. The clean price removes the accrued premium if the trade is between payment times.
-   * @return unit notional RPV01
+   * @return 10,000 times the RPV01 (on a notional of 1)
    */
-  public double calculateRPV01(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, final StubType stubType, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve, final boolean protectStart, final PriceType priceType) {
+  public double pvPremiumLegPerUnitSpread(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
+      final boolean payAccOnDefault, final Period tenor, final StubType stubType, final ISDACompliantDateYieldCurve yieldCurve, final ISDACompliantDateCreditCurve hazardRateCurve,
+      final boolean protectStart, final PriceType priceType) {
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
     ArgumentChecker.notNull(valueDate, "null valueDate");
@@ -404,7 +407,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
     final LocalDate endDate = cds.getMaturityDate().toLocalDate();
 
     return cds.getNotional()
-        * calculateRPV01(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(),
+        * pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(),
             ISDACompliantDateYieldCurve.fromISDADateCurve(yieldCurve), ISDACompliantDateCreditCurve.fromHazardRateCurve(hazardRateCurve), cds.getProtectionStart(), priceType);
   }
 

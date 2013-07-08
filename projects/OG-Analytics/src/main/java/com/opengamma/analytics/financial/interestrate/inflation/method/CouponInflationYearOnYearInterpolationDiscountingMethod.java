@@ -26,22 +26,6 @@ import com.opengamma.util.tuple.DoublesPair;
 public class CouponInflationYearOnYearInterpolationDiscountingMethod {
 
   /**
-   * Computes the present value of the Year on Year coupon without convexity adjustment.
-   * @param coupon The zero-coupon payment.
-   * @param inflation The inflation provider.
-   * @return The present value.
-   */
-  public MultipleCurrencyAmount presentValue(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
-    final double estimatedIndexStart = indexEstimationStart(coupon, inflation);
-    final double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
-    final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    final double pv = coupon.getPaymentYearFraction() * (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
-    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
-  }
-
-  /**
    * Computes the net amount of the Year on Year coupon with reference index at start of the month.
    * @param coupon The zero-coupon payment.
    * @param inflation The inflation provider.
@@ -55,6 +39,19 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethod {
     final double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
     final double na = (estimatedIndexEnd / estimatedIndexStart - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), na);
+  }
+
+  /**
+   * Computes the present value of the Year on Year coupon without convexity adjustment.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface inflation) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflation, "Inflation");
+    final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    return netAmount(coupon, inflation).multipliedBy(discountFactor);
   }
 
   /**

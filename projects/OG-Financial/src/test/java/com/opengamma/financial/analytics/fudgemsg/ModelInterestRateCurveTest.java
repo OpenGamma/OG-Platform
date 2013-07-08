@@ -13,6 +13,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -34,7 +35,7 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
 
   @Test
   public void testInterpolatedDiscountCurve() {
-    final Map<Double, Double> map = new HashMap<Double, Double>();
+    final Map<Double, Double> map = new HashMap<>();
     map.put(1., 0.03);
     map.put(2., 0.04);
     map.put(3., 0.05);
@@ -45,13 +46,23 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
 
   @Test
   public void testInterpolatedYieldCurve() {
-    final Map<Double, Double> map = new HashMap<Double, Double>();
+    final Map<Double, Double> map = new HashMap<>();
     map.put(1., 0.03);
     map.put(2., 0.04);
     map.put(3., 0.05);
     final YieldCurve dc1 = new YieldCurve("Curve name-Yld", InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
     final YieldCurve dc2 = cycleObject(YieldCurve.class, dc1);
     assertEquals(dc1, dc2);
+  }
+
+  @Test
+  public void testPriceIndexCurve() {
+    final Map<Double, Double> map = new HashMap<>();
+    map.put(1., 0.03);
+    map.put(2., 0.04);
+    map.put(3., 0.05);
+    final PriceIndexCurve curve = new PriceIndexCurve(InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
+    assertEquals(curve, cycleObject(PriceIndexCurve.class, curve));
   }
 
 }

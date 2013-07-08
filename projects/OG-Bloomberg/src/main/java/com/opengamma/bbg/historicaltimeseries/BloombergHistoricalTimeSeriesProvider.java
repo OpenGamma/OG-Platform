@@ -24,7 +24,6 @@ import static com.opengamma.core.id.ExternalSchemes.BLOOMBERG_TICKER;
 
 import java.text.MessageFormat;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -39,7 +38,6 @@ import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
-import com.bloomberglp.blpapi.Service;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -140,10 +138,6 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      * Bloomberg statistics.
      */
     private final BloombergReferenceDataStatistics _statistics;
-    /**
-     * The Bloomberg service.
-     */
-    private Service _refDataService;
 
     /**
      * Creates an instance.
@@ -151,7 +145,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      * @param provider  the provider, not null
      */
     public BloombergHistoricalTimeSeriesProviderImpl(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
-      super(bloombergConnector);
+      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
       ArgumentChecker.notNull(statistics, "statistics");
       _statistics = statistics;
     }
@@ -160,11 +154,6 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     @Override
     protected Logger getLogger() {
       return s_logger;
-    }
-
-    @Override
-    protected void openServices() {
-      _refDataService = openService(BloombergConstants.REF_DATA_SVC_NAME);
     }
 
     //-------------------------------------------------------------------------
@@ -204,7 +193,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         Integer maxPoints, Map<String, ExternalIdBundle> reverseBundleMap) {
 
       // create request
-      Request request = _refDataService.createRequest(BLOOMBERG_HISTORICAL_DATA_REQUEST);
+      Request request = getService().createRequest(BLOOMBERG_HISTORICAL_DATA_REQUEST);
       Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
 
       // identifiers
@@ -315,7 +304,9 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       }
       if (externalIdBundle.size() != result.size()) {
         s_logger.warn("Failed to get time series results for ({}/{}) {}",
-            new Object[] {externalIdBundle.size() - result.size(), externalIdBundle.size(), Sets.difference(externalIdBundle, result.keySet()) });
+                      externalIdBundle.size() - result.size(),
+                      externalIdBundle.size(),
+                      Sets.difference(externalIdBundle, result.keySet()));
       }
       return convertResult(result);
     }
@@ -323,8 +314,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     @SuppressWarnings({"rawtypes", "unchecked" })
     private static Map<ExternalIdBundle, LocalDateDoubleTimeSeries> convertResult(Map result) {
       // ignore generics, which is safe as of JDK8
-      for (Iterator it = result.entrySet().iterator(); it.hasNext(); ) {
-        Entry entry = (Entry) it.next();
+      for (Object o : result.entrySet()) {
+        Entry entry = (Entry) o;
         LocalDateDoubleTimeSeriesBuilder bld = (LocalDateDoubleTimeSeriesBuilder) entry.getValue();
         entry.setValue(bld.build());
       }

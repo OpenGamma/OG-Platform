@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.percurrency;
@@ -10,7 +10,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class PerCurrencyConventionHelper {
   public static final String DEPOSIT = "Deposit";
@@ -22,6 +22,8 @@ public class PerCurrencyConventionHelper {
   public static final String OIS_SWAP_LEG = "OIS Swap Leg";
   public static final String OVERNIGHT = "Overnight";
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
+  public static final String INFLATION_LEG = "Inflation Swap Leg";
+  public static final String PRICE_INDEX = "Price Index";
   public static final String SCHEME_NAME = "CONVENTION";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {

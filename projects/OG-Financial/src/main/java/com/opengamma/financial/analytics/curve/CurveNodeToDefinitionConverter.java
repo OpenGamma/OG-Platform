@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -70,6 +71,11 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -106,14 +112,16 @@ public class CurveNodeToDefinitionConverter {
    * @param now The curve construction time, not null
    * @param marketValues The market data values for these nodes, not null
    * @param timeSeries The historical time series needed for these nodes, not null
+   * @param curveName The curve name, not null
    * @return An instrument definition for this node
    */
   public InstrumentDefinition<?> getDefinitionForNode(final CurveNode node, final ExternalId marketDataId, final ZonedDateTime now, final SnapshotDataBundle marketValues, //CSIGNORE
-      final HistoricalTimeSeriesBundle timeSeries) {
+      final HistoricalTimeSeriesBundle timeSeries, final String curveName) {
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(now, "now");
     ArgumentChecker.notNull(marketValues, "market values");
     ArgumentChecker.notNull(timeSeries, "time series");
+    ArgumentChecker.notNull(curveName, "curve name");
     final CurveNodeVisitor<InstrumentDefinition<?>> nodeVisitor = new CurveNodeVisitor<InstrumentDefinition<?>>() {
 
       @SuppressWarnings("synthetic-access")
@@ -341,7 +349,7 @@ public class CurveNodeToDefinitionConverter {
         return new SwapDefinition(payLeg, receiveLeg);
       }
 
-      @SuppressWarnings({"unchecked", "synthetic-access" })
+      @SuppressWarnings({"synthetic-access" })
       @Override
       public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode inflationNode) {
         Convention convention = _conventionSource.getConvention(inflationNode.getFixedLegConvention());
@@ -352,7 +360,7 @@ public class CurveNodeToDefinitionConverter {
           throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
         }
         final SwapFixedLegConvention fixedLegConvention = (SwapFixedLegConvention) convention;
-        convention = _conventionSource.getConvention(inflationNode.getFixedLegConvention());
+        convention = _conventionSource.getConvention(inflationNode.getInflationLegConvention());
         if (convention == null) {
           throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
         }
@@ -381,18 +389,20 @@ public class CurveNodeToDefinitionConverter {
         final boolean endOfMonth = fixedLegConvention.isIsEOM();
         final Currency currency = priceIndexConvention.getCurrency();
         final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, priceIndexConvention.getRegion());
-        final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now, settlementDays, calendar);
-        final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, calendar, endOfMonth);
+        final ZoneId zone = now.getZone(); //TODO time zone set to midnight UTC
+        final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now, settlementDays, calendar).toLocalDate().atStartOfDay(zone);
+        final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, calendar, endOfMonth).toLocalDate().atStartOfDay(zone);
         final CouponFixedCompoundingDefinition fixedCoupon = CouponFixedCompoundingDefinition.from(currency, settlementDate, paymentDate, notional, tenor,
             rate);
         final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, priceIndexConvention.getPriceIndexId());
         if (ts == null) {
-          throw new OpenGammaRuntimeException("Could not get price index time series");
+          throw new OpenGammaRuntimeException("Could not get price index time series with id " + priceIndexConvention.getPriceIndexId());
         }
-        final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries = (DoubleTimeSeries<ZonedDateTime>) ts;
+        final LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
+        final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries = convertTimeSeries(zone, localDateTS);
         final int conventionalMonthLag = inflationLegConvention.getMonthLag();
         final int monthLag = inflationLegConvention.getSpotLag();
-        final IndexPrice index = new IndexPrice(priceIndexConvention.getName(), currency);
+        final IndexPrice index = new IndexPrice(curveName, currency);
         switch (inflationNode.getInflationNodeType()) {
           case INTERPOLATED:
           {
@@ -469,6 +479,16 @@ public class CurveNodeToDefinitionConverter {
             paymentPeriod, isEOM);
       }
 
+      private ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
+        // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
+        final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
+        for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
+          final LocalDate date = it.nextTime();
+          final ZonedDateTime zdt = date.atStartOfDay(timeZone);
+          bld.put(zdt, it.currentValueFast());
+        }
+        return bld.build();
+      }
     };
     return node.accept(nodeVisitor);
   }

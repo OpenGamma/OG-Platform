@@ -9,6 +9,7 @@ import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.truncateSetInclusive;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.math.MathException;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
@@ -18,9 +19,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class AnalyticCDSPricer {
 
-  private static final double[] COEFF1 = new double[] {1 / 24., 1 / 6., 0.5, 1};
-  private static final double[] COEFF2 = new double[] {1 / 30., 1 / 8., 1 / 3., 0.5};
-  private static final double[] COEFF3 = new double[] {1 / 48., 1 / 10., 1 / 4., 1 / 3.};
+  // Coefficients for the Taylor expansion of (e^x-1)/x and its first two derivatives
+  private static final double[] COEFF1 = new double[] {1 / 24., 1 / 6., 1 / 2., 1};
+  private static final double[] COEFF2 = new double[] {1 / 144., 1 / 30., 1 / 8., 1 / 3., 1 / 2.};
+  private static final double[] COEFF3 = new double[] {1 / 168., 1 / 36., 1 / 10., 1 / 4., 1 / 3.};
 
   private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
 
@@ -40,16 +42,39 @@ public class AnalyticCDSPricer {
    * @param yieldCurve The yield (or discount) curve  
    * @param creditCurve the credit (or survival) curve 
    * @param fractionalSpread The <b>fraction</b> spread 
-   * @return The PV 
+  * @param cleanOrDirty Clean or dirty price 
+   * @return The PV on unit notional 
    */
-  public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread) {
+  public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread, final PriceType cleanOrDirty) {
     // TODO check for any repeat calculations
-    final double rpv01 = rpv01(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, cleanOrDirty);
     final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
     return proLeg - fractionalSpread * rpv01;
   }
 
-  public double rpv01(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
+  /**
+   * Present value (clean price)(for the payer of premiums (i.e. the buyer of protection) 
+  * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param fractionalSpread The <b>fraction</b> spread 
+   * @return The PV 
+   */
+  public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread) {
+    return pv(cds, yieldCurve, creditCurve, fractionalSpread, PriceType.CLEAN);
+  }
+
+  /**
+   * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis 
+   * points divided by 10,000) 
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param cleanOrDirty Clean or dirty price 
+   * @return 10,000 times the RPV01 (on a notional of 1)
+   */
+  public double pvPremiumLegPerUnitSpread(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
@@ -87,16 +112,14 @@ public class AnalyticCDSPricer {
   }
 
   /**
-   * The sensitivity of the RPV01 to the zero hazard rate of a given node (knot) of the credit curve. 
+   * The sensitivity (on a unit notional) of the (scaled) RPV01 to the zero hazard rate of a given node (knot) of the credit curve. 
    * @param cds analytic description of a CDS traded at a certain time 
    * @param yieldCurve The yield (or discount) curve  
    * @param creditCurve the credit (or survival) curve 
    * @param creditCurveNode The credit curve node 
    * @return  sensitivity (on a unit notional) 
-   * @deprecated not tested 
    */
-  @Deprecated
-  public double rpv01CreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+  public double pvPremiumLegCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
@@ -172,7 +195,7 @@ public class AnalyticCDSPricer {
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
         } else {
-          tPV = dht / dhrt * ((t0 + dt / dhrt) * b0 - (t1 + dt / dhrt) * b1);
+          tPV = dht / dhrt * (t0 * b0 - t1 * b1 + dt / dhrt * (b0 - b1));
         }
         t0 = t1;
       }
@@ -221,42 +244,52 @@ public class AnalyticCDSPricer {
       final double drt = rt1 - rt0;
       final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
 
-      double tPV;
       double tPvSense;
       // TODO once the maths is written up in a white paper, check these formula again, since tests again finite difference
       // could miss some subtle error
+
       if (_useCorrectAccOnDefaultFormula) {
         if (Math.abs(dhrt) < 1e-5) {
           final double eP = epsilonP(-dhrt);
           final double ePP = epsilonPP(-dhrt);
-          final double dPVdq0 = dht * p0 * dt * (eP - ePP);
-          final double dPVdq1 = dht * b0 * dt / q1 * ePP;
+          final double dPVdq0 = p0 * dt * ((1 + dht) * eP - dht * ePP);
+          final double dPVdq1 = b0 * dt / q1 * (-eP + dht * ePP);
           tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
         } else {
-          tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
-          final double dPVdq0 = tPV / q0 * (1 / dht - 1 / dhrt) + dht * dt / dhrt / dhrt * (p0 - (p0 - b1 / q0) / dhrt);
-          final double dPVdq1 = tPV / q1 * (-1 / dht + 1 / dhrt) + dht * dt / dhrt * ((b0 - b1) / q1 / dhrt / dhrt - p1 * (1 + 1 / dhrt));
-          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+          final double w5 = (b0 - b1) / dhrt;
+          final double w1 = w5 - b1;
+          final double w2 = dht / dhrt;
+          final double w3 = dt / dhrt;
+          final double w4 = (1 - w2) * w1;
+          final double dPVdq0 = w3 / q0 * (w4 + w2 * (b0 - w5));
+          final double dPVdq1 = w3 / q1 * (w4 + w2 * (b1 * (1 + dhrt) - w5));
+          tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
         }
       } else {
         // this is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
         final double t1 = t - accStart + 1 / 730.0;
         if (Math.abs(dhrt) < 1e-5) {
-    //       final double e1 = epsilon(-dhrt);
+          final double e = epsilon(-dhrt);
           final double eP = epsilonP(-dhrt);
           final double ePP = epsilonPP(-dhrt);
-          final double dPVdq0 = dht * p0 * dt * (eP - ePP);
-          final double dPVdq1 = dht * p0 * q0 / q1 * (t0 * eP + dt * ePP);
+          final double w1 = t0 * e + dt * eP;
+          final double w2 = t0 * eP + dt * ePP;
+          final double dPVdq0 = p0 * ((1 + dhrt) * w1 - dht * w2);
+          final double dPVdq1 = b0 / q1 * (-w1 + dht * w2);
           tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+
         } else {
-          tPV = dht / dhrt * ((t0 + dt / dhrt) * b0 - (t1 + dt / dhrt) * b1);
-          final double dPVdq0 = tPV / q0 * (1 / dht - 1 / dhrt) + dht / dhrt * ((t0 + dt / dhrt) * p0 - dt * (b0 - b1) / q0 / dhrt / dhrt);
-          final double dPVdq1 = -tPV / q1 * (1 / dht - 1 / dhrt) - dht / dhrt * ((t1 + dt / dhrt) * p1 - dt * (b0 - b1) / q1 / dhrt / dhrt);
-          tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
+          final double w1 = dt / dhrt;
+          final double w2 = dht / dhrt;
+          final double w3 = (t0 + w1) * b0 - (t1 + w1) * b1;
+          final double w4 = (1 - w2) / dhrt;
+          final double w5 = w1 / dhrt * (b0 - b1);
+          final double dPVdq0 = w4 * w3 / q0 + w2 * ((t0 + w1) * p0 - w5 / q0);
+          final double dPVdq1 = w4 * w3 / q1 + w2 * ((t1 + w1) * p1 - w5 / q1);
+          tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
         }
         t0 = t1;
       }
-      // TODO the Taylor expansions
 
       pvSense += tPvSense;
       ht0 = ht1;
@@ -332,9 +365,7 @@ public class AnalyticCDSPricer {
    * @param creditCurve the credit (or survival) curve 
    * @param creditCurveNode The credit curve node 
    * @return  sensitivity (on a unit notional) 
-   * @deprecated not tested 
    */
-  @Deprecated
   public double protectionLegCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
@@ -366,6 +397,10 @@ public class AnalyticCDSPricer {
       final double p1 = Math.exp(-rt1);
 
       if (dqdr0 == 0.0 && dqdr1 == 0.0) {
+        ht0 = ht1;
+        rt0 = rt1;
+        p0 = p1;
+        q0 = q1;
         continue;
       }
 
@@ -375,14 +410,15 @@ public class AnalyticCDSPricer {
 
       double dPVSense;
       if (Math.abs(dhrt) < 1e-5) {
-        final double theta = epsilon(-dhrt); // 1 - dhrt * (0.5 - dhrt / 6);
-        final double thetaPrime = epsilonP(-dhrt);
-        final double dPVdq0 = p0 * ((1 + dht) * theta + dht * thetaPrime);
-        final double dPVdq1 = -p0 * q0 / q1 * (theta + dht * thetaPrime);
+        final double e = epsilon(-dhrt);
+        final double eP = epsilonP(-dhrt);
+        final double dPVdq0 = p0 * ((1 + dht) * e - dht * eP);
+        final double dPVdq1 = -p0 * q0 / q1 * (e - dht * eP);
         dPVSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
       } else {
-        final double temp1 = drt / dhrt * (p0 * q0 - p1 * q1);
-        dPVSense = ((p0 * dht + temp1 / q0) * dqdr0 - (p1 * dht + temp1 / q1) * dqdr1) / dhrt;
+        final double w2 = dht / dhrt;
+        final double w3 = (1 - w2) * (p0 * q0 - p1 * q1);
+        dPVSense = ((w3 / q0 + dht * p0) / dhrt) * dqdr0 - ((w3 / q1 + dht * p1) / dhrt) * dqdr1;
       }
 
       // pv += dPV;
@@ -405,6 +441,11 @@ public class AnalyticCDSPricer {
     return pvSense;
   }
 
+  /**
+   * This is the Taylor expansion of $$\frac{\exp(x)-1}{x}$$ - note for $$|x| > 10^{-10}$$ the expansion is note uesed 
+   * @param x value
+   * @return result 
+   */
   private static double epsilon(final double x) {
     if (Math.abs(x) > 1e-10) {
       return Math.expm1(x) / x;
@@ -417,11 +458,16 @@ public class AnalyticCDSPricer {
     return sum;
   }
 
+  /**
+   * This is the Taylor expansion of the first derivative of $$\frac{\exp(x)-1}{x}$$
+   * @param x
+   * @return
+   */
   private static double epsilonP(final double x) {
 
-    if (Math.abs(x) > 1e-10) {
-      return ((x - 1) * Math.expm1(x) + x) / x / x;
-    }
+    // if (Math.abs(x) > 1e-10) {
+    // return ((x - 1) * Math.expm1(x) + x) / x / x;
+    // }
 
     double sum = COEFF2[0];
     final int n = COEFF2.length;
@@ -431,13 +477,18 @@ public class AnalyticCDSPricer {
     return sum;
   }
 
+  /**
+   * This is the Taylor expansion of the second derivative of $$\frac{\exp(x)-1}{x}$$
+   * @param x
+   * @return
+   */
   private static double epsilonPP(final double x) {
 
-    if (Math.abs(x) > 1e-10) {
-      final double x2 = x * x;
-      final double x3 = x * x2;
-      return (Math.expm1(x) * (x2 - 2 * x + 2) + x2 - 2 * x) / x3;
-    }
+    // if (Math.abs(x) > 1e-10) {
+    // final double x2 = x * x;
+    // final double x3 = x * x2;
+    // return (Math.expm1(x) * (x2 - 2 * x + 2) + x2 - 2 * x) / x3;
+    // }
 
     double sum = COEFF3[0];
     final int n = COEFF3.length;

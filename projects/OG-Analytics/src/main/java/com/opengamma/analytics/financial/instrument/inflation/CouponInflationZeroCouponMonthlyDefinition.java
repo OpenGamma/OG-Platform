@@ -144,7 +144,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     final ZonedDateTime referenceStartDate;
     referenceStartDate = refInterpolatedDate.withDayOfMonth(1);
     final Double indexStartValue = priceIndexTimeSeries.getValue(referenceStartDate);
-    ArgumentChecker.notNull(indexStartValue, "Required price index fixing unavailable"); // Fixing not known
+    ArgumentChecker.notNull(indexStartValue, "price index fixing"); // Fixing not known
     return from(accrualStartDate, paymentDate, notional, priceIndex, indexStartValue, conventionalMonthLag, monthlag, payNotional);
   }
 

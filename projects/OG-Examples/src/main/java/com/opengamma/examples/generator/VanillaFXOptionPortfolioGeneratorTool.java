@@ -31,7 +31,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Generates a portfolio of approximately ATM FX options.
  */
 public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   /** The list of options */
@@ -112,6 +112,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
     final SecurityGenerator<FXOptionSecurity> securities = new SecurityGenerator<FXOptionSecurity>() {
       private int _count;
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public FXOptionSecurity createSecurity() {
         final FXOptionSecurity fxOption = FX_OPTIONS.get(_count++);

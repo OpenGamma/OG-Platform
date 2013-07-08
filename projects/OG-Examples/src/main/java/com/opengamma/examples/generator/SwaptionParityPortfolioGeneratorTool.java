@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.generator;
@@ -42,18 +42,28 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Generates a portfolio of USD swaps and swaptions.
  */
 public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+  /** The currency */
   private static final Currency CURRENCY = Currency.USD;
+  /** Act/360 day-count */
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  /** Act/365 day-count */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  /** 30U/360 day-count */
   private static final DayCount THIRTYU_360 = DayCountFactory.INSTANCE.getDayCount("30U/360");
+  /** Quarterly frequency */
   private static final Frequency QUARTERLY = PeriodFrequency.QUARTERLY;
+  /** Semi-annual frequency */
   private static final Frequency SEMI_ANNUAL = PeriodFrequency.SEMI_ANNUAL;
+  /** Modified following business day convention */
   private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  /** The holiday region */
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("US+GB");
+  /** The ibor ticker */
   private static final ExternalId LIBOR_3M = ExternalSchemes.syntheticSecurityId("USDLIBORP3M");
+  /** The counterparty */
   private static final String COUNTERPARTY = "Cpty";
 
   @Override
@@ -76,9 +86,9 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwapParityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2012, 6, 5);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 9, 5);
-    final ZonedDateTime maturity = DateUtils.getUTCDate(2023, 9, 5);
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 5);
+    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 9, 5);
+    final ZonedDateTime maturity = DateUtils.getUTCDate(2024, 9, 5);
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg receiveLeg1 = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg payLeg1 = new FixedInterestRateLeg(THIRTYU_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, true, 0.02);
@@ -88,14 +98,14 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     swap2.setName("Receive Fixed @ 2% v USD 3m Libor");
     final SwapSecurity[] swapParity = new SwapSecurity[] {swap1, swap2};
     final ZonedDateTime[] tradeDates = new ZonedDateTime[] {tradeDate, tradeDate};
-    return new MySecurityGenerator<ManageableSecurity>(swapParity, tradeDates, "Swap payer / receiver parity");
+    return new MySecurityGenerator<>(swapParity, tradeDates, "Swap payer / receiver parity");
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwaptionLongShortGenerator(final SecurityMaster securityMaster) {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2012, 6, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 6, 5);
-    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2023, 6, 5);
-    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2013, 6, 3));
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 1);
+    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 6, 5);
+    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2024, 6, 5);
+    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2014, 6, 3));
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg payLeg = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg receiveLeg = new FixedInterestRateLeg(THIRTYU_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, true, 0.02);
@@ -111,14 +121,14 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     final SwaptionSecurity swaption2 = new SwaptionSecurity(true, underlyingId, false, expiry, false, CURRENCY);
     swaption2.setName("Short payer 1Yx10Y @ 2%");
     final SwaptionSecurity[] swaptionParity = new SwaptionSecurity[] {swaption1, swaption2};
-    return new MySecurityGenerator<ManageableSecurity>(swaptionParity, tradeDates, "Swaption long / short parity");
+    return new MySecurityGenerator<>(swaptionParity, tradeDates, "Swaption long / short parity");
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwaptionConventionGenerator(final SecurityMaster securityMaster) {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2012, 6, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 6, 5);
-    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2023, 6, 5);
-    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2013, 6, 3));
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 1);
+    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 6, 5);
+    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2024, 6, 5);
+    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2014, 6, 3));
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg payLeg = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg receiveLeg1 = new FixedInterestRateLeg(ACT_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, true, 0.018);
@@ -141,14 +151,14 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     final SwaptionSecurity swaption2 = new SwaptionSecurity(false, underlyingId2, false, expiry, false, CURRENCY);
     swaption2.setName("Short receiver 1Yx10Y @ 1.825% - ACT/365");
     final SwaptionSecurity[] swaptionParity = new SwaptionSecurity[] {swaption1, swaption2};
-    return new MySecurityGenerator<ManageableSecurity>(swaptionParity, tradeDates, "Swaption convention parity");
+    return new MySecurityGenerator<>(swaptionParity, tradeDates, "Swaption convention parity");
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwaptionParityGenerator(final SecurityMaster securityMaster) {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2012, 6, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 6, 5);
-    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2023, 6, 5);
-    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2013, 6, 3));
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 1);
+    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 6, 5);
+    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2024, 6, 5);
+    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2014, 6, 3));
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg payLeg = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg receiveLeg = new FixedInterestRateLeg(THIRTYU_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, true, 0.02);
@@ -170,12 +180,19 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
     final SwaptionSecurity swaption2 = new SwaptionSecurity(true, underlyingId2, false, expiry, false, CURRENCY);
     swaption2.setName("Short receiver 1Yx10Y @ 2%");
     final ManageableSecurity[] swaptionParity = new ManageableSecurity[] {underlyingSwap2, swaption1, swaption2};
-    return new MySecurityGenerator<ManageableSecurity>(swaptionParity, tradeDates, "Swaption payer / receiver parity");
+    return new MySecurityGenerator<>(swaptionParity, tradeDates, "Swaption payer / receiver parity");
   }
 
+  /**
+   * Generates trades and adds them to a portfolio.
+   * @param <T> The type of the security
+   */
   private class MySecurityGenerator<T extends ManageableSecurity> extends SecurityGenerator<T> implements PortfolioNodeGenerator {
+    /** The securities */
     private final ManageableSecurity[] _securities;
+    /** The trade dates */
     private final ZonedDateTime[] _tradeDates;
+    /** The name */
     private final String _name;
 
     public MySecurityGenerator(final ManageableSecurity[] securities, final ZonedDateTime[] tradeDates, final String name) {
@@ -184,6 +201,7 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
       _name = name;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public PortfolioNode createPortfolioNode() {
       final SimplePortfolioNode node = new SimplePortfolioNode(_name);

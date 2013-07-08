@@ -34,21 +34,34 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Generates a portfolio of AUD swaps.
  */
 public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
-  private static final ZonedDateTime TRADE_DATE = LocalDate.of(2013, 9, 5).atStartOfDay(ZoneOffset.UTC);
-  private static final ZonedDateTime MATURITY = LocalDate.of(2015, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  /** The trade date */
+  private static final ZonedDateTime TRADE_DATE = LocalDate.of(2014, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  /** The maturity */
+  private static final ZonedDateTime MATURITY = LocalDate.of(2016, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  /** The counterparty */
   private static final String COUNTERPARTY = "Cpty";
+  /** Act/365 day-count */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Act/365");
+  /** Act/360 day-count */
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  /** Quarterly frequency */
   private static final Frequency QUARTERLY = PeriodFrequency.QUARTERLY;
+  /** Semi-annual frequency */
   private static final Frequency SEMI_ANNUAL = PeriodFrequency.SEMI_ANNUAL;
+  /** The region */
   private static final ExternalId REGION =  ExternalSchemes.financialRegionId("AU");
+  /** Following business day convention */
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  /** The notional */
   private static final InterestRateNotional NOTIONAL = new InterestRateNotional(Currency.AUD, 15000000);
+  /** 3m Libor ticker */
   private static final ExternalId AUD_LIBOR_3M = ExternalSchemes.syntheticSecurityId("AUDLIBORP3M");
+  /** 6m Libor ticker */
   private static final ExternalId AUD_LIBOR_6M = ExternalSchemes.syntheticSecurityId("AUDLIBORP6M");
+  /** Swaps */
   private static final SwapSecurity[] SWAPS = new SwapSecurity[4];
 
   static {
@@ -78,7 +91,7 @@ public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
     final SecurityGenerator<SwapSecurity> securities = createSwapSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<SwapSecurity>(securities, getSecurityPersister(), getCounterPartyGenerator());
+    final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
     final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("AUD Swaps"), positions, 4);
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }
@@ -87,7 +100,7 @@ public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
     final SecurityGenerator<SwapSecurity> securities = createSwapSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<SwapSecurity>(securities, getSecurityPersister(), getCounterPartyGenerator());
+    final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
     return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Swaps"), positions, 4);
   }
 
@@ -95,6 +108,7 @@ public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     final SecurityGenerator<SwapSecurity> securities = new SecurityGenerator<SwapSecurity>() {
       private int _count;
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public SwapSecurity createSecurity() {
         if (_count > 3) {
