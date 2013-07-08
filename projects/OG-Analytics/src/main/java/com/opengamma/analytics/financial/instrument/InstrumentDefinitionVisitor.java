@@ -40,6 +40,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDef
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -408,6 +409,10 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, DATA_TYPE data);
 
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond);
+
+  RESULT_TYPE visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond, DATA_TYPE data);
+
+  RESULT_TYPE visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond);
 
   RESULT_TYPE visitCDSDefinition(ISDACDSDefinition cds, DATA_TYPE data);
 
