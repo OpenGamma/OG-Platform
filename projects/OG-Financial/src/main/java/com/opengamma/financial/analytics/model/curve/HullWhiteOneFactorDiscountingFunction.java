@@ -36,11 +36,13 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
+import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -58,6 +60,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -91,14 +94,14 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class MulticurveProviderDiscountingFunction extends AbstractFunction {
-  private static final String CALCULATION_METHOD = "Discounting"; //TODO move me
-  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
-  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
+public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
+  private static final String CALCULATION_METHOD = "Hull-White"; //TODO move me
+  private static final ParSpreadMarketQuoteHullWhiteCalculator PSMQHWC = ParSpreadMarketQuoteHullWhiteCalculator.getInstance();
+  private static final ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator PSMQCSHWC = ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
   private final String _configurationName;
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
-  public MulticurveProviderDiscountingFunction(final String configurationName) {
+  public HullWhiteOneFactorDiscountingFunction(final String configurationName) {
     ArgumentChecker.notNull(configurationName, "configuration name");
     _configurationName = configurationName;
   }
@@ -126,7 +129,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
             .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
             .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
             .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
-            .get();
+          .get();
         exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
     }
@@ -140,13 +143,27 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+        final HullWhiteOneFactorPiecewiseConstantParameters modelParameters = (HullWhiteOneFactorPiecewiseConstantParameters) inputs.getValue(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS);
+        Currency currency = null;
+        for (final ComputedValue input : inputs.getAllValues()) {
+          if (input.getSpecification().getValueName().equals(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS)) {
+            currency = Currency.of(input.getSpecification().getProperty(ValuePropertyNames.CURRENCY));
+            break;
+          }
+        }
+        if (currency == null) {
+          throw new OpenGammaRuntimeException("Could not get the currency for this set of Hull-White one factor parameters");
+        }
         final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
-        MulticurveProviderDiscount knownData;
+        HullWhiteOneFactorProviderDiscount knownData;
         if (exogenousRequirements.isEmpty()) {
-          knownData = new MulticurveProviderDiscount(fxMatrix);
+          knownData = new HullWhiteOneFactorProviderDiscount(new MulticurveProviderDiscount(fxMatrix), modelParameters, currency);
         } else {
-          knownData = (MulticurveProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE);
-          knownData.setForexMatrix(fxMatrix);
+          final Object curveBundle = inputs.getValue(ValueRequirementNames.CURVE_BUNDLE);
+          if (curveBundle instanceof MulticurveProviderDiscount) {
+            knownData = new HullWhiteOneFactorProviderDiscount((MulticurveProviderDiscount) curveBundle, modelParameters, currency);
+          }
+          knownData = (HullWhiteOneFactorProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE);
         }
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
@@ -167,8 +184,8 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         final double absoluteTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)));
         final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
         final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
-        final MulticurveDiscountBuildingRepository builder = new MulticurveDiscountBuildingRepository(absoluteTolerance, relativeTolerance, maxIterations);
-        final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData); //, fxMatrix);
+        final HullWhiteProviderDiscountBuildingRepository builder = new HullWhiteProviderDiscountBuildingRepository(absoluteTolerance, relativeTolerance, maxIterations);
+        final Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData);
         final ValueSpecification bundleSpec = new ValueSpecification(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
         final Set<ComputedValue> result = new HashSet<>();
         result.add(new ComputedValue(bundleSpec, pair.getFirst()));
@@ -177,7 +194,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               .with(CURVE, curveName)
               .get();
           final ValueSpecification curveSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
-          result.add(new ComputedValue(curveSpec, pair.getFirst().getCurve(curveName)));
+          result.add(new ComputedValue(curveSpec, pair.getFirst().getMulticurveProvider().getCurve(curveName)));
         }
         return result;
       }
@@ -214,6 +231,15 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         if (maxIterations == null || maxIterations.size() != 1) {
           return null;
         }
+        final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURRENCY);
+        if (currencies == null || currencies.size() != 1) {
+          return null;
+        }
+        final Set<String> hwPropertyNames = constraints.getValues(CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS);
+        if (hwPropertyNames == null || hwPropertyNames.size() != 1) {
+          return null;
+        }
+        final Currency currency = Currency.of(Iterables.getOnlyElement(currencies));
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final String curveName : curveNames) {
           final ValueProperties properties = ValueProperties.builder()
@@ -226,8 +252,12 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         final ValueProperties properties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .get();
+        final ValueProperties hwProperties = ValueProperties.builder()
+            .with(CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
+            .get();
         requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
         requirements.add(new ValueRequirement(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties));
+        requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(currency), hwProperties));
         requirements.addAll(exogenousRequirements);
         return requirements;
       }
@@ -256,9 +286,8 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       }
 
       @SuppressWarnings("synthetic-access")
-      private Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
-          final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder, final MulticurveProviderDiscount knownData) {//,
-        //final FXMatrix fxMatrix) {
+      private Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
+          final FunctionInputs inputs, final ZonedDateTime now, final HullWhiteProviderDiscountBuildingRepository builder, final HullWhiteOneFactorProviderDiscount knownData) {
         final ValueProperties curveConstructionProperties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, constructionConfiguration.getName())
             .get();
@@ -296,7 +325,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
                 (SnapshotDataBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
             final int nNodes = specification.getNodes().size();
             final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
-            final double[] marketDataForCurve = new double[nNodes]; // FIXME: Where is this used?
+            final double[] marketDataForCurve = new double[nNodes];
             int k = 0;
             for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
               final Double marketData = snapshot.getDataPoint(node.getIdentifier());
@@ -304,7 +333,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
                 throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
               }
               marketDataForCurve[k] = marketData;
-              parameterGuessForCurves.add(0.0); // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
+              parameterGuessForCurves.add(marketData);
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot,
                   timeSeries, curveName);
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
@@ -355,7 +384,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
           }
           i++;
         } // Group - end
-        return builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess, knownData, discountingMap, forwardIborMap, forwardONMap, PSMQC, PSMQCSC);
+        return builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess, knownData, discountingMap, forwardIborMap, forwardONMap, PSMQHWC, PSMQCSHWC);
       }
 
       private GeneratorYDCurve getGenerator(final CurveDefinition definition) {

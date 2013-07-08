@@ -44,6 +44,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedT
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -160,6 +161,8 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, DATA_TYPE data);
 
+  RESULT_TYPE visitBondInterestIndexedTransaction(BondInterestIndexedTransaction<?, ?> bond, DATA_TYPE data);
+
   RESULT_TYPE visitCDSDerivative(ISDACDSDerivative cds, DATA_TYPE data);
 
   // One argument
@@ -211,6 +214,8 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
+
+  RESULT_TYPE visitBondInterestIndexedTransaction(BondInterestIndexedTransaction<?, ?> bond);
 
   RESULT_TYPE visitBondInterestIndexedSecurity(BondInterestIndexedSecurity<?, ?> bond);
 

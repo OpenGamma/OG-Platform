@@ -22,25 +22,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Pricing method for Forex swap transactions by discounting each payment.
  */
-public final class ForexSwapDiscountingProviderMethod {
+public final class ForexSwapDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final ForexSwapDiscountingProviderMethod INSTANCE = new ForexSwapDiscountingProviderMethod();
+  private static final ForexSwapDiscountingMethod INSTANCE = new ForexSwapDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static ForexSwapDiscountingProviderMethod getInstance() {
+  public static ForexSwapDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private ForexSwapDiscountingProviderMethod() {
+  private ForexSwapDiscountingMethod() {
   }
 
   /**
@@ -67,19 +67,6 @@ public final class ForexSwapDiscountingProviderMethod {
   }
 
   /**
-   * Compute the present value sensitivity to rates of a forex swap transaction.
-   * @param fx The forex swap transaction.
-   * @param multicurves The multi-curves provider.
-   * @return The sensitivity.
-   */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexSwap fx, final MulticurveProviderInterface multicurves) {
-    ArgumentChecker.notNull(fx, "Forex swap");
-    MultipleCurrencyMulticurveSensitivity result = METHOD_FX.presentValueCurveSensitivity(fx.getNearLeg(), multicurves);
-    result = result.plus(METHOD_FX.presentValueCurveSensitivity(fx.getFarLeg(), multicurves));
-    return result;
-  }
-
-  /**
    * The par spread is the spread that should be added to the forex forward points to have a zero value.
    * @param fx The forex swap.
    * @param multicurves The multi-curves provider.
@@ -93,6 +80,19 @@ public final class ForexSwapDiscountingProviderMethod {
     final double dfEnd = multicurves.getDiscountFactor(fx.getFarLeg().getCurrency2(), fx.getFarLeg().getPaymentTime());
     final double notional1 = fx.getNearLeg().getPaymentCurrency1().getAmount();
     return -pv2 / (notional1 * dfEnd);
+  }
+
+  /**
+   * Compute the present value sensitivity to rates of a forex swap transaction.
+   * @param fx The forex swap transaction.
+   * @param multicurves The multi-curves provider.
+   * @return The sensitivity.
+   */
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexSwap fx, final MulticurveProviderInterface multicurves) {
+    ArgumentChecker.notNull(fx, "Forex swap");
+    MultipleCurrencyMulticurveSensitivity result = METHOD_FX.presentValueCurveSensitivity(fx.getNearLeg(), multicurves);
+    result = result.plus(METHOD_FX.presentValueCurveSensitivity(fx.getFarLeg(), multicurves));
+    return result;
   }
 
   /**

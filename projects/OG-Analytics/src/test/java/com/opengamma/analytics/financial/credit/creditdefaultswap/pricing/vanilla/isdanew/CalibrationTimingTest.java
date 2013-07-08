@@ -45,7 +45,7 @@ public class CalibrationTimingTest {
   private static final CholeskyDecompositionCommons CHOLESKY = new CholeskyDecompositionCommons();
 
   private static final ISDACompliantYieldCurveBuild YIELD_CURVE_BUILDER = new ISDACompliantYieldCurveBuild();
-  private static final ISDACompliantCreditCurveBuild CREDIT_CURVE_BUILDER = new ISDACompliantCreditCurveBuild();
+  private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
 
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 

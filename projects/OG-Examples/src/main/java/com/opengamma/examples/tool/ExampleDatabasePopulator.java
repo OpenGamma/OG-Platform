@@ -76,6 +76,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    */
   public static final String VANILLA_FX_OPTION_PORTFOLIO_NAME = "Vanilla FX Option Portfolio";
   /**
+   * The name of a EUR fixed income portfolio
+   */
+  public static final String EUR_SWAP_PORTFOLIO_NAME = "EUR Fixed Income Portfolio";
+  /**
    * Mixed currency swaption portfolio
    */
   public static final String MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME = "Swaption Portfolio";
@@ -126,6 +130,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadBondPortfolio();
     loadLiborRawSecurities();
     loadSwaptionPortfolio();
+    loadEURFixedIncomePortfolio();
     loadViews();
     loadFunctionConfigurations();
   }
@@ -323,6 +328,16 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating example swaption portfolio");
     try {
       portfolioGeneratorTool().run(getToolContext(), MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME, "Swaption", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadEURFixedIncomePortfolio() {
+    final Log log = new Log("Creating example EUR fixed income portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), EUR_SWAP_PORTFOLIO_NAME, "EURFixedIncome", true, null);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

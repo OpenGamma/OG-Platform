@@ -5,15 +5,19 @@
  */
 package com.opengamma.integration.tool.portfolio.xml;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.sheet.reader.SheetReader;
 
 /**
  * Parses an XML file and if the file is valid, generates a collection
@@ -37,26 +41,37 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
    * <li>Check the portfolio, position, trade, security details are valid</li>
    * </ul>
    *
-   * @param fileLocation the location of the file to load, must not be null
+   * @param inputStream the input stream of the file, must not be null
    * @param schemaRegister the schema register, use to determine what xml
    * versions can be handled
    */
-  public XmlFileReader(String fileLocation, SchemaRegister schemaRegister) {
+  public XmlFileReader(InputStream inputStream, SchemaRegister schemaRegister) {
 
-    SchemaVersion version = extractSchemaVersion(fileLocation);
+    // Create a ByteArrayInputStream to ensure reset() is available
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+      org.apache.commons.io.IOUtils.copy(inputStream, baos);
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Unable to read xml", e);
+    }
 
+    byte[] bytes = baos.toByteArray();
+    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+    SchemaVersion version = extractSchemaVersion(bais);
     PortfolioConversion converter = schemaRegister.getConverterForSchema(version);
 
-    if (converter != null) {
+    //reset after schema version is extracted
+    bais.reset();
 
-      Iterable<VersionedPortfolioHandler> handlers = converter.convertPortfolio(new File(fileLocation));
+    if (converter != null) {
+      Iterable<VersionedPortfolioHandler> handlers = converter.convertPortfolio(bais);
       _readers = Iterables.transform(handlers, new Function<VersionedPortfolioHandler, PortfolioReader>() {
         @Override
         public PortfolioReader apply(final VersionedPortfolioHandler vph) {
           return new XmlPortfolioReader(vph);
         }
       });
-
     } else {
       throw new OpenGammaRuntimeException("Unable to process schema version: " + version + " as no converter is available");
     }
@@ -67,11 +82,8 @@ public class XmlFileReader implements Iterable<PortfolioReader> {
     return _readers.iterator();
   }
 
-  private SchemaVersion extractSchemaVersion(String fileLocation) {
-    try {
-      return new SchemaVersionParser(new FileReader(fileLocation)).parseSchemaVersion();
-    } catch (FileNotFoundException e) {
-      throw new OpenGammaRuntimeException("Cannot find file: " + fileLocation, e);
-    }
+  private SchemaVersion extractSchemaVersion(InputStream inputStream) {
+    return new SchemaVersionParser(new InputStreamReader(inputStream)).parseSchemaVersion();
   }
+
 }

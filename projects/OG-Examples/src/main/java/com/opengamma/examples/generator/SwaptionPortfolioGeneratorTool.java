@@ -16,7 +16,6 @@ import java.util.Random;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.position.Counterparty;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -47,16 +46,19 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- *
+ * Generates a portfolio of multi-currency swaptions.
  */
 public class SwaptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+  /** The strike formatter */
   private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("#.####");
+  /** The day count */
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  /** The business day convention */
   private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  /** Map of currency to region */
   private static final Map<Currency, ExternalId> REGIONS = new HashMap<>();
+  /** Map of currency to synthetic ibor tickers */
   private static final Map<Currency, ExternalId> TICKERS = new HashMap<>();
-  @SuppressWarnings("unused")
-  private static final ExternalId COUNTERPARTY = ExternalId.of(Counterparty.DEFAULT_SCHEME, AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY);
 
   static {
     REGIONS.put(Currency.USD, ExternalSchemes.financialRegionId("US"));

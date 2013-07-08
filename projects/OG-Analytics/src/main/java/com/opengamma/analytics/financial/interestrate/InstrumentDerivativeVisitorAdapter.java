@@ -44,6 +44,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedT
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -601,6 +602,16 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final DATA_TYPE data) {
+    return getException(bond, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondInterestIndexedTransaction(final BondInterestIndexedTransaction<?, ?> bond) {
+    return getException(bond);
+  }
+
+  @Override
+  public RESULT_TYPE visitBondInterestIndexedTransaction(final BondInterestIndexedTransaction<?, ?> bond, final DATA_TYPE data) {
     return getException(bond, data);
   }
 

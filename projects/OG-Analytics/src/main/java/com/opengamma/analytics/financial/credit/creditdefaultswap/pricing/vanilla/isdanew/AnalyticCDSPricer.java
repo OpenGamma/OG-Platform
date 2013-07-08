@@ -7,9 +7,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.getIntegrationsPoints;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.truncateSetInclusive;
-
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.math.MathException;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilon;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilonP;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilonPP;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
@@ -18,11 +18,6 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class AnalyticCDSPricer {
-
-  // Coefficients for the Taylor expansion of (e^x-1)/x and its first two derivatives
-  private static final double[] COEFF1 = new double[] {1 / 24., 1 / 6., 1 / 2., 1};
-  private static final double[] COEFF2 = new double[] {1 / 144., 1 / 30., 1 / 8., 1 / 3., 1 / 2.};
-  private static final double[] COEFF3 = new double[] {1 / 168., 1 / 36., 1 / 10., 1 / 4., 1 / 3.};
 
   private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
 
@@ -439,63 +434,6 @@ public class AnalyticCDSPricer {
     pvSense /= df;
 
     return pvSense;
-  }
-
-  /**
-   * This is the Taylor expansion of $$\frac{\exp(x)-1}{x}$$ - note for $$|x| > 10^{-10}$$ the expansion is note uesed 
-   * @param x value
-   * @return result 
-   */
-  private static double epsilon(final double x) {
-    if (Math.abs(x) > 1e-10) {
-      return Math.expm1(x) / x;
-    }
-    double sum = COEFF1[0];
-    final int n = COEFF1.length;
-    for (int i = 1; i < n; i++) {
-      sum = COEFF1[i] + x * sum;
-    }
-    return sum;
-  }
-
-  /**
-   * This is the Taylor expansion of the first derivative of $$\frac{\exp(x)-1}{x}$$
-   * @param x
-   * @return
-   */
-  private static double epsilonP(final double x) {
-
-    // if (Math.abs(x) > 1e-10) {
-    // return ((x - 1) * Math.expm1(x) + x) / x / x;
-    // }
-
-    double sum = COEFF2[0];
-    final int n = COEFF2.length;
-    for (int i = 1; i < n; i++) {
-      sum = COEFF2[i] + x * sum;
-    }
-    return sum;
-  }
-
-  /**
-   * This is the Taylor expansion of the second derivative of $$\frac{\exp(x)-1}{x}$$
-   * @param x
-   * @return
-   */
-  private static double epsilonPP(final double x) {
-
-    // if (Math.abs(x) > 1e-10) {
-    // final double x2 = x * x;
-    // final double x3 = x * x2;
-    // return (Math.expm1(x) * (x2 - 2 * x + 2) + x2 - 2 * x) / x3;
-    // }
-
-    double sum = COEFF3[0];
-    final int n = COEFF3.length;
-    for (int i = 1; i < n; i++) {
-      sum = COEFF3[i] + x * sum;
-    }
-    return sum;
   }
 
 }

@@ -52,6 +52,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDef
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -1263,6 +1264,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitBondInterestIndexedSecurity(BondInterestIndexedSecurityDefinition<?, ?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond) {
       return null;
     }
 
