@@ -13,14 +13,14 @@ The OpenGamma platform produces a number of reports to aid understanding.
 </p>
 <p>
 <ul>
-<li>The latest <a href="apidocs/index.html">Javadoc</a></li>
-<li>The coding standards report from <a href="checkstyle-aggregate.html">Checkstyle</a></li>
-<li>The <a href="surefire-report.html">test reports</a></li>
-<li>The <a href="xref/index.html">source code</a> cross-reference</li>
+<li>The main public platform <a href="platform/index.html">site</a></li>
+<li>The latest <a href="platform/apidocs/index.html">Javadoc</a></li>
+<li>The coding standards report from <a href="platform/checkstyle-aggregate.html">Checkstyle</a></li>
+<li>The <a href="platform/xref/index.html">source code</a> cross-reference</li>
 </ul>
 </p>
 <p>
-Additional reports can be manually produced at a project level using the command line.
+See also the individual module reports.
 </p>
 </section>
 </body>

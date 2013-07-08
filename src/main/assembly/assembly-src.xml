@@ -23,31 +23,39 @@
         <exclude>**/*.iml</exclude>
         <exclude>**/*.log</exclude>
         <exclude>**/tests.properties</exclude>
+        <exclude>**/bin/**</exclude>
+        <exclude>**/target/**</exclude>
       </excludes>
     </fileSet>
   </fileSets>
   <moduleSets>
     <moduleSet>
+      <includes>
+        <include>com.opengamma.platform:og-platform-public</include>
+      </includes>
       <sources>
-        <outputDirectoryMapping>projects/${module.artifactId}</outputDirectoryMapping>
+        <outputDirectoryMapping>projects</outputDirectoryMapping>
+        <excludeSubModuleDirectories>false</excludeSubModuleDirectories>
         <fileSets>
           <fileSet>
             <directory>${project.basedir}</directory>
             <includes>
-              <include>LICENSE.txt</include>
-              <include>NOTICE.txt</include>
-              <include>README.txt</include>
-              <include>pom.xml</include>
-              <include>config/**</include>
-              <include>scripts/**</include>
-              <include>scripts-*/**</include>
-              <include>src/**</include>
-              <include>web-*/**</include>
+              <include>**/LICENSE.txt</include>
+              <include>**/NOTICE.txt</include>
+              <include>**/README.txt</include>
+              <include>**/pom.xml</include>
+              <include>**/config/**</include>
+              <include>**/scripts/**</include>
+              <include>**/scripts-*/**</include>
+              <include>**/src/**</include>
+              <include>**/web-*/**</include>
             </includes>
             <excludes>
               <exclude>**/*.iml</exclude>
               <exclude>**/*.log</exclude>
               <exclude>**/tests.properties</exclude>
+              <exclude>**/bin/**</exclude>
+              <exclude>**/target/**</exclude>
             </excludes>
           </fileSet>
         </fileSets>

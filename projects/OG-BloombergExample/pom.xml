@@ -7,9 +7,9 @@
 
   <parent>
     <groupId>com.opengamma.platform</groupId>
-    <artifactId>og-parent</artifactId>
+    <artifactId>og-platform-public</artifactId>
     <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-bloombergexample</artifactId>
   <packaging>jar</packaging>
@@ -72,7 +72,7 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>com.opengamma</groupId>
+                  <groupId>com.opengamma.platform</groupId>
                   <artifactId>og-web</artifactId>
                   <version>${project.version}</version>
                   <type>zip</type>
