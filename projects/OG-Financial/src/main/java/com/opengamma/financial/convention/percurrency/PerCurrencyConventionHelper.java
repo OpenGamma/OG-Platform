@@ -13,20 +13,30 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class PerCurrencyConventionHelper {
-  public static final String DEPOSIT = "Deposit";
-  public static final String DEPOSIT_ON = "DepositON";
+  /** The convention scheme name string **/
+  public static final String SCHEME_NAME = "CONVENTION";
+  /** Overnight Index string **/
+  public static final String OVERNIGHT = "Overnight";
+  /** Libor Index string **/
   public static final String LIBOR = "Libor";
   public static final String JIBOR = "Jibor";
+  /** Deposit convention string **/
+  public static final String DEPOSIT = "Deposit";
+  /** Deposit Overnight convention string **/
+  public static final String DEPOSIT_ON = "DepositON";
+  /** FRA convention string **/
   public static final String FRA = "FRA";
+  /** OIS fixed leg convention string **/
   public static final String OIS_FIXED_LEG = "OIS Fixed Leg";
-  public static final String FIXED_SWAP_LEG = "Fixed Swap Leg";
-  public static final String VANILLA_IBOR_LEG = "Vanilla Ibor Leg";
-  public static final String OIS_SWAP_LEG = "OIS Swap Leg";
-  public static final String OVERNIGHT = "Overnight";
+  /** OIS float leg convention string **/
+  public static final String OIS_ON_LEG = "OIS Overnight Leg";
+  /** IRS fixed leg convention string **/
+  public static final String IRS_FIXED_LEG = "IRS Fixed Leg";
+  /** IRS Ibor leg convention string **/
+  public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
   public static final String INFLATION_LEG = "Inflation Swap Leg";
   public static final String PRICE_INDEX = "Price Index";
-  public static final String SCHEME_NAME = "CONVENTION";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {
     final String idName = getConventionName(currency, instrumentName);

@@ -257,8 +257,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       private Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
-          final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder, final MulticurveProviderDiscount knownData) {//,
-        //final FXMatrix fxMatrix) {
+          final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder, final MulticurveProviderDiscount knownData) {
         final ValueProperties curveConstructionProperties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, constructionConfiguration.getName())
             .get();
@@ -304,7 +303,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
                 throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
               }
               marketDataForCurve[k] = marketData;
-              parameterGuessForCurves.add(0.0); // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
+              parameterGuessForCurves.add(0.02); // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot,
                   timeSeries, curveName);
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);

@@ -8,15 +8,15 @@ package com.opengamma.financial.convention.percurrency;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT_ON;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.EURODOLLAR_FUTURE;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FIXED_SWAP_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.INFLATION_LEG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_FIXED_LEG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.LIBOR;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_FIXED_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_SWAP_LEG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_ON_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OVERNIGHT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.PRICE_INDEX;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.VANILLA_IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getIds;
 
@@ -59,36 +59,41 @@ public class USConventions {
   private static final ExternalId NYLON = ExternalSchemes.financialRegionId("US+GB");
 
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionMaster conventionMaster) {
-    final String irsFixedLegConventionName = getConventionName(Currency.USD, FIXED_SWAP_LEG);
-    final String oisFixedLegConventionName = getConventionName(Currency.USD, OIS_FIXED_LEG);
     final String tenorString = "3M";
     final String depositConventionName = getConventionName(Currency.USD, DEPOSIT);
     final String depositONConventionName = getConventionName(Currency.USD, DEPOSIT_ON);
     final String overnightConventionName = getConventionName(Currency.USD, OVERNIGHT);
     final String liborConventionName = getConventionName(Currency.USD, LIBOR);
-    final String vanillaIborLegConventionName = getConventionName(Currency.USD, tenorString, VANILLA_IBOR_LEG);
-    final String oisLegConventionName = getConventionName(Currency.USD, OIS_SWAP_LEG);
     final String eurodollarFutureConventionName = EURODOLLAR_FUTURE;
     final String inflationConventionName = getConventionName(Currency.USD, INFLATION_LEG);
     final String priceIndexName = getConventionName(Currency.USD, PRICE_INDEX);
     final ExternalId libor3mConventionId = ExternalId.of(SCHEME_NAME, liborConventionName);
     final ExternalId overnightConventionId = ExternalId.of(SCHEME_NAME, overnightConventionName);
     final ExternalId priceIndexId = ExternalId.of(SCHEME_NAME, priceIndexName);
-    final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(Currency.USD, DEPOSIT), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.USD, US);
-    final DepositConvention depositONConvention = new DepositConvention(depositONConventionName, getIds(Currency.USD, DEPOSIT_ON), ACT_360, FOLLOWING, 0, false, Currency.USD, US);
     final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(Currency.USD, LIBOR), ACT_360, MODIFIED_FOLLOWING, 2, false, Currency.USD,
         LocalTime.of(11, 00), NYLON, US, "");
     final Convention overnightConvention = new OvernightIndexConvention(overnightConventionName, getIds(Currency.USD, OVERNIGHT), ACT_360, 1, Currency.USD, US);
-    final Convention irsFixedLegConvention = new SwapFixedLegConvention(irsFixedLegConventionName, getIds(Currency.USD, FIXED_SWAP_LEG),
-        Tenor.SIX_MONTHS, THIRTY_360, MODIFIED_FOLLOWING, 2, true, Currency.USD, NYLON, StubType.SHORT_START);
+    // Deposit
+    final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(Currency.USD, DEPOSIT), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.USD, US);
+    final DepositConvention depositONConvention = new DepositConvention(depositONConventionName, getIds(Currency.USD, DEPOSIT_ON), ACT_360, FOLLOWING, 0, false, Currency.USD, US);
+    // OIS legs
+    final String oisFixedLegConventionName = getConventionName(Currency.USD, OIS_FIXED_LEG);
+    final String oisONLegConventionName = getConventionName(Currency.USD, OIS_ON_LEG);
     final Convention oisFixedLegConvention = new SwapFixedLegConvention(oisFixedLegConventionName, getIds(Currency.USD, OIS_FIXED_LEG),
         Tenor.ONE_YEAR, ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.USD, US, StubType.SHORT_START);
-    final Convention vanillaIborLegConvention = new VanillaIborLegConvention(vanillaIborLegConventionName, getIds(Currency.USD, tenorString, VANILLA_IBOR_LEG),
-        libor3mConventionId, true, StubType.NONE, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS);
-    final Convention overnightLegConvention = new OISLegConvention(oisLegConventionName, getIds(Currency.USD, OIS_SWAP_LEG), overnightConventionId,
+    final Convention oisONLegConvention = new OISLegConvention(oisONLegConventionName, getIds(Currency.USD, OIS_ON_LEG), overnightConventionId,
         Tenor.ONE_YEAR, 2, 2, MODIFIED_FOLLOWING, false);
+    // Ibor swap legs
+    final String irsFixedLegConventionName = getConventionName(Currency.USD, IRS_FIXED_LEG);
+    final String irsIborLegConventionName = getConventionName(Currency.USD, tenorString, IRS_IBOR_LEG);
+    final Convention irsFixedLegConvention = new SwapFixedLegConvention(irsFixedLegConventionName, getIds(Currency.USD, IRS_FIXED_LEG),
+        Tenor.SIX_MONTHS, THIRTY_360, MODIFIED_FOLLOWING, 2, true, Currency.USD, NYLON, StubType.SHORT_START);
+    final Convention irsIborLegConvention = new VanillaIborLegConvention(irsIborLegConventionName, getIds(Currency.USD, tenorString, IRS_IBOR_LEG),
+        libor3mConventionId, true, StubType.NONE, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS);
+    // Futures
     final Convention edFutureConvention = new InterestRateFutureConvention(eurodollarFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE)),
         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), US, libor3mConventionId);
+    // Inflation
     final PriceIndexConvention priceIndexConvention = new PriceIndexConvention(priceIndexName, getIds(Currency.USD, PRICE_INDEX), Currency.USD, US,
         ExternalSchemes.bloombergTickerSecurityId("CPURNSA Index"));
     final Convention inflationConvention = new InflationLegConvention(inflationConventionName, getIds(Currency.USD, INFLATION_LEG), MODIFIED_FOLLOWING, ACT_360, false, 3, 2,
@@ -97,8 +102,8 @@ public class USConventions {
     conventionMaster.add(depositONConvention);
     conventionMaster.add(liborConvention);
     conventionMaster.add(overnightConvention);
-    conventionMaster.add(vanillaIborLegConvention);
-    conventionMaster.add(overnightLegConvention);
+    conventionMaster.add(irsIborLegConvention);
+    conventionMaster.add(oisONLegConvention);
     conventionMaster.add(irsFixedLegConvention);
     conventionMaster.add(oisFixedLegConvention);
     conventionMaster.add(edFutureConvention);
