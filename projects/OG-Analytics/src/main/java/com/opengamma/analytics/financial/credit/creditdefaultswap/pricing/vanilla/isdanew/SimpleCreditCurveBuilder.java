@@ -24,14 +24,17 @@ import com.opengamma.util.ArgumentChecker;
  * @deprecated Use the faster ISDACompliantCreditCurveBuild
  */
 @Deprecated
-public class ISDACompliantCreditCurveCalibrator {
+public class SimpleCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] fractionalSpreads, final ISDACompliantYieldCurve yieldCurve) {
     ArgumentChecker.noNulls(cds, "null CDSs");
     ArgumentChecker.notEmpty(fractionalSpreads, "empty fractionalSpreads");
@@ -63,6 +66,10 @@ public class ISDACompliantCreditCurveCalibrator {
     return creditCurve;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
       final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve,
       final double recoveryRate) {

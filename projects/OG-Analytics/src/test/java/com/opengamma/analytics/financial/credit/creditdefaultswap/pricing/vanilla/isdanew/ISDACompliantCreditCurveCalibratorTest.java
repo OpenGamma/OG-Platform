@@ -76,7 +76,7 @@ public class ISDACompliantCreditCurveCalibratorTest {
     final boolean protectionStart = true;
     final double recovery = 0.4;
 
-    ISDACompliantCreditCurveCalibrator calibrator = new ISDACompliantCreditCurveCalibrator();
+    SimpleCreditCurveBuilder calibrator = new SimpleCreditCurveBuilder();
     ISDACompliantCreditCurve hc = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
 
     // final int m = hc.getNumberOfCurvePoints();

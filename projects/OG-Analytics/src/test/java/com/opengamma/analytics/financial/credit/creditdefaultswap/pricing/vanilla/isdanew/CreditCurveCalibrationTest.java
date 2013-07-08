@@ -24,13 +24,13 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * 
  */
-public class SpreadSensitivityTest {
+public class CreditCurveCalibrationTest {
   private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
-  // private static final ISDACompliantCreditCurveBuild BUILDER = new ISDACompliantCreditCurveBuild();
-  private static final ISDACompliantCreditCurveBuilder BUILDER = new FastCreditCurveBuilder();
+  private static final FastCreditCurveBuilder BUILDER_NEW = new FastCreditCurveBuilder();
+  @SuppressWarnings("deprecation")
+  private static final SimpleCreditCurveBuilder BUILDER_OLD = new SimpleCreditCurveBuilder();
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  private static final SpreadSensitivityCalculator CDV01_CAL = new SpreadSensitivityCalculator();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
   // common data
@@ -43,8 +43,8 @@ public class SpreadSensitivityTest {
   // valuation CDS
   private static final LocalDate PROTECTION_STATE_DATE = LocalDate.of(2013, 2, 3); // Seasoned CDS
   private static final LocalDate PROTECTION_END_DATE = LocalDate.of(2018, 3, 20);
-  private static final double DEAL_SPREAD = 101;
-  private static final CDSAnalytic CDS;
+  protected static final double DEAL_SPREAD = 101;
+  protected static final CDSAnalytic CDS;
 
   // market CDSs
   private static final LocalDate[] PAR_SPD_DATES = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20),
@@ -54,7 +54,13 @@ public class SpreadSensitivityTest {
   private static final CDSAnalytic[] MARKET_CDS = new CDSAnalytic[NUM_MARKET_CDS];
 
   // yield curve
-  private static ISDACompliantYieldCurve YIELD_CURVE;
+  protected static ISDACompliantYieldCurve YIELD_CURVE;
+
+  // results from ISDA Excel
+  private static final double[] CREDIT_CURVE_KNOTS = new double[] {0.164383561643836, 0.416438356164384, 0.912328767123288, 1.91232876712329, 2.91506849315068, 4.91506849315068, 9.91780821917808};
+  private static final double[] ZERO_HAZARD_RATES = new double[] {0.00841340552675563, 0.0117803449136365, 0.013468629793501, 0.016047855558532, 0.0169115966481877, 0.0159338068105945,
+      0.0129657754955384};
+  protected static ISDACompliantCreditCurve CREDIT_CURVE = new ISDACompliantCreditCurve(CREDIT_CURVE_KNOTS, ZERO_HAZARD_RATES);
 
   static {
     double flatrate = 0.05;
@@ -74,47 +80,38 @@ public class SpreadSensitivityTest {
   }
 
   @Test
-  public void parellelCreditDVO1Test() {
-    final double fromExcel = 4238.557409;
-
-    final double dealSpread = DEAL_SPREAD / 10000;
-    final double[] mrkSpreads = new double[NUM_MARKET_CDS];
-    for (int i = 0; i < NUM_MARKET_CDS; i++) {
-      mrkSpreads[i] = PAR_SPREADS[i] / 10000;
-    }
-
-    final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, SpreadBumpType.ADDITIVE_PARALLEL);
-    // System.out.println(cdv01);
-    assertEquals("", fromExcel, cdv01, 1e-13 * NOTIONAL);
+  // (enabled = false)
+  public void simpleCreditCurveCalibrationTest() {
+    @SuppressWarnings("deprecation")
+    final SimpleCreditCurveBuilder builder = BUILDER_OLD;
+    creditCurveTest(builder);
   }
 
-  @Test(enabled = false)
-  public void creditCurveTest() {
-    final double[] mrkSpreads = new double[1];
-    for (int i = 0; i < 1; i++) {
+  @Test
+  // (enabled = false)
+  public void fastCreditCurveCalibrationTest() {
+    @SuppressWarnings("deprecation")
+    final FastCreditCurveBuilder builder = BUILDER_NEW;
+    creditCurveTest(builder);
+  }
+
+  private void creditCurveTest(final ISDACompliantCreditCurveBuilder builder) {
+    final double[] mrkSpreads = new double[NUM_MARKET_CDS];
+    for (int i = 0; i < NUM_MARKET_CDS; i++) {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000.;
     }
-    CDSAnalytic[] mrkCDS = new CDSAnalytic[] {MARKET_CDS[0]};
-    ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(mrkCDS, mrkSpreads, YIELD_CURVE);
+
+    ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(MARKET_CDS, mrkSpreads, YIELD_CURVE);
 
     final int n = creditCurve.getNumberOfKnots();
+    assertEquals(CREDIT_CURVE_KNOTS.length, n);
     for (int i = 0; i < n; i++) {
-      System.out.println(creditCurve.getTimeAtIndex(i) + "\t" + creditCurve.getZeroRateAtIndex(i));
+      final double t = creditCurve.getTimeAtIndex(i);
+      final double h = creditCurve.getZeroRateAtIndex(i);
+      assertEquals(CREDIT_CURVE_KNOTS[i], t, 1e-14);
+      assertEquals(ZERO_HAZARD_RATES[i], h, 1e-14);
+      // System.out.println(t + "\t" + h);
     }
-    System.out.println();
-
-    // final int step = 10;
-    // for (int i = 0; i < 200; i++) {
-    // final LocalDate temp = TODAY.plusDays(i * step);
-    // final double t = ACT365.getDayCountFraction(TODAY, temp);
-    // final double p = creditCurve.getDiscountFactor(t);
-    // final double h = creditCurve.getHazardRate(t);
-    // System.out.println(temp + "\t" + t + "\t" + p + "\t" + h);
-    // }
-    ISDACompliantCreditCurve creditCurveExcel = new ISDACompliantCreditCurve(new double[] {1}, new double[] {0.008413406});
-
-    final double price = NOTIONAL * PRICER.pv(CDS, YIELD_CURVE, creditCurve, 50 / 10000.);
-    System.out.println(price);
   }
 
 }

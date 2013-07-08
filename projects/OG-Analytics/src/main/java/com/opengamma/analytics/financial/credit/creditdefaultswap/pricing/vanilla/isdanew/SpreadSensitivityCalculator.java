@@ -17,7 +17,7 @@ public class SpreadSensitivityCalculator {
 
  // private static final ISDACompliantCreditCurveBuild BUILDER = new ISDACompliantCreditCurveBuild();
   @SuppressWarnings("deprecation")
-  private static final ISDACompliantCreditCurveCalibrator BUILDER = new ISDACompliantCreditCurveCalibrator();
+  private static final ISDACompliantCreditCurveBuilder BUILDER = new FastCreditCurveBuilder();
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
 
   /**

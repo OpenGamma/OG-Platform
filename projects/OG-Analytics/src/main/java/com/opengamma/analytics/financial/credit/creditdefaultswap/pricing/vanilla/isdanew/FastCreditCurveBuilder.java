@@ -5,10 +5,18 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilon;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilonP;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilonPP;
+
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.getIntegrationsPoints;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.truncateSetInclusive;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -19,11 +27,16 @@ import com.opengamma.util.ArgumentChecker;
  * This is a fast bootstrapper for the credit curve that is consistent with ISDA in that it will produce the same curve from
  * the same inputs (up to numerical round-off) 
  */
-public class ISDACompliantCreditCurveBuild {
+
+public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] fractionalSpreads, final ISDACompliantYieldCurve yieldCurve) {
     ArgumentChecker.noNulls(cds, "null CDSs");
     ArgumentChecker.notEmpty(fractionalSpreads, "empty fractionalSpreads");
@@ -55,7 +68,39 @@ public class ISDACompliantCreditCurveBuild {
     return creditCurve;
   }
 
-  private class Pricer {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve,
+      final double recoveryRate) {
+
+    ArgumentChecker.notNull(today, "null today");
+    ArgumentChecker.notNull(stepinDate, "null stepinDate");
+    ArgumentChecker.notNull(valueDate, "null valueDate");
+    ArgumentChecker.notNull(startDate, "null startDate");
+    ArgumentChecker.noNulls(endDates, "null endDates");
+    ArgumentChecker.notEmpty(couponRates, "no or null couponRates");
+    ArgumentChecker.notNull(tenor, "null tenor");
+    ArgumentChecker.notNull(stubType, "null stubType");
+    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
+    ArgumentChecker.isInRangeExcludingHigh(0, 1.0, recoveryRate);
+    ArgumentChecker.isFalse(valueDate.isBefore(today), "Require valueDate >= today");
+    ArgumentChecker.isFalse(stepinDate.isBefore(today), "Require stepin >= today");
+
+    final int n = endDates.length;
+    ArgumentChecker.isTrue(n == couponRates.length, "length of couponRates does not match endDates");
+
+    final CDSAnalytic[] cds = new CDSAnalytic[n];
+    for (int i = 0; i < n; i++) {
+      cds[i] = new CDSAnalytic(today, stepinDate, valueDate, startDate, endDates[i], payAccOnDefault, tenor, stubType, protectStart, recoveryRate);
+    }
+
+    return calibrateCreditCurve(cds, couponRates, yieldCurve);
+  }
+
+  protected class Pricer {
 
     private final CDSAnalytic _cds;
     private final double _lgdDF;
@@ -93,7 +138,7 @@ public class ISDACompliantCreditCurveBuild {
       _proDF = new double[_nProPoints];
       for (int i = 0; i < _nProPoints; i++) {
         _proYieldCurveRT[i] = yieldCurve.getRT(_proLegIntPoints[i]);
-        _proDF[i] = Math.exp(_proYieldCurveRT[i]);
+        _proDF[i] = Math.exp(-_proYieldCurveRT[i]);
       }
 
       // premium leg
@@ -227,23 +272,16 @@ public class ISDACompliantCreditCurveBuild {
 
     public double protectionLeg(final ISDACompliantCreditCurve creditCurve) {
 
-      double ht1 = creditCurve.getRT(_proLegIntPoints[0]);
-      double rt1 = _proYieldCurveRT[0];
-      double s1 = Math.exp(-ht1);
-      double p1 = _proDF[0];
+      double ht0 = creditCurve.getRT(_proLegIntPoints[0]);
+      double rt0 = _proYieldCurveRT[0];
+      double b0 = _proDF[0] * Math.exp(-ht0);
+
       double pv = 0.0;
 
       for (int i = 1; i < _nProPoints; ++i) {
-
-        final double ht0 = ht1;
-        final double rt0 = rt1;
-        final double p0 = p1;
-        final double s0 = s1;
-
-        ht1 = creditCurve.getRT(_proLegIntPoints[i]);
-        rt1 = _proYieldCurveRT[i];
-        s1 = Math.exp(-ht1);
-        p1 = _proDF[i];
+        final double ht1 = creditCurve.getRT(_proLegIntPoints[i]);
+        final double rt1 = _proYieldCurveRT[i];
+        final double b1 = _proDF[i] * Math.exp(-ht1);
         final double dht = ht1 - ht0;
         final double drt = rt1 - rt0;
         final double dhrt = dht + drt;
@@ -251,11 +289,14 @@ public class ISDACompliantCreditCurveBuild {
         // this is equivalent to the ISDA code without explicitly calculating the time step - it also handles the limit
         double dPV;
         if (Math.abs(dhrt) < 1e-5) {
-          dPV = dht * (1 - dhrt * (0.5 - dhrt / 6)) * p0 * s0;
+          dPV = dht * b0 * epsilon(-dhrt);
         } else {
-          dPV = dht / dhrt * (p0 * s0 - p1 * s1);
+          dPV = (b0 - b1) * dht / dhrt;
         }
         pv += dPV;
+        ht0 = ht1;
+        rt0 = rt1;
+        b0 = b1;
       }
       pv *= _lgdDF; // multiply by LGD and adjust to valuation date
 
