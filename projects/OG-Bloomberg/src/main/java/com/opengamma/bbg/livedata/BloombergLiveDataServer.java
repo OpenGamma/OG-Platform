@@ -146,11 +146,6 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     return returnValue;
   }
 
-  @Override
-  public ConnectionStatus getConnectionStatus() {
-    return _sessionProvider.isConnected() ? ConnectionStatus.CONNECTED : ConnectionStatus.NOT_CONNECTED;
-  }
-
   public long getSubscriptionLimit() {
     return _subscriptionLimit;
   }
@@ -253,6 +248,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
         s_logger.info("Got event {} {} {}", event.eventType(), bbgUniqueId, msg.asElement());
 
         if (event.eventType() == Event.EventType.SESSION_STATUS) {
+          s_logger.info("SESSION_STATUS event received: {}", msg.messageType());
           if (msg.messageType().toString().equals("SessionTerminated")) {
             disconnected();
           }
