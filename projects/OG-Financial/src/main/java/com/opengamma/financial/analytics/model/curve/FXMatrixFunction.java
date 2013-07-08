@@ -94,7 +94,8 @@ public class FXMatrixFunction extends AbstractFunction {
           final Currency otherCurrency = iter.next();
           final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
               CurrencyPair.TYPE.specification(CurrencyPair.of(initialCurrency, otherCurrency))));
-          matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+          matrix.addCurrency(otherCurrency, initialCurrency, 1.0d / spotRate);
+          // TODO Change valueRequirement to have the rate in the right order.
         }
         return Collections.singleton(new ComputedValue(spec, matrix));
       }
