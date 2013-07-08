@@ -55,6 +55,7 @@ public class SwaptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTo
   private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final Map<Currency, ExternalId> REGIONS = new HashMap<>();
   private static final Map<Currency, ExternalId> TICKERS = new HashMap<>();
+  @SuppressWarnings("unused")
   private static final ExternalId COUNTERPARTY = ExternalId.of(Counterparty.DEFAULT_SCHEME, AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY);
 
   static {

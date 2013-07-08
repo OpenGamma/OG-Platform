@@ -111,7 +111,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     "DefaultTwoCurveJPYConfig",
     "DefaultTwoCurveCHFConfig",
   };
-  public static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {
+  static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {
     UnorderedCurrencyPair.of(Currency.USD, Currency.EUR),
     UnorderedCurrencyPair.of(Currency.USD, Currency.CHF),
     UnorderedCurrencyPair.of(Currency.USD, Currency.AUD),
@@ -120,8 +120,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR),
     UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY),
   };
-  public static final Map<Currency, String> SWAPTION_SURFACES = new HashMap<>();
-  public static final Map<Currency, Pair<String, String>> SWAPTION_CURVES = new HashMap<>();
+  static final Map<Currency, String> SWAPTION_SURFACES = new HashMap<>();
+  static final Map<Currency, Pair<String, String>> SWAPTION_CURVES = new HashMap<>();
 
   static {
     SWAPTION_SURFACES.put(Currency.USD, "PROVIDER1");

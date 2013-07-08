@@ -324,7 +324,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       portfolioGeneratorTool().run(getToolContext(), MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME, "Swaption", true, null);
       log.done();
-    } catch(final RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
