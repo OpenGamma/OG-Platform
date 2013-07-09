@@ -9,7 +9,7 @@
   <bean class="com.opengamma.component.spring.ComponentRepositoryBeanPostProcessor" />
 
   <!-- ================================================================== -->
-  <bean id="mainUserPrincipal" class="com.opengamma.examples.ExampleUserFactoryBean" />
+  <bean id="mainUserPrincipal" class="com.opengamma.examples.simulated.ExampleUserFactoryBean" />
 
   <!-- ================================================================== -->
   <!-- Functions -->

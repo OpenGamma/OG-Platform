@@ -29,6 +29,6 @@ echo "### Adding example data"
 
 ${SCRIPTDIR}/run-tool.sh --chdirtoinstallation \
   -Dlogback.configurationFile=jetty-logback.xml \
-  com.opengamma.examples.tool.ExampleDatabasePopulator
+  com.opengamma.examples.simulated.tool.ExampleDatabasePopulator
 
 echo "### Completed"
