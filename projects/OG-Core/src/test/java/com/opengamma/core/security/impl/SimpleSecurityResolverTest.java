@@ -46,7 +46,7 @@ public class SimpleSecurityResolverTest {
   private final Instant _now = Instant.now();
   private final SecuritySource _securitySource;
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public SimpleSecurityResolverTest() {
     _securityExternalId = ExternalId.of("Scheme1", "Value1");
     ExternalIdBundle externalIdBundle = ExternalIdBundle.of(_securityExternalId, ExternalId.of("Scheme2", "Value2"));

@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
 /**
  * Representation of a GICS code.
  * <p>
@@ -55,6 +58,7 @@ public final class GICSCode implements Serializable {
    * @return the GICS instance, not null
    * @throws IllegalArgumentException if the value is invalid
    */
+  @FromString
   public static GICSCode of(final String code) {
     if (FORMAT.matcher(code).matches() == false) {
       throw new IllegalArgumentException("Invalid code : " + code);
@@ -100,6 +104,7 @@ public final class GICSCode implements Serializable {
    * 
    * @return the combined code, from 10 to 99999999 inclusive
    */
+  @ToString
   public String getCode() {
     return _code;
   }

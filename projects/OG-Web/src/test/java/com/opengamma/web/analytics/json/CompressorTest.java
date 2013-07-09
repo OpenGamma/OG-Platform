@@ -39,7 +39,6 @@ public class CompressorTest {
 
   @Test(groups = TestGroup.UNIT)
   public void roundTrip() throws IOException {
-    System.out.println(s_json);
     InputStream source1 = new ByteArrayInputStream(s_json.getBytes());
     ByteArrayOutputStream sink1 = new ByteArrayOutputStream();
     Compressor.compressStream(source1, sink1);
@@ -81,6 +80,7 @@ public class CompressorTest {
   public static void main(String[] args) throws IOException {
     InputStream source1 = new ByteArrayInputStream(new JSONArray(randomObjects()).toString().getBytes());
     ByteArrayOutputStream sink1 = new ByteArrayOutputStream();
+    System.out.println(s_json);
     Compressor.compressStream(source1, sink1);
     System.out.println("JSON size: " + s_json.length());
     System.out.println("compressed size: " + sink1.size());

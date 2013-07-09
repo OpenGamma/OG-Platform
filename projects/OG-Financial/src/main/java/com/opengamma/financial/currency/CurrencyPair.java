@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.currency;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -74,17 +77,21 @@ public final class CurrencyPair implements UniqueIdentifiable {
 
   /**
    * Parses a currency pair from a string with format AAA/BBB.
+   * <p>
+   * The parsed format is '${baseCurrency}/${counterCurrency}'.
    * 
-   * @param pair the currency pair as a string AAA/BBB, not null
+   * @param pairStr the currency pair as a string AAA/BBB, not null
    * @return the currency pair, not null
    */
-  public static CurrencyPair parse(String pair) {
-    if (pair.length() != 7) {
+  @FromString
+  public static CurrencyPair parse(String pairStr) {
+    ArgumentChecker.notNull(pairStr, "pairStr");
+    if (pairStr.length() != 7) {
       throw new IllegalArgumentException("Currency pair format must be AAA/BBB");
     }
-    String base = pair.substring(0, 3);
-    String counter = pair.substring(4);
-    return new CurrencyPair(Currency.of(base), Currency.of(counter));
+    Currency base = Currency.of(pairStr.substring(0, 3));
+    Currency counter = Currency.of(pairStr.substring(4));
+    return new CurrencyPair(base, counter);
   }
 
   //-------------------------------------------------------------------------
@@ -172,6 +179,11 @@ public final class CurrencyPair implements UniqueIdentifiable {
     }
   }
 
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(OBJECT_SCHEME, getName());
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
@@ -193,14 +205,17 @@ public final class CurrencyPair implements UniqueIdentifiable {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns the formatted string version of the currency pair.
+   * <p>
+   * The format is '${baseCurrency}/${counterCurrency}'.
+   * 
+   * @return the formatted string, not null
+   */
   @Override
+  @ToString
   public String toString() {
-    return "CurrencyPair[" + getName() + "]";
-  }
-
-  @Override
-  public UniqueId getUniqueId() {
-    return UniqueId.of(OBJECT_SCHEME, getName());
+    return getName();
   }
 
 }

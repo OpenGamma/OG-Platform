@@ -10,7 +10,7 @@ import org.apache.commons.cli.Options;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * The portfolio loader tool

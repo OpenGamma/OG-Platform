@@ -8,10 +8,6 @@ import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -33,8 +29,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
@@ -44,7 +40,7 @@ import com.opengamma.util.tuple.Pair;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbMarketDataSnapshotMasterTest extends DbTest {
+public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbMarketDataSnapshotMasterTest.class);
 
@@ -52,28 +48,19 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbMarketDataSnapshotMasterTest(final String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    final ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _snpMaster = (DbMarketDataSnapshotMaster) context.getBean(getDatabaseType() + "DbMarketDataSnapshotMaster");
+  protected void doSetUp() {
+    _snpMaster = new DbMarketDataSnapshotMaster(getDbConnector());
   }
 
   @Override
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
+  protected void doTearDown() {
     _snpMaster = null;
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

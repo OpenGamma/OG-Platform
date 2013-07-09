@@ -12,11 +12,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -30,16 +26,15 @@ import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbHistoricalTimeSeriesMasterWorker via DbHistoricalTimeSeriesMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbTest {
+public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbHistoricalTimeSeriesMasterWorkerTest.class);
 
@@ -53,15 +48,14 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
   protected OffsetDateTime _now;
 
   public AbstractDbHistoricalTimeSeriesMasterWorkerTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _htsMaster = (DbHistoricalTimeSeriesMaster) context.getBean(getDatabaseType() + "DbHistoricalTimeSeriesMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _htsMaster = new DbHistoricalTimeSeriesMaster(getDbConnector());
     
     _now = OffsetDateTime.now();
     _htsMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
@@ -74,7 +68,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     s_logger.debug("test data 2: {}", _version2Instant);
     s_logger.debug("test data 3: {}", _version3Instant);
     s_logger.debug("test data 4: {}", _version4Instant);
-    final SimpleJdbcTemplate template = _htsMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _htsMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO hts_name VALUES (?,?)",
         1, "N101");
     template.update("INSERT INTO hts_name VALUES (?,?)",
@@ -162,15 +156,9 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
         101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version4Instant), 3.33d);
   }
 
-  @AfterMethod(alwaysRun = true)
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _htsMaster = null;
-    super.tearDown();
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

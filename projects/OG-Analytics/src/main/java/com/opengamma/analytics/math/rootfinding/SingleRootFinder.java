@@ -21,5 +21,7 @@ public interface SingleRootFinder<S, T> {
    * @param x The bounds, not null
    * @return A root lying between x1 and x2
    */
+  @SuppressWarnings("unchecked")
   S getRoot(Function1D<S, T> function, S... x);
+
 }

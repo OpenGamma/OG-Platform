@@ -84,6 +84,33 @@ public class NonVersionedRedisHolidaySourceTest extends AbstractRedisTestCase {
     assertNull(result.getExchangeExternalId());
   }
   
+  public void isHolidayByTypeExternalId() {
+    NonVersionedRedisHolidaySource source = new NonVersionedRedisHolidaySource(getJedisPool(), getRedisPrefix());
+    
+    ExternalId exchangeId = ExternalId.of("ExchangeScheme", "Eurex");
+    SimpleHoliday holiday1 = generateHoliday(20);
+    holiday1.setType(HolidayType.TRADING);
+    
+    holiday1.setExchangeExternalId(exchangeId);
+    holiday1.setUniqueId(UniqueId.of("EUREX", "1"));
+    source.addHoliday(holiday1);
+    
+    SimpleHoliday holiday2 = generateHoliday(20);
+    holiday2.setType(HolidayType.SETTLEMENT);
+    holiday2.setExchangeExternalId(exchangeId);
+    holiday2.setUniqueId(UniqueId.of("EUREX", "2"));
+    source.addHoliday(holiday2);
+    
+    assertTrue(source.isHoliday(LocalDate.now(), HolidayType.TRADING, exchangeId));
+    assertFalse(source.isHoliday(LocalDate.now().minusDays(10), HolidayType.TRADING, exchangeId));
+    assertFalse(source.isHoliday(LocalDate.now().plusYears(1), HolidayType.TRADING, exchangeId));
+    
+    assertTrue(source.isHoliday(LocalDate.now(), HolidayType.SETTLEMENT, exchangeId));
+    assertFalse(source.isHoliday(LocalDate.now().minusDays(10), HolidayType.SETTLEMENT, exchangeId));
+    assertFalse(source.isHoliday(LocalDate.now().plusYears(1), HolidayType.SETTLEMENT, exchangeId));
+    
+  }
+  
   protected SimpleHoliday generateHoliday(int nHolidays) {
     SimpleHoliday holiday = new SimpleHoliday();
     

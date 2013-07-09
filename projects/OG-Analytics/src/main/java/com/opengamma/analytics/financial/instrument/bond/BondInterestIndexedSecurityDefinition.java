@@ -426,34 +426,46 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
-    BondInterestIndexedSecurityDefinition other = (BondInterestIndexedSecurityDefinition) obj;
-    if (_couponPerYear != other._couponPerYear)
+    }
+    BondInterestIndexedSecurityDefinition<?, ?> other = (BondInterestIndexedSecurityDefinition<?, ?>) obj;
+    if (_couponPerYear != other._couponPerYear) {
       return false;
+    }
     if (_dayCount == null) {
-      if (other._dayCount != null)
+      if (other._dayCount != null) {
         return false;
-    } else if (!_dayCount.equals(other._dayCount))
+      }
+    } else if (!_dayCount.equals(other._dayCount)) {
       return false;
-    if (_isEOM != other._isEOM)
+    }
+    if (_isEOM != other._isEOM) {
       return false;
-    if (_monthLag != other._monthLag)
+    }
+    if (_monthLag != other._monthLag) {
       return false;
+    }
     if (_priceIndex == null) {
-      if (other._priceIndex != null)
+      if (other._priceIndex != null) {
         return false;
-    } else if (!_priceIndex.equals(other._priceIndex))
+      }
+    } else if (!_priceIndex.equals(other._priceIndex)) {
       return false;
+    }
     if (_yieldConvention == null) {
-      if (other._yieldConvention != null)
+      if (other._yieldConvention != null) {
         return false;
-    } else if (!_yieldConvention.equals(other._yieldConvention))
+      }
+    } else if (!_yieldConvention.equals(other._yieldConvention)) {
       return false;
+    }
     return true;
   }
 

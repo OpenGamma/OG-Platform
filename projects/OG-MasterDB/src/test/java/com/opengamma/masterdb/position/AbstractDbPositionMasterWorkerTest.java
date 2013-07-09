@@ -17,13 +17,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -38,15 +32,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbPositionMasterWorker via DbPositionMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
+public abstract class AbstractDbPositionMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbPositionMasterWorkerTest.class);
 
@@ -56,33 +49,31 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
   protected int _totalPortfolios;
   protected int _totalPositions;
   protected OffsetDateTime _now;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbPositionMasterWorkerTest(final String databaseType, final String databaseVersion, final boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
   @Override
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  protected void doTearDown() {
+    _posMaster = null;
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    final ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _posMaster = (DbPositionMaster) context.getBean(getDatabaseType() + "DbPositionMaster");
+  @Override
+  protected void doTearDownClass() {
+    _posMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
+  private void init() {
+    _posMaster = new DbPositionMaster(getDbConnector());
 
     _now = OffsetDateTime.now();
     _posMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
@@ -90,7 +81,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     _version2Instant = _now.toInstant().minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _posMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _posMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
         100, 100, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "A", "100", BigDecimal.valueOf(100.987));
     template.update("INSERT INTO pos_position VALUES (?,?,?,?,?, ?,?,?,?)",
@@ -187,29 +178,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 406, 506);
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 407, 507);
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 408, 507);
-  }
-
-  @Override
-  @AfterMethod(alwaysRun = true)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _posMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @Override
-  @AfterClass(alwaysRun = true)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _posMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

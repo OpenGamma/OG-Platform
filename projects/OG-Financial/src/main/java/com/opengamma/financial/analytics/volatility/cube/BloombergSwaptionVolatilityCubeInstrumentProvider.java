@@ -13,8 +13,6 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.threeten.bp.Period;
-
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -77,8 +75,8 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
 
         if (ticker != null) {
           final Currency currency = Currency.of(currencyIso);
-          final Tenor swapTenor = new Tenor(Period.parse("P" + swapPeriod + swapPeriodUnit));
-          final Tenor optionExpiry = new Tenor(Period.parse("P" + expiry + expiryUnit));
+          final Tenor swapTenor = Tenor.parse("P" + swapPeriod + swapPeriodUnit);
+          final Tenor optionExpiry = Tenor.parse("P" + expiry + expiryUnit);
           double sign;
           if ("PY".equals(payOrReceive)) {
             sign = -1;

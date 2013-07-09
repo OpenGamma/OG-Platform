@@ -20,6 +20,7 @@ import com.opengamma.component.factory.RemoteComponentFactory;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.LogUtils;
+import com.opengamma.util.StartupUtils;
 
 /**
  * Abstract base class for tools which operate on components obtained through an OpenGamma component server.
@@ -38,6 +39,10 @@ public abstract class AbstractComponentTool {
   private static final String COMPONENT_SERVER_URI_OPTION = "c";
   /** Logging command line option. */
   private static final String LOGBACK_RESOURCE_OPTION = "l";
+
+  static {
+    StartupUtils.init();
+  }
 
   /**
    * The command line.

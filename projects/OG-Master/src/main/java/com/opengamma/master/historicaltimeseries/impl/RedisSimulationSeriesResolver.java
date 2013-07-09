@@ -6,6 +6,10 @@
 
 package com.opengamma.master.historicaltimeseries.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
@@ -16,10 +20,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
 
+/**
+ * Implements {@link HistoricalTimeSeriesResolver} on top of any Redis HTS source.
+ */
 public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesResolver.class);
@@ -48,6 +52,8 @@ public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolv
       return null;
     }
     ManageableHistoricalTimeSeriesInfo htsInfo = new ManageableHistoricalTimeSeriesInfo() {
+      private static final long serialVersionUID = 1L;
+
       @Override
       public UniqueId getUniqueId() {
         return uniqueId;

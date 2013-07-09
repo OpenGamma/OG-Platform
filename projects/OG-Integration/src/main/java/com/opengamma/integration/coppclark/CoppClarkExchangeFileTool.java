@@ -8,7 +8,7 @@ package com.opengamma.integration.coppclark;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Loads the exchange data from the Copp-Clark data source.

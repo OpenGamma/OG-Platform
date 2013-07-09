@@ -6,10 +6,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
     <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-web</artifactId>
   <packaging>jar</packaging>
@@ -21,43 +21,40 @@
   </scm>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <configuration>
-              <target>
-                <jar basedir="config" destfile="${project.build.directory}/og-web-resources.jar" />
-                <attachartifact file="${project.build.directory}/og-web-resources.jar" classifier="resources" type="jar" />
-                <zip basedir="web-engine" destfile="${project.build.directory}/web-engine.zip" />
-                <attachartifact file="${project.build.directory}/web-engine.zip" classifier="web-engine" type="zip" />
-                <zip basedir="web-sharedmasters" destfile="${project.build.directory}/web-sharedmasters.zip" />
-                <attachartifact file="${project.build.directory}/web-sharedmasters.zip" classifier="web-sharedmasters" type="zip" />
-                <zip basedir="web-marketdata" destfile="${project.build.directory}/web-marketdata.zip" />
-                <attachartifact file="${project.build.directory}/web-marketdata.zip" classifier="web-marketdata" type="zip" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
     <resources>
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
     </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>web</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-web-engine.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-web-marketdata.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-web-push.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-web-sharedmasters.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-financial</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -71,10 +68,6 @@
       <artifactId>jetty-servlets</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jsp-2.1-glassfish</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.cometd.java</groupId>
       <artifactId>cometd-java-server</artifactId>
     </dependency>
@@ -85,7 +78,10 @@
     <dependency>
       <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
-      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.management.j2ee</groupId>
+      <artifactId>javax.management.j2ee-api</artifactId>
     </dependency>
 
     <dependency>
@@ -96,8 +92,6 @@
   </dependencies>
 
   <properties>
-    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
     <web.build.timestamp>${maven.build.timestamp}</web.build.timestamp>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
   </properties>

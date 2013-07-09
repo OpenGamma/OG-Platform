@@ -47,9 +47,9 @@ public class SpreadCurveFunctions {
     BUCKET_TENORS.add(Tenor.EIGHT_YEARS);
     BUCKET_TENORS.add(Tenor.NINE_YEARS);
     BUCKET_TENORS.add(Tenor.TEN_YEARS);
-    BUCKET_TENORS.add(new Tenor(Period.ofYears(15)));
-    BUCKET_TENORS.add(new Tenor(Period.ofYears(20)));
-    BUCKET_TENORS.add(new Tenor(Period.ofYears(30)));
+    BUCKET_TENORS.add(Tenor.of(Period.ofYears(15)));
+    BUCKET_TENORS.add(Tenor.of(Period.ofYears(20)));
+    BUCKET_TENORS.add(Tenor.of(Period.ofYears(30)));
   }
 
   public static final ZonedDateTime[] getIMMDates(final ZonedDateTime now, final String inputs) {
@@ -59,7 +59,7 @@ public class SpreadCurveFunctions {
     List<ZonedDateTime> dates = new ArrayList<>();
     for (final String tenorOrDate : inputs.split(",")) {
       if (tenorOrDate.startsWith("P")) { // tenor
-        Tenor tenor = new Tenor(Period.parse(tenorOrDate));
+        Tenor tenor = Tenor.of(Period.parse(tenorOrDate));
         dates.add(IMMDateGenerator.getNextIMMDate(now, tenor));
       } else { // date
         LocalDate date = LocalDate.parse(tenorOrDate);

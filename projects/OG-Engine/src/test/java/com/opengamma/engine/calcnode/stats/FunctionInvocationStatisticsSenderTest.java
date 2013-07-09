@@ -28,13 +28,14 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests the function statistics sender.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class FunctionInvocationStatisticsSenderTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationStatisticsSenderTest.class);
   
   private FunctionCosts _cost = new FunctionCosts ();
   
+  @Test(timeOut = 3_000L)
   public void testBasicBehaviour () {
     final AtomicInteger messages = new AtomicInteger ();
     final FunctionInvocationStatisticsSender sender = new FunctionInvocationStatisticsSender ();

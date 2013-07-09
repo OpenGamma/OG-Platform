@@ -17,7 +17,7 @@ public class SimulationEngine {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private final static StatisticsCalculator statisticsCalculator = new StatisticsCalculator();
+  private static final StatisticsCalculator statisticsCalculator = new StatisticsCalculator();
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

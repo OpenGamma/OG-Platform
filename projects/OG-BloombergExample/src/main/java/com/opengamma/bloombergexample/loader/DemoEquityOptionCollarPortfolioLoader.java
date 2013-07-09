@@ -61,7 +61,7 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.tuple.Pair;
 
 /**

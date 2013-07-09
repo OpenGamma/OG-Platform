@@ -6,10 +6,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
     <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-provider</artifactId>
   <packaging>jar</packaging>
@@ -22,20 +22,18 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-livedata</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
 
   <properties>
-    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
   </properties>
 
 </project>

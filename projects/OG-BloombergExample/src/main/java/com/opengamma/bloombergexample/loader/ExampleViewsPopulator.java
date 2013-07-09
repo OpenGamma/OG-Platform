@@ -33,9 +33,6 @@ import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.tool.IntegrationToolContext;
@@ -43,7 +40,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -54,19 +51,19 @@ import com.opengamma.util.money.Currency;
 @Scriptable
 public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> {
 
-  private static final String[] s_curveConfigNames = new String[] {"DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig",
-      "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
+  private static final String[] s_curveConfigNames = new String[] {
+    "DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig",
+    "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
   private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
 
-  private static final String FORWARD_3M = "Forward3M";
-  private static final String FORWARD_6M = "Forward6M";
   private static final String FUNDING = "Discounting";
 
-  private static final String OLD_FORWARD_3M = "FORWARD_3M";
-  private static final String OLD_FORWARD_6M = "FORWARD_6M";
-  private static final String OLD_FUNDING = "FUNDING";
-
-  private static final String FX_SURFACE = "DEFAULT";
+//  private static final String FORWARD_3M = "Forward3M";
+//  private static final String FORWARD_6M = "Forward6M";
+//  private static final String OLD_FORWARD_3M = "FORWARD_3M";
+//  private static final String OLD_FORWARD_6M = "FORWARD_6M";
+//  private static final String OLD_FUNDING = "FUNDING";
+//  private static final String FX_SURFACE = "DEFAULT";
 
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
@@ -96,7 +93,8 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   private void addEquityRequirements(final ViewDefinition viewDefinition) {
     viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA,
         ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
-    //viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+//    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL,
+//        ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
     viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE,
         ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
     viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR,
@@ -120,7 +118,8 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   private void addEquityOptionRequirements(final ViewDefinition viewDefinition) {
     viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.CARRY_RHO,
         ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
-    //viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL, ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
+//    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DAILY_PNL,
+//        ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
     viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DELTA,
         ValueProperties.with(CURVE, FUNDING).withOptional(CURVE).with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
     viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DELTA_BLEED,
@@ -329,50 +328,50 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     return viewDefinition;
   }
 
-  private ViewDefinition getFXViewDefinition(final String portfolioName) {
-    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
-    viewDefinition.setDefaultCurrency(Currency.USD);
-    viewDefinition.setMaxDeltaCalculationPeriod(500L);
-    viewDefinition.setMaxFullCalculationPeriod(500L);
-    viewDefinition.setMinDeltaCalculationPeriod(500L);
-    viewDefinition.setMinFullCalculationPeriod(500L);
-
-    final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA,
-        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
-
-    viewDefinition.addViewCalculationConfiguration(defaultCalc);
-    return viewDefinition;
-  }
+//  private ViewDefinition getFXViewDefinition(final String portfolioName) {
+//    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+//    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+//    viewDefinition.setDefaultCurrency(Currency.USD);
+//    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+//    viewDefinition.setMaxFullCalculationPeriod(500L);
+//    viewDefinition.setMinDeltaCalculationPeriod(500L);
+//    viewDefinition.setMinFullCalculationPeriod(500L);
+//
+//    final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//    defaultCalc.addPortfolioRequirement(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA,
+//        ValueProperties.with(ValuePropertyNames.SURFACE, FX_SURFACE).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+//
+//    viewDefinition.addViewCalculationConfiguration(defaultCalc);
+//    return viewDefinition;
+//  }
 
   private void storeViewDefinition(final ViewDefinition viewDefinition) {
     final ConfigItem<ViewDefinition> configItem = ConfigItem.of(viewDefinition, viewDefinition.getName(), ViewDefinition.class);

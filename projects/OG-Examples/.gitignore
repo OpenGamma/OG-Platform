@@ -2,8 +2,12 @@
 foo~
 *.class
 *.log
+.project
+.classpath
+.checkstyle
 /bin/
 /build/
+/data/
 /dist/
 /target/
 /lib/

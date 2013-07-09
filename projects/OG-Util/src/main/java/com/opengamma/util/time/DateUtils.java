@@ -520,15 +520,13 @@ public final class DateUtils {
     if (date == null) {
       throw new IllegalArgumentException("The date must not be null");
     }
-    return LocalDate.of(
-        date.getYear() + 1900,
-        date.getMonth() + 1,
-        date.getDate());
+    return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
   }
-  
+
   /**
    * Constructs a LocalDate from a Function Requirement / Input passed over the wire via {@link FudgeMsg} <p>
    * Example usage: LocalDate nextDividendDate = DateUtils.toLocalDate(inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE));
+   * 
    * @param date an Object
    * @return the created LocalDate
    * @throws IllegalArgumentException if the date is not a recognized type

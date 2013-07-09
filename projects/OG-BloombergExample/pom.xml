@@ -6,10 +6,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
     <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-bloombergexample</artifactId>
   <packaging>jar</packaging>
@@ -20,14 +20,97 @@
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-BloombergExample</url>
   </scm>
 
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>config</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- create empty data and logs directory -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.directory}/assembly/data"/>
+                <mkdir dir="${project.build.directory}/assembly/logs"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- generate scripts -->
+      <plugin>
+        <groupId>com.opengamma.tools</groupId>
+        <artifactId>opengamma-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-scripts</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- unpack web zips -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.opengamma.platform</groupId>
+                  <artifactId>og-web</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <classifier>web-engine</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/assembly/web-engine</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- generate deployment bundle -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-server.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-server-windows.xml</descriptor>
+              </descriptors>
+              <tarLongFileMode>gnu</tarLongFileMode>
+              <attach>false</attach>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
-      <artifactId>og-component</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-integration</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -40,15 +123,11 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.xbean</groupId>
-      <artifactId>xbean-spring</artifactId>
-    </dependency>
   </dependencies>
 
   <properties>
-    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
+    <!-- Properties for OpenGamma plugin -->
+    <opengamma.generate.scripts.type>tool</opengamma.generate.scripts.type>
   </properties>
 
 </project>

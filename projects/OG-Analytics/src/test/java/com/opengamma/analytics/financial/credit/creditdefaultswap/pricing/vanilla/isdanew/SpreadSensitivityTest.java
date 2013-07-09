@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.apache.tools.ant.taskdefs.Mkdir;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;

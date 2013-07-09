@@ -58,7 +58,7 @@ public final class CalendarFactory {
           }
           clazzName = clazzName.substring(0, clazzName.indexOf(':'));
         }
-        final Class<Calendar> clazz = (Class<Calendar>) Class.forName(clazzName);
+        final Class<? extends Calendar> clazz = Class.forName(clazzName).asSubclass(Calendar.class);
         final Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         int noArgConstructor = -1;
         int nameConstructor = -1;

@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -16,8 +15,16 @@ import com.opengamma.core.security.SecuritySource;
  */
 public class CdsRedCodeAggregationFunction extends AbstractRedCodeHandlingCdsAggregationFunction<String> {
 
+  /**
+   * Function name.
+   */
   private static final String NAME = "RED Codes";
 
+  /**
+   * Creates an instance.
+   * 
+   * @param securitySource  the security source, not null
+   */
   public CdsRedCodeAggregationFunction(SecuritySource securitySource) {
     super(NAME, securitySource, new RedCodeHandler<String>() {
       @Override
@@ -27,8 +34,10 @@ public class CdsRedCodeAggregationFunction extends AbstractRedCodeHandlingCdsAgg
     });
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected String handleExtractedData(String redCode) {
     return redCode;
   }
+
 }

@@ -25,7 +25,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the {@link DefaultManageableFunctionBlacklist} class.
@@ -90,28 +89,6 @@ public class DefaultManageableFunctionBlacklistTest {
       assertTrue(qry.isBlacklisted(_function, _target));
       assertTrue(qry.isBlacklisted(_function, _target, _inputs, _outputs));
       bl.removeBlacklistRules(Arrays.asList(new FunctionBlacklistRule(_function), new FunctionBlacklistRule(_target)));
-      assertFalse(qry.isBlacklisted(_function));
-      assertFalse(qry.isBlacklisted(_target));
-      assertFalse(qry.isBlacklisted(_function, _target));
-      assertFalse(qry.isBlacklisted(_function, _target, _inputs, _outputs));
-    } finally {
-      executor.shutdown();
-    }
-  }
-
-  @Test(invocationCount = 5, successPercentage = 19)
-  public void testExpiry() throws Exception {
-    final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    try {
-      final int timeout = (int) Timeout.standardTimeoutSeconds();
-      final DefaultManageableFunctionBlacklist bl = new DefaultManageableFunctionBlacklist("TEST", executor, timeout);
-      bl.addBlacklistRule(new FunctionBlacklistRule(_function));
-      final DefaultFunctionBlacklistQuery qry = new DefaultFunctionBlacklistQuery(bl);
-      assertTrue(qry.isBlacklisted(_function));
-      assertFalse(qry.isBlacklisted(_target));
-      assertTrue(qry.isBlacklisted(_function, _target));
-      assertTrue(qry.isBlacklisted(_function, _target, _inputs, _outputs));
-      Thread.sleep(timeout * 2000);
       assertFalse(qry.isBlacklisted(_function));
       assertFalse(qry.isBlacklisted(_target));
       assertFalse(qry.isBlacklisted(_function, _target));

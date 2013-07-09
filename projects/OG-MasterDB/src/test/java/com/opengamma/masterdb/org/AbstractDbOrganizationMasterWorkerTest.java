@@ -5,6 +5,19 @@
  */
 package com.opengamma.masterdb.org;
 
+import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
+import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
+
 import com.opengamma.core.obligor.CreditRating;
 import com.opengamma.core.obligor.CreditRatingFitch;
 import com.opengamma.core.obligor.CreditRatingMoodys;
@@ -15,35 +28,15 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.orgs.ManageableOrganization;
 import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.masterdb.orgs.DbOrganizationMaster;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-import org.threeten.bp.Clock;
-import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneId;
-
-import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
-import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
 /**
  * Base tests for DbOrganizationMasterWorker via DbOrganizationMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
+public abstract class AbstractDbOrganizationMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbOrganizationMasterWorkerTest.class);
 
@@ -51,34 +44,33 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalOrganizations;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   final static String PROVIDER_SCHEME = "Markit";
 
   public AbstractDbOrganizationMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _orgMaster = null;
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _orgMaster = (DbOrganizationMaster) context.getBean(getDatabaseType() + "DbOrganizationMaster");
+  @Override
+  protected void doTearDownClass() {
+    _orgMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
+  private void init() {
+    _orgMaster = new DbOrganizationMaster(getDbConnector());
 
 //    id bigint NOT NULL,
 //    oid bigint NOT NULL,
@@ -109,7 +101,7 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
 
-    final SimpleJdbcTemplate template = _orgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _orgMaster.getDbConnector().getJdbcOperations();
 
 //    id bigint NOT NULL,
 //    oid bigint NOT NULL,
@@ -222,28 +214,7 @@ public abstract class AbstractDbOrganizationMasterWorkerTest extends DbTest {
     _totalOrganizations = 3;
   }
 
-  @AfterMethod(alwaysRun = true)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _orgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(alwaysRun = true)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _orgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
-  }
-
-
+  //-------------------------------------------------------------------------
   protected void assert101(final OrganizationDocument test) {
     UniqueId uniqueId = UniqueId.of("DbOrg", "101", "0");
     assertNotNull(test);

@@ -8,7 +8,7 @@ package com.opengamma.util.mongo;
 import java.net.UnknownHostException;
 
 import com.mongodb.DB;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
@@ -28,7 +28,7 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
   /**
    * The Mongo instance.
    */
-  private Mongo _mongo;
+  private MongoClient _mongo;
   /**
    * The database.
    */
@@ -78,11 +78,11 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
     _name = name;
   }
 
-  public Mongo getMongo() {
+  public MongoClient getMongo() {
     return _mongo;
   }
 
-  public void setMongo(Mongo mongo) {
+  public void setMongo(MongoClient mongo) {
     _mongo = mongo;
   }
 
@@ -131,7 +131,7 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
   public MongoConnector createObject() {
     final String name = getName();  // store in variable to protect against change by subclass
     ArgumentChecker.notNull(name, "name");
-    final Mongo mongo = createMongo();
+    final MongoClient mongo = createMongo();
     final DB db = createDatabase(mongo);
     return new MongoConnector(name, mongo, db, getCollectionSuffix());
   }
@@ -141,8 +141,8 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
    * 
    * @return the Mongo instance, not null
    */
-  protected Mongo createMongo() {
-    final Mongo mongo = getMongo();  // store in variable to protect against change by subclass
+  protected MongoClient createMongo() {
+    final MongoClient mongo = getMongo();  // store in variable to protect against change by subclass
     if (mongo != null) {
       return mongo;
     }
@@ -150,7 +150,7 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
     final int port = getPort();  // store in variable to protect against change by subclass
     ArgumentChecker.notNull(host, "host");
     try {
-      return new Mongo(host, port);
+      return new MongoClient(host, port);
     } catch (UnknownHostException ex) {
       throw new MongoException(ex.getMessage(), ex);
     }
@@ -162,7 +162,7 @@ public class MongoConnectorFactoryBean extends SingletonFactoryBean<MongoConnect
    * @param mongo  the Mongo instance, not null
    * @return the database, may be null
    */
-  protected DB createDatabase(Mongo mongo) {
+  protected DB createDatabase(MongoClient mongo) {
     final DB db = getDB();
     if (db != null) {
       return db;

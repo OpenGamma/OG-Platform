@@ -16,6 +16,7 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbExchangeMaster.
@@ -25,12 +26,12 @@ public abstract class AbstractIntegrationDbExchangeMasterTest extends AbstractLo
   private static final int PAGE_SIZE = 1000;
   private ExchangeMaster _exgMaster;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.INTEGRATION)
   public void setUp() throws Exception {
     _exgMaster = getTestHelper().getExchangeMaster();
   }
 
-  @AfterMethod
+  @AfterMethod(groups = TestGroup.INTEGRATION)
   public void tearDown() throws Exception {
     _exgMaster = null;
   }
@@ -40,7 +41,7 @@ public abstract class AbstractIntegrationDbExchangeMasterTest extends AbstractLo
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(enabled = false, description = "Queries the entire database")
   public void test_queryAll() throws Exception {
     final ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.setPagingRequest(PagingRequest.NONE);

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ReflectionUtils;
+import com.opengamma.util.StartupUtils;
 
 /**
  * A monitor that allows the Component-based server to be shutdown remotely.
@@ -25,6 +26,10 @@ public final class OpenGammaComponentServerMonitor extends Thread {
   private static final String PORT_PROPERTY = "commandmonitor.port";
   private static final int DEFAULT_PORT = 8079;
   private static final int COMMAND_LENGTH = 256;
+  
+  static {
+    StartupUtils.init();
+  }
 
   private ComponentRepository _repo;
   private String _secret;

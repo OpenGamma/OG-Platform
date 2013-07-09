@@ -145,7 +145,7 @@ public class ModifyOrganizationDbOrganizationMasterWorkerAddTest extends Abstrac
     OrganizationDocument doc = new OrganizationDocument();
     ManageableOrganization org = new ManageableOrganization();
     doc.setOrganization(org);
-    OrganizationDocument added = _orgMaster.add(doc);
+    _orgMaster.add(doc);
   }
 
 

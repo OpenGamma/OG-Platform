@@ -5,15 +5,13 @@
  */
 package com.opengamma.util.test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 
 import javax.sql.DataSource;
 
@@ -23,7 +21,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.hibernate.cfg.Configuration;
@@ -34,9 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
+import com.opengamma.util.StartupUtils;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
+import com.opengamma.util.db.script.DbSchemaGroupMetadata;
+import com.opengamma.util.db.script.DbScript;
+import com.opengamma.util.db.script.DbScriptUtils;
 
 /**
  * Command-line interface to create or clear databases.
@@ -47,11 +48,17 @@ public class DbTool extends Task {
    * During installation, INFO level messages will be reported to the user as progress.
    */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
+  
+  static {
+    StartupUtils.init();
+  }
 
   /**
    */
   public interface TableCreationCallback {
-    void tablesCreatedOrUpgraded(final String version, final String prefix);
+    
+    void tablesCreatedOrUpgraded(final int version, final DbSchemaGroupMetadata schemaGroupMetadata);
+    
   }
 
   // What to do - should be set once
@@ -74,7 +81,7 @@ public class DbTool extends Task {
   private String _dbServerHost;
   private String _user;
   private String _password;
-  private BoneCPDataSource _dataSource;
+  private volatile DataSource _dataSource;
 
   /**
    * Static as the parameterized JUnit test runner seems to create a new DbTool instance
@@ -90,6 +97,13 @@ public class DbTool extends Task {
     setDbServerHost(dbServerHost);
     setUser(user);
     setPassword(password);
+  }
+
+  public DbTool(String dbServerHost, String user, String password, DataSource dataSource) {
+    setDbServerHost(dbServerHost);
+    setUser(user);
+    setPassword(password);
+    _dataSource = dataSource;
   }
 
   public void initialize() {
@@ -125,17 +139,20 @@ public class DbTool extends Task {
    * @return the data source, not null
    */
   public synchronized DataSource getDataSource() {
-    BoneCPDataSource dataSource = _dataSource;
+    DataSource dataSource = _dataSource;
     if (dataSource == null) {
-      dataSource = new BoneCPDataSource();
-      dataSource.setPoolName("DbTool");
-      dataSource.setJdbcUrl(getJdbcUrl());
-      dataSource.setUsername(getUser());
-      dataSource.setPassword(getPassword());
-      dataSource.setAcquireIncrement(1);
-      dataSource.setPartitionCount(1);
-      dataSource.setMaxConnectionsPerPartition(1);
-      _dataSource = dataSource;
+      BoneCPDataSource ds = new BoneCPDataSource();
+      ds.setPoolName("DbTool-" + _dialect.getDatabaseName());
+      ds.setDriverClass(_dialect.getJDBCDriverClass().getName());
+      ds.setJdbcUrl(getJdbcUrl());
+      ds.setUsername(getUser());
+      ds.setPassword(getPassword());
+      ds.setAcquireIncrement(1);
+      ds.setPartitionCount(1);
+      ds.setMaxConnectionsPerPartition(1);
+      ds.setAcquireRetryAttempts(2);
+      ds.setAcquireRetryDelayInMs(2000);
+      _dataSource = dataSource = ds;  // CSIGNORE
     }
     return dataSource;
   }
@@ -144,10 +161,8 @@ public class DbTool extends Task {
    * Close the data-source if it was created.
    */
   public synchronized void close() {
-    if (_dataSource != null) {
-      _dataSource.close();
-      _dataSource = null;
-    }
+    ReflectionUtils.close(_dataSource);
+    _dataSource = null;
   }
 
   //-------------------------------------------------------------------------
@@ -254,43 +269,6 @@ public class DbTool extends Task {
 
   public static String getWorkingDirectory() {
     return System.getProperty("user.dir");
-  }
-
-  /**
-   * Primarily for ant
-   *
-   * @param directories  comma separated list of directory
-   */
-  public void setDbScriptDir(String directories) {
-    if (directories != null) {
-      for (String directory : directories.split(",")) {
-        _dbScriptDirs.add(directory);
-      }
-    } else {
-      _dbScriptDirs.add(getWorkingDirectory());
-    }
-  }
-
-  /**
-   * @param directory If null -> working directory
-   */
-  public void addDbScriptDirectory(String directory) {
-    if (directory == null) {
-      directory = getWorkingDirectory();
-    }
-    _dbScriptDirs.add(directory);
-  }
-
-  /**
-   * Adds a collection of directories to the set.
-   * 
-   * @param directories  the directories, not null
-   */
-  public void addDbScriptDirectories(Iterable<File> directories) {
-    ArgumentChecker.notNull(directories, "directories");
-    for (File dir : directories) {
-      _dbScriptDirs.add(dir.getAbsolutePath());
-    }
   }
 
   public void setCreateVersion(final String createVersion) {
@@ -415,12 +393,12 @@ public class DbTool extends Task {
     createTables(getTestCatalog(), getTestSchema(), callback);
   }
 
-  private void executeSQLScript(String catalog, String schema, File file) {
+  private void executeSQLScript(String catalog, String schema, DbScript dbScript) {
     String sql;
     try {
-      sql = FileUtils.readFileToString(file);
+      sql = dbScript.getScript();
     } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Cannot read file " + file.getAbsolutePath(), e);
+      throw new OpenGammaRuntimeException("Cannot read db script " + dbScript.getName(), e);
     }
     executeSql(catalog, schema, sql);
 
@@ -457,61 +435,46 @@ public class DbTool extends Task {
     }
   }
 
-  /**
-   * Gets the scripts.
-   *
-   * @return schema => version_number => (create_script, migrate_script)
-   */
-  public Map<String, SortedMap<Integer, DbScriptPair>> getScriptDirs() {
-    Collection<File> dirs = new ArrayList<>();
-    for (String dir : _dbScriptDirs) {
-      dirs.add(new File(dir));
-    }
-    DbScripts scripts = DbScripts.of(dirs, _dialect.getDatabaseName());
-    return scripts.getScriptPairs();
-  }
-
   public Map<String, Integer> getLatestVersions() {
-    Collection<File> dirs = new ArrayList<>();
-    for (String dir : _dbScriptDirs) {
-      dirs.add(new File(dir));
+    Map<String, Integer> results = new HashMap<String, Integer>();
+    for (DbSchemaGroupMetadata schemaGroupMetadata : DbScriptUtils.getAllSchemaGroupMetadata()) {
+      results.put(schemaGroupMetadata.getSchemaGroupName(), schemaGroupMetadata.getCurrentVersion());
     }
-    return DbScripts.getLatestVersions(dirs);
+    return results;
   }
 
   public void createTables(String catalog, String schema, final TableCreationCallback callback) {
-    final Map<String, SortedMap<Integer, DbScriptPair>> dbScripts = getScriptDirs();
-    for (String tableSet : dbScripts.keySet()) {
-      int targetVersion = getTargetVersion() != null ? getTargetVersion() : Collections.max(dbScripts.get(tableSet).keySet());
+    for (DbSchemaGroupMetadata schemaGroupMetadata : DbScriptUtils.getAllSchemaGroupMetadata()) {
+      int targetVersion = getTargetVersion() != null ? getTargetVersion() : schemaGroupMetadata.getCurrentVersion();
       int migrateFromVersion = getCreateVersion() != null ? getCreateVersion() : targetVersion;
-      createTables(tableSet, catalog, schema, targetVersion, migrateFromVersion, callback);
+      createTables(schemaGroupMetadata, catalog, schema, targetVersion, migrateFromVersion, callback);
     }
   }
 
-  public void createTables(String tableSet, String catalog, String schema, int targetVersion, int migrateFromVersion, final TableCreationCallback callback) {
-    final SortedMap<Integer, DbScriptPair> dbScripts = getScriptDirs().get(tableSet);
+  public void createTables(DbSchemaGroupMetadata schemaGroupMetadata, String catalog, String schema, int targetVersion, int migrateFromVersion, final TableCreationCallback callback) {
     // create
-    final File createScript = dbScripts.get(migrateFromVersion).getCreateScript();
-    if (createScript == null || !createScript.exists()) {
-      throw new OpenGammaRuntimeException("The " + migrateFromVersion + " create script is missing (" + createScript + ")");
+    String dbVendorName = _dialect.getDatabaseName();
+    DbScript createScript = schemaGroupMetadata.getCreateScript(dbVendorName, migrateFromVersion);
+    if (createScript == null) {
+      throw new OpenGammaRuntimeException("Missing create script for V" + migrateFromVersion + ", database " + dbVendorName + ", schema group " + schemaGroupMetadata.getSchemaGroupName());
     }
-    s_logger.debug("Creating {} DB version {}", tableSet, migrateFromVersion);
-    s_logger.debug("Executing create script {}", dbScripts.get(migrateFromVersion).getCreateScript());
+    s_logger.debug("Creating {} DB version {}", schemaGroupMetadata.getSchemaGroupName(), migrateFromVersion);
+    s_logger.debug("Executing create script {}", createScript.getName());
     executeSQLScript(catalog, schema, createScript);
     if (callback != null) {
-      callback.tablesCreatedOrUpgraded(Integer.toString(migrateFromVersion), tableSet);
+      callback.tablesCreatedOrUpgraded(migrateFromVersion, schemaGroupMetadata);
     }
     // migrates
-    for (int v = migrateFromVersion + 1; v <= targetVersion; v++) {
-      final File migrateScript = dbScripts.get(v).getMigrateScript();
-      if (migrateScript == null || !migrateScript.exists()) {
-        throw new OpenGammaRuntimeException("The " + v + " migrate script is missing (" + migrateScript + ")");
+    for (int v = migrateFromVersion; v < targetVersion; v++) {
+      DbScript migrateScript = schemaGroupMetadata.getMigrateScript(dbVendorName, v);
+      if (migrateScript == null) {
+        throw new OpenGammaRuntimeException("The " + v + " migrate script is missing for " + dbVendorName + " and schema group " + schemaGroupMetadata.getSchemaGroupName());
       }
-      s_logger.debug("Migrating DB from version {} to {}", (v - 1), v);
-      s_logger.debug("Executing migrate script {}", dbScripts.get(v).getCreateScript());
+      s_logger.debug("Migrating DB from version {} to {}", v, v + 1);
+      s_logger.debug("Executing migrate script {}", migrateScript.getName());
       executeSQLScript(catalog, schema, migrateScript);
       if (callback != null) {
-        callback.tablesCreatedOrUpgraded(Integer.toString(v), tableSet);
+        callback.tablesCreatedOrUpgraded(v + 1, schemaGroupMetadata);
       }
     }
   }
@@ -564,12 +527,12 @@ public class DbTool extends Task {
 
     if (_createTestDb) {
       // used to try to use _testPropertiesDir here, but value was always ignored
-      for (String dbType : DbTestProperties.getDatabaseTypes(_testDbType)) {
+      for (String dbType : DbTest.initDatabaseTypes(_testDbType)) {
         s_logger.debug("Creating " + dbType + " test database...");
 
-        String dbUrl = DbTestProperties.getDbHost(dbType);
-        String user = DbTestProperties.getDbUsername(dbType);
-        String password = DbTestProperties.getDbPassword(dbType);
+        String dbUrl = DbTest.getDbHost(dbType);
+        String user = DbTest.getDbUsername(dbType);
+        String password = DbTest.getDbPassword(dbType);
 
         setDbServerHost(dbUrl);
         setUser(user);
@@ -605,9 +568,7 @@ public class DbTool extends Task {
     options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it (including tables). " +
       "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
       "to specify server, user, or password.");
-    options.addOption("createtables", "createtables", true, "Runs {dbscriptbasedir}/db/create/{dbtype}/<for-all-masters>/<latest version>__create-<master>.sql.");
-    options.addOption("dbscriptbasedir", "dbscriptbasedir", true, "Directory for reading db create scripts. " +
-      "Optional. If not specified, the working directory is used.");
+    options.addOption("createtables", "createtables", true, "Creates database tables for all masters.");
     options.addOption("targetversion", "targetversion", true,
         "Version number for the end result database. 0 means latest. 1 means last but one etc. Optional. If not specified, assumes latest version.");
     options.addOption("createversion", "createversion", true,
@@ -638,7 +599,6 @@ public class DbTool extends Task {
     tool.setCreateTestDb(line.getOptionValue("createtestdb"));
     tool.setCreateTables(line.getOptionValue("createtables"));
     tool.setTestPropertiesDir(line.getOptionValue("testpropertiesdir"));
-    tool.addDbScriptDirectory(line.getOptionValue("dbscriptbasedir"));
     tool.setTargetVersion(line.getOptionValue("targetversion"));
     tool.setCreateVersion(line.getOptionValue("createversion"));
 

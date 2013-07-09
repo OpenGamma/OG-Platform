@@ -27,10 +27,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.INTEGRATION)
 public abstract class SmileModelFitterTest<T extends SmileModelData> {
   private static final double TIME_TO_EXPIRY = 7.0;
   private static final double F = 0.03;
@@ -84,8 +86,6 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     _nosiyFitter = getFitter(F, strikes, TIME_TO_EXPIRY, _noisyVols, _errors, model);
   }
 
-  @Test
-  //(enabled = false)
   public void testExactFit() {
 
     final double[][] start = getStartValues();
@@ -120,10 +120,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     return from;
   }
 
-  @Test
-  //(enabled = false)
   public void testNoisyFit() {
-
     final double[][] start = getStartValues();
     final BitSet[] fixed = getFixedValues();
     int nStartPoints = start.length;
@@ -142,9 +139,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     }
   }
 
-  @Test
-      (enabled = false)
-      public void timeTest() {
+  public void timeTest() {
     final int hotspotWarmupCycles = 200;
     final int benchmarkCycles = 1000;
     final int nStarts = getStartValues().length;
@@ -162,8 +157,6 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     }
   }
 
-  @Test
-  //      (enabled = false)
   public void horribleMarketDataTest() {
     final double forward = 0.0059875;
     final double[] strikes = new double[] {0.0012499999999999734, 0.0024999999999999467, 0.003750000000000031, 0.0050000000000000044, 0.006249999999999978, 0.007499999999999951, 0.008750000000000036,
@@ -202,8 +195,6 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     assertTrue("chi square", best.getChiSq() < 24000); //average error 31.6% - not a good fit, but the data is horrible
   }
 
-  @Test
-  //(enabled = false)
   public void testJacobian() {
 
     T data = getModelData();
@@ -218,8 +209,6 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     testJacobian(x);
   }
 
-  @Test
-  //(enabled = false)
   public void testRandomJacobian() {
     for (int i = 0; i < 10; i++) {
       double[] temp = getRandomStartValues();

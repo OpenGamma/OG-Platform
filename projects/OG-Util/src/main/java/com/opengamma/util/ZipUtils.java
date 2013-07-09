@@ -50,6 +50,7 @@ public final class ZipUtils {
 
     s_logger.debug("Unzipping file:{} to {}", archive, outputDir);
     try {
+      FileUtils.forceMkdir(outputDir);
       unzipArchive(new ZipFile(archive), outputDir);
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Error while extracting file: " + archive + " to: " + outputDir, ex);

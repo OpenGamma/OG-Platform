@@ -26,6 +26,7 @@ public class CreditCurveIdentifierFudgeBuilder implements FudgeBuilder<CreditCur
   private static final String RESTRUCTURING_CLAUSE = "restructuringClause";
   private static final String CURVE_TYPE_PREFIX = "curveTypePrefix";
 
+  @SuppressWarnings("deprecation")
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CreditCurveIdentifier object) {
     final MutableFudgeMsg message = serializer.newMessage();
@@ -41,6 +42,7 @@ public class CreditCurveIdentifierFudgeBuilder implements FudgeBuilder<CreditCur
     return message;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CreditCurveIdentifier buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String redCode = message.getString(RED_CODE);

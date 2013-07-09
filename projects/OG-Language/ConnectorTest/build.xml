@@ -1,3 +1,0 @@
-<project name="ConnectorTest">
-	<import file="${basedir}/../build-core-cpp.xml" />
-</project>

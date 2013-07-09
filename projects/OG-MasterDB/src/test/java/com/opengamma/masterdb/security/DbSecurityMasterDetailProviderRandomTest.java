@@ -7,15 +7,11 @@ package com.opengamma.masterdb.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -23,7 +19,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements SecurityTestCaseMethods {
+public class DbSecurityMasterDetailProviderRandomTest extends AbstractDbSecurityTest implements SecurityTestCaseMethods {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterDetailProviderRandomTest.class);
@@ -35,33 +31,17 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
    */
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbSecurityMasterDetailProviderRandomTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running test for database={}", databaseType);
   }
 
-  /**
-   * @throws java.lang.Exception
-   */
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    DbSecurityMaster secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    DbSecurityMaster secMaster = new DbSecurityMaster(getDbConnector());
+    secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
     s_logger.debug("SecMaster initialization complete {}", secMaster);
     _testCase = new SecurityMasterTestCase(secMaster);
-  }
-
-  /**
-   * @throws java.lang.Exception
-   */
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

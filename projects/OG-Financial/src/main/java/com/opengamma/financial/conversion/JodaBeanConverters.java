@@ -22,7 +22,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
@@ -34,9 +33,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.VarianceSwapNotional;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -59,13 +56,8 @@ public final class JodaBeanConverters {
   private JodaBeanConverters() {
     StringConvert stringConvert = JodaBeanUtils.stringConverter();
     stringConvert.register(Frequency.class, new FrequencyConverter());
-    stringConvert.register(Currency.class, new CurrencyConverter());
     stringConvert.register(DayCount.class, new DayCountConverter());
-    stringConvert.register(ExternalId.class, new ExternalIdConverter());
     stringConvert.register(ExternalIdBundle.class, new ExternalIdBundleConverter());
-    stringConvert.register(CurrencyPair.class, new CurrencyPairConverter());
-    stringConvert.register(ObjectId.class, new ObjectIdConverter());
-    stringConvert.register(UniqueId.class, new UniqueIdConverter());
     stringConvert.register(Expiry.class, new ExpiryConverter());
     stringConvert.register(ExerciseType.class, new ExerciseTypeConverter());
     stringConvert.register(Notional.class, new NotionalConverter());
@@ -116,22 +108,6 @@ public final class JodaBeanConverters {
     }
   }
 
-  public static class CurrencyConverter extends AbstractConverter<Currency> {
-    @Override
-    public Currency convertFromString(Class<? extends Currency> cls, String str) {
-      return Currency.of(str);
-    }
-  }
-  
-  public static class ExternalIdConverter extends AbstractConverter<ExternalId> {
-
-    @Override
-    public ExternalId convertFromString(Class<? extends ExternalId> cls, String str) {
-      return ExternalId.parse(str);
-    }
-    
-  }
-  
   public static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
   
     @Override
@@ -152,43 +128,6 @@ public final class JodaBeanConverters {
       return ExternalIdBundle.parse(strings);
     }
 
-  }
-  
-  public static class ObjectIdConverter extends AbstractConverter<ObjectId> {
-
-    @Override
-    public ObjectId convertFromString(Class<? extends ObjectId> cls, String str) {
-      return ObjectId.parse(str);
-    }
-    
-  }
-
-  public static class UniqueIdConverter extends AbstractConverter<UniqueId> {
-
-    @Override
-    public UniqueId convertFromString(Class<? extends UniqueId> cls, String str) {
-      return UniqueId.parse(str);
-    }
-    
-    @Override
-    public String convertToString(UniqueId uniqueId) {
-      return uniqueId.toString();
-    }
-    
-  }
-
-  public static class CurrencyPairConverter implements StringConverter<CurrencyPair> {
-
-    @Override
-    public String convertToString(CurrencyPair object) {
-      return object.getName();
-    }
-
-    @Override
-    public CurrencyPair convertFromString(Class<? extends CurrencyPair> cls, String str) {
-      return CurrencyPair.parse(str);
-    }
-    
   }
 
   public static class ExpiryConverter extends AbstractConverter<Expiry> {

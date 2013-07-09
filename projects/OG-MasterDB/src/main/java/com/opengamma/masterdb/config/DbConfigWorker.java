@@ -243,7 +243,7 @@ import com.opengamma.util.paging.PagingRequest;
 
       String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args) };
 
-      final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+      final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
       ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
       if (request.equals(PagingRequest.ALL)) {
         List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
@@ -254,7 +254,7 @@ import com.opengamma.util.paging.PagingRequest;
         }
         result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
       } else {
-        final int count = namedJdbc.queryForInt(sql[1], args);
+        final int count = namedJdbc.queryForObject(sql[1], args, Integer.class);
         result.setPaging(Paging.of(request.getPagingRequest(), count));
         if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
           List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
@@ -284,7 +284,7 @@ import com.opengamma.util.paging.PagingRequest;
     final DbMapSqlParameterSource args = argsHistory(request);
     final String[] sql = {getElSqlBundle().getSql("History", args), getElSqlBundle().getSql("HistoryCount", args) };
 
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {
       List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, extractor);
       for (ConfigDocument configDocument : queryResult) {
@@ -294,7 +294,7 @@ import com.opengamma.util.paging.PagingRequest;
       }
       result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
     } else {
-      final int count = namedJdbc.queryForInt(sql[1], args);
+      final int count = namedJdbc.queryForObject(sql[1], args, Integer.class);
       result.setPaging(Paging.of(request.getPagingRequest(), count));
       if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
         List<ConfigDocument> queryResult = namedJdbc.query(sql[0], args, extractor);

@@ -1,26 +1,24 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.tuple;
-
-import java.util.Map;
-
-import com.opengamma.util.tuple.IntDoublePair;
-import com.opengamma.util.tuple.IntObjectPair;
-import com.opengamma.util.tuple.LongDoublePair;
-import com.opengamma.util.tuple.LongObjectPair;
-import com.opengamma.util.tuple.Pair;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
+import java.util.Map;
+
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
+ * Utilities.
  */
+@SuppressWarnings("rawtypes")
 public class TuplesUtil {
 
-  public static Map.Entry pairToEntry(final Pair pair){
+  public static Map.Entry pairToEntry(final Pair pair) {
     return new Map.Entry() {
       @Override
       public Object getKey() {
@@ -39,7 +37,7 @@ public class TuplesUtil {
     };
   }
 
-  public static Long2ObjectMap.Entry pairToEntry(final LongObjectPair pair){
+  public static Long2ObjectMap.Entry pairToEntry(final LongObjectPair pair) {
     return new Long2ObjectMap.Entry() {
       @Override
       public long getLongKey() {
@@ -63,8 +61,7 @@ public class TuplesUtil {
     };
   }
 
-
-  public static Long2DoubleMap.Entry pairToEntry(final LongDoublePair pair){
+  public static Long2DoubleMap.Entry pairToEntry(final LongDoublePair pair) {
     return new Long2DoubleMap.Entry() {
       @Override
       public long getLongKey() {
@@ -98,8 +95,7 @@ public class TuplesUtil {
     };
   }
 
-
-  public static Int2DoubleMap.Entry pairToEntry(final IntDoublePair pair){
+  public static Int2DoubleMap.Entry pairToEntry(final IntDoublePair pair) {
     return new Int2DoubleMap.Entry() {
       @Override
       public int getIntKey() {
@@ -133,9 +129,7 @@ public class TuplesUtil {
     };
   }
 
-
-
-  public static Int2ObjectMap.Entry pairToEntry(final IntObjectPair pair){
+  public static Int2ObjectMap.Entry pairToEntry(final IntObjectPair pair) {
     return new Int2ObjectMap.Entry() {
       @Override
       public int getIntKey() {
@@ -158,4 +152,5 @@ public class TuplesUtil {
       }
     };
   }
+
 }

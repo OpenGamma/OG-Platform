@@ -33,7 +33,6 @@ import org.threeten.bp.Month;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
@@ -178,13 +177,11 @@ public final class WebResourceTestUtils {
     String actualSorted = JSONValue.toJSONString((Map) new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
     assertEquals(expectedSorted, actualSorted);
   }
-  
-  
+
   public static File extractRubySassGem() {
     File sassDir = Files.createTempDir();
     ClassLoader classLoader = JRubySassCompiler.class.getClassLoader();
     URL sassGemUrl = classLoader.getResource("sass/sass-lang-3.2.7.jar");
-    
     if (sassGemUrl == null) {
       throw new OpenGammaRuntimeException("Sass gem jar is missing in the classpath");
     }
@@ -194,12 +191,13 @@ public final class WebResourceTestUtils {
         JarFile jarFile = ((JarURLConnection) urlConnection).getJarFile();
         ZipUtils.unzipArchive(jarFile, sassDir);
       } else {
-        ZipUtils.unzipArchive(new File(sassGemUrl.toURI()), sassDir);
+        File file = new File(sassGemUrl.toURI());
+        ZipUtils.unzipArchive(new JarFile(file), sassDir);
       }
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Error extracting Sass gem jar to " + sassDir.getPath(), ex);
     }
     return sassDir;
   }
-  
+
 }

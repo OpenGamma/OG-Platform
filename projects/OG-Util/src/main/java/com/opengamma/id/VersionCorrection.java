@@ -8,6 +8,8 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 import org.threeten.bp.DateTimeException;
 import org.threeten.bp.Instant;
 
@@ -120,6 +122,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @return the version-correction combination, not null
    * @throws IllegalArgumentException if the version-correction cannot be parsed
    */
+  @FromString
   public static VersionCorrection parse(String str) {
     ArgumentChecker.notEmpty(str, "str");
     int posC = str.indexOf(".C");
@@ -326,6 +329,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @return the string version-correction, not null
    */
   @Override
+  @ToString
   public String toString() {
     return "V" + getVersionAsOfString() + ".C" + getCorrectedToString();
   }

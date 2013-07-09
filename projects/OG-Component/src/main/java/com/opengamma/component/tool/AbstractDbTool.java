@@ -22,6 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.StartupUtils;
 import com.opengamma.util.db.tool.DbToolContext;
 
 /**
@@ -59,6 +60,10 @@ public abstract class AbstractDbTool<T extends DbToolContext> {
    */
   private static final String OUTPUT_FILE_OPTION = "o";
   
+  static {
+    StartupUtils.init();
+  }
+
   /**
    * The command line.
    */

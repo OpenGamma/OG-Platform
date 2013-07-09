@@ -120,8 +120,7 @@ public class ISDAYieldCurve {
       final DayCount floatDaycountConvention,
       final PeriodFrequency swapInterval,
       final PeriodFrequency floatInterval,
-      final BusinessDayConvention badDayConvention)
-  {
+      final BusinessDayConvention badDayConvention) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -281,9 +280,7 @@ public class ISDAYieldCurve {
 
           // TODO : Add code
 
-        }
-        else
-        {
+        } else {
           zc[i] = JpmcsdsZCAddSwap(1.0, swapDatesOriginal[i], swapDatesOnCycle[i], swapRates[i], lastMMDate);
         }
 
@@ -410,9 +407,7 @@ public class ISDAYieldCurve {
       discFactor = pvOfLast / futOfLast;
 
       // TODO : Add JpmcdsZCAddDiscountFactor
-    }
-    else if (firstUncovered < cflDate.length)
-    {
+    } else if (firstUncovered < cflDate.length) {
 
       double rate = 0.0;
 
@@ -421,7 +416,6 @@ public class ISDAYieldCurve {
       rate = JpmcdsZCInterpolate(date);
       rate = Math.max(0.01, Math.min(1.0, rate));
     }
-
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -459,11 +453,9 @@ public class ISDAYieldCurve {
 
       if (date.isBefore(_zCurveDates.get(mid))) {
         hi = mid - 1;
-      }
-      else if (date.isAfter(_zCurveDates.get(mid + 1))) {
+      } else if (date.isAfter(_zCurveDates.get(mid + 1))) {
         lo = mid + 1;
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -535,8 +527,7 @@ public class ISDAYieldCurve {
 
     final int numItems = _zCurveDates.size();
 
-    for (int i = iLo; i <= iHi; i++)
-    {
+    for (int i = iLo; i <= iHi; i++) {
       final double amt = cflAmount[i];
       final ZonedDateTime date = cflDate[i];
 
@@ -548,13 +539,10 @@ public class ISDAYieldCurve {
         j++;
       }
 
-      if (j < numItems && _zCurveDates.get(j).equals(date))
-      {
+      if (j < numItems && _zCurveDates.get(j).equals(date)) {
         final double discount = _zCurveDiscountFactors.get(j);
         pv = discount * amt;
-      }
-      else
-      {
+      } else {
         pv = 0.0; // JpmcdsZCPresentValue
       }
 
@@ -1114,8 +1102,7 @@ public class ISDAYieldCurve {
 
       if (onCycleSwapDates[i]) {
         prevDate = valueDate.plusMonths(multiplier * (numIntervals - 1));
-      }
-      else {
+      } else {
         prevDate = unadjustedSwapDates[i].plusMonths(6 * (-1));
       }
 
@@ -1137,8 +1124,7 @@ public class ISDAYieldCurve {
 
         if (onCycleSwapDates[i]) {
           isEndStub = true;
-        }
-        else {
+        } else {
           // Need to fill this in - jpmcdsisendstub
         } // end if
 
@@ -1167,16 +1153,13 @@ public class ISDAYieldCurve {
 
           numIntervals = index - 1;
           extraDays = (int) Math.abs(TimeCalculator.getTimeBetween(toDate, lastDate));
-
-        }
-        else {
+        } else {
           // Need to add this
         }
 
         if (extraDays > 0) {
           numDates = numIntervals + 2;
-        }
-        else {
+        } else {
           numDates = numIntervals + 1;
         }
 
@@ -1189,9 +1172,7 @@ public class ISDAYieldCurve {
           }
 
           dateList[numDates - 1] = unadjustedSwapDates[i];
-
-        }
-        else {
+        } else {
           // Need to add this
         }
 
@@ -1239,7 +1220,7 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private final double getInterpolatedRate(
+  private double getInterpolatedRate(
       final double t,
       final double t1,
       final double t2,
@@ -1325,9 +1306,7 @@ public class ISDAYieldCurve {
       z2 = Math.log(1.0 + hiRate);
 
       // TODO : DoubleToBits this
-      if (t == 0.0)
-      {
-
+      if (t == 0.0) {
         // TODO : Check for t2 == 0 as well
         t = 1.0 / 365.0;
       }
@@ -1352,8 +1331,7 @@ public class ISDAYieldCurve {
       // Start at the first date
       ZonedDateTime rollingDate = timePoints[0];
 
-      while (!rollingDate.isAfter(date))
-      {
+      while (!rollingDate.isAfter(date)) {
         lo++;
         rollingDate = timePoints[lo];
       }
@@ -1377,8 +1355,7 @@ public class ISDAYieldCurve {
       t = TimeCalculator.getTimeBetween(valueDate, date, ACT_360);
 
       // TODO : DoubleToBits this
-      if (t == 0.0)
-      {
+      if (t == 0.0) {
 
         // TODO : Check for t2 == 0 as well
         t = 1.0 / 365.0;

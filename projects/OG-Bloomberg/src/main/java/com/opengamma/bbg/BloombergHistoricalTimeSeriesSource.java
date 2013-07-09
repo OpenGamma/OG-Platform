@@ -5,9 +5,9 @@
  */
 package com.opengamma.bbg;
 
-import com.opengamma.provider.historicaltimeseries.impl.MarketDataProviderHistoricalTimeSeriesSource;
 import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
+import com.opengamma.provider.historicaltimeseries.impl.MarketDataProviderHistoricalTimeSeriesSource;
 
 /**
  * Loads time-series from Bloomberg.
@@ -23,4 +23,5 @@ public class BloombergHistoricalTimeSeriesSource extends MarketDataProviderHisto
   public BloombergHistoricalTimeSeriesSource(HistoricalTimeSeriesProvider provider) {
     super("Bloomberg", new UniqueIdSupplier("BbgHTS"), provider);
   }
+
 }

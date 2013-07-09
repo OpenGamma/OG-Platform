@@ -18,7 +18,7 @@
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="locations">
       <list>
-        <value>classpath:com/opengamma/web/marketdata.properties</value>
+        <value>classpath:marketdata.properties</value>
       </list>
     </property>
   </bean>

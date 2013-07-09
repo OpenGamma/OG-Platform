@@ -15,26 +15,24 @@ echo ### Creating empty database
 "%JAVACMD%" -cp "og-examples.jar;lib\*" ^
   -Dlogback.configurationFile=jetty-logback.xml ^
   com.opengamma.util.test.DbTool ^
-  -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db ^
+  -jdbcUrl jdbc:hsqldb:file:data/masterdb/hsqldb/example-db ^
   -database og-financial ^
   -user "OpenGamma" ^
   -password "OpenGamma" ^
   -drop true ^
   -create true ^
-  -createtables true ^
-  -dbscriptbasedir .
+  -createtables true
   
 "%JAVACMD%" -cp "og-examples.jar;lib\*" ^
   -Dlogback.configurationFile=jetty-logback.xml ^
   com.opengamma.util.test.DbTool ^
-  -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user ^
+  -jdbcUrl jdbc:hsqldb:file:data/userdb/hsqldb/og-fin-user ^
   -database og-financial ^
   -user "OpenGamma" ^
   -password "OpenGamma" ^
   -drop true ^
   -create true ^
-  -createtables true ^
-  -dbscriptbasedir .
+  -createtables true
   
 echo ### Adding example data
 

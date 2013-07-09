@@ -30,7 +30,7 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.financial.value.ValueFunctions;
 import com.opengamma.financial.view.ViewFunctions;
 import com.opengamma.master.config.ConfigMasterUtils;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
@@ -67,23 +67,26 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    storeFunctionDefinition(AGGREGATION, AggregationFunctions.instance());
-    storeFunctionDefinition(ANALYTICS, new AnalyticsFunctions() {
+    AnalyticsFunctions analyticsFunctions = new AnalyticsFunctions() {
       @Override
       protected FunctionConfigurationSource modelFunctionConfiguration() {
-        return new ModelFunctions() {
+        ModelFunctions modelFunctions = new ModelFunctions() {
           @Override
           protected FunctionConfigurationSource equityFunctionConfiguration() {
-            return new EquityFunctions() {
+            EquityFunctions equityFunctions = new EquityFunctions() {
               @Override
               protected FunctionConfigurationSource optionFunctionConfiguration() {
                 return null;
               }
-            }.getObjectCreating();
+            };
+            return equityFunctions.getObjectCreating();
           }
-        }.getObjectCreating();
+        };
+        return modelFunctions.getObjectCreating();
       }
-    }.getObjectCreating());
+    };
+    storeFunctionDefinition(AGGREGATION, AggregationFunctions.instance());
+    storeFunctionDefinition(ANALYTICS, analyticsFunctions.getObjectCreating());
     storeFunctionDefinition(CURRENCY, CurrencyFunctions.instance());
     storeFunctionDefinition(PROPERTY, PropertyFunctions.instance());
     storeFunctionDefinition(VALUE, ValueFunctions.instance());

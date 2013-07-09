@@ -24,6 +24,7 @@ import com.codahale.metrics.Timer;
 import com.google.common.base.Charsets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
@@ -32,6 +33,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.metric.MetricProducer;
 
@@ -64,6 +66,11 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
   
   private static final byte[] DATA_NAME_AS_BYTES = "DATA".getBytes(Charsets.UTF_8);
   private static final byte[] CLASS_NAME_AS_BYTES = "CLASS".getBytes(Charsets.UTF_8);
+  
+  /**
+   * The default scheme for unique identifiers.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "RedisSec";
   
   public NonVersionedRedisSecuritySource(JedisPool jedisPool) {
     this(jedisPool, "");
@@ -151,11 +158,14 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
   // UNIQUE TO THIS CLASS
   // ---------------------------------------------------------------------
   
-  public void put(Security security) {
+  public UniqueId put(Security security) {
     ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(security.getUniqueId(), "security uniqueId");
+    //ArgumentChecker.notNull(security.getUniqueId(), "security uniqueId");
     
     UniqueId uniqueId = security.getUniqueId();
+    if (uniqueId == null) {
+      uniqueId = UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
+    }
     if (uniqueId.getVersion() != null) {
       uniqueId = UniqueId.of(uniqueId.getObjectId(), null);
     }
@@ -187,6 +197,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
       }
       
     }
+    return uniqueId;
   }
   
   // ---------------------------------------------------------------------
@@ -334,7 +345,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
 
   @Override
   public ChangeManager changeManager() {
-    throw new UnsupportedOperationException("Change manager not supported.");
+    return DummyChangeManager.INSTANCE;
   }
   
   protected Security getInJedis(Jedis jedis, UniqueId uniqueId) {

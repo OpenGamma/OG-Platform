@@ -8,7 +8,7 @@ package com.opengamma.examples.loader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.examples.historical.SimulatedHistoricalDataGenerator;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Example tool to initialize historical data.

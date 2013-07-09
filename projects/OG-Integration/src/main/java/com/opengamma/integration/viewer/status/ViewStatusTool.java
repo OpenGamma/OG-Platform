@@ -23,7 +23,7 @@ import com.opengamma.integration.viewer.status.impl.BloombergReferencePortfolioM
 import com.opengamma.integration.viewer.status.impl.ViewStatusCalculationWorker;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * The view status tool

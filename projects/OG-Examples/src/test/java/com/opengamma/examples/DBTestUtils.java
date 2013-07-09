@@ -1,18 +1,19 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.examples;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentManager;
-import com.opengamma.util.ZipUtils;
 import com.opengamma.util.test.DbTool;
 
 public final class DBTestUtils {
@@ -23,14 +24,10 @@ public final class DBTestUtils {
   private static final String JDBC_URL_KEY_USER = "db.userfinancial.url";
   private static final Logger s_logger = LoggerFactory.getLogger(DBTestUtils.class);
   
-  private static final File SCRIPT_ZIP_PATH = new File(System.getProperty("user.dir"), "lib/sql/com.opengamma/og-masterdb");
-  private static final File SCRIPT_INSTALL_DIR = new File(System.getProperty("user.dir"), "temp/" + ExamplesTest.class.getSimpleName());
-  
   private DBTestUtils() {
   }
 
   public static void createTestHsqlDB(String configResourceLocation) throws IOException {
-    createSQLScripts();
     Properties props = loadProperties(configResourceLocation);
     
     DbTool dbTool = new DbTool();
@@ -41,7 +38,6 @@ public final class DBTestUtils {
     dbTool.setCreate(true);
     dbTool.setDrop(true);
     dbTool.setCreateTables(true);
-    dbTool.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
     dbTool.execute();
     
     if (StringUtils.isNotEmpty(props.getProperty(JDBC_URL_KEY_USER))) {
@@ -53,7 +49,6 @@ public final class DBTestUtils {
       dbTool2.setCreate(true);
       dbTool2.setDrop(true);
       dbTool2.setCreateTables(true);
-      dbTool2.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
       dbTool2.execute();
     }
   }
@@ -80,23 +75,9 @@ public final class DBTestUtils {
     
     return props;
   }
-  
-  private static void createSQLScripts() throws IOException {
-    cleanScriptDir();
-    for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-      ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
-    }
-  }
-  
-  private static void cleanScriptDir() {
-    if (SCRIPT_INSTALL_DIR.exists()) {
-      FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
-    }
-  }
 
   public static void cleanUp(String configResourceLocation) throws IOException {
     dropDatabase(configResourceLocation);
-    cleanScriptDir();
   }
   
   private static void dropDatabase(String configResourceLocation) throws IOException {
@@ -108,7 +89,6 @@ public final class DBTestUtils {
     dbTool.setUser(props.getProperty(DB_USERNAME_KEY, ""));
     dbTool.setPassword(props.getProperty(DB_PASSWORD_KEY, ""));
     dbTool.setDrop(true);
-    dbTool.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
     dbTool.execute();
     
     if (StringUtils.isNotEmpty(props.getProperty(JDBC_URL_KEY_USER))) {
@@ -118,7 +98,6 @@ public final class DBTestUtils {
       dbTool2.setUser(props.getProperty(DB_USERNAME_KEY, ""));
       dbTool2.setPassword(props.getProperty(DB_PASSWORD_KEY, ""));
       dbTool2.setDrop(true);
-      dbTool2.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
       dbTool2.execute();
     }
   }

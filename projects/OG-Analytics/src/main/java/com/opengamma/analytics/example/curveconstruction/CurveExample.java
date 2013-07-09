@@ -16,10 +16,14 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
+/**
+ * Example for curves.
+ */
 public class CurveExample {
+
   // @export "constantDoublesCurveDemo"
   public static void constantDoublesCurveDemo(PrintStream out) {
-    Curve curve = new ConstantDoublesCurve(5.0);
+    Curve<Double, Double> curve = new ConstantDoublesCurve(5.0);
 
     out.println(curve.getYValue(0.0));
     out.println(curve.getYValue(10.0));
@@ -49,7 +53,7 @@ public class CurveExample {
     double[] xdata = {1.0, 2.0, 3.0};
     double[] ydata = {2.0, 4.0, 6.0};
     LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    Curve curve = new InterpolatedDoublesCurve(xdata, ydata, interpolator, true);
+    Curve<Double, Double> curve = new InterpolatedDoublesCurve(xdata, ydata, interpolator, true);
 
     out.println(curve.getYValue(1.0));
     out.println(curve.getYValue(2.0));
@@ -74,7 +78,7 @@ public class CurveExample {
     Interpolator1D rightExtrapolator = new LinearExtrapolator1D(interpolator);
     Interpolator1D combined = new CombinedInterpolatorExtrapolator(interpolator, leftExtrapolator, rightExtrapolator);
 
-    Curve curve = new InterpolatedDoublesCurve(xdata, ydata, combined, true);
+    Curve<Double, Double> curve = new InterpolatedDoublesCurve(xdata, ydata, combined, true);
 
     out.println(curve.getYValue(1.0));
     out.println(curve.getYValue(2.0));
@@ -83,4 +87,5 @@ public class CurveExample {
     out.println(curve.getYValue(1.5));
     out.println(curve.getYValue(4.0));
   }
+
 }

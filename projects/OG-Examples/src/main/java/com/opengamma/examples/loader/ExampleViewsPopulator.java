@@ -82,7 +82,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
@@ -104,14 +104,16 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     Currency.GBP,
     Currency.EUR,
     Currency.JPY,
-    Currency.CHF};
+    Currency.CHF,
+  };
   /** A list of curve configuration names */
   private static final String[] s_curveConfigNames = new String[] {
     "DefaultTwoCurveUSDConfig",
     "DefaultTwoCurveGBPConfig",
     "DefaultTwoCurveEURConfig",
     "DefaultTwoCurveJPYConfig",
-    "DefaultTwoCurveCHFConfig"};
+    "DefaultTwoCurveCHFConfig",
+  };
   /** A list of currency pairs */
   public static final UnorderedCurrencyPair[] CURRENCY_PAIRS = new UnorderedCurrencyPair[] {
     UnorderedCurrencyPair.of(Currency.USD, Currency.EUR),
@@ -120,7 +122,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     UnorderedCurrencyPair.of(Currency.USD, Currency.GBP),
     UnorderedCurrencyPair.of(Currency.USD, Currency.JPY),
     UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR),
-    UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY)
+    UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY),
   };
   /** Map of currencies to swaption surface names */
   public static final Map<Currency, String> SWAPTION_SURFACES = new HashMap<>();
@@ -186,7 +188,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
           ValueRequirementNames.TREYNOR_RATIO,
           ValueRequirementNames.JENSENS_ALPHA,
           ValueRequirementNames.TOTAL_RISK_ALPHA,
-          ValueRequirementNames.PNL});
+          ValueRequirementNames.PNL,
+        });
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }

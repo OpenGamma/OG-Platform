@@ -53,7 +53,7 @@ public class DataConfigSourceResourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void testGetConfigByUid() {
     final SimpleExchange target = new SimpleExchange();
@@ -64,7 +64,7 @@ public class DataConfigSourceResourceTest {
     assertEquals(target, OpenGammaFudgeContext.getInstance().fromFudgeMsg(ConfigItem.class, (FudgeMsg) test.getEntity()).getValue());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void testGetConfigByOid() {
     final SimpleExchange target = new SimpleExchange();

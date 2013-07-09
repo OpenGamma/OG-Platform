@@ -19,7 +19,8 @@ import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.cometd.Client;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +67,10 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   // Cell-based state
   private final ConcurrentMap<WebGridCell, WebViewDepGraphGrid> _depGraphGrids = new ConcurrentHashMap<WebGridCell, WebViewDepGraphGrid>();
 
-  protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<ComputationTargetSpecification> targets,
-      Set<? extends ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue,
+  protected RequirementBasedWebViewGrid(
+      String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<ComputationTargetSpecification> targets,
+      Set<? extends ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache,
+      LocalSession local, ServerSession remote, String nullCellValue,
       ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache, local, remote);
 
@@ -113,7 +116,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
         }
       }
     }
-    getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
+    getRemoteSession().deliver(getLocalSession(), getUpdateChannel(), valuesToSend, null);
   }
 
   private Map<String, Object> createTargetResult(Integer rowId) {
@@ -164,7 +167,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
         Map<String, Object> columnMessage = new HashMap<String, Object>();
         columnMessage.put("dg", depGraphMessage);
         valuesToSend.put(Integer.toString(depGraphGrid.getParentGridCell().getColumnId()), columnMessage);
-        getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
+        getRemoteSession().deliver(getLocalSession(), getUpdateChannel(), valuesToSend, null);
       }
     } finally {
       cycleReference.release();
@@ -182,7 +185,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   }
 
   private void sendColumnDetails(Collection<WebViewGridColumn> columnDetails) {
-    getRemoteClient().deliver(getLocalClient(), _columnStructureChannel, getJsonColumnStructures(columnDetails), null);
+    getRemoteSession().deliver(getLocalSession(), _columnStructureChannel, getJsonColumnStructures(columnDetails), null);
   }
 
   @Override
@@ -264,7 +267,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       Pair<String, ValueSpecification> columnMappingPair = getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
       s_logger.debug("includeDepGraph took {}", timer.finished());
       WebViewDepGraphGrid grid = new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(),
-          getLocalClient(), getRemoteClient(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond(), getComputationTargetResolver());
+          getLocalSession(), getRemoteSession(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond(), getComputationTargetResolver());
       _depGraphGrids.putIfAbsent(cell, grid);
       return grid;
     } else {

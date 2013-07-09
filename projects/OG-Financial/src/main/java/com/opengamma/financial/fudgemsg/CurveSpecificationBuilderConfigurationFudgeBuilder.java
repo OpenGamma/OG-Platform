@@ -216,7 +216,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       cashInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg cashInstrumentProvidersMessage = message.getMessage(CASH);
       for (final FudgeField field : cashInstrumentProvidersMessage.getAllFields()) {
-        cashInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        cashInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -230,13 +230,13 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       final FudgeMsg fraInstrumentProvidersMessage = message.getMessage(FRA);
       fra3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       for (final FudgeField field : fraInstrumentProvidersMessage.getAllFields()) {
-        fra3MInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        fra3MInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     } else if (message.hasField(FRA_3M)) {
       fra3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg fra3MInstrumentProvidersMessage = message.getMessage(FRA_3M);
       for (final FudgeField field : fra3MInstrumentProvidersMessage.getAllFields()) {
-        fra3MInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        fra3MInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -249,7 +249,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       fra6MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg fra6MInstrumentProvidersMessage = message.getMessage(FRA_6M);
       for (final FudgeField field : fra6MInstrumentProvidersMessage.getAllFields()) {
-        fra6MInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        fra6MInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -258,7 +258,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       futureInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg futureInstrumentProvidersMessage = message.getMessage(FUTURE);
       for (final FudgeField field : futureInstrumentProvidersMessage.getAllFields()) {
-        futureInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        futureInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
     if (message.hasField(RATE) && message.hasField(LIBOR)) {
@@ -271,13 +271,13 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       liborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg rateInstrumentProvidersMessage = message.getMessage(RATE);
       for (final FudgeField field : rateInstrumentProvidersMessage.getAllFields()) {
-        liborInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        liborInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     } else if (message.hasField(LIBOR)) {
       liborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg liborInstrumentProvidersMessage = message.getMessage(LIBOR);
       for (final FudgeField field : liborInstrumentProvidersMessage.getAllFields()) {
-        liborInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        liborInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -290,7 +290,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       euriborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg euriborInstrumentProvidersMessage = message.getMessage(EURIBOR);
       for (final FudgeField field : euriborInstrumentProvidersMessage.getAllFields()) {
-        euriborInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        euriborInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -299,7 +299,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       cdorInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg cdorInstrumentProvidersMessage = message.getMessage(CDOR);
       for (final FudgeField field : cdorInstrumentProvidersMessage.getAllFields()) {
-        cdorInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        cdorInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -308,7 +308,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       ciborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg ciborInstrumentProvidersMessage = message.getMessage(CIBOR);
       for (final FudgeField field : ciborInstrumentProvidersMessage.getAllFields()) {
-        ciborInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        ciborInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -317,7 +317,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       stiborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg stiborInstrumentProvidersMessage = message.getMessage(STIBOR);
       for (final FudgeField field : stiborInstrumentProvidersMessage.getAllFields()) {
-        stiborInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        stiborInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -331,13 +331,13 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       swap3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg swapInstrumentProvidersMessage = message.getMessage(SWAP);
       for (final FudgeField field : swapInstrumentProvidersMessage.getAllFields()) {
-        swap3MInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        swap3MInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     } else if (message.hasField(SWAP_3M)) {
       swap3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg swap3MInstrumentProvidersMessage = message.getMessage(SWAP_3M);
       for (final FudgeField field : swap3MInstrumentProvidersMessage.getAllFields()) {
-        swap3MInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        swap3MInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -350,7 +350,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       swap6MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg swap6MInstrumentProvidersMessage = message.getMessage(SWAP_6M);
       for (final FudgeField field : swap6MInstrumentProvidersMessage.getAllFields()) {
-        swap6MInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        swap6MInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -359,7 +359,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       swap12MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg swap12MInstrumentProvidersMessage = message.getMessage(SWAP_12M);
       for (final FudgeField field : swap12MInstrumentProvidersMessage.getAllFields()) {
-        swap12MInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        swap12MInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -368,7 +368,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg basisSwapInstrumentProvidersMessage = message.getMessage(BASIS_SWAP);
       for (final FudgeField field : basisSwapInstrumentProvidersMessage.getAllFields()) {
-        basisSwapInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        basisSwapInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -377,7 +377,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       final FudgeMsg tenorSwapInstrumentProvidersMessage = message.getMessage(TENOR_SWAP);
       for (final FudgeField field : tenorSwapInstrumentProvidersMessage.getAllFields()) {
-        tenorSwapInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        tenorSwapInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -386,7 +386,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       final FudgeMsg oisSwapInstrumentProvidersMessage = message.getMessage(OIS_SWAP);
       oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       for (final FudgeField field : oisSwapInstrumentProvidersMessage.getAllFields()) {
-        oisSwapInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        oisSwapInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -395,7 +395,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       final FudgeMsg simpleZeroDepositInstrumentProvidersMessage = message.getMessage(SIMPLE_ZERO_DEPOSIT);
       simpleZeroDepositInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       for (final FudgeField field : simpleZeroDepositInstrumentProvidersMessage.getAllFields()) {
-        simpleZeroDepositInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        simpleZeroDepositInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -404,7 +404,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       final FudgeMsg periodicZeroDepositInstrumentProvidersMessage = message.getMessage(PERIODIC_ZERO_DEPOSIT);
       periodicZeroDepositInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       for (final FudgeField field : periodicZeroDepositInstrumentProvidersMessage.getAllFields()) {
-        periodicZeroDepositInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        periodicZeroDepositInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 
@@ -413,7 +413,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       final FudgeMsg continuousZeroDepositInstrumentProvidersMessage = message.getMessage(CONTINUOUS_ZERO_DEPOSIT);
       continuousZeroDepositInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
       for (final FudgeField field : continuousZeroDepositInstrumentProvidersMessage.getAllFields()) {
-        continuousZeroDepositInstrumentProviders.put(new Tenor(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        continuousZeroDepositInstrumentProviders.put(Tenor.of(DateUtils.toPeriod(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
 

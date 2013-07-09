@@ -42,22 +42,18 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
    * The id supplier service.
    */
   private final UniqueIdSupplier _uniqueIdSupplier;
-
   /**
    * The provider.
    */
-  protected final HistoricalTimeSeriesProvider _provider;
-
+  private final HistoricalTimeSeriesProvider _provider;
   /**
    * Exception to be thrown if operation cannot be performed due to config.
    */
   private final UnsupportedOperationException _configException;
-
   /**
    * Exception to be thrown if operation cannot be performed due to unique id.
    */
   private final UnsupportedOperationException _uniqueIdException;
-
   /**
    * Exception to be thrown if operation cannot be performed due to validity date.
    */

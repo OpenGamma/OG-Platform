@@ -7,39 +7,37 @@ package com.opengamma.util.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
+import javax.sql.DataSource;
+
 import org.testng.annotations.DataProvider;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.HSQLDbDialect;
 import com.opengamma.util.db.PostgresDbDialect;
 import com.opengamma.util.db.SqlServer2008DbDialect;
-import com.opengamma.util.test.DbTool.TableCreationCallback;
+import com.opengamma.util.db.script.DbSchemaGroupMetadata;
+import com.opengamma.util.db.script.DbScriptUtils;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Base DB test.
+ * Utilities to support database testing.
  */
-public abstract class DbTest implements TableCreationCallback {
+public final class DbTest {
 
-  /** Cache. */
-  protected static Map<String, String> s_databaseTypeVersion = new HashMap<>();
   /** Known dialects. */
-  private static final Map<String, DbDialect> s_dbDialects = new HashMap<>();
+  private static final Map<String, DbDialect> s_dbDialects = new ConcurrentHashMap<>();
+  /** Available dialects. */
+  private static final Map<String, Boolean> s_availableDialects = new ConcurrentHashMap<String, Boolean>();
 
   static {
     // initialize the clock
@@ -51,207 +49,60 @@ public abstract class DbTest implements TableCreationCallback {
     addDbDialect("sqlserver2008", new SqlServer2008DbDialect());
   }
 
-  private final String _databaseType;
-  private final String _targetVersion;
-  private final String _createVersion;
-  private volatile DbTool _dbtool;
-
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
+   */
+  private DbTest() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the supported databases for testing.
    * 
-   * @param databaseType  the database type
-   * @param targetVersion  the target version
-   * @param createVersion  the create version
+   * @return the supported database types, not null
    */
-  protected DbTest(String databaseType, String targetVersion, String createVersion) {
-    ArgumentChecker.notNull(databaseType, "databaseType");
-    _databaseType = databaseType;
-    _targetVersion = targetVersion;
-    _createVersion = createVersion;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Initializes the DBTool outside the constructor.
-   * This works better with TestNG and Maven, where the constructor is called
-   * even if the test is never run.
-   */
-  private DbTool ensureDbTool() {
-    if (_dbtool == null) {
-      synchronized (this) {
-        if (_dbtool == null) {
-          ArgumentChecker.notNull(_databaseType, "_databaseType");
-          _dbtool = DbTestProperties.getDbTool(_databaseType);
-          _dbtool.setJdbcUrl(getDbTool().getTestDatabaseUrl());
-          _dbtool.addDbScriptDirectories(DbScripts.getSqlScriptDir());
-        }
-      }
-    }
-    return _dbtool;
+  public static Collection<String> getSupportedDatabaseTypes() {
+    return new ArrayList<>(s_dbDialects.keySet());
   }
 
   /**
-   * Initialize the database to the required version.
-   * This tracks the last initialized version in a static map to avoid duplicate
-   * DB operations on bigger test classes. This might not be such a good idea.
+   * Gets the selected database types.
+   * 
+   * @return a singleton collection containing the String passed in, except if the type is ALL
+   *  (case insensitive), in which case all supported database types are returned, not null
    */
-  @BeforeMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void setUp() throws Exception {
-    DbTool dbTool = ensureDbTool();
-    String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
-    if ((prevVersion == null) || !prevVersion.equals(getTargetVersion())) {
-      s_databaseTypeVersion.put(getDatabaseType(), getTargetVersion());
-      dbTool.setTargetVersion(getTargetVersion());
-      dbTool.setCreateVersion(getCreateVersion());
-      dbTool.dropTestSchema();
-      dbTool.createTestSchema();
-      dbTool.createTestTables(this);
-    }
-    dbTool.clearTestTables();
-  }
-
-  //-------------------------------------------------------------------------
-  @AfterMethod(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void tearDown() throws Exception {
-    DbTool dbTool = _dbtool;
-    if (dbTool != null) {
-      _dbtool.resetTestCatalog(); // avoids locking issues with Derby
-    }
-  }
-
-  @AfterClass(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public void tearDownClass() throws Exception {
-    DbTool dbTool = _dbtool;
-    if (dbTool != null) {
-      _dbtool.close();
-    }
-  }
-
-  @AfterSuite(groups = {TestGroup.UNIT_DB, TestGroup.INTEGRATION})
-  public static void cleanUp() {
-    DbScripts.deleteSqlScriptDir();
-  }
-
-  //-------------------------------------------------------------------------
-  protected static Object[][] getParametersForSeparateMasters(int prevVersionCount) {
-    String testDatabaseType = System.getProperty("test.database.type");
-    Collection<String> databaseTypes;
-    if (testDatabaseType == null || testDatabaseType.trim().equalsIgnoreCase("all")) {
-      databaseTypes = new ArrayList<>(s_dbDialects.keySet());
+  static Collection<String> initDatabaseTypes(String commandLineDbType) {
+    ArrayList<String> dbTypes = new ArrayList<String>();
+    if (commandLineDbType.trim().equalsIgnoreCase("all")) {
+      dbTypes.addAll(getSupportedDatabaseTypes());
     } else {
-      if (s_dbDialects.containsKey(testDatabaseType) == false) {
-        throw new IllegalArgumentException("Unknown database: " + testDatabaseType);
-      }
-      databaseTypes = Collections.singleton(testDatabaseType);
+      dbTypes.add(commandLineDbType);
     }
-    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String databaseType : databaseTypes) {
-      DbScripts scripts = DbScripts.of(DbScripts.getSqlScriptDir(), databaseType);
-      Map<String, SortedMap<Integer, DbScriptPair>> scriptPairs = scripts.getScriptPairs();
-      for (String schema : scriptPairs.keySet()) {
-        Set<Integer> versions = scriptPairs.get(schema).keySet();
-        int max = Collections.max(versions);
-        int min = Collections.min(versions);
-        for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
-          parameters.add(new Object[]{databaseType, schema, "" + max /*target_version*/, "" + v /*migrate_from_version*/});
-        }
-      }
-    }
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
+    return dbTypes;
   }
 
-  protected static Object[][] getParameters() {
-    String databaseType = System.getProperty("test.database.type");
-    if (databaseType == null) {
-      databaseType = "all";
-    }
-    Collection<String> databaseTypes = DbTestProperties.getDatabaseTypes(databaseType);
-    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String dbType : databaseTypes) {
-      parameters.add(new Object[]{dbType, "latest"});
-    }
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
+  /**
+   * Gets the known dialects.
+   *
+   * @return the known database dialects keyed by type, not null
+   */
+  public static Map<String, DbDialect> getSupportedDbDialects() {
+    return new HashMap<>(s_dbDialects);
   }
 
-  public static Object[][] getParametersForDatabase(final String databaseType) {
-    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
-    for (String db : DbTestProperties.getDatabaseTypes(databaseType)) {
-      parameters.add(new Object[]{db, "latest"});
-    }
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
-  }
-
-  @DataProvider(name = "localDatabase")
-  public static Object[][] data_localDatabase() {
-    return getParametersForDatabase("hsqldb");
-  }
-
-  @DataProvider(name = "databases")
-  public static Object[][] data_databases() {
-    try {
-      return getParameters();
-    } catch (Exception ex) {
-      System.out.println(ex.getMessage());
-      return null;
-    }
-  }
-
-  @DataProvider(name = "databasesVersionsForSeparateMasters")
-  public static Object[][] data_databasesVersionsForSeparateMasters() {
-    return getParametersForSeparateMasters(3);
-  }
-
-  protected static int getPreviousVersionCount() {
-    String previousVersionCountString = System.getProperty("test.database.previousVersions");
-    int previousVersionCount;
-    if (previousVersionCountString == null) {
-      previousVersionCount = 0; // If you run from Eclipse, use current version only
-    } else {
-      previousVersionCount = Integer.parseInt(previousVersionCountString);
-    }
-    return previousVersionCount;
-  }
-
-  //-------------------------------------------------------------------------
-  public DbTool getDbTool() {
-    return ensureDbTool();
-  }
-
-  public String getDatabaseType() {
-    return _databaseType;
-  }
-
-  public String getCreateVersion() {
-    return _createVersion;
-  }
-
-  public String getTargetVersion() {
-    return _targetVersion;
-  }
-
-  public DataSourceTransactionManager getTransactionManager() {
-    return new DataSourceTransactionManager(getDbTool().getDataSource());
-  }
-
-  public DbConnector getDbConnector() {
-    DbDialect dbDialect = s_dbDialects.get(getDatabaseType());
+  /**
+   * Gets the known dialect, checking it is known.
+   * 
+   * @param databaseType  the database type, not null
+   * @return the dialect, not null
+   */
+  public static DbDialect getSupportedDbDialect(String databaseType) {
+    DbDialect dbDialect = getSupportedDbDialects().get(databaseType);
     if (dbDialect == null) {
-      throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
+      throw new OpenGammaRuntimeException("Config error - no DbDialect setup for " + databaseType);
     }
-    DbConnectorFactoryBean factory = new DbConnectorFactoryBean();
-    factory.setName("DbTest");
-    factory.setDialect(dbDialect);
-    factory.setDataSource(getDbTool().getDataSource());
-    factory.setTransactionIsolationLevelName("ISOLATION_READ_COMMITTED");
-    factory.setTransactionPropagationBehaviorName("PROPAGATION_REQUIRED");
-    return factory.createObject();
+    return dbDialect;
   }
 
   /**
@@ -264,18 +115,165 @@ public abstract class DbTest implements TableCreationCallback {
     s_dbDialects.put(dbType, dialect);
   }
 
-  /**
-   * Override this if you wish to do something with the database while it is in its "upgrading" state - e.g. populate with test data
-   * at a particular version to test the data transformations on the next version upgrades.
-   */
-  public void tablesCreatedOrUpgraded(final String version, final String prefix) {
-    // No action 
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "localDatabase")
+  public static Object[][] data_localDatabase() {  // CSIGNORE
+    Object[][] data = getParametersForDatabase("hsqldb");
+    if (data.length == 0) {
+      throw new IllegalStateException("No databases available");
+    }
+    return data;
+  }
+
+  @DataProvider(name = "databases")
+  public static Object[][] data_databases() {  // CSIGNORE
+    Object[][] data = getParameters();
+    if (data.length == 0) {
+      throw new IllegalStateException("No databases available");
+    }
+    return data;
+  }
+
+  @DataProvider(name = "databasesVersionsForSeparateMasters")
+  public static Object[][] data_databasesVersionsForSeparateMasters() {  // CSIGNORE
+    Object[][] data = getParametersForSeparateMasters(3);
+    if (data.length == 0) {
+      throw new IllegalStateException("No databases available");
+    }
+    return data;
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public String toString() {
-    return getDatabaseType() + ":" + getTargetVersion();
+  private static Object[][] getParametersForSeparateMasters(int prevVersionCount) {
+    Collection<String> databaseTypes = getAvailableDatabaseTypes(System.getProperty("test.database.type"));
+    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+    for (DbSchemaGroupMetadata schemaGroupMetadata : DbScriptUtils.getAllSchemaGroupMetadata()) {
+      for (String databaseType : databaseTypes) {
+        int max = schemaGroupMetadata.getCurrentVersion();
+        int min = max;
+        while (schemaGroupMetadata.getCreateScript(databaseType, min - 1) != null) {
+          min--;
+        }
+        for (int v = max; v >= Math.max(max - prevVersionCount, min); v--) {
+          parameters.add(new Object[]{databaseType, schemaGroupMetadata.getSchemaGroupName(), max /*target_version*/, v /*migrate_from_version*/});
+        }
+      }      
+    }
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  private static Object[][] getParameters() {
+    Collection<String> databaseTypes = getAvailableDatabaseTypes(System.getProperty("test.database.type"));
+    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+    for (String databaseType : databaseTypes) {
+      parameters.add(new Object[]{databaseType, "latest"});
+    }
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  private static Object[][] getParametersForDatabase(final String databaseType) {
+    ArrayList<Object[]> parameters = new ArrayList<Object[]>();
+    for (String db : getAvailableDatabaseTypes(databaseType)) {
+      parameters.add(new Object[]{db, "latest"});
+    }
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  /**
+   * Not all database drivers are available in some test environments.
+   */
+  private static Collection<String> getAvailableDatabaseTypes(String databaseType) {
+    Collection<String> databaseTypes;
+    if (databaseType == null) {
+      databaseTypes = Sets.newHashSet(s_dbDialects.keySet());
+    } else {
+      if (s_dbDialects.containsKey(databaseType) == false) {
+        throw new IllegalArgumentException("Unknown database: " + databaseType);
+      }
+      databaseTypes = Sets.newHashSet(databaseType);
+    }
+    for (Iterator<String> it = databaseTypes.iterator(); it.hasNext(); ) {
+      String dbType = it.next();
+      Boolean available = s_availableDialects.get(dbType);
+      if (available == null) {
+        DbDialect dbDialect = s_dbDialects.get(dbType);
+        try {
+          Objects.requireNonNull(dbDialect.getJDBCDriverClass());
+          available = true;
+        } catch (RuntimeException | Error ex) {
+          available = false;
+          System.err.println("Database driver not available: " + dbType);
+        }
+        s_availableDialects.put(dbType, available);
+      }
+      if (available == false) {
+        it.remove();
+      }
+    }
+    return databaseTypes;
+  }
+
+  /**
+   * Creates a {@code DbTool} for a specific database.
+   * The connector may be passed in to share if it exists already.
+   * 
+   * @param databaseConfigPrefix  the prefix for a database in the config file, not null
+   * @param connector  the connector, null if not to be shared
+   * @return the tool, not null
+   */
+  public static DbTool createDbTool(String databaseConfigPrefix, DbConnector connector) {
+    ArgumentChecker.notNull(databaseConfigPrefix, "databaseConfigPrefix");
+    String dbHost = getDbHost(databaseConfigPrefix);
+    String user = getDbUsername(databaseConfigPrefix);
+    String password = getDbPassword(databaseConfigPrefix);
+    DataSource dataSource = (connector != null ? connector.getDataSource() : null);
+    DbTool dbTool = new DbTool(dbHost, user, password, dataSource);
+    dbTool.initialize();
+    dbTool.setJdbcUrl(dbTool.getTestDatabaseUrl());
+    return dbTool;
+  }
+
+  //-------------------------------------------------------------------------
+  public static DbDialect getDbType(String databaseConfigPrefix) {
+    String dbTypeProperty = databaseConfigPrefix + ".jdbc.type";
+    String dbType = TestProperties.getTestProperties().getProperty(dbTypeProperty);
+    if (dbType == null) {
+      throw new OpenGammaRuntimeException("Property " + dbTypeProperty + " not found");
+    }
+    return getSupportedDbDialect(dbType);
+  }
+
+  public static String getDbHost(String databaseConfigPrefix) {
+    String dbHostProperty = databaseConfigPrefix + ".jdbc.url";
+    String dbHost = TestProperties.getTestProperties().getProperty(dbHostProperty);
+    if (dbHost == null) {
+      throw new OpenGammaRuntimeException("Property " + dbHostProperty + " not found");
+    }
+    return dbHost;
+  }
+
+  public static String getDbUsername(String databaseConfigPrefix) {
+    String userProperty = databaseConfigPrefix + ".jdbc.username";
+    String user = TestProperties.getTestProperties().getProperty(userProperty);
+    if (user == null) {
+      throw new OpenGammaRuntimeException("Property " + userProperty + " not found");
+    }
+    return user;
+  }
+
+  public static String getDbPassword(String databaseConfigPrefix) {
+    String passwordProperty = databaseConfigPrefix + ".jdbc.password";
+    String password = TestProperties.getTestProperties().getProperty(passwordProperty);
+    if (password == null) {
+      throw new OpenGammaRuntimeException("Property " + passwordProperty + " not found");
+    }
+    return password;
   }
 
 }

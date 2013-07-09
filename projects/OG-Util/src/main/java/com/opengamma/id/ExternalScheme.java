@@ -8,6 +8,9 @@ package com.opengamma.id;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentMap;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.opengamma.util.ArgumentChecker;
@@ -52,6 +55,7 @@ public final class ExternalScheme implements Serializable, Comparable<ExternalSc
    * @param name  the scheme name, not empty, not null
    * @return the scheme, not null
    */
+  @FromString
   public static ExternalScheme of(final String name) {
     ArgumentChecker.notEmpty(name, "name");
     return s_cache.get(name);
@@ -111,6 +115,7 @@ public final class ExternalScheme implements Serializable, Comparable<ExternalSc
    * @return the scheme name, not null
    */
   @Override
+  @ToString
   public String toString() {
     return _name;
   }

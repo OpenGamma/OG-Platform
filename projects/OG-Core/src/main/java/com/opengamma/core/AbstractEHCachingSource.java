@@ -117,7 +117,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
       if (result == null) {
         final Element e = _uidCache.get(uid);
         if (e != null) {
-          result = (V) e.getValue();
+          result = (V) e.getObjectValue();
           s_logger.debug("retrieved object: {} from uid-cache", result);
           V existing = _frontCacheByUID.putIfAbsent(uid, result);
           if (existing != null) {
@@ -145,7 +145,9 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
         } else {
           final Element e = _uidCache.get(uid);
           if (e != null) {
-            result = (V) e.getValue();
+            @SuppressWarnings("unchecked")
+            V objectValue = (V) e.getObjectValue();
+            result = objectValue;
             s_logger.debug("retrieved object: {} from uid-cache", result);
             V existing = _frontCacheByUID.putIfAbsent(uid, result);
             if (existing != null) {
@@ -182,7 +184,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
       final Pair<ObjectId, VersionCorrection> key = Pair.of(objectId, versionCorrection);
       final Element e = _oidCache.get(key);
       if (e != null) {
-        final UniqueId uid = (UniqueId) e.getValue();
+        final UniqueId uid = (UniqueId) e.getObjectValue();
         result = get(uid);
       } else {
         result = cacheItem(getUnderlying().get(objectId, versionCorrection));
@@ -210,7 +212,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
         final Pair<ObjectId, VersionCorrection> key = Pair.of(objectId, versionCorrection);
         final Element e = _oidCache.get(key);
         if (e != null) {
-          final UniqueId uid = (UniqueId) e.getValue();
+          final UniqueId uid = (UniqueId) e.getObjectValue();
           lookups.put(objectId, uid);
         } else {
           misses.add(objectId);

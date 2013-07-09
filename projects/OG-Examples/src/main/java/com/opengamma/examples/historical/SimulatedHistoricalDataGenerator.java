@@ -8,19 +8,20 @@ package com.opengamma.examples.historical;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -69,8 +70,11 @@ public class SimulatedHistoricalDataGenerator {
 
   private static void readFinishValues(final Map<Pair<ExternalId, String>, Double> finishValues) {
     CSVReader reader = null;
-    try {
-      reader = new CSVReader(new BufferedReader(new InputStreamReader(SimulatedHistoricalDataGenerator.class.getResourceAsStream("historical-data.csv"))));
+    try (InputStream resource = SimulatedHistoricalDataGenerator.class.getResourceAsStream("historical-data.csv")) {
+      if (resource == null) {
+        throw new OpenGammaRuntimeException("Unable to find resource historical-data.csv");
+      }
+      reader = new CSVReader(new BufferedReader(new InputStreamReader(resource)));
       // Read header row
       @SuppressWarnings("unused")
       final
@@ -97,8 +101,6 @@ public class SimulatedHistoricalDataGenerator {
       e.printStackTrace();
     } catch (final IOException e) {
       e.printStackTrace();
-    } finally {
-      IOUtils.closeQuietly(reader);
     }
   }
 

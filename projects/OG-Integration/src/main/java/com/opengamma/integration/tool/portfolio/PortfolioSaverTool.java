@@ -25,7 +25,7 @@ import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolio
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * The portfolio saver tool

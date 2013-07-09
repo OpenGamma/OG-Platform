@@ -21,19 +21,14 @@ canonicalize() {
 BASENAME=${0##*/}
 COMPONENT=${BASENAME%.sh}
 BASEDIR="$(dirname "$(dirname "$(canonicalize "$0")")")"
-SCRIPTDIR=${BASEDIR}/scripts
+SCRIPTDIR="${BASEDIR}/scripts"
 cd "${BASEDIR}" || exit 1
 
-# . ${SCRIPTDIR}/project-utils.sh
-# hardcode the project name for now :(
-# the installer combines multiple projects in the same dir
-# so project-utils.sh gets overwritten
-PROJECT=og-examples
-PROJECTJAR=${PROJECT}.jar
+. ${SCRIPTDIR}/project-utils.sh
 . ${SCRIPTDIR}/java-utils.sh
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 
-if [ ! -f ${BASEDIR}/install/db/hsqldb/example-db.properties ]; then
+if [ ! -f "${BASEDIR}"/data/db/hsqldb/example-db.properties ]; then
   if [ -x ${SCRIPTDIR}/init-${PROJECT}-db.sh ]; then
     ${SCRIPTDIR}/init-${PROJECT}-db.sh || exit 1
   else
@@ -56,13 +51,11 @@ MEM_OPTS="-Xms512m -Xmx1024m -XX:MaxPermSize=256m"
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}
 
-CLASSPATH=$(build_classpath)
-if [ -f ${PROJECTJAR} ]; then
-  CLASSPATH=${PROJECTJAR}:${CLASSPATH}
-else
-  CLASSPATH=build/${PROJECTJAR}:${CLASSPATH}
+CLASSPATH="lib/${PROJECTJAR}"
+if [ -d lib/override ]; then
+  CLASSPATH="$(build_classpath lib/override):${CLASSPATH}"
 fi
-CLASSPATH=config:${CLASSPATH}
+CLASSPATH="config:${CLASSPATH}"
 
 RETVAL=0
 case "$1" in

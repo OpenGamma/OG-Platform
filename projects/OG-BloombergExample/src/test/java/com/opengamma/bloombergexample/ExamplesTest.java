@@ -21,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test.
  */
-@Test(groups = TestGroup.INTEGRATION)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class ExamplesTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-bloombergexample-test.properties";

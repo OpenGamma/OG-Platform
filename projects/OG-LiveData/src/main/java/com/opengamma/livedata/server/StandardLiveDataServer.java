@@ -360,7 +360,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
                         securities.size(), subscriptions.size());
         }
 
-        for (Iterator<Map.Entry<String, Subscription>> it = _securityUniqueId2Subscription.entrySet().iterator(); it.hasNext();) {
+        for (Iterator<Map.Entry<String, Subscription>> it = _securityUniqueId2Subscription.entrySet().iterator(); it.hasNext(); ) {
           final Map.Entry<String, Subscription> entry = it.next();
           final Object handle = subscriptions.get(entry.getKey());
           if (handle != null) {

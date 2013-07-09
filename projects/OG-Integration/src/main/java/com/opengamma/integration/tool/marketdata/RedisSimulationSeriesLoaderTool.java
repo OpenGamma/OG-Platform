@@ -25,9 +25,9 @@ import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.timeseries.reader.SingleSheetMultiTimeSeriesReader;
 import com.opengamma.integration.copier.timeseries.reader.TimeSeriesReader;
 import com.opengamma.integration.copier.timeseries.writer.TimeSeriesWriter;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The timeseries loader tool

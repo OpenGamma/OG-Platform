@@ -59,8 +59,7 @@ public class MSTestToJUnit implements Runnable {
     try {
       final Reader reader = new FileReader(getInputFile());
       // Read past the funny character prefix and <?...> bit which upset the parser
-      while (reader.read() != '>') {
-      }
+      while (reader.read() != '>');  // CSIGNORE: deliberate short loop
       return factory.createXMLStreamReader(reader);
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Couldn't open file", e);
@@ -107,7 +106,7 @@ public class MSTestToJUnit implements Runnable {
     }
 
     public List<String> getText() {
-      return (_text != null) ? _text : Collections.<String> emptyList();
+      return (_text != null) ? _text : Collections.<String>emptyList();
     }
 
     public void setComputerName(final String computerName) {

@@ -5,23 +5,18 @@
  */
 package com.opengamma.examples.tool;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.ClassUtils;
 
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.util.ZipUtils;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.test.DbTool;
 
 /**
@@ -33,8 +28,6 @@ public class ExampleDatabaseCreator {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabaseCreator.class);
 
-  /** Examples dir. */
-  private static final File EXAMPLES_DIR = new File(System.getProperty("user.dir"));
   /** Schema. */
   private static final String CONFIG_FILE = "toolcontext/toolcontext-example.properties";
   /** Shared database URL. */
@@ -51,12 +44,6 @@ public class ExampleDatabaseCreator {
   private static final String KEY_USERFINANCIAL_PASSWORD = "db.userfinancial.password";
   /** Catalog. */
   private static final String CATALOG = "og-financial";
-  /** Script files by relative location. */
-  private static final File SCRIPT_RELATIVE_PATH = new File(EXAMPLES_DIR, "../OG-MasterDB");
-  /** Script files using zips built by Ant. */
-  private static final File SCRIPT_ZIP_PATH = new File(EXAMPLES_DIR, "lib/sql/com.opengamma/og-masterdb");
-  /** Script expansion. */
-  private static final File SCRIPT_INSTALL_DIR = new File(EXAMPLES_DIR, "temp/" + ExampleDatabaseCreator.class.getSimpleName());
 
   //-------------------------------------------------------------------------
   /**
@@ -85,8 +72,6 @@ public class ExampleDatabaseCreator {
       }
       props.load(in);
     }
-    // find the scripts
-    String scriptDir = createSQLScripts();
     
     // create main database
     s_logger.warn("Creating main database...");
@@ -98,7 +83,6 @@ public class ExampleDatabaseCreator {
     dbTool.setCreate(true);
     dbTool.setDrop(true);
     dbTool.setCreateTables(true);
-    dbTool.setDbScriptDir(scriptDir);
     dbTool.execute();
     
     // create user database
@@ -111,7 +95,6 @@ public class ExampleDatabaseCreator {
     dbToolUser.setCreate(true);
     dbToolUser.setDrop(true);
     dbToolUser.setCreateTables(true);
-    dbToolUser.setDbScriptDir(scriptDir);
     dbToolUser.execute();
     
     // populate the database
@@ -119,22 +102,6 @@ public class ExampleDatabaseCreator {
     new ExampleDatabasePopulator().run("classpath:" + configFile, ToolContext.class);
     
     s_logger.warn("Successfully created example databases");
-  }
-
-  private static String createSQLScripts() throws IOException {
-    if (SCRIPT_RELATIVE_PATH.exists()) {
-      return SCRIPT_RELATIVE_PATH.getAbsolutePath();
-    }
-    if (SCRIPT_ZIP_PATH.exists()) {
-      if (SCRIPT_INSTALL_DIR.exists()) {
-        FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
-      }
-      for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
-        ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
-      }
-      return SCRIPT_INSTALL_DIR.getAbsolutePath();
-    }
-    throw new IllegalArgumentException("Unable to find database scripts. Tried: " + SCRIPT_RELATIVE_PATH + " and " + SCRIPT_ZIP_PATH);
   }
 
 }

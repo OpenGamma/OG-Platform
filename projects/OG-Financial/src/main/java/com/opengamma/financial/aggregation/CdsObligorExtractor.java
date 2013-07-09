@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -31,16 +30,17 @@ public class CdsObligorExtractor implements RedCodeHandler<Obligor> {
     _organizationSource = organizationSource;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Extract the Obligor from the RED code if it can be found.
    *
-   * @param redCode the RED code to extract the Obligor from
+   * @param redCode  the RED code to extract the Obligor from, not null
    * @return the Obligor if found, null otherwise
    */
   @Override
   public Obligor extract(String redCode) {
-
     Organization organization = _organizationSource.getOrganizationByRedCode(redCode);
     return organization == null ? null : organization.getObligor();
   }
+
 }

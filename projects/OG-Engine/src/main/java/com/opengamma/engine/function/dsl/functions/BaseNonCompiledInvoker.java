@@ -32,11 +32,11 @@ import java.util.Set;
 
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
-abstract public class BaseNonCompiledInvoker extends AbstractFunction.NonCompiledInvoker {
+public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompiledInvoker {
 
   private FunctionSignature _functionSignature;
 
-  static private Pair<Map<String, StreamI<FunctionInput>>, Map<String, StreamI<FunctionOutput>>> ioputsByName(FunctionSignature signature) {
+  private static Pair<Map<String, StreamI<FunctionInput>>, Map<String, StreamI<FunctionOutput>>> ioputsByName(FunctionSignature signature) {
     Map<String, StreamI<FunctionInput>> inputsByName = signature.getInputs().reduce(new HashMap<String, StreamI<FunctionInput>>(), new Function2<HashMap<String, StreamI<FunctionInput>>, FunctionInput, HashMap<String, StreamI<FunctionInput>>>() {
       @Override
       public HashMap<String, StreamI<FunctionInput>> execute(HashMap<String, StreamI<FunctionInput>> acc, FunctionInput functionInput) {
@@ -72,7 +72,7 @@ abstract public class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
     return Pair.of(inputsByName, outputsByName);
   }
 
-  abstract protected FunctionSignature functionSignature();
+  protected abstract FunctionSignature functionSignature();
 
   private FunctionSignature getFunctionSignature() {
     if (_functionSignature == null) {

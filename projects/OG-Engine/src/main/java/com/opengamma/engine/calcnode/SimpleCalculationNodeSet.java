@@ -66,7 +66,7 @@ public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculati
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     ArgumentChecker.notNullInjected(getNodeFactory(), "nodeFactory");
     final int nodes;
     if (getNodeCount() == 0) {

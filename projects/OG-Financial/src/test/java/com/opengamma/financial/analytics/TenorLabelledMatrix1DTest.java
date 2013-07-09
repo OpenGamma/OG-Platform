@@ -47,7 +47,7 @@ public class TenorLabelledMatrix1DTest {
   @Test
   public void testAddWithinTolerance() {
     final TenorLabelledMatrix1D matrix = new TenorLabelledMatrix1D(TENORS1, LABELS1, VALUES1);
-    final LabelledMatrix1D<Tenor, Period> newMatrix = matrix.addIgnoringLabel(new Tenor(Period.ofDays(8)), "P8D", 5, Period.ofDays(3));
+    final LabelledMatrix1D<Tenor, Period> newMatrix = matrix.addIgnoringLabel(Tenor.of(Period.ofDays(8)), "P8D", 5, Period.ofDays(3));
     assertObjectArrayEquals(new Tenor[] {Tenor.ONE_DAY, Tenor.ONE_WEEK, Tenor.ONE_MONTH, Tenor.ONE_YEAR}, newMatrix.getKeys());
     assertObjectArrayEquals(new Object[] {"P1D", "P7D", "P1M", "P1Y"}, newMatrix.getLabels());
     assertArrayEquals(new double[] {1, 7, 3, 4}, newMatrix.getValues(), 1e-15);
