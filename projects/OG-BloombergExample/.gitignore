@@ -7,11 +7,13 @@ foo~
 .checkstyle
 /bin/
 /build/
+/data/
 /dist/
 /target/
 /lib/
 /ivy/
 /temp/
+/install/
 docs/javadoc/
 tests/classes/
 tests/output/
@@ -24,4 +26,3 @@ build.number
 test-output/
 *.iws
 *.ids
-/install/db/hsqldb/bloombergexample-db*

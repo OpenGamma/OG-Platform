@@ -28,11 +28,11 @@ Initializing the database
 -------------------------
 To do the initial database setup, you should run:
 
-  scripts/init-og-bloombergexample-db.sh
+  scripts/init-examples-bloomberg-db.sh
 
 on Linux and MacOS X, and 
 
-  scripts\init-og-bloombergexample-db.bat
+  scripts\init-examples-bloomberg-db.bat
 
 on Windows.
 
@@ -44,11 +44,11 @@ Running the server
 
 To start the server itself, you should run:
 
-  scripts/og-bloombergexample.sh
+  scripts/examples-bloomberg.sh
 
 on Linux and MacOS X or
 
-  scripts\og-bloombergexample.bat
+  scripts\examples-bloomberg.bat
 
 on Windows.
 
