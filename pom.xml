@@ -70,7 +70,11 @@
             </property>
             <property>
               <name>listener</name>
-              <value>org.testng.reporters.JUnitReportReporter,org.testng.reporters.XMLReporter,org.testng.reporters.jq.Main</value>
+              <value>org.testng.reporters.ExitCodeListener</value>
+            </property>
+            <property>
+              <name>reporter</name>
+              <value>org.testng.reporters.FailedReporter,org.testng.reporters.XMLReporter,org.testng.reporters.JUnitReportReporter</value>
             </property>
           </properties>
         </configuration>
