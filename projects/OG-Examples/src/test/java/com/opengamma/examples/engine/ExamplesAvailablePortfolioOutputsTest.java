@@ -42,9 +42,9 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class AvailablePortfolioOutputsTest {
+public class ExamplesAvailablePortfolioOutputsTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AvailablePortfolioOutputsTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExamplesAvailablePortfolioOutputsTest.class);
 
   private static final String SWAP_PORTFOLIO = "MultiCurrency Swap Portfolio";
   private static final String MIXED_EXAMPLE_PORTFOLIO = "Swap / Swaption Portfolio";
