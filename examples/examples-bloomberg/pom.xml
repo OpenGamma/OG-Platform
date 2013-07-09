@@ -7,17 +7,17 @@
 
   <parent>
     <groupId>com.opengamma.platform</groupId>
-    <artifactId>og-platform-public</artifactId>
+    <artifactId>examples</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>examples-bloomberg</artifactId>
   <packaging>jar</packaging>
-  <name>OG-BloombergExample</name>
+  <name>Examples-Bloomberg</name>
   <description>OpenGamma Platform examples and server with Bloomberg market data</description>
 
   <scm>
-    <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-BloombergExample</url>
+    <url>https://github.com/OpenGamma/OG-Platform/tree/master/examples/examples-bloomberg</url>
   </scm>
 
   <build>

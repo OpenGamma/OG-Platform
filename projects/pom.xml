@@ -29,12 +29,10 @@
   <modules>
     <module>OG-Analytics</module>
     <module>OG-Bloomberg</module>
-    <module>OG-BloombergExample</module>
     <module>OG-Client</module>
     <module>OG-Component</module>
     <module>OG-Core</module>
     <module>OG-Engine</module>
-    <module>OG-Examples</module>
     <module>OG-Financial</module>
     <module>OG-Integration</module>
     <module>OG-LiveData</module>
