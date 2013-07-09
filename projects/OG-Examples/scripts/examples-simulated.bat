@@ -8,7 +8,7 @@ set SCRIPTDIR=%BASEDIR%\scripts
 set PROJECT=og-examples
 set PROJECTJAR=%PROJECT%.jar
 set LOGBACK_CONFIG=jetty-logback.xml
-set CONFIG=config\fullstack\fullstack-example-bin.properties
+set CONFIG=config\fullstack\fullstack-examplessimulated-bin.properties
 
 SETLOCAL EnableDelayedExpansion
 SET CLASSPATH="config;%PROJECTJAR%;lib\*

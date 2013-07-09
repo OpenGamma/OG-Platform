@@ -28,11 +28,11 @@ Initializing the database
 -------------------------
 To do the initial database setup, you should run:
 
-  scripts/init-og-examples-db.sh 
+  scripts/init-examples-simulated-db.sh 
 
 on Linux and MacOS X, and 
 
-  scripts\init-og-examples-db.bat 
+  scripts\init-examples-simulated-db.bat 
 
 on Windows.
 
@@ -44,11 +44,11 @@ Running the server
 
 To start the server itself, you should run:
 
-  scripts/og-examples.sh
+  scripts/examples-simulated.sh
 
 on Linux and MacOS X or
 
-  scripts\og-examples.bat
+  scripts\examples-simulated.bat
 
 on Windows.
 
@@ -57,14 +57,14 @@ thrown when starting a view in this mode.
 
 The service may be stopped by running:
 
-    scripts/og-examples.sh stop
+    scripts/examples-simulated.sh stop
 
 Alternatively, to run the service in the foreground and view debugging output on the console, just specify 'debug'
 instead of 'start'. 
 
 To start the server on Windows, you should run:
 
-    scripts\og-examples.bat start
+    scripts\examples-simulated.bat start
 
 The Windows batch file always launches the service in the foreground, whether 'start' or 'debug' is specified.  It is
 normal to see some exceptions in the console output while running a view.

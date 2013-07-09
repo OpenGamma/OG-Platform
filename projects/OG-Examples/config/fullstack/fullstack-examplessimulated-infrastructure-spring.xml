@@ -4,7 +4,7 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-  <!-- This config file is called from fullstack-example.ini via SpringInfrastructureComponentFactory -->
+  <!-- This config file is called from fullstack-examplessimulated.ini via SpringInfrastructureComponentFactory -->
 
   <!-- ================================================================== -->
   <bean id="standardDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">

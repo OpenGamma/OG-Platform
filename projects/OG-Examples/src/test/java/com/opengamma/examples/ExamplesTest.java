@@ -24,7 +24,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.INTEGRATION, singleThreaded = true)
 public class ExamplesTest {
 
-  private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-example-test.properties";
+  private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-examplessimulated-test.properties";
 
   @BeforeMethod
   public void setUp() throws IOException {

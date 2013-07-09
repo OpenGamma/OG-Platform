@@ -61,7 +61,7 @@ public class ExamplesAvailablePortfolioOutputsTest {
   @BeforeClass
   public void initialise() {
     final ComponentManager manager = new ComponentManager("test");
-    manager.start("classpath:fullstack/fullstack-example-test.properties");
+    manager.start("classpath:fullstack/fullstack-examplessimulated-test.properties");
     _repo = manager.getRepository();
     final CompiledFunctionService cfs = _repo.getInstance(CompiledFunctionService.class, "main");
     _functionRepository = cfs.compileFunctionRepository(Instant.now());

@@ -73,7 +73,7 @@ public class ExampleGraphBuildingSpeedTest {
   @BeforeClass(timeOut = 20_000L)
   public void initialise() {
     final ComponentManager manager = new ComponentManager("test");
-    manager.start("classpath:fullstack/fullstack-example-test.properties");
+    manager.start("classpath:fullstack/fullstack-examplessimulated-test.properties");
     _repo = manager.getRepository();
     _viewCompilationServices = createViewCompilationServices();
     _cacheManager = _repo.getInstance(CacheManager.class, "standard");

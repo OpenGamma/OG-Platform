@@ -29,7 +29,7 @@ public class ExampleDatabaseCreator {
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabaseCreator.class);
 
   /** Schema. */
-  private static final String CONFIG_FILE = "toolcontext/toolcontext-example.properties";
+  private static final String CONFIG_FILE = "toolcontext/toolcontext-examplessimulated.properties";
   /** Shared database URL. */
   private static final String KEY_SHARED_URL = "db.standard.url";
   /** Shared database user name. */

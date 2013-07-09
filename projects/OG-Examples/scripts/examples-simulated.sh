@@ -43,7 +43,7 @@ fi
 load_default_config
 
 # Component specific default configs
-CONFIG=classpath:fullstack/fullstack-example-bin.properties
+CONFIG=classpath:fullstack/fullstack-examplessimulated-bin.properties
 LOGBACK_CONFIG=jetty-logback.xml
 # No need to use 4g in the examples
 MEM_OPTS="-Xms512m -Xmx1024m -XX:MaxPermSize=256m"

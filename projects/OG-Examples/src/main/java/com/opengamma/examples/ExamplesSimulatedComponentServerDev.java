@@ -12,7 +12,8 @@ import com.opengamma.component.OpenGammaComponentServer;
  * starting the "development" configuration file.
  * <p>
  * This file is intended for use with an IDE and a checked out source code tree.
- * It relies on the OG-Web directory being alongside OG-Examples in the file system.
+ * It relies on the OG-Web directory being relative to Examples-Simulated in the file
+ * system as per a standard checkout of OG-Platform.
  * The server will not start correctly if you have obtained a bundle in distribution format.
  * <p>
  * Before running this class, you must have setup the example HSQL database.
@@ -20,14 +21,15 @@ import com.opengamma.component.OpenGammaComponentServer;
  * <p>
  * Command lines should just start {@link OpenGammaComponentServer}.
  */
-public class ExampleComponentServerDev extends OpenGammaComponentServer {
+public class ExamplesSimulatedComponentServerDev extends OpenGammaComponentServer {
 
   /**
    * Main method to start an OpenGamma JVM process for development.
    * <p>
    * If the command line is empty, the "development" configuration file is started.
    * This file is intended for use with an IDE and a checked out source code tree.
-   * It relies on the OG-Web directory being alongside OG-Examples in the file system.
+   * It relies on the OG-Web directory being relative to Examples-Simulated in the file
+   * system as per a standard checkout of OG-Platform.
    * 
    * @param args  the arguments
    */
@@ -36,9 +38,9 @@ public class ExampleComponentServerDev extends OpenGammaComponentServer {
       // if no command line arguments, then use default arguments suitable for development in an IDE
       // the first argument is for verbose startup, to aid understanding
       // the second argument defines the start of a chain of properties files providing the configuration
-      args = new String[] {"-v", "classpath:fullstack/fullstack-example-dev.properties"};
+      args = new String[] {"-v", "classpath:fullstack/fullstack-examplessimulated-dev.properties"};
     }
-    new ExampleComponentServerDev().run(args);
+    new ExamplesSimulatedComponentServerDev().run(args);
   }
 
 }

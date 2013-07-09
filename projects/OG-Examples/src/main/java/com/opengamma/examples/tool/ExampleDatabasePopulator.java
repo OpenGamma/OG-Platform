@@ -50,7 +50,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * The properties file.
    */
-  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-example.properties";
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-examplessimulated.properties";
   /**
    * The name of the multi-currency swap portfolio.
    */

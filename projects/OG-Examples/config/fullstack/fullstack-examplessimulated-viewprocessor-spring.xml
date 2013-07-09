@@ -2,7 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <!-- This config file is called from fullstack-example.ini via SpringViewProcessorComponentFactory -->
+  <!-- This config file is called from fullstack-examplessimulated.ini via SpringViewProcessorComponentFactory -->
 
   <!-- ================================================================== -->
   <!-- Expose component infrastructure -->
