@@ -13,6 +13,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinitionFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -21,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * Configuration object containing a script to define a scenario. The script is written in the Groovy-based
  * scenario DSL.
  */
+@Config
 public class ScenarioDslScript implements ScenarioDefinitionFactory {
 
   /** Field name for Fudge message */
@@ -51,3 +53,4 @@ public class ScenarioDslScript implements ScenarioDefinitionFactory {
   }
 
 }
+
