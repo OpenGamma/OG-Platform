@@ -62,6 +62,17 @@
           <threadCount>${tests.testng.threads}</threadCount>
           <groups>${tests.testng.includedgroups}</groups>
           <excludedGroups>${tests.testng.excludedgroups}</excludedGroups>
+          <!-- remove slow SuiteHTMLReporter -->
+          <properties>
+            <property>
+              <name>usedefaultlisteners</name>
+              <value>false</value>
+            </property>
+            <property>
+              <name>listener</name>
+              <value>org.testng.reporters.JUnitReportReporter,org.testng.reporters.XMLReporter,org.testng.reporters.jq.Main</value>
+            </property>
+          </properties>
         </configuration>
       </plugin>
       <!--  obtain git commit -->
