@@ -104,6 +104,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDef
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
@@ -1274,6 +1275,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment) {
       return null;
     }
 

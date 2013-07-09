@@ -20,15 +20,13 @@ import com.opengamma.util.ArgumentChecker;
  * A wrapper class for a AnnuityDefinition containing CouponOISSimplifiedDefinition.
  */
 public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<CouponOISSimplifiedDefinition> {
-  //REVIEW emcleod 13-05-2013 This is supposed to be an object that constructs one leg of a swap. It should
-  // not be necessary for the user to pass in a generator (which, as far as I can tell, are a convenience for
-  // testing), as this implies that they have to know what a swap type is - what if they just want to
-  // construct the leg?
+
   private final IndexON _index;
 
   /**
    * Constructor from a list of OIS coupons.
    * @param payments The coupons.
+   * @param index The underlying overnight index.
    */
   public AnnuityCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition[] payments, final IndexON index) {
     super(payments);
@@ -126,6 +124,7 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
         false, businessDayConvention, indexCalendar, isEOM); //TODO get rid of hard-codings
     return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDates, notional, isPayer, indexON, paymentLag, indexCalendar);
   }
+
   private static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
       final boolean isPayer) {
     final double sign = isPayer ? -1.0 : 1.0;

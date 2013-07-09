@@ -92,6 +92,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDef
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
@@ -503,6 +504,16 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
     return _delegate.visitCouponOISSimplifiedDefinition(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONSpreadSimplifiedDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment) {
+    return _delegate.visitCouponONSpreadSimplifiedDefinition(payment);
   }
 
   @Override
