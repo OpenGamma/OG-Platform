@@ -14,7 +14,7 @@
   <artifactId>og-utildb</artifactId>
   <packaging>jar</packaging>
   <name>OG-UtilDB</name>
-  <description>OpenGamma database utilities</description>
+  <description>OpenGamma Platform database utilities</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-UtilDB</url>

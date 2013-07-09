@@ -14,7 +14,7 @@
   <artifactId>og-web</artifactId>
   <packaging>jar</packaging>
   <name>OG-Web</name>
-  <description>OpenGamma platform website</description>
+  <description>OpenGamma Platform website</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Web</url>

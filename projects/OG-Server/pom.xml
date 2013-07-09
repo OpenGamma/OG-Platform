@@ -14,7 +14,7 @@
   <artifactId>og-server</artifactId>
   <packaging>pom</packaging>
   <name>OG-Server</name>
-  <description>OpenGamma server dependencies</description>
+  <description>OpenGamma Platform server dependencies</description>
 
   <!-- ==================================================================== -->
   <build>

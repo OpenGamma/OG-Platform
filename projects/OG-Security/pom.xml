@@ -14,7 +14,7 @@
   <artifactId>og-security</artifactId>
   <packaging>jar</packaging>
   <name>OG-Security</name>
-  <description>OpenGamma platform user security</description>
+  <description>OpenGamma Platform user security</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Security</url>

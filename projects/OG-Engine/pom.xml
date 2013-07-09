@@ -14,7 +14,7 @@
   <artifactId>og-engine</artifactId>
   <packaging>jar</packaging>
   <name>OG-Engine</name>
-  <description>OpenGamma platform calculation engine</description>
+  <description>OpenGamma Platform calculation engine</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Engine</url>

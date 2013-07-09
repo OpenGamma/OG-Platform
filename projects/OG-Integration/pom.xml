@@ -14,7 +14,7 @@
   <artifactId>og-integration</artifactId>
   <packaging>jar</packaging>
   <name>OG-Integration</name>
-  <description>OpenGamma platform project integration</description>
+  <description>OpenGamma Platform project integration</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Integration</url>

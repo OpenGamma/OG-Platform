@@ -14,7 +14,7 @@
   <artifactId>og-client</artifactId>
   <packaging>pom</packaging>
   <name>OG-Client</name>
-  <description>OpenGamma client dependencies</description>
+  <description>OpenGamma Platform client dependencies</description>
 
   <dependencies>
     <dependency>

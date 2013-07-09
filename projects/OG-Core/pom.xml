@@ -14,7 +14,7 @@
   <artifactId>og-core</artifactId>
   <packaging>jar</packaging>
   <name>OG-Core</name>
-  <description>OpenGamma platform core concepts</description>
+  <description>OpenGamma Platform core concepts</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Core</url>

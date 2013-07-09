@@ -14,7 +14,7 @@
   <artifactId>og-component</artifactId>
   <packaging>jar</packaging>
   <name>OG-Component</name>
-  <description>OpenGamma platform component-based configuration</description>
+  <description>OpenGamma Platform component-based configuration</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Component</url>

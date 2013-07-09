@@ -14,7 +14,7 @@
   <artifactId>og-master</artifactId>
   <packaging>jar</packaging>
   <name>OG-Master</name>
-  <description>OpenGamma platform master concepts</description>
+  <description>OpenGamma Platform master concepts</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Master</url>
