@@ -473,6 +473,7 @@
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.forwardswapcurvedefinition.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.forwardswapcurvespecification.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.multicurvecalculationconfig.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.scenariodslscript.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.swaptionvolatilitycubespecification.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.historicaltimeseriesrating.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.viewdefinition.js</fragment>
@@ -522,6 +523,7 @@
     <fragment>/scripts/lib/ace/ace.js</fragment>
     <fragment>/scripts/lib/ace/theme-textmate.js</fragment>
     <fragment>/scripts/lib/ace/mode-xml.js</fragment>
+    <fragment>/scripts/lib/ace/mode-groovy.js</fragment>
   </bundle>
   <bundle id="og_blotter.js">
     <bundle idref="common_analytics.js" />
