@@ -11,7 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -24,7 +24,7 @@ import com.opengamma.util.money.Currency;
  * Only the start and the end of the fixing period are described. The description is enough to construct curves from OIS and to price forward OIS but not
  * to describe and price OIS coupons for which some fixing already took place.
  */
-public class CouponOISSimplifiedDefinition extends CouponDefinition {
+public class CouponONSimplifiedDefinition extends CouponDefinition {
 
   /**
    * The OIS-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
@@ -56,7 +56,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param fixingPeriodEndDate The end date of the fixing period.
    * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    */
-  public CouponOISSimplifiedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+  public CouponONSimplifiedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate,
       final ZonedDateTime fixingPeriodEndDate, final double fixingPeriodAccrualFactor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
@@ -82,10 +82,10 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
-  public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional,
+  public static CouponONSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional,
       final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar calendar) {
     final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, calendar, isEOM);
-    return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays, calendar);
+    return CouponONSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays, calendar);
   }
 
   /**
@@ -99,13 +99,13 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
-  public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate,
+  public static CouponONSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate,
       final double notional, final int settlementDays, final Calendar calendar) {
     ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1, calendar); // Overnight
     lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getPublicationLag(), calendar); // Lag
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, settlementDays, calendar);
     final double payementAccrualFactor = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
-    return new CouponOISSimplifiedDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, payementAccrualFactor, notional, index,
+    return new CouponONSimplifiedDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, payementAccrualFactor, notional, index,
         settlementDate, endFixingPeriodDate, payementAccrualFactor);
   }
 
@@ -165,7 +165,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponOISSimplifiedDefinition other = (CouponOISSimplifiedDefinition) obj;
+    final CouponONSimplifiedDefinition other = (CouponONSimplifiedDefinition) obj;
     if (!ObjectUtils.equals(_fixingPeriodEndDate, other._fixingPeriodEndDate)) {
       return false;
     }
@@ -182,7 +182,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   }
 
   @Override
-  public CouponOIS toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CouponON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodStartDate) || date.toLocalDate().equals(_fixingPeriodStartDate.toLocalDate()),
         "Simplified Coupon OIS only valid for dates where the fixing has not taken place yet.");
@@ -190,7 +190,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDate);
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDate);
-    final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
+    final CouponON cpn = new CouponON(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
         fixingPeriodEndTime, _fixingPeriodAccrualFactor, getNotional(), yieldCurveNames[1]);
     return cpn;
   }

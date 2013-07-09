@@ -15,8 +15,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -59,15 +57,12 @@ public class CouponONSpreadTest {
   private static final CouponONSpreadSimplifiedDefinition EONIA_COUPON_DEFINITION = new CouponONSpreadSimplifiedDefinition(EUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE,
       PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_ACCRUAL_DATE, END_ACCRUAL_DATE, FIXING_YEAR_FRACTION, SPREAD);
 
-  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
-
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 9, 7);
   private static final double PAYMENT_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE_1, PAYMENT_DATE);
   private static final double START_ACCRUAL_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE_1, START_ACCRUAL_DATE);
   private static final double END_ACCRUAL_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE_1, END_ACCRUAL_DATE);
-  private static final CouponONSpread EONIA_COUPON_NOTSTARTED = new CouponONSpread(EUR, PAYMENT_TIME_1, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_ACCRUAL_TIME_1,
-      END_ACCRUAL_TIME_1, FIXING_YEAR_FRACTION, NOTIONAL, CURVES_NAMES[1], SPREAD_AMOUNT);
+  private static final CouponONSpread EONIA_COUPON_NOTSTARTED = new CouponONSpread(EUR, PAYMENT_TIME_1, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_ACCRUAL_TIME_1,
+      END_ACCRUAL_TIME_1, FIXING_YEAR_FRACTION, NOTIONAL, SPREAD_AMOUNT);
 
   private static final ZonedDateTime REFERENCE_DATE_2 = DateUtils.getUTCDate(2011, 10, 7);
   private static final ZonedDateTime NEXT_FIXING_DATE_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, 1, EUR_CALENDAR); // Overnight
@@ -76,12 +71,12 @@ public class CouponONSpreadTest {
   private static final double END_FIXING_TIME_2 = TimeCalculator.getTimeBetween(REFERENCE_DATE_2, END_ACCRUAL_DATE);
   private static final double FIXING_YEAR_FRACTION_2 = EONIA.getDayCount().getDayCountFraction(NEXT_FIXING_DATE_2, END_ACCRUAL_DATE);
   private static final double NOTIONAL_WITH_ACCRUED = NOTIONAL * (1.0 + 0.01 / 12); // 1% over a month (roughly)
-  private static final CouponONSpread EONIA_COUPON_STARTED = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2,
-      FIXING_YEAR_FRACTION_2, NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1], SPREAD_AMOUNT);
+  private static final CouponONSpread EONIA_COUPON_STARTED = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2,
+      FIXING_YEAR_FRACTION_2, NOTIONAL_WITH_ACCRUED, SPREAD_AMOUNT);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    new CouponONSpread(EUR, PAYMENT_TIME_1, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, null, START_ACCRUAL_TIME_1, END_ACCRUAL_TIME_1, FIXING_YEAR_FRACTION, NOTIONAL, CURVES_NAMES[1], SPREAD);
+    new CouponONSpread(EUR, PAYMENT_TIME_1, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, null, START_ACCRUAL_TIME_1, END_ACCRUAL_TIME_1, FIXING_YEAR_FRACTION, NOTIONAL, SPREAD);
   }
 
   @Test
@@ -110,28 +105,28 @@ public class CouponONSpreadTest {
    */
   public void equalHash() {
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED, EONIA_COUPON_STARTED);
-    final CouponONSpread other = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
-        NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1], SPREAD_AMOUNT);
+    final CouponONSpread other = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
+        NOTIONAL_WITH_ACCRUED, SPREAD_AMOUNT);
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED, other);
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED.hashCode(), other.hashCode());
     CouponONSpread modified;
-    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FEDFUND, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
-        NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1], SPREAD_AMOUNT);
+    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FEDFUND, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
+        NOTIONAL_WITH_ACCRUED, SPREAD_AMOUNT);
     assertFalse("CouponOIS derivative: equal/hash code", EONIA_COUPON_DEFINITION.equals(modified));
-    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2 + 0.1, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
-        NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1], SPREAD_AMOUNT);
+    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2 + 0.1, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
+        NOTIONAL_WITH_ACCRUED, SPREAD_AMOUNT);
     assertFalse("CouponOIS derivative: equal/hash code", EONIA_COUPON_DEFINITION.equals(modified));
-    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2 + 0.1, FIXING_YEAR_FRACTION_2,
-        NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1], SPREAD_AMOUNT);
+    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2 + 0.1, FIXING_YEAR_FRACTION_2,
+        NOTIONAL_WITH_ACCRUED, SPREAD_AMOUNT);
     assertFalse("CouponOIS derivative: equal/hash code", EONIA_COUPON_DEFINITION.equals(modified));
-    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2 + 0.1,
-        NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1], SPREAD_AMOUNT);
+    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2 + 0.1,
+        NOTIONAL_WITH_ACCRUED, SPREAD_AMOUNT);
     assertFalse("CouponOIS derivative: equal/hash code", EONIA_COUPON_DEFINITION.equals(modified));
-    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
-        NOTIONAL_WITH_ACCRUED + 123.4, CURVES_NAMES[1], SPREAD_AMOUNT);
+    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
+        NOTIONAL_WITH_ACCRUED + 123.4, SPREAD_AMOUNT);
     assertFalse("CouponOIS derivative: equal/hash code", EONIA_COUPON_DEFINITION.equals(modified));
-    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
-        NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1], SPREAD_AMOUNT + 12.34);
+    modified = new CouponONSpread(EUR, PAYMENT_TIME_2, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EONIA, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
+        NOTIONAL_WITH_ACCRUED, SPREAD_AMOUNT + 12.34);
     assertFalse("CouponOIS derivative: equal/hash code", EONIA_COUPON_DEFINITION.equals(modified));
   }
 

@@ -93,7 +93,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -472,12 +472,12 @@ public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponOIS(final CouponOIS payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponOIS(final CouponON payment, final DATA_TYPE data) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitCouponOIS(final CouponOIS payment) {
+  public RESULT_TYPE visitCouponOIS(final CouponON payment) {
     return _value;
   }
 

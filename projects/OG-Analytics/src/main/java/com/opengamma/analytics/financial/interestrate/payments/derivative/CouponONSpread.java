@@ -41,10 +41,6 @@ public class CouponONSpread extends Coupon {
    */
   private final double _notionalAccrued;
   /**
-   * The forward curve name used in to estimate the fixing index.
-   */
-  private final String _forwardCurveName;
-  /**
    * The fixed amount related to the spread.
    */
   private final double _spreadAmount;
@@ -53,7 +49,6 @@ public class CouponONSpread extends Coupon {
    * Constructor of a generic coupon from details.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
-   * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param index The OIS-like index on which the coupon fixes. Not null.
@@ -61,20 +56,17 @@ public class CouponONSpread extends Coupon {
    * @param fixingPeriodEndTime The fixing period end time (in years).
    * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    * @param notionalAccrued The notional accrued by the interest periods already fixed.
-   * @param forwardCurveName The name of the forward curve.
    * @param spreadAmount The fixed amount corresponding to the spread.
    */
-  public CouponONSpread(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final IndexON index,
-      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final String forwardCurveName,
-      final double spreadAmount) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
+  public CouponONSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index,
+      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final double spreadAmount) {
+    super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS: index");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
     _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
     _notionalAccrued = notionalAccrued;
-    _forwardCurveName = forwardCurveName;
     _spreadAmount = spreadAmount;
   }
 
@@ -119,14 +111,6 @@ public class CouponONSpread extends Coupon {
   }
 
   /**
-   * Gets the forward curve name.
-   * @return The name.
-   */
-  public String getForwardCurveName() {
-    return _forwardCurveName;
-  }
-
-  /**
    * Gets the spread amount.
    * @return The amount.
    */
@@ -136,8 +120,8 @@ public class CouponONSpread extends Coupon {
 
   @Override
   public CouponONSpread withNotional(final double notional) {
-    return new CouponONSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
-        _fixingPeriodAccrualFactor, _notionalAccrued / getNotional() * notional, _forwardCurveName, _spreadAmount / getNotional() * notional);
+    return new CouponONSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+        _fixingPeriodAccrualFactor, _notionalAccrued / getNotional() * notional, _spreadAmount / getNotional() * notional);
   }
 
   @Override

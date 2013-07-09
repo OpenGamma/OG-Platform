@@ -102,7 +102,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -565,12 +565,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponOIS(final CouponOIS payment, final T data) {
+    public String visitCouponOIS(final CouponON payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponOIS(final CouponOIS payment) {
+    public String visitCouponOIS(final CouponON payment) {
       return getValue(payment, false);
     }
 

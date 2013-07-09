@@ -229,8 +229,8 @@ public class CouponONSpreadSimplifiedDefinition extends CouponDefinition {
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDate);
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDate);
-    final CouponONSpread cpn = new CouponONSpread(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
-        fixingPeriodEndTime, _fixingPeriodAccrualFactor, getNotional(), yieldCurveNames[1], _spreadAmount);
+    final CouponONSpread cpn = new CouponONSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
+        fixingPeriodEndTime, _fixingPeriodAccrualFactor, getNotional(), _spreadAmount);
     return cpn;
   }
 

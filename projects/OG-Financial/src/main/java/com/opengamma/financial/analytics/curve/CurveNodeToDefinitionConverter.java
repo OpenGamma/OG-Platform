@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -464,7 +464,7 @@ public class CurveNodeToDefinitionConverter {
       }
 
       @SuppressWarnings("synthetic-access")
-      private AnnuityCouponOISSimplifiedDefinition getOISLeg(final OISLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
+      private AnnuityCouponONSimplifiedDefinition getOISLeg(final OISLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
         final OvernightIndexConvention indexConvention = (OvernightIndexConvention) _conventionSource.getConvention(convention.getOvernightIndexConvention());
         final Currency currency = indexConvention.getCurrency();
         final DayCount dayCount = indexConvention.getDayCount();
@@ -478,7 +478,7 @@ public class CurveNodeToDefinitionConverter {
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
         final int paymentLag = convention.getPaymentDelay();
         final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
-        return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention,
+        return AnnuityCouponONSimplifiedDefinition.from(settlementDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention,
             paymentPeriod, isEOM);
       }
 

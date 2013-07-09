@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -181,7 +181,7 @@ public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAda
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponOIS(final CouponOIS payment) {
+  public MultipleCurrencyAmount visitCouponOIS(final CouponON payment) {
     ArgumentChecker.notNull(payment, "instrument");
     return MultipleCurrencyAmount.of(payment.getCurrency(), 0.0);
   }
