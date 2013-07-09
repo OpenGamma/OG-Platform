@@ -111,7 +111,8 @@
   <dependencies>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-integration</artifactId>
+      <artifactId>og-server</artifactId>
+      <type>pom</type>
       <version>${project.version}</version>
     </dependency>
 
