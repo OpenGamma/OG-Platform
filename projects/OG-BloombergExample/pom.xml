@@ -11,10 +11,10 @@
     <version>2.0.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <artifactId>og-bloombergexample</artifactId>
+  <artifactId>examples-bloomberg</artifactId>
   <packaging>jar</packaging>
   <name>OG-BloombergExample</name>
-  <description>OpenGamma platform Bloomberg example server</description>
+  <description>OpenGamma Platform examples and server with Bloomberg market data</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-BloombergExample</url>
