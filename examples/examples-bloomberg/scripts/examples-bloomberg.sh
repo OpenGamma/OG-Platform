@@ -18,7 +18,7 @@ canonicalize() {
   )
 }
 
-PROJECT=og-bloombergexample
+PROJECT=examples-bloomberg
 
 BASENAME=${0##*/}
 COMPONENT=${BASENAME%.sh}

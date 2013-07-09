@@ -5,7 +5,7 @@ PUSHD %~dp0\..
 
 set BASEDIR=%cd%
 set SCRIPTDIR=%BASEDIR%\scripts
-set PROJECT=og-examples
+set PROJECT=examples-simulated
 set PROJECTJAR=%PROJECT%.jar
 set LOGBACK_CONFIG=jetty-logback.xml
 set CONFIG=config\fullstack\fullstack-examplessimulated-bin.properties

@@ -12,7 +12,7 @@ IF "%JAVA_HOME%" == "" (
 
 echo ### Creating empty database
 
-"%JAVACMD%" -cp "og-examples.jar;lib\*" ^
+"%JAVACMD%" -cp "examples-simulated.jar;lib\*" ^
   -Dlogback.configurationFile=jetty-logback.xml ^
   com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:data/masterdb/hsqldb/example-db ^
@@ -23,7 +23,7 @@ echo ### Creating empty database
   -create true ^
   -createtables true
   
-"%JAVACMD%" -cp "og-examples.jar;lib\*" ^
+"%JAVACMD%" -cp "examples-simulated.jar;lib\*" ^
   -Dlogback.configurationFile=jetty-logback.xml ^
   com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:data/userdb/hsqldb/og-fin-user ^
@@ -36,7 +36,7 @@ echo ### Creating empty database
   
 echo ### Adding example data
 
-set CLASSPATH=og-examples.jar;lib\*;config
+set CLASSPATH=examples-simulated.jar;lib\*;config
 FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
 
 "%JAVACMD%" -cp "%CLASSPATH%" ^

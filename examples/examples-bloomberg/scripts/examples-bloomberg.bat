@@ -5,7 +5,7 @@ PUSHD %~dp0\..
 
 set BASEDIR=%cd%
 set SCRIPTDIR=%BASEDIR%\scripts
-set PROJECT=og-bloombergexample
+set PROJECT=examples-bloomberg
 set PROJECTJAR=%PROJECT%.jar
 set LOGBACK_CONFIG=jetty-logback.xml
 set CONFIG=config\fullstack\fullstack-examplesbloomberg-bin.properties
