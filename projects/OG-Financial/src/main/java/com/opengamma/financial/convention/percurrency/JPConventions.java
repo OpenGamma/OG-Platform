@@ -44,6 +44,8 @@ public class JPConventions {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final ExternalId JP = ExternalSchemes.financialRegionId("JP");
   private static final ExternalId JPGB = ExternalSchemes.financialRegionId("US+GB");
+  /** OIS X-Ccy USD/JPY ON leg convention string **/
+  public static final String OIS_USD_JPY_ON_LEG = "JPY Overnight USD/JPY XCcy Leg";
 
   /** The Tibor string **/
   public static final String TIBOR = "Tibor";
@@ -75,6 +77,11 @@ public class JPConventions {
     final Convention oisFloatLegConvention = new OISLegConvention(oisFloatLegConventionName, getIds(Currency.JPY, OIS_ON_LEG), onIndexId,
         Tenor.ONE_YEAR, 2, 2, MODIFIED_FOLLOWING, true);
     // Ibor swap legs
+    // X-Ccy OIS
+    final Convention oisXCcyUSDLegConvention = new OISLegConvention(OIS_USD_JPY_ON_LEG, getIds(OIS_USD_JPY_ON_LEG), onIndexId,
+        Tenor.THREE_MONTHS, 2, 2, MODIFIED_FOLLOWING, true);
+    conventionMaster.add(oisXCcyUSDLegConvention);
+    // Convention add
     conventionMaster.add(onIndex);
     conventionMaster.add(liborIndex);
     conventionMaster.add(tiborJPIndex);

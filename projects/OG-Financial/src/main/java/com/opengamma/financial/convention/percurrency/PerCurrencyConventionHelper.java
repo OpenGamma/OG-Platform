@@ -52,6 +52,10 @@ public class PerCurrencyConventionHelper {
     return ExternalIdBundle.of(simpleNameId(idName));
   }
 
+  public static ExternalIdBundle getIds(final String idName) {
+    return ExternalIdBundle.of(simpleNameId(idName));
+  }
+
   public static String getConventionName(final Currency currency, final String tenorString, final String instrumentName) {
     return currency.getCode() + " " + tenorString + " " + instrumentName;
   }

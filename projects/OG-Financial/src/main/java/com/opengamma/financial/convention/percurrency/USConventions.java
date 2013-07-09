@@ -57,6 +57,8 @@ public class USConventions {
   private static final DayCount THIRTY_360 = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final ExternalId US = ExternalSchemes.financialRegionId("US");
   private static final ExternalId NYLON = ExternalSchemes.financialRegionId("US+GB");
+  /** OIS X-Ccy USD/JPY ON leg convention string **/
+  public static final String OIS_USD_JPY_ON_LEG = "USD Overnight USD/JPY XCcy Leg";
 
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionMaster conventionMaster) {
     final String tenorString = "3M";
@@ -98,6 +100,11 @@ public class USConventions {
         ExternalSchemes.bloombergTickerSecurityId("CPURNSA Index"));
     final Convention inflationConvention = new InflationLegConvention(inflationConventionName, getIds(Currency.USD, INFLATION_LEG), MODIFIED_FOLLOWING, ACT_360, false, 3, 2,
         priceIndexId);
+    // X-Ccy OIS
+    final Convention oisXCcyJPYLegConvention = new OISLegConvention(OIS_USD_JPY_ON_LEG, getIds(OIS_USD_JPY_ON_LEG), overnightConventionId,
+        Tenor.THREE_MONTHS, 2, 2, MODIFIED_FOLLOWING, true);
+    conventionMaster.add(oisXCcyJPYLegConvention);
+    // Convention add
     conventionMaster.add(depositConvention);
     conventionMaster.add(depositONConvention);
     conventionMaster.add(liborConvention);
