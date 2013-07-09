@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -51,7 +51,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
    * @param curves The curves.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final CouponOIS coupon, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final CouponON coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -64,8 +64,8 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
 
   @Override
   public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof CouponOIS, "Coupon OIS");
-    return presentValue((CouponOIS) instrument, curves);
+    Validate.isTrue(instrument instanceof CouponON, "Coupon OIS");
+    return presentValue((CouponON) instrument, curves);
   }
 
   /**
@@ -74,7 +74,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value curve sensitivities.
    */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponOIS coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponON coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -109,7 +109,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
    * @param curves The curves.
    * @return The par rate.
    */
-  public double parRate(final CouponOIS coupon, final YieldCurveBundle curves) {
+  public double parRate(final CouponON coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -125,7 +125,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
    * @param curves The curves.
    * @return The sensitivities.
    */
-  public InterestRateCurveSensitivity parRateCurveSensitivity(final CouponOIS coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity parRateCurveSensitivity(final CouponON coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());

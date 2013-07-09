@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.hullwhite;
@@ -30,15 +30,16 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Functions to build curves.
- * TODO: REVIEW: Embed in a better object.
- * TODO: This class should be re-factored with ProviderDiscountBuildingRepository.
  */
+// TODO: REVIEW: Embed in a better object.
+// TODO: This class should be re-factored with ProviderDiscountBuildingRepository.
 public class HullWhiteProviderDiscountBuildingRepository {
 
   /**
@@ -161,6 +162,16 @@ public class HullWhiteProviderDiscountBuildingRepository {
       final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
       final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+    ArgumentChecker.notNull(instruments, "instruments");
+    ArgumentChecker.notNull(curveGenerators, "curve generators");
+    ArgumentChecker.notNull(curveNames, "curve names");
+    ArgumentChecker.notNull(parametersGuess, "parameters guess");
+    ArgumentChecker.notNull(knownData, "known data");
+    ArgumentChecker.notNull(discountingMap, "discounting map");
+    ArgumentChecker.notNull(forwardIborMap, "forward ibor map");
+    ArgumentChecker.notNull(forwardONMap, "forward overnight map");
+    ArgumentChecker.notNull(calculator, "calculator");
+    ArgumentChecker.notNull(sensitivityCalculator, "sensitivity calculator");
     final int nbUnits = curveGenerators.length;
     final HullWhiteOneFactorProviderDiscount knownSoFarData = knownData.copy();
     final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();

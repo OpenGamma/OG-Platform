@@ -31,7 +31,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Generates a portfolio of approximately ATM FX options.
  */
 public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   /** The list of options */
@@ -50,7 +50,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), 1.2));
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY), 100.));
     final ExerciseType european = new EuropeanExerciseType();
-    final Random rng = new Random();
+    final Random rng = new Random(1237);
     final ZonedDateTime date = DateUtils.getUTCDate(2015, 2, 1);
     for (int i = 0; i < 100; i++) {
       final int n = rng.nextInt(6);
@@ -112,6 +112,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
     final SecurityGenerator<FXOptionSecurity> securities = new SecurityGenerator<FXOptionSecurity>() {
       private int _count;
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public FXOptionSecurity createSecurity() {
         final FXOptionSecurity fxOption = FX_OPTIONS.get(_count++);

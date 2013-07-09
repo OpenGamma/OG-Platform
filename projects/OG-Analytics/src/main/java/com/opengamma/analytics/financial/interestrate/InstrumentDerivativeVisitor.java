@@ -44,6 +44,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedT
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -92,7 +93,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -160,6 +162,8 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, DATA_TYPE data);
 
+  RESULT_TYPE visitBondInterestIndexedTransaction(BondInterestIndexedTransaction<?, ?> bond, DATA_TYPE data);
+
   RESULT_TYPE visitCDSDerivative(ISDACDSDerivative cds, DATA_TYPE data);
 
   // One argument
@@ -212,6 +216,8 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
 
+  RESULT_TYPE visitBondInterestIndexedTransaction(BondInterestIndexedTransaction<?, ?> bond);
+
   RESULT_TYPE visitBondInterestIndexedSecurity(BondInterestIndexedSecurity<?, ?> bond);
 
   RESULT_TYPE visitBondInterestIndexedSecurity(BondInterestIndexedSecurity<?, ?> bond, DATA_TYPE data);
@@ -252,9 +258,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponOIS(CouponOIS payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponOIS(CouponON payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponOIS(CouponOIS payment);
+  RESULT_TYPE visitCouponOIS(CouponON payment);
+
+  RESULT_TYPE visitCouponONSpread(CouponONSpread payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponONSpread(CouponONSpread payment);
 
   RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment, DATA_TYPE data);
 

@@ -6,10 +6,10 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
@@ -78,7 +78,7 @@ public class CurveUtils {
    * @param configSource The config source that contains information about any exogenous curve configurations, not null
    * @param valuationTime The valuation time, not null
    * @param conventionSource The convention source, not null
-   * @return A set of currencies for these curves
+   * @return An ordered set of currencies for these curves
    * @throws OpenGammaRuntimeException if any of the definitions are not found
    */
   public static Set<Currency> getCurrencies(final CurveConstructionConfiguration configuration, final ConfigSource configSource, final Instant valuationTime,
@@ -90,7 +90,7 @@ public class CurveUtils {
     final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
     final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
-    final Set<Currency> currencies = new HashSet<>();
+    final Set<Currency> currencies = new TreeSet<>();
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
       for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
         final String curveName = entry.getKey();

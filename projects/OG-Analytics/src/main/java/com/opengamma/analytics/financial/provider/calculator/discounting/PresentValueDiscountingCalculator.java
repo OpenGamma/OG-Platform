@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableFor
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod;
-import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -30,7 +30,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborAverageDiscountingMethod;
@@ -42,6 +43,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIb
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponOISDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
@@ -87,11 +89,12 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final CouponIborGearingDiscountingMethod METHOD_CPN_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
   private static final CouponOISDiscountingMethod METHOD_CPN_ON = CouponOISDiscountingMethod.getInstance();
+  private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON_SPREAD = CouponONSpreadDiscountingMethod.getInstance();
   private static final CouponArithmeticAverageONDiscountingApproxMethod METHOD_CPN_AAON_APPROX = CouponArithmeticAverageONDiscountingApproxMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
   private static final FederalFundsFutureTransactionDiscountingMethod METHOD_FFFUT_TRA = FederalFundsFutureTransactionDiscountingMethod.getInstance();
-  private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
+  private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
@@ -149,8 +152,13 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponOIS(final CouponOIS payment, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitCouponOIS(final CouponON payment, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_ON.presentValue(payment, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponONSpread(final CouponONSpread payment, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_ON_SPREAD.presentValue(payment, multicurve);
   }
 
   @Override

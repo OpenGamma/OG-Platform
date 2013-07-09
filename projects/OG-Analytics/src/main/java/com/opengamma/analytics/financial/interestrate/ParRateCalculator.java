@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
@@ -125,7 +125,7 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
   }
 
   @Override
-  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+  public Double visitCouponOIS(final CouponON payment, final YieldCurveBundle data) {
     return METHOD_OIS.parRate(payment, data);
   }
 

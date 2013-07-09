@@ -1,5 +1,8 @@
 package com.opengamma.integration.tool.portfolio;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
@@ -191,7 +194,11 @@ public class PortfolioLoader {
         }
       case XML:
         // XMl multi-asset portfolio
-        return new XmlFileReader(filename, new SchemaRegister());
+        try {
+          return new XmlFileReader(new FileInputStream(filename), new SchemaRegister());
+        } catch (FileNotFoundException e) {
+          throw new OpenGammaRuntimeException("Cannot find file: " + filename, e);
+        }
 
       case ZIP:
         // Create zipped multi-asset class loader

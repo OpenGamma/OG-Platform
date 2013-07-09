@@ -53,6 +53,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedT
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondInterestIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -101,7 +102,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -563,12 +565,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponOIS(final CouponOIS payment, final T data) {
+    public String visitCouponOIS(final CouponON payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponOIS(final CouponOIS payment) {
+    public String visitCouponOIS(final CouponON payment) {
       return getValue(payment, false);
     }
 
@@ -1234,6 +1236,26 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public String visitBondInterestIndexedSecurity(BondInterestIndexedSecurity<?, ?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransaction<?, ?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransaction<?, ?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONSpread(CouponONSpread payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONSpread(CouponONSpread payment) {
       return null;
     }
   }

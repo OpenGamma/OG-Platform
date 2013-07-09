@@ -10,7 +10,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -30,7 +30,7 @@ public class SwapFixedONDefinition extends SwapDefinition {
    * @param fixedLeg The fixed leg.
    * @param oisLeg The OIS leg.
    */
-  public SwapFixedONDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityCouponOISDefinition oisLeg) {
+  public SwapFixedONDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityCouponONDefinition oisLeg) {
     super(fixedLeg, oisLeg);
     Validate.isTrue(fixedLeg.getCurrency() == oisLeg.getCurrency(), "Legs should have the same currency");
   }
@@ -47,7 +47,7 @@ public class SwapFixedONDefinition extends SwapDefinition {
    */
   public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorSwapFixedON generator, final double fixedRate,
       final boolean isPayer) {
-    final AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
+    final AnnuityCouponONDefinition oisLeg = AnnuityCouponONDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     return from(oisLeg, notionalSigned, fixedRate);
@@ -65,7 +65,7 @@ public class SwapFixedONDefinition extends SwapDefinition {
    */
   public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
       final double fixedRate, final boolean isPayer) {
-    final AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, !isPayer);
+    final AnnuityCouponONDefinition oisLeg = AnnuityCouponONDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     return from(oisLeg, notionalSigned, fixedRate);
@@ -84,13 +84,13 @@ public class SwapFixedONDefinition extends SwapDefinition {
    */
   public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notionalFixed, final double notionalOIS,
       final GeneratorSwapFixedON generator, final double fixedRate, final boolean isPayer) {
-    final AnnuityCouponOISDefinition oisLeg = AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
+    final AnnuityCouponONDefinition oisLeg = AnnuityCouponONDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notionalFixed;
     return from(oisLeg, notionalSigned, fixedRate);
   }
 
-  private static SwapFixedONDefinition from(final AnnuityCouponOISDefinition oisLeg, final double notionalSigned, final double fixedRate) {
+  private static SwapFixedONDefinition from(final AnnuityCouponONDefinition oisLeg, final double notionalSigned, final double fixedRate) {
     final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[oisLeg.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
       cpnFixed[loopcpn] = new CouponFixedDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg.getNthPayment(
@@ -111,8 +111,8 @@ public class SwapFixedONDefinition extends SwapDefinition {
    * The Ibor leg of the swap.
    * @return Ibor leg.
    */
-  public AnnuityCouponOISDefinition getOISLeg() {
-    return (AnnuityCouponOISDefinition) getSecondLeg();
+  public AnnuityCouponONDefinition getOISLeg() {
+    return (AnnuityCouponONDefinition) getSecondLeg();
   }
 
   @SuppressWarnings("unchecked")

@@ -45,7 +45,7 @@ public class CalibrationTimingTest {
   private static final CholeskyDecompositionCommons CHOLESKY = new CholeskyDecompositionCommons();
 
   private static final ISDACompliantYieldCurveBuild YIELD_CURVE_BUILDER = new ISDACompliantYieldCurveBuild();
-  private static final ISDACompliantCreditCurveBuild CREDIT_CURVE_BUILDER = new ISDACompliantCreditCurveBuild();
+  private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
 
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
@@ -162,7 +162,7 @@ public class CalibrationTimingTest {
 
   }
 
-  @Test(enabled=false)
+  @Test//(enabled=false)
   public void yieldCurvePeturbTest() {
     DoubleMatrix1D base = new DoubleMatrix1D(YC_MARKET_RATES);
     final int nSims = 50000;
@@ -191,7 +191,7 @@ public class CalibrationTimingTest {
     System.out.println("total time for " + nSims + " yield Curves: " + totalTime + "s. Failed to build " + failed + " curves (" + ((100. * failed) / nSims) + "%)");
   }
 
-  @Test(enabled=false)
+  @Test//(enabled=false)
   public void creditCurvePeturbTest() {
     final ISDACompliantYieldCurve yieldCurve = YIELD_CURVE_BUILDER.build(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, YC_MARKET_RATES, ACT360, D30360, SWAP_INTERVAL, ACT365, MOD_FOLLOWING);
     final Period tenor = Period.ofMonths(3);

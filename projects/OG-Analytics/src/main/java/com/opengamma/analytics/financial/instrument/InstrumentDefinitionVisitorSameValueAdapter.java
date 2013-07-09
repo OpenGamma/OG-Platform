@@ -40,6 +40,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDef
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -89,8 +90,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
@@ -493,22 +495,32 @@ public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponONSimplifiedDefinition payment, final DATA_TYPE data) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponONSimplifiedDefinition payment) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment, final DATA_TYPE data) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment) {
+  public RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponOISDefinition(final CouponONDefinition payment, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponOISDefinition(final CouponONDefinition payment) {
     return _value;
   }
 
@@ -821,6 +833,16 @@ public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransactionDefinition<?> bond) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondInterestIndexedTransaction(final BondInterestIndexedTransactionDefinition<?, ?> bond, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitBondInterestIndexedTransaction(final BondInterestIndexedTransactionDefinition<?, ?> bond) {
     return _value;
   }
 

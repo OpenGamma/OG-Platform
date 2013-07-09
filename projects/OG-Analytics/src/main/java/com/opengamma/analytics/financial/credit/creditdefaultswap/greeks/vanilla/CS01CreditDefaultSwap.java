@@ -69,7 +69,7 @@ public class CS01CreditDefaultSwap {
 
     // Check the efficacy of the input market data
     checkMarketData.checkSpreadData(valuationDate, /*cds,*/marketTenors, marketSpreads);
-
+ 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Vector to hold the bumped market spreads

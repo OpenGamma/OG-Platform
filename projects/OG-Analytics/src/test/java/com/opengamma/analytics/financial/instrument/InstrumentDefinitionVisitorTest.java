@@ -52,6 +52,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDef
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -101,8 +102,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
@@ -607,22 +609,22 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final T data) {
+    public String visitCouponOISSimplifiedDefinition(final CouponONSimplifiedDefinition payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
+    public String visitCouponOISSimplifiedDefinition(final CouponONSimplifiedDefinition payment) {
       return getValue(payment, false);
     }
 
     @Override
-    public String visitCouponOISDefinition(final CouponOISDefinition payment, final T data) {
+    public String visitCouponOISDefinition(final CouponONDefinition payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponOISDefinition(final CouponOISDefinition payment) {
+    public String visitCouponOISDefinition(final CouponONDefinition payment) {
       return getValue(payment, false);
     }
 
@@ -1263,6 +1265,26 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitBondInterestIndexedSecurity(BondInterestIndexedSecurityDefinition<?, ?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment) {
       return null;
     }
 

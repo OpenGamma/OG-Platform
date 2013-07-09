@@ -126,7 +126,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
             .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
             .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
             .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
-          .get();
+            .get();
         exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
     }
@@ -140,11 +140,13 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+        final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
         MulticurveProviderDiscount knownData;
         if (exogenousRequirements.isEmpty()) {
-          knownData = new MulticurveProviderDiscount();
+          knownData = new MulticurveProviderDiscount(fxMatrix);
         } else {
           knownData = (MulticurveProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE);
+          knownData.setForexMatrix(fxMatrix);
         }
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
@@ -165,9 +167,8 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         final double absoluteTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)));
         final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
         final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
-        final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
         final MulticurveDiscountBuildingRepository builder = new MulticurveDiscountBuildingRepository(absoluteTolerance, relativeTolerance, maxIterations);
-        final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData, fxMatrix);
+        final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData); //, fxMatrix);
         final ValueSpecification bundleSpec = new ValueSpecification(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
         final Set<ComputedValue> result = new HashSet<>();
         result.add(new ComputedValue(bundleSpec, pair.getFirst()));
@@ -256,8 +257,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       private Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
-          final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder, final MulticurveProviderDiscount knownData,
-          final FXMatrix fxMatrix) {
+          final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder, final MulticurveProviderDiscount knownData) {
         final ValueProperties curveConstructionProperties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, constructionConfiguration.getName())
             .get();
@@ -295,7 +295,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
                 (SnapshotDataBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
             final int nNodes = specification.getNodes().size();
             final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
-            final double[] marketDataForCurve = new double[nNodes];
+            final double[] marketDataForCurve = new double[nNodes]; // FIXME: Where is this used?
             int k = 0;
             for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
               final Double marketData = snapshot.getDataPoint(node.getIdentifier());
@@ -303,7 +303,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
                 throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
               }
               marketDataForCurve[k] = marketData;
-              parameterGuessForCurves.add(marketData);
+              parameterGuessForCurves.add(0.02); // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot,
                   timeSeries, curveName);
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);

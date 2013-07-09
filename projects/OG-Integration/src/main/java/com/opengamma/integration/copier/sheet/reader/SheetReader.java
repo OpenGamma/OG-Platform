@@ -26,7 +26,7 @@ public abstract class SheetReader {
     
     ArgumentChecker.notNull(sheetFormat, "sheetFormat");
     ArgumentChecker.notNull(inputStream, "outputStream");
-    
+
     switch (sheetFormat) {
       case CSV:
         return new CsvSheetReader(inputStream);

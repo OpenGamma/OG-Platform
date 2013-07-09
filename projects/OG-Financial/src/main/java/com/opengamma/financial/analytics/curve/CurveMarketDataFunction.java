@@ -16,6 +16,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -127,14 +128,18 @@ public class CurveMarketDataFunction extends AbstractFunction {
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final CurveNodeWithIdentifier id : specification.getNodes()) {
-          if (id.getDataField() != null) {
-            requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
-            if (id instanceof PointsCurveNodeWithIdentifier) {
-              final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-              requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+          try {
+            if (id.getDataField() != null) {
+              requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+              if (id instanceof PointsCurveNodeWithIdentifier) {
+                final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+                requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+              }
+            } else {
+              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
             }
-          } else {
-            requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          } catch (OpenGammaRuntimeException e) {
+            throw new OpenGammaRuntimeException(_curveName + " " + e.getMessage());
           }
         }
         return requirements;

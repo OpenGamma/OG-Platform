@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.definition;
@@ -8,7 +8,8 @@ package com.opengamma.analytics.financial.model.interestrate.definition;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Data bundle related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
@@ -24,7 +25,7 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
    */
   private DoubleArrayList _volatility;
   /**
-   * The times separating the constant volatility periods. The time should be sorted by increasing order. The first time is 0 and the last time is 1000 (represents infinity). 
+   * The times separating the constant volatility periods. The time should be sorted by increasing order. The first time is 0 and the last time is 1000 (represents infinity).
    * The extra time are added in the constructor.
    */
   private final DoubleArrayList _volatilityTime;
@@ -36,15 +37,15 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
   /**
    * Constructor from the model parameters.
    * @param meanReversion The mean reversion speed (a) parameter.
-   * @param volatility The volatility parameters. 
+   * @param volatility The volatility parameters.
    * @param volatilityTime The times separating the constant volatility periods.
    */
   public HullWhiteOneFactorPiecewiseConstantParameters(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
-    Validate.notNull(volatility, "volatility time");
-    Validate.notNull(volatilityTime, "volatility time");
+    ArgumentChecker.notNull(volatility, "volatility time");
+    ArgumentChecker.notNull(volatilityTime, "volatility time");
     _meanReversion = meanReversion;
     _volatility = new DoubleArrayList(volatility);
-    double[] volatilityTimeArray = new double[volatilityTime.length + 2];
+    final double[] volatilityTimeArray = new double[volatilityTime.length + 2];
     volatilityTimeArray[0] = 0.0;
     volatilityTimeArray[volatilityTime.length + 1] = VOLATILITY_TIME_INFINITY;
     System.arraycopy(volatilityTime, 0, volatilityTimeArray, 1, volatilityTime.length);
@@ -61,16 +62,16 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
   }
 
   /**
-   * Gets the volatility parameters. 
-   * @return The volatility parameters. 
+   * Gets the volatility parameters.
+   * @return The volatility parameters.
    */
   public double[] getVolatility() {
     return _volatility.toDoubleArray();
   }
 
   /**
-   * Sets the volatility parameters. 
-   * @param volatility The volatility parameters. 
+   * Sets the volatility parameters.
+   * @param volatility The volatility parameters.
    */
   public void setVolatility(final double[] volatility) {
     _volatility = new DoubleArrayList(volatility);
@@ -96,7 +97,7 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
    * Sets the last volatility of the volatility list.
    * @param volatility The replacing volatility.
    */
-  public void setLastVolatility(double volatility) {
+  public void setLastVolatility(final double volatility) {
     _volatility.set(_volatility.size() - 1, volatility);
   }
 
@@ -105,8 +106,8 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
    * @param volatility The volatility.
    * @param volatilityTime The times separating the constant volatility periods. Must be larger than the previous one.
    */
-  public void addVolatility(double volatility, double volatilityTime) {
-    Validate.isTrue(volatilityTime > _volatilityTime.get(_volatilityTime.size() - 2), "Volatility times should be increasing");
+  public void addVolatility(final double volatility, final double volatilityTime) {
+    ArgumentChecker.isTrue(volatilityTime > _volatilityTime.get(_volatilityTime.size() - 2), "Volatility times should be increasing");
     _volatility.add(volatility);
     _volatilityTime.add(VOLATILITY_TIME_INFINITY);
     _volatilityTime.set(_volatilityTime.size() - 2, volatilityTime);
@@ -125,17 +126,14 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!(obj instanceof HullWhiteOneFactorPiecewiseConstantParameters)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    HullWhiteOneFactorPiecewiseConstantParameters other = (HullWhiteOneFactorPiecewiseConstantParameters) obj;
+    final HullWhiteOneFactorPiecewiseConstantParameters other = (HullWhiteOneFactorPiecewiseConstantParameters) obj;
     if (Double.doubleToLongBits(_meanReversion) != Double.doubleToLongBits(other._meanReversion)) {
       return false;
     }

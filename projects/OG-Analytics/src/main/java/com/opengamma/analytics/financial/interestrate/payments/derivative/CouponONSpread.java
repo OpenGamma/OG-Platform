@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,10 +14,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a OIS-like floating coupon. The description is simplified by not creating the full set of fixing times. 
+ * Class describing a overnight indexed floating coupon with spread. The description is simplified by not creating the full set of fixing times. 
  * Only the start and the end of the fixing period times are described. The description is enough to construct curves from OIS and price OIS coupons (even if some fixing already took place).
  */
-public class CouponOIS extends Coupon {
+public class CouponONSpread extends Coupon {
 
   /**
    * The OIS-like index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.
@@ -41,15 +41,14 @@ public class CouponOIS extends Coupon {
    */
   private final double _notionalAccrued;
   /**
-   * The forward curve name used in to estimate the fixing index.
+   * The fixed amount related to the spread.
    */
-  private final String _forwardCurveName;
+  private final double _spreadAmount;
 
   /**
    * Constructor of a generic coupon from details.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
-   * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param index The OIS-like index on which the coupon fixes. Not null.
@@ -57,19 +56,18 @@ public class CouponOIS extends Coupon {
    * @param fixingPeriodEndTime The fixing period end time (in years).
    * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    * @param notionalAccrued The notional accrued by the interest periods already fixed.
-   * @param forwardCurveName The name of the forward curve.
+   * @param spreadAmount The fixed amount corresponding to the spread.
    */
-  public CouponOIS(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final IndexON index,
-      final double fixingPeriodStartTime,
-      final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final String forwardCurveName) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
+  public CouponONSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index,
+      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final double spreadAmount) {
+    super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS: index");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
     _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
     _notionalAccrued = notionalAccrued;
-    _forwardCurveName = forwardCurveName;
+    _spreadAmount = spreadAmount;
   }
 
   /**
@@ -113,29 +111,29 @@ public class CouponOIS extends Coupon {
   }
 
   /**
-   * Gets the forward curve name.
-   * @return The name.
+   * Gets the spread amount.
+   * @return The amount.
    */
-  public String getForwardCurveName() {
-    return _forwardCurveName;
+  public double getSpreadAmount() {
+    return _spreadAmount;
   }
 
   @Override
-  public CouponOIS withNotional(final double notional) {
-    return new CouponOIS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime, _fixingPeriodAccrualFactor,
-        _notionalAccrued / getNotional() * notional, _forwardCurveName);
+  public CouponONSpread withNotional(final double notional) {
+    return new CouponONSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+        _fixingPeriodAccrualFactor, _notionalAccrued / getNotional() * notional, _spreadAmount / getNotional() * notional);
   }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponOIS(this, data);
+    return visitor.visitCouponONSpread(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponOIS(this);
+    return visitor.visitCouponONSpread(this);
   }
 
   @Override
@@ -154,14 +152,16 @@ public class CouponOIS extends Coupon {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_fixingPeriodStartTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _index.hashCode();
+    result = prime * result + ((_index == null) ? 0 : _index.hashCode());
     temp = Double.doubleToLongBits(_notionalAccrued);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_spreadAmount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -171,7 +171,7 @@ public class CouponOIS extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponOIS other = (CouponOIS) obj;
+    CouponONSpread other = (CouponONSpread) obj;
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {
       return false;
     }
@@ -185,6 +185,9 @@ public class CouponOIS extends Coupon {
       return false;
     }
     if (Double.doubleToLongBits(_notionalAccrued) != Double.doubleToLongBits(other._notionalAccrued)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spreadAmount) != Double.doubleToLongBits(other._spreadAmount)) {
       return false;
     }
     return true;

@@ -15,7 +15,7 @@ import org.threeten.bp.Period;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
@@ -34,9 +34,9 @@ public class OvernightIndexVisitorTest {
 
   @Test
   public void testSwap() {
-    final AnnuityCouponOISSimplifiedDefinition overnight1 = AnnuityCouponOISSimplifiedDefinition.from(DateUtils.getUTCDate(2013, 1, 1), Period.ofYears(10), 1, false, INDEX, 0, CALENDAR, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), Period.ofMonths(3), false);
+    final AnnuityCouponONSimplifiedDefinition overnight1 = AnnuityCouponONSimplifiedDefinition.from(DateUtils.getUTCDate(2013, 1, 1), Period.ofYears(10), 1, false, INDEX, 0, CALENDAR, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), Period.ofMonths(3), false);
     final IndexON index = new IndexON("", Currency.USD, DayCountFactory.INSTANCE.getDayCount("30/360"), 1);
-    final AnnuityCouponOISSimplifiedDefinition overnight2 = AnnuityCouponOISSimplifiedDefinition.from(DateUtils.getUTCDate(2013, 1, 1), Period.ofYears(10), 1, true, index, 0, CALENDAR, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), Period.ofMonths(3), false);
+    final AnnuityCouponONSimplifiedDefinition overnight2 = AnnuityCouponONSimplifiedDefinition.from(DateUtils.getUTCDate(2013, 1, 1), Period.ofYears(10), 1, true, index, 0, CALENDAR, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), Period.ofMonths(3), false);
     final AnnuityCouponFixedDefinition fixed = AnnuityCouponFixedDefinition.from(Currency.USD, DateUtils.getUTCDate(2013, 1, 1), Period.ofYears(10), Period.ofMonths(3), CALENDAR,
         DayCountFactory.INSTANCE.getDayCount("30/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, 1, 0.04, true);
     SwapDefinition definition = new SwapDefinition(overnight1, fixed);

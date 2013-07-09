@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.bloomberglp.blpapi.CorrelationID;
@@ -25,6 +26,7 @@ import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.UserHandle;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.livedata.ConnectionUnavailableException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 
@@ -33,15 +35,13 @@ import com.opengamma.util.TerminatableJob;
  */
 public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractBloombergStaticDataProvider.class);
+
   /**
    * The Bloomberg session options.
    */
   private final BloombergConnector _bloombergConnector;
 
-  /**
-   * The active Bloomberg session.
-   */
-  private Session _session;
   /**
    * The provider of correlation identifiers.
    */
@@ -49,11 +49,11 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   /**
    * The lookup table of correlation identifiers.
    */
-  private final Map<CorrelationID, CorrelationID> _correlationIDMap = new ConcurrentHashMap<CorrelationID, CorrelationID>();
+  private final Map<CorrelationID, CorrelationID> _correlationIDMap = new ConcurrentHashMap<>();
   /**
    * The lookup table of results.
    */
-  private final Map<CorrelationID, BlockingQueue<Element>> _correlationIDElementMap = new ConcurrentHashMap<CorrelationID, BlockingQueue<Element>>();
+  private final Map<CorrelationID, BlockingQueue<Element>> _correlationIDElementMap = new ConcurrentHashMap<>();
   /**
    * The event processor listening to Bloomberg.
    */
@@ -64,13 +64,21 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   private Thread _thread;
 
   /**
+   * Manages the Bloomberg session and service.
+   */
+  private final SessionProvider _sessionProvider;
+
+  /**
    * Creates an instance.
    * 
    * @param bloombergConnector  the Bloomberg connector, not null
+   * @param serviceName The Bloomberg service to start
    */
-  public AbstractBloombergStaticDataProvider(BloombergConnector bloombergConnector) {
+  public AbstractBloombergStaticDataProvider(BloombergConnector bloombergConnector, String serviceName) {
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
+    ArgumentChecker.notEmpty(serviceName, "serviceName");
     _bloombergConnector = bloombergConnector;
+    _sessionProvider = new SessionProvider(_bloombergConnector, serviceName);
   }
 
   //-------------------------------------------------------------------------
@@ -95,9 +103,18 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * Gets the Bloomberg session.
    * 
    * @return the session
+   * @throws OpenGammaRuntimeException If no connection to Bloomberg is available
    */
   protected Session getSession() {
-    return _session;
+    return _sessionProvider.getSession();
+  }
+
+  /**
+   * @return The Bloomberg service.
+   * @throws OpenGammaRuntimeException If no connection to Bloomberg is available
+   */
+  protected Service getService() {
+    return _sessionProvider.getService();
   }
 
   //-------------------------------------------------------------------------
@@ -189,50 +206,13 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       getLogger().info("Bloomberg already started");
       return;
     }
-    
-    getLogger().info("Bloomberg session being opened...");
-    _session = getBloombergConnector().createOpenSession();
-    getLogger().info("Bloomberg session open");
-    
-    getLogger().info("Bloomberg services being opened...");
-    openServices();
-    getLogger().info("Bloomberg services open");
-    
     getLogger().info("Bloomberg event processor being started...");
     _eventProcessor = new BloombergSessionEventProcessor();
     _thread = new Thread(_eventProcessor, "BSM Event Processor");
     _thread.setDaemon(true);
     _thread.start();
     getLogger().info("Bloomberg event processor started");
-    
     getLogger().info("Bloomberg started");
-  }
-
-  /**
-   * Opens all the services.
-   * <p>
-   * This method is typically implemented to call {@link #openService(String)}.
-   */
-  protected abstract void openServices();
-
-  /**
-   * Opens a Bloomberg service for the given name.
-   * 
-   * @param serviceName  the service name, not null
-   * @return the service, not null
-   */
-  protected Service openService(String serviceName) {
-    try {
-      if (getSession().openService(serviceName) == false) {
-        throw new OpenGammaRuntimeException("Bloomberg service failed to start: " + serviceName);
-      }
-    } catch (InterruptedException ex) {
-      Thread.interrupted();
-      throw new OpenGammaRuntimeException("Bloomberg service failed to start: " + serviceName, ex);
-    } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Bloomberg service failed to start: " + serviceName, ex);
-    }
-    return getSession().getService(serviceName);
   }
 
   //-------------------------------------------------------------------------
@@ -281,16 +261,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     }
     _thread = null;
     getLogger().info("Bloomberg event processor stopped");
-    
-    getLogger().info("Bloomberg session being stopped...");
-    if (_session != null) {
-      try {
-        _session.stop();
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-      }
-    }
-    getLogger().info("Bloomberg session stopped");
+    _sessionProvider.close();
   }
 
   //-------------------------------------------------------------------------
@@ -298,20 +269,35 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * Thread runner that handles Bloomberg events.
    */
   private class BloombergSessionEventProcessor extends TerminatableJob {
+
+    /** Time to wait between attepts if there is no Bloomberg connection available. */
+    private static final long RETRY_PERIOD = 30000;
+
     @Override
     protected void runOneCycle() {
-      Event event = null;
+      Event event;
       try {
         event = getSession().nextEvent(1000L);
-      } catch (InterruptedException ex) {
+      } catch (InterruptedException e) {
         Thread.interrupted();
-        throw new OpenGammaRuntimeException("Unable to retrieve the next event available for processing on this session", ex);
+        s_logger.warn("Unable to retrieve the next event available for processing on this session", e);
+        return;
+      } catch (ConnectionUnavailableException e) {
+        s_logger.warn("No connection to Bloomberg available, failed to get next event", e);
+        try {
+          Thread.sleep(RETRY_PERIOD);
+        } catch (InterruptedException e1) {
+          s_logger.warn("Interrupted waiting to retry", e1);
+        }
+        return;
+      } catch (RuntimeException e) {
+        s_logger.warn("Unable to retrieve the next event available for processing on this session", e);
+        return;
       }
       if (event == null) {
         //getLogger().debug("Got NULL event");
         return;
       }
-      
       //getLogger().debug("Got event of type {}", event.eventType());
       MessageIterator msgIter = event.messageIterator();
       CorrelationID realCID = null;
@@ -333,7 +319,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
           if (realCID != null) {
             BlockingQueue<Element> messages = _correlationIDElementMap.get(realCID);
             if (messages == null) {
-              messages = new LinkedBlockingQueue<Element>();
+              messages = new LinkedBlockingQueue<>();
               _correlationIDElementMap.put(realCID, messages);
             }
             messages.add(element);

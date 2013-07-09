@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <N> Type of fixed payment.
  * @param <C> Type of inflation coupon.
  */
-public class BondInterestIndexedSecurity<N extends Coupon, C extends Coupon> extends BondSecurity<N, C> {
+public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupon> extends BondSecurity<N, C> {
 
   /**
    * The yield (to maturity) computation convention.

@@ -7,7 +7,7 @@
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
-import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingProviderMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
@@ -61,7 +61,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
-  private static final ForexSwapDiscountingProviderMethod METHOD_FOREX_SWAP = ForexSwapDiscountingProviderMethod.getInstance();
+  private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
 
   //-----     Deposit     -----
 

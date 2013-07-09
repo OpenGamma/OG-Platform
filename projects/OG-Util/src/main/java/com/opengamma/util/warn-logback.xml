@@ -16,6 +16,4 @@
     <appender-ref ref="BRIDGE" />
   </root>
 
-  <logger name="com.opengamma.integration.marketdata.manipulator.dsl.TestSimulationSupplier" level="debug"/>
-
 </configuration>
