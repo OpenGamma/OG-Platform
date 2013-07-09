@@ -10,6 +10,7 @@ common/db.properties
 common/deploy.properties
 /projects/*
 !/projects/pom.xml
+!/projects/src
 !/projects/OG-Parent
 !/projects/OG-Analytics
 !/projects/OG-Bloomberg
