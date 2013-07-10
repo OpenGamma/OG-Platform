@@ -261,7 +261,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     }
     _thread = null;
     getLogger().info("Bloomberg event processor stopped");
-    _sessionProvider.close();
+    _sessionProvider.invalidateSession();
   }
 
   //-------------------------------------------------------------------------
