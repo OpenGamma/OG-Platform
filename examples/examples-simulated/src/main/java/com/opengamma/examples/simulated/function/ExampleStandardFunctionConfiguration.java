@@ -18,7 +18,6 @@ import com.opengamma.web.spring.StandardFunctionConfiguration;
 /**
  * Constructs a standard function repository.
  */
-@SuppressWarnings("deprecation")
 public class ExampleStandardFunctionConfiguration extends StandardFunctionConfiguration {
 
   /**
@@ -41,9 +40,9 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultThreeCurveAUDConfig");
-    i.setCurveConfiguration("model/forex", "DefaultThreeCurveAUDConfig");
+    i.setCurveConfiguration("model/forex", "AUDFX");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setCurveName("model/forex/discounting", "DEFAULT");
     return i;
   }
 
@@ -51,10 +50,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo chfCurrencyInfo() {
     final CurrencyInfo i = super.chfCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveCHFConfig");
-    i.setCurveConfiguration("model/forex", "DefaultTwoCurveCHFConfig");
+    i.setCurveConfiguration("model/forex", "CHFFX");
     i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveCHFConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setCurveName("model/forex/discounting", "DEFAULT");
     i.setSurfaceName("model/swaption/black", "PROVIDER2");
     return i;
   }
@@ -64,10 +63,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     final CurrencyInfo i = super.eurCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
     i.setCurveConfiguration("mode/future", "DefaultTwoCurveEURConfig");
-    i.setCurveConfiguration("model/forex", "DefaultTwoCurveEURConfig");
+    i.setCurveConfiguration("model/forex", "EURFX");
     i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveEURConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setCurveName("model/forex/discounting", "DEFAULT");
     i.setSurfaceName("model/swaption/black", "PROVIDER2");
     return i;
   }
@@ -76,10 +75,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo gbpCurrencyInfo() {
     final CurrencyInfo i = super.gbpCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveGBPConfig");
-    i.setCurveConfiguration("model/forex", "DefaultTwoCurveGBPConfig");
+    i.setCurveConfiguration("model/forex", "GBPFX");
     i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveGBPConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setCurveName("model/forex/discounting", "DEFAULT");
     i.setSurfaceName("model/swaption/black", "PROVIDER1");
     return i;
   }
@@ -88,10 +87,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyInfo jpyCurrencyInfo() {
     final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
-    i.setCurveConfiguration("model/forex", "DefaultTwoCurveJPYConfig");
+    i.setCurveConfiguration("model/forex", "JPYFX");
     i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveJPYConfig");
     i.setCurveName(null, "Discounting");
-    i.setCurveName("model/forex/discounting", "Discounting");
+    i.setCurveName("model/forex/discounting", "DEFAULT");
     i.setSurfaceName("model/swaption/black", "PROVIDER3");
     return i;
   }
@@ -115,6 +114,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 
@@ -122,6 +122,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo usdJpyCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 
@@ -129,6 +130,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo usdChfCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 
@@ -136,6 +138,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo usdAudCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 
@@ -143,6 +146,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo usdGbpCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 
@@ -150,6 +154,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo eurGbpCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 
@@ -157,6 +162,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected CurrencyPairInfo chfJpyCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 
@@ -170,11 +176,6 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
-  }
-
-  @Override
-  protected FunctionConfigurationSource deprecatedFunctions() {
-    return null;
   }
 
   @Override

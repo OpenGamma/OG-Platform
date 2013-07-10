@@ -175,7 +175,8 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     private final Value _curveName = new Value();
     private final Value _curveCalculationMethod = new Value();
     private final Value _surfaceName = new Value();
-
+    private final Value _forwardCurveName = new Value();
+    
     public CurrencyPairInfo(final Pair<String, String> currencies) {
       _currencies = currencies;
     }
@@ -208,6 +209,13 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
       return _surfaceName.get(key);
     }
 
+    public void setForwardCurveName(final String key, final String forwardCurveName) {
+      _forwardCurveName.set(key, forwardCurveName);
+    }
+    
+    public String getForwardCurveName(final String key) {
+      return _forwardCurveName.get(key);
+    }
   }
 
   private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
@@ -787,6 +795,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
   protected void setForexDefaults(final CurrencyPairInfo i, final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo defaults) {
     defaults.setSurfaceName(i.getSurfaceName("model/forex"));
+    defaults.setForwardCurveName(i.getForwardCurveName("model/forex/forward"));
   }
 
   protected void setForexDefaults(final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions defaults) {
