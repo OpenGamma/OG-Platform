@@ -23,6 +23,7 @@ import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleExchangeLoader;
+import com.opengamma.examples.loader.ExampleFXImpliedCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleFunctionConfigurationPopulator;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleHolidayLoader;
@@ -83,7 +84,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * Mixed currency swaption portfolio
    */
   public static final String MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME = "Swaption Portfolio";
-
+  /**
+   * FX forward portfolio.
+   */
+  public static final String FX_FORWARD_PORTFOLIO_NAME = "FX Forward Portfolio";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
@@ -131,6 +135,8 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadLiborRawSecurities();
     loadSwaptionPortfolio();
     loadEURFixedIncomePortfolio();
+    loadFXForwardPortfolio();
+    loadFXImpliedCurveCalculationConfigurations();
     loadViews();
     loadFunctionConfigurations();
   }
@@ -151,7 +157,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * progress indicators.
    */
   private static final class Log {
-
+    /** The string */
     private final String _str;
 
     private Log(final String str) {
@@ -203,6 +209,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
+  private void loadFXImpliedCurveCalculationConfigurations() {
+    final Log log = new Log("Creating FX-implied curve calculation configurations");
+    try {
+      final ExampleFXImpliedCurveConfigurationLoader curveConfigLoader = new ExampleFXImpliedCurveConfigurationLoader();
+      curveConfigLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }    
+  }
+  
   private void loadDefaultVolatilityCubeDefinition() {
     final Log log = new Log("Creating volatility cube definitions");
     try {
@@ -340,6 +357,16 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       portfolioGeneratorTool().run(getToolContext(), EUR_SWAP_PORTFOLIO_NAME, "EURFixedIncome", true, null);
       log.done();
     } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+  
+  private void loadFXForwardPortfolio() {
+    Log log = new Log("Creating example FX forward portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), FX_FORWARD_PORTFOLIO_NAME, "FXForward", true, null);
+      log.done();
+    } catch (RuntimeException t) {
       log.fail(t);
     }
   }
