@@ -8,9 +8,14 @@ $.register_module({
     obj: function () {
         var Form = og.common.util.ui.Form, api = og.api.rest, constructor;
         constructor = function (config) {
-            var strip_xml = function (xml) {
-                var xmlDoc = $.parseXML(xml), $xml = $(xmlDoc);
-                return $xml.find('script').text();
+            var strip_xml = function (config) {
+                var xmlDoc, $xml, output = '';
+                if (config.data.template_data.configXML) {
+                    xmlDoc = $.parseXML(config.data.template_data.configXML);
+                    $xml = $(xmlDoc);
+                    output = $xml.find('script').text();
+                }
+                return output;
             };
             var rebuild_xml = function (groovy) {
                 var xml = '<fudgeEnvelope><script type="string">';
@@ -22,7 +27,7 @@ $.register_module({
                 return xml;
             };
             var load_handler = config.handler || $.noop, selector = config.selector, editor,
-                master = strip_xml(config.data.template_data.configXML), config_type = config.type,
+                master = strip_xml(config), config_type = config.type,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler, new_name = '',
