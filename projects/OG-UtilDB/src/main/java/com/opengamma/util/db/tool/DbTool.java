@@ -40,6 +40,9 @@ import com.opengamma.util.test.DbTest;
 
 /**
  * Command-line interface to create or clear databases.
+ * <p>
+ * This was originally written as an Ant Task.
+ * It may still be usable from Ant, although this has not been tested.
  */
 public class DbTool {
 
