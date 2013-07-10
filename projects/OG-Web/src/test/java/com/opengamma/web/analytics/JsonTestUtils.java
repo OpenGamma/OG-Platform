@@ -50,7 +50,7 @@ public class JsonTestUtils {
     if (object1.length() != object2.length()) {
       return false;
     }
-    for (Iterator it = object1.keys(); it.hasNext(); ) {
+    for (Iterator<?> it = object1.keys(); it.hasNext(); ) {
       String key = (String) it.next();
       Object value1 = object1.get(key);
       Object value2 = object2.get(key);

@@ -13,8 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Formatter.
  */
+@SuppressWarnings("rawtypes")
 /* package */ class ListDoubleArrayFormatter extends AbstractFormatter<List> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ListDoubleArrayFormatter.class);
@@ -52,4 +53,5 @@ import com.opengamma.engine.value.ValueSpecification;
   public DataType getDataType() {
     return DataType.MATRIX_2D;
   }
+
 }

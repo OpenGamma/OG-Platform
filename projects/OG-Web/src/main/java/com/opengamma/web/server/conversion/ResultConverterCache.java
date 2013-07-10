@@ -90,6 +90,7 @@ public class ResultConverterCache {
   }
 
   public <T> ResultConverter<? super T> getAndCacheConverter(final String valueName, final Class<T> valueType) {
+    @SuppressWarnings("unchecked")
     ResultConverter<? super T> converter = (ResultConverter<? super T>) _valueNameConverterCache.get(valueName);
     if (converter == null) {
       converter = getConverterForType(valueType);
@@ -100,6 +101,7 @@ public class ResultConverterCache {
   }
 
   public <T> ResultConverter<? super T> getConverterForType(final Class<T> type) {
+    @SuppressWarnings("unchecked")
     final ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterMap.get(type);
     if (converter == null) {
       return _genericConverter;
@@ -108,6 +110,7 @@ public class ResultConverterCache {
   }
 
   public <T> Object convert(final T value, final ConversionMode mode) {
+    @SuppressWarnings("unchecked")
     final ResultConverter<? super T> converter = getConverterForType((Class<T>) value.getClass());
     return converter.convertForDisplay(this, null, value, mode);
   }

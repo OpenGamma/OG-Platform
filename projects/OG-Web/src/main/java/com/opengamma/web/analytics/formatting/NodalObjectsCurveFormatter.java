@@ -20,6 +20,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Formats {@link NodalObjectsCurve}s with {@link Tenor} x values and {@link Double} y values.
  */
+@SuppressWarnings("rawtypes")
 /* package */ class NodalObjectsCurveFormatter extends AbstractFormatter<NodalObjectsCurve> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(NodalObjectsCurveFormatter.class);

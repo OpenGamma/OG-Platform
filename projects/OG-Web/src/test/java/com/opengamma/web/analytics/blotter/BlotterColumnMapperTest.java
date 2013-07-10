@@ -79,9 +79,15 @@ public class BlotterColumnMapperTest {
    */
   @Test
   public void inheritSuperclassMappings() {
-    class A extends ManageableSecurity {}
-    class B extends A {}
-    class C extends B {}
+    class A extends ManageableSecurity {
+      private static final long serialVersionUID = 1L;
+    }
+    class B extends A {
+      private static final long serialVersionUID = 1L;
+    }
+    class C extends B {
+      private static final long serialVersionUID = 1L;
+    }
     BlotterColumnMapper mapper = new BlotterColumnMapper();
     String aType = "A type";
     String bProduct = "B product";

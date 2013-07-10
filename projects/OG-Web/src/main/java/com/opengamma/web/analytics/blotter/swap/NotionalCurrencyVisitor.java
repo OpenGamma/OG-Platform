@@ -14,7 +14,8 @@ import com.opengamma.util.money.Currency;
 
 /**
  *
- */ /* package */ class NotionalCurrencyVisitor implements NotionalVisitor<Currency> {
+ */
+/* package */ class NotionalCurrencyVisitor implements NotionalVisitor<Currency> {
 
   @Override
   public Currency visitCommodityNotional(CommodityNotional notional) {

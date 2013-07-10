@@ -41,6 +41,7 @@ import com.opengamma.util.ArgumentChecker;
   /** For loading and saving positions and trades */
   private final PositionMaster _positionMaster;
   /** For looking up {@link MetaBean}s to build securities */
+  @SuppressWarnings("unused")
   private final MetaBeanFactory _metaBeanFactory;
   /** For converting JSON values when building beans */
   private final StringConvert _stringConvert;

@@ -51,7 +51,6 @@ import com.opengamma.util.ArgumentChecker;
     _json.put(propertyName, values);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Object convert(Object value, MetaProperty<?> property, Class<?> type, BeanTraverser traverser) {
     Object convertedValue = _converters.convert(value, property, type);

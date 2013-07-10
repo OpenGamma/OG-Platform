@@ -27,6 +27,10 @@ import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
+/**
+ * Formatter.
+ */
+@SuppressWarnings("rawtypes")
 /* package */ class VolatilitySurfaceDataFormatter extends AbstractFormatter<VolatilitySurfaceData> {
 
   protected VolatilitySurfaceDataFormatter() {
@@ -83,7 +87,6 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    * @param surface The surface data
    * @return The data formatted for display as text
    */
-  @SuppressWarnings("unchecked")
   private <X, Y> Map<String, Object> formatForGrid(VolatilitySurfaceData<X, Y> surface,
                                                    Set<X> xVals,
                                                    Set<Y> yVals,
@@ -105,17 +108,19 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   }
 
   /**
-   * <p>Formats the surface data for display in the 3D surface viewer.. Returns a map containing the x-axis labels 
+   * Formats the surface data for display in the 3D surface viewer.. Returns a map containing the x-axis labels 
    * and values, y-axis labels and values, axis titles and volatility values. The lists of axis labels are sorted and 
    * have no duplicate values (which isn't necessarily true of the underlying data). The volatility data list contains 
    * a value for every combination of x and y values. If there is no corresponding value in the underlying data the 
-   * volatility value will be {@code null}.</p>
-   * <p>The axis values are numeric values which correspond to the axis labels. It is unspecified what they
+   * volatility value will be null.
+   * <p>
+   * The axis values are numeric values which correspond to the axis labels. It is unspecified what they
    * actually represent but their relative sizes show the relationship between the label values.
-   * This allows the labels to be properly laid out on the plot axes.</p>
-   * <p>Not all volatility surfaces can be sensibly plotted as a surface and in that case the axis labels can't
+   * This allows the labels to be properly laid out on the plot axes.
+   * <p>
+   * Not all volatility surfaces can be sensibly plotted as a surface and in that case the axis labels can't
    * be converted to a meaningful numeric value. For these surfaces one or both of the axis values will be missing
-   * and the UI shouldn't attempt to plot the surface.</p>
+   * and the UI shouldn't attempt to plot the surface.
    *
    * @param surface The surface
    * @return {xLabels: [...],
@@ -126,7 +131,6 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    *          yTitle: "Y Axis Title",
    *          vol: [x0y0, x1y0,... , x0y1, x1y1,...]}
    */
-  @SuppressWarnings("unchecked")
   private <X, Y> Map<String, Object> formatForPlotting(VolatilitySurfaceData<X, Y> surface,
                                                        Set<X> xVals,
                                                        Set<Y> yVals,
@@ -208,9 +212,10 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   }
 
   /**
-   * Returns {@code true} if the surface data can be sensibly plotted.
-   * @param surfaceData The surface data
-   * @return {@code true} if the data can be sensibly plotted
+   * Returns true if the surface data can be sensibly plotted.
+   * 
+   * @param surfaceData  the surface data
+   * @return true if the data can be sensibly plotted
    */
   private boolean isPlottable(VolatilitySurfaceData surfaceData) {
     Object[] xVals = surfaceData.getXs();

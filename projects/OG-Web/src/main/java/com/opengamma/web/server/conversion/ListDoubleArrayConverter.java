@@ -14,6 +14,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * 
  */
+@SuppressWarnings("rawtypes")
 public class ListDoubleArrayConverter implements ResultConverter<List> {
 
   @Override

@@ -220,7 +220,7 @@ import com.opengamma.util.money.CurrencyAmount;
    * An item from the cache including its history and a flag indicating whether it was updated by the most recent
    * calculation cycle. Instances of this class are intended for users of the cache.
    */
-  /* package */ static class Result {
+  /* package */ static final class Result {
 
     private final Object _value;
     private final Collection<Object> _history;
@@ -286,7 +286,7 @@ import com.opengamma.util.money.CurrencyAmount;
   /**
    * An item stored in the cache, this is an internal implementation detail.
    */
-  private static class CacheItem {
+  private static final class CacheItem {
 
     private Collection<Object> _history;
     private Object _latestValue;
@@ -357,7 +357,7 @@ import com.opengamma.util.money.CurrencyAmount;
   /**
    * Immutable key for items in the cache, this is in implelemtation detail.
    */
-  private static class ResultKey {
+  private static final class ResultKey {
 
     private final String _calcConfigName;
     private final ValueSpecification _valueSpec;

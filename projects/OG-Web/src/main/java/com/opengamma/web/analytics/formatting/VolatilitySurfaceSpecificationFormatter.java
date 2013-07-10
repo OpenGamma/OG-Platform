@@ -8,6 +8,9 @@ package com.opengamma.web.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 
+/**
+ * Formatter.
+ */
 public class VolatilitySurfaceSpecificationFormatter extends AbstractFormatter<VolatilitySurfaceSpecification> {
 
   /* package */ VolatilitySurfaceSpecificationFormatter() {

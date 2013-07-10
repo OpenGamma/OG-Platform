@@ -115,6 +115,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class BeanTraversalException extends OpenGammaRuntimeException {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -3048022694152981946L;
+
   /* package */ BeanTraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {
     super(buildMessage(metaBean, visitor, failures));
     for (BeanTraversalFailure failure : failures) {
@@ -131,4 +134,5 @@ import com.opengamma.util.ArgumentChecker;
         "visitor: " + visitor + ", " +
         "failures: [" + StringUtils.join(failures, ", ") + "]";
   }
+
 }

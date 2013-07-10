@@ -70,14 +70,20 @@ import com.opengamma.web.analytics.blotter.swap.SwapRateProvider;
 import com.opengamma.web.analytics.blotter.swap.SwapTypeProvider;
 
 /**
- *
+ * Column mappings.
  */
-public class DefaultBlotterColumnMappings {
+public final class DefaultBlotterColumnMappings {
 
   private DefaultBlotterColumnMappings() {
   }
 
-  public static BlotterColumnMapper create(final CurrencyPairs currencyPairs) {
+  /**
+   * Creates the mapper from currency pairs.
+   * 
+   * @param currencyPairs  the currency pairs, not null
+   * @return the mapper, not null
+   */
+  public static BlotterColumnMapper create(final CurrencyPairs currencyPairs) {  // CSIGNORE
     BlotterColumnMapper mapper = new BlotterColumnMapper();
 
     // ------------------- Bond

@@ -331,7 +331,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
             }
             for (WebViewGridColumn column : columns) {
               int colId = column.getId();
-              ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+              ResultConverter<Object> converter = getConverter(column, value.getSpecification().getValueName(), originalValue.getClass());
               values[offset + colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
             }
           }

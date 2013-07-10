@@ -57,7 +57,7 @@ public class EntitySubscriptionFilter implements ResourceFilter {
   }
 
   /**
-   * @return {@code null}
+   * @return null
    */
   @Override
   public ContainerRequestFilter getRequestFilter() {
@@ -78,7 +78,7 @@ public class EntitySubscriptionFilter implements ResourceFilter {
    */
   private class ResponseFilter implements ContainerResponseFilter {
 
-    private final List<String> uidParamNames;
+    private final List<String> uidParamNames;  // CSIGNORE
 
     /**
      * @param uidParamNames Names of the method parameters that contain {@link UniqueId}s.  These are the names

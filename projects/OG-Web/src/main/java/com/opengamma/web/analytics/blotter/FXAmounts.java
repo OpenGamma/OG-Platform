@@ -14,7 +14,7 @@ import com.opengamma.util.money.Currency;
 /**
  * The two currency amounts in an FX trade.
  */
-public class FXAmounts {
+public final class FXAmounts {
 
   /** The base currency. */
   private final Currency _baseCurrency;

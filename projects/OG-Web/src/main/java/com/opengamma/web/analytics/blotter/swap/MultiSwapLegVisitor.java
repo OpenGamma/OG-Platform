@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-  /* package */ abstract class MultiSwapLegVisitor<T> {
+/* package */ abstract class MultiSwapLegVisitor<T> {
 
   /**
    * Visits the fixed leg of a fixed/float swap. For float/float swaps {@link #visitFloatingPayLeg} will be called.
