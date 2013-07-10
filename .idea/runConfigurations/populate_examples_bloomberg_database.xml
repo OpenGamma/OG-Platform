@@ -1,0 +1,28 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="populate examples-bloomberg database" type="Application" factoryName="Application">
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+      <pattern>
+        <option name="PATTERN" value="com.opengamma.examples.bloomberg.tool.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="MAIN_CLASS_NAME" value="com.opengamma.examples.bloomberg.tool.ExampleDatabasePopulator" />
+    <option name="VM_PARAMETERS" value="-Xms1200m -Xmx1200m -XX:MaxPermSize=150m  -Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Dcommandmonitor.secret=OpenGamma" />
+    <option name="PROGRAM_PARAMETERS" value="-c classpath:toolcontext/toolcontext-examplesbloomberg-dev.properties" />
+    <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+    <option name="ALTERNATIVE_JRE_PATH" value="" />
+    <option name="ENABLE_SWING_INSPECTOR" value="false" />
+    <option name="ENV_VARIABLES" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <module name="examples-bloomberg" />
+    <envs />
+    <RunnerSettings RunnerId="Debug">
+      <option name="DEBUG_PORT" value="" />
+      <option name="TRANSPORT" value="0" />
+      <option name="LOCAL" value="true" />
+    </RunnerSettings>
+    <ConfigurationWrapper RunnerId="Debug" />
+    <method />
+  </configuration>
+</component>

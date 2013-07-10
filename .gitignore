@@ -57,6 +57,7 @@ test-output/
 /build/
 LOCAL_STASH
 *.iws
+*.iml
 *.ids
 docs.sqlite3
 *.pid

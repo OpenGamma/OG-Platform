@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+    <file url="file://$PROJECT_DIR$/examples" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/examples/examples-bloomberg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/examples/examples-simulated" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/projects" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Analytics" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Bloomberg" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/projects/OG-BloombergExample" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Client" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Component" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Core" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Engine" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/projects/OG-Examples" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Financial" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Integration" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/projects/OG-Language" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-LiveData" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Master" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-MasterDB" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Maths" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/projects/OG-MavenPlugin" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/projects/OG-Parent" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Provider" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/projects/OG-RStats" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Security" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-Server" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/projects/OG-TimeSeries" charset="UTF-8" />

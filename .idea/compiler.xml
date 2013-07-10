@@ -22,57 +22,51 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="OG-Analytics" />
-        <module name="OG-Bloomberg" />
-        <module name="OG-BloombergExample" />
-        <module name="OG-Component" />
-        <module name="OG-Core" />
-        <module name="OG-Engine" />
-        <module name="OG-Examples" />
-        <module name="OG-Financial" />
-        <module name="OG-Integration" />
+        <module name="examples-bloomberg" />
+        <module name="examples-simulated" />
+        <module name="og-analytics" />
+        <module name="og-bloomberg" />
+        <module name="og-component" />
+        <module name="og-core" />
+        <module name="og-engine" />
+        <module name="og-financial" />
         <module name="og-integration" />
-        <module name="OG-Language" />
-        <module name="OG-LiveData" />
-        <module name="OG-Master" />
-        <module name="OG-MasterDB" />
-        <module name="OG-Maths" />
-        <module name="OG-MavenPlugin" />
-        <module name="OG-Provider" />
-        <module name="OG-RStats" />
-        <module name="OG-Security" />
-        <module name="OG-TimeSeries" />
-        <module name="OG-Timeseries" />
-        <module name="OG-Util" />
-        <module name="OG-UtilDB" />
-        <module name="OG-Web" />
+        <module name="og-livedata" />
+        <module name="og-master" />
+        <module name="og-masterdb" />
+        <module name="og-maths" />
+        <module name="og-provider" />
+        <module name="og-security" />
+        <module name="og-timeseries" />
+        <module name="og-util" />
+        <module name="og-utildb" />
+        <module name="og-web" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="OG-Analytics" target="1.7" />
-      <module name="OG-Bloomberg" target="1.7" />
-      <module name="OG-BloombergExample" target="1.7" />
-      <module name="OG-Client" target="1.7" />
-      <module name="OG-Component" target="1.7" />
-      <module name="OG-Core" target="1.7" />
-      <module name="OG-Engine" target="1.7" />
-      <module name="OG-Examples" target="1.7" />
-      <module name="OG-Financial" target="1.7" />
-      <module name="OG-Integration" target="1.7" />
-      <module name="OG-Language" target="1.7" />
-      <module name="OG-LiveData" target="1.7" />
-      <module name="OG-Master" target="1.7" />
-      <module name="OG-MasterDB" target="1.7" />
-      <module name="OG-Maths" target="1.7" />
-      <module name="OG-MavenPlugin" target="1.7" />
-      <module name="OG-Parent" target="1.7" />
-      <module name="OG-Provider" target="1.7" />
-      <module name="OG-RStats" target="1.7" />
-      <module name="OG-Security" target="1.7" />
-      <module name="OG-Server" target="1.7" />
-      <module name="OG-TimeSeries" target="1.7" />
-      <module name="OG-Util" target="1.7" />
-      <module name="OG-UtilDB" target="1.7" />
+      <module name="examples" target="1.7" />
+      <module name="examples-bloomberg" target="1.7" />
+      <module name="examples-simulated" target="1.7" />
+      <module name="og-analytics" target="1.7" />
+      <module name="og-bloomberg" target="1.7" />
+      <module name="og-client" target="1.7" />
+      <module name="og-component" target="1.7" />
+      <module name="og-core" target="1.7" />
+      <module name="og-engine" target="1.7" />
+      <module name="og-financial" target="1.7" />
+      <module name="og-integration" target="1.7" />
+      <module name="og-livedata" target="1.7" />
+      <module name="og-master" target="1.7" />
+      <module name="og-masterdb" target="1.7" />
+      <module name="og-maths" target="1.7" />
+      <module name="og-platform-public" target="1.7" />
+      <module name="og-provider" target="1.7" />
+      <module name="og-security" target="1.7" />
+      <module name="og-server" target="1.7" />
+      <module name="og-timeseries" target="1.7" />
+      <module name="og-util" target="1.7" />
+      <module name="og-utildb" target="1.7" />
+      <module name="og-web" target="1.7" />
       <module name="OG-Web" target="1.7" />
     </bytecodeTargetLevel>
   </component>
