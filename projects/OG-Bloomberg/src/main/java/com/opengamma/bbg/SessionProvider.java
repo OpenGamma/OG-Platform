@@ -27,7 +27,7 @@ import com.opengamma.util.OpenGammaClock;
  * This class creates a session on demand but if connection fails it won't retry until a delay has elapsed to avoid
  * overwhelming the Bloomberg API.
  */
-public class SessionProvider implements AutoCloseable {
+public class SessionProvider {
 
   /** The logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SessionProvider.class);
@@ -136,8 +136,7 @@ public class SessionProvider implements AutoCloseable {
    * Stops the session. If {@link #getSession()} is called after this method a new session will be created. Calling
    * this method when there is no active session does nothing.
    */
-  @Override
-  public void close() {
+  public void invalidateSession() {
     synchronized (_lock) {
       if (_session != null) {
         try {
