@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentManager;
-import com.opengamma.util.test.DbTool;
+import com.opengamma.util.db.tool.DbTool;
 
 public final class DBTestUtils {
  

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.tool;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
@@ -20,6 +20,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestProperties;
 
 /**
  * Test DbTool.

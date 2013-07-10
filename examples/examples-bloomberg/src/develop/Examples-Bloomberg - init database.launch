@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/og-utildb/src/main/java/com/opengamma/util/test/DbTool.java"/>
+<listEntry value="/og-utildb/src/main/java/com/opengamma/util/db/tool/DbSetup.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.util.test.DbTool"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.util.db.tool.DbSetup"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-jdbcUrl jdbc:hsqldb:file:data/masterdb/hsqldb/examplesbloomberg-db -database og-financial -user &quot;OpenGamma&quot; -password &quot;OpenGamma&quot; -drop true -create true -createtables true"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="examples-bloomberg"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>

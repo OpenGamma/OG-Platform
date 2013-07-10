@@ -5,7 +5,7 @@ echo "### Creating empty database"
 
 ${SCRIPTDIR}/run-tool.sh --chdirtoinstallation \
   -Dlogback.configurationFile=jetty-logback.xml \
-  com.opengamma.util.test.DbTool \
+  com.opengamma.util.db.tool.DbTool \
   -jdbcUrl jdbc:hsqldb:file:data/masterdb/hsqldb/example-db \
   -database og-financial \
   -user "OpenGamma" \
@@ -16,7 +16,7 @@ ${SCRIPTDIR}/run-tool.sh --chdirtoinstallation \
 
 ${SCRIPTDIR}/run-tool.sh --chdirtoinstallation \
   -Dlogback.configurationFile=jetty-logback.xml \
-  com.opengamma.util.test.DbTool \
+  com.opengamma.util.db.tool.DbTool \
   -jdbcUrl jdbc:hsqldb:file:data/userdb/hsqldb/og-fin-user \
   -database og-financial \
   -user "OpenGamma" \

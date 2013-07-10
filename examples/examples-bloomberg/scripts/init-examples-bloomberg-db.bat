@@ -13,7 +13,7 @@ IF "%JAVA_HOME%" == "" (
 echo ### Creating empty database
 
 "%JAVACMD%" -cp "examples-bloomberg.jar;lib\*" ^
-  com.opengamma.util.test.DbTool ^
+  com.opengamma.util.db.tool.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:data/masterdb/hsqldb/examplesbloomberg-db ^
   -database og-financial ^
   -user "OpenGamma" ^
@@ -23,7 +23,7 @@ echo ### Creating empty database
   -createtables true
   
 "%JAVACMD%" -cp "examples-bloomberg.jar;lib\*" ^
-  com.opengamma.util.test.DbTool ^
+  com.opengamma.util.db.tool.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:data/userdb/hsqldb/og-fin-user ^
   -database og-financial ^
   -user "OpenGamma" ^

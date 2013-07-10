@@ -23,7 +23,9 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.script.DbSchemaGroupMetadata;
-import com.opengamma.util.test.DbTool.TableCreationCallback;
+import com.opengamma.util.db.tool.DbDialectUtils;
+import com.opengamma.util.db.tool.DbTool;
+import com.opengamma.util.db.tool.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -234,7 +236,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
       synchronized (this) {
         connector = s_connectors.get(key);
         if (connector == null) {
-          DbDialect dbDialect = DbTest.getSupportedDbDialect(getDatabaseType());
+          DbDialect dbDialect = DbDialectUtils.getSupportedDbDialect(getDatabaseType());
           DbConnectorFactoryBean factory = new DbConnectorFactoryBean();
           factory.setName("DbTest-" + dbDialect.getName() + (scope != null ? "-" + scope.getSimpleName() : ""));
           factory.setDialect(dbDialect);

@@ -17,7 +17,7 @@ import org.springframework.util.ClassUtils;
 
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.scripts.Scriptable;
-import com.opengamma.util.test.DbTool;
+import com.opengamma.util.db.tool.DbTool;
 
 /**
  * Tool class that creates and initializes the example database.

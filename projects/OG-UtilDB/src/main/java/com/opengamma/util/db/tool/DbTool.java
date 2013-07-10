@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.test;
+package com.opengamma.util.db.tool;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,8 +21,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
@@ -38,27 +36,20 @@ import com.opengamma.util.db.management.DbManagementUtils;
 import com.opengamma.util.db.script.DbSchemaGroupMetadata;
 import com.opengamma.util.db.script.DbScript;
 import com.opengamma.util.db.script.DbScriptUtils;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Command-line interface to create or clear databases.
  */
-public class DbTool extends Task {
+public class DbTool {
 
   /**
    * During installation, INFO level messages will be reported to the user as progress.
    */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
-  
+
   static {
     StartupUtils.init();
-  }
-
-  /**
-   */
-  public interface TableCreationCallback {
-    
-    void tablesCreatedOrUpgraded(final int version, final DbSchemaGroupMetadata schemaGroupMetadata);
-    
   }
 
   // What to do - should be set once
@@ -90,15 +81,33 @@ public class DbTool extends Task {
    */
   private static final Collection<String> s_tablesThatShouldNotBeCleared = new HashSet<String>();
 
+  /**
+   * Creates an instance.
+   */
   public DbTool() {
   }
 
+  /**
+   * Creates an instance with a host, username and password.
+   * 
+   * @param dbServerHost  the host
+   * @param user  the user
+   * @param password  the password
+   */
   public DbTool(String dbServerHost, String user, String password) {
     setDbServerHost(dbServerHost);
     setUser(user);
     setPassword(password);
   }
 
+  /**
+   * Creates an instance with a host, username, password and a pre-existing data source.
+   * 
+   * @param dbServerHost  the host
+   * @param user  the user
+   * @param password  the password
+   * @param dataSource  the pre-existing data source, may be null
+   */
   public DbTool(String dbServerHost, String user, String password, DataSource dataSource) {
     setDbServerHost(dbServerHost);
     setUser(user);
@@ -106,6 +115,10 @@ public class DbTool extends Task {
     _dataSource = dataSource;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes the class.
+   */
   public void initialize() {
     if (_dbServerHost == null) {
       // Parse the server host and catalog from a JDBC URL
@@ -132,7 +145,6 @@ public class DbTool extends Task {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * The data-source is created once per instance of the tool.
    *
@@ -389,6 +401,7 @@ public class DbTool extends Task {
     return configuration;
   }
 
+  //-------------------------------------------------------------------------
   public void createTestTables(final TableCreationCallback callback) {
     createTables(getTestCatalog(), getTestSchema(), callback);
   }
@@ -483,8 +496,7 @@ public class DbTool extends Task {
     _dialect.executeSql(catalog, schema, sql);
   }
 
-  @Override
-  public void execute() throws BuildException {
+  public void execute() {
     // NOTE: The catalog field generally has to be set, but if you do not
     // set the jdbcHost (normally the case) then the catalog is overridden
     // with one derived from the URL in initialize() called from here.
@@ -492,12 +504,12 @@ public class DbTool extends Task {
     
     if (!_createTestDb) {
       if (_catalog == null) {
-        throw new BuildException("No database on the DB server specified.");
+        throw new OpenGammaRuntimeException("No database on the DB server specified.");
       }
     }
 
     if (!_create && !_drop && !_clear && !_createTestDb && !_createTables) {
-      throw new BuildException("Nothing to do.");
+      throw new OpenGammaRuntimeException("Nothing to do.");
     }
 
     if (_clear) {
@@ -527,7 +539,7 @@ public class DbTool extends Task {
 
     if (_createTestDb) {
       // used to try to use _testPropertiesDir here, but value was always ignored
-      for (String dbType : DbTest.initDatabaseTypes(_testDbType)) {
+      for (String dbType : initDatabaseTypes(_testDbType)) {
         s_logger.debug("Creating " + dbType + " test database...");
 
         String dbUrl = DbTest.getDbHost(dbType);
@@ -548,11 +560,28 @@ public class DbTool extends Task {
     s_logger.info("OpenGamma database created at {}", getJdbcUrl());
   }
 
-  public static void usage(Options options) {
-    HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("java com.opengamma.util.test.DbTool [args]", options);
+  /**
+   * Gets the selected database types.
+   * 
+   * @return a singleton collection containing the String passed in, except if the type is ALL
+   *  (case insensitive), in which case all supported database types are returned, not null
+   */
+  private static Collection<String> initDatabaseTypes(String commandLineDbType) {
+    ArrayList<String> dbTypes = new ArrayList<String>();
+    if (commandLineDbType.trim().equalsIgnoreCase("all")) {
+      dbTypes.addAll(DbDialectUtils.getSupportedDatabaseTypes());
+    } else {
+      dbTypes.add(commandLineDbType);
+    }
+    return dbTypes;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Runs the tool from the command line.
+   * 
+   * @param args  the command line arguments, not null
+   */
   public static void main(String[] args) { // CSIGNORE
     Options options = new Options();
     options.addOption("jdbcUrl", "jdbcUrl", true, "DB server URL + database - for example, jdbc:postgresql://localhost:1234/OpenGammaTests. You can use" +
@@ -604,11 +633,31 @@ public class DbTool extends Task {
 
     try {
       tool.execute();
-    } catch (BuildException e) {
-      s_logger.error(e.getMessage());
+    } catch (RuntimeException ex) {
+      s_logger.error(ex.getMessage());
       usage(options);
       System.exit(-1);
     }
+  }
+
+  /**
+   * Print usage.
+   * 
+   * @param options  the command line options
+   */
+  private static void usage(Options options) {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp("java com.opengamma.util.db.tool.DbTool [args]", options);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Callback invoked when tables are creates or upgraded.
+   */
+  public interface TableCreationCallback {
+    
+    void tablesCreatedOrUpgraded(final int version, final DbSchemaGroupMetadata schemaGroupMetadata);
+    
   }
 
 }

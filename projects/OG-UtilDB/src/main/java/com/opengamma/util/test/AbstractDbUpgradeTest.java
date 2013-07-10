@@ -21,7 +21,8 @@ import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.script.DbSchemaGroupMetadata;
 import com.opengamma.util.db.script.DbScriptUtils;
-import com.opengamma.util.test.DbTool.TableCreationCallback;
+import com.opengamma.util.db.tool.DbTool;
+import com.opengamma.util.db.tool.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
