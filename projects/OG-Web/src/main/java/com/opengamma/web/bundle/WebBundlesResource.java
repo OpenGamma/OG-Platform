@@ -41,11 +41,6 @@ public class WebBundlesResource extends AbstractWebBundleResource {
   public WebProdBundleResource findProdBundle() {
     return new WebProdBundleResource(this);
   }
-  
-  @Path("sass/{fragment: .*}")
-  public WebDevSassFragmentResource findDevSassFragment() {
-    return new WebDevSassFragmentResource(this);
-  }
 
   //-------------------------------------------------------------------------
   /**

@@ -18,7 +18,6 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.google.common.collect.Iterables;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
-import com.opengamma.web.sass.WebJRubySassCompiler;
 
 /**
  * Abstract base class for RESTful bundle resources.
@@ -80,7 +79,6 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     BundleManager bundleManager = _data.getBundleManagerFactory().get(servletContext);
     data().setBundleManager(bundleManager);
     data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
-    data().setSassCompiler(WebJRubySassCompiler.of(servletContext));
   }
   
   @Context

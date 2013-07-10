@@ -10,16 +10,13 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.jar.JarFile;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
@@ -33,8 +30,6 @@ import org.threeten.bp.Month;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.io.Files;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -42,9 +37,7 @@ import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.ZipUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.sass.JRubySassCompiler;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
@@ -53,8 +46,6 @@ import com.opengamma.util.time.ExpiryAccuracy;
  */
 public final class WebResourceTestUtils {
   
-  public static final String SASS_PATH = "gems" + File.separator + "sass-3.2.7" + File.separator + "lib";
-
   public static final ContainerFactory s_sortedJSONObjectFactory = new ContainerFactory() {
     
     @SuppressWarnings("rawtypes")
@@ -176,28 +167,6 @@ public final class WebResourceTestUtils {
     String expectedSorted = JSONValue.toJSONString((Map) new JSONParser().parse(expectedJson.toString(), s_sortedJSONObjectFactory));
     String actualSorted = JSONValue.toJSONString((Map) new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
     assertEquals(expectedSorted, actualSorted);
-  }
-
-  public static File extractRubySassGem() {
-    File sassDir = Files.createTempDir();
-    ClassLoader classLoader = JRubySassCompiler.class.getClassLoader();
-    URL sassGemUrl = classLoader.getResource("sass/sass-lang-3.2.7.jar");
-    if (sassGemUrl == null) {
-      throw new OpenGammaRuntimeException("Sass gem jar is missing in the classpath");
-    }
-    try {
-      URLConnection urlConnection = sassGemUrl.openConnection();
-      if (urlConnection instanceof JarURLConnection) {
-        JarFile jarFile = ((JarURLConnection) urlConnection).getJarFile();
-        ZipUtils.unzipArchive(jarFile, sassDir);
-      } else {
-        File file = new File(sassGemUrl.toURI());
-        ZipUtils.unzipArchive(new JarFile(file), sassDir);
-      }
-    } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Error extracting Sass gem jar to " + sassDir.getPath(), ex);
-    }
-    return sassDir;
   }
 
 }
