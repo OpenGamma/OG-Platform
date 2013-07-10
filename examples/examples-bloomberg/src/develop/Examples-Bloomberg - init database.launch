@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/og-utildb/src/main/java/com/opengamma/util/db/tool/DbSetup.java"/>
+<listEntry value="/examples-bloomberg/src/main/java/com/opengamma/examples/bloomberg/tool/ExampleDatabaseCreator.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.util.db.tool.DbSetup"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-jdbcUrl jdbc:hsqldb:file:data/masterdb/hsqldb/examplesbloomberg-db -database og-financial -user &quot;OpenGamma&quot; -password &quot;OpenGamma&quot; -drop true -create true -createtables true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.examples.bloomberg.tool.ExampleDatabaseCreator"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="examples-bloomberg"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms1200m -Xmx1200m -XX:MaxPermSize=150m  -Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Dcommandmonitor.secret=OpenGamma"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Xms1024m -Xmx8192m -XX:MaxPermSize=512M"/>
 </launchConfiguration>
