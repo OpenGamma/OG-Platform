@@ -22,3 +22,4 @@ MANIFEST.MF
 ivy/
 build.number
 test-output/
+*.iml

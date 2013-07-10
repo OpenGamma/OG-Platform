@@ -3,3 +3,4 @@
 .checkstyle
 .settings/
 /*.project
+*.iml

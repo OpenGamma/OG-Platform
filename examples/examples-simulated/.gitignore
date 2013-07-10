@@ -22,3 +22,4 @@ tests/output/
 build.number
 .settings/
 install/db
+*.iml

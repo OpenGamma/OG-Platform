@@ -26,3 +26,4 @@ build.number
 test-output/
 *.iws
 *.ids
+*.iml

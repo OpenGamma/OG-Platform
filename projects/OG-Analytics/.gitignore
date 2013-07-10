@@ -21,3 +21,4 @@ MANIFEST.MF
 build.number
 javadoc-data.json
 *.pyc
+*.iml

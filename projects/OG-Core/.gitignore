@@ -21,3 +21,4 @@ tests/output/
 .clover/
 .DS_Store
 build.number
+*.iml
