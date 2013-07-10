@@ -10,14 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.examples.loader.ExampleCurrencyConfigurationLoader;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
@@ -30,6 +22,15 @@ import com.opengamma.examples.loader.ExampleHolidayLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
+import com.opengamma.integration.tool.portfolio.PortfolioLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
@@ -88,6 +89,15 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * FX forward portfolio.
    */
   public static final String FX_FORWARD_PORTFOLIO_NAME = "FX Forward Portfolio";
+  /**
+   * Equity options portfolio
+   */
+  public static final String EQUITY_OPTION_PORTFOLIO_NAME = "Equity Option Portfolio";
+  /**
+   * Futures portfolio
+   */
+  public static final String FUTURE_PORTFOLIO_NAME = "Futures Portfolio";
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
@@ -131,6 +141,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadVanillaFXOptionPortfolio();
     loadEquityPortfolio();
     loadEquityOptionPortfolio();
+    loadFuturePortfolio();
     loadBondPortfolio();
     loadLiborRawSecurities();
     loadSwaptionPortfolio();
@@ -285,6 +296,32 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
+  private void loadEquityOptionPortfolio() {
+    final Log log = new Log("Creating example equity option portfolio");
+    try {
+      final String file = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip").getPath();
+      final PortfolioLoader equityOptionLoader = new PortfolioLoader(getToolContext(), EQUITY_OPTION_PORTFOLIO_NAME, null,
+              file, true, true, true, true, false, true, false, null);
+      equityOptionLoader.execute();
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadFuturePortfolio() {
+    final Log log = new Log("Creating example future portfolio");
+    try {
+      final String file = ExampleEquityPortfolioLoader.class.getResource("futures.zip").getPath();
+      final PortfolioLoader futureLoader = new PortfolioLoader(getToolContext(), FUTURE_PORTFOLIO_NAME, null,
+              file, true, true, true, true, false, true, false, null);
+      futureLoader.execute();
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
   private SyntheticPortfolioGeneratorTool portfolioGeneratorTool() {
     final SyntheticPortfolioGeneratorTool tool = new SyntheticPortfolioGeneratorTool();
     tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
@@ -373,16 +410,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
   private void loadBondPortfolio() {
     final Log log = new Log("Creating example bond portfolio");
-    try {
-      // TODO: load from CSV file
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadEquityOptionPortfolio() {
-    final Log log = new Log("Creating example equity option portfolio");
     try {
       // TODO: load from CSV file
       log.done();
