@@ -307,6 +307,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
     i.setCurveName(null, "DiscountingImplied");
     i.setSurfaceName(null, "TULLETT");
+    i.setForwardCurveName("model/forex/forward", "DEFAULT");
     return i;
   }
 

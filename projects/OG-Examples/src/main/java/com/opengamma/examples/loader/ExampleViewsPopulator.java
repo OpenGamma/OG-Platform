@@ -40,6 +40,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOB
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.AUD_SWAP_PORFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.EUR_SWAP_PORTFOLIO_NAME;
+import static com.opengamma.examples.tool.ExampleDatabasePopulator.FX_FORWARD_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.MIXED_CMS_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME;
@@ -73,6 +74,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -165,6 +167,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     storeViewDefinition(getATMSwaptionViewDefinition(MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME, "Swaption Black Pricing View"));
     storeViewDefinition(getSABRExtrapolationViewDefinition(MIXED_CMS_PORTFOLIO_NAME));
     storeViewDefinition(getEURFixedIncomeViewDefinition(EUR_SWAP_PORTFOLIO_NAME, "EUR Swap Desk"));
+    storeViewDefinition(getFXForwardViewDefinition(FX_FORWARD_PORTFOLIO_NAME, "FX Forward View"));
   }
 
   private ViewDefinition getEquityViewDefinition(final String portfolioName) {
@@ -548,6 +551,31 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalConfig.addPortfolioRequirement(FutureSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
         ValueProperties.with(CURVE, "Forward6M").with(CURVE_CALCULATION_CONFIG, curveConfig).get());
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
+    return viewDefinition;
+  }
+
+  private ViewDefinition getFXForwardViewDefinition(final String portfolioName, final String viewName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration calculationConfig1 = new ViewCalculationConfiguration(viewDefinition, "FX Implied Curves");
+    final ViewCalculationConfiguration calculationConfig2 = new ViewCalculationConfiguration(viewDefinition, "FX Forward Points");
+    calculationConfig1.addPortfolioRequirement(FXForwardSecurity.SECURITY_TYPE, PRESENT_VALUE,
+        ValueProperties.with(CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
+        .with(CURRENCY, Currency.USD.getCode()).get());
+    calculationConfig2.addPortfolioRequirement(FXForwardSecurity.SECURITY_TYPE, PRESENT_VALUE,
+        ValueProperties.with(CALCULATION_METHOD, CalculationPropertyNamesAndValues.FORWARD_POINTS)
+        .with(CURRENCY, Currency.USD.getCode()).get());
+    calculationConfig1.addPortfolioRequirement(FXForwardSecurity.SECURITY_TYPE, FX_CURRENCY_EXPOSURE,
+        ValueProperties.with(CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING).get());
+    calculationConfig2.addPortfolioRequirement(FXForwardSecurity.SECURITY_TYPE, FX_CURRENCY_EXPOSURE,
+        ValueProperties.with(CALCULATION_METHOD, CalculationPropertyNamesAndValues.FORWARD_POINTS).get());
+    viewDefinition.addViewCalculationConfiguration(calculationConfig1);
+    viewDefinition.addViewCalculationConfiguration(calculationConfig2);
     return viewDefinition;
   }
 
