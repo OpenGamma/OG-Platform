@@ -50,7 +50,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.GBP, Currency.EUR), 1.2));
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY), 100.));
     final ExerciseType european = new EuropeanExerciseType();
-    final Random rng = new Random();
+    final Random rng = new Random(1237);
     final ZonedDateTime date = DateUtils.getUTCDate(2015, 2, 1);
     for (int i = 0; i < 100; i++) {
       final int n = rng.nextInt(6);

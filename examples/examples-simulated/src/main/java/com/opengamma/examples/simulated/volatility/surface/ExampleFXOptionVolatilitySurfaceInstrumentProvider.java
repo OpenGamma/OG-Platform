@@ -18,16 +18,23 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Generates OG synthetic tickers for FX volatility surfaces.
  */
-//TODO Pair<Number, FXVolQuoteType> needs to be replaced with a richer data structure that has methods getATM(), getDeltas(), getRiskReversal(int delta), getButterfly(int delta)
 public class ExampleFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
+  /** The ticker scheme */
   private static final ExternalScheme SCHEME = ExternalSchemes.OG_SYNTHETIC_TICKER;
+  /** The prefix */
+  private final String _fxPrefix; 
+  /** The postfix */
+  private final String _postfix; 
+  /** The data field name */
+  private final String _dataFieldName; 
 
-  private final String _fxPrefix; //expecting something like USDJPY
-  private final String _postfix; //expecting Curncy
-  private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE
-
+  /**
+   * @param fxPrefix The prefix, not null
+   * @param postfix The postfix, not null
+   * @param dataFieldName The data field name, not null
+   */
   public ExampleFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String postfix, final String dataFieldName) {
     ArgumentChecker.notNull(fxPrefix, "fx prefix");
     ArgumentChecker.notNull(postfix, "postfix");
@@ -37,10 +44,18 @@ public class ExampleFXOptionVolatilitySurfaceInstrumentProvider implements Surfa
     _dataFieldName = dataFieldName;
   }
 
+  /**
+   * Gets the prefix.
+   * @return the prefix
+   */
   public String getFXPrefix() {
     return _fxPrefix;
   }
 
+  /**
+   * Gets the postfix.
+   * @return the postfix
+   */
   public String getPostfix() {
     return _postfix;
   }
