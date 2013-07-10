@@ -28,7 +28,7 @@ cd "${BASEDIR}" || exit 1
 . ${SCRIPTDIR}/java-utils.sh
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 
-if [ ! -f "${BASEDIR}"/data/db/hsqldb/example-db.properties ]; then
+if [ ! -f "${BASEDIR}"/data/masterdb/hsqldb/example-db.properties ]; then
   if [ -x ${SCRIPTDIR}/init-${PROJECT}-db.sh ]; then
     ${SCRIPTDIR}/init-${PROJECT}-db.sh || exit 1
   else
