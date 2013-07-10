@@ -12,6 +12,9 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class ConnectionUnavailableException extends OpenGammaRuntimeException {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -1122607839250772942L;
+
   /**
    * @param message The error message
    */
@@ -26,4 +29,5 @@ public class ConnectionUnavailableException extends OpenGammaRuntimeException {
   public ConnectionUnavailableException(String message, Throwable cause) {
     super(message, cause);
   }
+
 }

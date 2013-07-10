@@ -50,7 +50,7 @@ public class DividendYieldCalculator implements NormalizationRule {
       spot = lkv.getDouble(MarketDataRequirementNames.MARKET_VALUE);
     }
 
-    if (spot != null && annualdividend != null && spot != 0.0) {
+    if (spot != null && spot != 0.0) {
       final Double dividendYield = annualdividend / spot;
       msg.add(MarketDataRequirementNames.DIVIDEND_YIELD, dividendYield);
       return msg;
