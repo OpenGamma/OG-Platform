@@ -34,6 +34,8 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -390,4 +392,22 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     valuesChanged(subscriptions);
   }
 
+  /**
+   * Reattempts subscriptions for any data identified by the specified schemes. If a data provider becomes available
+   * this method will be invoked with the schemes handled by the provider. This gives this class the opportunity
+   * to reattempt previously failed subscriptions.
+   * @param schemes The schemes for which market data subscriptions should be reattempted.
+   */
+  /* package */ void resubscribe(Set<ExternalScheme> schemes) {
+    Set<ValueSpecification> valueSpecs = Sets.newHashSet();
+    for (ValueSpecification valueSpec : _allSubscriptions.keySet()) {
+      LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpec);
+      for (ExternalId id : liveDataSpec.getIdentifiers()) {
+        if (schemes.contains(id.getScheme())) {
+          valueSpecs.add(valueSpec);
+        }
+      }
+    }
+    subscribe(valueSpecs);
+  }
 }

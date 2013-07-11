@@ -56,7 +56,7 @@ import com.opengamma.util.ArgumentChecker;
    * with properties.
    * 
    * @param properties the properties, not null
-   * @return the original live data specification
+   * @return the original live data specification, not null
    */
   public static LiveDataSpecification getLiveDataSpecification(final ValueSpecification valueSpec) {
     final String normalizer = valueSpec.getProperty(NORMALIZATION_PROPERTY);
