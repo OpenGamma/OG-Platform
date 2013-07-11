@@ -82,11 +82,11 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    */
   public static final String EUR_SWAP_PORTFOLIO_NAME = "EUR Fixed Income Portfolio";
   /**
-   * Mixed currency swaption portfolio
+   * The name of a mixed currency swaption portfolio
    */
   public static final String MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME = "Swaption Portfolio";
   /**
-   * FX forward portfolio.
+   * The name of a FX forward portfolio.
    */
   public static final String FX_FORWARD_PORTFOLIO_NAME = "FX Forward Portfolio";
   /**
@@ -97,7 +97,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * Futures portfolio
    */
   public static final String FUTURE_PORTFOLIO_NAME = "Futures Portfolio";
-
+  /**
+   * The name of an ER future portfolio.
+   */
+  public static final String ER_PORTFOLIO_NAME = "ER Portfolio";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
@@ -145,6 +148,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadSwaptionPortfolio();
     loadEURFixedIncomePortfolio();
     loadFXForwardPortfolio();
+    loadERFuturePortfolio();
     loadFXImpliedCurveCalculationConfigurations();
     loadViews();
     loadFunctionConfigurations();
@@ -406,6 +410,16 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
+  private void loadERFuturePortfolio() {
+    Log log = new Log("Creating example ER future portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), ER_PORTFOLIO_NAME, "ERFutureForCurve", true, null);
+      log.done();
+    } catch (RuntimeException t) {
+      log.fail(t);
+    }
+  }
+  
   private void loadBondPortfolio() {
     final Log log = new Log("Creating example bond portfolio");
     try {

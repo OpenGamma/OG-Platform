@@ -86,10 +86,7 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
     return _spotPrefix;
   }
   
-  /**
-   * Gets the data field name
-   * @return The data field name
-   */
+  @Override
   public String getDataFieldName() {
     return _dataFieldName;
   }
@@ -101,27 +98,18 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
   public String getSpotName() {
     return _spotName;
   }
-  
-  /**
-   * Gets the spot identifier.
-   * @return the spot identifier
-   */
+
+  @Override
   public ExternalId getSpotInstrument() {
     return _spotId;
   }
-  
-  /**
-   * Gets the market data field.
-   * @return the market data field
-   */
+
+  @Override
   public String getMarketDataField() {
     return DATA_FIELD;
   }
-  
-  /**
-   * Gets the data field type.
-   * @return the data field type
-   */
+
+  @Override
   public DataFieldType getDataFieldType() {
     return FIELD_TYPE;
   }

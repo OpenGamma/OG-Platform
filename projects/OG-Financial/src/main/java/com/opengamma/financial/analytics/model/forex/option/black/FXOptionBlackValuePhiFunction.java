@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -29,6 +32,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -44,6 +49,8 @@ import com.opengamma.util.tuple.DoublesPair;
  *
  */
 public class FXOptionBlackValuePhiFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackValuePhiFunction.class);
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -77,8 +84,11 @@ public class FXOptionBlackValuePhiFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY);
+    return FinancialSecurityTypes.FX_OPTION_SECURITY
+        .or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY);
   }
 
   @Override
@@ -136,6 +146,30 @@ public class FXOptionBlackValuePhiFunction extends AbstractFunction.NonCompiledI
     return Sets.newHashSet(sensitivitiesRequirement, pairQuoteRequirement);
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String currencyPairConfigName = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification specification = entry.getKey();
+      if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
+        currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
+        break;
+      }
+    }
+    final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
+    if (baseQuotePair == null) {
+      s_logger.error("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
+      return null;
+    }
+    final String resultCurrency = getResultCurrency(target, baseQuotePair);
+    final ValueProperties.Builder properties = getResultProperties(resultCurrency);
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VALUE_PHI, target.toSpecification(), properties.get()));
+  }
+
   private ValueProperties.Builder getResultProperties() {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
@@ -148,6 +182,20 @@ public class FXOptionBlackValuePhiFunction extends AbstractFunction.NonCompiledI
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ValuePropertyNames.CURRENCY);
+  }
+
+  private ValueProperties.Builder getResultProperties(final String currency) {
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .withAny(FXOptionBlackFunction.PUT_CURVE)
+        .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+        .withAny(FXOptionBlackFunction.CALL_CURVE)
+        .withAny(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .with(ValuePropertyNames.CURRENCY, currency);
   }
 
   private ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
