@@ -5,26 +5,14 @@ PUSHD %~dp0\..
 
 set BASEDIR=%cd%
 set SCRIPTDIR=%BASEDIR%\scripts
-set PROJECT=examples-simulated
-set PROJECTJAR=%PROJECT%.jar
 set LOGBACK_CONFIG=jetty-logback.xml
 set CONFIG=config\fullstack\fullstack-examplessimulated-bin.properties
+set MEM_OPTS=-Xms512m -Xmx1024m -XX:MaxPermSize=256M
+set GC_OPTS=-XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing
 
 SETLOCAL EnableDelayedExpansion
-SET CLASSPATH="config;%PROJECTJAR%;lib\*
- for %%i in (lib/*.zip) do (
-   set CLASSPATH=!CLASSPATH!;lib/%%i
- )
-set CLASSPATH=!CLASSPATH!"
 
 IF NOT EXIST %BASEDIR%\data\masterdb\hsqldb\example-db.properties goto :nodb 
-
-IF "%JAVA_HOME%" == "" (
-  ECHO Warning: JAVA_HOME is not set
-  SET JAVACMD=java.exe
-) ELSE (
-  SET JAVACMD=!JAVA_HOME!\bin\java.exe
-)
 
 IF "%1"=="start" goto :start
 IF "%1"=="debug" goto :start
@@ -42,12 +30,10 @@ ECHO Exiting immediately...
 GOTO :exit
 
 :start
-"%JAVACMD%" ^
-  -Xms512m -Xmx1024m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC ^
-  -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing ^
+CALL "%~dp0\project-utils.bat"
+
+CALL "%~dp0\run-tool.bat" ^
   -Dlogback.configurationFile=%LOGBACK_CONFIG% ^
-        -Dcommandmonitor.secret=OpenGamma ^
-  -cp %CLASSPATH% ^
   com.opengamma.component.OpenGammaComponentServer ^
   %CONFIG%
 GOTO :exit
