@@ -10,5 +10,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.opengamma.examples.bloomberg.ExamplesBloombergComponentServerDev"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="examples-bloomberg"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Dcommandmonitor.secret=OpenGamma -Xms1024m -Xmx8192m -XX:MaxPermSize=512M -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -Dcommandmonitor.secret=OpenGamma -Xms1024m -Xmx4096m -XX:MaxPermSize=512M -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing"/>
 </launchConfiguration>
