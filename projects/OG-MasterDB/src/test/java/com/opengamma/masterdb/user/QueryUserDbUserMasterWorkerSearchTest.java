@@ -91,7 +91,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_stringUserId_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setUserId("FooBar");
+    request.setUsername("FooBar");
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -100,7 +100,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_stringUserId() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setUserId("Test102");
+    request.setUsername("Test102");
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -110,7 +110,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_stringUserId_case() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setUserId("TEST102");
+    request.setUsername("TEST102");
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -120,7 +120,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_stringUserId_wildcard() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setUserId("Test1*");
+    request.setUsername("Test1*");
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -131,7 +131,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_stringUserId_wildcardCase() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setUserId("TEST1*");
+    request.setUsername("TEST1*");
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
