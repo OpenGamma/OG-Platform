@@ -7,8 +7,6 @@ package com.opengamma.engine.marketdata.manipulator;
 
 import java.util.Map;
 
-import com.opengamma.core.config.Config;
-
 /**
  * Interface for classes that can create {@link ScenarioDefinition}s.
  * TODO fudge building
@@ -18,7 +16,6 @@ import com.opengamma.core.config.Config;
  * ensures the class header is included? would the impl builders have to know about and call the methods in this
  * type's builder? presumably the builder for the most specific type is used so they'd have to.
  */
-@Config
 public interface ScenarioDefinitionFactory {
 
   /**
