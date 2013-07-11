@@ -55,6 +55,14 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   }
 
   /**
+   * @{inheritDoc}
+   */
+  @Deprecated
+  public ISDACompliantYieldCurve(final double[] t, final double[] r, final double[] rt, final double[] df,  final double offsetTime, final double offsetRT) {
+    super(t, r, rt, df, offsetTime, offsetRT);
+  }
+
+  /**
    * {@inheritDoc}
     */
   @Override

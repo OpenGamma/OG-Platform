@@ -139,7 +139,12 @@ public class ISDACompliantCurve {
     }
   }
 
-  private ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
+  /**
+   * Constructor mainly used for serialization. This takes all the intermediate calculation results to ensure
+   * a strict copy of the original. This should not be the main constructor used in the general case.
+   */
+  @Deprecated
+  public ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
     _n = t.length;
     _t = t;
     _r = r;
@@ -436,4 +441,79 @@ public class ISDACompliantCurve {
     return new ISDACompliantCurve(t, r, rt, df, 0, 0);
   }
 
+  public double[] getT() {
+    return _t;
+  }
+
+  public double[] getR() {
+    return _r;
+  }
+
+  public double[] getRt() {
+    return _rt;
+  }
+
+  public double[] getDf() {
+    return _df;
+  }
+
+  public double getOffsetTime() {
+    return _offsetTime;
+  }
+
+  public double getOffsetRT() {
+    return _offsetRT;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ISDACompliantCurve that = (ISDACompliantCurve) o;
+
+    if (_n != that._n) {
+      return false;
+    }
+    if (Double.compare(that._offsetRT, _offsetRT) != 0) {
+      return false;
+    }
+    if (Double.compare(that._offsetTime, _offsetTime) != 0) {
+      return false;
+    }
+    if (!Arrays.equals(_df, that._df)) {
+      return false;
+    }
+    if (!Arrays.equals(_r, that._r)) {
+      return false;
+    }
+    if (!Arrays.equals(_rt, that._rt)) {
+      return false;
+    }
+    if (!Arrays.equals(_t, that._t)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    result = _n;
+    result = 31 * result + (_t != null ? Arrays.hashCode(_t) : 0);
+    result = 31 * result + (_r != null ? Arrays.hashCode(_r) : 0);
+    result = 31 * result + (_rt != null ? Arrays.hashCode(_rt) : 0);
+    result = 31 * result + (_df != null ? Arrays.hashCode(_df) : 0);
+    temp = Double.doubleToLongBits(_offsetTime);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_offsetRT);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 }

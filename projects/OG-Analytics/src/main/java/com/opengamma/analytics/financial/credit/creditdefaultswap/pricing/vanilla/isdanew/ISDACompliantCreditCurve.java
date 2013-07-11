@@ -38,6 +38,14 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
   }
 
   /**
+   * @{inheritDoc}
+   */
+  @Deprecated
+  public ISDACompliantCreditCurve(double[] t, double[] r, double[] rt, double[] df,  final double offsetTime, final double offsetRT) {
+    super(t, r, rt, df, offsetTime, offsetRT);
+  }
+
+  /**
    * Get the zero hazard rate at time t (note: this simply a pseudonym for getZeroRate)
    * @param t time 
    * @return zero hazard rate at time t

@@ -18,6 +18,13 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpT
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCreditCurveFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantBucketedCS01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCleanPresentValueCDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantDirtyPresentValueCDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantParallelCS01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantUpfrontAmountCDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.ISDAHazardRateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSHazardRateCurveFunction;
@@ -418,6 +425,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACDSOptionHazardRateCurveFunction.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameHazardRateCurveFunction.class));
     functions.add(functionConfiguration(BucketedSpreadCurveFunction.class));
+    functions.add(functionConfiguration(ISDACompliantCreditCurveFunction.class));
     functions.add(functionConfiguration(ISDAParallelCS01VanillaCDSFunction.class));
     functions.add(functionConfiguration(ISDABucketedCS01VanillaCDSFunction.class));
     functions.add(functionConfiguration(ISDACleanPresentValueVanillaCDSFunction.class));
@@ -450,6 +458,13 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACDXAsSingleNameRR01Function.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameJumpToDefaultFunction.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNamePresentValueFunction.class));
+
+    functions.add(functionConfiguration(ISDACompliantYieldCurveFunction.class));
+    functions.add(functionConfiguration(ISDACompliantCleanPresentValueCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantDirtyPresentValueCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantParallelCS01CDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantBucketedCS01CDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantUpfrontAmountCDSFunction.class));
   }
 
 }
