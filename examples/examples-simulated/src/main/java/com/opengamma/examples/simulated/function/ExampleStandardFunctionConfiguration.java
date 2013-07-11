@@ -18,6 +18,7 @@ import com.opengamma.web.spring.StandardFunctionConfiguration;
 /**
  * Constructs a standard function repository.
  */
+@SuppressWarnings("deprecation")
 public class ExampleStandardFunctionConfiguration extends StandardFunctionConfiguration {
 
   /**
