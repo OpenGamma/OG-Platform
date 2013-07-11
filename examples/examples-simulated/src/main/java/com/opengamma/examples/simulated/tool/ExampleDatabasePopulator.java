@@ -115,11 +115,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     s_logger.info("Populating example database");
     try {
       new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, ToolContext.class);
-      System.exit(0);
     } catch (final Exception ex) {
       s_logger.error("Caught exception", ex);
       ex.printStackTrace();
-      System.exit(1);
     }
   }
 

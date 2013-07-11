@@ -12,11 +12,11 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.ClassUtils;
+import org.springframework.core.io.Resource;
 
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.scripts.Scriptable;
+import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.db.tool.DbTool;
 
 /**
@@ -28,8 +28,6 @@ public class ExampleDatabaseCreator {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabaseCreator.class);
 
-  /** Schema. */
-  private static final String CONFIG_FILE = "toolcontext/toolcontext-examplessimulated.properties";
   /** Shared database URL. */
   private static final String KEY_SHARED_URL = "db.standard.url";
   /** Shared database user name. */
@@ -48,12 +46,23 @@ public class ExampleDatabaseCreator {
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
+   * <p>
+   * If the command line is empty, the "development" configuration file is started.
+   * This file is intended for use with an IDE and a checked out source code tree.
+   * It relies on the OG-Web directory being relative to Examples-Simulated in the file
+   * system as per a standard checkout of OG-Platform.
    *
    * @param args the arguments, unused
    */
-  public static void main(final String[] args) { // CSIGNORE
+  public static void main(String[] args) { // CSIGNORE
+    if (args.length == 0) {
+      // if no command line arguments, then use default arguments suitable for development in an IDE
+      // the first argument is for verbose startup, to aid understanding
+      // the second argument defines the start of a chain of properties files providing the configuration
+      args = new String[] {"classpath:/toolcontext/toolcontext-examplessimulated.properties"};
+    }
     try {
-      new ExampleDatabaseCreator().run(CONFIG_FILE);
+      new ExampleDatabaseCreator().run(args[0]);
       System.exit(0);
     } catch (final Exception ex) {
       s_logger.error("Caught exception", ex);
@@ -64,7 +73,7 @@ public class ExampleDatabaseCreator {
 
   //-------------------------------------------------------------------------
   private void run(String configFile) throws Exception {
-    ClassPathResource res = new ClassPathResource(configFile, ClassUtils.getDefaultClassLoader());
+    Resource res = ResourceUtils.createResource(configFile);
     Properties props = new Properties();
     try (InputStream in = res.getInputStream()) {
       if (in == null) {
@@ -99,7 +108,7 @@ public class ExampleDatabaseCreator {
     
     // populate the database
     s_logger.warn("Populating main database...");
-    new ExampleDatabasePopulator().run("classpath:" + configFile, ToolContext.class);
+    new ExampleDatabasePopulator().run(ResourceUtils.toResourceLocator(res), ToolContext.class);
     
     s_logger.warn("Successfully created example databases");
   }
