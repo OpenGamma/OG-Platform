@@ -88,7 +88,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
 
   private Set<ValueRequirement> buildRequirements(final Map<ExternalId, VolatilityPoint> pointsById,
       final Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
-    final HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
+    final HashSet<ValueRequirement> ret = new HashSet<>();
     ret.addAll(getMarketValueReqs(pointsById.keySet()));
     ret.addAll(getMarketValueReqs(strikesById.keySet()));
     ret.addAll(getOtherRequirements());
@@ -96,7 +96,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
   }
 
   private Map<ExternalId, VolatilityPoint> getPointsById() {
-    final Map<ExternalId, VolatilityPoint> pointsById = new HashMap<ExternalId, VolatilityPoint>();
+    final Map<ExternalId, VolatilityPoint> pointsById = new HashMap<>();
 
     final Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (final VolatilityPoint point : allPoints) {
@@ -111,7 +111,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
   }
 
   private Map<ExternalId, Pair<Tenor, Tenor>> getStrikesById() {
-    final Map<ExternalId, Pair<Tenor, Tenor>> strikesById = new HashMap<ExternalId, Pair<Tenor, Tenor>>();
+    final Map<ExternalId, Pair<Tenor, Tenor>> strikesById = new HashMap<>();
 
     final Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (final VolatilityPoint point : allPoints) {
@@ -131,11 +131,11 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
 
   private Set<ValueRequirement> getOtherRequirements() {
     //TODO this
-    return new HashSet<ValueRequirement>();
+    return new HashSet<>();
   }
 
   private Set<ValueRequirement> getMarketValueReqs(final Set<ExternalId> instruments) {
-    final HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
+    final HashSet<ValueRequirement> ret = new HashSet<>();
     if (instruments != null) {
       for (final ExternalId id : instruments) {
         ret.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id));
@@ -201,10 +201,10 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
     }
 
     private VolatilityCubeData buildMarketDataMap(final ComputationTargetResolver.AtVersionCorrection targetResolver, final FunctionInputs inputs) {
-      final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
-      final HashMap<VolatilityPoint, ExternalIdBundle> dataIds = new HashMap<VolatilityPoint, ExternalIdBundle>();
-      final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<VolatilityPoint, Double>();
-      final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
+      final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<>();
+      final HashMap<VolatilityPoint, ExternalIdBundle> dataIds = new HashMap<>();
+      final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<>();
+      final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<>();
       final SnapshotDataBundle otherData = new SnapshotDataBundle();
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(targetResolver);
       for (final ComputedValue value : inputs.getAllValues()) {
@@ -215,7 +215,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
         final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
         final VolatilityPoint volatilityPoint;
         final Pair<Tenor, Tenor> strikePoint;
-        if (value.getSpecification().getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
+        if (value.getSpecification().getValueName() == MarketDataRequirementNames.MARKET_VALUE) {
           volatilityPoint = getByIdentifier(_pointsById, identifiers);
           strikePoint = getByIdentifier(_strikesById, identifiers);
         } else {

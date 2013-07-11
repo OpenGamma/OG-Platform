@@ -7,6 +7,7 @@ package com.opengamma.examples.simulated.generator;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Random;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -57,7 +58,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
   /** 6m Libor ticker */
   private static final ExternalId LIBOR_6M = ExternalSchemes.syntheticSecurityId("USDLIBORP6M");
   /** The tenors */
-  private static final Tenor[] TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS, Tenor.TEN_YEARS, Tenor.ofYears(25)};
+  private static final Tenor[] TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS, Tenor.TEN_YEARS};
   /** The strikes */
   private static final double[] STRIKES = new double[] {0.01, 0.02, 0.03};
   /** The trade date */
@@ -68,6 +69,8 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
   private static final Tenor[] RECEIVE_TENORS = new Tenor[] {Tenor.TWO_YEARS, Tenor.TEN_YEARS};
   /** The strike formatter */
   private static final DecimalFormat FORMAT = new DecimalFormat("##.##");
+  /** Random number generator */
+  private static final Random RANDOM = new Random(345);
 
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
@@ -129,8 +132,8 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     @SuppressWarnings("synthetic-access")
     private CapFloorSecurity createCapFloor(final Tenor tenor, final double strike) {
       final ZonedDateTime maturityDate = _tradeDate.plus(tenor.getPeriod());
-      final boolean payer = Math.random() < 0.5 ? true : false;
-      final boolean cap = Math.random() < 0.5 ? true : false;
+      final boolean payer = RANDOM.nextBoolean();
+      final boolean cap = RANDOM.nextBoolean();
       final String ticker = "USDISDA10" + tenor.getPeriod().toString();
       final ExternalId underlyingIdentifier = ExternalSchemes.syntheticSecurityId(ticker);
       final CapFloorSecurity security = new CapFloorSecurity(_tradeDate, maturityDate, _notional, underlyingIdentifier, strike, PeriodFrequency.SEMI_ANNUAL,
@@ -184,7 +187,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       final ZonedDateTime maturityDate = _tradeDate.plus(tenor.getPeriod());
       ExternalId iborReferenceRate;
       PeriodFrequency frequency;
-      if (Math.random() < 0.5) {
+      if (RANDOM.nextBoolean()) {
         iborReferenceRate = LIBOR_3M;
         frequency = PeriodFrequency.QUARTERLY;
       } else {
@@ -199,7 +202,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
           cmsReferenceRate, FloatingRateType.CMS);
       SwapSecurity security;
       boolean payIbor;
-      if (Math.random() < 0.5) {
+      if (RANDOM.nextBoolean()) {
         security = new SwapSecurity(_tradeDate, _tradeDate, maturityDate, COUNTERPARTY, iborLeg, cmsLeg);
         payIbor = true;
       } else {
@@ -270,8 +273,8 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     @SuppressWarnings("synthetic-access")
     private CapFloorCMSSpreadSecurity createCMSCapFloorSpread(final Tenor payTenor, final Tenor receiveTenor, final Tenor maturity, final double strike) {
       final ZonedDateTime maturityDate = _tradeDate.plus(maturity.getPeriod());
-      final boolean payer = Math.random() < 0.5 ? true : false;
-      final boolean cap = Math.random() < 0.5 ? true : false;
+      final boolean payer = RANDOM.nextBoolean();
+      final boolean cap = RANDOM.nextBoolean();
       final String payTicker = "USDISDA10" + payTenor.getPeriod().toString();
       final ExternalId payIdentifier = ExternalSchemes.syntheticSecurityId(payTicker);
       final String receiveTicker = "USDISDA10" + receiveTenor.getPeriod().toString();
