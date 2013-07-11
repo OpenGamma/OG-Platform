@@ -95,6 +95,10 @@ public class SyntheticEUConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("EUR_6M_SWAP")), "EUR_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2, simpleNameSecurityId("EURIBOR 6m"), eu, true);
 
+    // IR FUTURES
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("EUR_IR_FUTURE")), "EUR_IR_FUTURE", euriborDayCount, modified, Period.ofMonths(3),
+        2, true, null);
+
     final int publicationLagON = 0;
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EONIA"), simpleNameSecurityId("EUR EONIA")), "EUR EONIA", act360, modified, Period.ofDays(1), 0, false, eu, publicationLagON);
     // OIS - EONIA

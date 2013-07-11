@@ -43,6 +43,7 @@ import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
@@ -124,7 +125,7 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
       final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000 * (1 + RANDOM.nextInt(9)));
       final int years = 1 + RANDOM.nextInt(30);
       final ZonedDateTime maturityDate = tradeDate.plusYears(years);
-      final double rate = years * 0.0005 + RANDOM.nextDouble() / 5000;
+      final double rate = years * 0.001 + RANDOM.nextDouble() / 5000;
       final FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(ACT_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, false, rate);
       final Frequency frequency;
       final ExternalId euribor;
@@ -162,7 +163,7 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
       final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000 * (1 + RANDOM.nextInt(9)));
       final int years = 1 + RANDOM.nextInt(30);
       final ZonedDateTime maturityDate = tradeDate.plusYears(years);
-      final double rate = years * 0.0005 + RANDOM.nextDouble() / 5000;
+      final double rate = years * 0.001 + RANDOM.nextDouble() / 5000;
       final FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(ACT_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, false, rate);
       final Frequency frequency;
       if (RANDOM.nextBoolean()) {
@@ -233,13 +234,15 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
     for (int i = 0; i < N_FUTURES; i++) {
       final int n = 1 + RANDOM.nextInt(20);
       final Expiry expiry = new Expiry(startDate.plusMonths(3 * n).with(THIRD_WED_ADJUSTER));
-      final FutureSecurity security = new InterestRateFutureSecurity(expiry, "EUREX", "EUREX", CURRENCY, 2500, EURIBOR_3M, "Interest rate");
       final String letter = MONTHS.get(expiry.getExpiry().getMonth());
       final String year = Integer.toString(expiry.getExpiry().getYear() - 2000);
-      security.setName("ER" + letter + year);
+      final String code = "ER" + letter + year;
+      final FutureSecurity security = new InterestRateFutureSecurity(expiry, "EUREX", "EUREX", CURRENCY, 2500, EURIBOR_3M, "Interest rate");
+      security.setName(code);
+      security.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId(code)));
       securities[i] = security;
       amounts[i] = 50 - RANDOM.nextInt(100);
-      prices[i] = 100 - (1 * RANDOM.nextDouble()) * 2;
+      prices[i] = 1 - (1e-5 + RANDOM.nextDouble() / 100.);
     }
     return new FutureSecurityGenerator<>(securities, amounts, prices, tradeDate, "Euribor futures");
   }

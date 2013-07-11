@@ -19,7 +19,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Normalizer for synthetic data used in the example server.
@@ -32,8 +31,8 @@ public class SyntheticHistoricalDataNormalizer implements HistoricalTimeSeriesAd
   private static final Integer ONE = 1;
 
   private static final Pattern s_rates = Pattern.compile("[A-Z]{3}(CASH|SWAP|LIBOR|EURIBOR|OIS_SWAP|FRA|BB|BASIS_SWAP_.*)P[0-9]+[DMY]");
-
-  private final ConcurrentMap<String, Integer> _factors = new ConcurrentHashMap<String, Integer>();
+  private static final Pattern s_futureRates = Pattern.compile("ER(H|M|U|Z)[0-9]{2}");
+  private final ConcurrentMap<String, Integer> _factors = new ConcurrentHashMap<>();
 
   public SyntheticHistoricalDataNormalizer() {
     // Overnight rates (don't match the regex pattern looked for)
@@ -43,6 +42,7 @@ public class SyntheticHistoricalDataNormalizer implements HistoricalTimeSeriesAd
     _factors.put("TONAR", HUNDRED);
     _factors.put("TOISTOIS", HUNDRED);
     _factors.put("AUDON", HUNDRED);
+    _factors.put("ER", HUNDRED);
   }
 
   private int getFactor(final ExternalIdBundle securityIdBundle) {
@@ -55,7 +55,13 @@ public class SyntheticHistoricalDataNormalizer implements HistoricalTimeSeriesAd
     if (factor != null) {
       return factor.intValue();
     }
-    final Matcher matcher = s_rates.matcher(ticker);
+    Matcher matcher = s_rates.matcher(ticker);
+    if (matcher.matches()) {
+      s_logger.info("Using 100 for ticker {}", ticker);
+      _factors.putIfAbsent(ticker, HUNDRED);
+      return 100;
+    }
+    matcher = s_futureRates.matcher(ticker);
     if (matcher.matches()) {
       s_logger.info("Using 100 for ticker {}", ticker);
       _factors.putIfAbsent(ticker, HUNDRED);
@@ -76,7 +82,7 @@ public class SyntheticHistoricalDataNormalizer implements HistoricalTimeSeriesAd
     if (s_logger.isDebugEnabled()) {
       s_logger.debug("Dividing timeseries by {}", factor);
     }
-    return new SimpleHistoricalTimeSeries(timeSeries.getUniqueId(), (LocalDateDoubleTimeSeries) timeSeries.getTimeSeries().divide(factor));
+    return new SimpleHistoricalTimeSeries(timeSeries.getUniqueId(), timeSeries.getTimeSeries().divide(factor));
   }
 
   @Override

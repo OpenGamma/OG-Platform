@@ -30,7 +30,8 @@ public final class NormalizationRules {
     
     rules.add(new FieldNameChange("BID", MarketDataRequirementNames.BID));
     rules.add(new FieldNameChange("ASK", MarketDataRequirementNames.ASK));
-    rules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.LAST));
+    rules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.MARKET_VALUE));
+//    rules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.LAST));
     rules.add(new FieldNameChange("PX_SETTLE", MarketDataRequirementNames.SETTLE_PRICE));
     rules.add(new FieldNameChange("VOLUME", MarketDataRequirementNames.VOLUME));
     rules.add(new FieldNameChange("OPT_IMPLIED_VOLATILITY_BID_RT", MarketDataRequirementNames.BID_IMPLIED_VOLATILITY));
