@@ -6,3 +6,9 @@
 .OG-form .og-scenario select {
     width: 100%!important;
 }
+.og-scenario-or {
+    font-weight: bold;
+    padding-left: 17px;
+    vertical-align: top;
+    width: 30px;
+}

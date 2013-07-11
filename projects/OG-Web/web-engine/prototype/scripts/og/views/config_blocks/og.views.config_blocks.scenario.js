@@ -14,10 +14,14 @@ $.register_module({
                 extras: extras,
                 module: 'og.views.forms.view-definition-scenario_tash',
                 children: [
-                    new og.common.util.ui.Dropdown({
-                        form: form, resource: 'configs', index: index, placeholder: 'Please select....',
-                        rest_options : {type:"ScenarioDefinition"}, value: data, fields: [0, 1]
-                    })
+                    new og.common.util.ui.Dropdown({ form: form, resource: 'configs', index: index,
+                            placeholder: 'Please select....',  value: data, fields: [0, 1],
+                            rest_options : {type: 'ScenarioDefinition' }
+                        }),
+                    new og.common.util.ui.Dropdown({ form: form, resource: 'configs', index: index,
+                            placeholder: 'Please select....',  value: data, fields: [0, 1],
+                            rest_options : {type: 'ScenarioDslScript' }
+                        })
                 ]
             });
         };
