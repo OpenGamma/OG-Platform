@@ -13,6 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,6 +25,7 @@ import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.MessageIterator;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
@@ -31,8 +33,12 @@ import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.SessionProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.engine.marketdata.live.MarketDataAvailabilityNotification;
 import com.opengamma.livedata.server.AbstractEventDispatcher;
+import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 import net.sf.ehcache.CacheManager;
 
@@ -63,18 +69,26 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   private volatile RejectedDueToSubscriptionLimitEvent _lastLimitRejection; // = null
   /** Task for (re)connecting to Bloomberg. */
   private BloombergLiveDataServer.ConnectTask _connectTask;
+  /** For sending a notification message that Bloomberg data is available. */
+  private final FudgeMessageSender _availabilityNotificationSender;
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param bloombergConnector  the connector, not null
    * @param referenceDataProvider  the reference data provider, not null
    * @param cacheManager  the cache manager, not null
+   * @param availabilityNotificationSender For sending notifications when Bloomberg data becomes available
    */
-  public BloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+  public BloombergLiveDataServer(BloombergConnector bloombergConnector,
+                                 ReferenceDataProvider referenceDataProvider,
+                                 CacheManager cacheManager,
+                                 FudgeMessageSender availabilityNotificationSender) {
     super(cacheManager);
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
+    ArgumentChecker.notNull(availabilityNotificationSender, "availabilityNotificationSender");
+    _availabilityNotificationSender = availabilityNotificationSender;
     _bloombergConnector = bloombergConnector;
     _referenceDataProvider = referenceDataProvider;
     _sessionProvider = new SessionProvider(_bloombergConnector, BloombergConstants.MKT_DATA_SVC_NAME);
@@ -241,6 +255,16 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
             connect();
             startExpirationManager();
             reestablishSubscriptions();
+            MarketDataAvailabilityNotification notification = new MarketDataAvailabilityNotification(
+                ImmutableSet.of(
+                    ExternalSchemes.BLOOMBERG_BUID,
+                    ExternalSchemes.BLOOMBERG_BUID_WEAK,
+                    ExternalSchemes.BLOOMBERG_TCM,
+                    ExternalSchemes.BLOOMBERG_TICKER,
+                    ExternalSchemes.BLOOMBERG_TICKER_WEAK));
+            FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+            s_logger.info("Sending notification that Bloomberg is available: {}", notification);
+            _availabilityNotificationSender.send(notification.toFudgeMsg(serializer));
           } catch (Exception e) {
             s_logger.warn("Failed to connect to Bloomberg", e);
           }
