@@ -13,9 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
-import com.opengamma.component.ComponentManager;
+import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.db.tool.DbTool;
 
+/**
+ * Test utilities.
+ */
 public final class DBTestUtils {
  
   private static final String DB_PASSWORD_KEY = "db.standard.password";
@@ -54,13 +57,13 @@ public final class DBTestUtils {
   }
   
   public static Properties loadProperties(String configResourceLocation) throws IOException {
-    Resource resource = ComponentManager.createResource(configResourceLocation);
+    Resource resource = ResourceUtils.createResource(configResourceLocation);
     Properties props = new Properties();
     props.load(resource.getInputStream());
     
     String nextConfiguration = props.getProperty("MANAGER.NEXT.FILE");
     if (nextConfiguration != null) {
-      resource = ComponentManager.createResource(nextConfiguration);
+      resource = ResourceUtils.createResource(nextConfiguration);
       Properties parentProps = new Properties();
       parentProps.load(resource.getInputStream());
       for (String key : props.stringPropertyNames()) {
