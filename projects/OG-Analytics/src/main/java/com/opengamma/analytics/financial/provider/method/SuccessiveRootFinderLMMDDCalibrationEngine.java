@@ -22,7 +22,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Specific calibration engine for the Hull-White one factor model with cap/floor.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends SuccessiveRootFinderCalibrationEngine<DATA_TYPE> {
+public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends SuccessiveRootFinderCalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
    * The list of the last index in the Ibor date for each instrument.
