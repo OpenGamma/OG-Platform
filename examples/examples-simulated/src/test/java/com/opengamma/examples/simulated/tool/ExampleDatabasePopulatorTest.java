@@ -28,7 +28,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.INTEGRATION)
 public class ExampleDatabasePopulatorTest {
 
-  private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/toolcontext-examplessimulated.properties";
+  private static final String CONFIG_RESOURCE_LOCATION = "classpath:/toolcontext/toolcontext-examplessimulated.properties";
 
 //  @BeforeMethod
 //  public void setUp() throws IOException {

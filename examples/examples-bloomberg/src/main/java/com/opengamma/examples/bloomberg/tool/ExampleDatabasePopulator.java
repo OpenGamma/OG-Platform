@@ -58,7 +58,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   /**
    * Example configuration for tools.
    */
-  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-examplesbloomberg.properties";
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:/toolcontext/toolcontext-examplesbloomberg.properties";
   /**
    * The name of the generated example FX portfolio.
    */
@@ -73,10 +73,8 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
 
   //-------------------------------------------------------------------------
-
   /**
-   * Main method to run the tool.
-   * No arguments are needed.
+   * Main method to run the tool. No arguments are needed.
    *
    * @param args  the arguments, unused
    */

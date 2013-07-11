@@ -52,7 +52,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * The properties file.
    */
-  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-example.properties";
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:/toolcontext/toolcontext-examplessimulated.properties";
   /**
    * The name of the multi-currency swap portfolio.
    */
@@ -109,7 +109,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool. No arguments are needed.
    *
-   * @param args the arguments, unused
+   * @param args  the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
