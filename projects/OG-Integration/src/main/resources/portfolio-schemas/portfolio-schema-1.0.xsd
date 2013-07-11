@@ -46,23 +46,51 @@
     </xs:annotation>
   </xs:element>
 
-  <xs:element name="fxDigitalOptionTrade" type="fxDigitalOptionTrade"/>
+  <xs:element name="fxDigitalOptionTrade" type="fxDigitalOptionTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing an fx digital option trade</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
-  <xs:element name="fxForwardTrade" type="fxForwardTrade"/>
+  <xs:element name="fxForwardTrade" type="fxForwardTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing an fx forward trade.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <xs:element name="fxExpiry" type="fxExpiry"/>
-  <xs:element name="swaptionTrade" type="swaptionTrade"/>
+  <xs:element name="swaptionTrade" type="swaptionTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing a swaption trade.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
-  <xs:element name="otcEquityIndexOptionTrade" type="otcEquityIndexOptionTrade"/>
+  <xs:element name="otcEquityIndexOptionTrade" type="otcEquityIndexOptionTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing an oct equity index option trade.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
-  <xs:element name="listedSecurityTrade" type="listedSecurityTrade"/>
+  <xs:element name="listedSecurityTrade" type="listedSecurityTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing a listed security trade.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <xs:element name="securityDefinition" type="listedSecurityDefinition"/>
   <xs:element name="optionSecurity" type="optionSecurityDefinition"/>
   <xs:element name="futureSecurity" type="futureSecurityDefinition"/>
   <xs:element name="futureOptionSecurity" type="futureOptionSecurityDefinition"/>
-  <xs:element name="fixedLeg" type="fixedLeg"/>
-  <xs:element name="floatingLeg" type="floatingLeg"/>
+  <xs:element name="fixedLeg" type="fixedLeg">
+    <xs:annotation>
+      <xs:documentation>The fixed leg of a swap</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element name="floatingLeg" type="floatingLeg">
+    <xs:annotation>
+      <xs:documentation>The floating leg of a swap</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
 
   <xs:complexType name="ogPortfolio">
