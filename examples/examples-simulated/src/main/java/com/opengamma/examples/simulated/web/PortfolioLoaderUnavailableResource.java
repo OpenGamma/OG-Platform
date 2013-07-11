@@ -24,6 +24,7 @@ public class PortfolioLoaderUnavailableResource {
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.TEXT_PLAIN)
   public Response portfolioLoaderUnavailable() {
-    return Response.ok("Portfolio upload requires Bloomberg data  \nPlease see OG-BloombergExamples").build();
+    return Response.ok("Portfolio upload requires Bloomberg data  \nPlease see Examples-Bloomberg").build();
   }
+
 }
