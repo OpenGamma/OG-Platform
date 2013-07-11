@@ -6,6 +6,7 @@
 package com.opengamma.web.valuerequirementname;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -74,7 +75,9 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
     for (String className : valueRequirementNameClasses) {
       try {
         for (Field field : Class.forName(className.trim()).getDeclaredFields()) {
-          list.add((String) field.get(null));
+          if (Modifier.isPublic(field.getModifiers())) {
+            list.add((String) field.get(null));
+          }
         }
       } catch (Exception ex) {
         s_logger.info("Could not read in value requirement names: " + ex.getMessage());
