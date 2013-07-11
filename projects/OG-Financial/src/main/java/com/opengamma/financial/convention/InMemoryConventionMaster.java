@@ -11,6 +11,7 @@ import java.util.Collection;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.percurrency.JPConventions;
 import com.opengamma.financial.convention.percurrency.USConventions;
 import com.opengamma.financial.convention.percurrency.ZAConventions;
 import com.opengamma.id.ExternalId;
@@ -39,6 +40,7 @@ public class InMemoryConventionMaster implements ConventionMaster {
    */
   protected void init() {
     addFXConventions();
+    JPConventions.addFixedIncomeInstrumentConventions(this);
     USConventions.addFixedIncomeInstrumentConventions(this);
     ZAConventions.addFixedIncomeInstrumentConventions(this);
   }

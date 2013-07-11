@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -49,7 +49,7 @@ public final class CouponOISDiscountingMethod {
    * @param multicurve The multi-curve provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount presentValue(final CouponON coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Market");
     final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor()
@@ -65,7 +65,7 @@ public final class CouponOISDiscountingMethod {
    * @param multicurve The multi-curve provider.
    * @return The present value curve sensitivities.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponON coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curves");
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -94,7 +94,7 @@ public final class CouponOISDiscountingMethod {
    * @param multicurve The multi-curve provider.
    * @return The par rate.
    */
-  public double parRate(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
+  public double parRate(final CouponON coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curves");
     return multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
@@ -106,7 +106,7 @@ public final class CouponOISDiscountingMethod {
    * @param multicurve The multi-curve provider.
    * @return The sensitivities.
    */
-  public MultipleCurrencyMulticurveSensitivity parRateCurveSensitivity(final CouponOIS coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity parRateCurveSensitivity(final CouponON coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curves");
     // Backward sweep.

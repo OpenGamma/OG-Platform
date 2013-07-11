@@ -16,11 +16,11 @@ $.register_module({
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler, new_name = '',
-                form = new Form({
-                    module: 'og.views.forms.config_default_tash',
-                    data: {name: null}, selector: selector,
+                form = new Form({module: 'og.views.forms.config_default_tash', data: {name: null}, selector: selector,
                     extras: {name: orig_name, raw: is_new ? '<xml />' : master},
-                    processor: function (data) {new_name = data.name;}
+                    processor: function (data) {
+                        new_name = data.name;
+                    }
                 }), form_id = '#' + form.id;
             var save_resource = function (result) {
                 var as_new = result.extras.as_new;
@@ -45,8 +45,12 @@ $.register_module({
                 editor.getSession().setMode('ace/mode/xml');
                 editor.getSession().setValue(textarea.val());
                 og.common.gadgets.manager.register({
-                    alive: function () {return !!$('.' + id).length},
-                    resize: function () {editor.resize()}
+                    alive: function () {
+                        return !!$('.' + id).length;
+                    },
+                    resize: function () {
+                        editor.resize();
+                    }
                 });
             }).on('keyup', form_id + ' [name=name]', function (event) {
                 $('.OG-layout-admin-details-center .og-js-name').text($(event.target).val());

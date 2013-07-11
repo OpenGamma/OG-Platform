@@ -198,11 +198,9 @@ public class PortfolioLoaderResource {
       return SheetFormat.CSV;
     } else if (fileName.toLowerCase().endsWith("xls")) {
       return SheetFormat.XLS;
-    } else if (fileName.toLowerCase().endsWith("xlsx")) {
-      return SheetFormat.XLSX;
   }
 
-    Response response = Response.status(Response.Status.BAD_REQUEST).entity("Portfolio upload only supports CSV " +
+    Response response = Response.status(Response.Status.BAD_REQUEST).entity("Portfolio upload only supports CSV/XLS" +
                                                                                 "files and Excel worksheets").build();
     throw new WebApplicationException(response);
   }

@@ -459,6 +459,10 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   private ForexForward getFXForward(final Currency ccy1, final Currency ccy2, final double paymentTime, final double spotFX, final double forwardFX, final String curveName1, final String curveName2) {
     final PaymentFixed paymentCurrency1 = new PaymentFixed(ccy1, paymentTime, 1, curveName1);
     final PaymentFixed paymentCurrency2 = new PaymentFixed(ccy2, paymentTime, -1. / forwardFX, curveName2);
-    return new ForexForward(paymentCurrency1, paymentCurrency2, spotFX);
+    try {
+      return new ForexForward(paymentCurrency1, paymentCurrency2, spotFX);
+    } catch(final IllegalArgumentException e) {
+      throw e;
+    }
   }
 }

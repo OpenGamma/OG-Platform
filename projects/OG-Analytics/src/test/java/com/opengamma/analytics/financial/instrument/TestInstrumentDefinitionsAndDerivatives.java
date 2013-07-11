@@ -90,8 +90,8 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -166,8 +166,8 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final CouponIborRatchetDefinition COUPON_IBOR_RATCHET = new CouponIborRatchetDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.01, NOTIONAL,
       SETTLE_DATE.plusMonths(1), IBOR_INDEX_1, new double[] {1, 2, 3 }, new double[] {3, 4, 5 }, new double[] {5, 6, 7 }, C);
   public static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1, C), CMS_INDEX, C);
-  public static final CouponOISSimplifiedDefinition COUPON_OIS_SIMPLIFIED = CouponOISSimplifiedDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusDays(28), NOTIONAL, 2, C);
-  public static final CouponOISDefinition COUPON_OIS = CouponOISDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusYears(1), NOTIONAL, SPOT_LAG, C);
+  public static final CouponONSimplifiedDefinition COUPON_OIS_SIMPLIFIED = CouponONSimplifiedDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusDays(28), NOTIONAL, 2, C);
+  public static final CouponONDefinition COUPON_OIS = CouponONDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusYears(1), NOTIONAL, SPOT_LAG, C);
 
   public static final CouponInflationZeroCouponMonthlyDefinition INFLATION_ZERO_COUPON = CouponInflationZeroCouponMonthlyDefinition.from(SETTLE_DATE, SETTLE_DATE.plusMonths(3), NOTIONAL, INDEX_PRICE,
       100, 1, 1, true);

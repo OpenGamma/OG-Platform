@@ -134,7 +134,7 @@ public class ParellelCS01Test {
       Arrays.fill(flatSpreads, FLAT_SPREADS[i] / 10000);
       double cs01 = NOTIONAL / 10000 * cal.parallelCreditDV01(cds, fracSpread, PriceType.DIRTY, YIELD_CURVE, curveCDSs, flatSpreads, 1e-4, BumpType.ADDITIVE);
     //  System.out.println(MATURITIES[i].toString() + "\t" + cs01);
-      assertEquals(MATURITIES[i].toString(), CS01[i], cs01, 1e-8); //notional is 1e6, so this is a 1e-14 match
+      assertEquals(MATURITIES[i].toString(), CS01[i], cs01, 1e-14*NOTIONAL); 
     }
 
   }

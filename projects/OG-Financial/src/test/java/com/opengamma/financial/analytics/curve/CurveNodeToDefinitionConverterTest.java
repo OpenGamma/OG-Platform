@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
@@ -34,6 +34,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.holiday.Holiday;
@@ -137,7 +138,8 @@ public class CurveNodeToDefinitionConverterTest {
   private static final OvernightIndexConvention OVERNIGHT = new OvernightIndexConvention("USD Overnight", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Overnight")),
       ACT_360, 1, Currency.USD, NYLON);
   private static final FXSpotConvention FX_SPOT = new FXSpotConvention("FX Spot", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Spot")), 1, US);
-  private static final FXForwardAndSwapConvention FX_FORWARD = new FXForwardAndSwapConvention("FX Forward", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Forward")), FX_SPOT_ID, MODIFIED_FOLLOWING, false, US);
+  private static final FXForwardAndSwapConvention FX_FORWARD = new FXForwardAndSwapConvention("FX Forward", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Forward")), FX_SPOT_ID, MODIFIED_FOLLOWING,
+      false, US);
   private static final HistoricalTimeSeriesBundle TS = new HistoricalTimeSeriesBundle();
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final CurveNodeToDefinitionConverter CONVERTER;
@@ -727,7 +729,7 @@ public class CurveNodeToDefinitionConverterTest {
     final IndexON index = new IndexON(OVERNIGHT_ID.getValue(), Currency.USD, ACT_360, 1);
     AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(Currency.USD, settlementDate, Period.ofYears(10), Period.ofMonths(6), CALENDAR, ACT_360,
         MODIFIED_FOLLOWING, false, 1, rate, true);
-    AnnuityCouponOISSimplifiedDefinition floatLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, false, index, 1,
+    AnnuityCouponONSimplifiedDefinition floatLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, false, index, 1,
         CALENDAR, MODIFIED_FOLLOWING, Period.ofYears(1), false);
     assertEquals(new SwapDefinition(fixedLeg, floatLeg), definition);
     settlementDate = DateUtils.getUTCDate(2013, 3, 5);
@@ -736,7 +738,7 @@ public class CurveNodeToDefinitionConverterTest {
     assertTrue(definition instanceof SwapDefinition);
     fixedLeg = AnnuityCouponFixedDefinition.from(Currency.USD, settlementDate, Period.ofYears(10), Period.ofMonths(6), CALENDAR, ACT_360,
         MODIFIED_FOLLOWING, false, 1, rate, false);
-    floatLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, true, index, 1,
+    floatLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, true, index, 1,
         CALENDAR, MODIFIED_FOLLOWING, Period.ofYears(1), false);
     assertEquals(new SwapDefinition(floatLeg, fixedLeg), definition);
     settlementDate = DateUtils.getUTCDate(2013, 4, 3);
@@ -745,7 +747,7 @@ public class CurveNodeToDefinitionConverterTest {
     assertTrue(definition instanceof SwapDefinition);
     fixedLeg = AnnuityCouponFixedDefinition.from(Currency.USD, settlementDate, Period.ofYears(10), Period.ofMonths(6), CALENDAR, ACT_360,
         MODIFIED_FOLLOWING, false, 1, rate, true);
-    floatLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, false, index, 1,
+    floatLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, Period.ofYears(10), 1, false, index, 1,
         CALENDAR, MODIFIED_FOLLOWING, Period.ofYears(1), false);
     assertEquals(new SwapDefinition(fixedLeg, floatLeg), definition);
   }
@@ -757,10 +759,13 @@ public class CurveNodeToDefinitionConverterTest {
     final double forward = 1.5;
     marketValues.setDataPoint(marketDataId, forward);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 6, 1);
-    final FXForwardNode node = new FXForwardNode(new Tenor(Period.ZERO), Tenor.ONE_YEAR, FX_FORWARD_ID, Currency.USD, Currency.CAD, "Mapper");
+    final Tenor tenorFx = Tenor.ONE_YEAR;
+    final FXForwardNode node = new FXForwardNode(new Tenor(Period.ZERO), tenorFx, FX_FORWARD_ID, Currency.USD, Currency.CAD, "Mapper");
     final InstrumentDefinition<?> definition = CONVERTER.getDefinitionForNode(node, marketDataId, now, marketValues, TS, "Name");
-    final PaymentFixedDefinition payment1 = new PaymentFixedDefinition(Currency.USD, now.plusYears(1).plusDays(2), 1);
-    final PaymentFixedDefinition payment2 = new PaymentFixedDefinition(Currency.CAD, now.plusYears(1).plusDays(2), -forward);
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, FX_SPOT.getDaysToSettle(), CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(spotDate, tenorFx.getPeriod(), FX_FORWARD.getBusinessDayConvention(), CALENDAR, FX_FORWARD.isIsEOM());
+    final PaymentFixedDefinition payment1 = new PaymentFixedDefinition(Currency.USD, payDate, 1);
+    final PaymentFixedDefinition payment2 = new PaymentFixedDefinition(Currency.CAD, payDate, -forward);
     assertEquals(new ForexDefinition(payment1, payment2), definition);
   }
 
@@ -852,7 +857,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<ExternalIdBundle, Collection<Region>> getAll(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
       for (final ExternalIdBundle bundle : bundles) {
-        if(_regionBundle.equals(bundle)) {
+        if (_regionBundle.equals(bundle)) {
           return Collections.<ExternalIdBundle, Collection<Region>>singletonMap(_regionBundle, Collections.singleton(_region));
         }
       }
@@ -886,7 +891,7 @@ public class CurveNodeToDefinitionConverterTest {
     @Override
     public Map<ExternalIdBundle, Region> getSingle(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
       for (final ExternalIdBundle bundle : bundles) {
-        if(_regionBundle.equals(bundle)) {
+        if (_regionBundle.equals(bundle)) {
           return Collections.<ExternalIdBundle, Region>singletonMap(_regionBundle, _region);
         }
       }

@@ -31,7 +31,7 @@ import com.opengamma.util.tuple.ObjectsPair;
  * The return format is ParameterSensitivity object.
  * This is a very inefficient way to compute the sensitivities. It should be used only for tests purposes or when speed is irrelevant.
  */
-public class ParameterSensitivityNormalSTIRFuturesDiscountInterpolatedFDCalculator {
+public class NormalSTIRFuturesSensitivityFDCalculator {
 
   /**
    * The value calculator.
@@ -47,7 +47,7 @@ public class ParameterSensitivityNormalSTIRFuturesDiscountInterpolatedFDCalculat
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityNormalSTIRFuturesDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<NormalSTIRFuturesSmileProviderInterface, MultipleCurrencyAmount> valueCalculator,
+  public NormalSTIRFuturesSensitivityFDCalculator(final InstrumentDerivativeVisitor<NormalSTIRFuturesSmileProviderInterface, MultipleCurrencyAmount> valueCalculator,
       final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;

@@ -41,6 +41,14 @@
               <ul>
                 <li><a href="admin.ftl#/configs/filter=true/type=ViewDefinition">View Definition</a></li>
               </ul>
+              <br/>
+              <header>Scenarios</header>
+              <ul>
+                <li>
+                  <a href="admin.ftl#/configs/filter=true/type=ScenarioDslScript">Scenario Script</a> /
+                  <a href="admin.ftl#/configs/filter=true/type=ScenarioParameters">Params</a>
+                </li>
+              </ul>
             </td>
           </tr>
           <tr>

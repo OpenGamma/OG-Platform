@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -64,7 +64,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public abstract class FXForwardPointsMethodFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -82,7 +82,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = ZonedDateTime.now(snapshotClock).minusYears(2);
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
@@ -144,7 +144,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
 
   /**
    * Performs the calculation.
-   * 
+   *
    * @param fxForward The FX forward
    * @param data The yield curve data
    * @param fxForwardPoints A curve containing FX forward rates
@@ -262,7 +262,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
 
   /**
    * Gets the value requirement name.
-   * 
+   *
    * @return The value requirement name
    */
   protected String getValueRequirementName() {
@@ -271,7 +271,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
 
   /**
    * Gets the requirement for the pay curve.
-   * 
+   *
    * @param curveName The pay curve name
    * @param currency The pay currency
    * @param curveCalculationConfigName The pay curve calculation configuration name
@@ -287,7 +287,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
 
   /**
    * Gets the pay curve.
-   * 
+   *
    * @param inputs The function inputs
    * @param currency The pay currency
    * @param curveName The pay curve name
@@ -305,7 +305,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
 
   /**
    * Gets the requirement for the receive curve.
-   * 
+   *
    * @param curveName The receive curve name
    * @param currency The receive currency
    * @param curveCalculationConfigName The receive curve calculation configuration name
@@ -321,7 +321,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
 
   /**
    * Gets the receive curve.
-   * 
+   *
    * @param inputs The function inputs
    * @param currency The receive currency
    * @param curveName The receive curve name

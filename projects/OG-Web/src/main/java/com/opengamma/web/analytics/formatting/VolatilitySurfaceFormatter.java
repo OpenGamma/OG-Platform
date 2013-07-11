@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.DoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.engine.value.ValueSpecification;
@@ -40,8 +41,9 @@ import com.opengamma.engine.value.ValueSpecification;
       Set<Double> uniqueXValues = Sets.newHashSet(inputSurface.getXData());
       Set<Double> uniqueYValues = Sets.newHashSet(inputSurface.getYData());
       return "Volatility Surface (" + uniqueXValues.size() + " x " + uniqueYValues.size() + ")";
+    } else if (inputSurface instanceof ConstantDoublesSurface) {
+      return "Constant Volatility Surface (z = " + inputSurface.getZValue(0.0, 0.0) + ")";
     } else {
-      // TODO ConstantDoublesSurface
       s_logger.warn("Unable to format surface of type {}", inputSurface.getClass());
       return null;
     }

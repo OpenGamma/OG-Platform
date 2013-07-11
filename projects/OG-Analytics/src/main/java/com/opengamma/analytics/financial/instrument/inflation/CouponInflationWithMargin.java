@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.instrument.inflation;
 /**
  * Interface to inflation coupons with margin factors.
  */
-public interface CouponInflationMargin {
+public interface CouponInflationWithMargin {
 
   /**
    * Gets the additive (margin) factor.

@@ -23,7 +23,7 @@ import com.opengamma.id.ExternalScheme;
  * Constructs volatility surface data objects for equity options (single-name and index) if the target is a Bloomberg ticker or weak ticker.
  */
 public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
-
+  /** The valid schemes for equity option volatility surfaces */
   private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
 
   /**
@@ -35,7 +35,7 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
 
   @Override
   protected ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE; // Bloomberg ticker or weak ticker
+    return ComputationTargetType.PRIMITIVE;
   }
 
   @Override
@@ -53,7 +53,8 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
    * <li>definitionName = OPENGAMMA
    * <li>target=BLOOMBERG_TICKER~DJX Index
    * <ul>
-   * is OPENGAMMA_DJX_EQUITY_OPTION {@inheritDoc}
+   * is OPENGAMMA_DJX_EQUITY_OPTION
+   * {@inheritDoc}
    */
   @Override
   protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final ComputationTarget target, final String definitionName) {
@@ -72,7 +73,8 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
    * <li>specificationName = OPENGAMMA
    * <li>target=BLOOMBERG_TICKER~DJX Index
    * <ul>
-   * is OPENGAMMA_DJX_EQUITY_OPTION {@inheritDoc}
+   * is OPENGAMMA_DJX_EQUITY_OPTION
+   * {@inheritDoc}
    */
   @Override
   protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final ComputationTarget target, final String specificationName) {

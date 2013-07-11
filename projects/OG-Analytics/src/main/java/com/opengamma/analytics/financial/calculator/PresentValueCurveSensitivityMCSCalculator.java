@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
@@ -96,7 +96,7 @@ public class PresentValueCurveSensitivityMCSCalculator extends InstrumentDerivat
   }
 
   @Override
-  public MultipleCurrencyInterestRateCurveSensitivity visitCouponOIS(final CouponOIS coupon, final YieldCurveBundle curves) {
+  public MultipleCurrencyInterestRateCurveSensitivity visitCouponOIS(final CouponON coupon, final YieldCurveBundle curves) {
     return MultipleCurrencyInterestRateCurveSensitivity.of(coupon.getCurrency(), METHOD_CPN_OIS.presentValueCurveSensitivity(coupon, curves));
   }
 

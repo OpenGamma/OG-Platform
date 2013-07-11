@@ -88,7 +88,7 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
   /** The rate formatter */
   private static final DecimalFormat FORMATTER = new DecimalFormat("#.###");
   /** A random number generator */
-  private static final Random RANDOM = new Random();
+  private static final Random RANDOM = new Random(1235);
 
   static {
     MONTHS = new HashMap<>();

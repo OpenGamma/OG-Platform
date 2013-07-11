@@ -10,6 +10,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.examples.loader.ExampleCurrencyConfigurationLoader;
+import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
+import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
+import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
+import com.opengamma.examples.loader.ExampleExchangeLoader;
+import com.opengamma.examples.loader.ExampleFXImpliedCurveConfigurationLoader;
+import com.opengamma.examples.loader.ExampleFunctionConfigurationPopulator;
+import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
+import com.opengamma.examples.loader.ExampleHolidayLoader;
+import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
+import com.opengamma.examples.loader.ExampleViewsPopulator;
+import com.opengamma.examples.loader.PortfolioLoaderHelper;
+import com.opengamma.integration.tool.portfolio.PortfolioLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,17 +31,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
-import com.opengamma.examples.loader.ExampleCurrencyConfigurationLoader;
-import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
-import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
-import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
-import com.opengamma.examples.loader.ExampleExchangeLoader;
-import com.opengamma.examples.loader.ExampleFunctionConfigurationPopulator;
-import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
-import com.opengamma.examples.loader.ExampleHolidayLoader;
-import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
-import com.opengamma.examples.loader.ExampleViewsPopulator;
-import com.opengamma.examples.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
@@ -83,6 +85,18 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * Mixed currency swaption portfolio
    */
   public static final String MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME = "Swaption Portfolio";
+  /**
+   * FX forward portfolio.
+   */
+  public static final String FX_FORWARD_PORTFOLIO_NAME = "FX Forward Portfolio";
+  /**
+   * Equity options portfolio
+   */
+  public static final String EQUITY_OPTION_PORTFOLIO_NAME = "Equity Option Portfolio";
+  /**
+   * Futures portfolio
+   */
+  public static final String FUTURE_PORTFOLIO_NAME = "Futures Portfolio";
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
@@ -127,10 +141,13 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     loadVanillaFXOptionPortfolio();
     loadEquityPortfolio();
     loadEquityOptionPortfolio();
+    loadFuturePortfolio();
     loadBondPortfolio();
     loadLiborRawSecurities();
     loadSwaptionPortfolio();
     loadEURFixedIncomePortfolio();
+    loadFXForwardPortfolio();
+    loadFXImpliedCurveCalculationConfigurations();
     loadViews();
     loadFunctionConfigurations();
   }
@@ -151,7 +168,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * progress indicators.
    */
   private static final class Log {
-
+    /** The string */
     private final String _str;
 
     private Log(final String str) {
@@ -203,6 +220,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     }
   }
 
+  private void loadFXImpliedCurveCalculationConfigurations() {
+    final Log log = new Log("Creating FX-implied curve calculation configurations");
+    try {
+      final ExampleFXImpliedCurveConfigurationLoader curveConfigLoader = new ExampleFXImpliedCurveConfigurationLoader();
+      curveConfigLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }    
+  }
+  
   private void loadDefaultVolatilityCubeDefinition() {
     final Log log = new Log("Creating volatility cube definitions");
     try {
@@ -262,6 +290,32 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       final ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
       equityLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadEquityOptionPortfolio() {
+    final Log log = new Log("Creating example equity option portfolio");
+    try {
+      final String file = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip").getPath();
+      final PortfolioLoader equityOptionLoader = new PortfolioLoader(getToolContext(), EQUITY_OPTION_PORTFOLIO_NAME, null,
+              file, true, true, true, true, false, true, false, null);
+      equityOptionLoader.execute();
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadFuturePortfolio() {
+    final Log log = new Log("Creating example future portfolio");
+    try {
+      final String file = ExampleEquityPortfolioLoader.class.getResource("futures.zip").getPath();
+      final PortfolioLoader futureLoader = new PortfolioLoader(getToolContext(), FUTURE_PORTFOLIO_NAME, null,
+              file, true, true, true, true, false, true, false, null);
+      futureLoader.execute();
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
@@ -343,19 +397,19 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.fail(t);
     }
   }
-
-  private void loadBondPortfolio() {
-    final Log log = new Log("Creating example bond portfolio");
+  
+  private void loadFXForwardPortfolio() {
+    Log log = new Log("Creating example FX forward portfolio");
     try {
-      // TODO: load from CSV file
+      portfolioGeneratorTool().run(getToolContext(), FX_FORWARD_PORTFOLIO_NAME, "FXForward", true, null);
       log.done();
-    } catch (final RuntimeException t) {
+    } catch (RuntimeException t) {
       log.fail(t);
     }
   }
 
-  private void loadEquityOptionPortfolio() {
-    final Log log = new Log("Creating example equity option portfolio");
+  private void loadBondPortfolio() {
+    final Log log = new Log("Creating example bond portfolio");
     try {
       // TODO: load from CSV file
       log.done();
