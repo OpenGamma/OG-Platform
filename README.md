@@ -64,16 +64,18 @@ configurations are pre-supplied, one with Bloomberg support and one with
 simulated market data.
 
 To run the example engine, change to the examples/examples-simulated directory
-and run the following command:
+and run the following commands:
 ```
   cd examples/examples-simulated
-  mvn opengamma:server-run -DconfigFile=fullstack/fullstack-example-dev.properties
+  mvn opengamma:server-init -Dconfig=fullstack
+  mvn opengamma:server-run -Dconfig=fullstack
 ```
 
 Wait for the components to load and then point your browser at
 `http://localhost:8080` to see the web user interface.  
 Go to `http://localhost:8080/jax/components` to get a sense of
 the underlying power of the system, available via REST.
+Note that the "server-init" command only needs to be run once.
 
 ___
 
