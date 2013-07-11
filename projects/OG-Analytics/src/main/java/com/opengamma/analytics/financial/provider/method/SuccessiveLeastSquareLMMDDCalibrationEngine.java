@@ -25,7 +25,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Specific calibration engine for the LMM model with swaption.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveLeastSquareLMMDDCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends SuccessiveLeastSquareCalibrationEngine<DATA_TYPE> {
+public class SuccessiveLeastSquareLMMDDCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends SuccessiveLeastSquareCalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
    * The precision used in least-square search.

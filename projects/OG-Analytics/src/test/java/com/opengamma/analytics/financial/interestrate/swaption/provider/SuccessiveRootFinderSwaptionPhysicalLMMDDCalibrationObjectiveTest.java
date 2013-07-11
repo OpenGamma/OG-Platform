@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
-import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderCalibrationEngine;
+import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderCalibrationEngineWithCalculators;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderLMMDDCalibrationEngine;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderLMMDDCalibrationObjective;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -95,7 +95,7 @@ public class SuccessiveRootFinderSwaptionPhysicalLMMDDCalibrationObjectiveTest {
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
         SWAP_PAYER_DEFINITION[SWAP_TENOR_YEAR.length - 1].getIborLeg());
     final SuccessiveRootFinderLMMDDCalibrationObjective objective = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParameters, EUR);
-    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<SABRSwaptionProviderInterface>(objective);
+    final SuccessiveRootFinderCalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<SABRSwaptionProviderInterface>(objective);
     for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
       calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
     }
@@ -122,7 +122,7 @@ public class SuccessiveRootFinderSwaptionPhysicalLMMDDCalibrationObjectiveTest {
       final LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
           SWAP_PAYER_DEFINITION[SWAP_TENOR_YEAR.length - 1].getIborLeg());
       final SuccessiveRootFinderLMMDDCalibrationObjective objective = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParameters, EUR);
-      final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<SABRSwaptionProviderInterface>(objective);
+      final SuccessiveRootFinderCalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<SABRSwaptionProviderInterface>(objective);
       for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
         calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
       }

@@ -9,9 +9,10 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Param
 
 /**
  * Calibration engine calibrating successively the instruments in the basket trough a root-finding process.
+ * Instruments prices are retrieve from calculators.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public abstract class SuccessiveLeastSquareCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
+public abstract class SuccessiveLeastSquareCalibrationEngineWithCalculators<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
    * The calibration objective.
@@ -22,7 +23,7 @@ public abstract class SuccessiveLeastSquareCalibrationEngine<DATA_TYPE extends P
    * The constructor.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveLeastSquareCalibrationEngine(final SuccessiveLeastSquareCalibrationObjective calibrationObjective) {
+  public SuccessiveLeastSquareCalibrationEngineWithCalculators(final SuccessiveLeastSquareCalibrationObjective calibrationObjective) {
     super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
     _calibrationObjective = calibrationObjective;
   }

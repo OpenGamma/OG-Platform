@@ -59,7 +59,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
-import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderCalibrationEngine;
+import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderCalibrationEngineWithCalculators;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderLMMDDCalibrationEngine;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderLMMDDCalibrationObjective;
 import com.opengamma.analytics.financial.provider.sensitivity.libormarket.ParameterSensitivityLMMDDDiscountInterpolatedFDCalculator;
@@ -354,7 +354,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     final SuccessiveRootFinderLMMDDCalibrationObjective objective = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParameters, EUR);
-    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objective);
+    final SuccessiveRootFinderCalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objective);
     calibrationEngine.addInstrument(swaptionCalibration2, PVSSC);
     calibrationEngine.calibrate(SABR_MULTICURVES);
     final LiborMarketModelDisplacedDiffusionProviderInterface lmm = new LiborMarketModelDisplacedDiffusionProvider(MULTICURVES, lmmParameters, EUR);
@@ -387,7 +387,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final LiborMarketModelDisplacedDiffusionParameters lmmParametersShift = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     final SuccessiveRootFinderLMMDDCalibrationObjective objectiveShift = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParametersShift, EUR);
-    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngineShift = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objectiveShift);
+    final SuccessiveRootFinderCalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngineShift = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objectiveShift);
     calibrationEngineShift.addInstrument(swaptionCalibration2, PVSSC);
     final LiborMarketModelDisplacedDiffusionProvider lmmBundleShift = new LiborMarketModelDisplacedDiffusionProvider(MULTICURVES, lmmParametersShift, EUR);
 
