@@ -18,6 +18,7 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.opengamma.engine.marketdata.manipulator.ScenarioParameters;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 
@@ -28,7 +29,7 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
   public void setParametersFromScript() throws IOException {
     String scriptFile = "src/test/resources/scenarios/ScenarioParametersTest.groovy";
     String script = IOUtils.toString(new BufferedReader(new FileReader(scriptFile)));
-    ScenarioParameters scenarioParameters = new ScenarioParameters(script);
+    ScenarioParameters scenarioParameters = new ScenarioDslParameters(script);
     Map<String,Object> parameters = scenarioParameters.getParameters();
     assertEquals("foo", parameters.get("aString"));
     assertEquals(Lists.newArrayList(1, 2, 3), parameters.get("aList"));
@@ -38,7 +39,7 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void fudgeRoundTrip() {
-    ScenarioParameters parameters = new ScenarioParameters("str = \"foo\"\ndbl = 1.23");
-    assertEncodeDecodeCycle(ScenarioParameters.class, parameters);
+    ScenarioParameters parameters = new ScenarioDslParameters("str = \"foo\"\ndbl = 1.23");
+    assertEncodeDecodeCycle(ScenarioDslParameters.class, parameters);
   }
 }

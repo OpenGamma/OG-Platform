@@ -61,6 +61,8 @@ import com.opengamma.engine.marketdata.manipulator.MarketDataSelectionGraphManip
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
+import com.opengamma.engine.marketdata.manipulator.ScenarioDefinitionFactory;
+import com.opengamma.engine.marketdata.manipulator.ScenarioParameters;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -362,8 +364,11 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     for (ViewCalculationConfiguration calcConfig : calculationConfigurations) {
 
       UniqueId scenarioId = calcConfig.getScenarioId();
+      UniqueId scenarioParametersId = calcConfig.getScenarioParametersId();
       if (scenarioId != null) {
-        ScenarioDefinition scenarioDefinition = configSource.getConfig(ScenarioDefinition.class, scenarioId);
+        ScenarioDefinitionFactory scenarioDefinitionFactory = configSource.getConfig(ScenarioDefinitionFactory.class, scenarioId);
+        ScenarioParameters scenarioParameters = configSource.getConfig(ScenarioParameters.class, scenarioParametersId);
+        ScenarioDefinition scenarioDefinition = scenarioDefinitionFactory.create(scenarioParameters.getParameters());
         specificSelectors.put(calcConfig.getName(), new HashMap<>(scenarioDefinition.getDefinitionMap()));
       } else {
         // Ensure we have an entry for each graph, even if selectors are empty
@@ -373,6 +378,10 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return specificSelectors;
   }
 
+  /*SingleThreadViewProcessWorker (method extractSpecificSelectors)  currently looks for a ScenarioDefinition object
+  from the config source. Instead it should expect a ScenarioDefinitionFactory and create a definition using it.
+  This allows for storing scripts which generate definitions.
+*/
   private ViewProcessWorkerContext getWorkerContext() {
     return _context;
   }

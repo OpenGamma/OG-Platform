@@ -65,6 +65,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
   private static final String DEFAULT_PROPERTIES_FIELD = "defaultProperties";
   private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
   private static final String SCENARIO_ID_FIELD = "scenarioId";
+  private static final String SCENARIO_PARAMETERS_ID_FIELD = "scenarioParametersId";
 
   // field names for column dat
   private static final String COLUMNS_FIELD = "columns";
@@ -129,6 +130,10 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
       UniqueId scenarioId = calcConfig.getScenarioId();
       if (scenarioId != null) {
         serializer.addToMessageWithClassHeaders(calcConfigMsg, SCENARIO_ID_FIELD, null, scenarioId, UniqueId.class);
+      }
+      UniqueId scenarioParametersId = calcConfig.getScenarioParametersId();
+      if (scenarioParametersId != null) {
+        serializer.addToMessageWithClassHeaders(calcConfigMsg, SCENARIO_PARAMETERS_ID_FIELD, null, scenarioParametersId, UniqueId.class);
       }
       MutableFudgeMsg columnsMsg = serializer.newMessage();
       for (ViewCalculationConfiguration.Column column : calcConfig.getColumns()) {
@@ -252,6 +257,10 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
       if (calcConfigMsg.hasField(SCENARIO_ID_FIELD)) {
         calcConfig.setScenarioId(deserializer.fieldValueToObject(UniqueId.class,
                                                                  calcConfigMsg.getByName(SCENARIO_ID_FIELD)));
+      }
+      if (calcConfigMsg.hasField(SCENARIO_PARAMETERS_ID_FIELD)) {
+        calcConfig.setScenarioParametersId(deserializer.fieldValueToObject(UniqueId.class,
+                                                                 calcConfigMsg.getByName(SCENARIO_PARAMETERS_ID_FIELD)));
       }
       List<ViewCalculationConfiguration.Column> columns = Lists.newArrayList();
       if (calcConfigMsg.hasField(COLUMNS_FIELD)) {
