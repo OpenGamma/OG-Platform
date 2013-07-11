@@ -64,7 +64,7 @@ public class CDSAnalytic {
    */
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
       final Period tenor, StubType stubType, final boolean protectStart, final double recoveryRate) {
-    this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365, recoveryRate);
+    this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365);
   }
 
   /**
@@ -80,15 +80,15 @@ public class CDSAnalytic {
    * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    *  - <b>Note</b> in this code NONE is not allowed
    * @param protectStart Does protection start at the beginning of the day
+   * @param recoveryRate The recovery rate 
    * @param businessdayAdjustmentConvention How are adjustments for non-business days made 
    * @param calendar Calendar defining what is a non-business day
    * @param accrualDayCount Day count used for accrual 
    * @param curveDayCount Day count used on curve (NOTE ISDA uses ACT/365 and it is not recommended to change this)
-   * @param recoveryRate The recovery rate 
    */
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, StubType stubType, final boolean protectStart, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar, final DayCount accrualDayCount,
-      final DayCount curveDayCount, final double recoveryRate) {
+      final Period tenor, StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
+      final DayCount accrualDayCount, final DayCount curveDayCount) {
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
     ArgumentChecker.notNull(valueDate, "null valueDate");

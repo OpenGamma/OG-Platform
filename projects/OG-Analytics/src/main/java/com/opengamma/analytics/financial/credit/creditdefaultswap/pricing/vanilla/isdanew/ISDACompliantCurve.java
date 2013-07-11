@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -14,11 +16,29 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ISDACompliantCurve {
 
-  private final int _n;
+  private final int _n; // number of knots in curve
+
+  // the knot positions and values
   private final double[] _t;
   private final double[] _r;
+
+  // these are simply cached values (they can be recalculated from _t & _r)
   private final double[] _rt;
   private final double[] _df;
+
+  // These are use in the case that the curve is build with a particular base-date but is then 'seen' from a different base-date.
+  // They are zero if both base-dates coincide
+  private final double _offsetTime;
+  private final double _offsetRT;
+
+  /**
+   * Flat curve at level r
+   * @param t (arbitrary) single knot point (t > 0) 
+   * @param r the level 
+   */
+  public ISDACompliantCurve(final double t, final double r) {
+    this(new double[] {t}, new double[] {r});
+  }
 
   /**
    * 
@@ -45,6 +65,9 @@ public class ISDACompliantCurve {
       _rt[i] = _r[i] * _t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
       _df[i] = Math.exp(-_rt[i]);
     }
+
+    _offsetTime = 0.0;
+    _offsetRT = 0.0;
   }
 
   protected ISDACompliantCurve(final ISDACompliantCurve from) {
@@ -55,14 +78,75 @@ public class ISDACompliantCurve {
     _r = from._r;
     _rt = from._rt;
     _df = from._df;
+
+    _offsetTime = from._offsetTime;
+    _offsetRT = from._offsetRT;
   }
 
-  private ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
+  /**
+   * A curve in which the knots are measured (in fractions of a year) from a particular base-date but the curve is 'observed'
+   * from a different base-date. As an example<br>
+   * Today (the observation point) is 11-Jul-13, but the yield curve is snapped (bootstrapped from money market and swap rates)
+   * on 10-Jul-13 - seen from today there is an offset of -1/365 (assuming a day count of ACT/365) that must be applied to use
+   * the yield curve today.  <br>
+   * In general, a discount curve observed at time $t_1$ can be written as $P(t_1,T)$. Observed from time $t_2$ this is 
+   * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$
+   * @param timesFromBaseDate times measured from the base date of the curve 
+   * @param r zero rates 
+   * @param offsetFromNewBaseDate if this curve is to be used from a new base-date, what is the offset from the curve base
+   */
+  protected ISDACompliantCurve(final double[] timesFromBaseDate, final double[] r, final double offsetFromNewBaseDate) {
+    ArgumentChecker.notEmpty(timesFromBaseDate, "t empty");
+    ArgumentChecker.notEmpty(r, "r empty");
+    _n = timesFromBaseDate.length;
+    ArgumentChecker.isTrue(_n == r.length, "r and t different lengths");
+    ArgumentChecker.isTrue(timesFromBaseDate[0] >= 0.0, "timesFromBaseDate must be >= 0");
+
+    // TODO allow larger offsets
+    ArgumentChecker.isTrue(timesFromBaseDate[0] + offsetFromNewBaseDate >= 0, "offsetFromNewBaseDate too negative");
+    for (int i = 1; i < _n; i++) {
+      ArgumentChecker.isTrue(timesFromBaseDate[i] > timesFromBaseDate[i - 1], "Times must be ascending");
+    }
+
+    _t = new double[_n];
+    if (offsetFromNewBaseDate == 0.0) {
+      System.arraycopy(timesFromBaseDate, 0, _t, 0, _n);
+    } else {
+      for (int i = 0; i < _n; i++) {
+        _t[i] = timesFromBaseDate[i] + offsetFromNewBaseDate;
+      }
+    }
+
+    _r = new double[_n];
+    _rt = new double[_n];
+    _df = new double[_n];
+    final double r0 = r[0];
+    if (offsetFromNewBaseDate == 0.0) {
+      System.arraycopy(r, 0, _r, 0, _n);
+    } else {
+      _r[0] = r0;
+      for (int i = 1; i < _n; i++) {
+        _r[i] = r[i] + offsetFromNewBaseDate / _t[i] * (r0 - r[i]);
+      }
+    }
+
+    _offsetTime = offsetFromNewBaseDate;
+    _offsetRT = r0 * _offsetTime;
+
+    for (int i = 0; i < _n; i++) {
+      _rt[i] = r[i] * timesFromBaseDate[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
+      _df[i] = Math.exp(-_rt[i] - _offsetRT);
+    }
+  }
+
+  private ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
     _n = t.length;
     _t = t;
     _r = r;
     _rt = rt;
     _df = df;
+    _offsetTime = offsetTime;
+    _offsetRT = offsetRT;
   }
 
   protected double[] getKnotTimes() {
@@ -144,12 +228,12 @@ public class ISDACompliantCurve {
       return _r[0] * t;
     }
     if (t >= _t[_n - 1]) {
-      return _r[_n - 1] * t;
+      return _r[_n - 1] * t;// * (t - _offsetTime) + _offsetRT;
     }
 
     final int index = Arrays.binarySearch(_t, t);
     if (index >= 0) {
-      return _rt[index];
+      return _rt[index] + _offsetRT;
     }
 
     final int insertionPoint = -(1 + index);
@@ -161,13 +245,13 @@ public class ISDACompliantCurve {
       return t * _r[0];
     }
     if (insertionPoint == _n) {
-      return t * _r[_n - 1];
+      return _r[_n - 1] * t;// (t - _offsetTime) + _offsetRT;
     }
 
     final double t1 = _t[insertionPoint - 1];
     final double t2 = _t[insertionPoint];
     final double dt = t2 - t1;
-    return ((t2 - t) * _rt[insertionPoint - 1] + (t - t1) * _rt[insertionPoint]) / dt;
+    return ((t2 - t) * _rt[insertionPoint - 1] + (t - t1) * _rt[insertionPoint]) / dt + _offsetRT;
   }
 
   /**
@@ -320,9 +404,10 @@ public class ISDACompliantCurve {
     System.arraycopy(_rt, 0, rt, 0, _n);
     System.arraycopy(_df, 0, df, 0, _n);
     r[index] = rate;
-    rt[index] = rate * t[index];
-    df[index] = Math.exp(-rt[index]);
-    return new ISDACompliantCurve(t, r, rt, df);
+
+    rt[index] = rate * (t[index] - _offsetTime);
+    df[index] = Math.exp(-rt[index] - _offsetRT);
+    return new ISDACompliantCurve(t, r, rt, df, _offsetTime, _offsetRT);
   }
 
   /**
@@ -332,6 +417,9 @@ public class ISDACompliantCurve {
    * @return a new curve 
    */
   public ISDACompliantCurve withDiscountFactor(final double discountFactor, final int index) {
+    if (_offsetTime != 0) { // TODO implement
+      throw new NotImplementedException("Please implement");
+    }
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
     double[] t = new double[_n];
     double[] r = new double[_n];
@@ -345,7 +433,7 @@ public class ISDACompliantCurve {
     df[index] = discountFactor;
     rt[index] = -Math.log(discountFactor);
     r[index] = rt[index] / t[index];
-    return new ISDACompliantCurve(t, r, rt, df);
+    return new ISDACompliantCurve(t, r, rt, df, 0, 0);
   }
 
 }

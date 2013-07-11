@@ -31,6 +31,18 @@ public class ISDACompliantYieldCurveBuild {
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder(); // new BrentSingleRootFinder(); // TODO get gradient and use Newton
   private static final BracketRoot BRACKETER = new BracketRoot();
 
+  public ISDACompliantYieldCurve build(final LocalDate today, final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, Period[] tenors, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
+    // ArgumentChecker.isFalse(spotDate.isAfter(today), "Cannot build a curve with spot date in the futrue (i.e. after today");
+    ISDACompliantYieldCurve baseCurve = build(spotDate, instrumentTypes, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
+    if (spotDate.isEqual(today)) {
+      return baseCurve;
+    }
+
+    final double offset = today.isAfter(spotDate) ? -curveDCC.getDayCountFraction(spotDate, today) : curveDCC.getDayCountFraction(today, spotDate);
+    return new ISDACompliantYieldCurve(baseCurve.getKnotTimes(), baseCurve.getKnotZeroRates(), offset);
+  }
+
   public ISDACompliantYieldCurve build(final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, Period[] tenors, final double[] rates, final DayCount moneyMarketDCC,
       final DayCount swapDCC, Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
 

@@ -101,10 +101,11 @@ public class ISDACompliantCurveCalibratorTest {
       // System.out.println(pv);
     }
 
-    final int warmup = 200;
-    final int benchmark = 1000;
+    final int warmup = 1;
+    final int benchmark = 0;
 
     for (int k = 0; k < warmup; k++) {
+      @SuppressWarnings("unused")
       ISDACompliantDateCreditCurve hc2 = calibrator.calibrateHazardCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
     }
 

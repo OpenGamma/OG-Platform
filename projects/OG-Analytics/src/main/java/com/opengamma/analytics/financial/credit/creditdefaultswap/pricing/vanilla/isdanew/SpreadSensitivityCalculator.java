@@ -11,7 +11,11 @@ import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * This calculates the sensitivity of the present value of a CDS to various (finite) shifts of the market spreads -
+ * this is performed by a "bump and reprice" so is accurate for arbitrarily large shifts/bumps.<br> For small bumps (typically 
+ * less than 1bps) it approximates the derivative $$\frac{\partial V}{\partial S}$$  where $V$ is the present value and $S$ is
+ * either a single market spread or the entire market spread curve. However, it is better (in accuracy and speed) to use 
+ * AnalyticSpreadSensitivityCalculator if this derivative is required.  
  */
 public class SpreadSensitivityCalculator {
 
@@ -142,6 +146,18 @@ public class SpreadSensitivityCalculator {
     return res;
   }
 
+  /**
+   * The difference in PV between two market spread 
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param cdsFracSpread The <b>fraction</b> spread of the CDS
+   * @param priceType Clean or dirty price
+   * @param yieldCurve The yield (or discount) curve  
+   * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
+   * @param marketFracSpreads The <b>fractional</b> spreads of the market CDSs 
+   * @param fracDeltaSpreads Non-negative shifts 
+   * @param fdType
+   * @return
+   */
   public double finateDifferenceSpreadSensitivity(final CDSAnalytic cds, final double cdsFracSpread, final PriceType priceType, final ISDACompliantYieldCurve yieldCurve,
       final CDSAnalytic[] marketCDSs, final double[] marketFracSpreads, final double[] fracDeltaSpreads, final FiniteDifferenceType fdType) {
     ArgumentChecker.notNull(cds, "cds");
@@ -156,7 +172,7 @@ public class SpreadSensitivityCalculator {
     ArgumentChecker.isTrue(n == fracDeltaSpreads.length, "deltaSpreads length does not match curvePoints");
     for (int i = 0; i < n; i++) {
       ArgumentChecker.isTrue(marketFracSpreads[i] > 0, "spreads must be positive");
-      ArgumentChecker.isTrue(fracDeltaSpreads[i] > 0, "deltaSpreads must be positive");
+      ArgumentChecker.isTrue(fracDeltaSpreads[i] >= 0, "deltaSpreads must none negative");
       ArgumentChecker.isTrue(fdType == FiniteDifferenceType.FORWARD || fracDeltaSpreads[i] < marketFracSpreads[i], "deltaSpread must be less spread, unless forward difference is used");
     }
 

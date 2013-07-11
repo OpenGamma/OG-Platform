@@ -11,6 +11,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.google.common.primitives.Doubles;
+
 /**
  * 
  */
@@ -255,6 +257,39 @@ public class ISDACompliantCurveTest {
   }
 
   @Test
+  public void offsetTest() {
+    double[] timesFromBase = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
+    double[] r = new double[] {0.04, 0.08, 0.07, 0.12, 0.12, 0.13, 0.12, 0.1, 0.09};
+
+    final double offset = -0.04;
+
+    ISDACompliantCurve c1 = new ISDACompliantCurve(timesFromBase, r);
+    ISDACompliantCurve c2 = new ISDACompliantCurve(timesFromBase, r, offset);
+
+    final double rtb = offset * r[0];
+    final double pb = Math.exp(rtb);
+
+    final int steps = 1;// 1001;
+    for (int i = 0; i < steps; i++) {
+      double time = 9.96;// (12.0 * i) / (steps - 1);
+      final double p1 = c1.getDiscountFactor(time - offset) / pb;
+      final double p2 = c2.getDiscountFactor(time);
+
+      final double rt1 = c1.getRT(time - offset) + rtb;
+      final double rt2 = c2.getRT(time);
+
+      assertEquals("discount " + time, p1, p2, 1e-15);
+      assertEquals("rt " + time, rt1, rt2, 1e-15);
+      if (time > 0.0) {
+        final double r1 = rt1 / time;
+        final double r2 = c2.getZeroRate(time);
+        assertEquals("r " + time, r1, r2, 1e-15);
+      }
+    }
+
+  }
+
+  @Test
   public void senseTest() {
     double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0};
     double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9};
@@ -304,16 +339,16 @@ public class ISDACompliantCurveTest {
       }
     }
 
-//    // check nodes
-//    for (int jj = 0; jj < n; jj++) {
-//      final double[] anal = curve.getNodeSensitivity(t[jj]);
-//      for (int i = 0; i < n; i++) {
-//        final double anal2 = curve.getSingleNodeSensitivity(t[jj], i);
-//        final double expected = i == jj ? 1.0 : 0.0;
-//        assertEquals(expected, anal[i], 0.0);
-//        assertEquals(expected, anal2, 0.0);
-//      }
-//    }
+    // // check nodes
+    // for (int jj = 0; jj < n; jj++) {
+    // final double[] anal = curve.getNodeSensitivity(t[jj]);
+    // for (int i = 0; i < n; i++) {
+    // final double anal2 = curve.getSingleNodeSensitivity(t[jj], i);
+    // final double expected = i == jj ? 1.0 : 0.0;
+    // assertEquals(expected, anal[i], 0.0);
+    // assertEquals(expected, anal2, 0.0);
+    // }
+    // }
 
   }
 

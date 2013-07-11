@@ -131,6 +131,33 @@ public class AnalyticCDSPricerTest {
     }
   }
 
+  @Test(enabled=false)
+  void spreadSensitivityTest() {
+    System.out.println("spreadSensitivityTest");
+    
+    final double[] ccTimes = new double[] {0.25, 0.5, 1.001, 2.0, 3.0, 5.0, 7.2, 10.0, 20.0};
+    final double[] ccNormalRates = new double[] {0.05, 0.06, 0.07, 0.08, 0.09, 0.09, 0.07, 0.065, 0.06};
+    final double[] ycTimes = new double[] {1 / 52., 1 / 12., 1 / 4., 1 / 2., 3 / 4., 1.0, 2.1, 5.0, 11.0, 30.0};
+    final double[] ycNormalRates = new double[] {0.004, 0.006, 0.007, 0.01, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05};
+    final ISDACompliantCreditCurve creditCurveNorm = new ISDACompliantCreditCurve(ccTimes, ccNormalRates);
+    final ISDACompliantYieldCurve yieldCurveNorm = new ISDACompliantYieldCurve(ycTimes, ycNormalRates);
+
+    LocalDate today = LocalDate.of(2013, 7, 2); // Tuesday
+    LocalDate stepin = today.plusDays(1); // this is usually 1
+    LocalDate valueDate = today.plusDays(3); // Friday
+    LocalDate startDate = today; // protection starts now
+    LocalDate endDate = LocalDate.of(2017, 9, 20);
+
+    final boolean payAccOnDefault = true;
+
+    CDSAnalytic cds = new CDSAnalytic(today, stepin, valueDate, startDate, endDate, payAccOnDefault, Period.ofMonths(3), StubType.FRONTSHORT, false, 0.4);
+
+    for (int i = 0; i < ccTimes.length; i++) {
+      double dSdH = PRICER.parSpreadCreditSensitivity(cds, yieldCurveNorm, creditCurveNorm, i);
+      System.out.println(dSdH);
+    }
+  }
+
   private void creditCurveSenseTest(final AnalyticCDSPricer pricer, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     final int n = creditCurve.getNumberOfKnots();
     for (int i = 0; i < n; i++) {
