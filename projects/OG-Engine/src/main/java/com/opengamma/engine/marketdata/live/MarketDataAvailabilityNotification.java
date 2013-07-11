@@ -48,7 +48,7 @@ public class MarketDataAvailabilityNotification {
     MutableFudgeMsg msg = serializer.newMessage();
     MutableFudgeMsg schemesMsg = serializer.newMessage();
     for (ExternalScheme scheme : _schemes) {
-      serializer.addToMessage(msg, null, null, scheme.getName());
+      serializer.addToMessage(schemesMsg, null, null, scheme.getName());
     }
     serializer.addToMessage(msg, SCHEMES, null, schemesMsg);
     return msg;
