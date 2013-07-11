@@ -23,7 +23,17 @@ $.register_module({
                         placeholder: 'Please select....',  value: param, fields: [0, 1],
                         rest_options : {type: 'ScenarioDslParameters' }
                         })
-                ]
+                ],
+                processor: function (data) {
+                    $.each(data.calculationConfiguration, function (index, value) {
+                        if (!value.scenarioId) {
+                            delete value.scenarioId;
+                        }
+                        if (!value.scenarioParametersId) {
+                            delete value.scenarioParametersId;
+                        }
+                    });
+                }
             });
         };
         Scenario.prototype = new Block(); // inherit Block prototype
