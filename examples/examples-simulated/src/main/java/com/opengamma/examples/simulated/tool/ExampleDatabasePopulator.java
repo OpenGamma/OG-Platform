@@ -101,6 +101,10 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * The name of an ER future portfolio.
    */
   public static final String ER_PORTFOLIO_NAME = "ER Portfolio";
+  /** 
+   * The name of a US Government bond portfolio.
+   */
+  public static final String US_GOVERNMENT_BOND_PORTFOLIO_NAME = "Government Bonds";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
@@ -423,7 +427,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private void loadBondPortfolio() {
     final Log log = new Log("Creating example bond portfolio");
     try {
-      // TODO: load from CSV file
+      portfolioGeneratorTool().run(getToolContext(), US_GOVERNMENT_BOND_PORTFOLIO_NAME, "Bond", true, null);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

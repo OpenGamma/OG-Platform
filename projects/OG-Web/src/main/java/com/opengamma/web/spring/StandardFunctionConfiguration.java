@@ -638,8 +638,8 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected void setBondFunctionDefaults(final CurrencyInfo i, final BondFunctions.Defaults.CurrencyInfo defaults) {
-    defaults.setRiskFreeCurveName(i.getCurveName("model/bond/riskfree"));
-    defaults.setRiskFreeCurveCalculationConfig(i.getCurveConfiguration("model/bond/riskfree"));
+    defaults.setRiskFreeCurveName(i.getCurveName("model/bond/riskFree"));
+    defaults.setRiskFreeCurveCalculationConfig(i.getCurveConfiguration("model/bond/riskFree"));
     defaults.setCreditCurveName(i.getCurveName("model/bond/credit"));
     defaults.setCreditCurveCalculationConfig(i.getCurveConfiguration("model/bond/credit"));
   }

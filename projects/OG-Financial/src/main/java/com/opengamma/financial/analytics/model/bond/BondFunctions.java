@@ -97,7 +97,7 @@ public class BondFunctions extends AbstractFunctionConfigurationBean {
 
     }
 
-    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
+    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
       _perCurrencyInfo.clear();

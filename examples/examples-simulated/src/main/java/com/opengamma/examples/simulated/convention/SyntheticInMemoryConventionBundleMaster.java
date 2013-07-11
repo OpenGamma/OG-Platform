@@ -17,22 +17,15 @@ public class SyntheticInMemoryConventionBundleMaster extends InMemoryConventionB
 
     SyntheticUSConventions.addFixedIncomeInstrumentConventions(this);
     SyntheticUSConventions.addCAPMConvention(this);
-    
     SyntheticGBConventions.addFixedIncomeInstrumentConventions(this);
-    
     SyntheticAUConventions.addFixedIncomeInstrumentConventions(this);
-    
     SyntheticCAConventions.addFixedIncomeInstrumentConventions(this);
-    
     SyntheticCHConventions.addFixedIncomeInstrumentConventions(this);
-    
     SyntheticDKConventions.addFixedIncomeInstrumentConventions(this);
-    
     SyntheticEUConventions.addFixedIncomeInstrumentConventions(this);
-    
     SyntheticJPConventions.addFixedIncomeInstrumentConventions(this);
-    
     SyntheticNZConventions.addFixedIncomeInstrumentConventions(this);
+    SyntheticUSConventions.addTreasuryBondConvention(this);
   }
 
 }

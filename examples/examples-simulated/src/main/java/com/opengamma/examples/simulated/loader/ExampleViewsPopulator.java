@@ -12,8 +12,20 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CO
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
+import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
+import static com.opengamma.engine.value.ValueRequirementNames.FORWARD;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
+import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
+import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
+import static com.opengamma.engine.value.ValueRequirementNames.MARKET_CLEAN_PRICE;
+import static com.opengamma.engine.value.ValueRequirementNames.MARKET_YTM;
+import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
+import static com.opengamma.engine.value.ValueRequirementNames.POSITION_DELTA;
+import static com.opengamma.engine.value.ValueRequirementNames.POSITION_GAMMA;
+import static com.opengamma.engine.value.ValueRequirementNames.POSITION_RHO;
+import static com.opengamma.engine.value.ValueRequirementNames.POSITION_THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY;
@@ -22,7 +34,9 @@ import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SAB
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
+import static com.opengamma.engine.value.ValueRequirementNames.RHO;
 import static com.opengamma.engine.value.ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY;
+import static com.opengamma.engine.value.ValueRequirementNames.THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_DELTA;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_GAMMA;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_GAMMA_P;
@@ -32,32 +46,25 @@ import static com.opengamma.engine.value.ValueRequirementNames.VALUE_THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_VANNA;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_VEGA;
 import static com.opengamma.engine.value.ValueRequirementNames.VALUE_VOMMA;
+import static com.opengamma.engine.value.ValueRequirementNames.VEGA;
 import static com.opengamma.engine.value.ValueRequirementNames.VEGA_MATRIX;
 import static com.opengamma.engine.value.ValueRequirementNames.VEGA_QUOTE_MATRIX;
 import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_SURFACE_DATA;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOBIAN;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+import static com.opengamma.engine.value.ValueRequirementNames.YTM;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.AUD_SWAP_PORFOLIO_NAME;
+import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.EQUITY_OPTION_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.EUR_SWAP_PORTFOLIO_NAME;
+import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.FUTURE_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.FX_FORWARD_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.MIXED_CMS_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.SWAPTION_PORTFOLIO_NAME;
+import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.US_GOVERNMENT_BOND_PORTFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.VANILLA_FX_OPTION_PORTFOLIO_NAME;
-import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.EQUITY_OPTION_PORTFOLIO_NAME;
-import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.FUTURE_PORTFOLIO_NAME;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_DELTA;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_RHO;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_GAMMA;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_THETA;
-import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
-import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
-import static com.opengamma.engine.value.ValueRequirementNames.THETA;
-import static com.opengamma.engine.value.ValueRequirementNames.RHO;
-import static com.opengamma.engine.value.ValueRequirementNames.VEGA;
-import static com.opengamma.engine.value.ValueRequirementNames.FORWARD;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
 
 import java.util.HashMap;
@@ -65,9 +72,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.financial.security.future.IndexFutureSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,12 +87,17 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -180,10 +189,11 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     storeViewDefinition(getFXOptionGreeksViewDefinition(VANILLA_FX_OPTION_PORTFOLIO_NAME, "FX Option Greeks View"));
     storeViewDefinition(getATMSwaptionViewDefinition(MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME, "Swaption Black Pricing View"));
     storeViewDefinition(getSABRExtrapolationViewDefinition(MIXED_CMS_PORTFOLIO_NAME));
-    storeViewDefinition(getEURFixedIncomeViewDefinition(EUR_SWAP_PORTFOLIO_NAME, "EUR Swap Desk"));
+    storeViewDefinition(getEURFixedIncomeViewDefinition(EUR_SWAP_PORTFOLIO_NAME, "EUR Swap Desk View"));
     storeViewDefinition(getFXForwardViewDefinition(FX_FORWARD_PORTFOLIO_NAME, "FX Forward View"));
     storeViewDefinition(getEquityOptionViewDefinition(EQUITY_OPTION_PORTFOLIO_NAME, "Equity Option View"));
     storeViewDefinition(getFutureViewDefinition(FUTURE_PORTFOLIO_NAME, "Futures View"));
+    storeViewDefinition(getBondViewDefinition(US_GOVERNMENT_BOND_PORTFOLIO_NAME, "Government Bond View"));
   }
 
   private ViewDefinition getEquityViewDefinition(final String portfolioName) {
@@ -634,19 +644,18 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMaxFullCalculationPeriod(500L);
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
-    final String curveConfig = "DefaultTwoCurveUSDConfig";
     final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalConfig, EquitySecurity.SECURITY_TYPE, new String[]{
-            POSITION_DELTA,
-            VALUE_DELTA,
-            DELTA,
-            POSITION_GAMMA,
-            POSITION_THETA,
-            POSITION_RHO,
-            GAMMA,
-            THETA,
-            RHO,
-            VEGA
+      POSITION_DELTA,
+      VALUE_DELTA,
+      DELTA,
+      POSITION_GAMMA,
+      POSITION_THETA,
+      POSITION_RHO,
+      GAMMA,
+      THETA,
+      RHO,
+      VEGA
     });
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_DELTA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, VALUE_DELTA, ValueProperties.none());
@@ -672,13 +681,36 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalConfig, IndexFutureSecurity.SECURITY_TYPE, new String[]{
-            PRESENT_VALUE,
-            PV01,
-            VALUE_DELTA,
-            VALUE_RHO,
-            FORWARD
+      PRESENT_VALUE,
+      PV01,
+      VALUE_DELTA,
+      VALUE_RHO,
+      FORWARD
     });
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
+    return viewDefinition;
+  }
+  
+  private ViewDefinition getBondViewDefinition(final String portfolioName, final String viewName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration curvesConfig = new ViewCalculationConfiguration(viewDefinition, "Curves");
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, CLEAN_PRICE,
+        ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MACAULAY_DURATION,
+        ValueProperties.none());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MODIFIED_DURATION,
+        ValueProperties.none());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, PRESENT_VALUE,
+        ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, YTM,
+        ValueProperties.none());
+    viewDefinition.addViewCalculationConfiguration(curvesConfig);
     return viewDefinition;
   }
   

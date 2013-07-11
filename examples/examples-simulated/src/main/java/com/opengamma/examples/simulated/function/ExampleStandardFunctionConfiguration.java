@@ -119,9 +119,13 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveConfiguration("model/fxforward", "DefaultTwoCurveUSDConfig");
     i.setCurveConfiguration("model/fxforward/black", "DefaultTwoCurveUSDConfig");
     i.setCurveConfiguration("model/swaption/black", "DefaultTwoCurveUSDConfig");
+    i.setCurveConfiguration("model/bond/riskFree", "DefaultTwoCurveUSDConfig");
+    i.setCurveConfiguration("model/bond/credit", "DefaultTwoCurveUSDConfig");
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/fxforward", "Discounting");
     i.setCurveName("model/fxoption/black", "Discounting");
+    i.setCurveName("model/bond/riskFree", "Discounting");
+    i.setCurveName("model/bond/credit", "Discounting");
     i.setCubeName(null, "SECONDARY");
     i.setForwardCurveName(null, "Forward3M");
     i.setSurfaceName(null, "SECONDARY");

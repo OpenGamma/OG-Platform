@@ -23,6 +23,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Synthetic US Conventions
@@ -116,5 +117,14 @@ public class SyntheticUSConventions {
         ExternalIdBundle.of(syntheticSecurityId("USDLIBORP3M")), ExternalIdBundle.of(syntheticSecurityId("SPX")));
   }
 
-
+  /**
+   * Adds conventions for US Treasury bonds,
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_TREASURY_BOND_CONVENTION")), "US_TREASURY_BOND_CONVENTION", true, true, 0, 1,
+        true);
+  }
 }
