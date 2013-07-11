@@ -7,8 +7,10 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
+import org.threeten.bp.temporal.JulianFields;
 
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -21,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * This converts and stores all the date logic as doubles for CDS pricing on a particular date 
  */
 public class CDSAnalytic {
-
+  // private static final Calendar DEFAULT_CALENDAR = new NoHolidayCalendar();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -42,6 +44,7 @@ public class CDSAnalytic {
   private final boolean _payAccOnDefault;
   private final boolean _protectionFromStartOfDay;
   private final double _accrued;
+  private final int _accruedDays;
 
   private final double _curveOneDay = 1. / 365; // TODO do not hard code
 
@@ -138,6 +141,10 @@ public class CDSAnalytic {
       _creditObsTimes[i] = curveDayCount.getDayCountFraction(today, obsEnd); // TODO this looks odd - check again with ISDA c code
     }
     final LocalDate accStart = paymentSchedule.getAccStartDate(0);
+
+    final long firstJulianDate = accStart.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long secondJulianDate = stepinDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    _accruedDays = secondJulianDate > firstJulianDate ? (int) (secondJulianDate - firstJulianDate) : 0;
     _accrued = accStart.isBefore(stepinDate) ? accrualDayCount.getDayCountFraction(accStart, stepinDate) : 0.0;
   }
 
@@ -251,5 +258,13 @@ public class CDSAnalytic {
    */
   public double getAccrued() {
     return _accrued;
+  }
+
+  /**
+   * Get the number of days of accrued premium.
+   * @return Accrued days 
+   */
+  public int getAccuredDays() {
+    return _accruedDays;
   }
 }

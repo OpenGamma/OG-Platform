@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -37,9 +37,14 @@ public class ISDAPremiumLegSchedule {
       throw new IllegalArgumentException("today is after last payment - i.e. all the payments are in the past");
     }
 
-    int index = 0;
-    while (schedule._accEndDates[index].isBefore(stepin)) {
-      index++;
+    // int index = 0;
+    // while (schedule._accEndDates[index].isBefore(stepin)) {
+    // index++;
+    // }
+
+    int index = schedule.getAccStartDateIndex(stepin);
+    if (index < 0) {
+      index = -(index + 1) - 1; // keep the one before the insertion point
     }
 
     return new ISDAPremiumLegSchedule(schedule._paymentDates, schedule._accStartDates, schedule._accEndDates, index);

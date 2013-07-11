@@ -43,6 +43,14 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * {@inheritDoc}
    */
   @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(CDSAnalytic cds, double marketFractionalSpread, ISDACompliantYieldCurve yieldCurve) {
+    return calibrateCreditCurve(new CDSAnalytic[] {cds}, new double[] {marketFractionalSpread}, yieldCurve);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] fractionalSpreads, final ISDACompliantYieldCurve yieldCurve) {
     ArgumentChecker.noNulls(cds, "null CDSs");
     ArgumentChecker.notEmpty(fractionalSpreads, "empty fractionalSpreads");
@@ -78,8 +86,17 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * {@inheritDoc}
    */
   @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(LocalDate today, LocalDate stepinDate, LocalDate valueDate, LocalDate startDate, LocalDate endDate, double fractionalParSpread,
+      boolean payAccOnDefault, Period tenor, StubType stubType, boolean protectStart, ISDACompliantYieldCurve yieldCurve, double recoveryRate) {
+    return calibrateCreditCurve(today, stepinDate, valueDate, startDate, new LocalDate[] {endDate}, new double[] {fractionalParSpread}, payAccOnDefault, tenor, stubType, protectStart, yieldCurve, recoveryRate);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve,
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantYieldCurve yieldCurve,
       final double recoveryRate) {
 
     ArgumentChecker.notNull(today, "null today");

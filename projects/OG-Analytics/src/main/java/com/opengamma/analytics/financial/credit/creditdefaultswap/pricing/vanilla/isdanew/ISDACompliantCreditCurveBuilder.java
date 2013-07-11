@@ -17,6 +17,15 @@ import com.opengamma.analytics.financial.credit.StubType;
 public interface ISDACompliantCreditCurveBuilder {
 
   /**
+   * Bootstrapper the credit curve from a single market CDS quote. Obviously the resulting credit (hazard) curve will be flat
+   * @param cds  The single market CDS - this is the reference instruments used to build the credit curve 
+   * @param marketFractionalSpread The <b>fractional</b> spread of the market CDS   
+   * @param yieldCurve The yield (or discount) curve  
+   * @return The credit curve 
+   */
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double marketFractionalSpread, final ISDACompliantYieldCurve yieldCurve);
+
+  /**
    * Bootstrapper the credit curve, by making each market CDS in turn have zero clean price 
    * @param cds  The market CDSs - these are the reference instruments used to build the credit curve 
    * @param marketFractionalSpreads The <b>fractional</b> spreads of the market CDSs    
@@ -24,6 +33,28 @@ public interface ISDACompliantCreditCurveBuilder {
    * @return The credit curve 
    */
   ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] marketFractionalSpreads, final ISDACompliantYieldCurve yieldCurve);
+
+  /**
+   * Bootstrapper the credit curve from a single CDS, by making it have zero clean price. Obviously the resulting credit (hazard) curve will be flat.
+  * @param today The 'current' date
+   * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
+   * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
+   * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
+   * is at the end.
+   * @param endDate The maturity (or end of protection) of  the CDS 
+   * @param fractionalParSpread - the (fractional) coupon that makes the CDS worth par (i.e. zero clean price)
+   * @param payAccOnDefault Is the accrued premium paid in the event of a default
+   * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
+   * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
+   *  - <b>Note</b> in this code NONE is not allowed
+   * @param protectStart Does protection start at the beginning of the day
+   * @param yieldCurve Curve from which payments are discounted
+   * @param recoveryRate the recovery rate 
+   * @return The credit curve
+   */
+  ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
+      final double fractionalParSpread, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantYieldCurve yieldCurve,
+      final double recoveryRate);
 
   /**
    * Bootstrapper the credit curve, by making each market CDS in turn have zero clean price 
@@ -44,7 +75,7 @@ public interface ISDACompliantCreditCurveBuilder {
    * @return The credit curve
    */
   ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] fractionalParSpreads, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve,
+      final double[] fractionalParSpreads, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantYieldCurve yieldCurve,
       final double recoveryRate);
 
 }
