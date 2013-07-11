@@ -47,7 +47,8 @@ public class ScenarioDslParameters implements ScenarioParameters {
   /**
    * @return The parameters, keyed by name
    */
-  @Override@SuppressWarnings("unchecked")
+  @Override
+  @SuppressWarnings("unchecked")
   public Map<String, Object> getParameters() {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(SimulationScript.class.getName());
@@ -63,7 +64,7 @@ public class ScenarioDslParameters implements ScenarioParameters {
     return msg;
   }
 
-  public static ScenarioParameters fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static ScenarioDslParameters fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     String script = deserializer.fieldValueToObject(String.class, msg.getByName(SCRIPT));
     return new ScenarioDslParameters(script);
   }

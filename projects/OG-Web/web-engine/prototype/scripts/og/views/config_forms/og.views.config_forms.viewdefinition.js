@@ -20,7 +20,7 @@ $.register_module({
             CONS = 'constraints',               WITH = 'with',
             WTHO = 'without',                   INDX = '<INDEX>',
             ORDS = 'columns',                   EMPT = '<EMPTY>',
-            SCEN = 'scenarioId',
+            SCEN = 'scenarioId',                PARA = 'scenarioParametersId',
             type_map = [
                 ['0',                                                                           Form.type.STR],
                 [[SETS, 'name'].join('.'),                                                      Form.type.STR],
@@ -33,7 +33,7 @@ $.register_module({
                 // </constraints>
                 [[SETS, INDX, 'name'].join('.'),                                                Form.type.STR],
                 [[SETS, INDX, SCEN].join('.'),                                                  Form.type.STR],
-               /* [[SETS, SCEN].join('.'),                                                        Form.type.STR],*/
+                [[SETS, INDX, PARA].join('.'),                                                  Form.type.STR],
                 // <constraints>
                 [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*'].join('.'),               Form.type.IND],
                 [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', 'optional'].join('.'),   Form.type.IND],
@@ -426,7 +426,8 @@ $.register_module({
                             children: [
                                 col_tabs, col_vals, spec_vals, // additional values
                                 new blocks.Scenario({ // scenario
-                                	form: form, data: set[SCEN], index: [SETS, set_idx, SCEN].join('.')
+                                	form: form, script: set[SCEN], scriptindex: [SETS, set_idx, SCEN].join('.'),
+                                    param : set[PARA], paraindex: [SETS, set_idx, PARA].join('.')
                                 }),
                                 new blocks.Constraints({ // default properties
                                     form: form, data: set[DEFP], index: [SETS, set_idx, DEFP].join('.')

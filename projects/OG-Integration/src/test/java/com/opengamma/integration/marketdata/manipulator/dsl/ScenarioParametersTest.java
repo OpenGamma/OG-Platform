@@ -39,7 +39,7 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void fudgeRoundTrip() {
-    ScenarioParameters parameters = new ScenarioDslParameters("str = \"foo\"\ndbl = 1.23");
+    ScenarioDslParameters parameters = new ScenarioDslParameters("str = \"foo\"\ndbl = 1.23");
     assertEncodeDecodeCycle(ScenarioDslParameters.class, parameters);
   }
 }
