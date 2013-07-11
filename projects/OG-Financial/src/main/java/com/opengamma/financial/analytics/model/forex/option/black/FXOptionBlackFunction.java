@@ -203,17 +203,6 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     return requirements;
   }
 
-
-  @Override
-  public boolean canHandleMissingRequirements() {
-    return true;
-  }
-
-  @Override
-  public boolean canHandleMissingInputs() {
-    return true;
-  }
-
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String currencyPairConfigName = null;
