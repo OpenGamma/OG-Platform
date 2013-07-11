@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 
 /**
  * Placeholder REST resource for portfolio upload in the examples project.  The upload depends on Bloomberg
- * data and therefore isn't available in OG-Examples but the upload button in the UI is still there.  This class
+ * data and therefore isn't available in Examples-Simulated but the upload button in the UI is still there.  This class
  * prevents an ugly 404 error if the user tries to upload a portfolio.
  */
 @Path("portfolioupload")

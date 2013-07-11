@@ -8,7 +8,7 @@ package com.opengamma.examples.simulated;
 import com.opengamma.component.OpenGammaComponentServer;
 
 /**
- * Entry point for the OpenGamma component-based server in OG-Examples automatically
+ * Entry point for the OpenGamma component-based server in Examples-Simulated automatically
  * starting the "development" configuration file.
  * <p>
  * This file is intended for use with an IDE and a checked out source code tree.

@@ -1,4 +1,4 @@
-The OG-Examples database provides example data and an example server configuration.
+The Examples-Simulated database provides example data and an example server configuration.
 
 As per [this wiki page](http://docs.opengamma.com/display/DOC090/Running+the+Example+Engine), you can configure and start the example server by running:
 

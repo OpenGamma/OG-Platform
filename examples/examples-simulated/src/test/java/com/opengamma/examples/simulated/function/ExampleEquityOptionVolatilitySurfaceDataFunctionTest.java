@@ -17,7 +17,7 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class ExampleEquityOptionVolatilitySurfaceDataFunctionTest {
-  // when written, this was the only unit test in OG-Examples
+  // when written, this was the only unit test in examples-simulated
   // and was added to keep continuous integration happy
 
   @Test

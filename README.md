@@ -63,10 +63,10 @@ For production, the engine is typically customized, however two example engine
 configurations are pre-supplied, one with Bloomberg support and one with
 simulated market data.
 
-To run the example engine, change to the projects/OG-Examples directory
+To run the example engine, change to the examples/examples-simulated directory
 and run the following command:
 ```
-  cd projects/OG-Examples
+  cd examples/examples-simulated
   mvn opengamma:server-run -DconfigFile=fullstack/fullstack-example-dev.properties
 ```
 
