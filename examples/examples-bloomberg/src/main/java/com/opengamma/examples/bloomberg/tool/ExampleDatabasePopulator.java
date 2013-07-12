@@ -118,6 +118,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     loadAUDSwapPortfolio();
     loadCMCapFloorPortfolio();
     loadEURSwapDeskPortfolio();
+//    loadBondPortfolio();
     loadViews();
     loadFunctionConfigurations();
   }

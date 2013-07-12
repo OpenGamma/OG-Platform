@@ -15,6 +15,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.CAPM_BETA;
 import static com.opengamma.engine.value.ValueRequirementNames.CARRY_RHO;
+import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA_BLEED;
 import static com.opengamma.engine.value.ValueRequirementNames.DRIFTLESS_THETA;
@@ -30,6 +31,8 @@ import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_P_BLEED;
 import static com.opengamma.engine.value.ValueRequirementNames.HISTORICAL_VAR;
 import static com.opengamma.engine.value.ValueRequirementNames.HISTORICAL_VAR_STDDEV;
 import static com.opengamma.engine.value.ValueRequirementNames.JENSENS_ALPHA;
+import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
+import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.PHI;
 import static com.opengamma.engine.value.ValueRequirementNames.PNL_SERIES;
@@ -74,6 +77,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.VOMMA_P;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOBIAN;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+import static com.opengamma.engine.value.ValueRequirementNames.YTM;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
 
 import java.util.HashMap;
@@ -96,8 +100,10 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -173,6 +179,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     storeViewDefinition(getSABRExtrapolationViewDefinition(ExampleMixedCMCapFloorPortfolioLoader.PORTFOLIO_NAME, "Constant Maturity Swap / Cap-Floor View"));
     storeViewDefinition(getFXForwardViewDefinition(ExampleFxForwardPortfolioLoader.PORTFOLIO_NAME, "FX Forward View"));
     storeViewDefinition(getEURFixedIncomeViewDefinition(ExampleEURFixedIncomePortfolioLoader.PORTFOLIO_NAME, "EUR Swap Desk View"));
+//    storeViewDefinition(getBondViewDefinition("Government Bonds", "Government Bond View"));
   }
 
   private ViewDefinition getEquityOptionViewDefinition(final String portfolioName, final String viewName) {
@@ -697,6 +704,29 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     viewDefinition.addViewCalculationConfiguration(firstConfig);
     viewDefinition.addViewCalculationConfiguration(secondConfig);
     viewDefinition.addViewCalculationConfiguration(thirdConfig);
+    return viewDefinition;
+  }
+
+  private ViewDefinition getBondViewDefinition(final String portfolioName, final String viewName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration curvesConfig = new ViewCalculationConfiguration(viewDefinition, "Curves");
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, CLEAN_PRICE,
+        ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MACAULAY_DURATION,
+        ValueProperties.none());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MODIFIED_DURATION,
+        ValueProperties.none());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, PRESENT_VALUE,
+        ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, YTM,
+        ValueProperties.none());
+    viewDefinition.addViewCalculationConfiguration(curvesConfig);
     return viewDefinition;
   }
 
