@@ -49,7 +49,7 @@ public class SecurePortfolioMasterTest {
   private PortfolioMaster _portfolioMaster;
   public SecurePortfolioMaster _securePortfolioMaster;
   private static final UniqueId PORTFOLIO_UNIQUE_ID = UniqueId.of("test", "uid", "2");
-  private static final PortfolioDocument TEST_PORTFOLIO_DOCUMENT = mock(PortfolioDocument.class);
+  private static final PortfolioDocument TEST_PORTFOLIO_DOCUMENT = new PortfolioDocument();
 
   @BeforeMethod
   public void setUp() {
