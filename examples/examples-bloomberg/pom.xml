@@ -30,6 +30,21 @@
       </resource>
     </resources>
     <plugins>
+      <!-- include classpath in jar files -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*logback.xml</exclude>
+          </excludes>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
       <!-- create empty data and logs directory -->
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>

@@ -104,7 +104,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
-            <id>jar</id>
+            <id>default-jar</id>
             <goals>
               <goal>jar</goal>
             </goals>
@@ -122,11 +122,6 @@
           </excludes>
           <skipIfEmpty>true</skipIfEmpty>
           <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-            </manifest>
             <manifestEntries>
               <Implementation-Build>${buildNumber}</Implementation-Build>
               <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
