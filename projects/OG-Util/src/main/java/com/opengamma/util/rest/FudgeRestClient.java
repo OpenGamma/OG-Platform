@@ -33,7 +33,7 @@ public class FudgeRestClient {
    * Creates an instance.
    * @param underlyingClient  the 
    */
-  protected FudgeRestClient(final Client underlyingClient) {
+  public FudgeRestClient(final Client underlyingClient) {
     _client = underlyingClient;
   }
 
