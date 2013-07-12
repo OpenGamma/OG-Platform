@@ -111,7 +111,7 @@ public class UpfrontFlatTest {
 //    System.out.println(clean + "\t" + dirty + "\t" + (clean - dirty));
 //    System.out.println(cds.getAccrued() * coupon + "\t" + cds.getAccuredDays());
     
-    
+    //Numers from Excel
     assertEquals("upfrount", 0.018566047, clean,1e-9);
     assertEquals("cashSettled", 57882.69024, dirty*NOTIONAL,1e-9*NOTIONAL);
     
