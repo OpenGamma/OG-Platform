@@ -94,7 +94,7 @@ public class MSTestToJUnit extends AbstractJUnitResults {
             case XMLStreamConstants.END_ELEMENT: {
               final QName element = reader.getName();
               if (currentUnitTest != null) {
-                if ("UnitTestResult".equals(element.getLocalPart())) {
+                if ("UnitTest".equals(element.getLocalPart()) || "UnitTestResult".equals(element.getLocalPart())) {
                   currentUnitTest = null;
                 }
               }
