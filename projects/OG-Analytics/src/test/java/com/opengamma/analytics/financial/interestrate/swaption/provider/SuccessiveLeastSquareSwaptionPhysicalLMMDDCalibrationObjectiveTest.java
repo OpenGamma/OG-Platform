@@ -33,7 +33,7 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
-import com.opengamma.analytics.financial.provider.method.SuccessiveLeastSquareCalibrationEngineWithCalculators;
+import com.opengamma.analytics.financial.provider.method.CalibrationEngineWithCalculators;
 import com.opengamma.analytics.financial.provider.method.SuccessiveLeastSquareLMMDDCalibrationEngine;
 import com.opengamma.analytics.financial.provider.method.SuccessiveLeastSquareLMMDDCalibrationObjective;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -118,7 +118,7 @@ public class SuccessiveLeastSquareSwaptionPhysicalLMMDDCalibrationObjectiveTest 
   public void calibration() {
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = LMM_PARAM_INIT.copy();
     final SuccessiveLeastSquareLMMDDCalibrationObjective objective = new SuccessiveLeastSquareLMMDDCalibrationObjective(lmmParameters, EUR);
-    final SuccessiveLeastSquareCalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveLeastSquareLMMDDCalibrationEngine<>(objective, NB_STRIKE);
+    final CalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveLeastSquareLMMDDCalibrationEngine<>(objective, NB_STRIKE);
     final SwaptionPhysicalFixedIbor[] swaptionCalibration = METHOD_BASKET.calibrationBasketFixedLegPeriod(SWAPTION_AMORTIZED, MONEYNESS);
     calibrationEngine.addInstrument(swaptionCalibration, PVSSC);
     calibrationEngine.calibrate(SABR_MULTICURVES);

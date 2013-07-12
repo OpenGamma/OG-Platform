@@ -1,47 +1,50 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Specific calibration engine for the Hull-White one factor model with cap/floor.
+ * Specific calibration engine for the price index (inflation) market model with year on year cap/floor.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
+public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DATA_TYPE extends InflationProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
-   * The list of the last index in the Ibor date for each instrument.
+   * The list of calibration times.
    */
-  private final List<Integer> _instrumentIndex = new ArrayList<Integer>();
+  private final List<Double> _calibrationTimes = new ArrayList<Double>();
 
   /**
    * The calibration objective.
    */
-  private final SuccessiveRootFinderCalibrationObjectiveWithMultiCurves _calibrationObjective;
+  private final SuccessiveRootFinderCalibrationObjectivewithInflation _calibrationObjective;
 
   /**
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveRootFinderLMMDDCalibrationEngine(SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
+  public SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine(SuccessiveRootFinderCalibrationObjectivewithInflation calibrationObjective) {
     super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
     _calibrationObjective = calibrationObjective;
-    _instrumentIndex.add(0);
   }
 
   /**
@@ -51,23 +54,18 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
    */
   @Override
   public void addInstrument(final InstrumentDerivative instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
-    ArgumentChecker.isTrue((instrument instanceof SwaptionPhysicalFixedIbor), "Instrument should be cap or swaption.");
+    ArgumentChecker.isTrue((instrument instanceof CapFloorInflationYearOnYearInterpolation) || (instrument instanceof CapFloorInflationYearOnYearMonthly),
+        "Instrument should be cap inflation year on year.");
     getBasket().add(instrument);
     getMethod().add(calculator);
     getCalibrationPrice().add(0.0);
-    if (instrument instanceof SwaptionPhysicalFixedIbor) {
-      SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
-      _instrumentIndex.add(Arrays.binarySearch(((SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective).getLMMParameters().getIborTime(), swaption.getUnderlyingSwap()
-          .getSecondLeg().getNthPayment(swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments() - 1).getPaymentTime()));
+    if (instrument instanceof CapFloorIbor) {
+      _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
     }
-  }
+    if (instrument instanceof SwaptionPhysicalFixedIbor) {
+      _calibrationTimes.add(((SwaptionPhysicalFixedIbor) instrument).getTimeToExpiry());
+    }
 
-  /**
-   * Gets the instrument index.
-   * @return The instrument index.
-   */
-  public List<Integer> getInstrumentIndex() {
-    return _instrumentIndex;
   }
 
   /**
@@ -78,26 +76,31 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
   @Override
   public void addInstrument(final InstrumentDerivative[] instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
     for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      addInstrument(instrument[loopinstrument], calculator);
+      Validate.isTrue((instrument[loopinstrument] instanceof CapFloorInflationYearOnYearInterpolation) || (instrument[loopinstrument] instanceof CapFloorInflationYearOnYearMonthly),
+          "Calibration instruments should be cap/floor inflation year on year");
+      getBasket().add(instrument[loopinstrument]);
+      getMethod().add(calculator);
+      getCalibrationPrice().add(0.0);
+      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
     }
   }
 
   @Override
   public void calibrate(DATA_TYPE data) {
     computeCalibrationPrice(data);
-    _calibrationObjective.setMulticurves(data.getMulticurveProvider());
+    _calibrationObjective.setInflation(data.getInflationProvider());
     int nbInstruments = getBasket().size();
-    SuccessiveRootFinderLMMDDCalibrationObjective objective = (SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective;
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(_calibrationObjective.getFunctionValueAccuracy(), _calibrationObjective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
       InstrumentDerivative instrument = getBasket().get(loopins);
       _calibrationObjective.setInstrument(instrument);
-      objective.setStartIndex(_instrumentIndex.get(loopins));
-      objective.setEndIndex(_instrumentIndex.get(loopins + 1) - 1);
       _calibrationObjective.setPrice(getCalibrationPrice().get(loopins));
-      final double[] range = bracketer.getBracketedPoints(_calibrationObjective, objective.getMinimumParameter(), objective.getMaximumParameter());
+      final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
+      if (loopins < nbInstruments - 1) {
+        ((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
+      }
     }
   }
 

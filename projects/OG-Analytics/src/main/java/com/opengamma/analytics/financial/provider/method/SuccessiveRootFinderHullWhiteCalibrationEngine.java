@@ -24,7 +24,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Specific calibration engine for the Hull-White one factor model with cap/floor.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveRootFinderHullWhiteCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends SuccessiveRootFinderCalibrationEngineWithCalculators<DATA_TYPE> {
+public class SuccessiveRootFinderHullWhiteCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
    * The list of calibration times.
@@ -32,11 +32,17 @@ public class SuccessiveRootFinderHullWhiteCalibrationEngine<DATA_TYPE extends Pa
   private final List<Double> _calibrationTimes = new ArrayList<Double>();
 
   /**
+   * The calibration objective.
+   */
+  private final SuccessiveRootFinderCalibrationObjectiveWithMultiCurves _calibrationObjective;
+
+  /**
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveRootFinderHullWhiteCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
-    super(calibrationObjective);
+  public SuccessiveRootFinderHullWhiteCalibrationEngine(SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
+    super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
+    _calibrationObjective = calibrationObjective;
   }
 
   /**
@@ -78,18 +84,18 @@ public class SuccessiveRootFinderHullWhiteCalibrationEngine<DATA_TYPE extends Pa
   @Override
   public void calibrate(DATA_TYPE data) {
     computeCalibrationPrice(data);
-    getCalibrationObjective().setMulticurves(data.getMulticurveProvider());
+    _calibrationObjective.setMulticurves(data.getMulticurveProvider());
     int nbInstruments = getBasket().size();
-    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(getCalibrationObjective().getFunctionValueAccuracy(), getCalibrationObjective().getVariableAbsoluteAccuracy());
+    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(_calibrationObjective.getFunctionValueAccuracy(), _calibrationObjective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
       InstrumentDerivative instrument = getBasket().get(loopins);
-      getCalibrationObjective().setInstrument(instrument);
-      getCalibrationObjective().setPrice(getCalibrationPrice().get(loopins));
-      final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), getCalibrationObjective().getMinimumParameter(), getCalibrationObjective().getMaximumParameter());
-      rootFinder.getRoot(getCalibrationObjective(), range[0], range[1]);
+      _calibrationObjective.setInstrument(instrument);
+      _calibrationObjective.setPrice(getCalibrationPrice().get(loopins));
+      final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
+      rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
       if (loopins < nbInstruments - 1) {
-        ((SuccessiveRootFinderHullWhiteCalibrationObjective) getCalibrationObjective()).setNextCalibrationTime(_calibrationTimes.get(loopins));
+        ((SuccessiveRootFinderHullWhiteCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
       }
     }
   }

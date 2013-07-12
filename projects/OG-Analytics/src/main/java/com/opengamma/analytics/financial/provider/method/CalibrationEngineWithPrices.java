@@ -26,7 +26,7 @@ public abstract class CalibrationEngineWithPrices<DATA_TYPE extends ParameterPro
   private final List<InstrumentDerivative> _basket;
 
   /**
-   * The prices (usually market quotes or prices calculating with a simpler (than the one we wnat ot calibrate) models) on which we are doing the calibration.
+   * The prices (usually market quotes or prices calculating with a simpler (than the one we want to calibrate) models) on which we are doing the calibration.
    */
   private final List<Double> _calibrationPrice;
 
