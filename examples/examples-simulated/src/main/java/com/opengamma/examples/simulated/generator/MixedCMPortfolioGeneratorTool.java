@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Random;
 
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
@@ -62,7 +63,7 @@ public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
   /** The strikes */
   private static final double[] STRIKES = new double[] {0.01, 0.02, 0.03};
   /** The trade date */
-  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2013, 7, 1);
+  private static final ZonedDateTime TRADE_DATE = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
   /** The pay tenors */
   private static final Tenor[] PAY_TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.FIVE_YEARS};
   /** The receive tenors */

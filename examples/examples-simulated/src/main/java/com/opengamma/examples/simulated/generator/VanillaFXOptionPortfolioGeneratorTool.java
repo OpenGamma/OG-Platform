@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -51,7 +52,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.CHF, Currency.JPY), 100.));
     final ExerciseType european = new EuropeanExerciseType();
     final Random rng = new Random(1237);
-    final ZonedDateTime date = DateUtils.getUTCDate(2015, 2, 1);
+    final ZonedDateTime date = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
     for (int i = 0; i < 100; i++) {
       final int n = rng.nextInt(6);
       final Pair<UnorderedCurrencyPair, Double> pair = SPOT_RATES.get(n);
@@ -74,7 +75,7 @@ public class VanillaFXOptionPortfolioGeneratorTool extends AbstractPortfolioGene
         strike = putAmount / callAmount;
       }
       final boolean isLong = rng.nextBoolean() ? true : false;
-      final Expiry expiry = new Expiry(date.plusMonths(rng.nextInt(20)));
+      final Expiry expiry = new Expiry(date.plusMonths(1 + rng.nextInt(20)));
       final ZonedDateTime settlementDate = expiry.getExpiry().plusDays(2);
       final FXOptionSecurity option = new FXOptionSecurity(putCurrency, callCurrency, putAmount, callAmount, expiry, settlementDate, isLong, european);
       final StringBuilder sb = new StringBuilder();

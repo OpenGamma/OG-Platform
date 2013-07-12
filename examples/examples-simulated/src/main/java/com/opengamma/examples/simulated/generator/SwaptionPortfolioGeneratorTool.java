@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
@@ -97,7 +98,7 @@ public class SwaptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTo
     final List<Currency> currencies = new ArrayList<>(REGIONS.keySet());
     final ZonedDateTime[] tradeDates = new ZonedDateTime[size];
     final Random rng = new Random(123);
-    final ZonedDateTime date = DateUtils.getUTCDate(2013, 1, 1);
+    final ZonedDateTime date = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
     Arrays.fill(tradeDates, date);
     final SwaptionSecurity[] swaptions = new SwaptionSecurity[size];
     for (int i = 0; i < size; i++) {

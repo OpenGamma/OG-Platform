@@ -7,6 +7,7 @@ package com.opengamma.examples.simulated.generator;
 
 import java.math.BigDecimal;
 
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
@@ -86,8 +87,8 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwapParityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 5);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 9, 5);
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime effectiveDate = tradeDate;
     final ZonedDateTime maturity = DateUtils.getUTCDate(2024, 9, 5);
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg receiveLeg1 = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
@@ -102,10 +103,10 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwaptionLongShortGenerator(final SecurityMaster securityMaster) {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 6, 5);
-    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2024, 6, 5);
-    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2014, 6, 3));
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime effectiveDate = tradeDate.plusYears(1);
+    final ZonedDateTime maturityDate = effectiveDate.plusYears(10);
+    final Expiry expiry = new Expiry(effectiveDate.minusDays(2));
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg payLeg = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg receiveLeg = new FixedInterestRateLeg(THIRTYU_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, true, 0.02);
@@ -125,10 +126,10 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwaptionConventionGenerator(final SecurityMaster securityMaster) {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 6, 5);
-    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2024, 6, 5);
-    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2014, 6, 3));
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime effectiveDate = tradeDate.plusYears(1);
+    final ZonedDateTime maturityDate = effectiveDate.plusYears(10);
+    final Expiry expiry = new Expiry(effectiveDate.minusDays(2));
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg payLeg = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg receiveLeg1 = new FixedInterestRateLeg(ACT_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, true, 0.018);
@@ -155,10 +156,10 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getSwaptionParityGenerator(final SecurityMaster securityMaster) {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 6, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 6, 5);
-    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2024, 6, 5);
-    final Expiry expiry = new Expiry(DateUtils.getUTCDate(2014, 6, 3));
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime effectiveDate = tradeDate.plusYears(1);
+    final ZonedDateTime maturityDate = effectiveDate.plusYears(10);
+    final Expiry expiry = new Expiry(effectiveDate.minusDays(2));
     final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000);
     final FloatingInterestRateLeg payLeg = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, MODIFIED_FOLLOWING, notional, true, LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg receiveLeg = new FixedInterestRateLeg(THIRTYU_360, SEMI_ANNUAL, REGION, MODIFIED_FOLLOWING, notional, true, 0.02);

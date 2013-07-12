@@ -5,7 +5,6 @@
  */
 package com.opengamma.examples.simulated.generator;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -33,15 +32,16 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Generates a portfolio of AUD swaps.
  */
 public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   /** The trade date */
-  private static final ZonedDateTime TRADE_DATE = LocalDate.of(2014, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  private static final ZonedDateTime TRADE_DATE = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
   /** The maturity */
-  private static final ZonedDateTime MATURITY = LocalDate.of(2016, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  private static final ZonedDateTime MATURITY = TRADE_DATE.plusYears(4);
   /** The counterparty */
   private static final String COUNTERPARTY = "Cpty";
   /** Act/365 day-count */

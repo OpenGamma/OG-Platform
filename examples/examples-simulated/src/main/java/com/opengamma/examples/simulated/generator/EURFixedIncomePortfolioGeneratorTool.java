@@ -13,6 +13,7 @@ import java.util.Random;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Month;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
@@ -118,8 +119,8 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getVanillaSwapSecurityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 8, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 8, 5);
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime effectiveDate = tradeDate;
     final SwapSecurity[] securities = new SwapSecurity[N_VANILLA_SWAPS];
     for (int i = 0; i < N_VANILLA_SWAPS; i++) {
       final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000 * (1 + RANDOM.nextInt(9)));
@@ -156,8 +157,8 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getOISSwapSecurityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 8, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 8, 5);
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime effectiveDate = tradeDate;
     final SwapSecurity[] securities = new SwapSecurity[N_OIS_SWAPS];
     for (int i = 0; i < N_OIS_SWAPS; i++) {
       final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000 * (1 + RANDOM.nextInt(9)));
@@ -188,8 +189,8 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private MySecurityGenerator<ManageableSecurity> getBasisSwapSecurityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 8, 1);
-    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 8, 5);
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime effectiveDate = tradeDate;
     final SwapSecurity[] securities = new SwapSecurity[N_BASIS_SWAPS];
     for (int i = 0; i < N_BASIS_SWAPS; i++) {
       final InterestRateNotional notional = new InterestRateNotional(CURRENCY, 10000000 * (1 + RANDOM.nextInt(9)));
@@ -226,14 +227,13 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private FutureSecurityGenerator<ManageableSecurity> getIRFutureSecurityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 8, 1);
-    final ZonedDateTime startDate = DateUtils.getUTCDate(2013, 9, 1);
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC);
     final FutureSecurity[] securities = new FutureSecurity[N_FUTURES];
     final int[] amounts = new int[N_FUTURES];
     final double[] prices = new double[N_FUTURES];
     for (int i = 0; i < N_FUTURES; i++) {
       final int n = 1 + RANDOM.nextInt(20);
-      final Expiry expiry = new Expiry(startDate.plusMonths(3 * n).with(THIRD_WED_ADJUSTER));
+      final Expiry expiry = new Expiry(tradeDate.plusMonths(3 * n).with(THIRD_WED_ADJUSTER));
       final String letter = MONTHS.get(expiry.getExpiry().getMonth());
       final String year = Integer.toString(expiry.getExpiry().getYear() - 2000);
       final String code = "ER" + letter + year;
@@ -241,7 +241,7 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
       security.setName(code);
       security.setExternalIdBundle(ExternalIdBundle.of(ExternalSchemes.syntheticSecurityId(code)));
       securities[i] = security;
-      amounts[i] = 50 - RANDOM.nextInt(100);
+      amounts[i] = RANDOM.nextInt(100) - 50;
       prices[i] = 1 - (1e-5 + RANDOM.nextDouble() / 100.);
     }
     return new FutureSecurityGenerator<>(securities, amounts, prices, tradeDate, "Euribor futures");

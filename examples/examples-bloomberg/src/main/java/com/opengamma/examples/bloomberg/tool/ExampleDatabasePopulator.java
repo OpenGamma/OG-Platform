@@ -25,6 +25,7 @@ import com.opengamma.examples.bloomberg.loader.DemoEquityOptionCollarPortfolioLo
 import com.opengamma.examples.bloomberg.loader.ExampleAUDSwapPortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleCurveConfigurationLoader;
+import com.opengamma.examples.bloomberg.loader.ExampleEURFixedIncomePortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleFunctionConfigurationPopulator;
 import com.opengamma.examples.bloomberg.loader.ExampleFxForwardPortfolioLoader;
@@ -75,10 +76,6 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
    */
   public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
 
-  /**
-   * The name of the swaption portfolio.
-   */
-  public static final String SWAPTION_PORTFOLIO_NAME = "Swaption Portfolio";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
 
@@ -120,6 +117,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     loadSwaptionPortfolio();
     loadAUDSwapPortfolio();
     loadCMCapFloorPortfolio();
+    loadEURSwapDeskPortfolio();
     loadViews();
     loadFunctionConfigurations();
   }
@@ -363,6 +361,17 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     final Log log = new Log("Creating example constant maturity swap and cap/floor portfolio");
     try {
       final ExampleMixedCMCapFloorPortfolioLoader loader = new ExampleMixedCMCapFloorPortfolioLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadEURSwapDeskPortfolio() {
+    final Log log = new Log("Creating example EUR swap desk portfolio");
+    try {
+      final ExampleEURFixedIncomePortfolioLoader loader = new ExampleEURFixedIncomePortfolioLoader();
       loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {

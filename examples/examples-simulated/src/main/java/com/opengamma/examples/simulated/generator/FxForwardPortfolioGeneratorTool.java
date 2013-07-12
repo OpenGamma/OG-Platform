@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -48,7 +49,7 @@ public class FxForwardPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), 1.588));
     SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.JPY), 80.));
     final Random rng = new Random(1239);
-    final ZonedDateTime date = DateUtils.getUTCDate(2015, 2, 1);
+    final ZonedDateTime date = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
     for (int i = 0; i < 100; i++) {
       final int n = rng.nextInt(4);
       final Pair<UnorderedCurrencyPair, Double> pair = SPOT_RATES.get(n);
