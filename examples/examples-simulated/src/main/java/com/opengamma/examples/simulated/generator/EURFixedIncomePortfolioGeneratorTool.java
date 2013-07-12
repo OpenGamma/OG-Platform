@@ -227,7 +227,7 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
   }
 
   private FutureSecurityGenerator<ManageableSecurity> getIRFutureSecurityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().minusYears(1).withMonth(3).withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC);
     final FutureSecurity[] securities = new FutureSecurity[N_FUTURES];
     final int[] amounts = new int[N_FUTURES];
     final double[] prices = new double[N_FUTURES];
