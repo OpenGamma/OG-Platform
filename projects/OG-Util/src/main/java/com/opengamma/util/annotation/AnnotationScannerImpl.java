@@ -8,7 +8,6 @@ package com.opengamma.util.annotation;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-import org.fudgemsg.AnnotationReflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Implementation of {@link AnnotationScanner} using the Reflections library.
+ * Implementation of {@link AnnotationScanner} that caches and uses Reflections.
  */
 public class AnnotationScannerImpl implements AnnotationScanner {
   
@@ -26,11 +25,16 @@ public class AnnotationScannerImpl implements AnnotationScanner {
   public synchronized Set<Class<?>> scan(Class<? extends Annotation> annotationClass) {
     ArgumentChecker.notNull(annotationClass, "annotation class");
     
-    AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
+    AnnotationCache cache = AnnotationCache.load(annotationClass);
+    final ClasspathScanner scanner = new ClasspathScanner();
+    if (!scanner.getTimestamp().isAfter(cache.getTimestamp())) {
+      s_logger.info("loading {} annotation from cache", annotationClass.getSimpleName());
+      return ImmutableSet.copyOf(cache.getClasses());
+    }
     s_logger.info("Scanning class path for classes annotated with {}", annotationClass.getSimpleName());
-    Set<Class<?>> result = reflector.getReflector().getTypesAnnotatedWith(annotationClass);
-    s_logger.info("Scanned class path found {} results: ", result.size(), result);
-    return ImmutableSet.copyOf(result);
+    cache = scanner.scan(annotationClass);
+    cache.save();
+    return ImmutableSet.copyOf(cache.getClasses());
   }
   
 }

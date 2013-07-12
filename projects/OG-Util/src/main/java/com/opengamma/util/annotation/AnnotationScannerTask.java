@@ -14,9 +14,6 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
-import org.reflections.Reflections;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +67,7 @@ public class AnnotationScannerTask extends Task {
     }
     Set<String> classNames;
     try {
-      Reflections reflections = new Reflections(_classpath, new TypeAnnotationsScanner(), FilterBuilder.parse("+com.opengamma"));
-      classNames = reflections.getStore().getTypesAnnotatedWith(getAnnotationClassName());
+      classNames = ClassNameAnnotationScannerUtils.scan(_classpath, getAnnotationClassName());
     } catch (Exception e) {
       throw new BuildException("Error scanning for annotated classes", e);
     }
