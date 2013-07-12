@@ -111,14 +111,14 @@ public class DbBatchWriter extends AbstractDbMaster {
    */
   public static final String RSK_SEQUENCE_NAME = "rsk_batch_seq";
 
-  public final Map<String, Long> _calculationConfigurations = newConcurrentMap();
-  public final Map<ValueRequirement, Long> _riskValueRequirements = newConcurrentMap();
-  public final Map<ValueSpecification, Long> _riskValueSpecifications = newConcurrentMap();
-  public final Map<ComputationTargetSpecification, Long> _computationTargets = newConcurrentMap();
+  private final Map<String, Long> _calculationConfigurations = newConcurrentMap();
+  private final Map<ValueRequirement, Long> _riskValueRequirements = newConcurrentMap();
+  private final Map<ValueSpecification, Long> _riskValueSpecifications = newConcurrentMap();
+  private final Map<ComputationTargetSpecification, Long> _computationTargets = newConcurrentMap();
 
-  public final Map<Long, RiskRun> _riskRunsByIds = newConcurrentMap();
-  public final Map<Long, Map<Pair<Long, Long>, StatusEntry>> _statusCacheByRunId = newConcurrentMap();
-  public final Map<Long, Map<ComputeFailureKey, ComputeFailure>> _computeFailureCacheByRunId = newConcurrentMap();
+  private final Map<Long, RiskRun> _riskRunsByIds = newConcurrentMap();
+  private final Map<Long, Map<Pair<Long, Long>, StatusEntry>> _statusCacheByRunId = newConcurrentMap();
+  private final Map<Long, Map<ComputeFailureKey, ComputeFailure>> _computeFailureCacheByRunId = newConcurrentMap();
 
 
   /** Logger. */
