@@ -8,17 +8,32 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var Scenario = function (config) {
-            var block = this, id = og.common.id('scenario'), form = config.form, data = config.data,
-                index = config.index, extras = {id : id};
+            var block = this, id = og.common.id('scenario'), form = config.form, script = config.script,
+                param = config.param, scriptindex = config.scriptindex, paraindex = config.paraindex,
+                extras = {id : id};
             form.Block.call(block, {
                 extras: extras,
                 module: 'og.views.forms.view-definition-scenario_tash',
                 children: [
-                    new og.common.util.ui.Dropdown({
-                        form: form, resource: 'configs', index: index, placeholder: 'Please select....',
-                        rest_options : {type:"ScenarioDefinition"}, value: data, fields: [0, 1]
-                    })
-                ]
+                    new og.common.util.ui.Dropdown({ form: form, resource: 'configs', index: scriptindex,
+                        placeholder: 'Please select....',  value: script, fields: [0, 1],
+                        rest_options : {type: 'ScenarioDslScript' }
+                        }),
+                    new og.common.util.ui.Dropdown({ form: form, resource: 'configs', index: paraindex,
+                        placeholder: 'Please select....',  value: param, fields: [0, 1],
+                        rest_options : {type: 'ScenarioDslParameters' }
+                        })
+                ],
+                processor: function (data) {
+                    $.each(data.calculationConfiguration, function (index, value) {
+                        if (!value.scenarioId) {
+                            delete value.scenarioId;
+                        }
+                        if (!value.scenarioParametersId) {
+                            delete value.scenarioParametersId;
+                        }
+                    });
+                }
             });
         };
         Scenario.prototype = new Block(); // inherit Block prototype

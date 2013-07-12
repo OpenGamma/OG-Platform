@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.views.config_forms.scenarioparameters',
+    name: 'og.views.config_forms.scenariodslparameters',
     dependencies: ['og.api.rest', 'og.common.util.ui'],
     obj: function () {
         var Form = og.common.util.ui.Form, api = og.api.rest, constructor;
@@ -22,7 +22,7 @@ $.register_module({
                 xml += groovy;
                 xml += '</script>';
                 xml += '<fudgeField0 ordinal="0" type="string">';
-                xml += 'com.opengamma.integration.marketdata.manipulator.dsl.ScenarioParameters';
+                xml += 'com.opengamma.integration.marketdata.manipulator.dsl.ScenarioDslParameters';
                 xml += '</fudgeField0></fudgeEnvelope>';
                 return xml;
             };

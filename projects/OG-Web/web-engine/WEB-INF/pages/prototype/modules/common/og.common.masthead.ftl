@@ -46,7 +46,7 @@
               <ul>
                 <li>
                   <a href="admin.ftl#/configs/filter=true/type=ScenarioDslScript">Scenario Script</a> /
-                  <a href="admin.ftl#/configs/filter=true/type=ScenarioParameters">Params</a>
+                  <a href="admin.ftl#/configs/filter=true/type=ScenarioDslParameters">Params</a>
                 </li>
               </ul>
             </td>

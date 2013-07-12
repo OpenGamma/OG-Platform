@@ -77,6 +77,11 @@ public class ViewCalculationConfiguration implements Serializable {
   private UniqueId _scenarioId;
 
   /**
+   * The scenarioParametersId to be used for this configuration
+   * */
+  private UniqueId _scenarioParametersId;
+
+  /**
    * A set of default properties for functions to configure themselves from. Note that these are intended to represent generic
    * concepts that would typically be expressed through constraints, for example a default currency or default curve, that might
    * apply to a number of functions and will affect graph construction. Information specific to a particular function to
@@ -127,6 +132,7 @@ public class ViewCalculationConfiguration implements Serializable {
     copy.setDefaultProperties(getDefaultProperties());
     copy.addSpecificRequirements(getSpecificRequirements());
     copy.setScenarioId(getScenarioId());
+    copy.setScenarioParametersId(getScenarioParametersId());
     for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getPortfolioRequirementsBySecurityType().entrySet()) {
       copy.addPortfolioRequirements(requirementEntry.getKey(), requirementEntry.getValue()); 
     }
@@ -191,6 +197,27 @@ public class ViewCalculationConfiguration implements Serializable {
    */
   public void setScenarioId(UniqueId scenarioId) {
     _scenarioId = scenarioId;
+  }
+
+  /**
+  /**
+   * Returns the scenarioParametersId to be used for this configuration - if set, this will refer to a scenario
+   * parameters defined in the config master.
+   *
+   * @return the scenarioParametersId for this configuration, may be null
+   */
+  public UniqueId getScenarioParametersId() {
+    return _scenarioParametersId;
+  }
+
+  /**
+   * Sets the scenarioParametersId to be used for this configuration - if set, this will refer to a scenario parameters
+   * defined in the config master.
+   *
+   * @param scenarioParametersId the scenarioParametersId for this configuration, may be null
+   */
+  public void setScenarioParametersId(UniqueId scenarioParametersId) {
+    _scenarioParametersId = scenarioParametersId;
   }
 
   /**
@@ -368,6 +395,7 @@ public class ViewCalculationConfiguration implements Serializable {
     result = prime * result + ObjectUtils.hashCode(getSpecificRequirements());
     result = prime * result + ObjectUtils.hashCode(getDefaultProperties());
     result = prime * result + ObjectUtils.hashCode(getScenarioId());
+    result = prime * result + ObjectUtils.hashCode(getScenarioParametersId());
     result = prime * result + ObjectUtils.hashCode(getResolutionRuleTransform());
     return result;
   }
@@ -401,6 +429,9 @@ public class ViewCalculationConfiguration implements Serializable {
       return false;
     }
     if (!ObjectUtils.equals(getScenarioId(), other.getScenarioId())) {
+      return false;
+    }
+    if (!ObjectUtils.equals(getScenarioParametersId(), other.getScenarioParametersId())) {
       return false;
     }
     return true;

@@ -26,6 +26,7 @@ public class CDSAnalytic {
   // private static final Calendar DEFAULT_CALENDAR = new NoHolidayCalendar();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  /** Curve daycount generally fixed to Act/365 in ISDA */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
 
@@ -68,6 +69,35 @@ public class CDSAnalytic {
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
       final Period tenor, StubType stubType, final boolean protectStart, final double recoveryRate) {
     this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365);
+  }
+
+  /**
+   * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer.<br>
+   * This using a weekend only calendar with a following convention. ACT/360 is used for accrual and  ACT/365 to convert
+   * payment dates to year-fractions (doubles)
+   *
+   * Note this uses a curve daycount of ACT/365 to match the ISDA methodology.
+   *
+   * @param today The 'current' date
+   * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
+   * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
+   * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
+   * is at the end.
+   * @param endDate The protection end date (the protection ends at end of day)
+   * @param payAccOnDefault Is the accrued premium paid in the event of a default
+   * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
+   * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
+   *  - <b>Note</b> in this code NONE is not allowed
+   * @param protectStart Does protection start at the beginning of the day
+   * @param recoveryRate The recovery rate
+   * @param businessdayAdjustmentConvention How are adjustments for non-business days made
+   * @param calendar Calendar defining what is a non-business day
+   * @param accrualDayCount Day count used for accrual
+   */
+  public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
+      final Period tenor, StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
+      final DayCount accrualDayCount) {
+    this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, businessdayAdjustmentConvention, calendar, accrualDayCount, ACT_365);
   }
 
   /**

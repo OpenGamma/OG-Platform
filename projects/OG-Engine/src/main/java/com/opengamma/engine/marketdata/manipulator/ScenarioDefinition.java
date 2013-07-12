@@ -27,8 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * ScenarioDefinitions can be stored in the config master and used in the
  * setup of ViewDefinitions.
  */
-@Config
-public class ScenarioDefinition {
+public class ScenarioDefinition implements ScenarioDefinitionFactory{
 
   private static final String NAME = "name";
   private static final String SELECTOR = "selector";
@@ -93,4 +92,8 @@ public class ScenarioDefinition {
     return new ScenarioDefinition(name, definitionMap);
   }
 
+  @Override
+  public ScenarioDefinition create(Map<String, Object> parameters) {
+    return this;
+  }
 }

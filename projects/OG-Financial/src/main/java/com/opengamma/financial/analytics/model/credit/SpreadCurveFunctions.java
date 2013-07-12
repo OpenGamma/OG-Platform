@@ -34,6 +34,7 @@ public class SpreadCurveFunctions {
   private static PresentValueStandardCreditDefaultSwap cdsPresentValueCalculator = new PresentValueStandardCreditDefaultSwap();
 
   private static final Collection<Tenor> BUCKET_TENORS = new ArrayList<>();
+  private static final double s_tenminus4 = 1e-4;
 
   static {
     BUCKET_TENORS.add(Tenor.SIX_MONTHS);
@@ -76,6 +77,23 @@ public class SpreadCurveFunctions {
       dates[i++] = IMMDateGenerator.getNextIMMDate(now, tenor);
     }
     return dates;
+  }
+
+
+  public static final Tenor[] getBuckets(final String inputs) {
+    if (inputs == null || inputs.isEmpty()) {
+      return BUCKET_TENORS.toArray(new Tenor[BUCKET_TENORS.size()]);
+    }
+    List<Tenor> tenors = new ArrayList<>();
+    for (final String tenorOrDate : inputs.split(",")) {
+      if (tenorOrDate.startsWith("P")) { // tenor
+        Tenor tenor = new Tenor(Period.parse(tenorOrDate));
+        tenors.add(tenor);
+      } else { // date
+        throw new OpenGammaRuntimeException("Unsupported");
+      }
+    }
+    return tenors.toArray(new Tenor[tenors.size()]);
   }
 
   /**
@@ -122,7 +140,7 @@ public class SpreadCurveFunctions {
           throw new OpenGammaRuntimeException("Unknown quote convention " + quoteConvention);
       }
       // set all spreads to desired spread
-      Arrays.fill(spreads, spreadRate.doubleValue());
+      Arrays.fill(spreads, spreadRate.doubleValue() * s_tenminus4);
       return spreads;
     }
 
@@ -132,12 +150,12 @@ public class SpreadCurveFunctions {
       final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
       final int index = Arrays.binarySearch(bucketDates, bucketDate);
       if (index >= 0) {
-        spreads[i++] = spreadCurve.getYValue(tenor).doubleValue();
+        spreads[i++] = spreadCurve.getYValue(tenor) * s_tenminus4;
       }
     }
     // if spread curve ends before required buckets take last spread entry
     for (int j = spreads.length - 1; j >= 0; j--) {
-      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1].doubleValue();
+      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1] * s_tenminus4;
       if (spreads[j] == 0) {
         spreads[j] = lastspread;
       } else {
@@ -147,4 +165,26 @@ public class SpreadCurveFunctions {
     return spreads;
   }
 
+  //TEMP this is an ugly temp workaround
+  public static LocalDate getSpreadDate(final LegacyVanillaCreditDefaultSwapDefinition cds, final NodalTenorDoubleCurve spreadCurve, final ZonedDateTime[] bucketDates,
+                                        final StandardCDSQuotingConvention quoteConvention, final ZonedDateTime valuationDate, final ISDADateCurve isdaCurve, final ZonedDateTime startDate) {
+    ArgumentChecker.notNull(spreadCurve, "spread curve");
+    ArgumentChecker.notNull(bucketDates, "bucket dates");
+    ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
+    LocalDate spreadDate = null;
+    // if IMM date take flat spread from imm curve (all values set to single bucket spread)
+    if (IMMDateGenerator.isIMMDate((cds.getMaturityDate()))) {
+      // find index of bucket this cds maturity is in - should really implement a custom comparator and do a binary search
+
+      for (final Tenor tenor : spreadCurve.getXData()) {
+        final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
+        if (!bucketDate.isAfter(cds.getMaturityDate())) {
+          spreadDate = bucketDate.toLocalDate();
+        } else {
+          break; // stop when we find desired bucket
+        }
+      }
+    }
+    return spreadDate;
+  }
 }

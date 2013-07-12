@@ -15,6 +15,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.engine.marketdata.manipulator.ScenarioParameters;
 import com.opengamma.util.ArgumentChecker;
 
 import groovy.lang.GroovyShell;
@@ -30,7 +31,7 @@ import groovy.lang.Script;
  * </pre>
  */
 @Config
-public class ScenarioParameters {
+public class ScenarioDslParameters implements ScenarioParameters {
 
   /** Field name for Fudge message */
   private static final String SCRIPT = "script";
@@ -38,7 +39,7 @@ public class ScenarioParameters {
   /** The script that populates the parameters. */
   private final String _script;
 
-  /* package */ ScenarioParameters(String script) {
+  /* package */ ScenarioDslParameters(String script) {
     ArgumentChecker.notEmpty(script, "script");
     _script = script;
   }
@@ -46,6 +47,7 @@ public class ScenarioParameters {
   /**
    * @return The parameters, keyed by name
    */
+  @Override
   @SuppressWarnings("unchecked")
   public Map<String, Object> getParameters() {
     CompilerConfiguration config = new CompilerConfiguration();
@@ -62,9 +64,9 @@ public class ScenarioParameters {
     return msg;
   }
 
-  public static ScenarioParameters fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static ScenarioDslParameters fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     String script = deserializer.fieldValueToObject(String.class, msg.getByName(SCRIPT));
-    return new ScenarioParameters(script);
+    return new ScenarioDslParameters(script);
   }
 
   @Override
@@ -75,7 +77,7 @@ public class ScenarioParameters {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ScenarioParameters that = (ScenarioParameters) o;
+    ScenarioDslParameters that = (ScenarioDslParameters) o;
 
     if (!_script.equals(that._script)) {
       return false;
