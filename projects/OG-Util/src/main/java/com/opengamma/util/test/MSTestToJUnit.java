@@ -29,7 +29,7 @@ public class MSTestToJUnit extends AbstractJUnitResults {
     try {
       final Reader reader = new FileReader(getInputFile());
       // Read past the funny character prefix and <?...> bit which upset the parser
-      while (reader.read() != '>') {
+      while (reader.read() != '>') {  // CSIGNORE
       }
       return factory.createXMLStreamReader(reader);
     } catch (IOException e) {
