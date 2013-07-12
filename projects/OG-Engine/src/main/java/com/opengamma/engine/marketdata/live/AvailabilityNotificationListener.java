@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.marketdata.live;
 
-import java.util.Collection;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
@@ -20,29 +19,27 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsTopicContainer;
 
 /**
- * Listens to JMS messages announcing that market data providers have become available and
- * notifies {@link LiveDataFactory} instances so they can retry failed subscriptions.
+ * Listens to JMS messages announcing that market data providers have become available and invokes
+ * {@link #notificationReceived}.
  */
-public class AvailabilityNotificationListener implements Lifecycle {
+/* package */ abstract class AvailabilityNotificationListener implements Lifecycle {
 
   /** Logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(AvailabilityNotificationListener.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(LiveDataAvailabilityNotificationListener.class);
 
   /** For receiving JMS messages. */
   private final JmsTopicContainer _jmsTopicContainer;
 
   /**
    * @param topic The topic for {@link MarketDataAvailabilityNotification} messages
-   * @param factories Factories that will be notified when a market data provider becomes available
    * @param jmsConnector For receiving JMS messages
    */
-  public AvailabilityNotificationListener(String topic, Collection<LiveDataFactory> factories, JmsConnector jmsConnector) {
-    ByteArrayFudgeMessageReceiver receiver = new ByteArrayFudgeMessageReceiver(new Receiver(factories));
+  public AvailabilityNotificationListener(String topic, JmsConnector jmsConnector) {
+    ByteArrayFudgeMessageReceiver receiver = new ByteArrayFudgeMessageReceiver(new Receiver());
     JmsByteArrayMessageDispatcher dispatcher = new JmsByteArrayMessageDispatcher(receiver);
     _jmsTopicContainer = jmsConnector.getTopicContainerFactory().create(topic, dispatcher);
   }
@@ -63,21 +60,16 @@ public class AvailabilityNotificationListener implements Lifecycle {
   }
 
   /**
+   * Invoked when notification is received that a market data provider is available.
+   * @param schemes The schemes handled by the newly available provider
+   */
+  protected abstract void notificationReceived(Set<ExternalScheme> schemes);
+
+  /**
    * Receives {@link MarketDataAvailabilityNotification}s via Fudge and calls {@link LiveDataFactory#resubscribe}
    * on each of its factories.
    */
-  private static final class Receiver implements FudgeMessageReceiver {
-
-    /** Factories to notify when a market data provider becomes available. */
-    private final Collection<LiveDataFactory> _factories;
-
-    /**
-     * @param factories Factories to notify when a market data provider becomes available
-     */
-    private Receiver(Collection<LiveDataFactory> factories) {
-      ArgumentChecker.notEmpty(factories, "factories");
-      _factories = factories;
-    }
+  private final class Receiver implements FudgeMessageReceiver {
 
     @Override
     public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
@@ -87,9 +79,7 @@ public class AvailabilityNotificationListener implements Lifecycle {
           deserializer.fudgeMsgToObject(MarketDataAvailabilityNotification.class, msg);
       s_logger.info("Received notification of market data availability: {}", notification);
       Set<ExternalScheme> schemes = notification.getSchemes();
-      for (LiveDataFactory factory : _factories) {
-        factory.resubscribe(schemes);
-      }
+      notificationReceived(schemes);
     }
   }
 }

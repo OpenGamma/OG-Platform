@@ -35,14 +35,14 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.marketdata.live.ViewProcessAvailabilityNotificationListener;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
+import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
-import com.opengamma.financial.depgraph.rest.DependencyGraphTraceProviderResource;
-import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
 import com.opengamma.financial.view.rest.DataViewProcessorResource;
@@ -112,6 +112,11 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   @PropertyDefinition
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
+  /**
+   * JMS topic for notifications that the connection Bloomberg has come up.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _jmsMarketDataAvailabilityTopic;
 
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
@@ -146,6 +151,13 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
       final DataViewProcessorResource vpResource = new DataViewProcessorResource(viewProcessor, repo.getInstance(FunctionCompilationContext.class, "main").getRawComputationTargetResolver(),
           getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler(), getHistoricalTimeSeriesSource());
       repo.getRestComponents().publish(info, vpResource);
+    }
+    if (viewProcessor instanceof ViewProcessorInternal) {
+      ViewProcessAvailabilityNotificationListener listener =
+          new ViewProcessAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(),
+                                                          getJmsConnector(),
+                                                          (ViewProcessorInternal) viewProcessor);
+      repo.registerLifecycle(listener);
     }
   }
 
@@ -274,6 +286,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         return isCompileViewsWithRequirementStriping();
       case 358729161:  // historicalTimeSeriesSource
         return getHistoricalTimeSeriesSource();
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        return getJmsMarketDataAvailabilityTopic();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -311,6 +325,9 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
       case 358729161:  // historicalTimeSeriesSource
         setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
         return;
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        setJmsMarketDataAvailabilityTopic((String) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -321,6 +338,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
     JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
     JodaBeanUtils.notNull(_scheduler, "scheduler");
+    JodaBeanUtils.notNull(_jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
     super.validate();
   }
 
@@ -341,6 +359,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
           JodaBeanUtils.equal(isCompileViewsWithRequirementStriping(), other.isCompileViewsWithRequirementStriping()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
           super.equals(obj);
     }
     return false;
@@ -359,6 +378,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(isCompileViewsWithRequirementStriping());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
     return hash ^ super.hashCode();
   }
 
@@ -618,6 +638,32 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   //-----------------------------------------------------------------------
   /**
+   * Gets jMS topic for notifications that the connection Bloomberg has come up.
+   * @return the value of the property, not null
+   */
+  public String getJmsMarketDataAvailabilityTopic() {
+    return _jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Sets jMS topic for notifications that the connection Bloomberg has come up.
+   * @param jmsMarketDataAvailabilityTopic  the new value of the property, not null
+   */
+  public void setJmsMarketDataAvailabilityTopic(String jmsMarketDataAvailabilityTopic) {
+    JodaBeanUtils.notNull(jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
+    this._jmsMarketDataAvailabilityTopic = jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Gets the the {@code jmsMarketDataAvailabilityTopic} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsMarketDataAvailabilityTopic() {
+    return metaBean().jmsMarketDataAvailabilityTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SpringViewProcessorComponentFactory}.
    */
   public static class Meta extends AbstractSpringComponentFactory.Meta {
@@ -677,6 +723,11 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesSource", SpringViewProcessorComponentFactory.class, HistoricalTimeSeriesSource.class);
     /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     */
+    private final MetaProperty<String> _jmsMarketDataAvailabilityTopic = DirectMetaProperty.ofReadWrite(
+        this, "jmsMarketDataAvailabilityTopic", SpringViewProcessorComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -690,7 +741,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         "volatilityCubeDefinitionSource",
         "marketDataProviderResolver",
         "compileViewsWithRequirementStriping",
-        "historicalTimeSeriesSource");
+        "historicalTimeSeriesSource",
+        "jmsMarketDataAvailabilityTopic");
 
     /**
      * Restricted constructor.
@@ -721,6 +773,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           return _compileViewsWithRequirementStriping;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return _jmsMarketDataAvailabilityTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -819,6 +873,14 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
      */
     public final MetaProperty<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
       return _historicalTimeSeriesSource;
+    }
+
+    /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
+      return _jmsMarketDataAvailabilityTopic;
     }
 
   }

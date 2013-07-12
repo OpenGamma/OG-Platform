@@ -31,8 +31,8 @@ import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepos
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
-import com.opengamma.engine.marketdata.live.AvailabilityNotificationListener;
 import com.opengamma.engine.marketdata.live.InMemoryLKVLiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.live.LiveDataAvailabilityNotificationListener;
 import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
@@ -103,10 +103,10 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     final ComponentInfo providerFactoryInfo = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(providerFactoryInfo, liveMarketDataProviderFactory);
 
-    List<LiveDataFactory> factoryList = ImmutableList.of(liveDataFactory);
     // notifies LiveDataFactories when market data providers come up so they can retry failed subscriptions
-    AvailabilityNotificationListener availabilityNotificationListener =
-        new AvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), factoryList, getJmsConnector());
+    List<LiveDataFactory> factoryList = ImmutableList.of(liveDataFactory);
+    LiveDataAvailabilityNotificationListener availabilityNotificationListener =
+        new LiveDataAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), factoryList, getJmsConnector());
     repo.registerLifecycle(availabilityNotificationListener);
 
     final InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
