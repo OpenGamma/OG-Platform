@@ -5,17 +5,27 @@
  */
 package com.opengamma.examples.simulated.tool;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
-import com.opengamma.integration.tool.portfolio.PortfolioLoader;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.simulated.generator.SyntheticPortfolioGeneratorTool;
@@ -35,6 +45,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.tool.portfolio.PortfolioLoader;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.scripts.Scriptable;
@@ -305,7 +316,8 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private void loadEquityOptionPortfolio() {
     final Log log = new Log("Creating example equity option portfolio");
     try {
-      final String file = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip").getPath();
+      URL resource = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip");
+      final String file = unpackJar(resource); 
       final PortfolioLoader equityOptionLoader = new PortfolioLoader(getToolContext(), EQUITY_OPTION_PORTFOLIO_NAME, null,
               file, true, true, true, true, false, true, false, null);
       equityOptionLoader.execute();
@@ -318,7 +330,8 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private void loadFuturePortfolio() {
     final Log log = new Log("Creating example future portfolio");
     try {
-      final String file = ExampleEquityPortfolioLoader.class.getResource("futures.zip").getPath();
+      URL resource = ExampleEquityPortfolioLoader.class.getResource("futures.zip");
+      final String file = unpackJar(resource); 
       final PortfolioLoader futureLoader = new PortfolioLoader(getToolContext(), FUTURE_PORTFOLIO_NAME, null,
               file, true, true, true, true, false, true, false, null);
       futureLoader.execute();
@@ -479,6 +492,40 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
   private static Set<Currency> getAllCurrencies() {
     return s_currencies;
+  }
+
+  //-------------------------------------------------------------------------
+  // workaround for poor handling of resources, see PLAT-3919
+  private static String unpackJar(URL resource) {
+    String file = resource.getPath();
+    if (file.contains(".jar!/")) {
+      s_logger.debug("Unpacking zip file located within a jar file: {}", resource);
+      String jarFileName = StringUtils.substringBefore(file, "!/");
+      if (jarFileName.startsWith("file:///")) {
+        jarFileName = jarFileName.substring(8);
+      } else if (jarFileName.startsWith("file:/")) {
+        jarFileName = jarFileName.substring(6);
+      }
+      String innerFileName = StringUtils.substringAfter(file, "!/");
+      s_logger.debug("Unpacking zip file found jar file: {}", jarFileName);
+      s_logger.debug("Unpacking zip file found zip file: {}", innerFileName);
+      try {
+        JarFile jar = new JarFile(jarFileName);
+        JarEntry jarEntry = jar.getJarEntry(innerFileName);
+        try (InputStream in = jar.getInputStream(jarEntry)) {
+          File tempFile = File.createTempFile("simulated-examples-database-populator-", ".zip");
+          tempFile.deleteOnExit();
+          try (OutputStream out = new FileOutputStream(tempFile)) {
+            IOUtils.copy(in, out);
+          }
+          file = tempFile.getCanonicalPath();
+        }
+      } catch (IOException ex) {
+        throw new OpenGammaRuntimeException("Unable to open file within jar file", ex);
+      }
+      s_logger.debug("Unpacking zip file extracted to: {}", file);
+    }
+    return file;
   }
 
 }
