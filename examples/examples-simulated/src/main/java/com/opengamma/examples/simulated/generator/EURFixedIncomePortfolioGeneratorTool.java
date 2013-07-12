@@ -226,8 +226,8 @@ public class EURFixedIncomePortfolioGeneratorTool extends AbstractPortfolioGener
     return new MySecurityGenerator<>(securities, tradeDate, "Basis swaps");
   }
 
-  private FutureSecurityGenerator<ManageableSecurity> getIRFutureSecurityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().minusYears(1).withMonth(3).withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC);
+  private FutureSecurityGenerator<ManageableSecurity> getIRFutureSecurityGenerator() {    
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2014, 9, 1);
     final FutureSecurity[] securities = new FutureSecurity[N_FUTURES];
     final int[] amounts = new int[N_FUTURES];
     final double[] prices = new double[N_FUTURES];

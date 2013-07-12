@@ -70,7 +70,7 @@ public class ERFutureForCurvePortfolioGeneratorTool extends AbstractPortfolioGen
   }
   
   private FutureSecurityGenerator<ManageableSecurity> getIRFutureSecurityGenerator() {
-    final ZonedDateTime tradeDate = DateUtils.previousWeekDay().minusYears(1).withMonth(3).withDayOfMonth(1).atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2013, 3, 1);
     final ZonedDateTime startDate = tradeDate;
     final FutureSecurity[] securities = new FutureSecurity[40];
     final int[] amounts = new int[40];
