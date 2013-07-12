@@ -97,10 +97,6 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
     </dependency>
-    <dependency>
-      <groupId>net.sf.scannotation</groupId>
-      <artifactId>scannotation</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>

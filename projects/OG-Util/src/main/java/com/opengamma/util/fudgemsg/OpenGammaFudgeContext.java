@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.fudgemsg;
 
+import org.fudgemsg.AnnotationReflector;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeTypeDictionary;
 
@@ -43,8 +44,9 @@ public final class OpenGammaFudgeContext {
       FudgeContext fudgeContext = new FudgeContext();
       ExtendedFudgeBuilderFactory.init(fudgeContext.getObjectDictionary());
       InnerClassFudgeBuilderFactory.init(fudgeContext.getObjectDictionary());
-      fudgeContext.getObjectDictionary().addAllAnnotatedBuilders();
-      fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes();
+      AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
+      fudgeContext.getObjectDictionary().addAllAnnotatedBuilders(reflector);
+      fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes(reflector);
       
       FudgeTypeDictionary td = fudgeContext.getTypeDictionary();
       td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries", ImmutableZonedDateTimeDoubleTimeSeries.class);
