@@ -357,7 +357,13 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
       return null;
     } else {
       String className = Charsets.UTF_8.decode(ByteBuffer.wrap(classNameData)).toString();
-      return SecurityFudgeUtil.convertFromFudge(getFudgeContext(), className, securityData);
+      Security security = null;
+      try {
+        security = SecurityFudgeUtil.convertFromFudge(getFudgeContext(), className, securityData);
+      } catch (Exception ex) {
+        s_logger.warn("Unable to convert from fudge for security unique ID " + uniqueId, ex);
+      }
+      return security;
     }
     
   }
