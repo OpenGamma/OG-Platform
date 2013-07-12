@@ -123,7 +123,7 @@ public class CurveNodeHistoricalDataLoader {
    */
   private List<LocalDate> buildDates() {
     final Clock clock = Clock.systemDefaultZone();
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final List<LocalDate> dates = new ArrayList<>();
     final LocalDate twoYearsAgo = LocalDate.now(clock).minusYears(2);
     final LocalDate twoYearsTime = LocalDate.now(clock).plusYears(2);
     for (LocalDate next = twoYearsAgo; next.isBefore(twoYearsTime); next = next.plusMonths(3)) {
@@ -133,7 +133,7 @@ public class CurveNodeHistoricalDataLoader {
   }
 
   /**
-   * Get all the curves starting with FUNDING or FORWARD
+   * Get all the curves starting with Forward or Discounting
    * @param configMaster
    * @return list of yield curve definition config object names
    */
@@ -153,8 +153,8 @@ public class CurveNodeHistoricalDataLoader {
    * @return list of names of config objects matching glob expression
    */
   private List<YieldCurveDefinition> getCurveDefinitionNames(final ConfigMaster configMaster, final String nameExpr) {
-    final List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
-    final ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
+    final List<YieldCurveDefinition> results = new ArrayList<>();
+    final ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<>(YieldCurveDefinition.class);
     request.setName(nameExpr);
     for (final ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
       results.add((YieldCurveDefinition) doc.getConfig().getValue());

@@ -28,7 +28,7 @@ import com.opengamma.scripts.Scriptable;
 /**
  * Example code to create a timeseries rating document
  * <p>
- * It is designed to run against the HSQLDB example database.  
+ * It is designed to run against the HSQLDB example database.
  * It should be possible to run this class with no extra command line parameters.
  */
 @Scriptable
@@ -41,10 +41,10 @@ public class ExampleTimeSeriesRatingLoader extends AbstractTool<IntegrationToolC
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * 
+   *
    * @param args  the arguments, unused
    */
-  public static void main(String[] args) {  // CSIGNORE
+  public static void main(final String[] args) {  // CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
@@ -52,14 +52,14 @@ public class ExampleTimeSeriesRatingLoader extends AbstractTool<IntegrationToolC
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    ConfigMaster configMaster = getToolContext().getConfigMaster();
-    List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
+    final ConfigMaster configMaster = getToolContext().getConfigMaster();
+    final List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<>();
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "UNKNOWN", 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
-    HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
-    ConfigItem<HistoricalTimeSeriesRating> configDoc = ConfigItem.of(ratingConfig, DEFAULT_CONFIG_NAME, HistoricalTimeSeriesRating.class);
+    final HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
+    final ConfigItem<HistoricalTimeSeriesRating> configDoc = ConfigItem.of(ratingConfig, DEFAULT_CONFIG_NAME, HistoricalTimeSeriesRating.class);
     ConfigMasterUtils.storeByName(configMaster, configDoc);
   }
 

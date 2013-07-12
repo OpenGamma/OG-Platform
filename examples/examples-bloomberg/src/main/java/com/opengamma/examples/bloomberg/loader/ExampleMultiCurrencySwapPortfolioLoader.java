@@ -85,7 +85,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
 
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -130,7 +130,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
   }
 
   private Collection<SwapSecurity> createRandomSwaps() {
-    final Collection<SwapSecurity> swaps = new ArrayList<SwapSecurity>();
+    final Collection<SwapSecurity> swaps = new ArrayList<>();
 
     final SecureRandom random = new SecureRandom();
 
@@ -253,11 +253,11 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
     }
 
     final HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries("PX_LAST",
-        swapRateForMaturityIdentifier.toBundle(), HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
+        swapRateForMaturityIdentifier.toBundle(), HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate.minusDays(30), true, tradeDate, true);
     if (fixedRateSeries == null) {
       throw new OpenGammaRuntimeException("can't find time series for " + swapRateForMaturityIdentifier + " on " + tradeDate);
     }
-    final Double fixedRate = (fixedRateSeries.getTimeSeries().getEarliestValue() + random.nextDouble()) / 100d;
+    final Double fixedRate = (fixedRateSeries.getTimeSeries().getLatestValue() + random.nextDouble()) / 100d;
     return fixedRate;
   }
 
@@ -265,12 +265,11 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
     final HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
     final HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
       "PX_LAST", liborIdentifier.toBundle(),
-      HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
+      HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate.minusDays(30), true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
-      throw new OpenGammaRuntimeException("couldn't get series for " + liborIdentifier + " on " + tradeDate);
+      throw new OpenGammaRuntimeException("couldn't get series for " + liborIdentifier);
     }
-    final Double initialRate = initialRateSeries.getTimeSeries().getEarliestValue();
-    return initialRate;
+    return initialRateSeries.getTimeSeries().getLatestValue();
   }
 
   private ConventionBundle getLiborConventionBundle(final ConventionBundle swapConvention) {

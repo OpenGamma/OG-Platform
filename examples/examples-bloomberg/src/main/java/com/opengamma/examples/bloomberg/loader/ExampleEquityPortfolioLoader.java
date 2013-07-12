@@ -5,6 +5,8 @@
  */
 package com.opengamma.examples.bloomberg.loader;
 
+import static com.opengamma.lambdava.streams.Lambdava.functional;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -14,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.lambdava.functions.Function1;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -32,6 +33,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -42,8 +44,6 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.scripts.Scriptable;
-
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 /**
  * Example code to load a very simple equity portfolio.
@@ -59,8 +59,8 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleEquityPortfolioLoader.class);
 
-  private static final Map<String, String> SECTORS = new HashMap<String, String>();
-  
+  private static final Map<String, String> SECTORS = new HashMap<>();
+
   private static final String EXAMPLE_EQUITY_FILE = "example-equity.csv";
 
   static {
@@ -89,30 +89,30 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
    *
    * @param args  the arguments, unused
    */
-  public static void main(String[] args) {  // CSIGNORE
+  public static void main(final String[] args) {  // CSIGNORE
     new ExampleEquityPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
-  
-  protected void createPortfolio(Collection<ExternalId> tickers) {
+
+  protected void createPortfolio(final Collection<ExternalId> tickers) {
 
     // create shell portfolio
     final ManageablePortfolio portfolio = createEmptyPortfolio();
     final ManageablePortfolioNode rootNode = portfolio.getRootNode();
 
-    Collection<UniqueId> loadSecurities = loadSecurities(tickers);
-    SecurityMaster secMaster = getToolContext().getSecurityMaster();
-    for (UniqueId uniqueId : loadSecurities) {
-      SecurityDocument securityDocument = secMaster.get(uniqueId);
-      EquitySecurity security = (EquitySecurity) securityDocument.getSecurity();
-      GICSCode gics = security.getGicsCode();
+    final Collection<UniqueId> loadSecurities = loadSecurities(tickers);
+    final SecurityMaster secMaster = getToolContext().getSecurityMaster();
+    for (final UniqueId uniqueId : loadSecurities) {
+      final SecurityDocument securityDocument = secMaster.get(uniqueId);
+      final EquitySecurity security = (EquitySecurity) securityDocument.getSecurity();
+      final GICSCode gics = security.getGicsCode();
       if (gics == null || gics.isPartial()) {
         continue;
       }
-      String sector = SECTORS.get(gics.getSectorCode());
-      String industryGroup = gics.getIndustryGroupCode();
-      String industry = gics.getIndustryCode();
-      String subIndustry = gics.getSubIndustryCode();
+      final String sector = SECTORS.get(gics.getSectorCode());
+      final String industryGroup = gics.getIndustryGroupCode();
+      final String industry = gics.getIndustryCode();
+      final String subIndustry = gics.getSubIndustryCode();
 
       // create portfolio structure
       ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
@@ -157,17 +157,17 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
   protected void doRun() {
     // load all equity securities
     final Collection<ExternalId> tickers = readEquityTickers();
-    createPortfolio(tickers);    
+    createPortfolio(tickers);
   }
 
-  private Collection<UniqueId> loadSecurities(Collection<ExternalId> identifiers) {
-    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
-    SecurityProvider securityProvider = getToolContext().getSecurityProvider();
-    DefaultSecurityLoader securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
-    
+  private Collection<UniqueId> loadSecurities(final Collection<ExternalId> identifiers) {
+    final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    final SecurityProvider securityProvider = getToolContext().getSecurityProvider();
+    final DefaultSecurityLoader securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
+
     final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(functional(identifiers).map(new Function1<ExternalId, ExternalIdBundle>() {
       @Override
-      public ExternalIdBundle execute(ExternalId ticker) {
+      public ExternalIdBundle execute(final ExternalId ticker) {
         return ExternalIdBundle.of(ticker);
       }
     }).asList());
@@ -183,8 +183,8 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
    * @return the emoty portfolio, not null
    */
   protected ManageablePortfolio createEmptyPortfolio() {
-    ManageablePortfolio portfolio = new ManageablePortfolio(PORTFOLIO_NAME);
-    ManageablePortfolioNode rootNode = portfolio.getRootNode();
+    final ManageablePortfolio portfolio = new ManageablePortfolio(PORTFOLIO_NAME);
+    final ManageablePortfolioNode rootNode = portfolio.getRootNode();
     rootNode.setName("Root");
     return portfolio;
   }
@@ -197,22 +197,22 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
    * @param security  the security to add a position for, not null
    * @return the position, not null
    */
-  protected ManageablePosition createPositionAndTrade(EquitySecurity security) {
+  protected ManageablePosition createPositionAndTrade(final EquitySecurity security) {
     s_logger.debug("Creating position {}", security);
-    int shares = (RandomUtils.nextInt(490) + 10) * 10;
+    final int shares = (RandomUtils.nextInt(490) + 10) * 10;
 
-    ExternalIdBundle bundle = security.getExternalIdBundle(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
+    final ExternalIdBundle bundle = security.getExternalIdBundle(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
 
-    ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
+    final ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
 
     // create random trades that add up in shares to the position they're under (this is not enforced by the system)
     if (shares <= 2000) {
-      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, ExternalId.of("CPARTY", "BACS"));
+      final ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade);
     } else {
-      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, ExternalId.of("CPARTY", "BACS"));
+      final ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade1);
-      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, ExternalId.of("CPARTY", "BACS"));
+      final ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade2);
     }
     return position;
@@ -224,7 +224,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
    * @param position  the position to add, not null
    * @return the added document, not null
    */
-  protected PositionDocument addPosition(ManageablePosition position) {
+  protected PositionDocument addPosition(final ManageablePosition position) {
     return getToolContext().getPositionMaster().add(new PositionDocument(position));
   }
 
@@ -234,16 +234,16 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
    * @param portfolio  the portfolio to add, not null
    * @return the added document, not null
    */
-  protected PortfolioDocument addPortfolio(ManageablePortfolio portfolio) {
+  protected PortfolioDocument addPortfolio(final ManageablePortfolio portfolio) {
     return getToolContext().getPortfolioMaster().add(new PortfolioDocument(portfolio));
   }
-  
+
   protected Collection<ExternalId> readEquityTickers() {
-    Collection<ExternalId> result = new ArrayList<ExternalId>();
-    InputStream inputStream = ExampleEquityPortfolioLoader.class.getResourceAsStream("example-equity.csv");
+    final Collection<ExternalId> result = new ArrayList<>();
+    final InputStream inputStream = ExampleEquityPortfolioLoader.class.getResourceAsStream("example-equity.csv");
     try {
       if (inputStream != null) {
-        List<String> equityTickers = IOUtils.readLines(inputStream);
+        final List<String> equityTickers = IOUtils.readLines(inputStream);
         for (String idStr : equityTickers) {
           idStr = StringUtils.trimToNull(idStr);
           if (idStr != null && !idStr.startsWith("#")) {
@@ -253,15 +253,15 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
       } else {
         throw new OpenGammaRuntimeException("File '" + EXAMPLE_EQUITY_FILE + "' could not be found");
       }
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       throw new OpenGammaRuntimeException("An error occurred while reading file '" + EXAMPLE_EQUITY_FILE + "'");
     } finally {
       IOUtils.closeQuietly(inputStream);
     }
-   
-    StringBuilder sb = new StringBuilder();
+
+    final StringBuilder sb = new StringBuilder();
     sb.append("Parsed ").append(result.size()).append(" equities:\n");
-    for (ExternalId equityId : result) {
+    for (final ExternalId equityId : result) {
       sb.append("\t").append(equityId.getValue()).append("\n");
     }
     s_logger.info(sb.toString());

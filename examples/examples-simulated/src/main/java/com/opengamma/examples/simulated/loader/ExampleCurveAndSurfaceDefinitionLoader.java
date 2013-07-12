@@ -10,12 +10,10 @@ import com.opengamma.examples.simulated.curve.ExampleFXForwardCurveConfigPopulat
 import com.opengamma.examples.simulated.volatility.surface.ExampleATMSwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleEquityOptionSurfaceConfigPopulator;
 import com.opengamma.examples.simulated.volatility.surface.ExampleFXOptionVolatilitySurfaceConfigPopulator;
-import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfaceConfigPopulator;
-import com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.scripts.Scriptable;
@@ -30,15 +28,10 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
   protected void doRun() throws Exception {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
     new YieldCurveConfigPopulator(configMaster, true);
-    new SwaptionVolatilitySurfaceConfigPopulator(configMaster);
-    new IRFutureOptionSurfaceConfigPopulator(configMaster);
     ExampleFXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.CURRENCY_PAIRS);
     ExampleATMSwaptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(configMaster, ExampleViewsPopulator.SWAPTION_SURFACES);
     ExampleFXForwardCurveConfigPopulator.populateCurveConfigMaster(configMaster, ExampleViewsPopulator.CURRENCY_PAIRS);
-    new EquityOptionSurfaceConfigPopulator(configMaster);
     new VolatilityCubeConfigPopulator(configMaster);
-    new FXForwardCurveConfigPopulator(configMaster);
-    new ExampleEquityOptionSurfaceConfigPopulator(configMaster);
   }
 
   //-------------------------------------------------------------------------

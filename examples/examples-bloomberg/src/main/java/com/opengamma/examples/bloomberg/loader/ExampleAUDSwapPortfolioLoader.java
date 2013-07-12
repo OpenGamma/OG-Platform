@@ -1,14 +1,18 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.simulated.generator;
+package com.opengamma.examples.bloomberg.loader;
 
-import org.threeten.bp.LocalDate;
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -16,32 +20,39 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
-import com.opengamma.financial.generator.LeafPortfolioNodeGenerator;
-import com.opengamma.financial.generator.NameGenerator;
-import com.opengamma.financial.generator.PortfolioGenerator;
-import com.opengamma.financial.generator.PortfolioNodeGenerator;
-import com.opengamma.financial.generator.PositionGenerator;
-import com.opengamma.financial.generator.SecurityGenerator;
-import com.opengamma.financial.generator.SimplePositionGenerator;
-import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.master.portfolio.ManageablePortfolio;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * Generates a portfolio of AUD swaps.
+ * Example code to load a portfolio of four AUD swaps.
+ * <p>
+ * This code is kept deliberately as simple as possible.
+ * There are no checks for the securities or portfolios already existing, so if you run it
+ * more than once you will get multiple copies portfolios and securities with the same names.
+ * It is designed to run against the HSQLDB example database.
  */
-public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolContext> {
   /** The trade date */
-  private static final ZonedDateTime TRADE_DATE = LocalDate.of(2014, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  private static final ZonedDateTime TRADE_DATE = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
   /** The maturity */
-  private static final ZonedDateTime MATURITY = LocalDate.of(2016, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  private static final ZonedDateTime MATURITY = TRADE_DATE.plusYears(4);
   /** The counterparty */
   private static final String COUNTERPARTY = "Cpty";
   /** Act/365 day-count */
@@ -59,15 +70,26 @@ public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
   /** The notional */
   private static final InterestRateNotional NOTIONAL = new InterestRateNotional(Currency.AUD, 15000000);
   /** 3m Libor ticker */
-  private static final ExternalId AUD_LIBOR_3M = ExternalSchemes.syntheticSecurityId("AUDLIBORP3M");
+  private static final ExternalId AUD_LIBOR_3M = ExternalSchemes.bloombergTickerSecurityId("AU0003M Index");
   /** 6m Libor ticker */
-  private static final ExternalId AUD_LIBOR_6M = ExternalSchemes.syntheticSecurityId("AUDLIBORP6M");
-  /** The scheme that is used for these swaps */
+  private static final ExternalId AUD_LIBOR_6M = ExternalSchemes.bloombergTickerSecurityId("AU0006M Index");
+  /** The scheme used for an identifier */
   private static final String ID_SCHEME = "AUD_SWAP_GENERATOR";
-  /** Swaps */
-  private static final SwapSecurity[] SWAPS = new SwapSecurity[4];
+  /** The portfolio name */
+  public static final String PORTFOLIO_NAME = "AUD Swap Portfolio";
 
-  static {
+  /**
+   * Main method to run the tool. No arguments are needed.
+   * @param args The arguments, unused
+   */
+  public static void main(final String[] args) { // CSIGNORE
+    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
+    new ExampleAUDSwapPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
+    System.exit(0);
+  }
+
+  @Override
+  protected void doRun() {
     final FloatingInterestRateLeg payLeg1 = new FloatingInterestRateLeg(ACT_365, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, AUD_LIBOR_3M, FloatingRateType.IBOR);
     final FixedInterestRateLeg receiveLeg1 = new FixedInterestRateLeg(ACT_365, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, 0.04);
     final SwapSecurity swap1 = new SwapSecurity(TRADE_DATE, TRADE_DATE, MATURITY, COUNTERPARTY, payLeg1, receiveLeg1);
@@ -88,45 +110,32 @@ public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     final SwapSecurity swap4 = new SwapSecurity(TRADE_DATE, TRADE_DATE, MATURITY, COUNTERPARTY, payLeg4, receiveLeg4);
     swap4.setName("Swap: receive 3.60% fixed ACT/360 vs 3m Bank Bill");
     swap4.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    SWAPS[0] = swap1;
-    SWAPS[1] = swap2;
-    SWAPS[2] = swap3;
-    SWAPS[3] = swap4;
+    final Collection<SwapSecurity> swaps = new HashSet<>();
+    swaps.add(swap1);
+    swaps.add(swap2);
+    swaps.add(swap3);
+    swaps.add(swap4);
+    persistToPortfolio(swaps, PORTFOLIO_NAME);
   }
 
-  @Override
-  public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
-    final SecurityGenerator<SwapSecurity> securities = createSwapSecurityGenerator();
-    configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("AUD Swaps"), positions, 4);
-    return new PortfolioGenerator(rootNode, portfolioNameGenerator);
-  }
+  private void persistToPortfolio(final Collection<SwapSecurity> swaps, final String portfolioName) {
+    final PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
+    final PositionMaster positionMaster = getToolContext().getPositionMaster();
+    final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
 
-  @Override
-  public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
-    final SecurityGenerator<SwapSecurity> securities = createSwapSecurityGenerator();
-    configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<>(securities, getSecurityPersister(), getCounterPartyGenerator());
-    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Swaps"), positions, 4);
-  }
+    final ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
+    final ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
+    final PortfolioDocument portfolioDoc = new PortfolioDocument();
+    portfolioDoc.setPortfolio(portfolio);
 
-  private SecurityGenerator<SwapSecurity> createSwapSecurityGenerator() {
-    final SecurityGenerator<SwapSecurity> securities = new SecurityGenerator<SwapSecurity>() {
-      private int _count;
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public SwapSecurity createSecurity() {
-        if (_count > 3) {
-          throw new IllegalStateException("Should not ask for more than 4 securities");
-        }
-        final SwapSecurity swap = SWAPS[_count++];
-        return swap;
-      }
-
-    };
-    configure(securities);
-    return securities;
+    for (final SwapSecurity swap : swaps) {
+      final SecurityDocument swapToAddDoc = new SecurityDocument();
+      swapToAddDoc.setSecurity(swap);
+      securityMaster.add(swapToAddDoc);
+      final ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
+      final PositionDocument addedDoc = positionMaster.add(new PositionDocument(swapPosition));
+      rootNode.addPosition(addedDoc.getUniqueId());
+    }
+    portfolioMaster.add(portfolioDoc);
   }
 }

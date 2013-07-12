@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.simulated.function;
+package com.opengamma.examples.bloomberg.function;
 
 import java.util.List;
 
@@ -20,11 +20,9 @@ import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.web.spring.StandardFunctionConfiguration;
 
 /**
- * Constructs a standard function repository.
+ *
  */
-@SuppressWarnings("deprecation")
 public class ExampleStandardFunctionConfiguration extends StandardFunctionConfiguration {
-
   /**
    * Gets an instance of the example function configuration.
    * @return Gets the instance
@@ -63,7 +61,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/fxforward", "DEFAULT");
     i.setCurveName("model/fxoption/black", "Discounting");
-    i.setSurfaceName("model/swaption/black", "PROVIDER2");
+    i.setSurfaceName("model/swaption/black", "BLOOMBERG");
     return i;
   }
 
@@ -78,7 +76,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/fxforward", "DEFAULT");
     i.setCurveName("model/fxoption/black", "Discounting");
-    i.setSurfaceName("model/swaption/black", "PROVIDER2");
+    i.setSurfaceName("model/swaption/black", "BLOOMBERG");
     return i;
   }
 
@@ -92,7 +90,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/fxforward", "DEFAULT");
     i.setCurveName("model/fxoption/black", "Discounting");
-    i.setSurfaceName("model/swaption/black", "PROVIDER1");
+    i.setSurfaceName("model/swaption/black", "BLOOMBERG");
     return i;
   }
 
@@ -106,7 +104,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveName(null, "Discounting");
     i.setCurveName("model/fxforward", "DEFAULT");
     i.setCurveName("model/fxoption/black", "Discounting");
-    i.setSurfaceName("model/swaption/black", "PROVIDER3");
+    i.setSurfaceName("model/swaption/black", "BLOOMBERG");
     return i;
   }
 
@@ -124,10 +122,10 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     i.setCurveName("model/fxoption/black", "Discounting");
     i.setCurveName("model/bond/riskFree", "Discounting");
     i.setCurveName("model/bond/credit", "Discounting");
-    i.setCubeName(null, "SECONDARY");
+    i.setCubeName(null, "BLOOMBERG");
     i.setForwardCurveName(null, "Forward3M");
-    i.setSurfaceName(null, "SECONDARY");
-    i.setSurfaceName("model/swaption/black", "PROVIDER1");
+    i.setSurfaceName(null, "DEFAULT");
+    i.setSurfaceName("model/swaption/black", "DEFAULT");
     return i;
   }
 
@@ -190,7 +188,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
     super.addCurrencyConversionFunctions(functionConfigs);
-    functionConfigs.add(functionConfiguration(CurrencyMatrixLookupFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(CurrencyMatrixLookupFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
   }
 
   @Override
@@ -203,8 +201,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     final FunctionConfigurationSource fxOptionRepository = getRepository(fxOptionDefaults);
     return CombiningFunctionConfigurationSource.of(fxForwardRepository, fxOptionRepository);
   }
-  
-  protected void setForexOptionDefaults(FXOptionPropertiesFunctions defaults) {
+
+  protected void setForexOptionDefaults(final FXOptionPropertiesFunctions defaults) {
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FXOptionPropertiesFunctions.CurrencyInfo>() {
       @Override
       public FXOptionPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
@@ -223,8 +221,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     }));
 
   }
-  
-  protected void setForexForwardDefaults(FXForwardPropertiesFunctions defaults) {
+
+  protected void setForexForwardDefaults(final FXForwardPropertiesFunctions defaults) {
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FXForwardPropertiesFunctions.CurrencyInfo>() {
       @Override
       public FXForwardPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
@@ -243,7 +241,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     }));
 
   }
-  
+
   protected void setForexForwardDefaults(final CurrencyInfo i, final FXForwardPropertiesFunctions.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/fxforward"));
     defaults.setDiscountingCurve(i.getCurveName("model/fxforward"));
@@ -252,7 +250,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected void setForexForwardDefaults(final CurrencyPairInfo i, final FXForwardPropertiesFunctions.CurrencyPairInfo defaults) {
     defaults.setForwardCurveName(i.getForwardCurveName("model/fxforward"));
   }
-  
+
   protected void setForexOptionDefaults(final CurrencyInfo i, final FXOptionPropertiesFunctions.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/fxoption/black"));
     defaults.setDiscountingCurve(i.getCurveName("model/fxoption/black"));
@@ -261,19 +259,18 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected void setForexOptionDefaults(final CurrencyPairInfo i, final FXOptionPropertiesFunctions.CurrencyPairInfo defaults) {
     defaults.setSurfaceName(i.getSurfaceName("model/fxoption/black"));
   }
-  
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
-    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
+    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "Discounting"));
   }
 
   @Override
   protected void setPNLFunctionDefaults(final PNLFunctions.Defaults defaults) {
     super.setPNLFunctionDefaults(defaults);
-    defaults.setCurveName("SECONDARY");
-    defaults.setPayCurveName("SECONDARY");
-    defaults.setReceiveCurveName("SECONDARY");
+    defaults.setCurveName("Discounting");
+    defaults.setPayCurveName("Discounting");
+    defaults.setReceiveCurveName("Discounting");
   }
-
 }

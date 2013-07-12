@@ -96,14 +96,12 @@ public class SwaptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTo
     final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     final List<Currency> currencies = new ArrayList<>(REGIONS.keySet());
     final ZonedDateTime[] tradeDates = new ZonedDateTime[size];
-    final Currency[] currencyArray = new Currency[size];
     final Random rng = new Random(123);
     final ZonedDateTime date = DateUtils.getUTCDate(2013, 1, 1);
     Arrays.fill(tradeDates, date);
     final SwaptionSecurity[] swaptions = new SwaptionSecurity[size];
     for (int i = 0; i < size; i++) {
       final Currency currency = currencies.get(rng.nextInt(currencies.size()));
-      currencyArray[i] = currency;
       final ExternalId region = REGIONS.get(currency);
       final ExternalId floatingRate = TICKERS.get(currency);
       final int swaptionYears = 1 + rng.nextInt(9);

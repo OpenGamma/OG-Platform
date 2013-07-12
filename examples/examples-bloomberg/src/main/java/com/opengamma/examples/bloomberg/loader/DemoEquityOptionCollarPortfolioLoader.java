@@ -110,7 +110,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
-   * 
+   *
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -188,7 +188,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
         if (++count >= _numMembers) {
           break;
         }
-      } catch (RuntimeException e) {
+      } catch (final RuntimeException e) {
         s_logger.warn("Caught exception", e);
       }
     }
@@ -245,9 +245,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
     final BigDecimal spareAmountAtExpiry = defaultAmountAtExpiry.add(BigDecimal.ONE);
     int spareCount = underlyingAmount.subtract(defaultAmountAtExpiry.multiply(expiryCount)).intValue();
 
-    for (int i = 0; i < expiries.length; i++) {
-      final Period bucketPeriod = expiries[i];
-
+    for (final Period bucketPeriod : expiries) {
       final ManageablePortfolioNode bucketNode = new ManageablePortfolioNode(bucketPeriod.toString().substring(1));
 
       final LocalDate nowish = LocalDate.now().withDayOfMonth(20); //This avoids us picking different options every time this script is run
@@ -566,7 +564,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
 
   /**
    * Stores the portfolio.
-   * 
+   *
    * @param portfolio the portfolio, not null
    */
   private void storePortfolio(final ManageablePortfolio portfolio) {

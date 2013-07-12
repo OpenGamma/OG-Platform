@@ -22,13 +22,19 @@ import com.opengamma.core.security.Security;
 import com.opengamma.examples.bloomberg.generator.BloombergExamplePortfolioGeneratorTool;
 import com.opengamma.examples.bloomberg.loader.CurveNodeHistoricalDataLoader;
 import com.opengamma.examples.bloomberg.loader.DemoEquityOptionCollarPortfolioLoader;
+import com.opengamma.examples.bloomberg.loader.ExampleAUDSwapPortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleFunctionConfigurationPopulator;
+import com.opengamma.examples.bloomberg.loader.ExampleFxForwardPortfolioLoader;
+import com.opengamma.examples.bloomberg.loader.ExampleMixedCMCapFloorPortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleMultiCurrencySwapPortfolioLoader;
+import com.opengamma.examples.bloomberg.loader.ExampleSwaptionPortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleTimeSeriesRatingLoader;
+import com.opengamma.examples.bloomberg.loader.ExampleVanillaFxOptionPortfolioLoader;
 import com.opengamma.examples.bloomberg.loader.ExampleViewsPopulator;
+import com.opengamma.examples.bloomberg.loader.FXSpotRateHistoricalDataLoader;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
@@ -67,8 +73,12 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   /**
    * The name of the multi-currency swap portfolio.
    */
-  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
 
+  /**
+   * The name of the swaption portfolio.
+   */
+  public static final String SWAPTION_PORTFOLIO_NAME = "Swaption Portfolio";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
 
@@ -88,8 +98,8 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private final Set<ExternalIdBundle> _futuresToLoad = new HashSet<ExternalIdBundle>();
-  private final Set<ExternalId> _historicalDataToLoad = new HashSet<ExternalId>();
+  private final Set<ExternalIdBundle> _futuresToLoad = new HashSet<>();
+  private final Set<ExternalId> _historicalDataToLoad = new HashSet<>();
 
   @Override
   protected void doRun() {
@@ -99,14 +109,17 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     loadCurveNodeHistoricalData();
     loadFutures();
     loadTimeSeriesRating();
-    loadEquityPortfolio();
-    // Note: FX rates have to be loaded before the FX portfolio can be generated
-    _historicalDataToLoad.add(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
+    // Note: historical time series need to be loaded before swap, swaption and FX portfolios can be created.
     loadHistoricalData();
+    loadEquityPortfolio();
     loadVolSurfaceData();
-    loadFXPortfolio();
     loadMultiCurrencySwapPortfolio();
     loadEquityOptionPortfolio();
+    loadFXForwardPortfolio();
+    loadVanillaFXOptionPortfolio();
+    loadSwaptionPortfolio();
+    loadAUDSwapPortfolio();
+    loadCMCapFloorPortfolio();
     loadViews();
     loadFunctionConfigurations();
   }
@@ -200,13 +213,17 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
+  @SuppressWarnings("synthetic-access")
   private void loadCurveNodeHistoricalData() {
-    final Log log = new Log("Loading curve node historical data");
+    final Log log = new Log("Loading historical and futures data");
     try {
       final CurveNodeHistoricalDataLoader curveNodeHistoricalDataLoader = new CurveNodeHistoricalDataLoader();
+      final FXSpotRateHistoricalDataLoader fxSpotRateHistoricalDataLoader = new FXSpotRateHistoricalDataLoader();
       curveNodeHistoricalDataLoader.run(getToolContext());
+      fxSpotRateHistoricalDataLoader.run(getToolContext());
       _historicalDataToLoad.addAll(curveNodeHistoricalDataLoader.getCurveNodesExternalIds());
       _historicalDataToLoad.addAll(curveNodeHistoricalDataLoader.getInitialRateExternalIds());
+      _historicalDataToLoad.addAll(fxSpotRateHistoricalDataLoader.getFXSpotRateExternalIds());
       _futuresToLoad.addAll(curveNodeHistoricalDataLoader.getFuturesExternalIds());
       log.done();
     } catch (final RuntimeException t) {
@@ -298,10 +315,55 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private void loadFXPortfolio() {
-    final Log log = new Log("Creating example FX portfolio");
+  private void loadFXForwardPortfolio() {
+    final Log log = new Log("Creating example FX forward portfolio");
     try {
-      portfolioGeneratorTool().run(getToolContext(), FX_PORTFOLIO_NAME, "EuroDollarFX", true, null);
+      final ExampleFxForwardPortfolioLoader fxForwardLoader = new ExampleFxForwardPortfolioLoader();
+      fxForwardLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadVanillaFXOptionPortfolio() {
+    final Log log = new Log("Creating example vanilla FX option portfolio");
+    try {
+      final ExampleVanillaFxOptionPortfolioLoader fxOptionLoader = new ExampleVanillaFxOptionPortfolioLoader();
+      fxOptionLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadSwaptionPortfolio() {
+    final Log log = new Log("Creating example swaption portfolio");
+    try {
+      final ExampleSwaptionPortfolioLoader swaptionLoader = new ExampleSwaptionPortfolioLoader();
+      swaptionLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadAUDSwapPortfolio() {
+    final Log log = new Log("Creating example AUD swap portfolio");
+    try {
+      final ExampleAUDSwapPortfolioLoader swapLoader = new ExampleAUDSwapPortfolioLoader();
+      swapLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadCMCapFloorPortfolio() {
+    final Log log = new Log("Creating example constant maturity swap and cap/floor portfolio");
+    try {
+      final ExampleMixedCMCapFloorPortfolioLoader loader = new ExampleMixedCMCapFloorPortfolioLoader();
+      loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

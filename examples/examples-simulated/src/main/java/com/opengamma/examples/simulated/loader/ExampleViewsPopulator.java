@@ -18,8 +18,6 @@ import static com.opengamma.engine.value.ValueRequirementNames.FORWARD;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
-import static com.opengamma.engine.value.ValueRequirementNames.MARKET_CLEAN_PRICE;
-import static com.opengamma.engine.value.ValueRequirementNames.MARKET_YTM;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.POSITION_DELTA;
