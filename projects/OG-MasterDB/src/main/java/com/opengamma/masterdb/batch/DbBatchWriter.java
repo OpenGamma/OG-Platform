@@ -43,6 +43,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.threeten.bp.Instant;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -63,6 +64,7 @@ import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueRequirement;
 import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.batch.domain.StatusEntry;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.InvocationResult;
@@ -110,6 +112,10 @@ public class DbBatchWriter extends AbstractDbMaster {
    * The batch risk sequence name.
    */
   public static final String RSK_SEQUENCE_NAME = "rsk_batch_seq";
+  /**
+   * The set of types to skip when encountered in market data because they already belong to a snapshot.
+   */
+  private static final Set<Class<?>> SKIP_MARKET_DATA_WRITE_TYPES = ImmutableSet.<Class<?>>of(SnapshotDataBundle.class);
 
   private final Map<String, Long> _calculationConfigurations = newConcurrentMap();
   private final Map<ValueRequirement, Long> _riskValueRequirements = newConcurrentMap();
@@ -804,6 +810,10 @@ public class DbBatchWriter extends AbstractDbMaster {
     }
     Set<MarketDataValue> marketDataValues = newHashSet();
     for (ComputedValue value : values) {
+      if (value.getValue() != null && SKIP_MARKET_DATA_WRITE_TYPES.contains(value.getValue().getClass())) {
+        s_logger.debug("Skipping market data value " + value + " because market data already persisted in snapshot");
+        continue;
+      }
       final ResultConverter<Object> resultConverter;
       try {
         resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(value.getValue());
