@@ -97,6 +97,11 @@ public class SequencePartitioningViewProcessWorkerTest {
       return !_thread.isAlive();
     }
 
+    @Override
+    public void forceGraphRebuild() {
+      // do nothing
+    }
+
     // Runnable
 
     @Override

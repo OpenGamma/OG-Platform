@@ -75,13 +75,13 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
    * JMS topic for notifications that the connection Bloomberg has come up.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _jmsAvailabilityTopic;
+  private String _jmsMarketDataAvailabilityTopic;
 
   //-------------------------------------------------------------------------
   @Override
   protected StandardLiveDataServer initServer(ComponentRepository repo) {
     // real server
-    JmsByteArrayMessageSender jmsSender = new JmsByteArrayMessageSender(getJmsAvailabilityTopic(),
+    JmsByteArrayMessageSender jmsSender = new JmsByteArrayMessageSender(getJmsMarketDataAvailabilityTopic(),
                                                                         getJmsConnector().getJmsTemplateTopic());
     FudgeMessageSender availabilityNotificationSender = new ByteArrayFudgeMessageSender(jmsSender);
     BloombergLiveDataServer realServer = new BloombergLiveDataServer(getBloombergConnector(),
@@ -172,8 +172,8 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
         return getCacheManager();
       case 268743028:  // subscriptionTickerLimit
         return getSubscriptionTickerLimit();
-      case -1683153180:  // jmsAvailabilityTopic
-        return getJmsAvailabilityTopic();
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        return getJmsMarketDataAvailabilityTopic();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -193,8 +193,8 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
       case 268743028:  // subscriptionTickerLimit
         setSubscriptionTickerLimit((Integer) newValue);
         return;
-      case -1683153180:  // jmsAvailabilityTopic
-        setJmsAvailabilityTopic((String) newValue);
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        setJmsMarketDataAvailabilityTopic((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -206,7 +206,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
     JodaBeanUtils.notNull(_cacheManager, "cacheManager");
     JodaBeanUtils.notNull(_subscriptionTickerLimit, "subscriptionTickerLimit");
-    JodaBeanUtils.notNull(_jmsAvailabilityTopic, "jmsAvailabilityTopic");
+    JodaBeanUtils.notNull(_jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
     super.validate();
   }
 
@@ -221,7 +221,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
           JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getSubscriptionTickerLimit(), other.getSubscriptionTickerLimit()) &&
-          JodaBeanUtils.equal(getJmsAvailabilityTopic(), other.getJmsAvailabilityTopic()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
           super.equals(obj);
     }
     return false;
@@ -234,7 +234,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTickerLimit());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsAvailabilityTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
     return hash ^ super.hashCode();
   }
 
@@ -347,25 +347,25 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
    * Gets jMS topic for notifications that the connection Bloomberg has come up.
    * @return the value of the property, not null
    */
-  public String getJmsAvailabilityTopic() {
-    return _jmsAvailabilityTopic;
+  public String getJmsMarketDataAvailabilityTopic() {
+    return _jmsMarketDataAvailabilityTopic;
   }
 
   /**
    * Sets jMS topic for notifications that the connection Bloomberg has come up.
-   * @param jmsAvailabilityTopic  the new value of the property, not null
+   * @param jmsMarketDataAvailabilityTopic  the new value of the property, not null
    */
-  public void setJmsAvailabilityTopic(String jmsAvailabilityTopic) {
-    JodaBeanUtils.notNull(jmsAvailabilityTopic, "jmsAvailabilityTopic");
-    this._jmsAvailabilityTopic = jmsAvailabilityTopic;
+  public void setJmsMarketDataAvailabilityTopic(String jmsMarketDataAvailabilityTopic) {
+    JodaBeanUtils.notNull(jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
+    this._jmsMarketDataAvailabilityTopic = jmsMarketDataAvailabilityTopic;
   }
 
   /**
-   * Gets the the {@code jmsAvailabilityTopic} property.
+   * Gets the the {@code jmsMarketDataAvailabilityTopic} property.
    * @return the property, not null
    */
-  public final Property<String> jmsAvailabilityTopic() {
-    return metaBean().jmsAvailabilityTopic().createProperty(this);
+  public final Property<String> jmsMarketDataAvailabilityTopic() {
+    return metaBean().jmsMarketDataAvailabilityTopic().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -399,10 +399,10 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     private final MetaProperty<Integer> _subscriptionTickerLimit = DirectMetaProperty.ofReadWrite(
         this, "subscriptionTickerLimit", AbstractBloombergLiveDataServerComponentFactory.class, Integer.class);
     /**
-     * The meta-property for the {@code jmsAvailabilityTopic} property.
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
      */
-    private final MetaProperty<String> _jmsAvailabilityTopic = DirectMetaProperty.ofReadWrite(
-        this, "jmsAvailabilityTopic", AbstractBloombergLiveDataServerComponentFactory.class, String.class);
+    private final MetaProperty<String> _jmsMarketDataAvailabilityTopic = DirectMetaProperty.ofReadWrite(
+        this, "jmsMarketDataAvailabilityTopic", AbstractBloombergLiveDataServerComponentFactory.class, String.class);
     /**
      * The meta-properties.
      */
@@ -412,7 +412,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
         "referenceDataProvider",
         "cacheManager",
         "subscriptionTickerLimit",
-        "jmsAvailabilityTopic");
+        "jmsMarketDataAvailabilityTopic");
 
     /**
      * Restricted constructor.
@@ -431,8 +431,8 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
           return _cacheManager;
         case 268743028:  // subscriptionTickerLimit
           return _subscriptionTickerLimit;
-        case -1683153180:  // jmsAvailabilityTopic
-          return _jmsAvailabilityTopic;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return _jmsMarketDataAvailabilityTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -486,11 +486,11 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     }
 
     /**
-     * The meta-property for the {@code jmsAvailabilityTopic} property.
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> jmsAvailabilityTopic() {
-      return _jmsAvailabilityTopic;
+    public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
+      return _jmsMarketDataAvailabilityTopic;
     }
 
   }

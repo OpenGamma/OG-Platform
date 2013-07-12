@@ -1017,4 +1017,25 @@ public class ParallelRecompilationViewProcessWorker implements ViewProcessWorker
     return getPrimary() == null;
   }
 
+  @Override
+  public void forceGraphRebuild() {
+    ViewProcessWorker primary;
+    ViewProcessWorker secondary;
+    synchronized (this) {
+      if (_terminated) {
+        s_logger.warn("Already terminated");
+        return;
+      }
+      primary = (getPrimary() != null) ? getPrimary()._worker : null;
+      secondary = (getSecondary() != null) ? getSecondary()._worker : null;
+      _terminated = true;
+    }
+    if (primary != null) {
+      primary.forceGraphRebuild();
+    }
+    if (secondary != null) {
+      secondary.forceGraphRebuild();
+    }
+  }
+
 }
