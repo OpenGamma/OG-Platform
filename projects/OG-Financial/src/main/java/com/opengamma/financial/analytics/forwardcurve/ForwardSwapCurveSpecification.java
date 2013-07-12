@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.analytics.forwardcurve;
 
-import com.opengamma.core.config.Config;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-@Config
 public class ForwardSwapCurveSpecification extends ForwardCurveSpecification {
 
   public ForwardSwapCurveSpecification(final String name, final Currency target, final ForwardCurveInstrumentProvider curveInstrumentProvider) {
