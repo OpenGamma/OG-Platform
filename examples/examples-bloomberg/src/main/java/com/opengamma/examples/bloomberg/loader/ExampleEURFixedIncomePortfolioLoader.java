@@ -260,13 +260,13 @@ public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<Integrati
   }
 
   private Collection<FinancialSecurity> getIRFutureSecurities(final Random random) {
-    final ZonedDateTime startDate = DateUtils.getUTCDate(2013, 9, 1);
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2014, 9, 1);
     final Collection<FinancialSecurity> securities = new ArrayList<>();
     final int[] amounts = new int[N_FUTURES];
     final double[] prices = new double[N_FUTURES];
     for (int i = 0; i < N_FUTURES; i++) {
       final int n = 1 + random.nextInt(5);
-      final Expiry expiry = new Expiry(startDate.plusMonths(3 * n).with(THIRD_WED_ADJUSTER));
+      final Expiry expiry = new Expiry(tradeDate.plusMonths(3 * n).with(THIRD_WED_ADJUSTER));
       final String letter = MONTHS.get(expiry.getExpiry().getMonth());
       final String year = Integer.toString(expiry.getExpiry().getYear() - 2010);
       final String code = "ER" + letter + year;
