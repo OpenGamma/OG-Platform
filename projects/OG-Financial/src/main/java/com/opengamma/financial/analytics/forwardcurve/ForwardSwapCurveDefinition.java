@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.analytics.forwardcurve;
 
-import com.opengamma.core.config.Config;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
-@Config
 public class ForwardSwapCurveDefinition extends ForwardCurveDefinition {
 
   public ForwardSwapCurveDefinition(final String name, final Currency target, final Tenor[] tenors) {
