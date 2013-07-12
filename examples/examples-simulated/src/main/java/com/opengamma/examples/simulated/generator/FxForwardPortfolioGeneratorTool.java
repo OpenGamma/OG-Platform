@@ -71,7 +71,7 @@ public class FxForwardPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
         payAmount = receiveAmount * spot * (1 + rng.nextDouble() / 20);
         forwardRate = payAmount / receiveAmount;
       }
-      final ZonedDateTime maturity = date.plusMonths(rng.nextInt(20));
+      final ZonedDateTime maturity = date.plusMonths(1 + rng.nextInt(20));
       final FXForwardSecurity forward = new FXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, maturity, REGION);
       final StringBuilder sb = new StringBuilder();
       sb.append(maturity.toLocalDate());
