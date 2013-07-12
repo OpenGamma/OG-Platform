@@ -20,6 +20,7 @@ import com.opengamma.master.user.UserMaster;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.GenericType;
 
 /**
@@ -46,6 +47,10 @@ public class RemoteUserMaster
    */
   public RemoteUserMaster(final URI baseUri, ChangeManager changeManager) {
     super(baseUri, changeManager);
+  }
+
+  public RemoteUserMaster(URI baseUri, FudgeRestClient client) {
+    super(baseUri, client);
   }
 
   //-------------------------------------------------------------------------
@@ -138,7 +143,6 @@ public class RemoteUserMaster
       ArgumentChecker.notNull(replacementDocument, "replacementDocument");
       ArgumentChecker.notNull(replacementDocument.getUser(), "replacementDocument.user");
     }
-
     URI uri = (new DataUserResource()).uriVersion(getBaseUri(), uniqueId);
     return accessRemote(uri).put(new GenericType<List<UniqueId>>() {
     }, replacementDocuments);
