@@ -92,7 +92,7 @@ public class CurveNodeHistoricalDataLoader {
       }
     }).asSet();
     _curveNodesExternalIds = getCurves(configSource, curveNames, dates);
-
+    _curveNodesExternalIds.add(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EONIA Index"));
     _futuresExternalIds = getFutures(configSource, curveNames, dates);
 
   }

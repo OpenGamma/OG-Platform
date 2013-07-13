@@ -265,6 +265,7 @@ public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationTool
       final SwaptionSecurity swaption = entry.getKey();
       swaptionToAddDoc.setSecurity(swaption);
       securityMaster.add(swaptionToAddDoc);
+      securityMaster.add(swapToAddDoc);
       final ManageablePosition swaptionPosition = new ManageablePosition(BigDecimal.ONE, swaption.getExternalIdBundle());
       final PositionDocument addedDoc = positionMaster.add(new PositionDocument(swaptionPosition));
       rootNode.addPosition(addedDoc.getUniqueId());

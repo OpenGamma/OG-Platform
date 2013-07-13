@@ -145,7 +145,8 @@ public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<Integrati
     if (futures.isEmpty()) {
       throw new OpenGammaRuntimeException("No valid futures were generated");
     }
-    persistToPortfolio(Arrays.asList(vanillaSwaps, oisSwaps, basisSwaps, futures), Arrays.asList("EUR Vanilla Swaps", "EUR OIS Swaps", "EUR 3m/6m Basis Swaps", "STIR Futures"), PORTFOLIO_NAME);
+//    persistToPortfolio(Arrays.asList(vanillaSwaps, oisSwaps, basisSwaps, futures), Arrays.asList("EUR Vanilla Swaps", "EUR OIS Swaps", "EUR 3m/6m Basis Swaps", "STIR Futures"), PORTFOLIO_NAME);    
+    persistToPortfolio(Arrays.asList(vanillaSwaps, oisSwaps, basisSwaps), Arrays.asList("EUR Vanilla Swaps", "EUR OIS Swaps", "EUR 3m/6m Basis Swaps"), PORTFOLIO_NAME);
   }
 
   private Collection<FinancialSecurity> getVanillaSwapSecurities(final Random random) {

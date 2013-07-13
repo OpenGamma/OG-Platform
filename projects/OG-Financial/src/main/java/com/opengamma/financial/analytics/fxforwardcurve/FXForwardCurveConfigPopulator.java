@@ -28,7 +28,7 @@ public class FXForwardCurveConfigPopulator {
   private static final String INSTRUMENT_TYPE = "FX_FORWARD";
   /** Tenors for non-JPY instruments */
   private static final Tenor[] TENORS = new Tenor[] {Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
-    Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofYears(1),
+    Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofMonths(12),
     Tenor.ofYears(5), Tenor.ofYears(10)};
 
   /**
