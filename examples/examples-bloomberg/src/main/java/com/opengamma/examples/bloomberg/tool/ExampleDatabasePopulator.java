@@ -105,10 +105,11 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     loadCurveCalculationConfigurations();
     loadCurveNodeHistoricalData();
     loadFutures();
+    loadEquityOptionPortfolio();
+    loadEquityPortfolio();
     loadTimeSeriesRating();
     // Note: historical time series need to be loaded before swap, swaption and FX portfolios can be created.
     loadHistoricalData();
-    loadEquityPortfolio();
     loadVolSurfaceData();
     loadMultiCurrencySwapPortfolio();
     loadEquityOptionPortfolio();
