@@ -500,7 +500,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private static String unpackJar(URL resource) {
     String file = resource.getPath();
     if (file.contains(".jar!/")) {
-      s_logger.debug("Unpacking zip file located within a jar file: {}", resource);
+      s_logger.info("Unpacking zip file located within a jar file: {}", resource);
       String jarFileName = StringUtils.substringBefore(file, "!/");
       if (jarFileName.startsWith("file:/")) {
         jarFileName = jarFileName.substring(5);
@@ -511,10 +511,8 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
         jarFileName = jarFileName.substring(6);
       }
       String innerFileName = StringUtils.substringAfter(file, "!/");
-      s_logger.debug("Unpacking zip file found jar file: {}", jarFileName);
-      s_logger.debug("Unpacking zip file found zip file: {}", innerFileName);
-      System.out.println("Unpacking zip file found jar file: " + jarFileName);
-      System.out.println("Unpacking zip file found zip file: " + innerFileName);
+      s_logger.info("Unpacking zip file found jar file: {}", jarFileName);
+      s_logger.info("Unpacking zip file found zip file: {}", innerFileName);
       try {
         JarFile jar = new JarFile(jarFileName);
         JarEntry jarEntry = jar.getJarEntry(innerFileName);
