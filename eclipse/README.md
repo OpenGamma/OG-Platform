@@ -35,11 +35,12 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
  - Click "Finish"
 
 5. Install the Eclipse plugins
- - Go to "File -> Import"
- - Select the "Install -> Install Software Items from File" option
- - In the popup, click the "Browse..." button
- - Choose the file `OG-Platform/eclipse/install/OpenGamma-Eclipse-Plugins.p2f`
- - Deselect "Install latest version of selected software" option
+ - Go to "Help -> Install new software..."
+ - Click the 'Add...' button in the top right
+ - Type 'OpenGamma Eclipse Updatesite' into the Name: field
+ - Type 'http://eclipse.opengamma.com/updatesite' into the Location: field
+ - Click 'OK'
+ - You should now see a selection of plug-ins available.  Click 'Select All'.
  - Click "Next" and accept any warnings
  - Restart Eclipse if requested to do so
   
@@ -62,9 +63,6 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
 - Ensure that you do not have your source code inside your Eclipse workspace.
   If you do, nothing will work correctly!
 
-- If you need to install the plugins manually, see the `OpenGamma-Eclipse-Plugins.p2f`
-  file to determine what plugins are required.
-
 - The combination of Eclipse, Maven and m2e sometimes gets confused.
   If projects have compile errors at any point when they shouldn't, try these three steps:
  - Select the project and right-click "Refresh"
@@ -75,15 +73,8 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
 #### Active development of OpenGamma
 
 If you are actively devloping OpenGamma, then it is recommended to take some addition steps.
-`OpenGamma-Eclipse-Plugins-Developer.p2f` instead of `OpenGamma-Eclipse-Plugins.p2f` in step 4.
-This will provide an enhanced set of Eclipse plugins.
 
-In addition, follow these steps:
-
-8. Add additional plugins
- - Redo step 5 above using the file `OpenGamma-Eclipse-Plugins-Developer.p2f`
-
-9. Load the code formatter
+8. Load the code formatter
  - Go to the Eclipse Preferences.
    This is normally 'Window->Preferences...', but 'Eclipse->Preferences..' on Mac.
  - Select the "Java -> Code Style -> Formatter" page
@@ -91,14 +82,14 @@ In addition, follow these steps:
  - Choose the file `OG-Platform/eclipse/install/OpenGamma-Eclipse-Formatter-Java.xml`
  - Click "OK"
 
-10. Load the code templates
+9. Load the code templates
  - Go to the Eclipse Preferences
  - Select the "Java -> Code Style -> Code templates" page
  - Click "Import..."
  - Choose the file `OG-Platform/eclipse/install/OpenGamma-Eclipse-CodeTemplates-Java.xml`
  - Click "OK"
 
-11. Load the common update sites
+10. Load the common update sites
  - Go to the Eclipse Preferences
  - Select the "Java -> Install -> Available Software Sites" page
  - Click "Import..."
