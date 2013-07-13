@@ -117,7 +117,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
    * @return the equity security, not null
    */
   protected BondSecurity loadFullSecurity(SecurityDocument shellDoc) {
-    s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
+    s_logger.info("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
     SecurityDocument doc = getToolContext().getSecurityMaster().get(shellDoc.getUniqueId());
     BondSecurity sec = (BondSecurity) doc.getSecurity();
     return sec;
@@ -152,7 +152,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
     String domicile = security.getIssuerDomicile();
     ManageablePortfolioNode domicileNode = rootNode.findNodeByName(domicile);
     if (domicileNode == null) {
-      s_logger.warn("Creating node for domicile {}", domicile);
+      s_logger.info("Creating node for domicile {}", domicile);
       domicileNode = new ManageablePortfolioNode(domicile);
       rootNode.addChildNode(domicileNode);
     }
@@ -160,7 +160,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
     String issuerType = security.getIssuerType();
     ManageablePortfolioNode issuerTypeNode = domicileNode.findNodeByName(issuerType);
     if (issuerTypeNode == null) {
-      s_logger.warn("Creating node for issuer type {}", issuerType);
+      s_logger.info("Creating node for issuer type {}", issuerType);
       issuerTypeNode = new ManageablePortfolioNode(issuerType);
       domicileNode.addChildNode(issuerTypeNode);
     }
@@ -168,7 +168,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
     String issuerName = security.getIssuerName();
     ManageablePortfolioNode issuerNode = issuerTypeNode.findNodeByName(issuerName);
     if (issuerNode == null) {
-      s_logger.warn("Creating node for isssuer {}", issuerName);
+      s_logger.info("Creating node for isssuer {}", issuerName);
       issuerNode = new ManageablePortfolioNode(issuerName);
       issuerTypeNode.addChildNode(issuerNode);
     }
@@ -184,7 +184,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool<IntegrationToolCont
    * @return the position, not null
    */
   protected ManageablePosition createPosition(BondSecurity security) {
-    s_logger.warn("Creating position {}", security);
+    s_logger.info("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
     ExternalId buid = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_BUID);
     ExternalIdBundle bundle;

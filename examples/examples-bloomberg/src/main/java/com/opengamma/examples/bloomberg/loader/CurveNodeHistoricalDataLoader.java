@@ -110,7 +110,7 @@ public class CurveNodeHistoricalDataLoader {
           final ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
           externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
         } else {
-          s_logger.warn("No convention for {} product", product);
+          s_logger.info("No convention for {} product", product);
         }
       }
     }

@@ -83,7 +83,7 @@ public class ExampleDatabaseCreator {
     }
     
     // create main database
-    s_logger.warn("Creating main database...");
+    s_logger.info("Creating main database...");
     DbTool dbTool = new DbTool();
     dbTool.setJdbcUrl(Objects.requireNonNull(props.getProperty(KEY_SHARED_URL)));
     dbTool.setUser(props.getProperty(KEY_SHARED_USER_NAME, ""));
@@ -95,7 +95,7 @@ public class ExampleDatabaseCreator {
     dbTool.execute();
     
     // create user database
-    s_logger.warn("Creating user database...");
+    s_logger.info("Creating user database...");
     DbTool dbToolUser = new DbTool();
     dbToolUser.setJdbcUrl(Objects.requireNonNull(props.getProperty(KEY_USERFINANCIAL_URL)));
     dbToolUser.setUser(props.getProperty(KEY_USERFINANCIAL_USER_NAME, ""));
@@ -107,10 +107,10 @@ public class ExampleDatabaseCreator {
     dbToolUser.execute();
     
     // populate the database
-    s_logger.warn("Populating main database...");
+    s_logger.info("Populating main database...");
     new ExampleDatabasePopulator().run(ResourceUtils.toResourceLocator(res), IntegrationToolContext.class);
     
-    s_logger.warn("Successfully created example databases");
+    s_logger.info("Successfully created example databases");
   }
 
 }

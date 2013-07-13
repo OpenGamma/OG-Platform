@@ -203,7 +203,6 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
       GAMMA_P_BLEED,
       HISTORICAL_VAR,
       HISTORICAL_VAR_STDDEV,
-      JENSENS_ALPHA,
       PNL_SERIES,
       PHI,
       RHO,
@@ -228,15 +227,12 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
       DZETA_DVOL
     }, ValueProperties.with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
     addValueRequirements(defaultCalConfig, EquitySecurity.SECURITY_TYPE, new String[]{
-      CAPM_BETA,
       FAIR_VALUE,
       HISTORICAL_VAR,
       HISTORICAL_VAR_STDDEV,
-      JENSENS_ALPHA,
       PNL_SERIES,
       SHARPE_RATIO,
       TOTAL_RISK_ALPHA,
-      TREYNOR_RATIO,
       SECURITY_MARKET_PRICE
     }, ValueProperties.with(AGGREGATION, MISSING_INPUTS).withOptional(AGGREGATION).get());
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);

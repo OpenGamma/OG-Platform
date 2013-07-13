@@ -116,7 +116,7 @@ public class PortfolioLoaderHelper {
   public static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
-      System.err.println(fieldValueMap);
+      s_logger.error("{}", fieldValueMap);
       throw new IllegalArgumentException("Could not find field '" + fieldName + "'");
     }
     return result;

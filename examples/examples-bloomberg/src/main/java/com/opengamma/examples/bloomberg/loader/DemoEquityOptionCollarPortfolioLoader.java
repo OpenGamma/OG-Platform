@@ -252,7 +252,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
       final LocalDate targetExpiry = nowish.plus(bucketPeriod);
       final LocalDate chosenExpiry = optionsByExpiry.floorKey(targetExpiry);
       if (chosenExpiry == null) {
-        s_logger.warn("No options for {} on {}", targetExpiry, underlying);
+        s_logger.info("No options for {} on {}", targetExpiry, underlying);
         continue;
       }
       s_logger.info("Using time {} for bucket {} ({})", new Object[] {chosenExpiry, bucketPeriod, targetExpiry });
@@ -341,7 +341,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
             throw new OpenGammaRuntimeException("Failed to get time series for " + loaded);
           }
         } catch (final Exception ex) {
-          s_logger.error("Failed to get time series for " + loaded, ex);
+          s_logger.info("Failed to get time series for " + loaded, ex);
         }
       }
     }
@@ -381,7 +381,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
             //          continue; //This option is not liquid enough for us
           }
         } catch (final Exception ex) {
-          s_logger.warn("Failed to get time series for " + option.getIdentifier(), ex);
+          s_logger.info("Failed to get time series for " + option.getIdentifier(), ex);
           //TODO: stop refetching this series each time
           continue; //This option is not liquid enough for us
         }
@@ -546,7 +546,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
         return underlyingSearch.getSingleSecurity();
       default:
         // Duplicate securities in the master
-        s_logger.warn("Multiple securities matched search for ticker {}. Using the first. {}", ticker, underlyingSearch);
+        s_logger.info("Multiple securities matched search for ticker {}. Using the first. {}", ticker, underlyingSearch);
         return underlyingSearch.getFirstSecurity();
     }
   }
