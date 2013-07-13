@@ -20,6 +20,7 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -501,14 +502,19 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     if (file.contains(".jar!/")) {
       s_logger.debug("Unpacking zip file located within a jar file: {}", resource);
       String jarFileName = StringUtils.substringBefore(file, "!/");
-      if (jarFileName.startsWith("file:///")) {
-        jarFileName = jarFileName.substring(8);
+      if (jarFileName.startsWith("file:/")) {
+        jarFileName = jarFileName.substring(5);
+        if (SystemUtils.IS_OS_WINDOWS) {
+          jarFileName = StringUtils.stripStart(jarFileName, "/");
+        }
       } else if (jarFileName.startsWith("file:/")) {
         jarFileName = jarFileName.substring(6);
       }
       String innerFileName = StringUtils.substringAfter(file, "!/");
       s_logger.debug("Unpacking zip file found jar file: {}", jarFileName);
       s_logger.debug("Unpacking zip file found zip file: {}", innerFileName);
+      System.out.println("Unpacking zip file found jar file: " + jarFileName);
+      System.out.println("Unpacking zip file found zip file: " + innerFileName);
       try {
         JarFile jar = new JarFile(jarFileName);
         JarEntry jarEntry = jar.getJarEntry(innerFileName);
@@ -521,7 +527,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
           file = tempFile.getCanonicalPath();
         }
       } catch (IOException ex) {
-        throw new OpenGammaRuntimeException("Unable to open file within jar file", ex);
+        throw new OpenGammaRuntimeException("Unable to open file within jar file: " + resource, ex);
       }
       s_logger.debug("Unpacking zip file extracted to: {}", file);
     }
