@@ -251,7 +251,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       responses.putAll(getFailedResponses());
       
       int total = responses.size();
-      s_logger.error("{} subscription responses received", total); // info
+      s_logger.info("{} subscription responses received", total);
       Map<LiveDataListener, Collection<LiveDataSubscriptionResponse>> batch = new HashMap<LiveDataListener, Collection<LiveDataSubscriptionResponse>>();
       for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> successEntry : responses.entrySet()) {
         SubscriptionHandle handle = successEntry.getKey();
