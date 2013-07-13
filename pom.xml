@@ -1052,7 +1052,7 @@
                   </descriptors>
                   <formats>
                     <format>zip</format>
-                    <format>tar.gz</format>
+                    <format>tar.bz2</format>
                   </formats>
                   <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
