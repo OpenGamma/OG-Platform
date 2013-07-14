@@ -118,7 +118,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<ToolContext> {
       }
       String sector = SECTORS.get(gics.getSectorCode());
       if (sector == null) {
-        s_logger.warn("unrecognised sector code {}", gics.getSectorCode());
+        s_logger.info("unrecognised sector code {}", gics.getSectorCode());
         continue;
       }
       // create portfolio structure
