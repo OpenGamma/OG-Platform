@@ -510,7 +510,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       } else if (jarFileName.startsWith("file:/")) {
         jarFileName = jarFileName.substring(6);
       }
+      jarFileName = StringUtils.replace(jarFileName, "%20", " ");
       String innerFileName = StringUtils.substringAfter(file, "!/");
+      innerFileName = StringUtils.replace(innerFileName, "%20", " ");
       s_logger.info("Unpacking zip file found jar file: {}", jarFileName);
       s_logger.info("Unpacking zip file found zip file: {}", innerFileName);
       try {
