@@ -64,15 +64,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.swinglabs</groupId>
-      <artifactId>swingx</artifactId>
-      <version>1.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.swinglabs</groupId>
-          <artifactId>swing-worker</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.swinglabs.swingx</groupId>
+      <artifactId>swingx-core</artifactId>
+      <version>1.6.5</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -89,11 +83,6 @@
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
-    </dependency>
-    <dependency>
-    		<groupId>org.swinglabs.swingx</groupId>
-    		<artifactId>swingx-core</artifactId>
-    		<version>1.6.5</version>
     </dependency>
   </dependencies>
 
