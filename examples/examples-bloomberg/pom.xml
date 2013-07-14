@@ -45,24 +45,6 @@
           </archive>
         </configuration>
       </plugin>
-      <!-- create empty data and logs directory -->
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <mkdir dir="${project.build.directory}/assembly/data"/>
-                <mkdir dir="${project.build.directory}/assembly/logs"/>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <!-- generate scripts -->
       <plugin>
         <groupId>com.opengamma.tools</groupId>
@@ -105,16 +87,31 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
           <execution>
+            <id>packages</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
             <configuration>
               <descriptors>
-                <descriptor>src/main/assembly/assembly-server.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-server-unix.xml</descriptor>
                 <descriptor>src/main/assembly/assembly-server-windows.xml</descriptor>
               </descriptors>
               <tarLongFileMode>gnu</tarLongFileMode>
+            </configuration>
+          </execution>
+          <execution>
+            <id>dir</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly-server-dir.xml</descriptor>
+              </descriptors>
+              <finalName>server-dir</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
         </executions>

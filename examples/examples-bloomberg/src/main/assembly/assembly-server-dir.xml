@@ -3,10 +3,11 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
-  <id>server-windows</id>
+  <id>server-dir</id>
   <formats>
-    <format>zip</format>
+    <format>dir</format>
   </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
 
   <!-- website resources -->
   <dependencySets>
@@ -24,9 +25,19 @@
       <outputDirectory>/config</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>644</fileMode>
-      <lineEnding>windows</lineEnding>
+      <lineEnding>unix</lineEnding>
     </fileSet>
     <!-- scripts -->
+    <fileSet>
+      <directory>${project.build.directory}/scripts</directory>
+      <outputDirectory>/scripts</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+    </fileSet>
     <fileSet>
       <directory>${project.build.directory}/scripts</directory>
       <outputDirectory>/scripts</outputDirectory>
@@ -42,10 +53,20 @@
       <outputDirectory>/scripts</outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*.sh</include>
+        <include>README*.txt</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>scripts</directory>
+      <outputDirectory>/scripts</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>755</fileMode>
       <lineEnding>windows</lineEnding>
       <includes>
         <include>*.bat</include>
-        <include>README*.txt</include>
       </includes>
     </fileSet>
     <fileSet>
@@ -53,7 +74,7 @@
       <outputDirectory></outputDirectory>
       <directoryMode>755</directoryMode>
       <fileMode>755</fileMode>
-      <lineEnding>windows</lineEnding>
+      <lineEnding>unix</lineEnding>
       <includes>
         <include>*.txt</include>
       </includes>

@@ -67,7 +67,7 @@
     </fileSet>
     <!-- directory for data and logs -->
     <fileSet>
-      <directory>${project.build.directory}/assembly/data</directory>
+      <directory>${project.build.directory}</directory>
       <outputDirectory>/data</outputDirectory>
       <directoryMode>755</directoryMode>
       <excludes>
@@ -75,7 +75,7 @@
       </excludes>
     </fileSet>
     <fileSet>
-      <directory>${project.build.directory}/assembly/logs</directory>
+      <directory>${project.build.directory}</directory>
       <outputDirectory>/logs</outputDirectory>
       <directoryMode>755</directoryMode>
       <excludes>
