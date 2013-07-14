@@ -1062,6 +1062,19 @@
         </plugins>
       </build>
     </profile>
+    <!-- setup to run all tests, activated with -DallTests -->
+    <profile>
+      <id>all-tests</id>
+      <activation>
+        <property>
+          <name>allTests</name>
+        </property>
+      </activation>
+      <properties>
+        <tests.testng.includedgroups>unit,integration,unitdb,unitslow</tests.testng.includedgroups>
+        <tests.testng.excludedgroups>none</tests.testng.excludedgroups>
+      </properties>
+    </profile>
   </profiles>
 
   <!-- ==================================================================== -->
