@@ -3,6 +3,7 @@
 .project
 .classpath
 .checkstyle
+.directory
 common/build-projects.xml
 common/credentials.properties
 common/tests.properties
