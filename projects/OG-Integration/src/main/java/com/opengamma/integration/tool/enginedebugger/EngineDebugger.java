@@ -65,6 +65,7 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.scripts.Scriptable;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -84,6 +85,7 @@ import javax.swing.JSplitPane;
 /**
  * Debugging tool for engine functions.
  */
+@Scriptable
 public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(EngineDebugger.class);
