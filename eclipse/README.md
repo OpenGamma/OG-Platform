@@ -37,7 +37,7 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
 5. Install the Eclipse plugins
  - Go to "Help -> Install new software..."
  - Click the 'Add...' button in the top right
- - Type 'OpenGamma Eclipse Updatesite' into the Name: field
+ - Type 'OpenGamma Eclipse update site' into the Name: field
  - Type 'http://eclipse.opengamma.com/updatesite' into the Location: field
  - Click 'OK'
  - You should now see a selection of plug-ins available.  Click 'Select All'.
@@ -87,13 +87,6 @@ If you are actively devloping OpenGamma, then it is recommended to take some add
  - Select the "Java -> Code Style -> Code templates" page
  - Click "Import..."
  - Choose the file `OG-Platform/eclipse/install/OpenGamma-Eclipse-CodeTemplates-Java.xml`
- - Click "OK"
-
-10. Load the common update sites
- - Go to the Eclipse Preferences
- - Select the "Java -> Install -> Available Software Sites" page
- - Click "Import..."
- - Choose the file `OG-Platform/eclipse/install/OpenGamma-Eclipse-UpdateSites.xml`
  - Click "OK"
 
 
