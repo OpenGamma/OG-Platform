@@ -35,7 +35,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
   public static final String NOTIONAL_FIELD_NAME = "notional";
   /** Field name. */
   public static final String IS_EOM_FIELD_NAME = "isEOM";
-  
+
   /** Field name. */
   public static final String FLOATING_REFERENCE_RATE_IDENTIFIER_FIELD_NAME = "floatingReferenceRateIdentifier";
   /** Field name. */
@@ -43,7 +43,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
   /** Field name. */
   public static final String FLOATING_RATE_TYPE_FIELD_NAME = "floatingRateType";
 
-  public static void toFudgeMsg(FudgeSerializer serializer, SwapLeg object, final MutableFudgeMsg msg) {
+  public static void toFudgeMsg(final FudgeSerializer serializer, final SwapLeg object, final MutableFudgeMsg msg) {
     addToMessage(msg, DAY_COUNT_FIELD_NAME, object.getDayCount());
     addToMessage(msg, FREQUENCY_FIELD_NAME, object.getFrequency());
     addToMessage(msg, REGION_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
@@ -51,8 +51,8 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     addToMessage(serializer, msg, NOTIONAL_FIELD_NAME, object.getNotional(), Notional.class);
     addToMessage(msg, IS_EOM_FIELD_NAME, object.isEom());
   }
-  
-  public static void toFudgeMsg(FudgeSerializer serializer, FloatingInterestRateLeg object, final MutableFudgeMsg msg) {
+
+  public static void toFudgeMsg(final FudgeSerializer serializer, final FloatingInterestRateLeg object, final MutableFudgeMsg msg) {
     toFudgeMsg(serializer, (SwapLeg) object, msg);
     addToMessage(msg, FLOATING_REFERENCE_RATE_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getFloatingReferenceRateId()));
     if (object.getInitialFloatingRate() != null) {
@@ -61,7 +61,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     addToMessage(msg, FLOATING_RATE_TYPE_FIELD_NAME, object.getFloatingRateType().name());
   }
 
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, SwapLeg object) {
+  public static void fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg, final SwapLeg object) {
     object.setDayCount(msg.getValue(DayCount.class, DAY_COUNT_FIELD_NAME));
     object.setFrequency(msg.getValue(Frequency.class, FREQUENCY_FIELD_NAME));
     object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_IDENTIFIER_FIELD_NAME)));
@@ -69,8 +69,8 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     object.setNotional(deserializer.fudgeMsgToObject(Notional.class, msg.getMessage(NOTIONAL_FIELD_NAME)));
     object.setEom(msg.getBoolean(IS_EOM_FIELD_NAME));
   }
-  
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FloatingInterestRateLeg object) {
+
+  public static void fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg, final FloatingInterestRateLeg object) {
     fromFudgeMsg(deserializer, msg, (SwapLeg) object);
     object.setFloatingReferenceRateId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FLOATING_REFERENCE_RATE_IDENTIFIER_FIELD_NAME)));
     if (msg.hasField(INITIAL_FLOATING_RATE_FIELD_NAME)) {
@@ -89,7 +89,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     public static final String RATE_FIELD_NAME = "rate";
 
     @Override
-    public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FixedInterestRateLeg object) {
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedInterestRateLeg object) {
       final MutableFudgeMsg msg = serializer.newMessage();
       toFudgeMsg(serializer, object, msg);
       addToMessage(msg, RATE_FIELD_NAME, object.getRate());
@@ -97,11 +97,11 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     }
 
     @Override
-    public FixedInterestRateLeg buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      FixedInterestRateLeg floatingInterestRateLeg = new FixedInterestRateLeg();
-      fromFudgeMsg(deserializer, msg, floatingInterestRateLeg);
-      floatingInterestRateLeg.setRate(msg.getDouble(RATE_FIELD_NAME));
-      return floatingInterestRateLeg;
+    public FixedInterestRateLeg buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+      final FixedInterestRateLeg fixedInterestRateLeg = new FixedInterestRateLeg();
+      fromFudgeMsg(deserializer, msg, fixedInterestRateLeg);
+      fixedInterestRateLeg.setRate(msg.getDouble(RATE_FIELD_NAME));
+      return fixedInterestRateLeg;
     }
   }
 
@@ -111,22 +111,22 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
    */
   @FudgeBuilderFor(FloatingInterestRateLeg.class)
   public static class FloatingInterestRateLegBuilder extends SwapLegFudgeBuilder implements FudgeBuilder<FloatingInterestRateLeg>  {
-   
+
     @Override
-    public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FloatingInterestRateLeg object) {
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FloatingInterestRateLeg object) {
       final MutableFudgeMsg msg = serializer.newMessage();
       toFudgeMsg(serializer, object, msg);
       return msg;
     }
 
     @Override
-    public FloatingInterestRateLeg buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      FloatingInterestRateLeg floatingInterestRateLeg = new FloatingInterestRateLeg();
+    public FloatingInterestRateLeg buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+      final FloatingInterestRateLeg floatingInterestRateLeg = new FloatingInterestRateLeg();
       fromFudgeMsg(deserializer, msg, floatingInterestRateLeg);
       return floatingInterestRateLeg;
     }
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * A Fudge builder for {@code FloatingSpreadIRLeg}.
@@ -135,24 +135,24 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
   public static class FloatingSpreadIRLegBuilder extends SwapLegFudgeBuilder implements FudgeBuilder<FloatingSpreadIRLeg>  {
     /** Field name. */
     public static final String SPREAD_FIELD_NAME = "spread";
-    
+
     @Override
-    public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FloatingSpreadIRLeg object) {
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FloatingSpreadIRLeg object) {
       final MutableFudgeMsg msg = serializer.newMessage();
-      toFudgeMsg(serializer, (FloatingInterestRateLeg) object, msg);
+      toFudgeMsg(serializer, object, msg);
       addToMessage(msg, SPREAD_FIELD_NAME, object.getSpread());
       return msg;
     }
 
     @Override
-    public FloatingSpreadIRLeg buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      FloatingSpreadIRLeg floatingSpreadIRLeg = new FloatingSpreadIRLeg();
-      fromFudgeMsg(deserializer, msg, (FloatingInterestRateLeg) floatingSpreadIRLeg);
+    public FloatingSpreadIRLeg buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+      final FloatingSpreadIRLeg floatingSpreadIRLeg = new FloatingSpreadIRLeg();
+      fromFudgeMsg(deserializer, msg, floatingSpreadIRLeg);
       floatingSpreadIRLeg.setSpread(msg.getDouble(SPREAD_FIELD_NAME));
       return floatingSpreadIRLeg;
     }
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * A Fudge builder for {@code FloatingGearingIRLeg}.
@@ -163,20 +163,49 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     public static final String GEARING_FIELD_NAME = "gearing";
 
     @Override
-    public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FloatingGearingIRLeg object) {
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FloatingGearingIRLeg object) {
       final MutableFudgeMsg msg = serializer.newMessage();
-      toFudgeMsg(serializer, (FloatingInterestRateLeg) object, msg);
+      toFudgeMsg(serializer, object, msg);
       addToMessage(msg, GEARING_FIELD_NAME, object.getGearing());
       return msg;
     }
 
     @Override
-    public FloatingGearingIRLeg buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      FloatingGearingIRLeg floatingInterestRateLeg = new FloatingGearingIRLeg();
-      fromFudgeMsg(deserializer, msg, (FloatingInterestRateLeg) floatingInterestRateLeg);
+    public FloatingGearingIRLeg buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+      final FloatingGearingIRLeg floatingInterestRateLeg = new FloatingGearingIRLeg();
+      fromFudgeMsg(deserializer, msg, floatingInterestRateLeg);
       floatingInterestRateLeg.setGearing(msg.getDouble(GEARING_FIELD_NAME));
       return floatingInterestRateLeg;
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * A Fudge builder for {@code FixedInflationSwapLeg}.
+   */
+  @FudgeBuilderFor(FixedInflationSwapLeg.class)
+  public static class FixedInflationSwapLegBuilder extends SwapLegFudgeBuilder implements FudgeBuilder<FixedInflationSwapLeg>  {
+    /** The rate field name */
+    private static final String RATE_FIELD_NAME = "rate";
+    /** The exchange notional field name */
+    private static final String IS_EXCHANGE_NOTIONAL_FIELD_NAME = "isExchangeNotional";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedInflationSwapLeg object) {
+      final MutableFudgeMsg msg = serializer.newMessage();
+      toFudgeMsg(serializer, object, msg);
+      addToMessage(msg, RATE_FIELD_NAME, object.getRate());
+      addToMessage(msg, IS_EXCHANGE_NOTIONAL_FIELD_NAME, object.isIsExchangeNotional());
+      return msg;
+    }
+
+    @Override
+    public FixedInflationSwapLeg buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+      final FixedInflationSwapLeg fixedInflationSwapLeg = new FixedInflationSwapLeg();
+      fromFudgeMsg(deserializer, msg, fixedInflationSwapLeg);
+      fixedInflationSwapLeg.setRate(msg.getDouble(RATE_FIELD_NAME));
+      fixedInflationSwapLeg.setIsExchangeNotional(msg.getBoolean(IS_EXCHANGE_NOTIONAL_FIELD_NAME));
+      return fixedInflationSwapLeg;
+    }
+  }
 }
