@@ -107,6 +107,8 @@ public final class ConventionBuilders {
     private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
     /** The compounding type field */
     private static final String COMPOUNDING_TYPE_FIELD = "compoundingType";
+    /** The exchange notional field */
+    private static final String EXCHANGE_NOTIONAL_FIELD = "exchangeNotional";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CompoundingIborLegConvention object) {
@@ -116,6 +118,7 @@ public final class ConventionBuilders {
       message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor().getPeriod().toString());
       message.add(COMPOUNDING_TYPE_FIELD, object.getCompoundingType().name());
       message.add(NAME_FIELD, object.getName());
+      message.add(EXCHANGE_NOTIONAL_FIELD, object.isIsExchangeNotional());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
       return message;
@@ -128,8 +131,10 @@ public final class ConventionBuilders {
       final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IBOR_INDEX_ID_FIELD));
       final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
+      final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
-      final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, compoundingType);
+      final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, compoundingType,
+          exchangeNotional);
       convention.setUniqueId(uniqueId);
       return convention;
     }
@@ -391,6 +396,8 @@ public final class ConventionBuilders {
     private static final String IS_EOM_FIELD = "isEOM";
     /** The stub type field */
     private static final String STUB_TYPE_FIELD = "stubType";
+    /** The exchange notional field */
+    private static final String EXCHANGE_NOTIONAL_FIELD = "exchangeNotional";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final OISLegConvention object) {
@@ -403,6 +410,7 @@ public final class ConventionBuilders {
       message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getConventionName());
       message.add(IS_EOM_FIELD, object.isIsEOM());
       message.add(STUB_TYPE_FIELD, object.getStubType().name());
+      message.add(EXCHANGE_NOTIONAL_FIELD, object.isIsExchangeNotional());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
@@ -420,9 +428,10 @@ public final class ConventionBuilders {
       final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final StubType stubType = StubType.valueOf(message.getString(STUB_TYPE_FIELD));
+      final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final OISLegConvention convention = new OISLegConvention(name, externalIdBundle, overnightIndexConvention, paymentTenor, paymentDelay,
-          businessDayConvention, settlementDays, isEOM, stubType);
+          businessDayConvention, settlementDays, isEOM, stubType, exchangeNotional);
       convention.setUniqueId(uniqueId);
       return convention;
     }
@@ -567,6 +576,8 @@ public final class ConventionBuilders {
     private static final String REGION_FIELD = "region";
     /** The stub type field */
     private static final String STUB_TYPE_FIELD = "stubType";
+    /** The exchange notional field */
+    private static final String EXCHANGE_NOTIONAL_FIELD = "exchangeNotional";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SwapFixedLegConvention object) {
@@ -580,6 +591,7 @@ public final class ConventionBuilders {
       message.add(CURRENCY_FIELD, object.getCurrency().getCode());
       serializer.addToMessage(message, REGION_FIELD, null, object.getRegionCalendar());
       message.add(STUB_TYPE_FIELD, object.getStubType().name());
+      message.add(EXCHANGE_NOTIONAL_FIELD, object.isIsExchangeNotional());
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
@@ -598,9 +610,10 @@ public final class ConventionBuilders {
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final ExternalId regionCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
       final StubType stubType = StubType.valueOf(message.getString(STUB_TYPE_FIELD));
+      final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final SwapFixedLegConvention convention = new SwapFixedLegConvention(name, externalIdBundle, paymentTenor, dayCount, businessDayConvention, currency,
-          regionCalendar, settlementDays, isEOM, stubType);
+          regionCalendar, settlementDays, isEOM, stubType, exchangeNotional);
       convention.setUniqueId(uniqueId);
       return convention;
     }
@@ -660,6 +673,8 @@ public final class ConventionBuilders {
     private static final String IS_EOM_FIELD = "isEOM";
     /** The stub type field */
     private static final String SETTLEMENT_DAYS_FIELD = "settlementDays";
+    /** The exchange notional field */
+    private static final String EXCHANGE_NOTIONAL_FIELD = "exchangeNotional";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VanillaIborLegConvention object) {
@@ -673,6 +688,7 @@ public final class ConventionBuilders {
       message.add(RESET_TENOR_FIELD, object.getResetTenor().getPeriod().toString());
       message.add(IS_EOM_FIELD, object.isIsEOM());
       message.add(SETTLEMENT_DAYS_FIELD, object.getSettlementDays());
+      message.add(EXCHANGE_NOTIONAL_FIELD, object.isIsExchangeNotional());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
       return message;
@@ -690,8 +706,9 @@ public final class ConventionBuilders {
       final Tenor resetTenor = new Tenor(Period.parse(message.getString(RESET_TENOR_FIELD)));
       final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
+      final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final VanillaIborLegConvention convention = new VanillaIborLegConvention(name, externalIdBundle, iborIndexConvention, isAdvanceFixing, interpolatorName,
-          resetTenor, settlementDays, isEOM, stubType);
+          resetTenor, settlementDays, isEOM, stubType, exchangeNotional);
       convention.setUniqueId(uniqueId);
       return convention;
     }

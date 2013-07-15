@@ -73,13 +73,13 @@ public class JPConventions {
     final String oisFixedLegConventionName = getConventionName(Currency.JPY, OIS_FIXED_LEG);
     final String oisFloatLegConventionName = getConventionName(Currency.JPY, OIS_ON_LEG);
     final Convention oisFixedLegConvention = new SwapFixedLegConvention(oisFixedLegConventionName, getIds(Currency.JPY, OIS_FIXED_LEG),
-        Tenor.ONE_YEAR, ACT_365, MODIFIED_FOLLOWING, Currency.JPY, JP, 2, true, StubType.SHORT_START);
+        Tenor.ONE_YEAR, ACT_365, MODIFIED_FOLLOWING, Currency.JPY, JP, 2, true, StubType.SHORT_START, false);
     final Convention oisFloatLegConvention = new OISLegConvention(oisFloatLegConventionName, getIds(Currency.JPY, OIS_ON_LEG), onIndexId,
-        Tenor.ONE_YEAR, 2, MODIFIED_FOLLOWING, 2, true, StubType.NONE);
+        Tenor.ONE_YEAR, 2, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false);
     // Ibor swap legs
     // X-Ccy OIS
     final Convention oisXCcyUSDLegConvention = new OISLegConvention(OIS_USD_JPY_ON_LEG, getIds(OIS_USD_JPY_ON_LEG), onIndexId,
-        Tenor.THREE_MONTHS, 2, MODIFIED_FOLLOWING, 2, true, StubType.NONE);
+        Tenor.THREE_MONTHS, 2, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false);
     conventionMaster.add(oisXCcyUSDLegConvention);
     // Convention add
     conventionMaster.add(onIndex);

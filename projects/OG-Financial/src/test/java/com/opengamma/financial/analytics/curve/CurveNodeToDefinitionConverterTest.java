@@ -114,13 +114,13 @@ public class CurveNodeToDefinitionConverterTest {
   private static final ExternalId IMM_3M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
   private static final ExternalId IMM_1M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME);
   private static final SwapFixedLegConvention FIXED_LEG = new SwapFixedLegConvention("USD Swap Fixed Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Swap Fixed Leg")),
-      Tenor.SIX_MONTHS, ACT_360, MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.NONE);
+      Tenor.SIX_MONTHS, ACT_360, MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.NONE, false);
   private static final VanillaIborLegConvention SWAP_3M_LIBOR = new VanillaIborLegConvention("USD 3m Floating Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD 3m Floating Leg")),
-      LIBOR_3M_ID, false, SCHEME, Tenor.THREE_MONTHS, 2, false, StubType.NONE);
+      LIBOR_3M_ID, false, SCHEME, Tenor.THREE_MONTHS, 2, false, StubType.NONE, false);
   private static final VanillaIborLegConvention SWAP_6M_LIBOR = new VanillaIborLegConvention("USD 6m Floating Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD 6m Floating Leg")),
-      LIBOR_6M_ID, false, SCHEME, Tenor.SIX_MONTHS, 2, false, StubType.LONG_END);
+      LIBOR_6M_ID, false, SCHEME, Tenor.SIX_MONTHS, 2, false, StubType.LONG_END, false);
   private static final OISLegConvention OIS = new OISLegConvention("USD OIS Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD OIS Leg")), OVERNIGHT_ID,
-      Tenor.ONE_YEAR, 1, MODIFIED_FOLLOWING, 2, false, StubType.NONE);
+      Tenor.ONE_YEAR, 1, MODIFIED_FOLLOWING, 2, false, StubType.NONE, false);
   private static final DepositConvention DEPOSIT_1D = new DepositConvention("USD 1d Deposit", ExternalIdBundle.of(DEPOSIT_1D_ID),
       ACT_360, MODIFIED_FOLLOWING, 0, false, Currency.USD, US);
   private static final DepositConvention DEPOSIT_1M = new DepositConvention("USD 1m Deposit", ExternalIdBundle.of(DEPOSIT_1M_ID),
@@ -400,7 +400,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.01;
     marketValues.setDataPoint(marketDataId, rate);
     final VanillaIborLegConvention iborConvention = new VanillaIborLegConvention("Test", ExternalIdBundle.of(ExternalId.of(SCHEME, "Test")),
-        SWAP_6M_IBOR_ID, false, SCHEME, Tenor.THREE_MONTHS, 2, false, StubType.NONE);
+        SWAP_6M_IBOR_ID, false, SCHEME, Tenor.THREE_MONTHS, 2, false, StubType.NONE, false);
     final Map<ExternalId, Convention> conventions = new HashMap<>();
     conventions.put(FIXED_LEG_ID, FIXED_LEG);
     conventions.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
