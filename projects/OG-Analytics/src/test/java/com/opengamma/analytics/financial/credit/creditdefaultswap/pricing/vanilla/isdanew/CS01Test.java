@@ -240,8 +240,8 @@ public class CS01Test {
       final double[] flatSpreads = new double[m];
       Arrays.fill(flatSpreads, FLAT_SPREADS[i] / 10000);
       double cs01 = scale * CS01_CAL.parallelCreditDV01(cds, fracSpread, PriceType.DIRTY, YIELD_CURVE, curveCDSs, flatSpreads, bumpAmount, BumpType.ADDITIVE);
-      // System.out.println(MATURITIES[i].toString() + "\t" + cs01);
-      assertEquals(MATURITIES[i].toString(), PARELLEL_CS01_FLAT[i], cs01, 1e-14 * NOTIONAL);
+    //   System.out.println(MATURITIES[i].toString() + "\t" + cs01);
+    assertEquals(MATURITIES[i].toString(), PARELLEL_CS01_FLAT[i], cs01, 1e-14 * NOTIONAL);
     }
   }
   

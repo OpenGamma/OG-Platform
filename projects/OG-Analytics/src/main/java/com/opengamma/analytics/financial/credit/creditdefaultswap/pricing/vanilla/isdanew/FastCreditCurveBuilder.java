@@ -43,8 +43,16 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * {@inheritDoc}
    */
   @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(CDSAnalytic cds, double premium, ISDACompliantYieldCurve yieldCurve, double pointsUpfront) {
+    return calibrateCreditCurve(new CDSAnalytic[] {cds}, new double[] {premium}, yieldCurve, new double[] {pointsUpfront});
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(CDSAnalytic cds, double marketFractionalSpread, ISDACompliantYieldCurve yieldCurve) {
-    return calibrateCreditCurve(new CDSAnalytic[] {cds}, new double[] {marketFractionalSpread}, yieldCurve);
+    return calibrateCreditCurve(new CDSAnalytic[] {cds}, new double[] {marketFractionalSpread}, yieldCurve, new double[1]);
   }
 
   /**
@@ -52,11 +60,24 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    */
   @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] fractionalSpreads, final ISDACompliantYieldCurve yieldCurve) {
+    ArgumentChecker.notNull(cds, "null CDS");
+    final int n = cds.length;
+    final double[] pointsUpfront = new double[n];
+    return calibrateCreditCurve(cds, fractionalSpreads, yieldCurve, pointsUpfront);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(CDSAnalytic[] cds, double[] premiums, ISDACompliantYieldCurve yieldCurve, double[] pointsUpfront) {
     ArgumentChecker.noNulls(cds, "null CDSs");
-    ArgumentChecker.notEmpty(fractionalSpreads, "empty fractionalSpreads");
+    ArgumentChecker.notEmpty(premiums, "empty fractionalSpreads");
+    ArgumentChecker.notEmpty(pointsUpfront, "empty pointsUpfront");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     final int n = cds.length;
-    ArgumentChecker.isTrue(n == fractionalSpreads.length, "Number of CDSs does not match number of spreads");
+    ArgumentChecker.isTrue(n == premiums.length, "Number of CDSs does not match number of spreads");
+    ArgumentChecker.isTrue(n == pointsUpfront.length, "Number of CDSs does not match number of pointsUpfront");
     double proStart = cds[0].getProtectionStart();
     for (int i = 1; i < n; i++) {
       ArgumentChecker.isTrue(proStart == cds[i].getProtectionStart(), "all CDSs must has same protection start");
@@ -67,13 +88,13 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     double[] guess = new double[n];
     double[] t = new double[n];
     for (int i = 0; i < n; i++) {
-      guess[i] = fractionalSpreads[i] / cds[i].getLGD();
+      guess[i] = premiums[i] / cds[i].getLGD(); // TODO incorporate pointsUpfront
       t[i] = cds[i].getProtectionEnd();
     }
 
     ISDACompliantCreditCurve creditCurve = new ISDACompliantCreditCurve(t, guess);
     for (int i = 0; i < n; i++) {
-      final Pricer pricer = new Pricer(cds[i], yieldCurve, t, fractionalSpreads[i]);
+      final Pricer pricer = new Pricer(cds[i], yieldCurve, t, premiums[i], pointsUpfront[i]);
       final Function1D<Double, Double> func = pricer.getPointFunction(i, creditCurve);
       double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], 0.0, Double.POSITIVE_INFINITY);
       double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
@@ -88,7 +109,8 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
   @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(LocalDate today, LocalDate stepinDate, LocalDate valueDate, LocalDate startDate, LocalDate endDate, double fractionalParSpread,
       boolean payAccOnDefault, Period tenor, StubType stubType, boolean protectStart, ISDACompliantYieldCurve yieldCurve, double recoveryRate) {
-    return calibrateCreditCurve(today, stepinDate, valueDate, startDate, new LocalDate[] {endDate}, new double[] {fractionalParSpread}, payAccOnDefault, tenor, stubType, protectStart, yieldCurve, recoveryRate);
+    return calibrateCreditCurve(today, stepinDate, valueDate, startDate, new LocalDate[] {endDate}, new double[] {fractionalParSpread}, payAccOnDefault, tenor, stubType, protectStart, yieldCurve,
+        recoveryRate);
   }
 
   /**
@@ -96,8 +118,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    */
   @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantYieldCurve yieldCurve,
-      final double recoveryRate) {
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantYieldCurve yieldCurve, final double recoveryRate) {
 
     ArgumentChecker.notNull(today, "null today");
     ArgumentChecker.notNull(stepinDate, "null stepinDate");
@@ -129,6 +150,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     private final double _lgdDF;
     private final double _valuationDF;
     private final double _fracSpread;
+    private final double _pointsUpfront;
     private final double[] _ccKnotTimes;
 
     // protection leg
@@ -147,10 +169,11 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     private final double[] _accRate;
     private final double[] _offsetAccStart;
 
-    public Pricer(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final double[] creditCurveKnots, final double fractionalSpread) {
+    public Pricer(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final double[] creditCurveKnots, final double fractionalSpread, final double pointsUpfront) {
 
       _cds = cds;
       _fracSpread = fractionalSpread;
+      _pointsUpfront = pointsUpfront;
       _ccKnotTimes = creditCurveKnots;
 
       // protection leg
@@ -233,7 +256,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
           ISDACompliantCreditCurve cc = creditCurve.withRate(x, index);
           final double rpv01 = rpv01(cc, PriceType.CLEAN);
           final double pro = protectionLeg(cc);
-          return pro - _fracSpread * rpv01;
+          return pro - _fracSpread * rpv01 - _pointsUpfront;
         }
       };
 
