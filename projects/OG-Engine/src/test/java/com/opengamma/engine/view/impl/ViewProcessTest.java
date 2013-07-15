@@ -203,8 +203,13 @@ public class ViewProcessTest {
 
     resultListener.expectNextCall(ViewDefinitionCompiledCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleStartedCall.class, 10 * Timeout.standardTimeoutMillis());
+
+    // We expect 2 calls - 1 for initial fragment, 1 for final fragment on completion
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
+    resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
+
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getViewCycleExecutionOptions().getValuationTime());
+
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
     resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
