@@ -15,11 +15,13 @@ import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * Cubic spline interpolation based on 
- * H. Akima, “A New Method of Interpolation and Smooth Curve Fitting Based on Local Procedures,�? 
+ * H. Akima, "A New Method of Interpolation and Smooth Curve Fitting Based on Local Procedures," 
  * Journal of the Association for Computing Machinery, Vol 17, no 4, October 1970, 589-602
  */
 public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpolator {
   private static final double ERROR = 1.e-13;
+  private static final double EPS = 1.e-7;
+  private static final double SMALL = 1.e-14;
   private final HermiteCoefficientsProvider _solver = new HermiteCoefficientsProvider();
 
   @Override
@@ -62,7 +64,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
         ArgumentChecker.isFalse(Double.isNaN(coefs[i][j]), "Too large input");
         ArgumentChecker.isFalse(Double.isInfinite(coefs[i][j]), "Too large input");
       }
-      final double bound = Math.abs(ref) + Math.abs(yValuesSrt[i + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValuesSrt[i + 1]);
+      final double bound = Math.max(Math.abs(ref) + Math.abs(yValuesSrt[i + 1]), 1.e-1);
       ArgumentChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
     }
 
@@ -118,7 +120,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
           ArgumentChecker.isFalse(Double.isNaN(coefMatrix[i].getData()[k][j]), "Too large input");
           ArgumentChecker.isFalse(Double.isInfinite(coefMatrix[i].getData()[k][j]), "Too large input");
         }
-        final double bound = Math.abs(ref) + Math.abs(yValuesSrt[k + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValuesSrt[k + 1]);
+        final double bound = Math.max(Math.abs(ref) + Math.abs(yValuesSrt[k + 1]), 1.e-1);
         ArgumentChecker.isTrue(Math.abs(ref - yValuesSrt[k + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
       }
     }
@@ -162,7 +164,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     final double[] intervals = _solver.intervalsCalculator(xValues);
     final double[] slopes = _solver.slopesCalculator(yValues, intervals);
     final double[][] slopeSensitivity = _solver.slopeSensitivityCalculator(intervals);
-    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(intervals, slopes, slopeSensitivity);
+    final DoubleMatrix1D[] firstWithSensitivity = firstDerivativeWithSensitivityCalculator(yValues, intervals, slopes, slopeSensitivity);
     final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValues, intervals, slopes, slopeSensitivity, firstWithSensitivity);
 
     for (int k = 0; k < nDataPts; k++) {
@@ -182,7 +184,7 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
       for (int j = 0; j < 4; ++j) {
         ref += coefMatrix.getData()[i][j] * Math.pow(intervals[i], 3 - j);
       }
-      final double bound = Math.abs(ref) + Math.abs(yValues[i + 1]) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yValues[i + 1]);
+      final double bound = Math.max(Math.abs(ref) + Math.abs(yValues[i + 1]), 1.e-1);
       ArgumentChecker.isTrue(Math.abs(ref - yValues[i + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
     }
     final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
@@ -217,9 +219,8 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
     return res;
   }
 
-  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] intervals, final double[] slopes, final double[][] slopeSensitivity) {
-    final int nData = slopes.length + 1;
-    final double[] intervalsExt = getExtraPoints(intervals);
+  private DoubleMatrix1D[] firstDerivativeWithSensitivityCalculator(final double[] yValues, final double[] intervals, final double[] slopes, final double[][] slopeSensitivity) {
+    final int nData = yValues.length;
     final double[] slopesExt = getExtraPoints(slopes);
     final double[][] slopeSensitivityExtTransp = new double[nData][nData + 3];
     final DoubleMatrix1D[] res = new DoubleMatrix1D[nData + 1];
@@ -237,17 +238,48 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
       final double den = (modSlopesWithSensitivity[0].getData()[i + 2] + modSlopesWithSensitivity[0].getData()[i]);
       if (den == 0.) {
         first[i] = 0.5 * (slopesExt[i + 1] + slopesExt[i + 2]);
-        /*
-         * Derivative value is ambiguous and finite difference approximation diverges in this case
-         */
-        for (int k = 0; k < i; ++k) {
-          tmp[k] = slopeSensitivityExtTransp[k][i + 2];
+
+        Arrays.fill(tmp, 0.);
+        final int left = Math.max(2, i) - 2;
+        final int right = Math.min(nData + 2, i + 5) - 2;
+        //        System.out.println(i + "\t" + left + "\t" + right);
+        double[] yValuesUp = Arrays.copyOf(yValues, nData);
+        double[] yValuesDw = Arrays.copyOf(yValues, nData);
+        //        for (int j = left; j < right; ++j) {
+        //          final double div = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * EPS;
+        //          yValuesUp[j] = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * (1. + EPS);
+        //          yValuesDw[j] = Math.abs(yValues[j]) < SMALL ? -EPS : yValues[j] * (1. - EPS);
+        //          final double firstUp = firstDerivativeCalculator(_solver.slopesCalculator(yValuesUp, intervals))[i];
+        //          final double firstDw = firstDerivativeCalculator(_solver.slopesCalculator(yValuesDw, intervals))[i];
+        //          tmp[j] = 0.5 * (firstUp - firstDw) / div;
+        //          yValuesUp[j] = yValues[j];
+        //          yValuesDw[j] = yValues[j];
+        //        }
+        for (int j = 0; j < nData; ++j) {
+          final double div = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * EPS;
+          yValuesUp[j] = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * (1. + EPS);
+          yValuesDw[j] = Math.abs(yValues[j]) < SMALL ? -EPS : yValues[j] * (1. - EPS);
+          final double firstUp = firstDerivativeCalculator(_solver.slopesCalculator(yValuesUp, intervals))[i];
+          final double firstDw = firstDerivativeCalculator(_solver.slopesCalculator(yValuesDw, intervals))[i];
+          //          System.out.println(j + "\t" + new DoubleMatrix1D(firstDerivativeCalculator(_solver.slopesCalculator(yValuesUp, intervals))));
+          //          System.out.print(j + "\t" + new DoubleMatrix1D(firstDerivativeCalculator(_solver.slopesCalculator(yValuesDw, intervals))));
+          //          System.out.println("\n");
+          tmp[j] = 0.5 * (firstUp - firstDw) / div;
+          yValuesUp[j] = yValues[j];
+          yValuesDw[j] = yValues[j];
         }
-        tmp[i] = 0.5 * (intervalsExt[i + 1] * slopeSensitivityExtTransp[i][i + 1] + intervalsExt[i + 2] * slopeSensitivityExtTransp[i][i + 2]) /
-            (intervalsExt[i + 2] + intervalsExt[i + 1]);
-        for (int k = i + 1; k < nData; ++k) {
-          tmp[k] = slopeSensitivityExtTransp[k][i + 1];
-        }
+        //        /*
+        //         * Derivative value is ambiguous and finite difference approximation diverges in this case
+        //         */
+        //        for (int k = 0; k < i; ++k) {
+        //          tmp[k] = slopeSensitivityExtTransp[k][i + 2];
+        //        }
+        //        //        tmp[i] = 0.5 * (intervalsExt[i + 1] * slopeSensitivityExtTransp[i][i + 1] + intervalsExt[i + 2] * slopeSensitivityExtTransp[i][i + 2]) /
+        //        //            (intervalsExt[i + 2] + intervalsExt[i + 1]);
+        //        tmp[i] = 0.;
+        //        for (int k = i + 1; k < nData; ++k) {
+        //          tmp[k] = slopeSensitivityExtTransp[k][i + 1];
+        //        }
       } else {
         first[i] = modSlopesWithSensitivity[0].getData()[i + 2] * slopesExt[i + 1] / den + modSlopesWithSensitivity[0].getData()[i] * slopesExt[i + 2] / den;
         for (int k = 0; k < nData; ++k) {
