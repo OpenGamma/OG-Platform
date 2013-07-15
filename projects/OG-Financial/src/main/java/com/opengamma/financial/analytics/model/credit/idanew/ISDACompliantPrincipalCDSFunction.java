@@ -28,7 +28,7 @@ public class ISDACompliantPrincipalCDSFunction extends ISDACompliantCDSFunction 
   @Override
   protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
                            final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
-    return _pricer.principle(cds.getNotional(), analytic, yieldCurve, creditCurve, cds.getParSpread() * s_tenminus4);
+    return _pricer.principal(cds.getNotional(), analytic, yieldCurve, creditCurve, cds.getParSpread() * s_tenminus4);
   }
 
 }

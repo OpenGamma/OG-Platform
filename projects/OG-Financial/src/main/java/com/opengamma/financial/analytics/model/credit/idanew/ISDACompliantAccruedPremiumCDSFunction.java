@@ -26,7 +26,7 @@ public class ISDACompliantAccruedPremiumCDSFunction extends ISDACompliantCDSFunc
   @Override
   protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
                            final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
-    return Double.valueOf(analytic.getAccruedPremium(cds.getParSpread() * s_tenminus4));
+    return Double.valueOf(analytic.getAccruedPremium(cds.getParSpread() * s_tenminus4) * cds.getNotional());
   }
 
 }

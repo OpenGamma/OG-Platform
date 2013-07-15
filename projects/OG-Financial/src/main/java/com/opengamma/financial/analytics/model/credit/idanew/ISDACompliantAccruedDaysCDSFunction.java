@@ -28,7 +28,7 @@ public class ISDACompliantAccruedDaysCDSFunction extends ISDACompliantCDSFunctio
   @Override
   protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
                            final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
-    return Integer.valueOf(analytic.getAccuredDays());
+    return Double.valueOf(analytic.getAccuredDays()); //TODO: Should be an int
   }
 
 }
