@@ -5,6 +5,9 @@
   <property environment="env" />
   <property file="build.properties" />
 
+  <property name="version" value="2.0.0" />
+  <property name="git.branch" value="dev/v2.0.x" />
+
   <property name="apidocs.public.dir" value="target/apidocs-public" />
   <property name="apidocs.public.temp.dir" value="target/apidocs-public-temp" />
   <property name="projects.dir" value="projects" />
@@ -62,6 +65,54 @@
       <link href="http://joda-beans.sourceforge.net/apidocs/" />
     </javadoc>
     <delete dir="${apidocs.public.temp.dir}" />
+  </target>
+
+  <!-- ================================================================== -->
+  <macrodef name="git">
+    <attribute name="command" />
+    <attribute name="dir" default="" />
+    <attribute name="failonerror" default="true" />
+    <element name="args" optional="true" />
+    <sequential>
+      <echo message="git @{command}" />
+      <exec executable="git" dir="@{dir}" osfamily="unix" failonerror="@{failonerror}">
+        <arg value="@{command}" />
+        <args />
+      </exec>
+      <!-- On Windows, you want to execute git.cmd, not git.exe.  -->
+      <exec executable="cmd" dir="@{dir}" osfamily="windows">
+        <arg value="/c" />
+        <arg value="git" />
+        <arg value="@{command}" />
+        <args />
+      </exec>
+    </sequential>
+  </macrodef>
+  <target name="dist-src">
+    <delete dir="target/dist-src" />
+    <mkdir dir="target/dist-src" />
+    <git command="clone">
+      <args>
+        <arg value="-b" />
+        <arg value="${git.branch}" />
+        <arg value="https://github.com/OpenGamma/OG-Platform.git" />
+        <arg value="target/dist-src/OG-Platform" />
+      </args>
+    </git>
+
+    <delete file="target/dist-src/OG-Platform/gitstats.sh" />
+	  <delete file="target/dist-src/OG-Platform/README.md" />
+    
+    <delete file="target/opengamma-platform-${version}-src.zip" />
+    <zip destfile="target/opengamma-platform-${version}-src.zip" basedir="target/dist-src" />
+    
+    <delete file="target/opengamma-platform-${version}-src.tar" />
+    <delete file="target/opengamma-platform-${version}-src.tar.bz2" />
+    <delete file="target/opengamma-platform-${version}-src.tar.gz" />
+    <tar destfile="target/opengamma-platform-${version}-src.tar" longfile="gnu" basedir="target/dist-src" />
+    <bzip2 destfile="target/opengamma-platform-${version}-src.tar.bz2" src="target/opengamma-platform-${version}-src.tar" />
+    <gzip destfile="target/opengamma-platform-${version}-src.tar.gz" src="target/opengamma-platform-${version}-src.tar" />
+    <delete file="target/opengamma-platform-${version}-src.tar" />
   </target>
 
 </project>
