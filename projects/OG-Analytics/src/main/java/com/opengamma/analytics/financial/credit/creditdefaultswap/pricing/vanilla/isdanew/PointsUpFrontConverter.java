@@ -45,22 +45,9 @@ public class PointsUpFrontConverter {
     return 1 - puf;
   }
 
-  /**
-   * The principle (aka cash settled amount or dirty price) is the total up-front amount that must be paid; it consists of the
-   * accrued premium and the points up-front (PUF)
-   * @param notional The notional of the trade 
-   * @param cds The CDS to be traded
-   * @param puf points up-front (as a fraction)
-   * @param coupon The coupon (or deal spread) as a fraction
-   * @return The principle 
-   */
-  public double principle(final double notional, final CDSAnalytic cds, final double puf, final double coupon) {
-    return notional * (cds.getAccruedPremium(coupon) + puf);
-  }
 
   /**
-   * The principle (aka cash settled amount or dirty price) is the total up-front amount that must be paid; it consists of the
-   * accrued premium and the points up-front (PUF)
+   * The principal - this is the clean present value 
    * @param notional The notional of the trade 
    * @param cds The CDS to be traded
    * @param yieldCurve the yield/discount curve 
@@ -68,8 +55,8 @@ public class PointsUpFrontConverter {
    * @param coupon The fractional quoted spread (coupon) of the CDS
    * @return The principle 
    */
-  public double principle(final double notional, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double coupon) {
-    return notional * PRICER.pv(cds, yieldCurve, creditCurve, coupon, PriceType.DIRTY);
+  public double principal(final double notional, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double coupon) {
+    return notional * PRICER.pv(cds, yieldCurve, creditCurve, coupon, PriceType.CLEAN);
   }
 
   /**
