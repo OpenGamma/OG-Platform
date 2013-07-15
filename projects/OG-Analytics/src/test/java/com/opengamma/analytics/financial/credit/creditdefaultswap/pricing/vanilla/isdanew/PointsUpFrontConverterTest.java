@@ -98,11 +98,11 @@ public class PointsUpFrontConverterTest {
     final double permium = 100. / 10000;
     final double recovery = 0.4;
     CDSAnalytic cds = new CDSAnalytic(TODAY, STEPIN_DATE, CASH_SETTLE_DATE, START_DATE, END_DATE, payAccOnDefault, tenor, stubType, protectionStart, recovery);
-    final double parSpread = PUF.parSpread(cds, permium, YIELD_CURVE, pointsUpFront);
+    final double parSpread = PUF.pufToQuotedSpread(cds, permium, YIELD_CURVE, pointsUpFront);
     final double expectedParSpread = 0.011112592882846; // taken from Excel-ISDA 1.8.2
     assertEquals("Par Spread", expectedParSpread, parSpread, 1e-14);
 
-    final double derivedPUF = PUF.pointsUpFront(cds, permium, YIELD_CURVE, parSpread);
+    final double derivedPUF = PUF.quotedSpreadToPUF(cds, permium, YIELD_CURVE, parSpread);
     assertEquals("PUF", pointsUpFront, derivedPUF, 1e-15);
 
   }
@@ -118,11 +118,11 @@ public class PointsUpFrontConverterTest {
     final double permium = 500. / 10000;
     final double recovery = 0.4;
     CDSAnalytic cds = new CDSAnalytic(TODAY, STEPIN_DATE, CASH_SETTLE_DATE, START_DATE, END_DATE, payAccOnDefault, tenor, stubType, protectionStart, recovery);
-    final double puf = PUF.pointsUpFront(cds, permium, YIELD_CURVE, parSpread);
+    final double puf = PUF.quotedSpreadToPUF(cds, permium, YIELD_CURVE, parSpread);
     final double expectedPUF = -0.2195134271137960; // taken from Excel-ISDA 1.8.2
     assertEquals("PUF", expectedPUF, puf, 5e-13);
 
-    final double derivedParSpread = PUF.parSpread(cds, permium, YIELD_CURVE, puf);
+    final double derivedParSpread = PUF.pufToQuotedSpread(cds, permium, YIELD_CURVE, puf);
     assertEquals("Par Spread", parSpread, derivedParSpread, 1e-15);
 
   }
@@ -145,11 +145,11 @@ public class PointsUpFrontConverterTest {
       cds[i] = new CDSAnalytic(TODAY, STEPIN_DATE, CASH_SETTLE_DATE, START_DATE, MATURITIES[i], payAccOnDefault, tenor, stubType, protectionStart, recovery);
     }
 
-    double[] parSpreadsF = PUF.parSpreadsFlat(cds, permium, YIELD_CURVE, pointsUpFront);
-    double[] parSpreads = PUF.parSpreads(cds, permium, YIELD_CURVE, pointsUpFront);
+    double[] parSpreadsF = PUF.pufToQuotedSpreads(cds, permium, YIELD_CURVE, pointsUpFront);
+    double[] parSpreads = PUF.pufToParSpreads(cds, permium, YIELD_CURVE, pointsUpFront);
 
-    final double[] derivedPUF = PUF.pointsUpFrontFlat(cds, permium, YIELD_CURVE, parSpreadsF);
-    final double[] derivedPUF2 = PUF.pointsUpFront(cds, permium, YIELD_CURVE, parSpreads);
+    final double[] derivedPUF = PUF.quotedSpreadsToPUF(cds, permium, YIELD_CURVE, parSpreadsF);
+    final double[] derivedPUF2 = PUF.parSpreadsToPUF(cds, permium, YIELD_CURVE, parSpreads);
     for (int i = 0; i < n; i++) {
       assertEquals("PUF1", pointsUpFront[i], derivedPUF[i], 1e-15);
       assertEquals("PUF1", pointsUpFront[i], derivedPUF2[i], 1e-15);

@@ -463,7 +463,6 @@ public class AnalyticCDSPricer {
         dPVSense = ((w3 / q0 + dht * p0) / dhrt) * dqdr0 - ((w3 / q1 + dht * p1) / dhrt) * dqdr1;
       }
 
-      // pv += dPV;
       pvSense += dPVSense;
 
       ht0 = ht1;
