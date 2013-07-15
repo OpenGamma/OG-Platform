@@ -52,18 +52,6 @@ public class SwapFixedLegConvention extends Convention {
   private BusinessDayConvention _businessDayConvention;
 
   /**
-   * The number of days to settle.
-   */
-  @PropertyDefinition
-  private int _daysToSettle;
-
-  /**
-   * Should dates follow the end-of-month rule.
-   */
-  @PropertyDefinition
-  private boolean _isEOM;
-
-  /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
@@ -74,6 +62,18 @@ public class SwapFixedLegConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionCalendar;
+
+  /**
+   * The number of settlement days.
+   */
+  @PropertyDefinition
+  private int _settlementDays;
+
+  /**
+   * Should dates follow the end-of-month rule.
+   */
+  @PropertyDefinition
+  private boolean _isEOM;
 
   /**
    * The stub type.
@@ -94,23 +94,23 @@ public class SwapFixedLegConvention extends Convention {
    * @param paymentTenor The payment tenor, not null
    * @param dayCount The day-count, not null
    * @param businessDayConvention The business-day convention, not null
-   * @param daysToSettle The number of days to settle
-   * @param isEOM True if dates follow the end-of-month rule
    * @param currency The currency, not null
    * @param regionCalendar The region calendar, not null
+   * @param settlementDays The number of days to settle
+   * @param isEOM True if dates follow the end-of-month rule
    * @param stubType The stub type, not null
    */
   public SwapFixedLegConvention(final String name, final ExternalIdBundle externalIdBundle, final Tenor paymentTenor, final DayCount dayCount,
-      final BusinessDayConvention businessDayConvention, final int daysToSettle, final boolean isEOM, final Currency currency, final ExternalId regionCalendar,
+      final BusinessDayConvention businessDayConvention, final Currency currency, final ExternalId regionCalendar, final int settlementDays, final boolean isEOM,
       final StubType stubType) {
     super(name, externalIdBundle);
     setPaymentTenor(paymentTenor);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
-    setDaysToSettle(daysToSettle);
-    setIsEOM(isEOM);
     setCurrency(currency);
     setRegionCalendar(regionCalendar);
+    setSettlementDays(settlementDays);
+    setIsEOM(isEOM);
     setStubType(stubType);
   }
 
@@ -141,14 +141,14 @@ public class SwapFixedLegConvention extends Convention {
         return getDayCount();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
-      case 379523357:  // daysToSettle
-        return getDaysToSettle();
-      case 100464505:  // isEOM
-        return isIsEOM();
       case 575402001:  // currency
         return getCurrency();
       case 1932874322:  // regionCalendar
         return getRegionCalendar();
+      case -295948000:  // settlementDays
+        return getSettlementDays();
+      case 100464505:  // isEOM
+        return isIsEOM();
       case 1873675528:  // stubType
         return getStubType();
     }
@@ -167,17 +167,17 @@ public class SwapFixedLegConvention extends Convention {
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
         return;
-      case 379523357:  // daysToSettle
-        setDaysToSettle((Integer) newValue);
-        return;
-      case 100464505:  // isEOM
-        setIsEOM((Boolean) newValue);
-        return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
       case 1932874322:  // regionCalendar
         setRegionCalendar((ExternalId) newValue);
+        return;
+      case -295948000:  // settlementDays
+        setSettlementDays((Integer) newValue);
+        return;
+      case 100464505:  // isEOM
+        setIsEOM((Boolean) newValue);
         return;
       case 1873675528:  // stubType
         setStubType((StubType) newValue);
@@ -207,10 +207,10 @@ public class SwapFixedLegConvention extends Convention {
       return JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getDaysToSettle(), other.getDaysToSettle()) &&
-          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
+          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
+          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
           JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
           super.equals(obj);
     }
@@ -223,10 +223,10 @@ public class SwapFixedLegConvention extends Convention {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
     return hash ^ super.hashCode();
   }
@@ -311,56 +311,6 @@ public class SwapFixedLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of days to settle.
-   * @return the value of the property
-   */
-  public int getDaysToSettle() {
-    return _daysToSettle;
-  }
-
-  /**
-   * Sets the number of days to settle.
-   * @param daysToSettle  the new value of the property
-   */
-  public void setDaysToSettle(int daysToSettle) {
-    this._daysToSettle = daysToSettle;
-  }
-
-  /**
-   * Gets the the {@code daysToSettle} property.
-   * @return the property, not null
-   */
-  public final Property<Integer> daysToSettle() {
-    return metaBean().daysToSettle().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets should dates follow the end-of-month rule.
-   * @return the value of the property
-   */
-  public boolean isIsEOM() {
-    return _isEOM;
-  }
-
-  /**
-   * Sets should dates follow the end-of-month rule.
-   * @param isEOM  the new value of the property
-   */
-  public void setIsEOM(boolean isEOM) {
-    this._isEOM = isEOM;
-  }
-
-  /**
-   * Gets the the {@code isEOM} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> isEOM() {
-    return metaBean().isEOM().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the currency.
    * @return the value of the property, not null
    */
@@ -409,6 +359,56 @@ public class SwapFixedLegConvention extends Convention {
    */
   public final Property<ExternalId> regionCalendar() {
     return metaBean().regionCalendar().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the number of settlement days.
+   * @return the value of the property
+   */
+  public int getSettlementDays() {
+    return _settlementDays;
+  }
+
+  /**
+   * Sets the number of settlement days.
+   * @param settlementDays  the new value of the property
+   */
+  public void setSettlementDays(int settlementDays) {
+    this._settlementDays = settlementDays;
+  }
+
+  /**
+   * Gets the the {@code settlementDays} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> settlementDays() {
+    return metaBean().settlementDays().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets should dates follow the end-of-month rule.
+   * @return the value of the property
+   */
+  public boolean isIsEOM() {
+    return _isEOM;
+  }
+
+  /**
+   * Sets should dates follow the end-of-month rule.
+   * @param isEOM  the new value of the property
+   */
+  public void setIsEOM(boolean isEOM) {
+    this._isEOM = isEOM;
+  }
+
+  /**
+   * Gets the the {@code isEOM} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> isEOM() {
+    return metaBean().isEOM().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -463,16 +463,6 @@ public class SwapFixedLegConvention extends Convention {
     private final MetaProperty<BusinessDayConvention> _businessDayConvention = DirectMetaProperty.ofReadWrite(
         this, "businessDayConvention", SwapFixedLegConvention.class, BusinessDayConvention.class);
     /**
-     * The meta-property for the {@code daysToSettle} property.
-     */
-    private final MetaProperty<Integer> _daysToSettle = DirectMetaProperty.ofReadWrite(
-        this, "daysToSettle", SwapFixedLegConvention.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code isEOM} property.
-     */
-    private final MetaProperty<Boolean> _isEOM = DirectMetaProperty.ofReadWrite(
-        this, "isEOM", SwapFixedLegConvention.class, Boolean.TYPE);
-    /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
@@ -482,6 +472,16 @@ public class SwapFixedLegConvention extends Convention {
      */
     private final MetaProperty<ExternalId> _regionCalendar = DirectMetaProperty.ofReadWrite(
         this, "regionCalendar", SwapFixedLegConvention.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code settlementDays} property.
+     */
+    private final MetaProperty<Integer> _settlementDays = DirectMetaProperty.ofReadWrite(
+        this, "settlementDays", SwapFixedLegConvention.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code isEOM} property.
+     */
+    private final MetaProperty<Boolean> _isEOM = DirectMetaProperty.ofReadWrite(
+        this, "isEOM", SwapFixedLegConvention.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code stubType} property.
      */
@@ -495,10 +495,10 @@ public class SwapFixedLegConvention extends Convention {
         "paymentTenor",
         "dayCount",
         "businessDayConvention",
-        "daysToSettle",
-        "isEOM",
         "currency",
         "regionCalendar",
+        "settlementDays",
+        "isEOM",
         "stubType");
 
     /**
@@ -516,14 +516,14 @@ public class SwapFixedLegConvention extends Convention {
           return _dayCount;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
-        case 379523357:  // daysToSettle
-          return _daysToSettle;
-        case 100464505:  // isEOM
-          return _isEOM;
         case 575402001:  // currency
           return _currency;
         case 1932874322:  // regionCalendar
           return _regionCalendar;
+        case -295948000:  // settlementDays
+          return _settlementDays;
+        case 100464505:  // isEOM
+          return _isEOM;
         case 1873675528:  // stubType
           return _stubType;
       }
@@ -571,22 +571,6 @@ public class SwapFixedLegConvention extends Convention {
     }
 
     /**
-     * The meta-property for the {@code daysToSettle} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Integer> daysToSettle() {
-      return _daysToSettle;
-    }
-
-    /**
-     * The meta-property for the {@code isEOM} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> isEOM() {
-      return _isEOM;
-    }
-
-    /**
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
@@ -600,6 +584,22 @@ public class SwapFixedLegConvention extends Convention {
      */
     public final MetaProperty<ExternalId> regionCalendar() {
       return _regionCalendar;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDays} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> settlementDays() {
+      return _settlementDays;
+    }
+
+    /**
+     * The meta-property for the {@code isEOM} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> isEOM() {
+      return _isEOM;
     }
 
     /**

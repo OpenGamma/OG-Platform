@@ -106,7 +106,7 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
   @Test
   public void testOISLegConvention() {
     final OISLegConvention convention = new OISLegConvention("EUR OIS", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR OIS")),
-        ExternalId.of("Test", "EONIA"), Tenor.SIX_MONTHS, 0, 1, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
+        ExternalId.of("Test", "EONIA"), Tenor.SIX_MONTHS, 0, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 1, true, StubType.LONG_START);
     convention.setUniqueId(UniqueId.of("Test", "123"));
     assertEquals(convention, cycleObject(OISLegConvention.class, convention));
   }
@@ -138,8 +138,8 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
   @Test
   public void testSwapFixedLegConvention() {
     final SwapFixedLegConvention convention = new SwapFixedLegConvention("EUR Fixed Leg", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Fixed Leg")),
-        Tenor.THREE_MONTHS, DayCountFactory.INSTANCE.getDayCount("30/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), 2, false,
-        Currency.EUR, ExternalId.of("Test", "EU"), StubType.LONG_END);
+        Tenor.THREE_MONTHS, DayCountFactory.INSTANCE.getDayCount("30/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        Currency.EUR, ExternalId.of("Test", "EU"), 2, true, StubType.LONG_END);
     convention.setUniqueId(UniqueId.of("Test", "123"));
     assertEquals(convention, cycleObject(SwapFixedLegConvention.class, convention));
   }
@@ -155,7 +155,7 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
   @Test
   public void testVanillaIborLegConvention() {
     final VanillaIborLegConvention convention = new VanillaIborLegConvention("EUR 3m Swap", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR 3m Swap")),
-        ExternalId.of("Test", "3m Euribor"), true, StubType.LONG_START, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS);
+        ExternalId.of("Test", "3m Euribor"), true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.SHORT_END);
     convention.setUniqueId(UniqueId.of("Test", "12345"));
     assertEquals(convention, cycleObject(VanillaIborLegConvention.class, convention));
   }
