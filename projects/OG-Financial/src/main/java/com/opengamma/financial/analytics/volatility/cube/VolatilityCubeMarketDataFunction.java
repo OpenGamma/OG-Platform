@@ -213,7 +213,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
         final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
         final VolatilityPoint volatilityPoint;
         final Pair<Tenor, Tenor> strikePoint;
-        if (value.getSpecification().getValueName() != MarketDataRequirementNames.MARKET_VALUE) {
+        if (value.getSpecification().getValueName() == MarketDataRequirementNames.MARKET_VALUE) {
           volatilityPoint = getByIdentifier(_pointsById, identifiers);
           strikePoint = getByIdentifier(_strikesById, identifiers);
         } else {
