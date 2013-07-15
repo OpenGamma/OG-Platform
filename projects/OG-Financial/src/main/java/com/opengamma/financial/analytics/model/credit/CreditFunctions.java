@@ -18,12 +18,16 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpT
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantAccruedDaysCDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantAccruedPremiumCDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCleanPriceCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCreditCurveFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantBucketedCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCleanPresentValueCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantDirtyPresentValueCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantParallelCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantPointsUpfrontCDSFunction;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantPrincipalCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantUpfrontAmountCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
@@ -467,6 +471,10 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACompliantBucketedCS01CDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantUpfrontAmountCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantPointsUpfrontCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantAccruedDaysCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantAccruedPremiumCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantCleanPriceCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantPrincipalCDSFunction.class));
   }
 
 }
