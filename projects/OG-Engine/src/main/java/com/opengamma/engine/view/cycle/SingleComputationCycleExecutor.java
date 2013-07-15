@@ -72,8 +72,12 @@ import com.opengamma.util.tuple.Pair;
     public void run(final SingleComputationCycleExecutor executor) {
       s_logger.info("Execution of {} complete", _calculationConfiguration);
       final ExecutingCalculationConfiguration calcConfig = executor._executing.remove(_calculationConfiguration);
+
       if (calcConfig != null) {
-        calcConfig.buildResults(executor.getCycle().getResultModel());
+        SingleComputationCycle cycle = executor.getCycle();
+        final InMemoryViewComputationResultModel fragmentResultModel = cycle.constructTemplateResultModel();
+        calcConfig.buildResults(fragmentResultModel, cycle.getResultModel());
+        cycle.notifyFragmentCompleted(fragmentResultModel);
       }
     }
 
@@ -143,22 +147,6 @@ import com.opengamma.util.tuple.Pair;
         }
       }
     }
-
-    public void buildResults(final InMemoryViewComputationResultModel fullResultModel) {
-      if (_terminalOutputs.isEmpty()) {
-        return;
-      }
-      final String calculationConfiguration = _graph.getCalculationConfigurationName();
-      for (Pair<ValueSpecification, Object> value : _computationCache.getValues(_terminalOutputs, CacheSelectHint.allShared())) {
-        final ValueSpecification valueSpec = value.getFirst();
-        final Object calculatedValue = value.getSecond();
-        if (calculatedValue != null) {
-          final ComputedValueResult computedValueResult = SingleComputationCycle.createComputedValueResult(valueSpec, calculatedValue, _resultCache.get(valueSpec));
-          fullResultModel.addValue(calculationConfiguration, computedValueResult);
-        }
-      }
-    }
-
   }
 
   private final BlockingQueue<Event> _events = new LinkedBlockingQueue<Event>();
