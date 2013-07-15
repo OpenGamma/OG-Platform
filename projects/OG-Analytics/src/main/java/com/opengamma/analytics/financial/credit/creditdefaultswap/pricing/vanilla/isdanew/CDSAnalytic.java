@@ -283,11 +283,21 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the accrued premium.
-   * @return the accrued
+   * Gets the accrued premium per unit of (fractional) spread - i.e. if the quoted spread (coupon)  was 500bps the actual
+   * accrued premium paid would be this times 0.05
+   * @return the accrued premium per unit of (fractional) spread (and unit of notional)
    */
-  public double getAccrued() {
+  public double getAccruedPremiumPerUnitSpread() {
     return _accrued;
+  }
+
+  /**
+   * Gets the accrued premium per unit of notional 
+   * @param fractionalSpread The <b>fraction</b> spread 
+   * @return the accrued premium 
+   */
+  public double getAccruedPremium(final double fractionalSpread) {
+    return _accrued * fractionalSpread;
   }
 
   /**

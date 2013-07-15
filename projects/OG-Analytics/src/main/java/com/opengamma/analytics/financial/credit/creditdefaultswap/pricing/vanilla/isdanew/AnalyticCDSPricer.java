@@ -149,7 +149,7 @@ public class AnalyticCDSPricer {
     pv /= df;
 
     if (cleanOrDirty == PriceType.CLEAN) {
-      pv -= cds.getAccrued();
+      pv -= cds.getAccruedPremiumPerUnitSpread();
     }
     return pv;
   }

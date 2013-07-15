@@ -21,27 +21,66 @@ public class PointsUpFrontConverter {
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
 
   /**
-   * Get the points-upfront if the credit (hazard) curve is known.
+   * The clean price as a fraction of notional (it is often expressed as a percentage of notional) 
+   * @param fractionalPUF The points up-front (as a fraction)
+   * @return The clean price  (as a fraction)
+   */
+  public double cleanPrice(final double fractionalPUF) {
+    return 1 - fractionalPUF;
+  }
+
+  /**
+   * The clean price as a fraction of notional (it is often expressed as a percentage of notional)  - this requires that a
+   * credit curve is bootstrapped first 
+   * @param cds The CDS to be traded
+   * @param yieldCurve the yield/discount curve 
+   * @param creditCurve the credit/hazard curve 
+   * @param coupon The fractional quoted spread (coupon) of the CDS
+   * @return the clean price  (as a fraction)
+   */
+  public double cleanPrice(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double coupon) {
+    final double puf = pointsUpFront(cds, coupon, yieldCurve, creditCurve);
+    return 1 - puf;
+  }
+
+  /**
+   * The principle is the total up-front amount that must be paid; it consists of the accrued premium and the points up-front (PUF)
+  * @param cds The CDS to be traded
+   * @param notional The notional of the trade 
+   * @param yieldCurve the yield/discount curve 
+   * @param creditCurve the credit/hazard curve 
+   * @param coupon The fractional quoted spread (coupon) of the CDS
+   * @return The principle 
+   */
+  public double principle(final double notional, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double coupon) {
+    final double temp = cds.getAccruedPremium(coupon) + pointsUpFront(cds, coupon, yieldCurve, creditCurve);
+    return notional * temp;
+  }
+
+  /**
+   * Get the points up-front  - this requires that a credit curve is bootstrapped first 
    * @param cds The CDS to be traded
    * @param premium The standard premium of the CDS <b>expressed as a fraction</b>
    * @param yieldCurve the yield/discount curve 
    * @param creditCurve the credit/hazard curve 
-   * @return  points-upfront - these are usually quoted as a percentage of the notional - here we return a fraction of notional,
-   *  so 0.01 is 1(%) points-upfront  
+   * @return  points up-front - these are usually quoted as a percentage of the notional - here we return a fraction of notional,
+   *  so 0.01 is 1(%) points up-front  
    */
-  final double pointsUpFront(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+  public double pointsUpFront(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     return PRICER.pv(cds, yieldCurve, creditCurve, premium, PriceType.CLEAN);
   }
 
   /**
-   * Get the points-upfront for a collection of CDSs if the credit (hazard) curve is known.
-   * collection of CDSs 
+   * Get the points up-front for a collection of CDSs - this requires that a credit curve is bootstrapped first. This will
+   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard)  
+   * @param  cds collection of CDSs 
    * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
    * @param yieldCurve the yield/discount curve 
    * @param creditCurve the credit/hazard curve 
-   * @return points-upfront (as fractions)
+   * @see pointsUpFrontFlat
+   * @return points up-front (as fractions)
    */
-  final double[] pointsUpFront(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+  public double[] pointsUpFront(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     ArgumentChecker.noNulls(cds, "cds");
     final int n = cds.length;
     final double[] res = new double[n];
@@ -52,14 +91,16 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * Get the points-upfront for a collection of CDSs if the credit (hazard) curve is known.
-   * collection of CDSs 
+   * Get the points up-front for a collection of CDSs - this requires that a credit curve is bootstrapped first. This will
+   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard) 
+   * @param  cds collection of CDSs 
    * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
    * @param yieldCurve the yield/discount curve 
    * @param creditCurve the credit/hazard curve 
+   * @see pointsUpFrontFlat
    * @return points-upfront (as fractions)
    */
-  final double[] pointsUpFront(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+  public double[] pointsUpFront(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     ArgumentChecker.noNulls(cds, "cds");
     ArgumentChecker.notEmpty(premiums, "premiums");
     final int n = cds.length;
@@ -71,15 +112,15 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * Convert from a CDS quote as a par spread (the old way of quoting) to points upfront.
+   * Convert from a CDS quote as a par spread (the old way of quoting) to points up-front.
    * @param cds The CDS to be traded
    * @param premium The standard premium of the CDS <b>expressed as a fraction</b>
    * @param yieldCurve the yield/discount curve 
    * @param parSpread The par spread (<b>as a fraction</b>)
-   * @return points-upfront - these are usually quoted as a percentage of the notional - here we return a fraction of notional,
-   *  so 0.01 is 1(%) points-upfront  
+   * @return points up-front - these are usually quoted as a percentage of the notional - here we return a fraction of notional,
+   *  so 0.01 is 1(%) points up-front  
    */
-  final double pointsUpFront(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double parSpread) {
+  public double pointsUpFront(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double parSpread) {
     final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, parSpread, yieldCurve);
     return pointsUpFront(cds, premium, yieldCurve, creditCurve);
   }
@@ -95,7 +136,7 @@ public class PointsUpFrontConverter {
    * @param parSpreads The par-spreads
    * @return points up-front (expressed as fractions) 
    */
-  final double[] pointsUpFrontFlat(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
+  public double[] pointsUpFrontFlat(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     ArgumentChecker.noNulls(cds, "cds");
     ArgumentChecker.notEmpty(parSpreads, "parSpreads");
     final int n = cds.length;
@@ -118,7 +159,7 @@ public class PointsUpFrontConverter {
    * @param parSpreads The par-spreads
    * @return points up-front (expressed as fractions) 
    */
-  final double[] pointsUpFrontFlat(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
+  public double[] pointsUpFrontFlat(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     ArgumentChecker.noNulls(cds, "cds");
     ArgumentChecker.notEmpty(premiums, "premiums");
     ArgumentChecker.notEmpty(parSpreads, "parSpreads");
@@ -138,12 +179,12 @@ public class PointsUpFrontConverter {
    *   the actual difference (in numerical value) will be small
    *   @see pointsUpFrontFlat
    * @param cds  collection of CDSs 
-   * @param premiums The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
    * @param yieldCurve yieldCurve the yield/discount curve 
    * @param parSpreads The par-spreads
    * @return points up-front (expressed as fractions) 
    */
-  final double[] pointsUpFront(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
+  public double[] pointsUpFront(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, parSpreads, yieldCurve);
     return pointsUpFront(cds, premium, yieldCurve, creditCurve);
   }
@@ -159,21 +200,21 @@ public class PointsUpFrontConverter {
    * @param parSpreads The par-spreads
    * @return points up-front (expressed as fractions) 
    */
-  final double[] pointsUpFront(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
+  public double[] pointsUpFront(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, parSpreads, yieldCurve);
     return pointsUpFront(cds, premiums, yieldCurve, creditCurve);
   }
 
   /**
-   * Convert from a CDS quote as points upfront (and a standard premium) to a quote as par spread (the old way of quoting) using
+   * Convert from a CDS quote as points up-front (and a standard premium) to a quote as par spread (the old way of quoting) using
    * a flat credit/hazard curve. 
    * @param cds The CDS to be traded
    * @param premium The standard premium of the CDS <b>expressed as a fraction</b>
    * @param yieldCurve the yield/discount curve 
-   * @param pointsUpfront points upfront
+   * @param pointsUpfront points up-front
    * @return the par spread <b>expressed as a fraction</b>
    */
-  final double parSpread(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double pointsUpfront) {
+  public double parSpread(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double pointsUpfront) {
     final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, premium, yieldCurve, pointsUpfront);
     return PRICER.parSpread(cds, yieldCurve, creditCurve);
   }
@@ -189,7 +230,7 @@ public class PointsUpFrontConverter {
    * @see parSpreads
    * @return collection of CDSs 
    */
-  final double[] parSpreadsFlat(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
+  public double[] parSpreadsFlat(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
     ArgumentChecker.noNulls(cds, "cds");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.notEmpty(pointsUpfront, "pointsUpfront");
@@ -212,7 +253,7 @@ public class PointsUpFrontConverter {
    * @see parSpreads
    * @return equivalent par spreads
    */
-  final double[] parSpreadFlat(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
+  public double[] parSpreadFlat(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
     ArgumentChecker.noNulls(cds, "cds");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.notEmpty(premiums, "premiums");
@@ -230,13 +271,13 @@ public class PointsUpFrontConverter {
    * reprice all the given CDSs. Note: while this is more consistent (from a theoretical viewpoint), equivalent par spreads are
    * often quoted from (decoupled) individual flat credit/hazard curves   - the actual difference (in numerical value) will be small
      * @param cds collection of CDSs 
-     * @param premiums The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+     * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
      * @param yieldCurve the yield/discount curve 
      * @param pointsUpfront The points up-front (expressed as fractions)
      * @see parSpreadFlat
    * @return equivalent par spreads
    */
-  final double[] parSpreads(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
+  public double[] parSpreads(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
     ArgumentChecker.noNulls(cds, "cds");
     final int n = cds.length;
     final double[] premiums = new double[n];
@@ -255,7 +296,7 @@ public class PointsUpFrontConverter {
      * @see parSpreadFlat
    * @return equivalent par spreads
    */
-  final double[] parSpreads(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
+  public double[] parSpreads(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
     final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, premiums, yieldCurve, pointsUpfront);
     return parSpreads(cds, yieldCurve, creditCurve);
   }
@@ -267,7 +308,7 @@ public class PointsUpFrontConverter {
    * @param creditCurve the credit/hazard curve 
    * @return par spreads 
    */
-  final double[] parSpreads(final CDSAnalytic[] cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+  public double[] parSpreads(final CDSAnalytic[] cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     ArgumentChecker.noNulls(cds, "cds");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.notNull(creditCurve, "creditCurve");
