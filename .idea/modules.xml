@@ -2,29 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/examples/examples.iml" filepath="$PROJECT_DIR$/examples/examples.iml" />
-      <module fileurl="file://$PROJECT_DIR$/examples/examples-bloomberg/examples-bloomberg.iml" filepath="$PROJECT_DIR$/examples/examples-bloomberg/examples-bloomberg.iml" />
-      <module fileurl="file://$PROJECT_DIR$/examples/examples-simulated/examples-simulated.iml" filepath="$PROJECT_DIR$/examples/examples-simulated/examples-simulated.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Analytics/og-analytics.iml" filepath="$PROJECT_DIR$/projects/OG-Analytics/og-analytics.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Bloomberg/og-bloomberg.iml" filepath="$PROJECT_DIR$/projects/OG-Bloomberg/og-bloomberg.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Client/og-client.iml" filepath="$PROJECT_DIR$/projects/OG-Client/og-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Component/og-component.iml" filepath="$PROJECT_DIR$/projects/OG-Component/og-component.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Core/og-core.iml" filepath="$PROJECT_DIR$/projects/OG-Core/og-core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Engine/og-engine.iml" filepath="$PROJECT_DIR$/projects/OG-Engine/og-engine.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Financial/og-financial.iml" filepath="$PROJECT_DIR$/projects/OG-Financial/og-financial.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Integration/og-integration.iml" filepath="$PROJECT_DIR$/projects/OG-Integration/og-integration.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-LiveData/og-livedata.iml" filepath="$PROJECT_DIR$/projects/OG-LiveData/og-livedata.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Master/og-master.iml" filepath="$PROJECT_DIR$/projects/OG-Master/og-master.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-MasterDB/og-masterdb.iml" filepath="$PROJECT_DIR$/projects/OG-MasterDB/og-masterdb.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Maths/og-maths.iml" filepath="$PROJECT_DIR$/projects/OG-Maths/og-maths.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/og-platform-public.iml" filepath="$PROJECT_DIR$/projects/og-platform-public.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Provider/og-provider.iml" filepath="$PROJECT_DIR$/projects/OG-Provider/og-provider.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Security/og-security.iml" filepath="$PROJECT_DIR$/projects/OG-Security/og-security.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Server/og-server.iml" filepath="$PROJECT_DIR$/projects/OG-Server/og-server.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-TimeSeries/og-timeseries.iml" filepath="$PROJECT_DIR$/projects/OG-TimeSeries/og-timeseries.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Util/og-util.iml" filepath="$PROJECT_DIR$/projects/OG-Util/og-util.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-UtilDB/og-utildb.iml" filepath="$PROJECT_DIR$/projects/OG-UtilDB/og-utildb.iml" />
-      <module fileurl="file://$PROJECT_DIR$/projects/OG-Web/og-web.iml" filepath="$PROJECT_DIR$/projects/OG-Web/og-web.iml" />
     </modules>
   </component>
 </project>
