@@ -34,8 +34,8 @@ public class ISDACompliantUpfrontAmountCDSFunction extends ISDACompliantCDSFunct
                            final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
     // upfront amount is defined as PV at first tenor point
     final FastCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder();
-    final ISDACompliantCreditCurve singleTenorCurve = creditCurveBuilder.calibrateCreditCurve(new CDSAnalytic[] {creditAnalytics[0]},
-                                                                                              new double[] {spreads[0]},
+    final ISDACompliantCreditCurve singleTenorCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics[0],
+                                                                                              spreads[0],
                                                                                               yieldCurve);
     final double pv = cds.getNotional() * _pricer.pv(analytic,
                                                      yieldCurve,

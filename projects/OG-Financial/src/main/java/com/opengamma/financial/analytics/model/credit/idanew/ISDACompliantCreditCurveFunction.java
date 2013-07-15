@@ -113,8 +113,7 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now,
                                                                            spreadsRequriement.getConstraint(
                                                                                ISDAFunctionConstants.ISDA_BUCKET_TENORS));
-      //TODO: need to handle PUF curve
-      double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, null, cds.getStartDate());
+      double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, yieldCurve, cds.getStartDate());
       Tenor[] tenors = SpreadCurveFunctions.getBuckets(spreadsRequriement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
       final NodalTenorDoubleCurve modifiedSpreadCurve = new NodalTenorDoubleCurve(tenors, ArrayUtils.toObject(spreads), true);
 
