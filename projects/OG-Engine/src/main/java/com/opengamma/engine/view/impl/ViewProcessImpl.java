@@ -152,6 +152,20 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     return _currentViewDefinition;
   }
 
+  /**
+   * Forces the dependency graph to be rebuilt. Invoked when a market data provider becomes available and failed
+   * subscriptions need to be retried.
+   * @deprecated There should be a better way to do this in the market data layer but PLAT-3908 is a problem.
+   * This method will be removed once it's fixed
+   */
+  @Deprecated
+  public void forceGraphRebuild() {
+    ViewProcessWorker worker = getWorker();
+    if (worker != null) {
+      worker.forceGraphRebuild();
+    }
+  }
+
   private void viewDefinitionChanged() {
     final ViewDefinition viewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
     _currentViewDefinition = viewDefinition;

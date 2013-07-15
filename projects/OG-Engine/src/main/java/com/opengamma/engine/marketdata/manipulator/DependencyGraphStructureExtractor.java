@@ -59,7 +59,12 @@ public class DependencyGraphStructureExtractor {
     Map<String, NodeExtractor> extractors = new HashMap<>();
     for (StructureType structureType : requiredStructureTypes) {
       NodeExtractor nodeExtractor = structureType.getNodeExtractor();
-      extractors.put(nodeExtractor.getSpecificationName(), nodeExtractor);
+      if (nodeExtractor == null) {
+        s_logger.warn("No extractor is currently available for structure type: {} - unable to perform manipulation", structureType);
+      }
+      else {
+        extractors.put(nodeExtractor.getSpecificationName(), nodeExtractor);
+      }
     }
     return Collections.unmodifiableMap(extractors);
   }

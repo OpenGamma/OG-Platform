@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.credit.idanew;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -14,7 +13,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
@@ -25,9 +23,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuo
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
@@ -50,14 +46,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
-import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -67,13 +58,10 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
-import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Abstract class for cds functions that require ISDA and spread curves.
@@ -83,7 +71,6 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
   private CreditDefaultSwapSecurityConverterDeprecated _converter;
   private static final Logger s_logger = LoggerFactory.getLogger(ISDACompliantCDSFunction.class);
   protected final String _valueRequirement;
-  private static Calendar _cal = new MondayToFridayCalendar("weekday");
   protected static double s_tenminus4 = 1e-4; // fractional 1 BPS
 
   public ISDACompliantCDSFunction(final String valueRequirement) {
@@ -121,14 +108,13 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
     }
     final ISDACompliantYieldCurve yieldCurve = (ISDACompliantYieldCurve) isdaObject;
 
-    //TODO: The credit curve logic needs to be improved possibly moving to a new function - though it needs to be targetted at a cds (needed for some cases)
-    // also the cds analytics need to be passed down to the calculation - for now do all here
-
+    // credit curve
     final ISDACompliantCreditCurve creditCurve = (ISDACompliantCreditCurve) inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
     if (creditCurve == null) {
       throw new OpenGammaRuntimeException("Unable to get credit curve");
     }
 
+    // spreads
     NodalTenorDoubleCurve spreadObject = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
     if (spreadObject == null) {
       throw new OpenGammaRuntimeException("Unable to get spreads");
@@ -137,9 +123,9 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
 
     final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, desiredValue.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
 
-    // CDS analytics for credit curve  - regenerated (possible performance improvement if earlier result obtained)
+    // CDS analytics for credit curve (possible performance improvement if earlier result obtained)
     final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);
-    final CDSAnalytic[] creditAnalytics = new CDSAnalytic[spreads.length];
+    final CDSAnalytic[] creditAnalytics = new CDSAnalytic[bucketDates.length];
     for (int i = 0; i < creditAnalytics.length; i++) {
       creditAnalytics[i] = CDSAnalyticConverter.create(curveCDS, now.toLocalDate(), bucketDates[i].toLocalDate());
     }
@@ -216,7 +202,6 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
     // hazard curve
     final ValueProperties creditCurveProperties = ValueProperties.builder()
         .with(ISDAFunctionConstants.CDS_QUOTE_CONVENTION, quoteConvention)
-        //.with(ValuePropertyNames.CURVE, isdaIdentifier.toString())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, isdaOffset)
         .with(ISDAFunctionConstants.ISDA_CURVE_DATE, isdaCurveDate)
@@ -228,7 +213,6 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
     //market  spreads
     final ValueProperties spreadProperties = ValueProperties.builder()
         .with(ISDAFunctionConstants.CDS_QUOTE_CONVENTION, quoteConvention)
-            //.with(ValuePropertyNames.CURVE, isdaIdentifier.toString())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, isdaOffset)
         .with(ISDAFunctionConstants.ISDA_CURVE_DATE, isdaCurveDate)

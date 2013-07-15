@@ -24,7 +24,6 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.livedata.entitlement.EntitlementServer;
 import com.opengamma.livedata.server.HeartbeatReceiver;
 import com.opengamma.livedata.server.LiveDataServer;
-import com.opengamma.livedata.server.ReconnectManager;
 import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.SubscriptionRequestReceiver;
 import com.opengamma.provider.livedata.LiveDataMetaData;
@@ -88,9 +87,6 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     final ComponentInfo info = new ComponentInfo(LiveDataServer.class, getClassifier());
     repo.registerComponent(info, server);
 
-    ReconnectManager reconnectManager = new ReconnectManager(server);
-    repo.registerLifecycle(reconnectManager); // after registering component, for lifecycle ordering
-
     if (isPublishJms()) {
       publishJms(repo, server);
     }
@@ -102,7 +98,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Creates the server, without registering it.
    * <p>
-   * The calling code will register it, setup the {@link ReconnectManager} and publish via JMS and REST.
+   * The calling code will register it and publish via JMS and REST.
    * 
    * @param repo the repository, not null
    * @return the server, not null

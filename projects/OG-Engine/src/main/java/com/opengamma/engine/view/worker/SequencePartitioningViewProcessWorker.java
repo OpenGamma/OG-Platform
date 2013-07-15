@@ -245,6 +245,17 @@ public class SequencePartitioningViewProcessWorker implements ViewProcessWorker,
     return true;
   }
 
+  @Override
+  public void forceGraphRebuild() {
+    Collection<ViewProcessWorker> delegates;
+    synchronized (this) {
+      delegates = new ArrayList<>(_workers);
+    }
+    for (ViewProcessWorker delegate : delegates) {
+      delegate.forceGraphRebuild();
+    }
+  }
+
   // ViewProcessWorkerContext
 
   @Override

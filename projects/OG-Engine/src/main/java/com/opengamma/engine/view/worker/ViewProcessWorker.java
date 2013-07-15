@@ -73,4 +73,10 @@ public interface ViewProcessWorker {
    */
   boolean isTerminated();
 
+  /**
+   * Forces the graph to be rebuilt during the next cycle. Do not use this method, it's a workaround for PLAT-3908
+   * @deprecated Will be removed once PLAT-3908 has been fixed
+   */
+  @Deprecated
+  void forceGraphRebuild();
 }

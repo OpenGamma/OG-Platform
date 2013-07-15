@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration>
+        <fileset id="fileset" name="Bloomberg examples fullstack" removed="false">
+          <file>file://$MODULE_DIR$/config/fullstack/fullstack-bloombergexample-activemq-spring.xml</file>
+          <file>file://$MODULE_DIR$/config/fullstack/fullstack-bloombergexample-infrastructure-spring.xml</file>
+          <file>file://$MODULE_DIR$/config/fullstack/fullstack-bloombergexample-viewprocessor-spring.xml</file>
+          <file>file://$MODULE_DIR$/../London/config/fullstack/fullstack-london-ogdevlon-dev.properties</file>
+          <file>file://$MODULE_DIR$/../London/config/fullstack/fullstack-london-ogdevlon.properties</file>
+        </fileset>
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/lib" />

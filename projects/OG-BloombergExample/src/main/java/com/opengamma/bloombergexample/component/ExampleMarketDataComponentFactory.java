@@ -7,6 +7,7 @@ package com.opengamma.bloombergexample.component;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -19,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.component.ComponentInfo;
@@ -28,8 +30,9 @@ import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepos
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
-import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.live.InMemoryLKVLiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.live.LiveDataAvailabilityNotificationListener;
+import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
@@ -65,6 +68,11 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
    */
   @PropertyDefinition(validate = "notNull")
   private JmsConnector _jmsConnector;
+  /**
+   * JMS topic for notifications when market data providers become available
+   */
+  @PropertyDefinition
+  private String _jmsMarketDataAvailabilityTopic;
 
   //-------------------------------------------------------------------------
   @Override
@@ -81,6 +89,12 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     final LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availability);
     final Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(BLOOMBERG_LIVE_SOURCE_NAME, defaultFactory);
     final MarketDataProviderFactory marketDataProviderFactory = new InMemoryLKVLiveMarketDataProviderFactory(defaultFactory, factoryMap);
+
+    // notifies LiveDataFactories when market data providers come up so they can retry failed subscriptions
+    List<LiveDataFactory> factoryList = ImmutableList.of(defaultFactory);
+    LiveDataAvailabilityNotificationListener availabilityNotificationListener =
+        new LiveDataAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), factoryList, getJmsConnector());
+    repo.registerLifecycle(availabilityNotificationListener);
 
     final ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, marketDataProviderFactory);
@@ -145,6 +159,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
         return getServerMetaDataProvider();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        return getJmsMarketDataAvailabilityTopic();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -160,6 +176,9 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
         return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
+        return;
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        setJmsMarketDataAvailabilityTopic((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -183,6 +202,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getServerMetaDataProvider(), other.getServerMetaDataProvider()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
           super.equals(obj);
     }
     return false;
@@ -194,6 +214,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getServerMetaDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
     return hash ^ super.hashCode();
   }
 
@@ -277,6 +298,31 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   //-----------------------------------------------------------------------
   /**
+   * Gets jMS topic for notifications when market data providers become available
+   * @return the value of the property
+   */
+  public String getJmsMarketDataAvailabilityTopic() {
+    return _jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Sets jMS topic for notifications when market data providers become available
+   * @param jmsMarketDataAvailabilityTopic  the new value of the property
+   */
+  public void setJmsMarketDataAvailabilityTopic(String jmsMarketDataAvailabilityTopic) {
+    this._jmsMarketDataAvailabilityTopic = jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Gets the the {@code jmsMarketDataAvailabilityTopic} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsMarketDataAvailabilityTopic() {
+    return metaBean().jmsMarketDataAvailabilityTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ExampleMarketDataComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -301,13 +347,19 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
         this, "jmsConnector", ExampleMarketDataComponentFactory.class, JmsConnector.class);
     /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     */
+    private final MetaProperty<String> _jmsMarketDataAvailabilityTopic = DirectMetaProperty.ofReadWrite(
+        this, "jmsMarketDataAvailabilityTopic", ExampleMarketDataComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "serverMetaDataProvider",
-        "jmsConnector");
+        "jmsConnector",
+        "jmsMarketDataAvailabilityTopic");
 
     /**
      * Restricted constructor.
@@ -324,6 +376,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
           return _serverMetaDataProvider;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return _jmsMarketDataAvailabilityTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -366,6 +420,14 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
       return _jmsConnector;
+    }
+
+    /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
+      return _jmsMarketDataAvailabilityTopic;
     }
 
   }

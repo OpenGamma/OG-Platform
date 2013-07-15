@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Maps the properties of each blotter column to properties in each supported security type.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes" })
 public class BlotterColumnMapper {
 
   /** Value providers for the blotter columns, keyed by the type of object being displayed in the blotter. */

@@ -7,7 +7,8 @@ package com.opengamma.bbg.test;
 
 import java.lang.reflect.Method;
 
-import net.sf.ehcache.CacheManager;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
@@ -21,7 +22,11 @@ import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.livedata.server.StandardLiveDataServer;
+import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Test utilities for Bloomberg.
@@ -108,8 +113,20 @@ public class BloombergLiveDataServerUtils {
   }
 
   public static BloombergLiveDataServer getTestServer(ReferenceDataProvider cachingRefDataProvider) {
-    
-    BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(), cachingRefDataProvider, EHCacheUtils.createCacheManager());
+    FudgeMessageSender fudgeMessageSender = new FudgeMessageSender() {
+      @Override
+      public void send(FudgeMsg message) {
+        // do nothing
+      }
+      @Override
+      public FudgeContext getFudgeContext() {
+        return OpenGammaFudgeContext.getInstance();
+      }
+    };
+    BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(),
+                                                                 cachingRefDataProvider,
+                                                                 EHCacheUtils.createCacheManager(),
+                                                                 fudgeMessageSender);
     DistributionSpecificationResolver distributionSpecificationResolver = server.getDefaultDistributionSpecificationResolver();
     server.setDistributionSpecificationResolver(distributionSpecificationResolver);
     

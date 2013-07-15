@@ -283,6 +283,9 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
    */
   private Timer _fullCycleTimer;
 
+  /** Forces a rebuild on the next cycle. */
+  private volatile boolean _forceGraphRebuild;
+
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -351,12 +354,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return new MarketDataSelectionGraphManipulator(executionOptionsMarketDataSelector, specificSelectors);
   }
 
-  private Map<String, Map<DistinctMarketDataSelector,FunctionParameters>> extractSpecificSelectors(ViewDefinition viewDefinition) {
+  private Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> extractSpecificSelectors(ViewDefinition viewDefinition) {
 
     ConfigSource configSource = getProcessContext().getConfigSource();
     Collection<ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurations();
 
-    Map<String, Map<DistinctMarketDataSelector,FunctionParameters>> specificSelectors = new HashMap<>();
+    Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificSelectors = new HashMap<>();
 
     for (ViewCalculationConfiguration calcConfig : calculationConfigurations) {
 
@@ -364,8 +367,14 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       UniqueId scenarioParametersId = calcConfig.getScenarioParametersId();
       if (scenarioId != null) {
         ScenarioDefinitionFactory scenarioDefinitionFactory = configSource.getConfig(ScenarioDefinitionFactory.class, scenarioId);
-        ScenarioParameters scenarioParameters = configSource.getConfig(ScenarioParameters.class, scenarioParametersId);
-        ScenarioDefinition scenarioDefinition = scenarioDefinitionFactory.create(scenarioParameters.getParameters());
+        Map<String, Object> parameters;
+        if (scenarioParametersId != null) {
+          ScenarioParameters scenarioParameters = configSource.getConfig(ScenarioParameters.class, scenarioParametersId);
+          parameters = scenarioParameters.getParameters();
+        } else {
+          parameters = null;
+        }
+        ScenarioDefinition scenarioDefinition = scenarioDefinitionFactory.create(parameters);
         specificSelectors.put(calcConfig.getName(), new HashMap<>(scenarioDefinition.getDefinitionMap()));
       } else {
         // Ensure we have an entry for each graph, even if selectors are empty
@@ -814,8 +823,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
     s_logger.info("Last latency was {} ms, Average latency is {} ms",
-        durationNanos / NANOS_PER_MILLISECOND,
-        (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
+                  durationNanos / NANOS_PER_MILLISECOND,
+                  (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
 
   private void jobCompleted() {
@@ -958,7 +967,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     // Map any nodes from the old portfolio structure to the new one
     final Map<UniqueId, UniqueId> mapped;
     if (newPortfolio != null) {
-      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(), newPortfolio.getRootNode());
+      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(),
+                                                             newPortfolio.getRootNode());
     } else {
       mapped = Collections.emptyMap();
     }
@@ -1265,89 +1275,93 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     executionCacheLocks.getFirst().lock();
     boolean broadLock = true;
     try {
-      compiledViewDefinition = getCachedCompiledViewDefinition(valuationTime, versionCorrection);
       Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
       ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
       Set<UniqueId> changedPositions = null;
       Set<UniqueId> unchangedNodes = null;
-      boolean marketDataProviderDirty = _marketDataProviderDirty;
-      _marketDataProviderDirty = false;
-      if (compiledViewDefinition != null) {
-        executionCacheLocks.getFirst().unlock();
-        broadLock = false;
-        do {
-          // The cast below is bad, but only temporary -- the function initialiser id needs to go
-          if (functionInitId != ((CompiledViewDefinitionWithGraphsImpl) compiledViewDefinition).getFunctionInitId()) {
-            // The function repository has been reinitialized which invalidates any previous graphs
-            // TODO: [PLAT-2237, PLAT-1623, PLAT-2240] Get rid of this
-            break;
-          }
-          final Map<ComputationTargetReference, UniqueId> resolvedIdentifiers = compiledViewDefinition.getResolvedIdentifiers();
-          // TODO: The check below works well for the historical valuation case, but if the resolver v/c is different for two workers in the 
-          // group for an otherwise identical cache key then including it in the caching detail may become necessary to handle those cases.
-          if (!versionCorrection.equals(compiledViewDefinition.getResolverVersionCorrection())) {
-            final Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
-            if (invalidIdentifiers != null) {
-              previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              if ((compiledViewDefinition.getPortfolio() != null) && invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
-                // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
-                // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
-                // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
-                final ComputationTargetResolver resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
-                final ComputationTargetSpecification portfolioSpec = resolver.getSpecificationResolver().getTargetSpecification(
-                    new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
-                final ComputationTarget newPortfolio = resolver.resolve(portfolioSpec, versionCorrection);
-                unchangedNodes = rewritePortfolioNodes(previousGraphs, compiledViewDefinition, (Portfolio) newPortfolio.getValue());
-              }
-              // Invalidate any dependency graph nodes on the invalid targets
-              filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()), unchangedNodes);
-              previousResolutions = new ConcurrentHashMap<>(resolvedIdentifiers.size());
-              for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
-                if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
-                  if ((unchangedNodes == null) && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
-                    // At least one position has changed, add all portfolio targets
-                    ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
-                    if (ctspec != null) {
-                      if (changedPositions == null) {
-                        changedPositions = new HashSet<>();
-                      }
-                      changedPositions.add(ctspec.getUniqueId());
-                    }
-                  }
-                } else {
-                  previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
+      if (!_forceGraphRebuild) {
+        compiledViewDefinition = getCachedCompiledViewDefinition(valuationTime, versionCorrection);
+        changedPositions = null;
+        unchangedNodes = null;
+        boolean marketDataProviderDirty = _marketDataProviderDirty;
+        _marketDataProviderDirty = false;
+        if (compiledViewDefinition != null) {
+          executionCacheLocks.getFirst().unlock();
+          broadLock = false;
+          do {
+            // The cast below is bad, but only temporary -- the function initialiser id needs to go
+            if (functionInitId != ((CompiledViewDefinitionWithGraphsImpl) compiledViewDefinition).getFunctionInitId()) {
+              // The function repository has been reinitialized which invalidates any previous graphs
+              // TODO: [PLAT-2237, PLAT-1623, PLAT-2240] Get rid of this
+              break;
+            }
+            final Map<ComputationTargetReference, UniqueId> resolvedIdentifiers = compiledViewDefinition.getResolvedIdentifiers();
+            // TODO: The check below works well for the historical valuation case, but if the resolver v/c is different for two workers in the
+            // group for an otherwise identical cache key then including it in the caching detail may become necessary to handle those cases.
+            if (!versionCorrection.equals(compiledViewDefinition.getResolverVersionCorrection())) {
+              final Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
+              if (invalidIdentifiers != null) {
+                previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+                if ((compiledViewDefinition.getPortfolio() != null) && invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
+                  // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
+                  // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
+                  // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
+                  final ComputationTargetResolver resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
+                  final ComputationTargetSpecification portfolioSpec = resolver.getSpecificationResolver().getTargetSpecification(
+                      new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                  final ComputationTarget newPortfolio = resolver.resolve(portfolioSpec, versionCorrection);
+                  unchangedNodes = rewritePortfolioNodes(previousGraphs, compiledViewDefinition, (Portfolio) newPortfolio.getValue());
                 }
+                // Invalidate any dependency graph nodes on the invalid targets
+                filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()), unchangedNodes);
+                previousResolutions = new ConcurrentHashMap<>(resolvedIdentifiers.size());
+                for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
+                  if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
+                    if ((unchangedNodes == null) && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
+                      // At least one position has changed, add all portfolio targets
+                      ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
+                      if (ctspec != null) {
+                        if (changedPositions == null) {
+                          changedPositions = new HashSet<>();
+                        }
+                        changedPositions.add(ctspec.getUniqueId());
+                      }
+                    }
+                  } else {
+                    previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
+                  }
+                }
+              } else {
+                compiledViewDefinition = compiledViewDefinition.withResolverVersionCorrection(versionCorrection);
+                cacheCompiledViewDefinition(compiledViewDefinition);
               }
-            } else {
-              compiledViewDefinition = compiledViewDefinition.withResolverVersionCorrection(versionCorrection);
-              cacheCompiledViewDefinition(compiledViewDefinition);
             }
-          }
-          if (!CompiledViewDefinitionWithGraphsImpl.isValidFor(compiledViewDefinition, valuationTime)) {
-            // Invalidate any dependency graph nodes that use functions that are no longer valid
-            previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-            filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime), unchangedNodes);
-          }
-          if (marketDataProviderDirty) {
-            // Invalidate any market data sourcing nodes that are no longer valid
-            final InvalidMarketDataDependencyNodeFilter filter = new InvalidMarketDataDependencyNodeFilter(getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
-                .getRawComputationTargetResolver().atVersionCorrection(versionCorrection), getMarketDataProvider().getAvailabilityProvider());
-            getInvalidMarketData(previousGraphs, compiledViewDefinition, filter);
-            if (filter.hasInvalidNodes()) {
+            if (!CompiledViewDefinitionWithGraphsImpl.isValidFor(compiledViewDefinition, valuationTime)) {
+              // Invalidate any dependency graph nodes that use functions that are no longer valid
               previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
-              filterPreviousGraphs(previousGraphs, filter, unchangedNodes);
+              filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime), unchangedNodes);
             }
-          }
-          if (previousGraphs == null) {
-            // Existing cached model is valid (an optimization for the common case of similar, increasing valuation times)
-            return compiledViewDefinition;
-          }
-          if (previousResolutions == null) {
-            previousResolutions = new ConcurrentHashMap<>(resolvedIdentifiers);
-          }
-        } while (false);
-        executionCacheLocks.getFirst().lock();
-        broadLock = true;
+            if (marketDataProviderDirty) {
+              // Invalidate any market data sourcing nodes that are no longer valid
+              final InvalidMarketDataDependencyNodeFilter filter = new InvalidMarketDataDependencyNodeFilter(getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+                  .getRawComputationTargetResolver().atVersionCorrection(versionCorrection), getMarketDataProvider().getAvailabilityProvider());
+              getInvalidMarketData(previousGraphs, compiledViewDefinition, filter);
+              if (filter.hasInvalidNodes()) {
+                previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+                filterPreviousGraphs(previousGraphs, filter, unchangedNodes);
+              }
+            }
+            if (previousGraphs == null) {
+              // Existing cached model is valid (an optimization for the common case of similar, increasing valuation times)
+              return compiledViewDefinition;
+            }
+            if (previousResolutions == null) {
+              previousResolutions = new ConcurrentHashMap<>(resolvedIdentifiers);
+            }
+          } while (false);
+          executionCacheLocks.getFirst().lock();
+          broadLock = true;
+        }
       }
       final MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
@@ -1380,6 +1394,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
       throw new OpenGammaRuntimeException(message, e);
     } finally {
+      _forceGraphRebuild = false;
       if (broadLock) {
         executionCacheLocks.getFirst().unlock();
       }
@@ -1737,4 +1752,11 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return getJob().isTerminated() && !getThread().isAlive();
   }
 
+  /**
+   * @deprecated DON'T USE THIS, IT'S A TEMPORARY WORKAROUND
+   */
+  @Deprecated
+  public void forceGraphRebuild() {
+    _forceGraphRebuild = true;
+  }
 }
