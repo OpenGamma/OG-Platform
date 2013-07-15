@@ -54,7 +54,7 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
     ArgumentChecker.isTrue((instrument instanceof SwaptionPhysicalFixedIbor), "Instrument should be cap or swaption.");
     getBasket().add(instrument);
     getMethod().add(calculator);
-    getCalibrationPrice().add(0.0);
+    getCalibrationPrices().add(0.0);
     if (instrument instanceof SwaptionPhysicalFixedIbor) {
       SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
       _instrumentIndex.add(Arrays.binarySearch(((SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective).getLMMParameters().getIborTime(), swaption.getUnderlyingSwap()
@@ -95,7 +95,7 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
       _calibrationObjective.setInstrument(instrument);
       objective.setStartIndex(_instrumentIndex.get(loopins));
       objective.setEndIndex(_instrumentIndex.get(loopins + 1) - 1);
-      _calibrationObjective.setPrice(getCalibrationPrice().get(loopins));
+      _calibrationObjective.setPrice(getCalibrationPrices().get(loopins));
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, objective.getMinimumParameter(), objective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
     }

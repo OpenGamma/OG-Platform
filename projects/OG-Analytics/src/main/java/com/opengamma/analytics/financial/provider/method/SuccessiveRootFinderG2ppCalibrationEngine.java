@@ -55,7 +55,7 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
     ArgumentChecker.isTrue((instrument instanceof CapFloorIbor) || (instrument instanceof SwaptionPhysicalFixedIbor), "Instrument should be cap or swaption.");
     getBasket().add(instrument);
     getMethod().add(calculator);
-    getCalibrationPrice().add(0.0);
+    getCalibrationPrices().add(0.0);
     if (instrument instanceof CapFloorIbor) {
       _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
     }
@@ -76,7 +76,7 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
       Validate.isTrue(instrument[loopinstrument] instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
       getBasket().add(instrument[loopinstrument]);
       getMethod().add(calculator);
-      getCalibrationPrice().add(0.0);
+      getCalibrationPrices().add(0.0);
       _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
     }
   }
@@ -91,7 +91,7 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
       InstrumentDerivative instrument = getBasket().get(loopins);
       _calibrationObjective.setInstrument(instrument);
-      _calibrationObjective.setPrice(getCalibrationPrice().get(loopins));
+      _calibrationObjective.setPrice(getCalibrationPrices().get(loopins));
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
       if (loopins < nbInstruments - 1) {

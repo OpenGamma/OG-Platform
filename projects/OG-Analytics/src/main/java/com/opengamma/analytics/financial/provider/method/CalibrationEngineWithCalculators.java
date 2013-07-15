@@ -58,7 +58,7 @@ public abstract class CalibrationEngineWithCalculators<DATA_TYPE extends Paramet
     for (int loopins = 0; loopins < nbInstrument; loopins++) {
       MultipleCurrencyAmount pvMCA = getBasket().get(loopins).accept(_calculators.get(loopins), data);
       double pv = _fxMatrix.convert(pvMCA, _ccy).getAmount();
-      getCalibrationPrice().set(loopins, pv);
+      getCalibrationPrices().set(loopins, pv);
     }
   }
 
@@ -70,7 +70,7 @@ public abstract class CalibrationEngineWithCalculators<DATA_TYPE extends Paramet
   public void addInstrument(final InstrumentDerivative instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
     getBasket().add(instrument);
     _calculators.add(calculator);
-    getCalibrationPrice().add(0.0);
+    getCalibrationPrices().add(0.0);
   }
 
   /**

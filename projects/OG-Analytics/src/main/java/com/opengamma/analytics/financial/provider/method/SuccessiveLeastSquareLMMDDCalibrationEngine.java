@@ -79,7 +79,7 @@ public class SuccessiveLeastSquareLMMDDCalibrationEngine<DATA_TYPE extends Param
     SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
     getBasket().add(instrument);
     getMethod().add(calculator);
-    getCalibrationPrice().add(0.0);
+    getCalibrationPrices().add(0.0);
     _instrumentIndex.add(Arrays.binarySearch(((SuccessiveLeastSquareLMMDDCalibrationObjective) _calibrationObjective).getLMMParameters().getIborTime(), swaption.getUnderlyingSwap().getSecondLeg()
         .getNthPayment(swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments() - 1).getPaymentTime()));
   }
@@ -99,7 +99,7 @@ public class SuccessiveLeastSquareLMMDDCalibrationEngine<DATA_TYPE extends Param
       double[] prices = new double[_nbInstrumentsBlock];
       for (int loopins = 0; loopins < _nbInstrumentsBlock; loopins++) {
         instruments[loopins] = getBasket().get(loopblock * _nbInstrumentsBlock + loopins);
-        prices[loopins] = getCalibrationPrice().get(loopblock * _nbInstrumentsBlock + loopins);
+        prices[loopins] = getCalibrationPrices().get(loopblock * _nbInstrumentsBlock + loopins);
       }
       _calibrationObjective.setInstruments(instruments);
       _calibrationObjective.setPrice(prices);
