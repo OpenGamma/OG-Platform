@@ -69,13 +69,13 @@ public class SwapLegTypeUserType extends EnumUserType<SwapLegType> {
       @Override
       public String visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
         //TODO
-        return null;
+        throw new UnsupportedOperationException("Cannot handle inflation index swap legs");
       }
 
       @Override
       public String visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
         //TODO
-        return null;
+        throw new UnsupportedOperationException("Cannot handle fixed inflation swap legs");
       }
     });
   }

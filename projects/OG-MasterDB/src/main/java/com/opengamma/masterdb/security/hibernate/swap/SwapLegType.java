@@ -82,13 +82,13 @@ public enum SwapLegType {
       @Override
       public SwapLegType visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
         //TODO
-        return null;
+        throw new UnsupportedOperationException("Cannot handle fixed inflation swap legs");
       }
 
       @Override
       public SwapLegType visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
         //TODO
-        return null;
+        throw new UnsupportedOperationException("Cannot handle inflation index swap legs");
       }
 
     });
