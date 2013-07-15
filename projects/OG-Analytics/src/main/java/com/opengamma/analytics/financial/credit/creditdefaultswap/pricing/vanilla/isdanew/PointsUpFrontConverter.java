@@ -11,9 +11,11 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *  If a CDS is quoted with a standard premium (100 or 500bps in North America) then an upfront free (of either sign) is 
-   * payable. If I buy protection (thus pay the premium) and the premium is greater than the par spread (the old way of quoting),
-   * I am compensated by receiving a positive points-upfront. 
+ * If a CDS is quoted with a standard premium (100 or 500bps in North America) then an up-front free (of either sign) is 
+ * payable. If I buy protection (thus pay the premium) and the premium is greater than the par spread (the old way of quoting),
+ * then the up-front free is negative (i.e. I  pay a negative fee, or to put it another way, I am compensated by receiving a
+ * positive amount). <br>
+ * The free is quoted as Points Up-Front (PUF), which is a percentage of the notional (here was use a fractional amount). 
  */
 public class PointsUpFrontConverter {
 
@@ -44,17 +46,30 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * The principle is the total up-front amount that must be paid; it consists of the accrued premium and the points up-front (PUF)
-  * @param cds The CDS to be traded
+   * The principle (aka cash settled amount or dirty price) is the total up-front amount that must be paid; it consists of the
+   * accrued premium and the points up-front (PUF)
    * @param notional The notional of the trade 
+   * @param cds The CDS to be traded
+   * @param puf points up-front (as a fraction)
+   * @param coupon The coupon (or deal spread) as a fraction
+   * @return The principle 
+   */
+  public double principle(final double notional, final CDSAnalytic cds, final double puf, final double coupon) {
+    return notional * (cds.getAccruedPremium(coupon) + puf);
+  }
+
+  /**
+   * The principle (aka cash settled amount or dirty price) is the total up-front amount that must be paid; it consists of the
+   * accrued premium and the points up-front (PUF)
+   * @param notional The notional of the trade 
+   * @param cds The CDS to be traded
    * @param yieldCurve the yield/discount curve 
    * @param creditCurve the credit/hazard curve 
    * @param coupon The fractional quoted spread (coupon) of the CDS
    * @return The principle 
    */
   public double principle(final double notional, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double coupon) {
-    final double temp = cds.getAccruedPremium(coupon) + pointsUpFront(cds, coupon, yieldCurve, creditCurve);
-    return notional * temp;
+    return notional * PRICER.pv(cds, yieldCurve, creditCurve, coupon, PriceType.DIRTY);
   }
 
   /**
