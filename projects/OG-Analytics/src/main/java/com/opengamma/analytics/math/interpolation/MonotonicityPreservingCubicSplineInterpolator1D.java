@@ -21,7 +21,7 @@ public class MonotonicityPreservingCubicSplineInterpolator1D extends PiecewisePo
   }
 
   /**
-   * @param method Primary interpolation method whose first derivative values are modified according to the non-negativity conditions
+   * @param method Primary interpolation method. The first derivative values are modified according to the monotonicity conditions
    */
   public MonotonicityPreservingCubicSplineInterpolator1D(final PiecewisePolynomialInterpolator method) {
     super(new MonotonicityPreservingCubicSplineInterpolator(method));
