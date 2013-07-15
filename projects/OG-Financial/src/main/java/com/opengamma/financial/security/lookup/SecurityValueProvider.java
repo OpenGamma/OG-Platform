@@ -3,13 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.analytics.blotter;
+package com.opengamma.financial.security.lookup;
 
 /**
- * Provides a value from a security for displaying in a cell in the blotter grid.
+ * Interface for providing a value from a security.
  * @param <T> The security type
  */
-public interface CellValueProvider<T> {
+public interface SecurityValueProvider<T> {
 
   /**
    * Returns a value for a security.

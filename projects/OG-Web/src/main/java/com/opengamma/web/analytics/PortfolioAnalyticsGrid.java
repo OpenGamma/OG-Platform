@@ -11,8 +11,8 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.id.ObjectId;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  * A grid for displaying portfolio analytics data.
@@ -62,7 +62,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                                          Portfolio portfolio,
                                                          ComputationTargetResolver targetResolver,
                                                          ViewportListener viewportListener,
-                                                         BlotterColumnMapper blotterColumnMapper) {
+                                                         SecurityAttributeMapper blotterColumnMapper) {
     PortfolioGridStructure gridStructure = BlotterGridStructure.create(portfolio, blotterColumnMapper);
     return new PortfolioAnalyticsGrid(gridStructure, gridId, targetResolver, viewportListener);
   }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.analytics.blotter.swap;
+package com.opengamma.financial.security.lookup.swap;
 
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -13,7 +13,8 @@ import com.opengamma.financial.security.swap.VarianceSwapNotional;
 
 /**
  *
- */ /* package */ class NotionalAmountVisitor implements NotionalVisitor<Double> {
+ */
+/* package */class NotionalAmountVisitor implements NotionalVisitor<Double> {
 
   @Override
   public Double visitCommodityNotional(CommodityNotional notional) {

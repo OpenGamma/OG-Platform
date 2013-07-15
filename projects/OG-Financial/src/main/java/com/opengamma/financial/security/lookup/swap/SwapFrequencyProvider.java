@@ -3,16 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.analytics.blotter.swap;
+package com.opengamma.financial.security.lookup.swap;
 
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.lookup.SecurityValueProvider;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.web.analytics.blotter.CellValueProvider;
 
 /**
 *
 */
-public class SwapFrequencyProvider implements CellValueProvider<SwapSecurity> {
+public class SwapFrequencyProvider implements SecurityValueProvider<SwapSecurity> {
 
   @Override
   public Frequency getValue(SwapSecurity security) {

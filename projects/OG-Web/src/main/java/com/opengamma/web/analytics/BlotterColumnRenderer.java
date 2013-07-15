@@ -8,10 +8,10 @@ package com.opengamma.web.analytics;
 import java.util.List;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.lookup.SecurityAttribute;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.blotter.BlotterColumn;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -20,14 +20,14 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 /* package */ class BlotterColumnRenderer implements GridColumn.CellRenderer {
 
   /** Maps the shared blotter columns to the fields of each different security type. */
-  private final BlotterColumnMapper _columnMappings;
+  private final SecurityAttributeMapper _columnMappings;
   /** The column whose values are handled by this renderer. */
-  private final BlotterColumn _column;
+  private final SecurityAttribute _column;
   /** The rows in the grid. */
   private final List<PortfolioGridRow> _rows;
 
-  public BlotterColumnRenderer(BlotterColumn column,
-                               BlotterColumnMapper columnMappings,
+  public BlotterColumnRenderer(SecurityAttribute column,
+                               SecurityAttributeMapper columnMappings,
                                List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(column, "column");
     ArgumentChecker.notNull(columnMappings, "blotterColumnMappings");

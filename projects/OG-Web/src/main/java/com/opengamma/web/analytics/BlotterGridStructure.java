@@ -12,9 +12,9 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.financial.security.lookup.SecurityAttribute;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.blotter.BlotterColumn;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  *
@@ -22,7 +22,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 public class BlotterGridStructure extends PortfolioGridStructure {
 
   /** Maps the shared blotter columns to properties in the different security types. */
-  private final BlotterColumnMapper _columnMapper;
+  private final SecurityAttributeMapper _columnMapper;
   /** The view definition that's driving the grid. */
   private final ViewDefinition _viewDef;
 
@@ -32,7 +32,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
                                      List<GridColumnGroup> analyticsColumns,
                                      AnalyticsNode rootNode,
                                      TargetLookup targetLookup,
-                                     BlotterColumnMapper columnMapper,
+                                     SecurityAttributeMapper columnMapper,
                                      ValueMappings valueMappings,
                                      ViewDefinition viewDef) {
     super(rows, fixedColumns, createGroups(blotterColumns, analyticsColumns), rootNode, targetLookup, valueMappings, viewDef);
@@ -48,7 +48,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
     return new GridColumnGroups(groups);
   }
 
-  /* package */ static BlotterGridStructure create(Portfolio portfolio, BlotterColumnMapper columnMapper) {
+  /* package */ static BlotterGridStructure create(Portfolio portfolio, SecurityAttributeMapper columnMapper) {
     List<PortfolioGridRow> rows = buildRows(portfolio);
     ValueMappings valueMappings = new ValueMappings();
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
@@ -64,25 +64,25 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   }
 
 
-  private static GridColumnGroup buildBlotterColumns(BlotterColumnMapper columnMapper, List<PortfolioGridRow> rows) {
-    GridColumn quantityColumn = new GridColumn(BlotterColumn.QUANTITY.getName(), "", Double.class,
-                                               new BlotterColumnRenderer(BlotterColumn.QUANTITY, columnMapper, rows));
+  private static GridColumnGroup buildBlotterColumns(SecurityAttributeMapper columnMapper, List<PortfolioGridRow> rows) {
+    GridColumn quantityColumn = new GridColumn(SecurityAttribute.QUANTITY.getName(), "", Double.class,
+                                               new BlotterColumnRenderer(SecurityAttribute.QUANTITY, columnMapper, rows));
     List<GridColumn> columns = Lists.newArrayList(
-        blotterColumn(BlotterColumn.TYPE, columnMapper, rows),
-        blotterColumn(BlotterColumn.PRODUCT, columnMapper, rows),
+        blotterColumn(SecurityAttribute.TYPE, columnMapper, rows),
+        blotterColumn(SecurityAttribute.PRODUCT, columnMapper, rows),
         quantityColumn,
-        blotterColumn(BlotterColumn.DIRECTION, columnMapper, rows),
-        blotterColumn(BlotterColumn.START, columnMapper, rows),
-        blotterColumn(BlotterColumn.MATURITY, columnMapper, rows),
-        blotterColumn(BlotterColumn.RATE, columnMapper, rows),
-        blotterColumn(BlotterColumn.INDEX, columnMapper, rows),
-        blotterColumn(BlotterColumn.FREQUENCY, columnMapper, rows),
-        blotterColumn(BlotterColumn.FLOAT_FREQUENCY, columnMapper, rows));
+        blotterColumn(SecurityAttribute.DIRECTION, columnMapper, rows),
+        blotterColumn(SecurityAttribute.START, columnMapper, rows),
+        blotterColumn(SecurityAttribute.MATURITY, columnMapper, rows),
+        blotterColumn(SecurityAttribute.RATE, columnMapper, rows),
+        blotterColumn(SecurityAttribute.INDEX, columnMapper, rows),
+        blotterColumn(SecurityAttribute.FREQUENCY, columnMapper, rows),
+        blotterColumn(SecurityAttribute.FLOAT_FREQUENCY, columnMapper, rows));
     return new GridColumnGroup("Blotter", columns, false);
   }
 
-  private static GridColumn blotterColumn(BlotterColumn column,
-                                          BlotterColumnMapper columnMappings,
+  private static GridColumn blotterColumn(SecurityAttribute column,
+                                          SecurityAttributeMapper columnMappings,
                                           List<PortfolioGridRow> rows) {
     return new GridColumn(column.getName(), "", String.class, new BlotterColumnRenderer(column, columnMappings, rows));
   }

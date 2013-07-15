@@ -26,6 +26,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -33,7 +34,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -83,7 +83,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                     String primitivesCallbackId,
                                     ComputationTargetResolver targetResolver,
                                     ViewportListener viewportListener,
-                                    BlotterColumnMapper blotterColumnMapper,
+                                    SecurityAttributeMapper blotterColumnMapper,
                                     Supplier<Portfolio> portfolioSupplier,
                                     PortfolioEntityExtractor portfolioEntityExtractor,
                                     boolean showBlotterColumns) {

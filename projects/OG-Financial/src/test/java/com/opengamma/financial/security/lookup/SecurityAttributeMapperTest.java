@@ -3,13 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.analytics.blotter;
+package com.opengamma.financial.security.lookup;
 
-import static com.opengamma.web.analytics.blotter.BlotterColumn.MATURITY;
-import static com.opengamma.web.analytics.blotter.BlotterColumn.PRODUCT;
-import static com.opengamma.web.analytics.blotter.BlotterColumn.QUANTITY;
-import static com.opengamma.web.analytics.blotter.BlotterColumn.RATE;
-import static com.opengamma.web.analytics.blotter.BlotterColumn.TYPE;
+import static com.opengamma.financial.security.lookup.SecurityAttribute.MATURITY;
+import static com.opengamma.financial.security.lookup.SecurityAttribute.PRODUCT;
+import static com.opengamma.financial.security.lookup.SecurityAttribute.QUANTITY;
+import static com.opengamma.financial.security.lookup.SecurityAttribute.RATE;
+import static com.opengamma.financial.security.lookup.SecurityAttribute.TYPE;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
@@ -32,11 +32,11 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class BlotterColumnMapperTest {
+public class SecurityAttributeMapperTest {
 
   private static final CurrencyPairs s_currencyPairs = CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP,
                                                                                                         Currency.USD)));
-  private static final BlotterColumnMapper s_defaultMappings = DefaultBlotterColumnMappings.create(s_currencyPairs);
+  private static final SecurityAttributeMapper s_defaultMappings = DefaultSecurityAttributeMappings.create(s_currencyPairs);
 
   /**
    * Simple security where fields are mapped using bean properties
@@ -79,10 +79,13 @@ public class BlotterColumnMapperTest {
    */
   @Test
   public void inheritSuperclassMappings() {
+    @SuppressWarnings("serial")
     class A extends ManageableSecurity {}
+    @SuppressWarnings("serial")
     class B extends A {}
+    @SuppressWarnings("serial")
     class C extends B {}
-    BlotterColumnMapper mapper = new BlotterColumnMapper();
+    SecurityAttributeMapper mapper = new SecurityAttributeMapper();
     String aType = "A type";
     String bProduct = "B product";
     mapper.mapColumn(TYPE, A.class, aType);
