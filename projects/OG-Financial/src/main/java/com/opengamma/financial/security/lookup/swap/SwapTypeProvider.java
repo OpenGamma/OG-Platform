@@ -3,17 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.analytics.blotter.swap;
+package com.opengamma.financial.security.lookup.swap;
 
+import com.opengamma.financial.security.lookup.SecurityValueProvider;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.analytics.blotter.CellValueProvider;
 
 /**
  *
  */
-public class SwapTypeProvider implements CellValueProvider<SwapSecurity> {
+public class SwapTypeProvider implements SecurityValueProvider<SwapSecurity> {
 
   @Override
   public Object getValue(SwapSecurity security) {

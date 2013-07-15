@@ -49,9 +49,9 @@ public class ZAConventions {
     final String libor3mConventionName = getConventionName(ZAR, tenorString, JIBOR);
     final ExternalId libor3mConventionId = InMemoryConventionBundleMaster.simpleNameSecurityId(libor3mConventionName);
     final Convention fixedLegConvention = new SwapFixedLegConvention(fixedSwapLegConventionName, getIds(ZAR, IRS_FIXED_LEG),
-        Tenor.THREE_MONTHS, ACT_365, FOLLOWING, 2, false, ZAR, ZA, StubType.NONE);
+        Tenor.THREE_MONTHS, ACT_365, FOLLOWING, ZAR, ZA, 2, false, StubType.NONE, false);
     final Convention vanillaIborLegConvention = new VanillaIborLegConvention(vanillaIborLegConventionName, getIds(ZAR, tenorString, IRS_IBOR_LEG),
-        libor3mConventionId, true, StubType.NONE, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS);
+        libor3mConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, false, StubType.NONE, false);
     conventionMaster.add(fixedLegConvention);
     conventionMaster.add(vanillaIborLegConvention);
     addDepositConventions(conventionMaster);
@@ -67,7 +67,7 @@ public class ZAConventions {
   private static void addLiborConventions(final InMemoryConventionMaster conventionMaster) {
     final String liborConventionName = getConventionName(ZAR, JIBOR);
     final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(ZAR, JIBOR), ACT_365, FOLLOWING, 2, false, ZAR,
-        LocalTime.of(11, 00), ZA, ZA, "");
+        LocalTime.of(11, 00), "ZA", ZA, ZA, "");
     conventionMaster.add(liborConvention);
   }
 }

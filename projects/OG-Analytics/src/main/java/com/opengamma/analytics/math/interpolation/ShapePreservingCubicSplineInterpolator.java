@@ -90,7 +90,7 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
         ArgumentChecker.isFalse(Double.isInfinite(coefMatrix[i][j]), "Too large input");
       }
       final double yVal = i == coefMatrix.length - 1 ? yValues[nDataPts - 1] : coefMatrix[i + 1][3];
-      final double bound = Math.abs(ref) + Math.abs(yVal) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yVal);
+      final double bound = Math.max(Math.abs(ref) + Math.abs(yVal), 1.e-1);
       ArgumentChecker.isTrue(Math.abs(ref - yVal) < ERROR * bound, "Input is too large/small or data points are too close");
     }
 
@@ -105,7 +105,6 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
     throw new NotImplementedException();
-    //TODO Implement sensitivity calculator
   }
 
   /**

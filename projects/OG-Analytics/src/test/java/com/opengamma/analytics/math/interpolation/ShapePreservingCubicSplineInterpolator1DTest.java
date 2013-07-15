@@ -12,17 +12,16 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
  * 
  */
-public class SemiLocalCubicSplineInterpolator1DTest {
+public class ShapePreservingCubicSplineInterpolator1DTest {
 
-  private static final SemiLocalCubicSplineInterpolator INTERP = new SemiLocalCubicSplineInterpolator();
-  private static final SemiLocalCubicSplineInterpolator1D INTERP1D = new SemiLocalCubicSplineInterpolator1D();
+  private static final ShapePreservingCubicSplineInterpolator INTERP = new ShapePreservingCubicSplineInterpolator();
+  private static final ShapePreservingCubicSplineInterpolator1D INTERP1D = new ShapePreservingCubicSplineInterpolator1D();
 
-  private static final double EPS = 1.e-6;
+  private static final double EPS = 1.e-7;
 
   /**
    * Recovery test on polynomial, rational, exponential functions, and node sensitivity test by finite difference method
@@ -149,8 +148,8 @@ public class SemiLocalCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final SemiLocalCubicSplineInterpolator[] bareInterp = new SemiLocalCubicSplineInterpolator[] {INTERP };
-    final SemiLocalCubicSplineInterpolator1D[] wrappedInterp = new SemiLocalCubicSplineInterpolator1D[] {INTERP1D };
+    final ShapePreservingCubicSplineInterpolator[] bareInterp = new ShapePreservingCubicSplineInterpolator[] {INTERP };
+    final ShapePreservingCubicSplineInterpolator1D[] wrappedInterp = new ShapePreservingCubicSplineInterpolator1D[] {INTERP1D };
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
@@ -242,53 +241,6 @@ public class SemiLocalCubicSplineInterpolator1DTest {
         yValuesDw[j] = yValues[k][j];
         //      System.out.println("\n");
       }
-    }
-  }
-
-  @Test(enabled = false)
-  public void recapTest() {
-    final double[] xValues = new double[] {1., 2., 3.5, 5.5, 8., 11., 13., 14., 16., 17. };
-    final double[] yValues1 = new double[] {5.0, 8.0, 1.0, 5.0, 9.0, 3.0, 9.0, 0.0, 6.0, 7.0 };
-    final int nData = 10;
-    double[] yValues1Up = new double[nData];
-    double[] yValues1Dw = new double[nData];
-    final double[] xKeys = new double[10 * nData];
-    for (int i = 0; i < nData; ++i) {
-      yValues1Up[i] = yValues1[i];
-      yValues1Dw[i] = yValues1[i];
-    }
-    System.out.println(new DoubleMatrix1D(xValues));
-    System.out.println(new DoubleMatrix1D(yValues1));
-
-    //    INTERP_AKIMA.interpolateWithSensitivity(xValues, yValues1);
-
-    final double xMin = xValues[0];
-    final double xMax = xValues[nData - 1];
-    for (int i = 0; i < 10 * nData; ++i) {
-      xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-    }
-
-    final double[] resPrim1 = INTERP.interpolate(xValues, yValues1, xKeys).getData();
-
-    Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1);
-    for (int i = 0; i < 10 * nData; ++i) {
-      final double ref1 = resPrim1[i];
-      //          assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-    }
-
-    for (int j = 0; j < nData; ++j) {
-      final double den1 = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * EPS;
-      yValues1Up[j] = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * (1. + EPS);
-      yValues1Dw[j] = Math.abs(yValues1[j]) == 0. ? -EPS : yValues1[j] * (1. - EPS);
-      Interpolator1DDataBundle dataBund1Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Up);
-      Interpolator1DDataBundle dataBund1Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Dw);
-      for (int i = 0; i < 10 * nData; ++i) {
-        //        System.out.println(xKeys[i]);
-        double res1 = 0.5 * (INTERP1D.interpolate(dataBund1Up, xKeys[i]) - INTERP1D.interpolate(dataBund1Dw, xKeys[i])) / den1;
-        assertEquals(res1, INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 10.);
-      }
-      yValues1Up[j] = yValues1[j];
-      yValues1Dw[j] = yValues1[j];
     }
   }
 }

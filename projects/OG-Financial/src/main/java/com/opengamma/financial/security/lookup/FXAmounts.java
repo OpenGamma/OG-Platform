@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.analytics.blotter;
+package com.opengamma.financial.security.lookup;
 
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -14,7 +14,7 @@ import com.opengamma.util.money.Currency;
 /**
  * The two currency amounts in an FX trade.
  */
-public class FXAmounts {
+public final class FXAmounts {
 
   /** The base currency. */
   private final Currency _baseCurrency;
