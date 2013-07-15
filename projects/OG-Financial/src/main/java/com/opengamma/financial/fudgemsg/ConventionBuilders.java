@@ -282,6 +282,8 @@ public final class ConventionBuilders {
     private static final String CURRENCY_FIELD = "currency";
     /** The fixing time field */
     private static final String FIXING_TIME_FIELD = "fixingTime";
+    /** The fixing time zone field */
+    private static final String FIXING_TIME_ZONE_FIELD = "fixingTimeZone";
     /** The fixing calendar field */
     private static final String FIXING_CALENDAR_FIELD = "fixingCalendar";
     /** The region field */
@@ -299,6 +301,7 @@ public final class ConventionBuilders {
       message.add(IS_EOM_FIELD, object.isIsEOM());
       message.add(CURRENCY_FIELD, object.getCurrency().getCode());
       message.add(FIXING_TIME_FIELD, object.getFixingTime().toString());
+      message.add(FIXING_TIME_ZONE_FIELD, object.getFixingTimeZone());
       serializer.addToMessage(message, FIXING_CALENDAR_FIELD, null, object.getFixingCalendar());
       serializer.addToMessage(message, REGION_FIELD, null, object.getRegionCalendar());
       message.add(FIXING_PAGE_FIELD, object.getFixingPage());
@@ -318,12 +321,13 @@ public final class ConventionBuilders {
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final LocalTime fixingTime = LocalTime.parse(message.getString(FIXING_TIME_FIELD));
+      final String fixingTimeZone = message.getString(FIXING_TIME_ZONE_FIELD);
       final ExternalId fixingCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXING_CALENDAR_FIELD));
       final ExternalId regionCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
       final String fixingPage = message.getString(FIXING_PAGE_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final IborIndexConvention convention = new IborIndexConvention(name, externalIdBundle, dayCount, businessDayConvention, settlementDays, isEOM, currency,
-          fixingTime, fixingCalendar, regionCalendar, fixingPage);
+          fixingTime, fixingTimeZone, fixingCalendar, regionCalendar, fixingPage);
       convention.setUniqueId(uniqueId);
       return convention;
     }

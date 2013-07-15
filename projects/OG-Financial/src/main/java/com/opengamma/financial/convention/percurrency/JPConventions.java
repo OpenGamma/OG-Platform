@@ -61,11 +61,11 @@ public class JPConventions {
     final Convention onIndex = new OvernightIndexConvention(onIndexName, getIds(Currency.JPY, OVERNIGHT), ACT_365, 1, Currency.JPY, JP);
     final String liborIndexName = getConventionName(Currency.JPY, LIBOR);
     final Convention liborIndex = new IborIndexConvention(liborIndexName, getIds(Currency.JPY, LIBOR), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.JPY,
-        LocalTime.of(11, 00), JPGB, JP, "");
+        LocalTime.of(11, 00), "JP", JPGB, JP, "");
     final Convention tiborJPIndex = new IborIndexConvention(liborIndexName, getIds(Currency.JPY, TIBOR_JAPANESE), ACT_365, MODIFIED_FOLLOWING, 2, true, Currency.JPY,
-        LocalTime.of(11, 00), JP, JP, "");
+        LocalTime.of(11, 00), "JP", JP, JP, "");
     final Convention tiborEuIndex = new IborIndexConvention(liborIndexName, getIds(Currency.JPY, TIBOR_EUROYEN), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.JPY,
-        LocalTime.of(11, 00), JP, JP, "");
+        LocalTime.of(11, 00), "JP", JP, JP, "");
     // Deposit
     final String depositONConventionName = getConventionName(Currency.JPY, DEPOSIT_ON);
     final DepositConvention depositONConvention = new DepositConvention(depositONConventionName, getIds(Currency.JPY, DEPOSIT_ON), ACT_365, FOLLOWING, 0, false, Currency.JPY, JP);

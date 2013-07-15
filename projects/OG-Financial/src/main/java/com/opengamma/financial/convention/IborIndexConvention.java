@@ -70,6 +70,12 @@ public class IborIndexConvention extends Convention {
   private LocalTime _fixingTime;
 
   /**
+   * The fixing time zone.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _fixingTimeZone;
+
+  /**
    * The fixing calendar.
    */
   @PropertyDefinition(validate = "notNull")
@@ -103,12 +109,13 @@ public class IborIndexConvention extends Convention {
    * @param isEOM True if dates follow the end-of-month rule
    * @param currency The currency, not null
    * @param fixingTime The fixing time, not null
+   * @param fixingTimeZone The fixing time zone, not null
    * @param fixingCalendar The fixing calendar, not null
    * @param regionCalendar The region calendar, not null
    * @param fixingPage The fixing page name, not null
    */
   public IborIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int settlementDays, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final ExternalId fixingCalendar,
+      final int settlementDays, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final String fixingTimeZone, final ExternalId fixingCalendar,
       final ExternalId regionCalendar, final String fixingPage) {
     super(name, externalIdBundle);
     setDayCount(dayCount);
@@ -117,6 +124,7 @@ public class IborIndexConvention extends Convention {
     setIsEOM(isEOM);
     setCurrency(currency);
     setFixingTime(fixingTime);
+    setFixingTimeZone(fixingTimeZone);
     setFixingCalendar(fixingCalendar);
     setRegionCalendar(regionCalendar);
     setFixingPage(fixingPage);
@@ -155,6 +163,8 @@ public class IborIndexConvention extends Convention {
         return getCurrency();
       case 1255686170:  // fixingTime
         return getFixingTime();
+      case -1504625946:  // fixingTimeZone
+        return getFixingTimeZone();
       case 394230283:  // fixingCalendar
         return getFixingCalendar();
       case 1932874322:  // regionCalendar
@@ -186,6 +196,9 @@ public class IborIndexConvention extends Convention {
       case 1255686170:  // fixingTime
         setFixingTime((LocalTime) newValue);
         return;
+      case -1504625946:  // fixingTimeZone
+        setFixingTimeZone((String) newValue);
+        return;
       case 394230283:  // fixingCalendar
         setFixingCalendar((ExternalId) newValue);
         return;
@@ -205,6 +218,7 @@ public class IborIndexConvention extends Convention {
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_fixingTime, "fixingTime");
+    JodaBeanUtils.notNull(_fixingTimeZone, "fixingTimeZone");
     JodaBeanUtils.notNull(_fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(_regionCalendar, "regionCalendar");
     JodaBeanUtils.notNull(_fixingPage, "fixingPage");
@@ -224,6 +238,7 @@ public class IborIndexConvention extends Convention {
           JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getFixingTime(), other.getFixingTime()) &&
+          JodaBeanUtils.equal(getFixingTimeZone(), other.getFixingTimeZone()) &&
           JodaBeanUtils.equal(getFixingCalendar(), other.getFixingCalendar()) &&
           JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
           JodaBeanUtils.equal(getFixingPage(), other.getFixingPage()) &&
@@ -241,6 +256,7 @@ public class IborIndexConvention extends Convention {
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTimeZone());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingPage());
@@ -403,6 +419,32 @@ public class IborIndexConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the fixing time zone.
+   * @return the value of the property, not null
+   */
+  public String getFixingTimeZone() {
+    return _fixingTimeZone;
+  }
+
+  /**
+   * Sets the fixing time zone.
+   * @param fixingTimeZone  the new value of the property, not null
+   */
+  public void setFixingTimeZone(String fixingTimeZone) {
+    JodaBeanUtils.notNull(fixingTimeZone, "fixingTimeZone");
+    this._fixingTimeZone = fixingTimeZone;
+  }
+
+  /**
+   * Gets the the {@code fixingTimeZone} property.
+   * @return the property, not null
+   */
+  public final Property<String> fixingTimeZone() {
+    return metaBean().fixingTimeZone().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the fixing calendar.
    * @return the value of the property, not null
    */
@@ -520,6 +562,11 @@ public class IborIndexConvention extends Convention {
     private final MetaProperty<LocalTime> _fixingTime = DirectMetaProperty.ofReadWrite(
         this, "fixingTime", IborIndexConvention.class, LocalTime.class);
     /**
+     * The meta-property for the {@code fixingTimeZone} property.
+     */
+    private final MetaProperty<String> _fixingTimeZone = DirectMetaProperty.ofReadWrite(
+        this, "fixingTimeZone", IborIndexConvention.class, String.class);
+    /**
      * The meta-property for the {@code fixingCalendar} property.
      */
     private final MetaProperty<ExternalId> _fixingCalendar = DirectMetaProperty.ofReadWrite(
@@ -545,6 +592,7 @@ public class IborIndexConvention extends Convention {
         "isEOM",
         "currency",
         "fixingTime",
+        "fixingTimeZone",
         "fixingCalendar",
         "regionCalendar",
         "fixingPage");
@@ -570,6 +618,8 @@ public class IborIndexConvention extends Convention {
           return _currency;
         case 1255686170:  // fixingTime
           return _fixingTime;
+        case -1504625946:  // fixingTimeZone
+          return _fixingTimeZone;
         case 394230283:  // fixingCalendar
           return _fixingCalendar;
         case 1932874322:  // regionCalendar
@@ -642,6 +692,14 @@ public class IborIndexConvention extends Convention {
      */
     public final MetaProperty<LocalTime> fixingTime() {
       return _fixingTime;
+    }
+
+    /**
+     * The meta-property for the {@code fixingTimeZone} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> fixingTimeZone() {
+      return _fixingTimeZone;
     }
 
     /**

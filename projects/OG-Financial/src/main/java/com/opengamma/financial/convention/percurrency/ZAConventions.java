@@ -67,7 +67,7 @@ public class ZAConventions {
   private static void addLiborConventions(final InMemoryConventionMaster conventionMaster) {
     final String liborConventionName = getConventionName(ZAR, JIBOR);
     final Convention liborConvention = new IborIndexConvention(liborConventionName, getIds(ZAR, JIBOR), ACT_365, FOLLOWING, 2, false, ZAR,
-        LocalTime.of(11, 00), ZA, ZA, "");
+        LocalTime.of(11, 00), "ZA", ZA, ZA, "");
     conventionMaster.add(liborConvention);
   }
 }
