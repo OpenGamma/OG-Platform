@@ -62,11 +62,18 @@ docs.sqlite3
 *.pyc
 .settings/
 target/
+
+# IntelliJ config files
 *.iws
 *.iml
 *.ids
 .idea/libraries
 .idea/workspace.xml
+.idea/compiler.xml
+.idea/modules.xml
+.idea/encodings.xml
 .idea/dictionaries
 .idea/inspectionProfiles
 .idea/validation.xml
+.idea/scopes/scope_settings.xml
+.idea/uiDesigner.xml
