@@ -77,7 +77,7 @@ public class BilinearSplineInterpolator extends PiecewisePolynomialInterpolator2
             ref += coefMatTmp[k][l] * Math.pow(interval0, 1 - k) * Math.pow(interval1, 1 - l);
           }
         }
-        final double bound = Math.abs(ref) + Math.abs(yValues[i + 1][j + 1]) < ERROR ? 0.1 : Math.abs(ref) + Math.abs(yValues[i + 1][j + 1]);
+        final double bound = Math.max(Math.abs(ref) + Math.abs(yValues[i + 1][j + 1]), 0.1);
         ArgumentChecker.isTrue(Math.abs(ref - yValues[i + 1][j + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
         coefMat[i][j] = new DoubleMatrix2D(coefMatTmp);
         coefMat[i][j] = new DoubleMatrix2D(coefMatTmp);
