@@ -13,12 +13,14 @@ import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToE
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
@@ -121,6 +123,18 @@ public final class SwapLegBeanOperation {
         bean.setAnnualizationFactor(swapLeg.getAnnualizationFactor());
         return bean;
       }
+
+      @Override
+      public SwapLegBean visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+        //TODO
+        return null;
+      }
+
+      @Override
+      public SwapLegBean visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+        //TODO
+        return null;
+      }
     });
   }
   
@@ -214,6 +228,16 @@ public final class SwapLegBeanOperation {
             externalIdBeanToExternalId(bean.getUnderlyingId()),
             frequencyBeanToFrequency(bean.getMonitoringFrequency()),
             bean.getAnnualizationFactor());
+      }
+
+      @Override
+      public SwapLeg visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+        return null;
+      }
+
+      @Override
+      public SwapLeg visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+        return null;
       }
     });
   }

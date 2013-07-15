@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
@@ -14,6 +15,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
@@ -100,42 +102,52 @@ public class SwapSecurityUtils {
     }
     throw new OpenGammaRuntimeException("Swap was not fixed / floating");
   }
-  
+
   public static boolean isFloatFloat(final SwapSecurity security) {
     final SwapLegVisitor<Boolean> isFixed = new SwapLegVisitor<Boolean>() {
 
       @Override
-      public Boolean visitFixedInterestRateLeg(FixedInterestRateLeg swapLeg) {
+      public Boolean visitFixedInterestRateLeg(final FixedInterestRateLeg swapLeg) {
         return Boolean.TRUE;
       }
 
       @Override
-      public Boolean visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
+      public Boolean visitFloatingInterestRateLeg(final FloatingInterestRateLeg swapLeg) {
         return Boolean.FALSE;
       }
 
       @Override
-      public Boolean visitFloatingSpreadIRLeg(FloatingSpreadIRLeg swapLeg) {
+      public Boolean visitFloatingSpreadIRLeg(final FloatingSpreadIRLeg swapLeg) {
         return Boolean.FALSE;
       }
 
       @Override
-      public Boolean visitFloatingGearingIRLeg(FloatingGearingIRLeg swapLeg) {
+      public Boolean visitFloatingGearingIRLeg(final FloatingGearingIRLeg swapLeg) {
         return Boolean.FALSE;
       }
 
       @Override
-      public Boolean visitFixedVarianceSwapLeg(FixedVarianceSwapLeg swapLeg) {
+      public Boolean visitFixedVarianceSwapLeg(final FixedVarianceSwapLeg swapLeg) {
         return Boolean.TRUE;
       }
 
       @Override
-      public Boolean visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
+      public Boolean visitFloatingVarianceSwapLeg(final FloatingVarianceSwapLeg swapLeg) {
+        return Boolean.FALSE;
+      }
+
+      @Override
+      public Boolean visitFixedInflationSwapLeg(final FixedInflationSwapLeg swapLeg) {
+        return Boolean.TRUE;
+      }
+
+      @Override
+      public Boolean visitInflationIndexSwapLeg(final InflationIndexSwapLeg swapLeg) {
         return Boolean.FALSE;
       }
 
     };
     return !security.getPayLeg().accept(isFixed) && !security.getReceiveLeg().accept(isFixed);
   }
-  
+
 }

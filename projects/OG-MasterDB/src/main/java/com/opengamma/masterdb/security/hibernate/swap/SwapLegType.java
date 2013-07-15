@@ -6,12 +6,14 @@
 package com.opengamma.masterdb.security.hibernate.swap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 
@@ -75,6 +77,18 @@ public enum SwapLegType {
       @Override
       public SwapLegType visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
         return FLOATING_VARIANCE;
+      }
+
+      @Override
+      public SwapLegType visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+        //TODO
+        return null;
+      }
+
+      @Override
+      public SwapLegType visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+        //TODO
+        return null;
       }
 
     });
