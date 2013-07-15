@@ -208,4 +208,42 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
       return fixedInflationSwapLeg;
     }
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * A Fudge builder for {@code InflationIndexSwapLeg}.
+   */
+  @FudgeBuilderFor(InflationIndexSwapLeg.class)
+  public static class InflationIndexSwapLegBuilder extends SwapLegFudgeBuilder implements FudgeBuilder<InflationIndexSwapLeg>  {
+    /** The exchange notional field name */
+    private static final String IS_EXCHANGE_NOTIONAL_FIELD_NAME = "isExchangeNotional";
+    /** The index reference id field name */
+    private static final String INDEX_ID_FIELD_NAME = "indexId";
+    /** The lag field name */
+    private static final String LAG_FIELD_NAME = "lagField";
+    /** The interpolation method field name */
+    private static final String INTERPOLATION_METHOD_FIELD_NAME = "interpolationMethod";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InflationIndexSwapLeg object) {
+      final MutableFudgeMsg msg = serializer.newMessage();
+      toFudgeMsg(serializer, object, msg);
+      addToMessage(msg, IS_EXCHANGE_NOTIONAL_FIELD_NAME, object.isIsExchangeNotional());
+      addToMessage(msg, INDEX_ID_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getIndexId()));
+      addToMessage(msg, LAG_FIELD_NAME, object.getLag());
+      addToMessage(msg, INTERPOLATION_METHOD_FIELD_NAME, object.getInterpolationMethod().name());
+      return msg;
+    }
+
+    @Override
+    public InflationIndexSwapLeg buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+      final InflationIndexSwapLeg inflationIndexSwapLeg = new InflationIndexSwapLeg();
+      fromFudgeMsg(deserializer, msg, inflationIndexSwapLeg);
+      inflationIndexSwapLeg.setIsExchangeNotional(msg.getBoolean(IS_EXCHANGE_NOTIONAL_FIELD_NAME));
+      inflationIndexSwapLeg.setIndexId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INDEX_ID_FIELD_NAME)));
+      inflationIndexSwapLeg.setLag(msg.getInt(LAG_FIELD_NAME));
+      inflationIndexSwapLeg.setInterpolationMethod(InterpolationMethod.valueOf(msg.getString(INTERPOLATION_METHOD_FIELD_NAME)));
+      return inflationIndexSwapLeg;
+    }
+  }
 }
