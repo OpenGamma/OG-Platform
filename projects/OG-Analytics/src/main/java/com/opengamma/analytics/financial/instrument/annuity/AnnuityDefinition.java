@@ -9,31 +9,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency. 
- * @param <P> The payment type 
+ * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency.
+ * @param <P> The payment type
  *
  */
 public class AnnuityDefinition<P extends PaymentDefinition> implements InstrumentDefinitionWithData<Annuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
-  /** Empty array for array conversion of list */
-  protected static final Payment[] EMPTY_ARRAY = new Payment[0];
-  /** 
+  /**
    * The list of payments or coupons. All payments have the same currency. All payments have the same sign or are 0.
    */
   private final P[] _payments;
   /**
-   * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount; 
+   * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount;
    * if all amounts don't have the same sign, the flag can be incorrect.
    */
   private final boolean _isPayer;
@@ -73,7 +71,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
   }
 
   /**
-   * Return the currency of the annuity. 
+   * Return the currency of the annuity.
    * @return The currency.
    */
   public Currency getCurrency() {
@@ -102,18 +100,18 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
    * @return The trimmed annuity.
    */
   public AnnuityDefinition<?> trimBefore(final ZonedDateTime trimDate) {
-    final List<PaymentDefinition> list = new ArrayList<PaymentDefinition>();
+    final List<PaymentDefinition> list = new ArrayList<>();
     for (final PaymentDefinition payment : getPayments()) {
       if (payment.getPaymentDate().isAfter(trimDate)) {
         list.add(payment);
       }
     }
-    return new AnnuityDefinition<PaymentDefinition>(list.toArray(new PaymentDefinition[0]));
+    return new AnnuityDefinition<>(list.toArray(new PaymentDefinition[list.size()]));
   }
 
   @Override
   public String toString() {
-    StringBuffer result = new StringBuffer("Annuity:");
+    final StringBuffer result = new StringBuffer("Annuity:");
     for (final P payment : _payments) {
       result.append(payment.toString());
       result.append(" ");
@@ -154,13 +152,13 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    final List<Payment> resultList = new ArrayList<Payment>();
+    final List<Payment> resultList = new ArrayList<>();
     for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
       if (!date.isAfter(_payments[loopcoupon].getPaymentDate())) {
         resultList.add(_payments[loopcoupon].toDerivative(date, yieldCurveNames));
       }
     }
-    return new Annuity<Payment>(resultList.toArray(EMPTY_ARRAY));
+    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
   }
 
   @SuppressWarnings("unchecked")
@@ -169,9 +167,9 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final List<Payment> resultList = new ArrayList<Payment>();
+    final List<Payment> resultList = new ArrayList<>();
     for (final P payment : _payments) {
-      //TODO check this 
+      //TODO check this
       if (!date.isAfter(payment.getPaymentDate())) {
         if (payment instanceof InstrumentDefinitionWithData) {
           resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS, yieldCurveNames));
@@ -180,7 +178,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
         }
       }
     }
-    return new Annuity<Payment>(resultList.toArray(EMPTY_ARRAY));
+    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
   }
 
   @Override

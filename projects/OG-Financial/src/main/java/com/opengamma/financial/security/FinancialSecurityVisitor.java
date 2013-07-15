@@ -11,6 +11,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -33,11 +34,13 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -92,7 +95,11 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
 
   T visitCashSecurity(CashSecurity security);
 
+  T visitCashFlowSecurity(CashFlowSecurity security);
+
   T visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security);
+
+  T visitFxFutureOptionSecurity(FxFutureOptionSecurity security);
 
   T visitBondFutureOptionSecurity(BondFutureOptionSecurity security);
 
@@ -103,6 +110,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security);
 
   T visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security);
+
+  T visitEquityIndexFutureOptionSecurity(EquityIndexFutureOptionSecurity security);
 
   T visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security);
 

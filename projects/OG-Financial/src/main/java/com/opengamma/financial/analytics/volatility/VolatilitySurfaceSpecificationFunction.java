@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility;
@@ -8,19 +8,20 @@ package com.opengamma.financial.analytics.volatility;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -28,22 +29,24 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext outerContext, final InstantProvider atInstantProvider) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext outerContext, final Instant atInstant) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(outerContext);
     final ConfigDBVolatilitySurfaceSpecificationSource source = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT).toInstant(), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000).toInstant()) {
 
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -65,6 +68,12 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
               throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName);
             }
           }
+        } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION) || instrumentType.equals(InstrumentTypeProperties.EQUITY_FUTURE_OPTION)) {
+          final String fullSpecificationName = surfaceName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
+          specification = source.getSpecification(fullSpecificationName, instrumentType);
+          if (specification == null) {
+            throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + instrumentType);
+          }
         } else {
           final String fullSpecificationName = surfaceName + "_" + target.getUniqueId().getValue();
           specification = source.getSpecification(fullSpecificationName, instrumentType);
@@ -84,15 +93,7 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
-      }
-
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.PRIMITIVE) {
-          return false;
-        }
-        return true;
+        return ComputationTargetType.ANYTHING;
       }
 
       @SuppressWarnings("synthetic-access")
@@ -118,8 +119,8 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
         }
         return Collections.emptySet();
       }
-
     };
+
   }
 
 }

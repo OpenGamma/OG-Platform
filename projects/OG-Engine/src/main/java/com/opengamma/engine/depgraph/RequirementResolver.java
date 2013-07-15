@@ -5,10 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,29 +22,24 @@ import com.opengamma.engine.value.ValueRequirement;
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementResolver.class);
 
   private final ResolveTask _parentTask;
-  private final Set<FunctionExclusionGroup> _functionExclusion;
-  private final Set<ResolveTask> _tasks = new HashSet<ResolveTask>();
+  private final Collection<FunctionExclusionGroup> _functionExclusion;
+  // _tasks is just used to spot the recursionDetected flag - not ref-Counted
+  private ResolveTask[] _tasks;
   private ResolveTask _fallback;
   private ResolvedValue[] _coreResults;
 
-  public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Set<FunctionExclusionGroup> functionExclusion) {
+  public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Collection<FunctionExclusionGroup> functionExclusion) {
     super(valueRequirement);
     s_logger.debug("Created requirement resolver {}/{}", valueRequirement, parentTask);
     _parentTask = parentTask;
     _functionExclusion = functionExclusion;
   }
 
-  protected void addTask(final GraphBuildingContext context, final ResolveTask task) {
-    if (_tasks.add(task)) {
-      task.addRef();
+  public void setTasks(final GraphBuildingContext context, final ResolveTask[] tasks) {
+    _tasks = tasks;
+    for (ResolveTask task : tasks) {
       addProducer(context, task);
     }
-  }
-
-  private synchronized List<ResolveTask> takeTasks() {
-    final List<ResolveTask> tasks = new ArrayList<ResolveTask>(_tasks);
-    _tasks.clear();
-    return tasks;
   }
 
   @Override
@@ -90,36 +82,31 @@ import com.opengamma.engine.value.ValueRequirement;
             break;
           }
         }
+        _tasks = null;
       } else {
+        // local variable takes open reference from _fallback
         _fallback = null;
       }
     }
     if ((fallback == null) && useFallback) {
       fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask, _functionExclusion);
+      s_logger.debug("Creating fallback task {}", fallback);
       synchronized (this) {
-        useFallback = _tasks.add(fallback);
+        assert _fallback == null;
+        // _fallback takes the open reference from the local variable
+        _fallback = fallback;
+        _coreResults = getResults();
       }
-      if (useFallback) {
-        fallback.addRef();
-        s_logger.debug("Creating fallback task {}", fallback);
-        synchronized (this) {
-          assert _fallback == null;
-          _fallback = fallback;
-          _coreResults = getResults();
-        }
-        addProducer(context, fallback);
-        return;
-      } else {
-        fallback.release(context);
-        fallback = null;
-      }
+      addProducer(context, fallback);
+      return;
     }
     super.finished(context);
     if (fallback != null) {
       // Keep any fallback tasks that are recursion free - to prevent future fallbacks for this requirement
       if (fallback.wasRecursionDetected()) {
         final ResolvedValue[] fallbackResults = getResults();
-        if (fallbackResults.length == 0) {
+        // If this resolver was ref-counted to zero (nothing subscribed to it) then the results can be null at this point
+        if ((fallbackResults == null) || (fallbackResults.length == 0)) {
           // Task produced no new results - discard
           s_logger.debug("Discarding fallback task {} by {}", fallback, this);
           context.discardTask(fallback);
@@ -150,10 +137,6 @@ import com.opengamma.engine.value.ValueRequirement;
       }
       fallback.release(context);
     }
-    // Release any other tasks
-    for (ResolveTask task : takeTasks()) {
-      task.release(context);
-    }
   }
 
   @Override
@@ -169,16 +152,11 @@ import com.opengamma.engine.value.ValueRequirement;
       synchronized (this) {
         fallback = _fallback;
         _fallback = null;
+        _tasks = null;
       }
       if (fallback != null) {
-        // Discard the fallback task
-        s_logger.debug("Discarding unfinished fallback task {} by {}", fallback, this);
-        context.discardTask(fallback);
+        // Release/discard the fallback task
         fallback.release(context);
-      }
-      // Release any other tasks
-      for (ResolveTask task : takeTasks()) {
-        task.release(context);
       }
     }
     return count;

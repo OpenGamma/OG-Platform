@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDate;
-
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.tuple.LongObjectPair;
 

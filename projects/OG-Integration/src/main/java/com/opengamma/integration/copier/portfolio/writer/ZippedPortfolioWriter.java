@@ -49,6 +49,9 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private Map<String, SingleSheetMultiParserPortfolioWriter> _writerMap = new HashMap<String, SingleSheetMultiParserPortfolioWriter>();
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
 
+  /** Write multiple trades within a position as separate rows */
+  private boolean _includeTrades;
+
   public ZippedPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream) {
   
     ArgumentChecker.notNull(sheetFormat, "sheetFormat");
@@ -56,8 +59,15 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
     // Create zip file
     _zipFile = new ZipOutputStream(outputStream);
+
+    _includeTrades = false;
   }
-  
+
+  public ZippedPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, boolean includeTrades) {
+    this(sheetFormat, outputStream);
+    _includeTrades = includeTrades;
+  }
+
   public ZippedPortfolioWriter(String filename) {
 
     ArgumentChecker.notEmpty(filename, "filename");
@@ -77,6 +87,18 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Could not create zip archive " + filename + " for writing: " + ex.getMessage());
     }
+
+    _includeTrades = false;
+  }
+
+  public ZippedPortfolioWriter(String filename, boolean includeTrades) {
+    this(filename);
+    _includeTrades = includeTrades;
+  }
+
+  @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
   }
 
   @Override
@@ -211,7 +233,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       SheetWriter sheet = new CsvSheetWriter(out, parser.getColumns());
 
-      _currentWriter = new SingleSheetMultiParserPortfolioWriter(sheet, parserMap);
+      _currentWriter = new SingleSheetMultiParserPortfolioWriter(sheet, parserMap, _includeTrades);
 
       _writerMap.put(className, _currentWriter);
       _bufferMap.put(className, out);

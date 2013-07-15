@@ -7,64 +7,71 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.financial.analytics.model.FutureOptionExpiries;
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Test.
  */
-public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest {
-  private static final String PREFIX = "DJX";
+@Test(groups = TestGroup.UNIT)
+public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest extends FinancialTestBase {
+
+  private static final String PREFIX = "SP";
   private static final String POSTFIX = "Index";
-  private static final LocalDate DATE = LocalDate.of(2012, 5, 23);
-  private static final Short[] EXPIRY_OFFSETS = new Short[] {1, 2, 8};
-  private static final Double[] STRIKES = new Double[] {90.0, 145.0, 205.0};
+  private static final LocalDate DATE = LocalDate.of(2013, 2, 28);
+  private static final List<Pair<Integer, Tenor>> N_OPTION = new ArrayList<>();
+  private static final double[] STRIKES = new double[] {110, 120, 130, 140, 150};
+  private static final double SPOT = 131;
+  private static final String DATA_FIELD_NAME = MarketDataRequirementNames.MID_IMPLIED_VOLATILITY;
+  private static final String EXCHANGE = "NYSE";
+  private static final String SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName();
+  private static final String[] RESULTS = new String[] {
+    "SPH3P 110 Index", "SPH3P 120 Index", "SPH3P 130 Index", "SPH3C 140 Index", "SPH3C 150 Index",
+    "SPJ3P 110 Index", "SPJ3P 120 Index", "SPJ3P 130 Index", "SPJ3C 140 Index", "SPJ3C 150 Index",
+    "SPK3P 110 Index", "SPK3P 120 Index", "SPK3P 130 Index", "SPK3C 140 Index", "SPK3C 150 Index",
+    "SPM3P 110 Index", "SPM3P 120 Index", "SPM3P 130 Index", "SPM3C 140 Index", "SPM3C 150 Index",
+    "SPH3P 110 Index", "SPH3P 120 Index", "SPH3P 130 Index", "SPH3C 140 Index", "SPH3C 150 Index",
+    "SPM3P 110 Index", "SPM3P 120 Index", "SPM3P 130 Index", "SPM3C 140 Index", "SPM3C 150 Index",
+    "SPZ3P 110 Index", "SPZ3P 120 Index", "SPZ3P 130 Index", "SPZ3C 140 Index", "SPZ3C 150 Index",
+  };
 
-  private static final String DATA_FIELD_NAME = "OPT_IMPLIED_VOLATILITY_MID";
-
-  private static final String[][] RESULTS = new String[][]
-    {new String[] {"DJX 06/16/12 P90.0 Index", "DJX 06/16/12 P145.0 Index", "DJX 06/16/12 C205.0 Index"},
-    new String[] {"DJX 07/21/12 P90.0 Index", "DJX 07/21/12 P145.0 Index", "DJX 07/21/12 C205.0 Index"},
-    new String[] {"DJX 03/16/13 P90.0 Index", "DJX 03/16/13 P145.0 Index", "DJX 03/16/13 C205.0 Index"}}; // TODO Fix date on this last one
-
-  private static final FutureOptionExpiries UTILS = FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1));
-  private static LocalDate[] EXPIRY_DATES = new LocalDate[3];
-  private static final String EXCHANGE = "OSE";
   static {
-    for (int i = 0; i < EXPIRY_OFFSETS.length; i++) {
-      EXPIRY_DATES[i] = FutureOptionExpiries.EQUITY.getFutureOptionExpiry(EXPIRY_OFFSETS[i], DATE);
+    final int[] n = new int[] {1, 2, 3, 4, 1, 2, 4};
+    final Tenor monthly = Tenor.ONE_MONTH;
+    final Tenor quarterly = Tenor.THREE_MONTHS;
+    final Tenor[] periods = new Tenor[] {monthly, monthly, monthly, monthly, quarterly, quarterly, quarterly};
+    for (int i = 0; i < n.length; i++) {
+      N_OPTION.add(Pair.of(n[i], periods[i]));
     }
   }
 
-  private static final BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER =
-      new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, 150.25, EXCHANGE);
-
-
   @Test
-  public void test() {
-    for (int i = 0; i < EXPIRY_OFFSETS.length; i++) {
-      for (int j = 0; j < STRIKES.length; j++) {
-        final String expected = RESULTS[i][j];
-        final ExternalId actual = PROVIDER.getInstrument(EXPIRY_OFFSETS[i], STRIKES[j], DATE);
-        assertEquals(ExternalSchemes.BLOOMBERG_TICKER_WEAK, actual.getScheme());
-        assertEquals(expected, actual.getValue());
+  public void testTickers() {
+    final BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider provider =
+        new BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, SPOT, EXCHANGE, SCHEME);
+    int i = 0;
+    for (final Pair<Integer, Tenor> p : N_OPTION) {
+      for (final double strike : STRIKES) {
+        assertEquals(ExternalId.of(SCHEME, RESULTS[i++]), provider.getInstrument(p, strike, DATE));
       }
     }
   }
 
   @Test
-  public void testUtils() {
-    assertEquals(EXPIRY_DATES[0], FutureOptionExpiries.EQUITY.getMonthlyExpiry(1, DATE));
-    assertEquals(EXPIRY_DATES[1], FutureOptionExpiries.EQUITY.getMonthlyExpiry(2, DATE));
-    assertEquals(EXPIRY_DATES[2], FutureOptionExpiries.EQUITY.getQuarterlyExpiry(EXPIRY_OFFSETS[2]-6, UTILS.getMonthlyExpiry(6, DATE)));
+  public void cycleObject() {
+    final BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider provider =
+        new BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, SPOT, EXCHANGE, SCHEME);
+    assertEquals(provider, cycleObject(BloombergEquityIndexFutureOptionVolatilitySurfaceInstrumentProvider.class, provider));
   }
-
-
 }

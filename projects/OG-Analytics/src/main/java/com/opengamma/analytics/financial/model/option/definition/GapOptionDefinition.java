@@ -15,17 +15,17 @@ import com.opengamma.util.time.Expiry;
  * Gap options have European-style exercise with payoff
  * $$
  * \begin{align*}
- * \mathrm{payoff} = 
+ * \mathrm{payoff} =
  * \begin{cases}
  * 0 \quad & \mathrm{if} \quad S \leq K_1\\
  * S - K_2 \quad & \mathrm{otherwise}
- * \end{cases} 
+ * \end{cases}
  * \end{align*}
  * $$
- * for a call and 
+ * for a call and
  * $$
  * \begin{align*}
- * \mathrm{payoff} = 
+ * \mathrm{payoff} =
  * \begin{cases}
  * 0 \quad & \mathrm{if} \quad S \geq K_1\\
  * K_2 - S \quad & \mathrm{otherwise}
@@ -36,7 +36,7 @@ import com.opengamma.util.time.Expiry;
  * the spot.
  */
 public class GapOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override

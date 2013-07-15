@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+
+    <equityVarianceSwapTrade id="t1">
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
+
+      <tradeDate>2012-08-20</tradeDate>
+      <maturityDate>2012-09-15</maturityDate>
+
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <premium>250</premium>
+      <premiumCurrency>GBP</premiumCurrency>
+      <premiumSettlementDate>2012-08-22</premiumSettlementDate>
+
+      <buySell>Buy</buySell>
+      <currency>GBP</currency>
+      <strike>16.95</strike>
+
+      <underlying>
+        <id scheme="BLOOMBERG_TICKER">UKX Index</id>
+      </underlying>
+
+      <vegaAmount>100000</vegaAmount>
+
+      <observationStartDate>2012-08-22</observationStartDate>
+
+      <observationEndDate>2012-09-15</observationEndDate>
+      <observationfrequency>Daily</observationfrequency>
+
+      <annualizationFactor>252</annualizationFactor>
+
+    </equityVarianceSwapTrade>
+  </trades>
+
+
+  <portfolios>
+    <!-- portfolio name must be unique in this set -->
+    <portfolio name="single_variance_swap_portfolio">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

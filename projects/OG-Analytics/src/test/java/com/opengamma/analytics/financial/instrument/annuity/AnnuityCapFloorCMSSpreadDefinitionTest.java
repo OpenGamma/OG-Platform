@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -27,7 +26,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests related to the construction of CMS spread cap/floor.
  */
 public class AnnuityCapFloorCMSSpreadDefinitionTest {
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   // Ibor index
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -35,16 +34,16 @@ public class AnnuityCapFloorCMSSpreadDefinitionTest {
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   // CMS Index
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   //CMS 10Y
   private static final Period CMS_TENOR_10 = Period.ofYears(10);
-  private static final IndexSwap CMS_INDEX_10 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR_10);
+  private static final IndexSwap CMS_INDEX_10 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR_10, CALENDAR);
   //CMS 2Y
   private static final Period CMS_TENOR_2 = Period.ofYears(2);
-  private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR_2);
+  private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR_2, CALENDAR);
   // Annuity
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final Period ANNUITY_TENOR = Period.ofYears(5);
@@ -56,12 +55,12 @@ public class AnnuityCapFloorCMSSpreadDefinitionTest {
   private static final double STRIKE = 0.0050;
   private static final boolean IS_CAP = true;
   private static final AnnuityCapFloorCMSSpreadDefinition CMS_SPREAD_LEG = AnnuityCapFloorCMSSpreadDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, CMS_INDEX_10, CMS_INDEX_2, LEG_PAYMENT_PERIOD,
-      LEG_DAY_COUNT, IS_PAYER, STRIKE, IS_CAP);
+      LEG_DAY_COUNT, IS_PAYER, STRIKE, IS_CAP, CALENDAR, CALENDAR);
 
   @Test
   public void dates() {
-    IborIndex fakeIborIndex12 = new IborIndex(CUR, LEG_PAYMENT_PERIOD, IBOR_SETTLEMENT_DAYS, CALENDAR, LEG_DAY_COUNT, BUSINESS_DAY, IS_EOM);
-    AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, fakeIborIndex12, IS_PAYER);
+    final IborIndex fakeIborIndex12 = new IborIndex(CUR, LEG_PAYMENT_PERIOD, IBOR_SETTLEMENT_DAYS, LEG_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, fakeIborIndex12, IS_PAYER, CALENDAR);
     for (int loopcpn = 0; loopcpn < iborLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals(iborLeg.getNthPayment(loopcpn).getAccrualStartDate(), CMS_SPREAD_LEG.getNthPayment(loopcpn).getAccrualStartDate());
       assertEquals(iborLeg.getNthPayment(loopcpn).getAccrualEndDate(), CMS_SPREAD_LEG.getNthPayment(loopcpn).getAccrualEndDate());
@@ -80,8 +79,8 @@ public class AnnuityCapFloorCMSSpreadDefinitionTest {
       assertEquals(STRIKE, CMS_SPREAD_LEG.getNthPayment(loopcpn).getStrike());
       assertEquals(IS_CAP, CMS_SPREAD_LEG.getNthPayment(loopcpn).isCap());
     }
-    AnnuityCapFloorCMSSpreadDefinition cmsCapReceiver = AnnuityCapFloorCMSSpreadDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, CMS_INDEX_10, CMS_INDEX_2, LEG_PAYMENT_PERIOD, LEG_DAY_COUNT,
-        !IS_PAYER, STRIKE, IS_CAP);
+    final AnnuityCapFloorCMSSpreadDefinition cmsCapReceiver = AnnuityCapFloorCMSSpreadDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, CMS_INDEX_10, CMS_INDEX_2, LEG_PAYMENT_PERIOD, LEG_DAY_COUNT,
+        !IS_PAYER, STRIKE, IS_CAP, CALENDAR, CALENDAR);
     for (int loopcpn = 0; loopcpn < cmsCapReceiver.getNumberOfPayments(); loopcpn++) {
       assertEquals(CMS_INDEX_10, cmsCapReceiver.getNthPayment(loopcpn).getCmsIndex1());
       assertEquals(CMS_INDEX_2, cmsCapReceiver.getNthPayment(loopcpn).getCmsIndex2());

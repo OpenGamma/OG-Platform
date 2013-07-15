@@ -20,10 +20,12 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the portfolio filtering classes.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FilteringTest {
 
   private static SimpleTrade sampleTrade(final AtomicInteger attribSource) {

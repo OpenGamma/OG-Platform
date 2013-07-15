@@ -8,11 +8,10 @@ package com.opengamma.analytics.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.calculator.PresentValueCurveSensitivityConvertedCurveCurrencyCalculator;
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
@@ -71,7 +70,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   // Smile data
   private static final Currency EUR = Currency.EUR;
   private static final Currency USD = Currency.USD;
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -87,10 +86,10 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     }
   }
   private static final double SPOT = 1.40;
-  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16};
-  private static final double[] DELTA = new double[] {0.10, 0.25};
-  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};
-  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
+  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16 };
+  private static final double[] DELTA = new double[] {0.10, 0.25 };
+  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050 }, {-0.011, -0.0060 }, {-0.012, -0.0070 }, {-0.013, -0.0080 }, {-0.014, -0.0090 }, {-0.014, -0.0090 } };
+  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } };
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = TestsDataSetsForex.smileFlat(REFERENCE_DATE);
@@ -186,8 +185,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexDefinition forexUSDEURDefinition = new ForexDefinition(USD, EUR, payDate, -notional * strike, 1.0 / strike);
     final ForexOptionVanillaDefinition callEURUSDDefinition = new ForexOptionVanillaDefinition(forexEURUSDDefinition, expDate, isCall, isLong);
     final ForexOptionVanillaDefinition putUSDEURDefinition = new ForexOptionVanillaDefinition(forexUSDEURDefinition, expDate, isCall, isLong);
-    final InstrumentDerivative callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
-    final InstrumentDerivative putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
+    final InstrumentDerivative callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1] });
+    final InstrumentDerivative putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0] });
     final MultipleCurrencyAmount pvCallEURUSD = METHOD_OPTION.presentValue(callEURUSD, SMILE_BUNDLE);
     final MultipleCurrencyAmount pvPutUSDEUR = METHOD_OPTION.presentValue(putUSDEUR, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: present value Method vs Calculator", pvCallEURUSD.getAmount(USD) / SPOT, pvPutUSDEUR.getAmount(EUR), 1E-2);
@@ -208,7 +207,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final InstrumentDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount pvMethod = METHOD_OPTION.presentValue(forexOption, SMILE_BUNDLE);
-    final MultipleCurrencyAmount pvCalculator = PVC_BLACK.visit(forexOption, SMILE_BUNDLE);
+    final MultipleCurrencyAmount pvCalculator = forexOption.accept(PVC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: present value Method vs Calculator", pvMethod.getAmount(USD), pvCalculator.getAmount(USD), 1E-2);
   }
 
@@ -291,8 +290,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexDefinition forexUSDEURDefinition = new ForexDefinition(USD, EUR, payDate, -notional * strike, 1.0 / strike);
     final ForexOptionVanillaDefinition callEURUSDDefinition = new ForexOptionVanillaDefinition(forexEURUSDDefinition, expDate, isCall, isLong);
     final ForexOptionVanillaDefinition putUSDEURDefinition = new ForexOptionVanillaDefinition(forexUSDEURDefinition, expDate, isCall, isLong);
-    final InstrumentDerivative callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
-    final InstrumentDerivative putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
+    final InstrumentDerivative callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1] });
+    final InstrumentDerivative putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0] });
     final MultipleCurrencyAmount pvCallEURUSD = METHOD_OPTION.currencyExposure(callEURUSD, SMILE_BUNDLE);
     final MultipleCurrencyAmount pvPutUSDEUR = METHOD_OPTION.currencyExposure(putUSDEUR, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: currency exposure", pvCallEURUSD.getAmount(EUR), pvPutUSDEUR.getAmount(EUR), 1.0E-2);
@@ -340,7 +339,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final InstrumentDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount ceMethod = METHOD_OPTION.currencyExposure(forexOption, SMILE_BUNDLE);
-    final MultipleCurrencyAmount ceCalculator = CEC_BLACK.visit(forexOption, SMILE_BUNDLE);
+    final MultipleCurrencyAmount ceCalculator = forexOption.accept(CEC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: currency exposure Method vs Calculator", ceMethod.getAmount(EUR), ceCalculator.getAmount(EUR), 1E-2);
     assertEquals("Forex vanilla option: currency exposure Method vs Calculator", ceMethod.getAmount(USD), ceCalculator.getAmount(USD), 1E-2);
   }
@@ -362,7 +361,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   public void forwardRateMethodVsCalculator() {
     final double fwdMethod = METHOD_OPTION.forwardForexRate(FOREX_CALL_OPTION, SMILE_BUNDLE);
     final ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
-    final double fwdCalculator = FWDC.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final double fwdCalculator = FOREX_CALL_OPTION.accept(FWDC, SMILE_BUNDLE);
     assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, TOLERANCE_RELATIVE);
   }
 
@@ -505,7 +504,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
     final MultipleCurrencyAmount pvP = METHOD_OPTION.presentValue(forexOption, smileBundleP);
     final double gamma = METHOD_OPTION.gammaRelative(forexOption, SMILE_BUNDLE_FLAT, true);
-    assertEquals("Forex: relative gamma", 1.0, (pvP.getAmount(USD) + pvM.getAmount(USD) - 2 * pv.getAmount(USD)) / (shift * shift) / gamma, 1.0E-4);
+    assertEquals("Forex: relative gamma", 1.0, (pvP.getAmount(USD) + pvM.getAmount(USD) - 2 * pv.getAmount(USD)) / (shift * shift) / gamma, 2.0E-4);
   }
 
   @Test
@@ -645,7 +644,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final GammaValueBlackForexCalculator calculator = GammaValueBlackForexCalculator.getInstance();
-    final CurrencyAmount gammaCalculator = calculator.visit(forexOption, SMILE_BUNDLE);
+    final CurrencyAmount gammaCalculator = forexOption.accept(calculator, SMILE_BUNDLE);
     final CurrencyAmount gammaMethod = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE, true);
     assertEquals("Forex: relative gamma", 1.0, gammaCalculator.getAmount() / gammaMethod.getAmount(), TOLERANCE_PV);
   }
@@ -709,7 +708,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final GammaSpotBlackForexCalculator calculator = GammaSpotBlackForexCalculator.getInstance();
-    final CurrencyAmount gammaSpotCalculator = calculator.visit(forexOption, SMILE_BUNDLE);
+    final CurrencyAmount gammaSpotCalculator = forexOption.accept(calculator, SMILE_BUNDLE);
     final CurrencyAmount gammaSpotMethod = METHOD_OPTION.gammaSpot(forexOption, SMILE_BUNDLE, true);
     assertEquals("Forex: relative gamma", 1.0, gammaSpotCalculator.getAmount() / gammaSpotMethod.getAmount(), TOLERANCE_PV);
   }
@@ -801,7 +800,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_OPTION.presentValueCurveSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
-    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = FOREX_CALL_OPTION.accept(PVCSC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
@@ -840,7 +839,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
    */
   public void volatilitySensitivityMethodVsCalculator() {
     final PresentValueForexBlackVolatilitySensitivity pvvsMethod = METHOD_OPTION.presentValueBlackVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
-    final PresentValueForexBlackVolatilitySensitivity pvvsCalculator = PVVSC_BLACK.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity pvvsCalculator = FOREX_CALL_OPTION.accept(PVVSC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvvsMethod, pvvsCalculator);
   }
 
@@ -859,8 +858,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexDefinition forexUSDEURDefinition = new ForexDefinition(USD, EUR, payDate, -notional * strike, 1.0 / strike);
     final ForexOptionVanillaDefinition callEURUSDDefinition = new ForexOptionVanillaDefinition(forexEURUSDDefinition, expDate, isCall, isLong);
     final ForexOptionVanillaDefinition putUSDEURDefinition = new ForexOptionVanillaDefinition(forexUSDEURDefinition, expDate, isCall, isLong);
-    final ForexOptionVanilla callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
-    final ForexOptionVanilla putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
+    final ForexOptionVanilla callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1] });
+    final ForexOptionVanilla putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0] });
     final PresentValueForexBlackVolatilitySensitivity vsCallEURUSD = METHOD_OPTION.presentValueBlackVolatilitySensitivity(callEURUSD, SMILE_BUNDLE);
     final PresentValueForexBlackVolatilitySensitivity vsPutUSDEUR = METHOD_OPTION.presentValueBlackVolatilitySensitivity(putUSDEUR, SMILE_BUNDLE);
     final DoublesPair point = DoublesPair.of(callEURUSD.getTimeToExpiry(), strike);
@@ -905,8 +904,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexDefinition forexUSDEURDefinition = new ForexDefinition(USD, EUR, payDate, -notional * strike, 1.0 / strike);
     final ForexOptionVanillaDefinition callEURUSDDefinition = new ForexOptionVanillaDefinition(forexEURUSDDefinition, expDate, isCall, isLong);
     final ForexOptionVanillaDefinition putUSDEURDefinition = new ForexOptionVanillaDefinition(forexUSDEURDefinition, expDate, isCall, isLong);
-    final ForexOptionVanilla callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1]});
-    final ForexOptionVanilla putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
+    final ForexOptionVanilla callEURUSD = callEURUSDDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[1] });
+    final ForexOptionVanilla putUSDEUR = putUSDEURDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0] });
     final PresentValueForexBlackVolatilityNodeSensitivityDataBundle nsCallEURUSD = METHOD_OPTION.presentValueBlackVolatilityNodeSensitivity(callEURUSD, SMILE_BUNDLE);
     final PresentValueForexBlackVolatilityNodeSensitivityDataBundle nsPutUSDEUR = METHOD_OPTION.presentValueBlackVolatilityNodeSensitivity(putUSDEUR, SMILE_BUNDLE);
     for (int loopexp = 0; loopexp < nsCallEURUSD.getExpiries().getNumberOfElements(); loopexp++) {
@@ -966,7 +965,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexOptionVanilla forexOptionCall = forexOptionDefinitionCall.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final MultipleCurrencyInterestRateCurveSensitivity sensi = PVCSC_BLACK.visit(forexOptionCall, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi = forexOptionCall.accept(PVCSC_BLACK, SMILE_BUNDLE);
     final InterestRateCurveSensitivity sensiConverted = PVCSCC_BLACK.visit(forexOptionCall, SMILE_BUNDLE);
     InterestRateCurveSensitivity sensiComp = new InterestRateCurveSensitivity();
     sensiComp = sensiComp.plus(CURVES_NAME[1], sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[1]));
@@ -982,9 +981,9 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final MultipleCurrencyAmount theta = THETAC.getTheta(FOREX_OPTION_CALL_DEFINITION, REFERENCE_DATE, CURVES_NAME, SMILE_BUNDLE, 1);
     final ForexOptionVanilla swapToday = FOREX_OPTION_CALL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final ForexOptionVanilla swapTomorrow = FOREX_OPTION_CALL_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
-    final MultipleCurrencyAmount pvToday = PVC_BLACK.visit(swapToday, SMILE_BUNDLE);
+    final MultipleCurrencyAmount pvToday = swapToday.accept(PVC_BLACK, SMILE_BUNDLE);
     final YieldCurveBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(SMILE_BUNDLE, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
-    final MultipleCurrencyAmount pvTomorrow = PVC_BLACK.visit(swapTomorrow, tomorrowData);
+    final MultipleCurrencyAmount pvTomorrow = swapTomorrow.accept(PVC_BLACK, tomorrowData);
     final MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
     assertEquals("ThetaCalculator: forex option", thetaExpected.getAmount(USD), theta.getAmount(USD), TOLERANCE_PV);
   }
@@ -1007,14 +1006,14 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)) / df;
     final double volatility = SMILE_TERM.getVolatility(timeToExpiry, strike, forward);
-    final double thetaUnit = BlackFormulaRepository.theta(forward, strike, timeToExpiry, volatility);
+    final double thetaUnit = BlackFormulaRepository.driftlessTheta(forward, strike, timeToExpiry, volatility);
     final double thetaExpected = thetaUnit * notional;
-    final CurrencyAmount thetaCallComputed = METHOD_OPTION.thetaTheoretical(call, SMILE_BUNDLE);
+    final CurrencyAmount thetaCallComputed = METHOD_OPTION.theta(call, SMILE_BUNDLE);
     assertEquals("Theta theoretical: forex option", thetaExpected, thetaCallComputed.getAmount(), TOLERANCE_PV);
     assertEquals("Theta theoretical: forex option", USD, thetaCallComputed.getCurrency());
     final ForexOptionVanillaDefinition putDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, !isCall, isLong);
     final ForexOptionVanilla put = putDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final CurrencyAmount thetaPutComputed = METHOD_OPTION.thetaTheoretical(put, SMILE_BUNDLE);
+    final CurrencyAmount thetaPutComputed = METHOD_OPTION.theta(put, SMILE_BUNDLE);
     assertEquals("Theta theoretical: forex option", thetaCallComputed.getAmount(), thetaPutComputed.getAmount(), TOLERANCE_PV);
   }
 

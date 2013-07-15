@@ -6,12 +6,15 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.HashMap;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
@@ -31,6 +34,7 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   public static final String PATH_MARKET_DATA_REQUIREMENTS = "marketDataRequirements";
   public static final String PATH_COMPUTATION_TARGETS = "computationTargets";
   public static final String PATH_COMPILED_CALCULATION_CONFIGURATIONS = "compiledCalculationConfigurations";
+  public static final String PATH_COMPILED_CALCULATION_CONFIGURATIONS_MAP = "compiledCalculationConfigurationsMap";
   public static final String PATH_GRAPHS = "graphs";
   //CSON: just constants
   
@@ -57,6 +61,12 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   public Response getCompiledCalculationConfigurations() {
     return responseOkFudge(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations()));
   }
+
+  @GET
+  @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS_MAP)
+  public Response getCompiledCalculationConfigurationsMap() {
+    return responseOkFudge(new HashMap<>(_compiledViewDefinition.getCompiledCalculationConfigurationsMap()));
+  }
   
   @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS + "/{calcConfigName}")
@@ -79,13 +89,15 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   @GET
   @Path(PATH_VALID_FROM)
   public Response getValidFrom() {
-    return responseOkFudge(_compiledViewDefinition.getValidFrom());
+    Instant validFrom = _compiledViewDefinition.getValidFrom();
+    return validFrom != null ? responseOkFudge(validFrom) : responseOkNoContent();
   }
   
   @GET
   @Path(PATH_VALID_TO)
   public Response getValidTo() {
-    return responseOkFudge(_compiledViewDefinition.getValidTo());
+    Instant validTo = _compiledViewDefinition.getValidTo();
+    return validTo != null ? responseOkFudge(validTo) : responseOkNoContent();
   }
   
   @Path(PATH_GRAPHS + "/{calcConfigName}")

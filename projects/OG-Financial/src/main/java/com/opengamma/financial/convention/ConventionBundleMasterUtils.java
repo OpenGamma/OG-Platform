@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;

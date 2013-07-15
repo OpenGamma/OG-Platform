@@ -84,7 +84,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   private OptionType _optionType;
 
   IRFutureOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public IRFutureOptionSecurity(String exchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,
@@ -521,7 +521,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "exchange",
         "expiry",
         "exerciseType",

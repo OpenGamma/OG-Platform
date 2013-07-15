@@ -17,12 +17,14 @@ import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -30,7 +32,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -61,7 +63,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     //final Clock snapshotClock = executionContext.getValuationClock();
-    //final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    //final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
     //final ValueRequirement desiredValue = desiredValues.iterator().next();
     //final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     //final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -93,11 +95,6 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final UnderlyingTimeSeriesProvider underlyingTimeSeriesProvider = new UnderlyingTimeSeriesProvider(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context), _resolutionKey,
         context.getSecuritySource());
@@ -106,14 +103,13 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
-      for (final Pair<UnderlyingType, String> underlying : _underlyings) {
-        result.add(new ValueSpecification(new ValueRequirement(underlying.getSecond(), target.getSecurity()), getUniqueId()));
-      }
-      return result;
+    final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = createValueProperties().get();
+    for (final Pair<UnderlyingType, String> underlying : _underlyings) {
+      result.add(new ValueSpecification(underlying.getSecond(), targetSpec, properties));
     }
-    return null;
+    return result;
   }
 
 //  private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {

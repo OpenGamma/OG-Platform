@@ -22,27 +22,27 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.financial.rest.AbstractRestfulJmsResultConsumer;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
+import com.opengamma.util.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -344,13 +344,6 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   }
   
   @Override
-  public VersionCorrection getProcessVersionCorrection() {
-    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_PROCESS_VERSION_CORRECTION);
-    return getClient().accessFudge(uri).get(VersionCorrection.class);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public boolean isViewCycleAccessSupported() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
     return getClient().accessFudge(uri).get(Boolean.class);
@@ -388,10 +381,10 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   
   //-------------------------------------------------------------------------
   @Override
-  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> targets) {
     SetMinimumLogModeRequest request = new SetMinimumLogModeRequest();
     request.setMinimumLogMode(minimumLogMode);
-    request.setResultSpecifications(resultSpecifications);
+    request.setTargets(targets);
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_SET_MINIMUM_LOG_MODE);
     getClient().accessFudge(uri).post(request);
   }

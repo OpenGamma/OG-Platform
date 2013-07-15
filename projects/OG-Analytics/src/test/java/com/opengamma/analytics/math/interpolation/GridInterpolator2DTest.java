@@ -102,9 +102,9 @@ public class GridInterpolator2DTest {
     assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA_BUNDLE, Pair.of(2.5, 5.4)), 0., EPS);
     final Map<DoublesPair, Double> nonTrivial = new HashMap<DoublesPair, Double>();
     for (final DoublesPair pair : FLAT_DATA.keySet()) {
-      nonTrivial.put(pair, F.evaluate(pair.getKey(), pair.getValue()));
+      nonTrivial.put(pair, F.evaluate(pair.getFirst(), pair.getSecond()));
     }
     final DoublesPair pair = Pair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
-    assertEquals(INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(nonTrivial), pair), F.evaluate(pair.getKey(), pair.getValue()), EPS);
+    assertEquals(INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(nonTrivial), pair), F.evaluate(pair.getFirst(), pair.getSecond()), EPS);
   }
 }

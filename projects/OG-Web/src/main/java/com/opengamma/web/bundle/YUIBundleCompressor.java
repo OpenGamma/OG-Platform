@@ -37,9 +37,8 @@ public class YUIBundleCompressor implements BundleCompressor {
    * 
    * @param compressorOptions  the YUICompressor options, not null
    */
-  public YUIBundleCompressor(YUICompressorOptions compressorOptions) {
+  public YUIBundleCompressor(final YUICompressorOptions compressorOptions) {
     ArgumentChecker.notNull(compressorOptions, "compressorOptions");
-    
     _compressorOptions = compressorOptions;
   }
 

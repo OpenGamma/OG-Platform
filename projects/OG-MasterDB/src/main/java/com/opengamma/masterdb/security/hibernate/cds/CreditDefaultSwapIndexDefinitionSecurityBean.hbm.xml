@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.cds">
+  <class name="CreditDefaultSwapIndexDefinitionSecurityBean" table="sec_credit_default_swap_index_definition">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param>
+      </generator>
+    </id>
+
+    <property name="securityId" type="long" column="security_id" />
+
+    <property name="version" column="version" type="string" not-null="true" />
+    
+    <property name="series" column="series" type="string" not-null="true" />
+    
+    <many-to-one name="family" class="com.opengamma.masterdb.security.hibernate.CDSIndexFamilyBean" column="family_id" not-null="true" />
+    
+    <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+
+    <property name="recoveryRate" column="recovery_rate" type="double" not-null="true" />
+
+    <set name="tenors" table="sec_cdsid_tenor" cascade="save-update">
+      <key column="cdsid_id" />
+      <many-to-many class="com.opengamma.masterdb.security.hibernate.TenorBean" column="tenor_id"/>
+    </set>
+    
+    <set name="components" table="sec_cdsid_component" cascade="save-update">
+      <key column="cdsid_id" />
+      <composite-element class="CDSIndexComponentBean">
+        <nested-composite-element name="obligor" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+          <property name="scheme" column="obligor_scheme" type="string" />
+          <property name="identifier" column="obligor_identifier" type="string" />
+        </nested-composite-element>
+        <property name="weight" column="weight" type="double" not-null="true" />
+        <property name="name" column="name" type="string" not-null="true" />
+        <nested-composite-element name="bondId" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+          <property name="scheme" column="bond_scheme" type="string" />
+          <property name="identifier" column="bond_identifier" type="string" />
+        </nested-composite-element>
+      </composite-element>
+    </set>
+     
+  </class>
+  
+  <query name="CreditDefaultSwapIndexDefinitionSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      CreditDefaultSwapIndexDefinitionSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+  <query name="CreditDefaultSwapIndexDefinitionSecurityBean.all">
+    from CreditDefaultSwapIndexDefinitionSecurityBean
+  </query>
+
+</hibernate-mapping>

@@ -26,7 +26,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.masterdb.position.DataDbPositionMasterResource;
 import com.opengamma.masterdb.position.DbPositionMaster;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
@@ -45,11 +44,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-  /**
-   * The database connector.
-   */
-  @PropertyDefinition
-  private DbConnector _dbConnector;
   /**
    * The JMS connector.
    */
@@ -93,7 +87,7 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "pos");
+    checkSchema(master.getSchemaVersion(), "pos");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -132,8 +126,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
-      case 39794031:  // dbConnector
-        return getDbConnector();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
       case -758086398:  // jmsChangeManagerTopic
@@ -154,9 +146,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
         return;
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
-        return;
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
         return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
@@ -183,7 +172,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
       DbPositionMasterComponentFactory other = (DbPositionMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
@@ -198,7 +186,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
@@ -254,31 +241,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the database connector.
-   * @return the value of the property
-   */
-  public DbConnector getDbConnector() {
-    return _dbConnector;
-  }
-
-  /**
-   * Sets the database connector.
-   * @param dbConnector  the new value of the property
-   */
-  public void setDbConnector(DbConnector dbConnector) {
-    this._dbConnector = dbConnector;
-  }
-
-  /**
-   * Gets the the {@code dbConnector} property.
-   * @return the property, not null
-   */
-  public final Property<DbConnector> dbConnector() {
-    return metaBean().dbConnector().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -402,11 +364,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", DbPositionMasterComponentFactory.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code dbConnector} property.
-     */
-    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
-        this, "dbConnector", DbPositionMasterComponentFactory.class, DbConnector.class);
-    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
@@ -430,10 +387,9 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "dbConnector",
         "jmsConnector",
         "jmsChangeManagerTopic",
         "uniqueIdScheme",
@@ -452,8 +408,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
-        case 39794031:  // dbConnector
-          return _dbConnector;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
         case -758086398:  // jmsChangeManagerTopic
@@ -496,14 +450,6 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
-    }
-
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbConnector> dbConnector() {
-      return _dbConnector;
     }
 
     /**

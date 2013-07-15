@@ -5,21 +5,23 @@
  */
 package com.opengamma.id;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import static org.threeten.bp.Month.DECEMBER;
+import static org.threeten.bp.Month.JANUARY;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdWithDatesFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
-  private static final LocalDate VALID_FROM = LocalDate.of(2010, MonthOfYear.JANUARY, 1);
-  private static final LocalDate VALID_TO = LocalDate.of(2010, MonthOfYear.DECEMBER, 1);
+  private static final LocalDate VALID_FROM = LocalDate.of(2010, JANUARY, 1);
+  private static final LocalDate VALID_TO = LocalDate.of(2010, DECEMBER, 1);
 
   public void test_noDates() {
     ExternalIdWithDates object = ExternalIdWithDates.of(ExternalId.of("A", "B"), null, null);

@@ -55,7 +55,6 @@ public final class PrettyPrintSecurityType {
     s_data.put(CashSecurity.SECURITY_TYPE, "Cash");
     s_data.put(CommodityForwardSecurity.SECURITY_TYPE, "Commodity Forward");
     s_data.put(CommodityFutureOptionSecurity.SECURITY_TYPE, "Commodity Future Option");
-    s_data.put(CreditDefaultSwapSecurity.SECURITY_TYPE, "CDS");
     s_data.put(EquitySecurity.SECURITY_TYPE, "Equity");
     s_data.put(EquityBarrierOptionSecurity.SECURITY_TYPE, "Equity Barrier Option");
     s_data.put(EquityIndexOptionSecurity.SECURITY_TYPE, "Equity Index Option");

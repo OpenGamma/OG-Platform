@@ -7,13 +7,11 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -24,7 +22,6 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -35,7 +32,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionBlackFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -63,9 +60,6 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
     if (security instanceof FXBarrierOptionSecurity) {
       return ((FXBarrierOptionSecurity) security).getSamplingFrequency().equals(SamplingFrequency.ONE_LOOK);
@@ -75,7 +69,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final FXBarrierOptionSecurity barrierSec = (FXBarrierOptionSecurity) target.getSecurity();
 
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -124,24 +118,18 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final CurrencyPair baseQuotePair = getBaseQuotePair(context, target, inputs);
-    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(target, baseQuotePair).get());
-    return Collections.singleton(resultSpec);
-  }
-
-  @Override
   protected Builder getResultProperties(final ComputationTarget target) {
     final Builder properties = super.getResultProperties(target);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
-                     .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+        .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
-    final Builder properties = super.getResultProperties(target, baseQuotePair);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig, final String callCurve,
+      final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    final Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair, optionalProperties);
     return properties.withAny(ValuePropertyNames.BINARY_OVERHEDGE)
-                     .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
+        .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
   @Override
@@ -150,7 +138,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
     final String binaryOverhead = desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE);
     final String binarySmoothing = desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
     return properties.with(ValuePropertyNames.BINARY_OVERHEDGE, binaryOverhead)
-                     .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, binarySmoothing);
+        .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, binarySmoothing);
   }
 
   /**
@@ -187,7 +175,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   private static Set<ForexOptionVanilla> vanillaDecomposition(final FXBarrierOptionSecurity barrierSec,
       final double smoothingFullWidth, final double overhedge, final ZonedDateTime valTime, final Set<ValueRequirement> desiredValues) {
 
-    final HashSet<ForexOptionVanilla> vanillas = new HashSet<ForexOptionVanilla>();
+    final HashSet<ForexOptionVanilla> vanillas = new HashSet<>();
     // Unpack the barrier security
     final boolean isLong = barrierSec.getLongShort().isLong();
     final ZonedDateTime expiry = barrierSec.getExpiry().getExpiry();
@@ -326,7 +314,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   }
 
 
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityVanillaBarrierOptionBlackFunction.class);
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,

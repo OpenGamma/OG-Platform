@@ -5,6 +5,7 @@
 .OG-table {
     width: 100%;
     position: relative;
+    margin-top: 2px;
 }
 
 .OG-table:after {
@@ -176,25 +177,22 @@
         cursor: pointer;
     }
 
-    .OG-table .og-del:after {
+    .OG-table .og-del {
         background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
-        content: '';
         background-position: -22px  -9px;
         height: 6px;
-        margin-top: -13px;
+        margin-top: 5px;
         width: 7px;
         position: absolute;
-        top: 50%;
         right: 10px;
         z-index: 1;
     }
 
-    .OG-table .og-del:hover:after {
+    .OG-table .og-del:hover {
         background-position: -11px -35px;
         width: 11px;
         height: 10px;
-        top: 50%;
-        margin-top: -15px;
+        margin-top: 3px;
         right: 8px;
     }
 

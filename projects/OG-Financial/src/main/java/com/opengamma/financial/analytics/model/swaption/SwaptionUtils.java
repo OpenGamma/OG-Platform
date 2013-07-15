@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.swaption;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -50,6 +51,7 @@ public class SwaptionUtils {
       fixedLeg = (FixedInterestRateLeg) underlyingSecurity.getReceiveLeg();
     }
     final IborIndex iborIndex = swap.getIborLeg().getIborIndex();
+    final Calendar calendar = swap.getIborLeg().getIborCalendar();
     final DayCount fixedLegDayCount = fixedLeg.getDayCount();
     final Frequency frequency = fixedLeg.getFrequency();
     final Period fixedLegPeriod;
@@ -60,6 +62,6 @@ public class SwaptionUtils {
     } else {
       throw new OpenGammaRuntimeException("Can only handle PeriodFrequency or SimpleFrequency");
     }
-    return new GeneratorSwapFixedIbor("Swap Generator", fixedLegPeriod, fixedLegDayCount, iborIndex);
+    return new GeneratorSwapFixedIbor("Swap Generator", fixedLegPeriod, fixedLegDayCount, iborIndex, calendar);
   }
 }

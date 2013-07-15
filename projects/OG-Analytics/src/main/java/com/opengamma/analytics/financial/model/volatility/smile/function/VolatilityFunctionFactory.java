@@ -33,8 +33,8 @@ public final class VolatilityFunctionFactory {
   /** Paulot formula */
   public static final SABRPaulotVolatilityFunction PAULOT_FORMULA = new SABRPaulotVolatilityFunction();
 
-  private static final Map<String, VolatilityFunctionProvider<?>> s_instances = new HashMap<String, VolatilityFunctionProvider<?>>();
-  private static final Map<Class<? extends VolatilityFunctionProvider<?>>, String> s_instanceNames = new HashMap<Class<? extends VolatilityFunctionProvider<?>>, String>();
+  private static final Map<String, VolatilityFunctionProvider<?>> s_instances = new HashMap<>();
+  private static final Map<Class<? extends VolatilityFunctionProvider<?>>, String> s_instanceNames = new HashMap<>();
 
   static {
     s_instances.put(ALTERNATIVE_HAGAN, ALTERNATIVE_HAGAN_FORMULA);

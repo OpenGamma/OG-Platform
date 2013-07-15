@@ -8,11 +8,10 @@ package com.opengamma.analytics.financial.schedule;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.DateProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.Temporal;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -71,7 +70,7 @@ public class DailyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, false), forward);
   }
 
-  private <T extends DateProvider> void assertCalculator(final T startDate, final T endDate, final T[] forward) {
+  private <T extends Temporal> void assertCalculator(final T startDate, final T endDate, final T[] forward) {
     final int days = 771;
     assertEquals(forward.length, days);
     assertEquals(forward[0], startDate);

@@ -13,7 +13,6 @@ import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityS
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -46,16 +45,6 @@ public abstract class LocalVolatilitySurfaceStrikeFunction extends AbstractFunct
   }
 
   @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && isCorrectIdType(target);
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties(LocalVolatilitySurfacePropertyNamesAndValues.STRIKE);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties));
@@ -71,23 +60,21 @@ public abstract class LocalVolatilitySurfaceStrikeFunction extends AbstractFunct
     return Collections.singleton(getVolatilitySurfaceRequirement(target, desiredValue));
   }
 
-  protected abstract boolean isCorrectIdType(final ComputationTarget target);
-
   protected abstract String getInstrumentType();
 
   protected abstract String getBlackSmileInterpolatorName();
 
   private ValueProperties getResultProperties(final String parameterizationType) {
-    return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(createValueProperties().get(), getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType).get();
+    return LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(createValueProperties().get(), getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType).get();
   }
 
   private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String parameterizationType) {
-    return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(createValueProperties().get(), getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType,
+    return LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(createValueProperties().get(), getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType,
         desiredValue).get();
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties properties = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(ValueProperties.builder().get(), getInstrumentType(),
+    final ValueProperties properties = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(ValueProperties.builder().get(), getInstrumentType(),
         getBlackSmileInterpolatorName(), LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties);
   }

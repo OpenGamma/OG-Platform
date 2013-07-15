@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.forex.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -132,11 +131,13 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableForwardDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableForwardDefinition(this);
   }
 

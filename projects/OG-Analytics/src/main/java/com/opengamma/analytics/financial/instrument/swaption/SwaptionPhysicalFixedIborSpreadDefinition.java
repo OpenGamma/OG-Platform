@@ -5,11 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.swaption;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -18,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -46,18 +45,18 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionPhysicalFixedIborSpreadDefinition(final ZonedDateTime expiryDate, final double strike, final SwapFixedIborSpreadDefinition underlyingSwap, 
+  private SwaptionPhysicalFixedIborSpreadDefinition(final ZonedDateTime expiryDate, final double strike, final SwapFixedIborSpreadDefinition underlyingSwap,
       final boolean isCall, final boolean isLong) {
-    Validate.notNull(expiryDate, "expiry date");
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
+    ArgumentChecker.notNull(expiryDate, "expiry date");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
     _isLong = isLong;
     _expiry = new Expiry(expiryDate);
   }
 
   /**
-   * Builder from the expiry date, the underlying swap and the long/short flqg. The strike stored in the EuropeanVanillaOptionDefinition should not be used for pricing as the 
+   * Builder from the expiry date, the underlying swap and the long/short flqg. The strike stored in the EuropeanVanillaOptionDefinition should not be used for pricing as the
    * strike can be different for each coupon and need to be computed at the pricing method level.
    * @param expiryDate The expiry date.
    * @param underlyingSwap The underlying swap.
@@ -65,8 +64,8 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
    * @return The swaption.
    */
   public static SwaptionPhysicalFixedIborSpreadDefinition from(final ZonedDateTime expiryDate, final SwapFixedIborSpreadDefinition underlyingSwap, final boolean isLong) {
-    Validate.notNull(expiryDate, "expiry date");
-    Validate.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.notNull(expiryDate, "expiry date");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getRate();
     // Implementation comment: The strike is working only for swap with same rate on all coupons and standard conventions. The strike equivalent is computed in the pricing methods.
     return new SwaptionPhysicalFixedIborSpreadDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
@@ -106,20 +105,22 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionPhysicalFixedIborSpreadDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionPhysicalFixedIborSpreadDefinition(this);
   }
 
   @Override
   public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    Validate.notNull(dateTime, "date");
+    ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
-    Validate.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);

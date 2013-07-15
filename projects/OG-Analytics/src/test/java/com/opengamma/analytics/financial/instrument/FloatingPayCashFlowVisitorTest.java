@@ -37,9 +37,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.util.money.CurrencyAmount;

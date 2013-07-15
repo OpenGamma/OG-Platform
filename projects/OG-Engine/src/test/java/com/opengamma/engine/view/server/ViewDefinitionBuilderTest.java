@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.NumberDeltaComparer;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -20,11 +20,12 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ViewDefinitionBuilder, which is particularly complex.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ViewDefinitionBuilderTest {
 
   private FudgeContext _fudgeContext;

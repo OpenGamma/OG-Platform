@@ -9,18 +9,19 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class FixedPaymentMatrixTest extends AnalyticsTestBase {
 
   @Test

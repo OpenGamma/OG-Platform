@@ -11,9 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.Exchange;
@@ -30,11 +29,12 @@ import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link MasterExchangeSource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterExchangeSourceTest {
 
   private static final ObjectId OID = ObjectId.of("A", "B");

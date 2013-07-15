@@ -8,20 +8,18 @@ package com.opengamma.analytics.financial.model.option.definition;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 
 /**
  * 
@@ -31,9 +29,9 @@ public class FadeInOptionDefinitionTest {
   private static final double DIFF = 5;
   private static final double LOWER = 50 - DIFF;
   private static final double UPPER = 50 + DIFF;
-  private static final DoubleTimeSeries<?> ALL_WITHIN_RANGE = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
+  private static final DoubleTimeSeries<?> ALL_WITHIN_RANGE = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
       new double[] {SPOT, SPOT, SPOT, SPOT, SPOT});
-  private static final DoubleTimeSeries<?> ONE_WITHIN_RANGE = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
+  private static final DoubleTimeSeries<?> ONE_WITHIN_RANGE = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20100502, 20100503, 20100504, 20100505},
       new double[] {SPOT + 2 * DIFF, SPOT + 3 * DIFF, SPOT, SPOT - 1.5 * DIFF, SPOT - 4 * DIFF});
   private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.06));
   private static final double B = 0.04;

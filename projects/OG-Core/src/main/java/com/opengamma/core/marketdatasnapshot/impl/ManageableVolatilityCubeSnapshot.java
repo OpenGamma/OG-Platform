@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
@@ -136,7 +137,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   }
 
   private static HashMap<Pair<Tenor, Tenor>, ValueSnapshot> readStrikes(FudgeDeserializer deserializer, FudgeMsg msg) {
-    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
+    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = Maps.newHashMap();
     FudgeMsg valuesMessage = msg.getMessage("strikes");
     if (valuesMessage == null) {
       return values;
@@ -161,7 +162,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   }
 
   private static HashMap<VolatilityPoint, ValueSnapshot> readValues(FudgeDeserializer deserializer, FudgeMsg msg) {
-    HashMap<VolatilityPoint, ValueSnapshot> values = new HashMap<VolatilityPoint, ValueSnapshot>();
+    HashMap<VolatilityPoint, ValueSnapshot> values = Maps.newHashMap();
     FudgeMsg valuesMessage = msg.getMessage("values");
     if (valuesMessage == null) {
       return values;

@@ -12,8 +12,8 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 /**
- * Shifts an {@link InterpolatedDoublesSurface}. If the <i>(x, y)</i> value(s) of the shift(s) are not in the nodal points of the 
- * original surface, they are added (with shift) to the nodal points of the new surface. 
+ * Shifts an {@link InterpolatedDoublesSurface}. If the <i>(x, y)</i> value(s) of the shift(s) are not in the nodal points of the
+ * original surface, they are added (with shift) to the nodal points of the new surface.
  */
 public class InterpolatedSurfaceMultiplicativeShiftFunction implements SurfaceShiftFunction<InterpolatedDoublesSurface> {
 
@@ -110,9 +110,9 @@ public class InterpolatedSurfaceMultiplicativeShiftFunction implements SurfaceSh
     final Double[] x = surface.getXData();
     final Double[] y = surface.getYData();
     final Double[] z = surface.getZData();
-    final List<Double> newX = new ArrayList<Double>(Arrays.asList(x));
-    final List<Double> newY = new ArrayList<Double>(Arrays.asList(y));
-    final List<Double> newZ = new ArrayList<Double>(Arrays.asList(z));
+    final List<Double> newX = new ArrayList<>(Arrays.asList(x));
+    final List<Double> newY = new ArrayList<>(Arrays.asList(y));
+    final List<Double> newZ = new ArrayList<>(Arrays.asList(z));
     final int size = surface.size();
     for (int i = 0; i < n; i++) {
       boolean foundValue = false;

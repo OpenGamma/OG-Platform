@@ -130,11 +130,20 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigSearchRequest}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static ConfigSearchRequest.Meta meta() {
+    return ConfigSearchRequest.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code ConfigSearchRequest}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ConfigSearchRequest.Meta<R> meta() {
+  public static <R> ConfigSearchRequest.Meta<R> metaConfigSearchRequest(Class<R> cls) {
     return ConfigSearchRequest.Meta.INSTANCE;
   }
   static {
@@ -346,7 +355,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "configIds",
         "name",
         "type",

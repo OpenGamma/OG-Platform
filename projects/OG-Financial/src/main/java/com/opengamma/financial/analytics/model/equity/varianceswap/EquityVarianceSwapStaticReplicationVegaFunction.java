@@ -10,8 +10,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapPresentValueCalculator;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
@@ -29,7 +30,7 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
  *
  */
 public class EquityVarianceSwapStaticReplicationVegaFunction extends EquityVarianceSwapStaticReplicationFunction {
-  private static final VarianceSwapSensitivityCalculator CALCULATOR = VarianceSwapSensitivityCalculator.getInstance();
+  private static final EquityDerivativeSensitivityCalculator CALCULATOR = new EquityDerivativeSensitivityCalculator(VarianceSwapPresentValueCalculator.getInstance());
 
   public EquityVarianceSwapStaticReplicationVegaFunction() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);

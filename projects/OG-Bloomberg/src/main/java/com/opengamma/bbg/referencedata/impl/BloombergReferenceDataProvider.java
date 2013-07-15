@@ -32,7 +32,6 @@ import org.springframework.context.Lifecycle;
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
-import com.bloomberglp.blpapi.Service;
 import com.google.common.base.CharMatcher;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
@@ -112,10 +111,6 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * Bloomberg statistics.
      */
     private final BloombergReferenceDataStatistics _statistics;
-    /**
-     * The Bloomberg service.
-     */
-    private Service _refDataService;
 
     /**
      * Creates an instance.
@@ -123,7 +118,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param provider  the provider, not null
      */
     public BloombergReferenceDataProviderImpl(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
-      super(bloombergConnector);
+      super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
       ArgumentChecker.notNull(statistics, "statistics");
       _statistics = statistics;
     }
@@ -132,11 +127,6 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     @Override
     protected Logger getLogger() {
       return s_logger;
-    }
-
-    @Override
-    protected void openServices() {
-      _refDataService = openService(BloombergConstants.REF_DATA_SVC_NAME);
     }
 
     //-------------------------------------------------------------------------
@@ -182,7 +172,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
         }
       }
       if (excluded.size() > 0) {
-        String message = MessageFormatter.format("Request contains invalid identifiers {} from ({})", excluded, identifiers);
+        String message = MessageFormatter.format("Request contains invalid identifiers {} from ({})", excluded, identifiers).getMessage();
         s_logger.error(message);
         throw new OpenGammaRuntimeException(message);
       }
@@ -204,7 +194,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
         }
       }
       if (excluded.size() > 0) {
-        String message = MessageFormatter.format("Request contains invalid fields {} from ({})", excluded, fields);
+        String message = MessageFormatter.format("Request contains invalid fields {} from ({})", excluded, fields).getMessage();
         s_logger.error(message);
         throw new OpenGammaRuntimeException(message);
       }
@@ -216,7 +206,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      */
     private Request createRequest(Set<String> identifiers, Set<String> dataFields) {
       // create request
-      Request request = _refDataService.createRequest(BLOOMBERG_REFERENCE_DATA_REQUEST);
+      Request request = getService().createRequest(BLOOMBERG_REFERENCE_DATA_REQUEST);
       Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
       
       // identifiers

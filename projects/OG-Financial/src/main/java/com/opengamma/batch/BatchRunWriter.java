@@ -12,7 +12,7 @@ import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 

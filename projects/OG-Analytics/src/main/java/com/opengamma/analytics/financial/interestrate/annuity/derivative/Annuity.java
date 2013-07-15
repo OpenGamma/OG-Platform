@@ -76,7 +76,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    * Check if the payments of an annuity is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
    * @return  True if IborCoupon or FixedCoupon
    */
-  public boolean isIborOrFixed() {
+  public boolean isIborOrFixed() { //TODO: is this method necessary?
     boolean result = true;
     for (final P payment : _payments) {
       result = result && payment.isIborOrFixed();
@@ -115,14 +115,14 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    */
   @SuppressWarnings("unchecked")
   public Annuity<P> trimBefore(final double trimTime) {
-    final List<P> list = new ArrayList<P>();
+    final List<P> list = new ArrayList<>();
     list.clear();
     for (final P payment : _payments) {
       if (payment.getPaymentTime() > trimTime) {
         list.add(payment);
       }
     }
-    return new Annuity<P>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<>(list.toArray((P[]) new Payment[list.size()]));
   }
 
   /**
@@ -132,13 +132,13 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    */
   @SuppressWarnings("unchecked")
   public Annuity<P> trimAfter(final double trimTime) {
-    final List<P> list = new ArrayList<P>();
+    final List<P> list = new ArrayList<>();
     for (final P payment : _payments) {
       if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
       }
     }
-    return new Annuity<P>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<>(list.toArray((P[]) new Payment[list.size()]));
   }
 
   @Override
@@ -184,11 +184,13 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitGenericAnnuity(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitGenericAnnuity(this);
   }
 

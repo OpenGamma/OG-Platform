@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;

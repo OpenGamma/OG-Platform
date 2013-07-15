@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function.resolver;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.util.PublicAPI;
 
@@ -28,6 +28,6 @@ public interface FunctionResolver {
    * @param atInstant  the snapshot time the functions will be used at, not null
    * @return the compiled function resolver, not null
    */
-  CompiledFunctionResolver compile(InstantProvider atInstant);
+  CompiledFunctionResolver compile(Instant atInstant);
 
 }

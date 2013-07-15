@@ -7,17 +7,17 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 
 /**
  * Calculate security prices for futures (bond and interest rate).
  */
-public final class PriceFromCurvesDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class PriceFromCurvesDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The calculator instance.
@@ -27,10 +27,7 @@ public final class PriceFromCurvesDiscountingCalculator extends AbstractInstrume
    * The method to compute bond future prices.
    */
   private static final BondFutureDiscountingMethod METHOD_BOND_FUTURE = BondFutureDiscountingMethod.getInstance();
-  /**
-   * The method to compute interest rate future prices.
-   */
-  private static final InterestRateFutureDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.
@@ -47,7 +44,7 @@ public final class PriceFromCurvesDiscountingCalculator extends AbstractInstrume
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(future);
     return METHOD_RATE_FUTURE.price(future, curves);

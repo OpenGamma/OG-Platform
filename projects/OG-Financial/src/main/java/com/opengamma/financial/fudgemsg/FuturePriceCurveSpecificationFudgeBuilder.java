@@ -37,6 +37,7 @@ public class FuturePriceCurveSpecificationFudgeBuilder implements FudgeBuilder<F
     final UniqueIdentifiable target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
     final String name = message.getString("name");
     final FudgeField field = message.getByName("curveInstrumentProvider");
+    Object providerObject = deserializer.fieldValueToObject(field);
     final FuturePriceCurveInstrumentProvider<?> curveInstrumentProvider = (FuturePriceCurveInstrumentProvider<?>) deserializer.fieldValueToObject(field);
     return new FuturePriceCurveSpecification(name, target, curveInstrumentProvider);
   }

@@ -11,11 +11,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Fudge serialization test for VolatilitySurfaceSpecification
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilitySurfaceDefinitionFudgeEncodingTest extends FinancialTestBase {
 
   @Test

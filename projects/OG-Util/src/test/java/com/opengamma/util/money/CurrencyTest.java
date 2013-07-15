@@ -18,11 +18,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Currency.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CurrencyTest {
 
   //-----------------------------------------------------------------------

@@ -8,9 +8,8 @@ package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
@@ -37,8 +36,8 @@ public class BlackBarrierPriceFunctionTest {
   private static final boolean IS_CALL = true;
   private static final EuropeanVanillaOption VANILLA_CALL_K100 = new EuropeanVanillaOption(STRIKE_MID, EXPIRY_TIME, IS_CALL);
   private static final EuropeanVanillaOption VANILLA_PUT_K100 = new EuropeanVanillaOption(STRIKE_MID, EXPIRY_TIME, !IS_CALL);
-  final EuropeanVanillaOption VANILLA_CALL_KHI = new EuropeanVanillaOption(STRIKE_HIGH, EXPIRY_TIME, IS_CALL);
-  final EuropeanVanillaOption VANILLA_PUT_KHI = new EuropeanVanillaOption(STRIKE_HIGH, EXPIRY_TIME, !IS_CALL);
+  private static final EuropeanVanillaOption VANILLA_CALL_KHI = new EuropeanVanillaOption(STRIKE_HIGH, EXPIRY_TIME, IS_CALL);
+  private static final EuropeanVanillaOption VANILLA_PUT_KHI = new EuropeanVanillaOption(STRIKE_HIGH, EXPIRY_TIME, !IS_CALL);
   private static final Barrier BARRIER_DOWN_IN = new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CONTINUOUS, 90);
   private static final Barrier BARRIER_DOWN_OUT = new Barrier(KnockType.OUT, BarrierType.DOWN, ObservationType.CONTINUOUS, 90);
   private static final Barrier BARRIER_UP_IN = new Barrier(KnockType.IN, BarrierType.UP, ObservationType.CONTINUOUS, 110);
@@ -51,7 +50,7 @@ public class BlackBarrierPriceFunctionTest {
   private static final double VOLATILITY = 0.20;
   private static final BlackBarrierPriceFunction BARRIER_FUNCTION = BlackBarrierPriceFunction.getInstance();
 
-  private static final double DF_FOR = Math.exp(-RATE_FOR * EXPIRY_TIME); // 'Base Ccy  
+  private static final double DF_FOR = Math.exp(-RATE_FOR * EXPIRY_TIME); // 'Base Ccy
   private static final double DF_DOM = Math.exp(-RATE_DOM * EXPIRY_TIME); // 'Quote Ccy
   private static final double FWD_FX = SPOT * DF_FOR / DF_DOM;
   private static final BlackFunctionData DATA_BLACK = new BlackFunctionData(FWD_FX, DF_DOM, VOLATILITY);
@@ -59,7 +58,7 @@ public class BlackBarrierPriceFunctionTest {
 
   @Test
   /** Tests the 'In-Out Parity' condition: Without rebates, the price of a Knock-In plus a Knock-Out of arbitrary barrier level must equal that of the underlying vanilla option */
-  public void InOutParityWithoutRebate() {
+  public void inOutParityWithoutRebate() {
 
     // Vanilla
     final Function1D<BlackFunctionData, Double> fcnVanillaCall = BLACK_FUNCTION.getPriceFunction(VANILLA_CALL_K100);
@@ -73,11 +72,11 @@ public class BlackBarrierPriceFunctionTest {
   }
 
   @Test
-  /** 
-   * Tests the 'In-Out Parity' condition: Knock-In's pay rebate at maturity if barrier isn't hit. Knock-Out pays at moment barrier is hit. 
+  /**
+   * Tests the 'In-Out Parity' condition: Knock-In's pay rebate at maturity if barrier isn't hit. Knock-Out pays at moment barrier is hit.
    * The discounting issue can be sidestepped by setting rates to 0.
    */
-  public void InOutParityWithRebate() {
+  public void inOutParityWithRebate() {
 
     // Vanilla
     final Function1D<BlackFunctionData, Double> fcnVanillaCall = BLACK_FUNCTION.getPriceFunction(VANILLA_CALL_K100);
@@ -92,7 +91,7 @@ public class BlackBarrierPriceFunctionTest {
 
   @Test
   /** Tests the 'In-Out Parity' condition: The price of a Knock-In plus a Knock-Out of arbitrary barrier level must equal that of the underlying vanilla option + value of the rebate */
-  public void InOutParityMorePathsWithRebate() {
+  public void inOutParityMorePathsWithRebate() {
 
     // Market with zero rates, domestic and foreign
     final BlackFunctionData zeroRatesMarket = new BlackFunctionData(SPOT, 1.0, VOLATILITY);
@@ -136,7 +135,7 @@ public class BlackBarrierPriceFunctionTest {
 
   @Test
   /** Tests the 'In-Out Parity' condition: The price of a Knock-In plus a Knock-Out of arbitrary barrier level must equal that of the underlying vanilla option + value of the rebate */
-  public void ImpossibleToHitBarrierIsVanilla() {
+  public void impossibleToHitBarrierIsVanilla() {
 
     final Barrier veryLowKnockIn = new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CONTINUOUS, 1e-6);
     final Barrier veryLowKnockOut = new Barrier(KnockType.OUT, BarrierType.DOWN, ObservationType.CONTINUOUS, 1e-6);
@@ -160,7 +159,7 @@ public class BlackBarrierPriceFunctionTest {
     assertTrue("VeryLowKnockInBarrier doesn't match rebate", Math.abs(pxDownOutCall / pxVanillaCall - 1) < 1e-6);
 
     // Derivatives
-    double[] derivs = new double[5];
+    final double[] derivs = new double[5];
     BARRIER_FUNCTION.getPriceAdjoint(VANILLA_CALL_K100, veryLowKnockIn, REBATE, SPOT, COST_OF_CARRY, RATE_DOM, VOLATILITY, derivs);
     assertTrue("Impossible KnockIn: rate sens is incorrect", derivs[2] / Math.abs((-1 * EXPIRY_TIME * DF_DOM * REBATE) - 1) < 1e-6);
     assertEquals("Impossible KnockIn: Encountered derivative, other than d/dr, != 0", 0.0, derivs[0] + derivs[1] + derivs[3] + derivs[4], 1.0e-6);
@@ -172,7 +171,7 @@ public class BlackBarrierPriceFunctionTest {
     // Barrier: [0] spot, [1] strike, [2] rate, [3] cost-of-carry, [4] volatility.
     BARRIER_FUNCTION.getPriceAdjoint(VANILLA_CALL_K100, veryLowKnockOut, REBATE, SPOT, COST_OF_CARRY, RATE_DOM, VOLATILITY, derivs);
     // Vanilla: [0] the price, [1] the derivative with respect to the forward, [2] the derivative with respect to the volatility and [3] the derivative with respect to the strike.
-    double[] vanillaDerivs = BLACK_FUNCTION.getPriceAdjoint(VANILLA_CALL_K100, DATA_BLACK);
+    final double[] vanillaDerivs = BLACK_FUNCTION.getPriceAdjoint(VANILLA_CALL_K100, DATA_BLACK);
     assertEquals("Impossible KnockOut: Vega doesn't match vanilla", vanillaDerivs[2], derivs[4], 1e-6);
     assertEquals("Impossible KnockOut: Dual Delta (d/dK) doesn't match vanilla", vanillaDerivs[3], derivs[1], 1e-6);
     assertEquals("Impossible KnockOut: Delta doesn't match vanilla", vanillaDerivs[1] * DF_FOR / DF_DOM, derivs[0], 1e-6);

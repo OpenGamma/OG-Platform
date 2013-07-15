@@ -21,11 +21,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.engine.view.calcnode.stats.DataFunctionCostsMasterResource;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
-import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.DataFunctionCostsMasterResource;
+import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster;
-import com.opengamma.util.db.DbConnector;
 
 /**
  * Component factory for the database function costs master.
@@ -43,11 +42,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-  /**
-   * The database connector.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private DbConnector _dbConnector;
 
   //-------------------------------------------------------------------------
   @Override
@@ -56,7 +50,7 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
     
     // create
     DbFunctionCostsMaster master = new DbFunctionCostsMaster(getDbConnector());
-    checkSchemaVersion(master.getSchemaVersion(), "eng");
+    checkSchema(master.getSchemaVersion(), "eng");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -94,8 +88,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
-      case 39794031:  // dbConnector
-        return getDbConnector();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -109,9 +101,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -119,7 +108,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
     super.validate();
   }
 
@@ -132,7 +120,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
       DbFunctionCostsMasterComponentFactory other = (DbFunctionCostsMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           super.equals(obj);
     }
     return false;
@@ -143,7 +130,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     return hash ^ super.hashCode();
   }
 
@@ -200,32 +186,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the database connector.
-   * @return the value of the property, not null
-   */
-  public DbConnector getDbConnector() {
-    return _dbConnector;
-  }
-
-  /**
-   * Sets the database connector.
-   * @param dbConnector  the new value of the property, not null
-   */
-  public void setDbConnector(DbConnector dbConnector) {
-    JodaBeanUtils.notNull(dbConnector, "dbConnector");
-    this._dbConnector = dbConnector;
-  }
-
-  /**
-   * Gets the the {@code dbConnector} property.
-   * @return the property, not null
-   */
-  public final Property<DbConnector> dbConnector() {
-    return metaBean().dbConnector().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code DbFunctionCostsMasterComponentFactory}.
    */
   public static class Meta extends AbstractDbMasterComponentFactory.Meta {
@@ -245,18 +205,12 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", DbFunctionCostsMasterComponentFactory.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code dbConnector} property.
-     */
-    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
-        this, "dbConnector", DbFunctionCostsMasterComponentFactory.class, DbConnector.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "publishRest",
-        "dbConnector");
+        "publishRest");
 
     /**
      * Restricted constructor.
@@ -271,8 +225,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
-        case 39794031:  // dbConnector
-          return _dbConnector;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -307,14 +259,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
-    }
-
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbConnector> dbConnector() {
-      return _dbConnector;
     }
 
   }

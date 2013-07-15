@@ -6,18 +6,72 @@ $.register_module({
     name: 'og.common.gadgets.GadgetsContainer',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template,
-        counter = 1, header = ' .ui-layout-header';
+        var api = og.api, tabs_template, overflow_template, dropbox_template, typemenu_template, inplace_template,
+            counter = 1;
         var constructor = function (selector_prefix, pane) {
-            var initialized = false, loading, gadgets = [], container = this, highlight_timer,
-                selector = selector_prefix + pane, $selector = $(selector),
+            var initialized = false, loading, gadgets = [], container = this, mapping = og.common.gadgets.mapping,
+                selector = selector_prefix + pane, header = selector + ' .ui-layout-header', $selector = $(selector),
                 class_prefix = selector_prefix.substring(1),
-                live_id, // active tab id
-                overflow = {}, // document offset of overflow panel
+                live_id,         // active tab id
+                overflow = {},   // document offset of overflow panel
                 $overflow_panel; // panel that houses non visible tabs
+            var draggable = function ($elm) {
+                window.elm = $elm;
+                $elm.each(function (i) {
+                    $(this).draggable({
+                        cursor: 'move', zIndex: 5, cursorAt: {top: 25, left: 25}, scroll: false,
+                        iframeFix: true, appendTo: 'body', distance: 20,
+                        revert: new_window.partial(i),
+                        start: function () {og.analytics.grid.cellmenu.setdrag(true);},
+                        stop: function () {$(this).draggable('option', 'revert', new_window.partial(i));},
+                        helper: function () {return dropbox_template({label: $(this).text().trim()});}
+
+                    }).data({
+                        gadget: function () {return gadgets[i];},
+                        handler: function () {container.del(gadgets[i]);},
+                        source: pane
+                    });
+                });
+            };
             var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
             var extract_index = function (id) {
                 return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0);
+            };
+            var inplace_header = function (id) {
+                if (!gadgets[0]) return;
+                var $header = $(header), val = gadgets[0], config = val.config,
+                    depgraph = config.options.source.depgraph,
+                    tmpl_data = mapping.available_types(config.data_type, depgraph, config.gadget_type),
+                    template_obj = {'row_name': config.row_name,'col_name': config.col_name, menu: tmpl_data};
+                gadgets[0].active = true;
+                $header.html(inplace_template(template_obj))
+                    .off('mousedown').on('mousedown', '.og-js-icon', function () {
+                        var gadget_type = $(this).attr('data-gadget_type'),
+                            gadget_name = $(this).attr('data-gadget_name'), swap_config;
+                        if (gadget_type === 'dock') {
+                            og.analytics.url.add('south', gadgets[0].config);
+                            og.common.gadgets.manager.clean();
+                            return;
+                        };
+                        if (gadget_type === config.gadget_type) return false;
+                        swap_config = {
+                            gadget: 'og.common.gadgets.' + gadget_type, options: config.options,
+                            gadget_name: gadget_name, col_name: config.col_name,
+                            gadget_type: gadget_type, row_name: config.row_name,
+                            data_type: config.data_type
+                        };
+                        container.swap(swap_config, 0, true);
+                        return false;
+                    });
+                container.focus();
+                draggable($header.find('.og-label'));
+            };
+            var new_window = function (i, dropped) {
+                var index = extract_index(extract_id($(this).attr('class')));
+                if (!dropped) {
+                    container.fire('launch', gadgets[index].config);
+                    setTimeout(container.del.partial(gadgets[i]));
+                }
             };
             /**
              * @param {Number|Null} id
@@ -26,7 +80,8 @@ $.register_module({
              *        if id is null set tabs to a single empty tab
              */
             var update_tabs = function (id) {
-                var $header = $(selector + header), tabs;
+                if (!!container.inplace) return inplace_header(id);
+                var $header = $(header), tabs;
                 /**
                  * @param id Id of gadget to show, hide all others
                  */
@@ -61,14 +116,7 @@ $.register_module({
                         full_width = $tabs_container.width() - (overflow_buffer + (buttons_buffer[pane] || 0)),
                         // the full width of all the tabs
                         tabs_width = Array.prototype.reduce.apply($tabs
-                            .map(function () {return $(this).outerWidth();}), [function (a, b) {return a + b;}, 0]),
-                        new_window = function (i, dropped) {
-                            var index = extract_index(extract_id($(this).attr('class')));
-                            if (!dropped) {
-                                container.fire('launch', gadgets[index].config);
-                                setTimeout(container.del.partial(gadgets[i]));
-                            }
-                        };
+                            .map(function () {return $(this).outerWidth();}), [function (a, b) {return a + b;}, 0]);
                     // stage 1
                     if (tabs_width > full_width) {
                         new_tab_width = ~~((full_width - active_tab_width) / num_inactive_tabs);
@@ -116,58 +164,56 @@ $.register_module({
                         $overflow_panel.css({'right': overflow.right + 'px', 'top': overflow.top + 'px'});
                         $tabs.each(function () { // add tooltips to truncated tabs only
                             var $this = $(this);
-                            if (!!$this.attr('style')) $this.attr('title', $this.text().replace(/\s+/g , ' ').trim());
+                            if (!!$this.attr('style')) $this.find('.OG-gadget-tabs-label')
+                                .attr('title', $this.text().replace(/\s+/g , ' ').trim());
                         });
-                    }
-                    // implement drag
-                    $tabs.each(function (i) {
-                        $(this).draggable({
-                            cursor: 'move', zIndex: 3, cursorAt: {top: 25}, scroll: false,
-                            iframeFix: true, appendTo: 'body', distance: 20,
-                            revert: new_window.partial(i),
-                            stop: function () {$(this).draggable('option','revert', new_window.partial(i));},
-                            helper: function () {return dropbox_template({label: $(this).text().trim()});}
-                        }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}, source: pane});
-                    });
+                    };
+                    draggable($tabs);
+                    container.focus();
                 };
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
                     if (id === void 0) id = live_id;
-                    tabs = gadgets.reduce(function (acc, val, i) {
+                    tabs = gadgets.reduce(function (acc, val, idx) {
                         return acc.push({
                             'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
-                            'col_name': val.config.col_name, 'active': gadgets[i].active = id === val.id,
+                            'col_name': val.config.col_name, 'active': gadgets[idx].active = id === val.id,
                             'id': val.id, 'data_type': val.config.data_type, 'gadget_name': val.config.gadget_name,
-                            'gadget': val, 'gadget_index': i
+                            'gadget': val, 'gadget_index': idx
                         }) && acc;
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
-                    $.each(tabs, function (key,val) {
-                        var menu_config, menu_template, radios, menu, swap_config,
-                            tmpl_data = og.common.gadgets.mapping.available_types(val.data_type);
+                    $.each(tabs, function (key, val) {
+                        var menu_config, menu_template, menu, $icon,
+                            depgraph = val.gadget.config.options.source.depgraph,
+                            tmpl_data = mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
-                        menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
+                        menu_config = {cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
-                        menu.$dom.toggle.on('click', null/*menu.toggle_handler.bind(menu)*/);
-                        radios = menu.$dom.menu.find('[type=radio]').on('click', function () {
-                            menu.$dom.toggle.html($(this).attr('title'));
-                            swap_config = {
-                                gadget: "og.common.gadgets." + $(this).attr('value'),
-                                options: val.gadget.config.options, fingerprint: "", gadget_name: $(this).attr('title'),
-                                gadget_type: $(this).attr('value'), col_name: val.gadget.config.col_name,
-                                data_type: val.gadget.config.data_type, row_name: val.gadget.config.row_name
-                            };
-                            container.add([swap_config], val.gadget_index);
-                            menu.close();
+                        menu.$dom.toggle.on('mousedown', function () {
+                            menu.toggle_handler();
+                            return false;
                         });
-                        for (var i = 0; i < radios.length; i++) {
-                            radios[i].checked = false;
-                            if (radios[i].value.toLowerCase() == val.gadget_type.toLowerCase()) {
-                                radios[i].checked = true;
-                                menu.$dom.toggle.html(val.gadget_name);
-                            }
-                        }
-                        if (radios.length === 1) radios[0].disabled=true;
+                        $icon = $('<div class="OG-icon og-icon-' + val.gadget_type + '"></div>')
+                            .css({width: '16px', height: '16px'});
+                        menu.$dom.menu.off('mousedown').on('mousedown', '.og-js-icon', function () {
+                            var gadget_type = $(this).attr('data-gadget_type'), $icon,
+                                gadget_name = $(this).attr('data-gadget_name'), swap_config;
+                            menu.close();
+                            if (gadget_type === val.gadget_type) return false;
+                            $icon = $('<div class="OG-icon og-icon-' + (val.gadget_type = gadget_type) + '"></div>')
+                                .css({width: '13px', height: '14px'});
+                            menu.$dom.toggle.html($icon);
+                            swap_config = {
+                                gadget: 'og.common.gadgets.' + gadget_type, gadget_name: gadget_name,
+                                options: val.gadget.config.options, gadget_type: gadget_type,
+                                col_name: val.gadget.config.col_name, data_type: val.gadget.config.data_type,
+                                row_name: val.gadget.config.row_name
+                            };
+                            container.swap(swap_config, val.gadget_index);
+                            return false;
+                        });
+                        menu.$dom.toggle.html($icon);
                     });
                     reflow();
                     show_gadget(id);
@@ -176,6 +222,7 @@ $.register_module({
             /**
              * @param {String|Array} data A String that defines what gadgets to load, or an Array of gadgets to load
              * @param {Number} index location to add new gadgets
+             * @param {Boolean} inplace render inplace header or not
              *
              * The data Array is a list of objects that describe the gadgets to load
              *     obj.gadget   Function
@@ -183,29 +230,34 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data, index) {
-                var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0 ? 1 : 0;
+            container.add = function (data, index, inplace) {
+                if (!!inplace) container.inplace = inplace;
+                var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(data, index), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
+                    return container.init(), setTimeout(container.add.partial(data, index, inplace), 10), container;
+                if (!initialized) return setTimeout(container.add.partial(data, index, inplace), 10), container;
                 if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
                 new_gadgets = data.map(function (obj, idx) {
-                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
-                        options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
+                    var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget, options = Object.clone(obj.options),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
-                    $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class)
-                        .css({
-                            position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            display: idx === data.length - 1 ? 'block' : 'none'
-                        });
+                    $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
+                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                        display: idx === data.length - 1 ? 'block' : 'none'
+                    });
+                    options.selector = panel_container + ' .' + gadget_class;
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
-                    gadgets.splice(index || gadgets.length, swap ? 1: 0, gadget);
-                    if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
+                    if (typeof index === 'number') {
+                        if (gadgets[index]) {
+                            $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
+                            if (gadgets[index]) gadgets[index].gadget.alive();
+                        }
+                        gadgets.splice(index, 1, gadget);
+                    } else gadgets.push(gadget);
                     return gadget;
                 });
-                if (!swap) update_tabs(new_gadgets[new_gadgets.length - 1].id);
+                update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
             };
             container.alive = function () {
@@ -220,23 +272,31 @@ $.register_module({
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
                     : null;
-                if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
+                if (!silent && id) gadgets[extract_index(id)].gadget.resize();
                 if (!silent) container.fire('del', index);
             };
-            container.gadgets = function () {return gadgets;};
+            container.gadgets = function () {
+                return gadgets;
+            };
             /**
-             * Highlight gadget panel with number
-             * @param show {Boolean} turn on / off
-             * @param strong {Boolean} set to active panel
+             * Add og-focus class to last clicked container tab and remove from all other gadget container instances
              */
-            container.highlight = function (show, strong) {
-                var number = ({'south': 1, 'dock-north': 2, 'dock-center': 3, 'dock-south': 4})[pane],
-                    query = $selector.find('.og-highlight'), $html = query.length ? query
-                        : $('<div />').text(number).addClass('og-highlight').appendTo($selector);
-                clearTimeout(highlight_timer);
-                if (show) (strong ? $html.addClass('strong') : $html.removeClass('strong')).show();
-                else clearTimeout(highlight_timer), highlight_timer = setTimeout(function () {$html.hide();}, 250);
+            container.focus = function () {
+                var $box, $tab, cont, options, containers = og.analytics.containers, grid = og.analytics.grid,
+                    event_type = !!container.inplace ? 'cellhighlightinplace' : 'cellhighlight';
+                // Highlight gadgetcontainer and tab
+                for (cont in containers) {
+                    $tab = $(selector_prefix + cont + ' .og-active');
+                    $box = $(selector_prefix + cont + ' .OG-gadget-container');
+                    if (cont === pane) $tab.addClass('og-focus'), $box.addClass('og-focus');
+                    else $tab.removeClass('og-focus'), $box.removeClass('og-focus');
+                };
+                // Highlight grid cell
+                if (!container.gadgets().length) return;
+                options = Object
+                    .clone(container.gadgets().filter(function (val) {return !!val.active})[0].config.options);
+                containers.fire(event_type, options.source, options.row, options.col, event_type);
             };
             container.init = function (data) {
                 var toggle_dropbox = function () {
@@ -249,48 +309,49 @@ $.register_module({
                     api.text({module: 'og.analytics.tabs_tash'}),
                     api.text({module: 'og.analytics.tabs_overflow_tash'}),
                     api.text({module: 'og.analytics.dropbox_tash'}),
-                    api.text({module: 'og.analytics.typemenu_tash'})
-                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl, gadget_tmpl) {
+                    api.text({module: 'og.analytics.typemenu_tash'}),
+                    api.text({module: 'og.analytics.inplace_header_tash'})
+                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl, inplace_tmpl) {
                     if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
                     if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
                     if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
                     if (!typemenu_template) typemenu_template = Handlebars.compile(typemenu_tmpl);
+                    if (!inplace_template) inplace_template = Handlebars.compile(inplace_tmpl);
                     if (!$overflow_panel) $overflow_panel = $(overflow_template({pane: pane})).appendTo('body');
                     initialized = true;
                     loading = false;
                     // setup click handlers
-                    $(selector + header + ' , .og-js-overflow-' + pane)
+                    $(header + ' , .og-js-overflow-' + pane)
                         // handler for tabs (including the ones in the overflow pane)
-                        .on('click', 'li[class^=og-tab-]', function (e) {
+                        .off('click').on('click', '.ui-layout-header [class^=og-tab-]', function (e) {
                             var id = extract_id($(this).attr('class')), menu, index = extract_index(id);
                             if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
                             else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
                             }
+                            if (!$(this).hasClass('og-focus')) container.focus();
                         });
                     if (!data) update_tabs(null); else container.add(data);
                     // implement drop
                     $selector.droppable({
                         hoverClass: 'og-drop',
-                        accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]');}, // is it a tab...
+                        accept: function (draggable) {return $(draggable)
+                            .is('.ui-layout-header [class*=og-tab-], .OG-tab-overflow-panel [class*=og-tab-]');},
                         tolerance: 'pointer',
-                        over: function () {setTimeout(toggle_dropbox);}, // can't guarantee over and out fire in correct
-                        out: function () {setTimeout(toggle_dropbox);},  // order, toggle function seems to solve issue
+                        over: function(e, ui) {setTimeout(toggle_dropbox);},//can't be sure over and out fire in correct
+                        out: function(e, ui) {setTimeout(toggle_dropbox);},//order, toggle function seems to solve issue
                         drop: function (e, ui) {
                             var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length;},
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
-                                data = ui.draggable.data(),
-                                gadget = data.gadget.config.options,
-                                re = new RegExp(selector_prefix + '(.*?)\\s');
+                                data = ui.draggable.data();
                             if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
                                 ui.draggable.draggable('option', 'revert', true);
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
-                                gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                                if (false !== container.fire('drop', data.gadget.config, data.source))
-                                    container.add([data.gadget.config]);
+                                if (false !== container.fire('drop', data.gadget().config, data.source))
+                                    container.add([data.gadget().config]);
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }
@@ -308,14 +369,16 @@ $.register_module({
                     }
                 });
             };
-            container.verify = function (fingerprints) {
-                if (!initialized) return setTimeout(container.verify.partial(fingerprints), 10), container;
-                var gadget_prints = gadgets.pluck('fingerprint'), keep;
-                keep = (fingerprints || []).map(function (fingerprint) {
-                    var index;
-                    if (!fingerprint) return null;
-                    if (~(index = gadget_prints.indexOf(fingerprint))) return index; else return null;
-                }).reduce(function (acc, val) {if (val !== null) acc[val] = null; return acc;}, {});
+            container.swap = function (config, index) {
+                container.add([config], index);
+                container.fire('swap', config, index);
+            };
+            container.verify = function (new_gadgets) {
+                if (!initialized) return setTimeout(container.verify.partial(new_gadgets), 10), container;
+                var keep = gadgets.pluck('config').reduce(function (acc, cfg, idx) {
+                    if (new_gadgets.some(function (gadget) {return Object.equals(cfg, gadget);})) acc[idx] = null;
+                    return acc;
+                }, {});
                 gadgets.forEach(function (gadget, index) {if (!(index in keep)) container.del(gadgets[index], true);});
                 return container;
             };

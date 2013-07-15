@@ -1,0 +1,98 @@
+<section>
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 33%">              
+    <col style="width: 67%">              
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        Type
+      </td>
+      <td class="og-double-cell">
+        <div><span><label>Cap <input type="radio" name="security.cap" value="true">
+        </label><label>Floor <input type="radio" name="security.cap" value="false"></label>
+        </span><span><label>Buy<input type="radio" name="security.payer" value="false">
+        </label><label>Sell<input type="radio" name="security.payer" value="true"></label></span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Start Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.startDate" type="text" value="{{start}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Maturity Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.maturityDate" type="text" value="{{maturity}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span>{{{item_0}}}</span><span><input name="security.notional" type="text" value="{{notional}}"/></span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Strike</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.strike" type="text" value="{{strike}}"/>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 33%">              
+    <col style="width: 67%">              
+  </colgroup>
+  <tbody>
+    {{{item_1}}}
+    <tr>
+      <td>
+        <label>
+          <span>Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_2}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        {{{item_3}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+        <label>IBOR <input name="security.ibor" type="checkbox" /></label>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</section>

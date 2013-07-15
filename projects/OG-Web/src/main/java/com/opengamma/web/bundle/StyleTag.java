@@ -79,6 +79,7 @@ public class StyleTag {
     buf.append(media);
     buf.append("\" href=\"");
     buf.append(uris.bundle(DeployMode.PROD, bundle.getId()));
+    buf.append("?" + BuildData.getBuildStamp());
     buf.append("\">");
     return buf.toString();
   }

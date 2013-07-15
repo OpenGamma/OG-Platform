@@ -4,10 +4,10 @@
  */
 .OG-icon.og-icon-pause:after {
     display: inline-block;
-    background-position: -94px -25px;
+    background-position: -87px -25px;
     background-color: transparent;
     height: 9px;
-    width: 5px;
+    width: 6px;
     z-index: 2;
     position: absolute;
 }

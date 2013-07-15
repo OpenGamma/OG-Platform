@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -49,11 +49,6 @@ public class VolatilitySurfaceShiftFunction extends AbstractFunction.NonCompiled
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE, target.toSpecification(), ValueProperties.all()));
   }
@@ -66,7 +61,7 @@ public class VolatilitySurfaceShiftFunction extends AbstractFunction.NonCompiled
       return null;
     }
     final ValueProperties properties = desiredValue.getConstraints().copy().withoutAny(SHIFT).with(SHIFT, "0").withOptional(SHIFT).get();
-    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), properties));
+    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), target.toSpecification(), properties));
   }
 
   private ValueProperties.Builder createValueProperties(final ValueSpecification input) {

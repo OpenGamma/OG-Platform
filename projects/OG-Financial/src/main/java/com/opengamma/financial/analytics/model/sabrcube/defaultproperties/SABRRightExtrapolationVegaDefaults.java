@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
@@ -8,18 +8,17 @@ package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDefaults {
   private final String _xInterpolator;
@@ -29,10 +28,10 @@ public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDe
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
 
-  public SABRRightExtrapolationVegaDefaults(final String priority, final String fittingMethod, final String cutoff, final String mu,
+  public SABRRightExtrapolationVegaDefaults(final String fittingMethod, final String cutoff, final String mu,
       final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator,
       final String yRightExtrapolator, final String... currencyCurveConfigAndCubeNames) {
-    super(priority, fittingMethod, cutoff, mu, currencyCurveConfigAndCubeNames);
+    super(fittingMethod, cutoff, mu, currencyCurveConfigAndCubeNames);
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(xLeftExtrapolator, "x left extrapolator");
     ArgumentChecker.notNull(xRightExtrapolator, "x right extrapolator");
@@ -48,15 +47,8 @@ public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDe
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security security = target.getSecurity();
-    if (security instanceof CapFloorCMSSpreadSecurity) {
-      return false;
-    }
-    return super.canApplyTo(context, target);
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY;
   }
 
   @Override

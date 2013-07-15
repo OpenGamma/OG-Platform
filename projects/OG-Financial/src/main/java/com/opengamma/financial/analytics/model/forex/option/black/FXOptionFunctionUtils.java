@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -26,7 +26,9 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -71,7 +73,7 @@ public class FXOptionFunctionUtils {
     final YieldAndDiscountCurve putFundingCurve = getCurveForCurrency(inputs, putCurrency, putCurveName, putCurveConfig);
     final YieldAndDiscountCurve callFundingCurve = getCurveForCurrency(inputs, callCurrency, callCurveName, callCurveConfig);
     final YieldAndDiscountCurve[] curves;
-    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
+    final Map<String, Currency> curveCurrency = new HashMap<>();
     curveCurrency.put(fullPutCurveName, putCurrency);
     curveCurrency.put(fullCallCurveName, callCurrency);
     final String[] allCurveNames;
@@ -81,7 +83,7 @@ public class FXOptionFunctionUtils {
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get spot requirement");
     }
-    final double spot = (Double) spotObject;
+    double spot = (Double) spotObject;
     final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
@@ -96,6 +98,7 @@ public class FXOptionFunctionUtils {
       allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
       ccy1 = callCurrency;
       ccy2 = putCurrency;
+      spot = 1. / spot;
     }
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final Object volatilitySurfaceObject = inputs.getValue(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA);
@@ -116,7 +119,8 @@ public class FXOptionFunctionUtils {
   }
 
   public static YieldAndDiscountCurve getCurveForCurrency(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
-    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirement(currency, curveName, curveCalculationConfig));
+    final ValueRequirement curveRequirement = YieldCurveFunctionUtils.getCurveRequirement(ComputationTargetSpecification.of(currency), curveName, curveCalculationConfig);
+    final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }
@@ -125,7 +129,7 @@ public class FXOptionFunctionUtils {
   }
 
   public static YieldAndDiscountCurve getCurveForCurrency(final FunctionInputs inputs, final Currency currency) {
-    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirement(currency));
+    final Object curveObject = inputs.getValue(YieldCurveFunctionUtils.getCurveRequirement(ComputationTargetSpecification.of(currency)));
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + currency + " curve");
     }
@@ -143,7 +147,7 @@ public class FXOptionFunctionUtils {
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
+    return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currenciesTarget), surfaceProperties);
   }
 
   public static String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {

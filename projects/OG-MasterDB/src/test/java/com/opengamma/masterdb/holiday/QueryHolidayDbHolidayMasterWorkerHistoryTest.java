@@ -18,10 +18,12 @@ import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryHolidayDbHolidayMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryHolidayDbHolidayMasterWorkerHistoryTest extends AbstractDbHolidayMasterWorkerTest {
   // superclass sets up dummy database
 

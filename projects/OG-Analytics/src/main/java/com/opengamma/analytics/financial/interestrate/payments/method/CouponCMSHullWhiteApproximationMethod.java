@@ -63,32 +63,32 @@ public final class CouponCMSHullWhiteApproximationMethod implements PricingMetho
   public CurrencyAmount presentValue(final CouponCMS cmsCoupon, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(cmsCoupon);
     Validate.notNull(hwData);
-    double expiryTime = cmsCoupon.getFixingTime();
-    SwapFixedCoupon<? extends Payment> swap = cmsCoupon.getUnderlyingSwap();
-    double dfPayment = hwData.getCurve(swap.getFirstLeg().getDiscountCurve()).getDiscountFactor(cmsCoupon.getPaymentTime());
-    int nbFixed = cmsCoupon.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
-    double[] alphaFixed = new double[nbFixed];
-    double[] dfFixed = new double[nbFixed];
-    double[] discountedCashFlowFixed = new double[nbFixed];
+    final double expiryTime = cmsCoupon.getFixingTime();
+    final SwapFixedCoupon<? extends Payment> swap = cmsCoupon.getUnderlyingSwap();
+    final double dfPayment = hwData.getCurve(swap.getFirstLeg().getDiscountCurve()).getDiscountFactor(cmsCoupon.getPaymentTime());
+    final int nbFixed = cmsCoupon.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
+    final double[] alphaFixed = new double[nbFixed];
+    final double[] dfFixed = new double[nbFixed];
+    final double[] discountedCashFlowFixed = new double[nbFixed];
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
       alphaFixed[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       dfFixed[loopcf] = hwData.getCurve(swap.getFixedLeg().getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowFixed[loopcf] = dfFixed[loopcf] * swap.getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction() * swap.getFixedLeg().getNthPayment(loopcf).getNotional();
     }
-    AnnuityPaymentFixed cfeIbor = CFEC.visit(swap.getSecondLeg(), hwData);
-    double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
-    double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
-    double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
+    final AnnuityPaymentFixed cfeIbor = swap.getSecondLeg().accept(CFEC, hwData);
+    final double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
+    final double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
+    final double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
       alphaIbor[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfeIbor.getNthPayment(loopcf).getPaymentTime());
       dfIbor[loopcf] = hwData.getCurve(cfeIbor.getDiscountCurve()).getDiscountFactor(cfeIbor.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowIbor[loopcf] = dfIbor[loopcf] * cfeIbor.getNthPayment(loopcf).getAmount();
     }
-    double alphaPayment = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cmsCoupon.getPaymentTime());
-    double x0 = -alphaPayment;
-    double a0 = MODEL.swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
-    double a2 = MODEL.swapRateD2(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
-    double pv = (a0 + a2 / 2) * dfPayment * cmsCoupon.getNotional() * cmsCoupon.getPaymentYearFraction();
+    final double alphaPayment = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cmsCoupon.getPaymentTime());
+    final double x0 = -alphaPayment;
+    final double a0 = MODEL.swapRate(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
+    final double a2 = MODEL.swapRateDx2(x0, discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor);
+    final double pv = (a0 + a2 / 2) * dfPayment * cmsCoupon.getNotional() * cmsCoupon.getPaymentYearFraction();
     return CurrencyAmount.of(cmsCoupon.getCurrency(), pv);
   }
 

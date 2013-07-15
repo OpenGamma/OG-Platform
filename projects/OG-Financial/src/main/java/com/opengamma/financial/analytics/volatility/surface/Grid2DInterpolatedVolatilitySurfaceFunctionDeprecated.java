@@ -10,12 +10,11 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -28,11 +27,11 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -86,8 +85,9 @@ public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends Abstr
         .with(ValuePropertyNames.SURFACE, _definitionName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .withAny(EquityVarianceSwapStaticReplicationFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get();
-    _requirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, _definition.getTarget(), surfaceProperties);
-    _result = new ValueSpecification(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, new ComputationTargetSpecification(_definition.getTarget()),
+    final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(_definition.getTarget().getUniqueId());
+    _requirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, targetSpec, surfaceProperties);
+    _result = new ValueSpecification(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, targetSpec,
         createValueProperties()
         .with(ValuePropertyNames.SURFACE, _definitionName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
@@ -98,7 +98,7 @@ public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends Abstr
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final Object volatilitySurfaceDataObject = inputs.getValue(_requirement);
     if (volatilitySurfaceDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + _requirement);
@@ -131,14 +131,11 @@ public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends Abstr
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
+    return ComputationTargetType.ANYTHING; // [PLAT-2286] - Should this be something more specific? The target of the definition is anything unique identifiable
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
     return ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
   }
 

@@ -39,7 +39,7 @@ public class MultipleYieldCurveFinderFunctionTest {
   private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
   private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
   private static final MultipleYieldCurveFinderDataBundle DATA;
-  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.USD);
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.EUR);
 
   static {
     final int n = 10;

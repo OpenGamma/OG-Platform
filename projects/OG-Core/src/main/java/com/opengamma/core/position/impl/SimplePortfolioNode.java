@@ -6,7 +6,6 @@
 package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +16,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.PortfolioNodeFudgeBuilder;
 import com.opengamma.core.position.Position;
@@ -63,11 +63,11 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
   /**
    * The list of child nodes.
    */
-  private final List<PortfolioNode> _childNodes = new ArrayList<PortfolioNode>();
+  private final List<PortfolioNode> _childNodes = Lists.newArrayList();
   /**
    * The list of child positions.
    */
-  private final List<Position> _positions = new ArrayList<Position>();
+  private final List<Position> _positions = Lists.newArrayList();
 
   /**
    * Creates a portfolio node with an empty name.
@@ -113,7 +113,6 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
     }
     for (Position position : copyFrom.getPositions()) {
       SimplePosition clonedPosition = new SimplePosition(position);
-      clonedPosition.setParentNodeId(_uniqueId);
       _positions.add(clonedPosition);
     }
   }
@@ -134,6 +133,7 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
    * 
    * @param uniqueId  the new unique identifier, not null
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     _uniqueId = uniqueId;
@@ -266,11 +266,6 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
    */
   public void addPosition(Position position) {
     ArgumentChecker.notNull(position, "child node");
-    if (!ObjectUtils.equals(getUniqueId(), position.getParentNodeId())) {
-      final SimplePosition newPosition = new SimplePosition(position);
-      newPosition.setParentNodeId(getUniqueId());
-      position = newPosition;
-    }
     _positions.add(position);
   }
 

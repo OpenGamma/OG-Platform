@@ -121,19 +121,6 @@ public class YieldCurveConfigPopulator {
           dumpDefinition(definition);
         }
       }
-      final Map<String, Map<Currency, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications.buildOldCurveDefinitions();
-      for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : standardCurveDefinitions.entrySet()) {
-        final String curveName = entry.getKey();
-        final Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
-        for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
-          final Currency ccy = currencyEntry.getKey();
-          final YieldCurveDefinition definition = currencyEntry.getValue();
-          final ConfigItem<YieldCurveDefinition> item = ConfigItem.of(definition);
-          item.setName(curveName + "_" + ccy.getCode());
-          ConfigMasterUtils.storeByName(configMaster, item);
-          dumpDefinition(definition);
-        }
-      }
     }
   }
 

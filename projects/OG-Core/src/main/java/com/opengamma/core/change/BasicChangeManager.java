@@ -5,12 +5,14 @@
  */
 package com.opengamma.core.change;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
+import com.google.common.collect.Lists;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -25,6 +27,8 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public class BasicChangeManager implements ChangeManager {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(BasicChangeManager.class);
+  
   /**
    * The listeners.
    */
@@ -75,7 +79,7 @@ public class BasicChangeManager implements ChangeManager {
    * @return the list of listeners, not null
    */
   protected List<ChangeListener> getListeners() {
-    return new ArrayList<ChangeListener>(_listeners);
+    return Lists.newArrayList(_listeners);
   }
 
   //-------------------------------------------------------------------------
@@ -108,7 +112,11 @@ public class BasicChangeManager implements ChangeManager {
    */
   protected void fireEntityChanged(final ChangeEvent event) {
     for (ChangeListener listener : _listeners) {
-      listener.entityChanged(event);
+      try {
+        listener.entityChanged(event);
+      } catch (Exception e) {
+        s_logger.error("Error while calling listener " + listener + " on entity changed", e);
+      }
     }
   }
 

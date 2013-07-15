@@ -8,9 +8,8 @@ package com.opengamma.analytics.financial.interestrate.payments.derivative;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.Period;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -35,7 +34,7 @@ public class CouponIborSpreadTest {
   private static final double NOTIONAL = 10000.0;
   private static final String FUNDING_CURVE_NAME = "funding";
   private static final String LIBOR_CURVE_NAME = "libor";
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -43,10 +42,11 @@ public class CouponIborSpreadTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static final double SPREAD = 0.02;
-  private static final CouponIborSpread PAYMENT1 = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY,
+  private static final CouponIborSpread PAYMENT1 = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX,
+      FIXING_PERIOD_END_TIME, MATURITY,
       FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
   private static final CouponIborSpread PAYMENT2 = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, INDEX, FIXING_PERIOD_START_TIME,
       FIXING_PERIOD_END_TIME, FORWARD_YEAR_FRACTION, SPREAD, LIBOR_CURVE_NAME);
@@ -88,7 +88,8 @@ public class CouponIborSpreadTest {
 
   @Test
   public void testHashCodeAndEquals() {
-    CouponIborSpread other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
+    CouponIborSpread other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY,
+        FORWARD_YEAR_FRACTION,
         LIBOR_CURVE_NAME);
     assertEquals(other, PAYMENT1);
     assertEquals(other.hashCode(), PAYMENT1.hashCode());
@@ -96,32 +97,41 @@ public class CouponIborSpreadTest {
         LIBOR_CURVE_NAME);
     assertEquals(other, PAYMENT1);
     assertEquals(other.hashCode(), PAYMENT1.hashCode());
-    other = new CouponIborSpread(CUR, PAYMENT_TIME - 0.1, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
+    other = new CouponIborSpread(CUR, PAYMENT_TIME - 0.1, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY,
+        FORWARD_YEAR_FRACTION,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION + 0.01, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION + 0.01, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY,
+        FORWARD_YEAR_FRACTION,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
     other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL + 10, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME + 0.01, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME + 0.01, INDEX, FIXING_PERIOD_END_TIME, MATURITY,
+        FORWARD_YEAR_FRACTION,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME - 0.01, MATURITY, FORWARD_YEAR_FRACTION,
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME - 0.01, MATURITY,
+        FORWARD_YEAR_FRACTION,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY + 0.01, FORWARD_YEAR_FRACTION,
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY + 0.01,
+        FORWARD_YEAR_FRACTION,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION + 0.01,
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY,
+        FORWARD_YEAR_FRACTION + 0.01,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, "false", PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, "false", PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
+        LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION, "false");
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
+        "false");
     assertFalse(other.equals(PAYMENT1));
-    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION, SPREAD,
+    other = new CouponIborSpread(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_PERIOD_START_TIME, INDEX, FIXING_PERIOD_END_TIME, MATURITY, FORWARD_YEAR_FRACTION,
+        SPREAD,
         LIBOR_CURVE_NAME);
     assertFalse(other.equals(PAYMENT1));
   }
@@ -132,7 +142,7 @@ public class CouponIborSpreadTest {
     assertEquals(FIXING_PERIOD_END_TIME, PAYMENT2.getFixingPeriodEndTime(), 0);
     assertEquals(FIXING_PERIOD_START_TIME, PAYMENT2.getFixingPeriodStartTime(), 0);
     assertEquals(RESET_TIME, PAYMENT2.getFixingTime(), 0);
-    assertEquals(FORWARD_YEAR_FRACTION, PAYMENT2.getFixingYearFraction(), 0);
+    assertEquals(FORWARD_YEAR_FRACTION, PAYMENT2.getFixingAccrualFactor(), 0);
     assertEquals(LIBOR_CURVE_NAME, PAYMENT2.getForwardCurveName());
     assertEquals(FUNDING_CURVE_NAME, PAYMENT2.getFundingCurveName());
     assertEquals(NOTIONAL, PAYMENT2.getNotional(), 0);

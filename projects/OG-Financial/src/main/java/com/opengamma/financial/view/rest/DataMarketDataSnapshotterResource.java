@@ -17,11 +17,11 @@ import javax.ws.rs.core.UriBuilder;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.rest.AbstractDataResource;
 

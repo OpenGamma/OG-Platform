@@ -21,12 +21,13 @@ import org.testng.annotations.Test;
 import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.util.test.ActiveMQTestUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class JmsByteArrayTransportTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);
@@ -67,7 +68,7 @@ public class JmsByteArrayTransportTest {
     long startTime = System.currentTimeMillis();
     while(collectingReceiver.getMessages().isEmpty()) {
       Thread.sleep(10l);
-      if((System.currentTimeMillis() - startTime) > TIMEOUT) {
+      if ((System.currentTimeMillis() - startTime) > TIMEOUT) {
         fail("Did not receive a message in " + (TIMEOUT / 1000) + " seconds.");
       }
     }
@@ -124,7 +125,7 @@ public class JmsByteArrayTransportTest {
     long startTime = System.currentTimeMillis();
     while(collectingReceiver.getMessages().isEmpty()) {
       Thread.sleep(10l);
-      if((System.currentTimeMillis() - startTime) > TIMEOUT) {
+      if ((System.currentTimeMillis() - startTime) > TIMEOUT) {
         fail("Did not receive a response in " + (TIMEOUT / 1000) + " seconds.");
       }
     }

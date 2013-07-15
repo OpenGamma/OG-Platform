@@ -1,0 +1,258 @@
+<section id="blotter-cds-block">
+<table class="OG-table" id="{{index}}">
+  <colgroup>
+    <col style="width: 33%">
+    <col style="width: 67%">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+      </td>
+      <td  class="og-double-cell">
+        <div><span><label><span>Buy</span><input type="radio" name="{{prefix}}.buy" value="true"></label>
+        </span><span><label><span>Sell</span><input type="radio" name="{{prefix}}.buy" value="false"></label>
+        </span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td class="og-double-cell">
+        <div><span><label><span>Protection Start</span><input name="{{prefix}}.protectionStart" type="checkbox" /></label>
+        </span><span><label><span>Accrued Premium
+        </span><input name="{{prefix}}.includeAccruedPremium" type="checkbox"/></label></span></div>
+      </td>
+    </tr>
+    {{{item_0}}}
+    {{{item_1}}}
+    {{{item_2}}}
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span>{{{item_3}}}
+        </span><span><input name="{{prefix}}.notional.amount" type="text" value="{{data.notional.amount}}"/>
+      </span></div>
+      </td>
+    </tr>
+    {{#if index}}
+      <tr>
+        <td>
+          <label>
+            <span>Upfront Amount</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_12}}}
+          </span><span><input name="{{prefix}}.upfrontPayment.amount" type="text" value="{{data.upfrontPayment.amount}}"/>
+        </span></div>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if standard}}
+      <tr>
+        <td>
+          <label>
+            <span>Upfront Amount</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_11}}}
+          </span><span><input name="{{prefix}}.upfrontAmount.amount" type="text" value="{{data.upfrontAmount.amount}}"/>
+          </span></div>
+        </td>
+      </tr>
+    {{/if}}
+    {{#unless index}}
+      {{{item_4}}}
+    {{/unless}}
+    <tr>
+      <td>
+        <label>
+          <span>Start Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="{{prefix}}.startDate" type="text" value="{{data.startDate}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Effective Date</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span><input class="blotter-date" name="{{prefix}}.effectiveDate" type="text" value="{{data.effectiveDate}}"/>
+        </span><span><label>Adjust <input name="{{prefix}}.adjustEffectiveDate" type="checkbox" />
+        </label></span></div>
+      </td>
+    </tr>
+    {{#if stdvanilla}}
+      <tr>
+        <td>
+          <label>
+            <span>Cash Settlement Date</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="{{prefix}}.cashSettlementDate" type="text" value="{{data.cashSettlementDate}}"/>
+          </span><span><label>Adjust <input name="{{prefix}}.adjustCashSettlementDate" type="checkbox" />
+          </label></span></div>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if index}}
+      <tr>
+        <td>
+          <label>
+            <span>Settlement Date</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="{{prefix}}.settlementDate" type="text" value="{{data.settlementDate}}"/>
+          </span><span><label>Adjust <input name="{{prefix}}.adjustSettlementDate" type="checkbox" />
+          </label></span></div>
+        </td>
+      </tr>
+    {{/if}}
+    <tr>
+      <td>
+        <label>
+          <span>Maturity Date</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span><input class="blotter-date" name="{{prefix}}.maturityDate" type="text" value="{{data.maturityDate}}"/>
+        </span><span><label>Adjust <input name="{{prefix}}.adjustMaturityDate" type="checkbox" />
+        </label><label>IMM <input name="{{prefix}}.immAdjustMaturityDate" type="checkbox" /></label></span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        {{{item_5}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Coupon Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_6}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Business Day Convention</span>
+        </label>
+      </td>
+      <td>
+        {{{item_7}}}
+      </td>
+    </tr>
+    {{#unless index}}
+    <tr>
+      <td>
+        <label>
+          <span>Restructuring Clause</span>
+        </label>
+      </td>
+      <td>
+        {{{item_8}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Debt Seniority</span>
+        </label>
+      </td>
+      <td>
+        {{{item_9}}}
+      </td>
+    </tr>
+    {{/unless}}
+    <tr>
+      <td>
+        <label>
+          <span>Stub Type</span>
+        </label>
+      </td>
+      <td>
+        {{{item_10}}}
+      </td>
+    </tr>
+    {{#unless index}}
+    <tr>
+      <td>
+        <label>
+          <span>Recovery Rate</span>
+        </label>
+      </td>
+      <td>
+        <input name="{{prefix}}.recoveryRate" type="text" value="{{data.recoveryRate}}"/>
+      </td>
+    </tr>
+    {{/unless}}
+    {{#if legacy}}
+    <tr>
+      <td>
+        <label>
+          <span>Par Spread</span>
+        </label>
+      </td>
+      <td>
+        <input name="{{prefix}}.parSpread" type="text" value="{{data.parSpread}}"/>
+      </td>
+    </tr>
+    {{/if}}
+    {{#if standard}}
+      <tr>
+        <td>
+          <label>
+            <span>Quoted Spread</span>
+          </label>
+        </td>
+        <td>
+          <input name="{{prefix}}.quotedSpread" type="text" value="{{data.quotedSpread}}"/>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if stdvanilla}}
+      <tr>
+        <td>
+          <label>
+            <span>Coupon</span>
+          </label>
+        </td>
+        <td>
+          <input name="{{prefix}}.coupon" type="text" value="{{data.coupon}}"/>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if index}}
+      <tr>
+        <td>
+          <label>
+            <span>Index Coupon</span>
+          </label>
+        </td>
+        <td>
+          <input name="{{prefix}}.indexCoupon" type="text" value="{{data.indexCoupon}}"/>
+        </td>
+      </tr>
+    {{/if}}
+  </tbody>
+</table>
+</section>

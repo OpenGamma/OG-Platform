@@ -206,8 +206,8 @@
   <!-- Functions -->
   <bean id="mainCompiledFunctionService" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
-      <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
-        <property name="repositoryConfigurationSource" ref="sharedRepositoryConfigurationSource" />
+      <bean class="com.opengamma.engine.function.config.FunctionRepositoryFactoryBean">
+        <property name="functionConfigurationSource" ref="sharedFunctionConfigurationSource" />
       </bean>
     </constructor-arg>
     <constructor-arg>
@@ -273,7 +273,6 @@
 				    <property name="viewComputationCache" ref="mainComputationCacheSource" />
 				    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
 				    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
-				    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
 				    <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
 				      <null/> <!-- The cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
@@ -346,7 +345,6 @@
     <property name="liveMarketDataSourceRegistry" ref="standardLiveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
-    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="functionExclusionGroups" ref="mainFunctionExclusionGroups" />
@@ -462,6 +460,12 @@
         <bean class="com.opengamma.financial.aggregation.LongShortAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
           <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.StrikeAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.ExpiryAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
         </bean>
       </list>
      </property>

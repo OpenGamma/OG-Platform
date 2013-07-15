@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -63,8 +64,8 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param indexStartValue The index value at the start of the bond.
    * @param issuer The bond issuer name.
    */
-  public BondCapitalIndexedSecurity(Annuity<C> nominal, Annuity<C> coupon, double settlementTime, double accruedInterest, double factorToNextCoupon, YieldConvention yieldConvention,
-      int couponPerYear, CouponInflation settlement, double indexStartValue, String issuer) {
+  public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
+      final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final String issuer) {
     super(nominal, coupon, settlementTime, "Not used", issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     Validate.notNull(settlement, "Settlement");
@@ -141,12 +142,14 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedSecurity(this);
   }
 
@@ -168,7 +171,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -178,7 +181,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondCapitalIndexedSecurity<?> other = (BondCapitalIndexedSecurity<?>) obj;
+    final BondCapitalIndexedSecurity<?> other = (BondCapitalIndexedSecurity<?>) obj;
     if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
       return false;
     }

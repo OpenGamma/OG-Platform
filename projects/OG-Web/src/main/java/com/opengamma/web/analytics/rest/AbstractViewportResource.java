@@ -24,14 +24,16 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
  */
 public abstract class AbstractViewportResource {
 
-  protected final AnalyticsView.GridType _gridType;
-  protected final AnalyticsView _view;
-  protected final int _viewportId;
+  private final AnalyticsView.GridType _gridType;
+  private final AnalyticsView _view;
+  private final int _viewportId;
 
   /**
-   * @param gridType The type of data in the grid (portfolio or primitives)
-   * @param view The view that supplies data to the grid
-   * @param viewportId This viewport's ID
+   * Creates an instance.
+   * 
+   * @param gridType  the type of data in the grid (portfolio or primitives), not null
+   * @param view  the view that supplies data to the grid, not null
+   * @param viewportId  the ID of this viewport, not null
    */
   public AbstractViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, int viewportId) {
     ArgumentChecker.notNull(gridType, "gridType");
@@ -44,11 +46,13 @@ public abstract class AbstractViewportResource {
 
   /**
    * Updates the viewport, e.g. in response to the user scrolling the grid and changing the visible area.
+   * 
+   * @param version  the version
    * @param rows Indices of rows in the viewport, can be empty if {@code cells} is non-empty
    * @param columns Indices of columns in the viewport, can be empty if {@code cells} is non-empty
    * @param cells Cells in the viewport, can be empty if {@code rows} and {@code columns} are non-empty
    * @param format Specifies the way the data should be formatted
-   * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
+   * @param enableLogging  whether to enable logging
    * its current state
    */
   @PUT
@@ -56,15 +60,15 @@ public abstract class AbstractViewportResource {
                      @FormParam("rows") List<Integer> rows,
                      @FormParam("columns") List<Integer> columns,
                      @FormParam("cells") List<GridCell> cells,
-                     @FormParam("format") TypeFormatter.Format format) {
-    update(ViewportDefinition.create(version, rows, columns, cells, format));
+                     @FormParam("format") TypeFormatter.Format format,
+                     @FormParam("enableLogging") Boolean enableLogging) {
+    update(ViewportDefinition.create(version, rows, columns, cells, format, enableLogging));
   }
 
   /**
    * Updates the viewport, e.g. in response to the user scrolling the grid and changing the visible area.
-   * @param viewportDefinition The new viewport definition
-   * @return The version ID of the updated viewport, allows the client to ensure that the data they receive for the
-   * viewport was created for the correct version of the viewport
+   * 
+   * @param viewportDefinition  the new viewport definition
    */
   public abstract void update(ViewportDefinition viewportDefinition);
 
@@ -75,8 +79,38 @@ public abstract class AbstractViewportResource {
   public abstract void delete();
 
   /**
-   * @return The data to display in the viewport
+   * Gets the data to display in the viewport.
+   * 
+   * @return the data to display in the viewport
    */
   @GET
   public abstract ViewportResults getData();
+
+  /**
+   * Gets the grid type.
+   * 
+   * @return the grid type, not null
+   */
+  protected AnalyticsView.GridType getGridType() {
+    return _gridType;
+  }
+
+  /**
+   * Gets the view.
+   * 
+   * @return the view, not null
+   */
+  protected AnalyticsView getView() {
+    return _view;
+  }
+
+  /**
+   * Gets the viewport ID.
+   * 
+   * @return the viewport ID, not null
+   */
+  protected int getViewportId() {
+    return _viewportId;
+  }
+
 }

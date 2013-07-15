@@ -8,21 +8,21 @@ package com.opengamma.engine.view.client;
 import java.util.Set;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents a managed client of a specific view process in the context of a particular user. This is the unit of
@@ -273,16 +273,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * @see #isResultAvailable()
    */
   ViewComputationResultModel getLatestResult();
-  
-  /**
-   * Gets the version-correction for which the attached view process is operating. This may contain 'latest'.
-   * 
-   * @return the version-correction, not null
-   * @throws IllegalStateException if the view client is not attached to a view process
-   */
-  VersionCorrection getProcessVersionCorrection();
-  
-  //-------------------------------------------------------------------------
+
   /**
    * Gets whether this client supports access to view cycles.
    *  
@@ -324,15 +315,18 @@ public interface ViewClient extends UniqueIdentifiable {
    * If another view client connected to the same view process has already changed the level of logging for one or more
    * results then all view clients will see the maximum level requested.
    * <p>
+   * This has set-like behaviour; the last setting for a given result specification will apply regardless of the number
+   * of calls.
+   * <p>
    * Results which are not terminal outputs - that is, results which were not directly requested in the view definition
    * and are not present in the result model - may be referenced, but these can only be accessed using 
    * {@link ViewCycle#queryResults(com.opengamma.engine.view.calc.ComputationCycleQuery)}.
    * 
    * @param minimumLogMode  the minimum log mode to ensure, not null
-   * @param resultSpecifications  the result specifications affected, not null or empty
+   * @param targets  a set of calculation configuration name and value specification pairs, not null or empty
    * @throws IllegalStateException if the view client is not attached to a view process
    */
-  void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications);
+  void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> targets);
 
   //-------------------------------------------------------------------------
   /**

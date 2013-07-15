@@ -1,5 +1,5 @@
 <div class="og-menu-toggle og-option-title">
-  <header class="OG-background-03">data sources:</header>
+  <header class="OG-background-05">data sources:</header>
   <ul>
     <li class="datasources-query">Select data source...</li>
   </ul>
@@ -8,30 +8,11 @@
 <div class="OG-analytics-form-menu og-menu-datasources OG-shadow og-menu" style="display: none">
   <div class="OG-background-03"></div>
   <table class="OG-datasources-menu">
-    <tr class="OG-dropmenu-options">
-      <td class="number"><span>1</span></td>
-      <td>
-        <select class="type">
-          <option selected>select type...</option>
-          {{#each this}}<option>{{this}}</option>{{/each}}
-        </select>
-      </td>
-      <td>
-        <select class="source">
-          <option selected>select data source...</option>
-        </select>
-      </td>
-      <td>
-        <div class="OG-icon og-icon-delete"></div>
-      </td>
-    </tr>
+    {{{children}}}
     <tr class="OG-dropmenu-actions og-menu-actions">
       <td></td>
-      <td><a href="#" class="OG-link-add">add</a></td>
-      <td colspan="2">
-        <button>OK</button>
-        <button>Cancel</button>
-      </td>
+      <td></td>
+      <td colspan="2"><a href="#" class="OG-link-add">add</a></td>
     </tr>
   </table>
 </div>

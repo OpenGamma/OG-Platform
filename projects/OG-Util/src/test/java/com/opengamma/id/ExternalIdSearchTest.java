@@ -19,11 +19,12 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ExternalIdSearch}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdSearchTest {
 
   private final ExternalId _id11 = ExternalId.of("D1", "V1");

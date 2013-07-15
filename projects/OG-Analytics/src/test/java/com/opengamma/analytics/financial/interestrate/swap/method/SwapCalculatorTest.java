@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadYieldCurveBundleRolldownFunction;
@@ -36,7 +36,6 @@ import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalcul
 import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -46,13 +45,15 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
 
 public class SwapCalculatorTest {
@@ -70,14 +71,14 @@ public class SwapCalculatorTest {
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, RATE_FIXED, true);
 
   // Swap Ibor-ibor
-  private static final IborIndex USDLIBOR3M = INDEX_IBOR_MASTER.getIndex("USDLIBOR3M", CALENDAR_USD);
+  private static final IborIndex USDLIBOR3M = INDEX_IBOR_MASTER.getIndex("USDLIBOR3M");
   private static final double SPREAD3 = 0.0020;
-  private static final IborIndex USDLIBOR6M = INDEX_IBOR_MASTER.getIndex("USDLIBOR6M", CALENDAR_USD);
+  private static final IborIndex USDLIBOR6M = INDEX_IBOR_MASTER.getIndex("USDLIBOR6M");
   private static final double SPREAD6 = 0.0005;
   private static final SwapIborIborDefinition SWAP_IBORSPREAD_IBORSPREAD_DEFINITION = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL,
-      USDLIBOR3M, SPREAD3, true), AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
-  private static final SwapDefinition SWAP_IBOR_IBORSPREAD_DEFINITION = new SwapDefinition(AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, true),
-      AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+      USDLIBOR3M, SPREAD3, true, CALENDAR_USD), AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, CALENDAR_USD));
+  private static final SwapDefinition SWAP_IBOR_IBORSPREAD_DEFINITION = new SwapDefinition(AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, true, CALENDAR_USD),
+      AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, CALENDAR_USD));
 
   private static final Currency USD = USDLIBOR3M.getCurrency();
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2(USD);
@@ -88,12 +89,14 @@ public class SwapCalculatorTest {
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
 
-  private static final ArrayZonedDateTimeDoubleTimeSeries FIXING_TS_3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) }, new double[] {
-      0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 });
-  private static final ArrayZonedDateTimeDoubleTimeSeries FIXING_TS_6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) }, new double[] {0.0095, 0.0120, 0.0130 });
-  private static final ArrayZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ArrayZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
+  private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_3 = ImmutableZonedDateTimeDoubleTimeSeries.of(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10), DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15),
+          DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) },
+          new double[] {0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 }, ZoneOffset.UTC);
+  private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_6 = ImmutableZonedDateTimeDoubleTimeSeries.of(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) },
+      new double[] {0.0095, 0.0120, 0.0130 }, ZoneOffset.UTC);
+  private static final ZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
@@ -103,10 +106,10 @@ public class SwapCalculatorTest {
   public void parSpreadFixedIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
-    final double parSpread = PSC.visit(swap, CURVES);
+    final double parSpread = swap.accept(PSC, CURVES);
     final SwapFixedIborDefinition swap0Definition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, RATE_FIXED + parSpread, true);
     final SwapFixedCoupon<Coupon> swap0 = swap0Definition.toDerivative(referenceDate, CURVE_NAMES);
-    final double pv = PVC.visit(swap0, CURVES);
+    final double pv = swap0.accept(PVC, CURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv, 0, TOLERANCE_PV);
   }
 
@@ -114,10 +117,10 @@ public class SwapCalculatorTest {
   public void parSpreadFixedIborAfterFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 16);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final double parSpread = PSC.visit(swap, CURVES);
+    final double parSpread = swap.accept(PSC, CURVES);
     final SwapFixedIborDefinition swap0Definition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, RATE_FIXED + parSpread, true);
     final SwapFixedCoupon<Coupon> swap0 = swap0Definition.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final double pv = PVC.visit(swap0, CURVES);
+    final double pv = swap0.accept(PVC, CURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv, 0, TOLERANCE_PV);
   }
 
@@ -125,11 +128,11 @@ public class SwapCalculatorTest {
   public void parSpreadIborSpreadIborSpreadBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final Swap<Coupon, Coupon> swap = SWAP_IBORSPREAD_IBORSPREAD_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
-    final double parSpread = PSC.visit(swap, CURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true),
-        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+    final double parSpread = swap.accept(PSC, CURVES);
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, CALENDAR_USD),
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, CALENDAR_USD));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate, CURVE_NAMES);
-    final double pv = PVC.visit(swap0, CURVES);
+    final double pv = swap0.accept(PVC, CURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv, 0, TOLERANCE_PV);
   }
 
@@ -137,11 +140,11 @@ public class SwapCalculatorTest {
   public void parSpreadIborSpreadIborSpreadAfterFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 16);
     final Swap<Coupon, Coupon> swap = SWAP_IBORSPREAD_IBORSPREAD_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final double parSpread = PSC.visit(swap, CURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true),
-        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+    final double parSpread = swap.accept(PSC, CURVES);
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, CALENDAR_USD),
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, CALENDAR_USD));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final double pv = PVC.visit(swap0, CURVES);
+    final double pv = swap0.accept(PVC, CURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv, 0, TOLERANCE_PV);
   }
 
@@ -151,14 +154,13 @@ public class SwapCalculatorTest {
    */
   public void parSpreadIborIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
-    @SuppressWarnings("unchecked")
-    final Swap<? extends Payment, ? extends Payment> swap = new Swap<Payment, Payment>((Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getFirstLeg().toDerivative(referenceDate, CURVE_NAMES),
+    final Swap<? extends Payment, ? extends Payment> swap = new Swap<>((Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getFirstLeg().toDerivative(referenceDate, CURVE_NAMES),
         (Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getSecondLeg().toDerivative(referenceDate, new String[] {CURVE_NAMES[0], CURVE_NAMES[2] }));
-    final double parSpread = PSC.visit(swap, CURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, parSpread, true),
-        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false));
+    final double parSpread = swap.accept(PSC, CURVES);
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, parSpread, true, CALENDAR_USD),
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, CALENDAR_USD));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate, CURVE_NAMES);
-    final double pv = PVC.visit(swap0, CURVES);
+    final double pv = swap0.accept(PVC, CURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv, 0, TOLERANCE_PV);
   }
 
@@ -167,7 +169,7 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
     final String fwdCurveName = ((CouponIbor) swap.getSecondLeg().getNthPayment(0)).getForwardCurveName();
-    InterestRateCurveSensitivity pscsComputed = PSCSC.visit(swap, CURVES);
+    InterestRateCurveSensitivity pscsComputed = swap.accept(PSCSC, CURVES);
     pscsComputed = pscsComputed.cleaned();
     final double[] timesDsc = new double[swap.getSecondLeg().getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < swap.getSecondLeg().getNumberOfPayments(); loopcpn++) {
@@ -176,12 +178,12 @@ public class SwapCalculatorTest {
     final List<DoublesPair> sensiDscFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(swap, PSC, CURVES, swap.getFirstLeg().getDiscountCurve(), timesDsc, 1.0E-10);
     final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(swap.getFirstLeg().getDiscountCurve());
     assertTrue("parSpread: curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SPREAD_DELTA));
-    final Set<Double> timesFwdSet = new TreeSet<Double>();
+    final Set<Double> timesFwdSet = new TreeSet<>();
     for (int loopcpn = 0; loopcpn < swap.getSecondLeg().getNumberOfPayments(); loopcpn++) {
       timesFwdSet.add(((CouponIbor) swap.getSecondLeg().getNthPayment(loopcpn)).getFixingPeriodStartTime());
       timesFwdSet.add(((CouponIbor) swap.getSecondLeg().getNthPayment(loopcpn)).getFixingPeriodEndTime());
     }
-    final Double[] timesFwd = timesFwdSet.toArray(new Double[0]);
+    final Double[] timesFwd = timesFwdSet.toArray(new Double[timesFwdSet.size()]);
     final List<DoublesPair> sensiFwdFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(swap, PSC, CURVES, fwdCurveName, ArrayUtils.toPrimitive(timesFwd), 1.0E-10);
     final List<DoublesPair> sensiFwdComputed = pscsComputed.getSensitivities().get(fwdCurveName);
     assertTrue("parSpread: curve sensitivity - fwd", InterestRateCurveSensitivityUtils.compare(sensiFwdFD, sensiFwdComputed, TOLERANCE_SPREAD_DELTA));
@@ -192,7 +194,7 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final Swap<Coupon, Coupon> swap = SWAP_IBORSPREAD_IBORSPREAD_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final String fwdCurveName = ((CouponIborSpread) swap.getSecondLeg().getNthPayment(0)).getForwardCurveName();
-    InterestRateCurveSensitivity pscsComputed = PSCSC.visit(swap, CURVES);
+    InterestRateCurveSensitivity pscsComputed = swap.accept(PSCSC, CURVES);
     pscsComputed = pscsComputed.cleaned();
     final double[] timesDsc = new double[swap.getFirstLeg().getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < swap.getFirstLeg().getNumberOfPayments(); loopcpn++) {
@@ -202,7 +204,7 @@ public class SwapCalculatorTest {
     final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(swap.getFirstLeg().getDiscountCurve());
     assertTrue("parSpread: curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SPREAD_DELTA));
 
-    final Set<Double> timesFwdSet = new TreeSet<Double>();
+    final Set<Double> timesFwdSet = new TreeSet<>();
     for (int loopcpn = 0; loopcpn < swap.getFirstLeg().getNumberOfPayments(); loopcpn++) {
       timesFwdSet.add(((CouponIborSpread) swap.getFirstLeg().getNthPayment(loopcpn)).getFixingPeriodStartTime());
       timesFwdSet.add(((CouponIborSpread) swap.getFirstLeg().getNthPayment(loopcpn)).getFixingPeriodEndTime());
@@ -211,7 +213,7 @@ public class SwapCalculatorTest {
       timesFwdSet.add(((CouponIborSpread) swap.getSecondLeg().getNthPayment(loopcpn)).getFixingPeriodStartTime());
       timesFwdSet.add(((CouponIborSpread) swap.getSecondLeg().getNthPayment(loopcpn)).getFixingPeriodEndTime());
     }
-    final Double[] timesFwd = timesFwdSet.toArray(new Double[0]);
+    final Double[] timesFwd = timesFwdSet.toArray(new Double[timesFwdSet.size()]);
     final List<DoublesPair> sensiFwdFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(swap, PSC, CURVES, fwdCurveName, ArrayUtils.toPrimitive(timesFwd), 1.0E-10);
     final List<DoublesPair> sensiFwdComputed = pscsComputed.getSensitivities().get(fwdCurveName);
     assertTrue("parSpread: curve sensitivity - fwd", InterestRateCurveSensitivityUtils.compare(sensiFwdFD, sensiFwdComputed, TOLERANCE_SPREAD_DELTA));
@@ -221,7 +223,7 @@ public class SwapCalculatorTest {
   public void todayPaymentFixedIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAMES);
-    final MultipleCurrencyAmount cash = TPC.visit(swap);
+    final MultipleCurrencyAmount cash = swap.accept(TPC);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 0.0, cash.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 1, cash.getCurrencyAmounts().length);
   }
@@ -230,7 +232,7 @@ public class SwapCalculatorTest {
   public void todayPaymentFixedIborOnFirstIborPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 17);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final MultipleCurrencyAmount cash = TPC.visit(swap);
+    final MultipleCurrencyAmount cash = swap.accept(TPC);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 0.0100 * NOTIONAL * SWAP_FIXED_IBOR_DEFINITION.getIborLeg().getNthPayment(0).getPaymentYearFraction(),
         cash.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 1, cash.getCurrencyAmounts().length);
@@ -240,7 +242,7 @@ public class SwapCalculatorTest {
   public void todayPaymentFixedIborOnFirstFixedPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 11, 19);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final MultipleCurrencyAmount cash = TPC.visit(swap);
+    final MultipleCurrencyAmount cash = swap.accept(TPC);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", SWAP_FIXED_IBOR_DEFINITION.getFixedLeg().getNthPayment(0).getAmount() + 0.0140 * NOTIONAL
         * SWAP_FIXED_IBOR_DEFINITION.getIborLeg().getNthPayment(1).getPaymentYearFraction(), cash.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 1, cash.getCurrencyAmounts().length);
@@ -250,7 +252,7 @@ public class SwapCalculatorTest {
   public void todayPaymentFixedIborBetweenPayments() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 11, 14);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final MultipleCurrencyAmount cash = TPC.visit(swap);
+    final MultipleCurrencyAmount cash = swap.accept(TPC);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 0.0, cash.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 1, cash.getCurrencyAmounts().length);
   }
@@ -261,9 +263,9 @@ public class SwapCalculatorTest {
     final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final SwapFixedCoupon<Coupon> swapTomorrow = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate.plusDays(1), FIXING_TS_3_6, CURVE_NAMES);
-    final double pvToday = PVC.visit(swapToday, CURVES);
+    final double pvToday = swapToday.accept(PVC, CURVES);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, TimeCalculator.getTimeBetween(referenceDate, referenceDate.plusDays(1)));
-    final double pvTomorrow = PVC.visit(swapTomorrow, tomorrowData);
+    final double pvTomorrow = swapTomorrow.accept(PVC, tomorrowData);
     assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - pvToday, theta.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);
   }
@@ -273,13 +275,14 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
-    final ArrayZonedDateTimeDoubleTimeSeries fixing3extended = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15) },
-        new double[] {0.0090, 0.0090 });
-    final ArrayZonedDateTimeDoubleTimeSeries[] fixing36 = new ArrayZonedDateTimeDoubleTimeSeries[] {fixing3extended, FIXING_TS_6 };
+    final ZonedDateTimeDoubleTimeSeries fixing3extended = ImmutableZonedDateTimeDoubleTimeSeries.of(
+        new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15) },
+        new double[] {0.0090, 0.0090 }, ZoneOffset.UTC);
+    final ZonedDateTimeDoubleTimeSeries[] fixing36 = new ZonedDateTimeDoubleTimeSeries[] {fixing3extended, FIXING_TS_6 };
     final SwapFixedCoupon<Coupon> swapTomorrow = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate.plusDays(1), fixing36, CURVE_NAMES);
-    final double pvToday = PVC.visit(swapToday, CURVES);
+    final double pvToday = swapToday.accept(PVC, CURVES);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, TimeCalculator.getTimeBetween(referenceDate, referenceDate.plusDays(1)));
-    final double pvTomorrow = PVC.visit(swapTomorrow, tomorrowData);
+    final double pvTomorrow = swapTomorrow.accept(PVC, tomorrowData);
     assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - pvToday, theta.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);
   }
@@ -290,9 +293,9 @@ public class SwapCalculatorTest {
     final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final SwapFixedCoupon<Coupon> swapTomorrow = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate.plusDays(1), FIXING_TS_3_6, CURVE_NAMES);
-    final double pvToday = PVC.visit(swapToday, CURVES);
+    final double pvToday = swapToday.accept(PVC, CURVES);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, TimeCalculator.getTimeBetween(referenceDate, referenceDate.plusDays(1)));
-    final double pvTomorrow = PVC.visit(swapTomorrow, tomorrowData);
+    final double pvTomorrow = swapTomorrow.accept(PVC, tomorrowData);
     final double todayCash = ((CouponFixed) swapToday.getSecondLeg().getNthPayment(0)).getAmount();
     assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - (pvToday - todayCash), theta.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);

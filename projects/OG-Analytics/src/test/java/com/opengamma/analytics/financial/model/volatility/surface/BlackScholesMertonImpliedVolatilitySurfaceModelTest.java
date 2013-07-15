@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;

@@ -34,7 +34,7 @@ public class CurrencyPairsConfigPopulator {
     return cfgMaster;
   }
 
-  private static CurrencyPairs createCurrencyPairs() {
+  public static CurrencyPairs createCurrencyPairs() {
     InputStream inputStream = CurrencyPairsConfigPopulator.class.getResourceAsStream("market-convention-currency-pairs.csv");
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     String pairStr;

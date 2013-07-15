@@ -59,7 +59,7 @@ public class OptionPositionParametricVaRFunction { /*extends AbstractFunction.No
   final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SecuritySource securitySource = executionContext.getSecuritySource();
     final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, position), getUniqueId());
@@ -100,7 +100,7 @@ public class OptionPositionParametricVaRFunction { /*extends AbstractFunction.No
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final HbComputationTargetSpecification target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquityOptionSecurity;
+    return target.getPosition().getSecurity() instanceof EquityOptionSecurity;
   }
 
   @Override

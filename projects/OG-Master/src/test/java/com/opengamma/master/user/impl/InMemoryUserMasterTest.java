@@ -16,11 +16,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemoryUserMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryUserMasterTest {
 
   private static final ExternalId EMAIL_ADDRESS = ExternalId.of("EmailAddress", "info@opengamma.com");

@@ -9,14 +9,17 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.time.calendar.LocalDate;
 
 import net.sf.ehcache.CacheManager;
 
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -26,11 +29,12 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the {@link EHCachingHistoricalTimeSeriesResolver} class.
+ * Test.
  */
-@Test(singleThreaded = true)
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHistoricalTimeSeriesResolverTest {
 
   private final LocalDate _date1 = LocalDate.now();
@@ -65,11 +69,17 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
 
   private CacheManager _cacheManager;
 
-  @BeforeMethod
-  public void setUp() {
-    _cacheManager = EHCacheUtils.createCacheManager();
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingHistoricalTimeSeriesResolverTest.class);
   }
 
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   private HistoricalTimeSeriesResolver createUnderlying(final AtomicInteger hits) {
     return new HistoricalTimeSeriesResolver() {
 
@@ -113,15 +123,15 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   }
 
   private EHCachingHistoricalTimeSeriesResolver createResolver(final boolean optimistic, final AtomicInteger hits) {
-    final EHCachingHistoricalTimeSeriesResolver resolver = new EHCachingHistoricalTimeSeriesResolver(createUnderlying(hits), _cacheManager);
+    final EHCachingHistoricalTimeSeriesResolver resolver = new EHCachingHistoricalTimeSeriesResolver(createUnderlying(hits), _cacheManager, getClass().getName());
     resolver.setOptimisticFieldResolution(optimistic);
     return resolver;
   }
 
-  private void testResolve_null(final boolean optimistic) {
-    _cacheManager.clearAll();
+  private void testResolve_null(final boolean optimistic, final Collection<EHCachingHistoricalTimeSeriesResolver> resolvers) {
     final AtomicInteger hits = new AtomicInteger();
     final EHCachingHistoricalTimeSeriesResolver resolver = createResolver(optimistic, hits);
+    resolvers.add(resolver);
     for (int i = 0; i < 3; i++) {
       assertNotNull(resolver.resolve(null, null, null, null, _field1, null));
       assertNull(resolver.resolve(null, null, null, null, _field2, null));
@@ -146,16 +156,32 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   }
 
   public void testResolve_null_opt() {
-    testResolve_null(true);
+    List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
+    try {
+      testResolve_null(true, resolvers);
+    } finally {
+      for (EHCachingHistoricalTimeSeriesResolver resolver : resolvers) {
+        resolver.shutdown();
+      }
+    }
   }
 
   public void testResolve_null_pess() {
-    testResolve_null(false);
+    List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
+    try {
+      testResolve_null(false, resolvers);
+    } finally {
+      for (EHCachingHistoricalTimeSeriesResolver resolver : resolvers) {
+        resolver.shutdown();
+      }
+    }
   }
 
-  private void testResolve_dates(final boolean optimistic, final String dataSource, final String dataProvider, final String resolutionKey, final boolean expectTS, final int hitMask) {
+  private void testResolve_dates(final boolean optimistic, final String dataSource, final String dataProvider, final String resolutionKey, final boolean expectTS, final int hitMask,
+      final Collection<EHCachingHistoricalTimeSeriesResolver> resolvers) {
     final AtomicInteger hits = new AtomicInteger();
     final EHCachingHistoricalTimeSeriesResolver resolver = createResolver(optimistic, hits);
+    resolvers.add(resolver);
     for (int i = 0; i < 3; i++) {
       assertEquals(resolver.resolve(_bundleAll, _date1, dataSource, dataProvider, _field1, resolutionKey) != null, expectTS);
       assertEquals(hits.getAndSet(0), (i == 0) ? ((hitMask & 0x1) != 0 ? 1 : ((hitMask & 0x2) != 0 ? 2 : 0)) : 0);
@@ -192,73 +218,85 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
     }
   }
 
-  @Test(invocationCount = 5, successPercentage = 19)
   public void testResolve_dates_opt() {
-    _cacheManager.clearAll();
-    testResolve_dates(true, null, null, null, true, 0x3C21D);
-    testResolve_dates(true, null, null, _key1, true, 0x3C21D);
-    testResolve_dates(true, null, null, _key2, false, 0x3C01D);
-    testResolve_dates(true, null, _provider1, null, true, 0x3C214);
-    testResolve_dates(true, null, _provider1, _key1, true, 0x3C214);
-    testResolve_dates(true, null, _provider1, _key2, false, 0x3C01D);
-    testResolve_dates(true, null, _provider2, null, false, 0x3C01D);
-    testResolve_dates(true, null, _provider2, _key1, false, 0x3C01D);
-    testResolve_dates(true, null, _provider2, _key2, false, 0x3C01D);
-    testResolve_dates(true, _source1, null, null, true, 0x3C214);
-    testResolve_dates(true, _source1, null, _key1, true, 0x3C214);
-    testResolve_dates(true, _source1, null, _key2, false, 0x3C01D);
-    testResolve_dates(true, _source1, _provider1, null, true, 0x3C214);
-    testResolve_dates(true, _source1, _provider1, _key1, true, 0x3C214);
-    testResolve_dates(true, _source1, _provider1, _key2, false, 0x3C01D);
-    testResolve_dates(true, _source1, _provider2, null, false, 0x3C01D);
-    testResolve_dates(true, _source1, _provider2, _key1, false, 0x3C01D);
-    testResolve_dates(true, _source1, _provider2, _key2, false, 0x3C01D);
-    testResolve_dates(true, _source2, null, null, false, 0x3C01D);
-    testResolve_dates(true, _source2, null, _key1, false, 0x3C01D);
-    testResolve_dates(true, _source2, null, _key2, false, 0x3C01D);
-    testResolve_dates(true, _source2, _provider1, null, false, 0x3C01D);
-    testResolve_dates(true, _source2, _provider1, _key1, false, 0x3C01D);
-    testResolve_dates(true, _source2, _provider1, _key2, false, 0x3C01D);
-    testResolve_dates(true, _source2, _provider2, null, false, 0x3C01D);
-    testResolve_dates(true, _source2, _provider2, _key1, false, 0x3C01D);
-    testResolve_dates(true, _source2, _provider2, _key2, false, 0x3C01D);
+    List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
+    try {
+      testResolve_dates(true, null, null, null, true, 0x3D215, resolvers);
+      testResolve_dates(true, null, null, _key1, true, 0x3D215, resolvers);
+      testResolve_dates(true, null, null, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, null, _provider1, null, true, 0x3C214, resolvers);
+      testResolve_dates(true, null, _provider1, _key1, true, 0x3C214, resolvers);
+      testResolve_dates(true, null, _provider1, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, null, _provider2, null, false, 0x3C01D, resolvers);
+      testResolve_dates(true, null, _provider2, _key1, false, 0x3C01D, resolvers);
+      testResolve_dates(true, null, _provider2, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source1, null, null, true, 0x3C214, resolvers);
+      testResolve_dates(true, _source1, null, _key1, true, 0x3C214, resolvers);
+      testResolve_dates(true, _source1, null, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source1, _provider1, null, true, 0x3C214, resolvers);
+      testResolve_dates(true, _source1, _provider1, _key1, true, 0x3C214, resolvers);
+      testResolve_dates(true, _source1, _provider1, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source1, _provider2, null, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source1, _provider2, _key1, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source1, _provider2, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, null, null, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, null, _key1, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, null, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, _provider1, null, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, _provider1, _key1, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, _provider1, _key2, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, _provider2, null, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, _provider2, _key1, false, 0x3C01D, resolvers);
+      testResolve_dates(true, _source2, _provider2, _key2, false, 0x3C01D, resolvers);
+    } finally {
+      for (EHCachingHistoricalTimeSeriesResolver resolver : resolvers) {
+        resolver.shutdown();
+      }
+    }
   }
 
-  @Test(invocationCount = 5, successPercentage = 19)
   public void testResolve_dates_pess() {
-    _cacheManager.clearAll();
-    testResolve_dates(false, null, null, null, true, 0x1420E);
-    testResolve_dates(false, null, null, _key1, true, 0x14209);
-    testResolve_dates(false, null, null, _key2, false, 0x14009);
-    testResolve_dates(false, null, _provider1, null, true, 0x14404);
-    testResolve_dates(false, null, _provider1, _key1, true, 0x14200);
-    testResolve_dates(false, null, _provider1, _key2, false, 0x14009);
-    testResolve_dates(false, null, _provider2, null, false, 0x5);
-    testResolve_dates(false, null, _provider2, _key1, false, 0);
-    testResolve_dates(false, null, _provider2, _key2, false, 0);
-    testResolve_dates(false, _source1, null, null, true, 0x14404);
-    testResolve_dates(false, _source1, null, _key1, true, 0x14200);
-    testResolve_dates(false, _source1, null, _key2, false, 0x14009);
-    testResolve_dates(false, _source1, _provider1, null, true, 0x14404);
-    testResolve_dates(false, _source1, _provider1, _key1, true, 0x14200);
-    testResolve_dates(false, _source1, _provider1, _key2, false, 0x14009);
-    testResolve_dates(false, _source1, _provider2, null, false, 0x5);
-    testResolve_dates(false, _source1, _provider2, _key1, false, 0);
-    testResolve_dates(false, _source1, _provider2, _key2, false, 0);
-    testResolve_dates(false, _source2, null, null, false, 0x5);
-    testResolve_dates(false, _source2, null, _key1, false, 0);
-    testResolve_dates(false, _source2, null, _key2, false, 0);
-    testResolve_dates(false, _source2, _provider1, null, false, 0x5);
-    testResolve_dates(false, _source2, _provider1, _key1, false, 0);
-    testResolve_dates(false, _source2, _provider1, _key2, false, 0);
-    testResolve_dates(false, _source2, _provider2, null, false, 0x5);
-    testResolve_dates(false, _source2, _provider2, _key1, false, 0);
-    testResolve_dates(false, _source2, _provider2, _key2, false, 0);
+    List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
+    try {
+      testResolve_dates(false, null, null, null, true, 0x15206, resolvers);
+      testResolve_dates(false, null, null, _key1, true, 0x15201, resolvers);
+      testResolve_dates(false, null, null, _key2, false, 0x14009, resolvers);
+      testResolve_dates(false, null, _provider1, null, true, 0x14404, resolvers);
+      testResolve_dates(false, null, _provider1, _key1, true, 0x14200, resolvers);
+      testResolve_dates(false, null, _provider1, _key2, false, 0x14009, resolvers);
+      testResolve_dates(false, null, _provider2, null, false, 0x5, resolvers);
+      testResolve_dates(false, null, _provider2, _key1, false, 0, resolvers);
+      testResolve_dates(false, null, _provider2, _key2, false, 0, resolvers);
+      testResolve_dates(false, _source1, null, null, true, 0x14404, resolvers);
+      testResolve_dates(false, _source1, null, _key1, true, 0x14200, resolvers);
+      testResolve_dates(false, _source1, null, _key2, false, 0x14009, resolvers);
+      testResolve_dates(false, _source1, _provider1, null, true, 0x14404, resolvers);
+      testResolve_dates(false, _source1, _provider1, _key1, true, 0x14200, resolvers);
+      testResolve_dates(false, _source1, _provider1, _key2, false, 0x14009, resolvers);
+      testResolve_dates(false, _source1, _provider2, null, false, 0x5, resolvers);
+      testResolve_dates(false, _source1, _provider2, _key1, false, 0, resolvers);
+      testResolve_dates(false, _source1, _provider2, _key2, false, 0, resolvers);
+      testResolve_dates(false, _source2, null, null, false, 0x5, resolvers);
+      testResolve_dates(false, _source2, null, _key1, false, 0, resolvers);
+      testResolve_dates(false, _source2, null, _key2, false, 0, resolvers);
+      testResolve_dates(false, _source2, _provider1, null, false, 0x5, resolvers);
+      testResolve_dates(false, _source2, _provider1, _key1, false, 0, resolvers);
+      testResolve_dates(false, _source2, _provider1, _key2, false, 0, resolvers);
+      testResolve_dates(false, _source2, _provider2, null, false, 0x5, resolvers);
+      testResolve_dates(false, _source2, _provider2, _key1, false, 0, resolvers);
+      testResolve_dates(false, _source2, _provider2, _key2, false, 0, resolvers);
+    } finally {
+      for (EHCachingHistoricalTimeSeriesResolver resolver : resolvers) {
+        resolver.shutdown();
+      }
+    }
   }
 
-  private void testResolve_nodates(final boolean optimistic, final String dataSource, final String dataProvider, final String resolutionKey, final boolean expectTS, final int hitMask) {
+  private void testResolve_nodates(final boolean optimistic, final String dataSource, final String dataProvider, final String resolutionKey, final boolean expectTS, final int hitMask,
+      Collection<EHCachingHistoricalTimeSeriesResolver> resolvers) {
     final AtomicInteger hits = new AtomicInteger();
     final EHCachingHistoricalTimeSeriesResolver resolver = createResolver(optimistic, hits);
+    resolvers.add(resolver);
     for (int i = 0; i < 3; i++) {
       assertEquals(resolver.resolve(_bundleAll, null, dataSource, dataProvider, _field1, resolutionKey) != null, expectTS);
       assertEquals(hits.getAndSet(0), (i == 0) ? ((hitMask & 0x1) != 0 ? 1 : ((hitMask & 0x2) != 0 ? 2 : 0)) : 0);
@@ -276,65 +314,77 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
   }
 
   public void testResolve_nodates_opt() {
-    _cacheManager.clearAll();
-    testResolve_nodates(true, null, null, null, true, 0x5);
-    testResolve_nodates(true, null, null, _key1, true, 0x5);
-    testResolve_nodates(true, null, null, _key2, false, 0x5);
-    testResolve_nodates(true, null, _provider1, null, true, 0x4);
-    testResolve_nodates(true, null, _provider1, _key1, true, 0x4);
-    testResolve_nodates(true, null, _provider1, _key2, false, 0x5);
-    testResolve_nodates(true, null, _provider2, null, false, 0x5);
-    testResolve_nodates(true, null, _provider2, _key1, false, 0x5);
-    testResolve_nodates(true, null, _provider2, _key2, false, 0x5);
-    testResolve_nodates(true, _source1, null, null, true, 0x4);
-    testResolve_nodates(true, _source1, null, _key1, true, 0x4);
-    testResolve_nodates(true, _source1, null, _key2, false, 0x5);
-    testResolve_nodates(true, _source1, _provider1, null, true, 0x4);
-    testResolve_nodates(true, _source1, _provider1, _key1, true, 0x4);
-    testResolve_nodates(true, _source1, _provider1, _key2, false, 0x5);
-    testResolve_nodates(true, _source1, _provider2, null, false, 0x5);
-    testResolve_nodates(true, _source1, _provider2, _key1, false, 0x5);
-    testResolve_nodates(true, _source1, _provider2, _key2, false, 0x5);
-    testResolve_nodates(true, _source2, null, null, false, 0x5);
-    testResolve_nodates(true, _source2, null, _key1, false, 0x5);
-    testResolve_nodates(true, _source2, null, _key2, false, 0x5);
-    testResolve_nodates(true, _source2, _provider1, null, false, 0x5);
-    testResolve_nodates(true, _source2, _provider1, _key1, false, 0x5);
-    testResolve_nodates(true, _source2, _provider1, _key2, false, 0x5);
-    testResolve_nodates(true, _source2, _provider2, null, false, 0x5);
-    testResolve_nodates(true, _source2, _provider2, _key1, false, 0x5);
-    testResolve_nodates(true, _source2, _provider2, _key2, false, 0x5);
+    List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
+    try {
+      testResolve_nodates(true, null, null, null, true, 0x5, resolvers);
+      testResolve_nodates(true, null, null, _key1, true, 0x5, resolvers);
+      testResolve_nodates(true, null, null, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, null, _provider1, null, true, 0x4, resolvers);
+      testResolve_nodates(true, null, _provider1, _key1, true, 0x4, resolvers);
+      testResolve_nodates(true, null, _provider1, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, null, _provider2, null, false, 0x5, resolvers);
+      testResolve_nodates(true, null, _provider2, _key1, false, 0x5, resolvers);
+      testResolve_nodates(true, null, _provider2, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, _source1, null, null, true, 0x4, resolvers);
+      testResolve_nodates(true, _source1, null, _key1, true, 0x4, resolvers);
+      testResolve_nodates(true, _source1, null, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, _source1, _provider1, null, true, 0x4, resolvers);
+      testResolve_nodates(true, _source1, _provider1, _key1, true, 0x4, resolvers);
+      testResolve_nodates(true, _source1, _provider1, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, _source1, _provider2, null, false, 0x5, resolvers);
+      testResolve_nodates(true, _source1, _provider2, _key1, false, 0x5, resolvers);
+      testResolve_nodates(true, _source1, _provider2, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, null, null, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, null, _key1, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, null, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, _provider1, null, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, _provider1, _key1, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, _provider1, _key2, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, _provider2, null, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, _provider2, _key1, false, 0x5, resolvers);
+      testResolve_nodates(true, _source2, _provider2, _key2, false, 0x5, resolvers);
+    } finally {
+      for (EHCachingHistoricalTimeSeriesResolver resolver : resolvers) {
+        resolver.shutdown();
+      }
+    }
   }
 
   public void testResolve_nodates_pess() {
-    _cacheManager.clearAll();
-    testResolve_nodates(false, null, null, null, true, 0x6);
-    testResolve_nodates(false, null, null, _key1, true, 0x1);
-    testResolve_nodates(false, null, null, _key2, false, 0x1);
-    testResolve_nodates(false, null, _provider1, null, true, 0x4);
-    testResolve_nodates(false, null, _provider1, _key1, true, 0);
-    testResolve_nodates(false, null, _provider1, _key2, false, 0x2);
-    testResolve_nodates(false, null, _provider2, null, false, 0x5);
-    testResolve_nodates(false, null, _provider2, _key1, false, 0);
-    testResolve_nodates(false, null, _provider2, _key2, false, 0);
-    testResolve_nodates(false, _source1, null, null, true, 0x4);
-    testResolve_nodates(false, _source1, null, _key1, true, 0x0);
-    testResolve_nodates(false, _source1, null, _key2, false, 0x2);
-    testResolve_nodates(false, _source1, _provider1, null, true, 0x4);
-    testResolve_nodates(false, _source1, _provider1, _key1, true, 0x0);
-    testResolve_nodates(false, _source1, _provider1, _key2, false, 0x2);
-    testResolve_nodates(false, _source1, _provider2, null, false, 0x5);
-    testResolve_nodates(false, _source1, _provider2, _key1, false, 0);
-    testResolve_nodates(false, _source1, _provider2, _key2, false, 0);
-    testResolve_nodates(false, _source2, null, null, false, 0x5);
-    testResolve_nodates(false, _source2, null, _key1, false, 0);
-    testResolve_nodates(false, _source2, null, _key2, false, 0);
-    testResolve_nodates(false, _source2, _provider1, null, false, 0x5);
-    testResolve_nodates(false, _source2, _provider1, _key1, false, 0);
-    testResolve_nodates(false, _source2, _provider1, _key2, false, 0);
-    testResolve_nodates(false, _source2, _provider2, null, false, 0x5);
-    testResolve_nodates(false, _source2, _provider2, _key1, false, 0);
-    testResolve_nodates(false, _source2, _provider2, _key2, false, 0);
+    List<EHCachingHistoricalTimeSeriesResolver> resolvers = new LinkedList<EHCachingHistoricalTimeSeriesResolver>();
+    try {
+      testResolve_nodates(false, null, null, null, true, 0x6, resolvers);
+      testResolve_nodates(false, null, null, _key1, true, 0x1, resolvers);
+      testResolve_nodates(false, null, null, _key2, false, 0x1, resolvers);
+      testResolve_nodates(false, null, _provider1, null, true, 0x4, resolvers);
+      testResolve_nodates(false, null, _provider1, _key1, true, 0, resolvers);
+      testResolve_nodates(false, null, _provider1, _key2, false, 0x2, resolvers);
+      testResolve_nodates(false, null, _provider2, null, false, 0x5, resolvers);
+      testResolve_nodates(false, null, _provider2, _key1, false, 0, resolvers);
+      testResolve_nodates(false, null, _provider2, _key2, false, 0, resolvers);
+      testResolve_nodates(false, _source1, null, null, true, 0x4, resolvers);
+      testResolve_nodates(false, _source1, null, _key1, true, 0x0, resolvers);
+      testResolve_nodates(false, _source1, null, _key2, false, 0x2, resolvers);
+      testResolve_nodates(false, _source1, _provider1, null, true, 0x4, resolvers);
+      testResolve_nodates(false, _source1, _provider1, _key1, true, 0x0, resolvers);
+      testResolve_nodates(false, _source1, _provider1, _key2, false, 0x2, resolvers);
+      testResolve_nodates(false, _source1, _provider2, null, false, 0x5, resolvers);
+      testResolve_nodates(false, _source1, _provider2, _key1, false, 0, resolvers);
+      testResolve_nodates(false, _source1, _provider2, _key2, false, 0, resolvers);
+      testResolve_nodates(false, _source2, null, null, false, 0x5, resolvers);
+      testResolve_nodates(false, _source2, null, _key1, false, 0, resolvers);
+      testResolve_nodates(false, _source2, null, _key2, false, 0, resolvers);
+      testResolve_nodates(false, _source2, _provider1, null, false, 0x5, resolvers);
+      testResolve_nodates(false, _source2, _provider1, _key1, false, 0, resolvers);
+      testResolve_nodates(false, _source2, _provider1, _key2, false, 0, resolvers);
+      testResolve_nodates(false, _source2, _provider2, null, false, 0x5, resolvers);
+      testResolve_nodates(false, _source2, _provider2, _key1, false, 0, resolvers);
+      testResolve_nodates(false, _source2, _provider2, _key2, false, 0, resolvers);
+    } finally {
+      for (EHCachingHistoricalTimeSeriesResolver resolver : resolvers) {
+        resolver.shutdown();
+      }
+    }
   }
 
 }

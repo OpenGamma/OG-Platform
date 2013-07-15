@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * solver need only be solved once (provided that the boundary conditions are
  * only time independent) 
  */
-public class TimeIndependentConvectionDiffusionPDEDataBundle implements ParabolicPDEDataBundleOld {
+public class TimeIndependentConvectionDiffusionPDEDataBundle {
 
   private final Curve<Double, Double> _a;
   private final Curve<Double, Double> _b;

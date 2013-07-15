@@ -4,10 +4,14 @@
  */
 .OG-icon.og-icon-play:after {
     display: inline-block;
-    background-position: -87px -25px;
+    background-position: -94px -25px;
     background-color: transparent;
     height: 9px;
-    width: 6px;
+    width: 5px;
     z-index: 2;
     position: absolute;
+}
+
+.OG-icon.og-icon-play.og-disabled:after {
+    opacity: 0.5;
 }

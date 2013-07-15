@@ -18,12 +18,28 @@ import com.opengamma.analytics.math.function.Function1D;
  */
 public abstract class SmileInterpolatorTestCase {
 
-  protected static final double FORWARD = 1172.011012;
-  protected static final double EXPIRY = 1.5;
-  protected static final double[] STRIKES = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534};
-  protected static final double[] VOLS = new double[] {0.311, 0.288, 0.267, 0.271, 0.276};
+  private static final double FORWARD = 1172.011012;
+  private static final double EXPIRY = 1.5;
+  private static final double[] STRIKES = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534};
+  private static final double[] VOLS = new double[] {0.311, 0.288, 0.267, 0.271, 0.276};
 
   public abstract GeneralSmileInterpolator getSmileInterpolator();
+
+  protected double[] getStrikes() {
+    return STRIKES;
+  }
+
+  protected double[] getVols() {
+    return VOLS;
+  }
+
+  protected double getForward() {
+    return FORWARD;
+  }
+
+  protected double getExpiry() {
+    return EXPIRY;
+  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStrikes() {
@@ -131,13 +147,13 @@ public abstract class SmileInterpolatorTestCase {
   }
 
   @Test(enabled = false)
-  public void FlatBumpTest() {
+  public void flatBumpTest() {
     final GeneralSmileInterpolator interpolator = getSmileInterpolator();
     final int n = STRIKES.length;
     final double[] vols = new double[n];
     Arrays.fill(vols, 0.2);
-    double bump = 1e-3;
-    int index = 0;
+    final double bump = 1e-3;
+    final int index = 0;
     vols[index] += bump;
 
     final Function1D<Double, Double> smile = interpolator.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);

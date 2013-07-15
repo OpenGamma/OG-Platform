@@ -60,7 +60,6 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
    * The meta-bean for {@code BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta meta() {
     return BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta.INSTANCE;
   }
@@ -202,7 +201,7 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "referenceDataProvider",
         "cacheManager");
 

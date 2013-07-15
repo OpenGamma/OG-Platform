@@ -7,22 +7,23 @@ package com.opengamma.masterdb.historicaltimeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbHistoricalTimeSeriesMasterWorkerRemoveTest extends AbstractDbHistoricalTimeSeriesMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -49,7 +50,7 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTest extends AbstractDbHist
 
   @Test
   public void test_removeHistoricalTimeSeries_removed() {
-    Instant now = Instant.now(_htsMaster.getTimeSource());
+    Instant now = Instant.now(_htsMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbHts", "102", "0");
     _htsMaster.remove(uniqueId);

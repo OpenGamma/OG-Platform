@@ -11,6 +11,7 @@ package com.opengamma.integration.viewer;
 public class LocalEngineViewerLauncher extends AbstractEngineViewerLauncher {
 
   @Override
+  @SuppressWarnings("deprecation")
   protected void startup() {
     DemoViewProcessor setup = new DemoViewProcessor();
     startViewer(setup.getViewProcessor());

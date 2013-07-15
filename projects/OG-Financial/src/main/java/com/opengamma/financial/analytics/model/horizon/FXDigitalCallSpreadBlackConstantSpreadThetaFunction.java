@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.horizon;
 
+import static com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils.getSurfaceRequirement;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.THETA_CONSTANT_SPREAD;
@@ -14,19 +15,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.NotImplementedException;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCallSpreadBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
@@ -42,12 +43,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionFunctionUtils;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackMultiValuedFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
@@ -56,6 +58,7 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigitalCallSpreadBlackMultiValuedFunction {
+  private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = ConstantSpreadHorizonThetaCalculator.getInstance();
 
   public FXDigitalCallSpreadBlackConstantSpreadThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
@@ -64,32 +67,20 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String putCurveName = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
+    final String putCurveName = desiredValue.getConstraint(PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(CALL_CURVE);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String putCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-    final String callCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final String putCurveConfig = desiredValue.getConstraint(PUT_CURVE_CALC_CONFIG);
+    final String callCurveConfig = desiredValue.getConstraint(CALL_CURVE_CALC_CONFIG);
     final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    final String spread = desiredValue.getConstraint(FXDigitalCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE);
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
-    final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
-    final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName, putCurveConfig);
-    final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callCurveName, callCurveConfig);
-    final YieldAndDiscountCurve[] curves;
-    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
-    curveCurrency.put(fullPutCurveName, putCurrency);
-    curveCurrency.put(fullCallCurveName, callCurrency);
-    final String[] allCurveNames;
-    final Currency ccy1;
-    final Currency ccy2;
     final Object baseQuotePairsObject = inputs.getValue(ValueRequirementNames.CURRENCY_PAIRS);
     if (baseQuotePairsObject == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair data");
@@ -99,14 +90,34 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
     }
+    final Integer daysFwdOrBackward;
+    if (daysForward.equalsIgnoreCase("-1")) {
+      daysFwdOrBackward = -1;
+    } else if (daysForward.equalsIgnoreCase("+1") || daysForward.equalsIgnoreCase("1")) {
+      daysFwdOrBackward = 1;
+    } else {
+      throw new OpenGammaRuntimeException("Property 'DaysForward' must be set to either 1 or -1.");
+    }
+    final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
+    final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
+    final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
+    final YieldAndDiscountCurve putFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, putCurrency, putCurveName, putCurveConfig);
+    final YieldAndDiscountCurve callFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, callCurrency, callCurveName, callCurveConfig);
+    final YieldAndDiscountCurve[] curves;
+    final Map<String, Currency> curveCurrency = new HashMap<>();
+    curveCurrency.put(fullPutCurveName, putCurrency);
+    curveCurrency.put(fullCallCurveName, callCurrency);
+    final String[] allCurveNames;
+    final Currency ccy1;
+    final Currency ccy2;
     if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
-      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve };
-      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName };
+      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
+      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName};
     } else {
-      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve };
-      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName };
+      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve};
+      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
@@ -123,16 +134,20 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
     }
     final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(target, desiredValue);
+    final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
-    final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
-    final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
-    final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(converter);
-    final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, allCurveNames, smileBundle, new PresentValueCallSpreadBlackForexCalculator(Double.valueOf(spread)),
-        Integer.parseInt(daysForward));
-    return Collections.singleton(new ComputedValue(addDaysForwardProperty(spec, daysForward), theta));
+    if (security instanceof FXOptionSecurity) {
+      final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(converter);
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, daysFwdOrBackward);
+      return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
+    } else if (security instanceof FXDigitalOptionSecurity) {
+      final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(converter);
+      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, PresentValueBlackSmileForexCalculator.getInstance(), daysFwdOrBackward);
+      return Collections.singleton(new ComputedValue(spec, HorizonUtils.getNonZeroValue(theta)));
+    }
+    throw new OpenGammaRuntimeException("Should never get here; canApplyTo specifies vanilla and digital options only");
   }
 
   @Override
@@ -145,29 +160,32 @@ public class FXDigitalCallSpreadBlackConstantSpreadThetaFunction extends FXDigit
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
-    throw new NotImplementedException("Should never get here");
-  }
-
-  @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    return super.getResultProperties(target).get().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
+    return super.getResultProperties(target)
         .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
         .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return super.getResultProperties(target, desiredValue).get().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    return super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair, optionalProperties)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
   }
 
-  private static ValueSpecification addDaysForwardProperty(final ValueSpecification spec, final String daysForward) {
-    final ValueProperties.Builder properties = spec.getProperties().copy();
-    properties.with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
-    return new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties.get());
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    return super.getResultProperties(target, desiredValue, baseQuotePair)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD)
+        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
   }
+
+  @Override
+  protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    throw new UnsupportedOperationException("Should never get here");
+  }
+
 }

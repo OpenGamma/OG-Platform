@@ -23,14 +23,24 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class DefaultExchangeDataProvider implements ExchangeDataProvider {
 
+  private static final DefaultExchangeDataProvider INSTANCE = new DefaultExchangeDataProvider();
   private static final String EXCHANGE_ISO_FILE = "ISO10383MIC.csv";
-  private Map<String, Exchange> _exchangeMap = new HashMap<String, Exchange>();
+  private final Map<String, Exchange> _exchangeMap = new HashMap<>();
+  private final Map<String, Exchange> _exchangeDescriptionMap = new HashMap<>();
 
   /**
    * Creates an instance.
    */
-  public DefaultExchangeDataProvider() {
+  private DefaultExchangeDataProvider() {
     loadExchangeData();
+  }
+
+  /**
+   * Get the exchange data provider
+   * @return the exchange data provider
+   */
+  public static ExchangeDataProvider getInstance() {
+    return INSTANCE;
   }
 
   /**
@@ -64,6 +74,7 @@ public class DefaultExchangeDataProvider implements ExchangeDataProvider {
           exchange.setAcr(acr);
           exchange.setStatus(status);
           _exchangeMap.put(micCode, exchange);
+          _exchangeDescriptionMap.put(description.toUpperCase(), exchange);
         }
       }
       exchangeIsoReader.close();
@@ -73,8 +84,13 @@ public class DefaultExchangeDataProvider implements ExchangeDataProvider {
   }
 
   @Override
-  public Exchange getExchange(String micCode) {
+  public Exchange getExchange(final String micCode) {
     return _exchangeMap.get(micCode);
+  }
+
+  @Override
+  public Exchange getExchangeFromDescription(final String description) {
+    return _exchangeDescriptionMap.get(description.toUpperCase());
   }
 
 }

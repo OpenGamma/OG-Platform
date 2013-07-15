@@ -44,11 +44,9 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
       message.add(NUM_FUTURES, object.getNumberOfFuturesAfterTenor());
     } else if (object.getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       message.add(PERIODS_PER_YEAR, object.getPeriodsPerYear());
-    } else if (object.getInstrumentType() == StripInstrumentType.SWAP || object.getInstrumentType() == StripInstrumentType.OIS_SWAP) {
-      if (object.getResetTenor() != null) {
-        serializer.addToMessage(message, RESET_TENOR, null, object.getResetTenor());
-        serializer.addToMessage(message, INDEX_TYPE, null, object.getIndexType());
-      }
+    } else if (object.getResetTenor() != null) {
+      serializer.addToMessage(message, RESET_TENOR, null, object.getResetTenor());
+      serializer.addToMessage(message, INDEX_TYPE, null, object.getIndexType());
     } else if (object.getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
       serializer.addToMessage(message, PAY_TENOR, null, object.getPayTenor());
       serializer.addToMessage(message, RECEIVE_TENOR, null, object.getReceiveTenor());
@@ -69,13 +67,10 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
     } else if (type == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       final int periodsPerYear = message.getInt(PERIODS_PER_YEAR);
       return new FixedIncomeStrip(type, tenor, periodsPerYear, true, conventionName);
-    } else if (type == StripInstrumentType.SWAP || type == StripInstrumentType.OIS_SWAP) {
-      if (message.hasField(RESET_TENOR)) {
-        final Tenor resetTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(RESET_TENOR));
-        final IndexType indexType = deserializer.fieldValueToObject(IndexType.class, message.getByName(INDEX_TYPE));
-        return new FixedIncomeStrip(type, tenor, resetTenor, indexType, conventionName);
-      }
-      return new FixedIncomeStrip(type, tenor, conventionName);
+    } else if (message.hasField(RESET_TENOR)) {
+      final Tenor resetTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(RESET_TENOR));
+      final IndexType indexType = deserializer.fieldValueToObject(IndexType.class, message.getByName(INDEX_TYPE));
+      return new FixedIncomeStrip(type, tenor, resetTenor, indexType, conventionName);
     } else if (type == StripInstrumentType.BASIS_SWAP) {
       final Tenor payTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAY_TENOR));
       final Tenor receiveTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(RECEIVE_TENOR));

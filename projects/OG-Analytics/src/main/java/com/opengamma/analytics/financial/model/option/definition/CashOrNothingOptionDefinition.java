@@ -15,7 +15,7 @@ import com.opengamma.util.time.Expiry;
  * Cash-or-nothing options have European-style exercise with payoff
  * $$
  * \begin{align*}
- * \mathrm{payoff} = 
+ * \mathrm{payoff} =
  * \begin{cases}
  * 0 \quad & \mathrm{if} \quad S \leq K\\
  * P \quad & \mathrm{otherwise}
@@ -25,7 +25,7 @@ import com.opengamma.util.time.Expiry;
  * and
  * $$
  * \begin{align*}
- * \mathrm{payoff} = 
+ * \mathrm{payoff} =
  * \begin{cases}
  * 0 \quad & \mathrm{if} \quad S \geq K\\
  * P \quad & \mathrm{otherwise}
@@ -35,7 +35,7 @@ import com.opengamma.util.time.Expiry;
  * for a put, where $K$ is the strike, $P$ is the payment amount and $S$ is the spot.
  */
 public class CashOrNothingOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @SuppressWarnings("synthetic-access")
@@ -51,7 +51,7 @@ public class CashOrNothingOptionDefinition extends OptionDefinition {
   private final double _payment;
 
   /**
-   * @param strike The strike 
+   * @param strike The strike
    * @param expiry The expiry
    * @param isCall Is the option a call or put
    * @param payment The payment amount, greater than zero

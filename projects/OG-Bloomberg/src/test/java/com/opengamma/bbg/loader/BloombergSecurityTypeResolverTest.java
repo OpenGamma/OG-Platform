@@ -12,42 +12,42 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
+import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergSecurityTypeResolverTest {
 
-  private ConfigurableApplicationContext _context;
+  private BloombergReferenceDataProvider _bbgProvider;
   private SecurityTypeResolver _securityTypeResolver;
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/loader/refDataProvider-context.xml");
-    context.start();
-    _context = context;
-    ReferenceDataProvider refDataProvider = _context.getBean("cachingRefProvider", ReferenceDataProvider.class);
-    _securityTypeResolver = new BloombergSecurityTypeResolver(refDataProvider);
+  @BeforeClass
+  public void setUpClass() throws Exception {
+    _bbgProvider = BloombergTestUtils.getBloombergReferenceDataProvider();
+    _bbgProvider.start();
+    ReferenceDataProvider cachingProvider = BloombergTestUtils.getMongoCachingReferenceDataProvider(_bbgProvider);
+    _securityTypeResolver = new BloombergSecurityTypeResolver(cachingProvider);
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    if (_context != null) {
-      _context.stop();
-      _context = null;
+  @AfterClass
+  public void tearDownClass() throws Exception {
+    if (_bbgProvider != null) {
+      _bbgProvider.stop();
+      _bbgProvider = null;
     }
     _securityTypeResolver = null;
   }
@@ -70,6 +70,16 @@ public class BloombergSecurityTypeResolverTest {
   }
 
   @Test
+  public void testEquityIndexFutureOption() {
+    assertSecurityType(Collections.singleton("ESH3C 1000 Index"), SecurityType.EQUITY_INDEX_FUTURE_OPTION);
+  }
+
+  @Test
+  public void testEquityIndexDividendFutureOption() {
+    assertSecurityType(Collections.singleton("DEDZ3C 100.00 Index"), SecurityType.EQUITY_INDEX_DIVIDEND_FUTURE_OPTION);
+  }
+
+  @Test
   public void testBondFuture() {
     assertSecurityType(Collections.singleton("USM10 Comdty"), SecurityType.BOND_FUTURE);
   }
@@ -82,6 +92,16 @@ public class BloombergSecurityTypeResolverTest {
   @Test
   public void testIRFutureOptionSecurity() {
     assertSecurityType(Collections.singleton("EDZ2C 99.500 Comdty"), SecurityType.IR_FUTURE_OPTION);
+  }
+
+  @Test
+  public void testCommodityFutureOptionSecurity() {
+    assertSecurityType(Collections.singleton("CHH3C 24.25 Comdty"), SecurityType.COMMODITY_FUTURE_OPTION);
+  }
+
+  @Test
+  public void testFxFutureOptionSecurity() {
+    assertSecurityType(Collections.singleton("JYH3P 105.0 Curncy"), SecurityType.FX_FUTURE_OPTION);
   }
 
   @Test

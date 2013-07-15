@@ -16,25 +16,25 @@ import com.opengamma.engine.value.ValueSpecification;
     super(Object.class);
     addFormatter(new Formatter<Object>(Format.HISTORY) {
       @Override
-      Object format(Object value, ValueSpecification valueSpec) {
+      Object format(Object value, ValueSpecification valueSpec, Object inlineKey) {
         return null;
       }
     });
     addFormatter(new Formatter<Object>(Format.EXPANDED) {
       @Override
-      Object format(Object value, ValueSpecification valueSpec) {
+      Object format(Object value, ValueSpecification valueSpec, Object inlineKey) {
         return "";
       }
     });
   }
 
   @Override
-  public Object formatCell(Object value, ValueSpecification valueSpec) {
+  public Object formatCell(Object value, ValueSpecification valueSpec, Object inlineKey) {
     return "";
   }
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

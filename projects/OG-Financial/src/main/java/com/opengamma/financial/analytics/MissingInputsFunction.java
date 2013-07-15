@@ -9,15 +9,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -26,6 +23,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -138,7 +136,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final CompiledFunctionDefinition underlying = getUnderlyingDefinition().compile(context, atInstant);
     if (underlying == getUnderlyingCompiled()) {
       s_logger.debug("Compiling underlying on {} gives self", this);
@@ -184,28 +182,66 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       return null;
     }
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(underlyingResults.size());
-    for (ValueSpecification underlyingResult : underlyingResults) {
-      final ValueProperties.Builder properties = underlyingResult.getProperties().copy();
-      properties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull(), getAggregationStyleMissing());
-      results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+    for (final ValueSpecification underlyingResult : underlyingResults) {
+      final ValueProperties underlyingProperties = underlyingResult.getProperties();
+      final ValueProperties.Builder properties = underlyingProperties.copy();
+      if (underlyingProperties.getProperties().isEmpty()) {
+        // Got the infinite or nearly infinite property set
+        properties.withAny(ValuePropertyNames.AGGREGATION);
+        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+      } else {
+        // Got a finite property set; republish with both aggregation modes
+        properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
+        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+        properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
+        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
+      }
     }
     s_logger.debug("Returning results {}", results);
     return results;
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, ValueRequirement desiredValue) {
     // User must have requested our aggregation style
-    final ValueProperties resultConstraints = desiredValue.getConstraints();
-    final Set<String> aggregationStyle = resultConstraints.getValues(ValuePropertyNames.AGGREGATION);
-    if (aggregationStyle == null) {
-      s_logger.debug("No aggregation requirements on {}", desiredValue);
-      return null;
+    final ValueProperties constraints = desiredValue.getConstraints();
+    if (constraints.getProperties() == null) {
+      // No constraints - assume FULL and make it optional for the inputs
+      desiredValue = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), ValueProperties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull())
+          .withOptional(ValuePropertyNames.AGGREGATION).get());
+    } else if (constraints.getProperties().isEmpty()) {
+      // Infinite/near-infinite constraints - make aggregation style optional
+      if (!constraints.isOptional(ValuePropertyNames.AGGREGATION)) {
+        desiredValue = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), constraints.copy().withOptional(ValuePropertyNames.AGGREGATION).get());
+      }
+    } else {
+      final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
+      final String full = getAggregationStyleFull();
+      if ((aggregationStyle == null) || aggregationStyle.isEmpty()) {
+        // No constraint or wild-card - assume FULL and make it optional for the inputs
+        desiredValue = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), constraints.copy().withoutAny(ValuePropertyNames.AGGREGATION)
+            .withOptional(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, full).get());
+      } else if (aggregationStyle.contains(full)) {
+        // Constraint allows FULL - make it optional for the inputs
+        if ((aggregationStyle.size() != 1) || !constraints.isOptional(ValuePropertyNames.AGGREGATION)) {
+          desiredValue = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), constraints.copy().withoutAny(ValuePropertyNames.AGGREGATION)
+              .withOptional(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, full).get());
+        }
+      } else {
+        final String missing = getAggregationStyleMissing();
+        if (aggregationStyle.contains(missing)) {
+          // Constraint allows MISSING - make it optional for the inputs
+          if ((aggregationStyle.size() != 1) || !constraints.isOptional(ValuePropertyNames.AGGREGATION)) {
+            desiredValue = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), constraints.copy().withoutAny(ValuePropertyNames.AGGREGATION)
+                .withOptional(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, missing).get());
+          }
+        } else {
+          // Unsupported aggregation style
+          return null;
+        }
+      }
     }
-    // Requirement has all constraints asked of us (minus the aggregation style)
-    final ValueProperties requirementConstraints = resultConstraints.withoutAny(ValuePropertyNames.AGGREGATION);
-    final Set<ValueRequirement> requirements = getUnderlyingCompiled().getRequirements(context, target,
-        new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
+    final Set<ValueRequirement> requirements = getUnderlyingCompiled().getRequirements(context, target, desiredValue);
     s_logger.debug("Returning requirements {} for {}", requirements, desiredValue);
     return requirements;
   }
@@ -222,17 +258,40 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       s_logger.debug("Underlying returned null inputs {}", inputs);
       return null;
     }
-    final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(underlyingResults.size() * 2);
-    for (ValueSpecification underlyingResult : underlyingResults) {
+    final String full = getAggregationStyleFull();
+    final String missing = getAggregationStyleMissing();
+    boolean resultFull = false;
+    boolean resultMissing = false;
+    for (ValueRequirement input : inputs.values()) {
+      final Set<String> inputAgg = input.getConstraints().getValues(ValuePropertyNames.AGGREGATION);
+      if (inputAgg != null) {
+        if (inputAgg.contains(full)) {
+          resultFull = true;
+        }
+        if (inputAgg.contains(missing)) {
+          resultMissing = true;
+        }
+      }
+    }
+    if (!resultFull && !resultMissing) {
+      resultFull = true;
+      resultMissing = true;
+    }
+    final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(underlyingResults.size() * ((resultFull && resultMissing) ? 2 : 1));
+    for (final ValueSpecification underlyingResult : underlyingResults) {
       final ValueProperties properties = underlyingResult.getProperties();
       if ((properties.getProperties() != null) && properties.getProperties().isEmpty()) {
         results.add(underlyingResult);
       } else {
         final ValueProperties.Builder builder = properties.copy();
-        builder.with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
-        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), builder.get()));
-        builder.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
-        results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), builder.get()));
+        if (resultFull) {
+          builder.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
+          results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), builder.get()));
+        }
+        if (resultMissing) {
+          builder.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
+          results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), builder.get()));
+        }
       }
     }
     s_logger.debug("Returning results {} for {}", results, inputs);
@@ -241,9 +300,9 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
 
   @Override
   public Set<ValueRequirement> getAdditionalRequirements(final FunctionCompilationContext context, final ComputationTarget target,
-      final Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
+      final Set<ValueSpecification> inputs, final Set<ValueSpecification> outputs) {
     final Set<ValueSpecification> underlyingOutputs = Sets.newHashSetWithExpectedSize(outputs.size());
-    for (ValueSpecification output : outputs) {
+    for (final ValueSpecification output : outputs) {
       final ValueProperties properties = output.getProperties().withoutAny(ValuePropertyNames.AGGREGATION);
       underlyingOutputs.add(new ValueSpecification(output.getValueName(), output.getTargetSpecification(), properties));
     }
@@ -277,10 +336,10 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       return Collections.emptySet();
     }
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(underlyingResults.size());
-    for (ComputedValue underlyingResult : underlyingResults) {
+    for (final ComputedValue underlyingResult : underlyingResults) {
       final ValueSpecification resultSpec = underlyingResult.getSpecification();
       final ValueProperties.Builder properties = resultSpec.getProperties().copy();
-      properties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
+      properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
       results.add(new ComputedValue(new ValueSpecification(resultSpec.getValueName(), resultSpec.getTargetSpecification(), properties.get()), underlyingResult.getValue()));
       if (inputs.getMissingValues().isEmpty()) {
         properties.withoutAny(ValuePropertyNames.AGGREGATION).with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull());
@@ -294,20 +353,20 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Set<ValueRequirement> underlyingDesired = Sets.newHashSetWithExpectedSize(desiredValues.size());
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       final ValueProperties requirementConstraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.AGGREGATION);
-      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
+      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), requirementConstraints));
     }
     try {
       return createExecuteResults(inputs, getUnderlyingInvoker().execute(executionContext, inputs, target, underlyingDesired));
-    } catch (AsynchronousExecution e) {
-      final AsynchronousOperation<Set<ComputedValue>> async = new AsynchronousOperation<Set<ComputedValue>>();
+    } catch (final AsynchronousExecution e) {
+      final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
       e.setResultListener(new ResultListener<Set<ComputedValue>>() {
         @Override
         public void operationComplete(final AsynchronousResult<Set<ComputedValue>> result) {
           try {
             async.getCallback().setResult(createExecuteResults(inputs, result.getResult()));
-          } catch (RuntimeException e) {
+          } catch (final RuntimeException e) {
             async.getCallback().setException(e);
           }
         }

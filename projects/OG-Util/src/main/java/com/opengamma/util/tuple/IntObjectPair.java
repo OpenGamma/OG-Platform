@@ -7,7 +7,7 @@ package com.opengamma.util.tuple;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 
-import org.apache.http.util.LangUtils;
+import java.util.Objects;
 
 /**
  * An immutable pair consisting of an {@code int} and {@code Object}.
@@ -38,7 +38,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
    * @return a pair formed from the two parameters, not null
    */
   public static <B> IntObjectPair<B> of(final int first, final B second) {
-    return new IntObjectPair<B>(first, second);
+    return new IntObjectPair<>(first, second);
   }
 
   /**
@@ -91,7 +91,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
     }
     if (obj instanceof IntObjectPair) {
       final IntObjectPair<T> other = (IntObjectPair<T>) obj;
-      return this.first == other.first && LangUtils.equals(this.second, other.second);
+      return this.first == other.first && Objects.equals(this.second, other.second);
     }
     return super.equals(obj);
   }

@@ -21,9 +21,9 @@ import com.opengamma.util.ArgumentChecker;
 public class FXOptionBlackThetaSurfaceDefaults extends FXOptionBlackSurfaceDefaults {
   private final String _defaultNumberOfDays;
 
-  public FXOptionBlackThetaSurfaceDefaults(final String priority, final String defaultNumberOfDays, final String interpolatorName, final String leftExtrapolatorName,
+  public FXOptionBlackThetaSurfaceDefaults(final String defaultNumberOfDays, final String interpolatorName, final String leftExtrapolatorName,
       final String rightExtrapolatorName, final String... surfaceNamesBuCurrencyPair) {
-    super(priority, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, surfaceNamesBuCurrencyPair);
+    super(interpolatorName, leftExtrapolatorName, rightExtrapolatorName, surfaceNamesBuCurrencyPair);
     ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");
     _defaultNumberOfDays = defaultNumberOfDays;
   }

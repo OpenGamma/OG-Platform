@@ -7,6 +7,7 @@
   <class name="com.opengamma.batch.domain.MarketDataValue" table="rsk_live_data_snapshot_entry">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">rsk_hibernate_sequence</param>
       	<param name="optimizer">hilo</param>
       	<param name="increment_size">100</param>
       </generator>
@@ -23,6 +24,4 @@
  
   </class>
   
-</hibernate-mapping>    
-    
-        
+</hibernate-mapping>

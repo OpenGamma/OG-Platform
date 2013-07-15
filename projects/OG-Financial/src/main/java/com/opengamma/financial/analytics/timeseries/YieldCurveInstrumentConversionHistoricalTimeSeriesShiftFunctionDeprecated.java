@@ -5,16 +5,14 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.OverrideOperation;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.util.money.Currency;
 
 /**
  * Functions to shift historical market data values used for yield curve construction, implemented using properties and constraints.
@@ -25,11 +23,8 @@ import com.opengamma.util.money.Currency;
 public class YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated extends AbstractHistoricalTimeSeriesShiftFunction<HistoricalTimeSeriesBundle> {
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!super.canApplyTo(context, target)) {
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override

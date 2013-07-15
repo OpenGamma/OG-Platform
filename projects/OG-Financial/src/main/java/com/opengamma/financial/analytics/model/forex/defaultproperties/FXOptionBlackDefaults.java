@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -25,11 +24,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -84,7 +79,8 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
    */
   public FXOptionBlackDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String... propertyValuesByCurrencies) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(interpolatorName, "interpolator name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
@@ -95,8 +91,8 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
-    _propertyValuesByCurrency = new HashMap<String, Pair<String, String>>();
-    _surfaceNameByCurrencyPair = new HashMap<Pair<String, String>, String>();
+    _propertyValuesByCurrency = new HashMap<>();
+    _surfaceNameByCurrencyPair = new HashMap<>();
     for (int i = 0; i < propertyValuesByCurrencies.length; i += 7) {
       final String firstCurrency = propertyValuesByCurrencies[i];
       final Pair<String, String> firstCurrencyValues = Pair.of(propertyValuesByCurrencies[i + 1], propertyValuesByCurrencies[i + 2]);
@@ -112,21 +108,7 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final boolean isFXOption = (security instanceof FXOptionSecurity
-        || target.getSecurity() instanceof FXBarrierOptionSecurity
-        || target.getSecurity() instanceof FXDigitalOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity);
-    if (!isFXOption) {
-      return false;
-    }
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
     return (_propertyValuesByCurrency.containsKey(putCurrency) && _propertyValuesByCurrency.containsKey(callCurrency));

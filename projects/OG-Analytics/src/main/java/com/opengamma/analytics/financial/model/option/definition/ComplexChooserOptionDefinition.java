@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.model.option.definition;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
@@ -44,7 +43,7 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
       return Math.max(callPrice, putPrice);
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final double _callStrike;
   private final double _putStrike;
   private final Expiry _callExpiry;

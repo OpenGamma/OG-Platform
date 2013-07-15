@@ -16,22 +16,18 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.calendar.TimeZone;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 import org.springframework.core.io.AbstractResource;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ResourceUtils;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PlatformConfigUtils;
+import com.opengamma.util.ResourceUtils;
 
 /**
  * Manages the process of loading and starting OpenGamma components.
@@ -89,26 +85,6 @@ public class ComponentManager {
   private final ConcurrentMap<String, String> _properties = new ConcurrentHashMap<String, String>();
 
   /**
-   * Creates a resource from a string location.
-   * <p>
-   * This accepts locations starting with "classpath:" or "file:".
-   * It also accepts plain locations, treated as "file:".
-   * 
-   * @param resourceLocation  the resource location, not null
-   * @return the resource, not null
-   */
-  public static Resource createResource(String resourceLocation) {
-    if (resourceLocation.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX)) {
-      return new ClassPathResource(resourceLocation.substring(ResourceUtils.CLASSPATH_URL_PREFIX.length()), ClassUtils.getDefaultClassLoader());
-    }
-    if (resourceLocation.startsWith(ResourceUtils.FILE_URL_PREFIX)) {
-      return new FileSystemResource(resourceLocation.substring(ResourceUtils.FILE_URL_PREFIX.length()));
-    }
-    return new FileSystemResource(resourceLocation);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Creates an instance that does not log.
    * 
    * @param serverName  the server name, not null
@@ -138,7 +114,7 @@ public class ComponentManager {
     ArgumentChecker.notNull(repo, "repo");
     _repo = repo;
     _logger = repo.getLogger();
-    getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
+    setServerName(serverName);
   }
 
   //-------------------------------------------------------------------------
@@ -184,6 +160,7 @@ public class ComponentManager {
    */
   public void setServerName(String serverName) {
     getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
+    System.setProperty(OPENGAMMA_SERVER_NAME, serverName);
   }
 
   //-------------------------------------------------------------------------
@@ -196,7 +173,7 @@ public class ComponentManager {
    * @return the created repository, not null
    */
   public ComponentRepository start(String resourceLocation) {
-    Resource resource = createResource(resourceLocation);
+    Resource resource = ResourceUtils.createResource(resourceLocation);
     return start(resource);
   }
 
@@ -273,7 +250,7 @@ public class ComponentManager {
       PlatformConfigUtils.configureSystemProperties();
       String zoneId = global.get("time.zone");
       if (zoneId != null) {
-        OpenGammaClock.setZone(TimeZone.of(zoneId));
+        OpenGammaClock.setZone(ZoneId.of(zoneId));
       }
     }
   }
@@ -506,7 +483,7 @@ public class ComponentManager {
   protected void setPropertyInferType(Bean bean, MetaProperty<?> mp, String value) {
     Class<?> propertyType = mp.propertyType();
     if (propertyType == Resource.class) {
-      mp.set(bean, ComponentManager.createResource(value));
+      mp.set(bean, ResourceUtils.createResource(value));
       
     } else {
       // set property by value type conversion from String

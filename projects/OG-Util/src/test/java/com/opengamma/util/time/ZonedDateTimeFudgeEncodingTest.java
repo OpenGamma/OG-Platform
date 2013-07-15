@@ -7,29 +7,30 @@ package com.opengamma.util.time;
 
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ZonedDateTimeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_UTC() {
-    ZonedDateTime zdtUTC = ZonedDateTime.of(LocalDateTime.ofMidnight(2010, 7, 1), TimeZone.UTC);
+    ZonedDateTime zdtUTC = ZonedDateTime.of(LocalDateTime.of(2010, 7, 1, 0, 0), ZoneOffset.UTC);
     assertEncodeDecodeCycle(ZonedDateTime.class, zdtUTC);
   }
 
   public void test_newYork() {
-    ZonedDateTime zdtUTC = ZonedDateTime.of(LocalDateTime.ofMidnight(2010, 7, 1), TimeZone.UTC);
-    ZonedDateTime zdtPST = ZonedDateTime.ofInstant(zdtUTC.toInstant(), TimeZone.of("America/New_York"));
-    assertTrue(zdtUTC.equalInstant(zdtPST));
+    ZonedDateTime zdtUTC = ZonedDateTime.of(LocalDateTime.of(2010, 7, 1, 0, 0), ZoneOffset.UTC);
+    ZonedDateTime zdtPST = ZonedDateTime.ofInstant(zdtUTC.toInstant(), ZoneId.of("America/New_York"));
+    assertTrue(zdtUTC.isEqual(zdtPST));
     assertEncodeDecodeCycle(ZonedDateTime.class, zdtPST);
   }
 

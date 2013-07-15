@@ -1,13 +1,14 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
-import javax.time.calendar.Period;
+import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -18,14 +19,21 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class INConventions {
+  /** Month codes used by Bloomberg */
+  private static final char[] BBG_MONTH_CODES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'};
 
+  /**
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -34,6 +42,32 @@ public class INConventions {
     final ExternalId in = ExternalSchemes.financialRegionId("IN");
     final Integer overnightPublicationLag = 0;
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+
+    for (int i = 1; i < 3; i++) {
+      final String dayDepositName = "INR DEPOSIT " + i + "d";
+      final ExternalId dayBbgDeposit = bloombergTickerSecurityId("IRDR" + i + "T Curncy");
+      final ExternalId daySimpleDeposit = simpleNameSecurityId(dayDepositName);
+      final String weekDepositName = "INR DEPOSIT " + i + "w";
+      final ExternalId weekBbgDeposit = bloombergTickerSecurityId("IRDR" + i + "Z Curncy");
+      final ExternalId weekSimpleDeposit = simpleNameSecurityId(weekDepositName);
+      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, act365, following, Period.ofDays(i), 0, false, in);
+      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekSimpleDeposit), weekDepositName, act365, following, Period.ofDays(i * 7), 0, false, in);
+    }
+
+    for (int i = 1; i < 12; i++) {
+      final String depositName = "INR DEPOSIT " + i + "m";
+      final ExternalId bbgDeposit = bloombergTickerSecurityId("IRDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
+      final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act365, following, Period.ofMonths(i), 0, false, in);
+    }
+
+    for (int i = 1; i < 2; i++) {
+      final String depositName = "INR DEPOSIT " + i + "y";
+      final ExternalId bbgDeposit = bloombergTickerSecurityId("IRDR" + i + " Curncy");
+      final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act365, following, Period.ofYears(i), 0, false, in);
+    }
+
     // IR FUTURES
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_IR_FUTURE")), "INR_IR_FUTURE", act365, modified, Period.ofMonths(3),
         0, true, in);

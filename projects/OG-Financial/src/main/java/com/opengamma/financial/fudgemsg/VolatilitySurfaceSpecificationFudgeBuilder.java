@@ -13,9 +13,13 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
+import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.EuropeanExerciseType;
+import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
@@ -28,6 +32,7 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilitySurfaceSpecification object) {
     final MutableFudgeMsg message = serializer.newMessage();
+    message.add(null, 0, object.getClass().getName());
     // the following forces it not to use a secondary type if one is available.
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     // for compatibility with old code, remove.
@@ -44,6 +49,9 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     if (object.getQuoteUnits() != null) {
       message.add("quoteUnits", object.getQuoteUnits());
     }
+    if (object.getExerciseType() != null) {
+      message.add("exerciseType", object.getExerciseType().getName());
+    }
     serializer.addToMessageWithClassHeaders(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
     return message;
   }
@@ -56,20 +64,32 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     } else {
       target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
     }
-    String quoteType;
+    final String quoteType;
     if (message.hasField("quote") && message.getString("quote") != null) {
       quoteType = message.getString("quote");
     } else {
       quoteType = SurfaceAndCubeQuoteType.CALL_STRIKE;
     }
+    final ExerciseType exerciseType;
+    final ExerciseType american = new AmericanExerciseType();
+    final ExerciseType european = new EuropeanExerciseType();
+    if (message.hasField("exerciseType") && message.getString("exerciseType") != null) {
+      final String exerciseTypeName = message.getString("exerciseType");
+      exerciseType = exerciseTypeName.equalsIgnoreCase(american.getName()) ? american : european; 
+    } else {
+      exerciseType = european;
+    }
+    final String quoteUnits; 
+    if (message.hasField("quoteUnits") && message.getString("quoteUnits") != null) {
+      quoteUnits = message.getString("quoteUnits");
+    } else {
+      quoteUnits = SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
+    }
     final String name = message.getString("name");
     final FudgeField field = message.getByName("surfaceInstrumentProvider");
     final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) deserializer.fieldValueToObject(field);
-    if (message.hasField("quoteUnits") && message.getString("quoteUnits") != null) {
-      final String quoteUnits = message.getString("quoteUnits");
-      return new VolatilitySurfaceSpecification(name, target, quoteType, quoteUnits, surfaceInstrumentProvider);
-    }
-    return new VolatilitySurfaceSpecification(name, target, quoteType, surfaceInstrumentProvider);
+
+    return new VolatilitySurfaceSpecification(name, target, quoteType, quoteUnits, exerciseType, surfaceInstrumentProvider);
   }
 
 }

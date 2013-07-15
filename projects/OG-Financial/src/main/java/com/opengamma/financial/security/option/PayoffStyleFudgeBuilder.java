@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.security.option;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 import com.opengamma.util.time.Expiry;

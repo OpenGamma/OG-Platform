@@ -5,7 +5,9 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -91,26 +93,16 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
       Jedis jedis = getJedisPool().getResource();
       try {
         for (FudgeField field : fieldValues.getAllFields()) {
-          Double doubleValue = null;
+          String redisValue = toRedisTextValue(getJedisKey(), field);
           
-          if (field.getType().getTypeId() == FudgeWireType.DOUBLE_TYPE_ID) {
-            doubleValue = (Double) field.getValue();
-          } else if (field.getType().getTypeId() == FudgeWireType.STRING_TYPE_ID) {
-            // Try a conversion to double. This can happen if the chunker leaves
-            // a type in raw wire format, and it's a text-based format.
-            try {
-              doubleValue = Double.parseDouble((String) field.getValue());
-            } catch (Exception e) {
-              // Couldn't be parsed.
-            }
-          }
-          if (doubleValue == null) {
-            s_logger.info("Redis encoding for {} can only handle doubles, can't handle {}", getJedisKey(), field);
+          if (redisValue == null) {
+            // Signaling that we're discarding. Log message came out in toRedisTextValue.
             continue;
           }
+          
           // Yep, this is ugly as hell.
           try {
-            jedis.hset(getJedisKey(), field.getName(), doubleValue.toString());
+            jedis.hset(getJedisKey(), field.getName(), redisValue);
           } catch (JedisDataException jde) {
             s_logger.warn("Unable to write stuff yo.");
           }
@@ -122,6 +114,27 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
       }
     }
     _inMemoryStore.liveDataReceived(fieldValues);
+  }
+  
+  /**
+   * Convert the contents of a {@link FudgeField} to the text that will be stored
+   * in a Redis instance for LKV storage.
+   * @param jedisKey key into Jedis, for debugging in log files only.
+   * @param field the field's value to use; passed as a {@code FudgeField} for type inforamtion
+   * @return the string to store in Redis.
+   */
+  protected static String toRedisTextValue(String jedisKey, FudgeField field) {
+    switch (field.getType().getTypeId()) {
+      case FudgeWireType.DOUBLE_TYPE_ID:
+        return field.getValue().toString();
+      case FudgeWireType.DOUBLE_ARRAY_TYPE_ID:
+        return Arrays.toString((double[]) field.getValue());
+      case FudgeWireType.STRING_TYPE_ID:
+        return (String) field.getValue();
+      default:
+        s_logger.info("Redis encoding Key {} Field {} - can only handle double, double[], and String. Discarding.", jedisKey, field);
+        return null;
+    }
   }
 
   @Override
@@ -149,7 +162,8 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
       Map<String, String> allFields = jedis.hgetAll(getJedisKey());
       s_logger.debug("Updating {} from Jedis: {}", getJedisKey(), allFields);
       for (Map.Entry<String, String> fieldEntry : allFields.entrySet()) {
-        fudgeMsg.add(fieldEntry.getKey(), Double.parseDouble(fieldEntry.getValue()));
+        Object parsedRedisObject = fromRedisTextValue(fieldEntry.getValue());
+        fudgeMsg.add(fieldEntry.getKey(), parsedRedisObject);
       }
       _inMemoryStore.liveDataReceived(fudgeMsg);
     } catch (Exception e) {
@@ -160,6 +174,52 @@ public class RedisLastKnownValueStore implements LastKnownValueStore {
     } finally {
       getJedisPool().returnResource(jedis);
     }
+  }
+
+  /**
+   * This method is not an exemplar of proper software engineering.
+   * For more information on the rationale, please see http://jira.opengamma.com/browse/PLAT-2536 .
+   * <p/>
+   * A few problems with this:
+   * <ol>
+   *   <li>It's still not clear that storing all data as text is appropriate. See PLAT-2536 for commentary.</li>
+   *   <li>Our Redis storage (see {@link #toRedisTextValue(FudgeField)} does not have a type
+   *       prefix. Therefore, we're relying on the cascading parse attempts here.
+   *       This is clearly not optimal, and will cause us serious issues to try to support
+   *       all the various Fudge types.</li>
+   *   <li>For some reason Java provides you with a way to produce a standardized String representation
+   *       for {@code double[]}, but no way to parse that I could see. So yes, I implemented one.</li>
+   * </ol>
+   * @param value The text from Redis
+   * @return a parsed object from that text
+   */
+  protected static Object fromRedisTextValue(String value) {
+    
+    try {
+      Double doubleValue = Double.parseDouble(value);
+      return doubleValue.doubleValue();
+    } catch (Exception e) {
+      // Not a double. Ignore.
+    }
+    
+    if (value.startsWith("[") && value.endsWith("]")) {
+      // Double array.
+      // Is there a way to wipe my association with this code? I fear git blame in this case...
+      try {
+        String stripped = value.substring(1, value.length() - 1);
+        String[] split = stripped.split(Pattern.quote(","));
+        double[] doubleValues = new double[split.length];
+        for (int i = 0; i < split.length; i++) {
+          doubleValues[i] = Double.parseDouble(split[i]);
+        }
+        return doubleValues;
+      } catch (Exception e) {
+        // Not a double array. Ignore.
+        s_logger.debug("String " + value + " looks like a double array but couldn't be parsed", e);
+      }
+    }
+    
+    return value;
   }
 
 }

@@ -6,7 +6,7 @@
 package com.opengamma.integration.copier.timeseries.writer;
 
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * The interface for a time series writer, which must be able to accept a list of data points to write to a specified

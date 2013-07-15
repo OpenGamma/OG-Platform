@@ -12,8 +12,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 
 /**
- *
+ * Formatter.
  */
+@SuppressWarnings("rawtypes")
 /* package */ class LabelledMatrix2DFormatter extends AbstractFormatter<LabelledMatrix2D> {
 
   /* package */ static final String X_LABELS = "xLabels";
@@ -24,14 +25,14 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
     super(LabelledMatrix2D.class);
     addFormatter(new Formatter<LabelledMatrix2D>(Format.EXPANDED) {
       @Override
-      Map<String, Object> format(LabelledMatrix2D value, ValueSpecification valueSpec) {
+      Map<String, Object> format(LabelledMatrix2D value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public String formatCell(LabelledMatrix2D value, ValueSpecification valueSpec) {
+  public String formatCell(LabelledMatrix2D value, ValueSpecification valueSpec, Object inlineKey) {
     return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + ")";
   }
 

@@ -14,10 +14,12 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryPortfolioDbPortfolioMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPortfolioMasterWorkerTest {
   // superclass sets up dummy database
 

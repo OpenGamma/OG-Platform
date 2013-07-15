@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.schedule;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -98,7 +97,7 @@ public class EndOfYearScheduleCalculatorTest extends ScheduleCalculatorTestCase 
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
         assertEquals(forward[i].getYear() - forward[i - 1].getYear(), 1);
-        assertEquals(forward[i].getMonthOfYear().getValue(), 12);
+        assertEquals(forward[i].getMonthValue(), 12);
         assertEquals(forward[i].getDayOfMonth(), 31);
       }
     }
@@ -143,7 +142,7 @@ public class EndOfYearScheduleCalculatorTest extends ScheduleCalculatorTestCase 
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
         assertEquals(forward[i].getYear() - forward[i - 1].getYear(), 1);
-        assertEquals(forward[i].getMonthOfYear().getValue(), 12);
+        assertEquals(forward[i].getMonthValue(), 12);
         assertEquals(forward[i].getDayOfMonth(), 31);
       }
     }

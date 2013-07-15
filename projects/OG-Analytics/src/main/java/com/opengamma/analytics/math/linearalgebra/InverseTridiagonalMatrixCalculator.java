@@ -23,9 +23,9 @@ public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMa
   @Override
   public DoubleMatrix2D evaluate(final TridiagonalMatrix x) {
     Validate.notNull(x);
-    final double[] a = x.getDiagonal();
-    final double[] b = x.getUpperSubDiagonal();
-    final double[] c = x.getLowerSubDiagonal();
+    final double[] a = x.getDiagonalData();
+    final double[] b = x.getUpperSubDiagonalData();
+    final double[] c = x.getLowerSubDiagonalData();
     final int n = a.length;
     int i, j, k;
     final double[] theta = new double[n + 1];

@@ -6,13 +6,14 @@
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.Map;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackTermStructureForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackTermStructureForexCalculator;
@@ -58,8 +59,8 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final Pair<Currency, Currency> CURRENCY_PAIR = Pair.of(EUR, USD);
   private static final double SPOT = 1.40;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, SPOT);
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
-  private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
+  private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20 };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -93,9 +94,9 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final ForexOptionVanillaBlackSmileMethod METHOD_SMILE = ForexOptionVanillaBlackSmileMethod.getInstance();
 
   // For comparison
-  private static final double[] DELTA = new double[] {0.10, 0.25};
-  private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
-  private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
+  private static final double[] DELTA = new double[] {0.10, 0.25 };
+  private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 } };
+  private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 }, {0.0, 0.0 } };
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, VOL, RISK_REVERSAL_FLAT,
       STRANGLE_FLAT, LINEAR_FLAT, LINEAR_FLAT);
   private static final SmileDeltaTermStructureDataBundle BUNDLE_SMILE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_FLAT, CCY);
@@ -140,7 +141,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   public void presentValuePutCallParity() {
     final MultipleCurrencyAmount pvCall = METHOD_BLACK_TS.presentValue(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount pvPut = METHOD_BLACK_TS.presentValue(PUT_SHORT, BUNDLE_BLACK_TS);
-    final MultipleCurrencyAmount pvForward = PVC_BLACK_TS.visit(FX, CURVES_FX);
+    final MultipleCurrencyAmount pvForward = FX.accept(PVC_BLACK_TS, CURVES_FX);
     assertEquals("Forex vanilla option: present value put/call parity", BUNDLE_BLACK_TS.getFxRates().convert(pvForward, EUR).getAmount(), BUNDLE_BLACK_TS.getFxRates().convert(pvCall.plus(pvPut), EUR)
         .getAmount(), TOLERANCE_PV);
   }
@@ -151,7 +152,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_BLACK_TS.presentValue(CALL_LONG, BUNDLE_BLACK_TS);
-    final MultipleCurrencyAmount pvCalculator = PVC_BLACK_TS.visit(CALL_LONG, BUNDLE_BLACK_TS);
+    final MultipleCurrencyAmount pvCalculator = CALL_LONG.accept(PVC_BLACK_TS, BUNDLE_BLACK_TS);
     assertEquals("Forex vanilla option: present value Method vs Calculator", pvMethod.getAmount(USD), pvCalculator.getAmount(USD), TOLERANCE_PV);
   }
 
@@ -173,7 +174,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_BLACK_TS.presentValueCurveSensitivity(CALL_LONG, BUNDLE_BLACK_TS);
-    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK_TS.visit(CALL_LONG, BUNDLE_BLACK_TS);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = CALL_LONG.accept(PVCSC_BLACK_TS, BUNDLE_BLACK_TS);
     AssertSensivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
@@ -185,7 +186,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
     final MultipleCurrencyAmount pv = METHOD_BLACK_TS.presentValue(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount ce = METHOD_BLACK_TS.currencyExposure(CALL_LONG, BUNDLE_BLACK_TS);
     assertEquals("Forex vanilla option: currency exposure vs present value", ce.getAmount(USD) + ce.getAmount(EUR) * SPOT, pv.getAmount(USD), TOLERANCE_PV);
-    InstrumentDerivative instrument = CALL_LONG;
+    final InstrumentDerivative instrument = CALL_LONG;
     final MultipleCurrencyAmount ce2 = METHOD_BLACK_TS.currencyExposure(instrument, BUNDLE_BLACK_TS);
     assertEquals("Forex vanilla option: currency exposure", ce.getAmount(USD), ce2.getAmount(USD), TOLERANCE_PV);
     assertEquals("Forex vanilla option: currency exposure", ce.getAmount(EUR), ce2.getAmount(EUR), TOLERANCE_PV);
@@ -198,7 +199,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   public void currencyExposurePutCallParity() {
     final MultipleCurrencyAmount currencyExposureCall = METHOD_BLACK_TS.currencyExposure(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyAmount currencyExposurePut = METHOD_BLACK_TS.currencyExposure(PUT_SHORT, BUNDLE_BLACK_TS);
-    final MultipleCurrencyAmount currencyExposureForward = CEC_BLACK_TS.visit(FX, CURVES_FX);
+    final MultipleCurrencyAmount currencyExposureForward = FX.accept(CEC_BLACK_TS, CURVES_FX);
     assertEquals("Forex vanilla option: currency exposure put/call parity foreign", currencyExposureForward.getAmount(EUR), currencyExposureCall.getAmount(EUR) + currencyExposurePut.getAmount(EUR),
         TOLERANCE_PV);
     assertEquals("Forex vanilla option: currency exposure put/call parity domestic", currencyExposureForward.getAmount(USD), currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD),

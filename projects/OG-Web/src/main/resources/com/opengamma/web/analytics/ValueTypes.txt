@@ -1,0 +1,59 @@
+'Bond Coupon Payment Times' com.opengamma.financial.analytics.LocalDateLabelledMatrix1D
+'Bond Tenor' java.lang.Number
+'Bucketed CS01' com.opengamma.financial.analytics.LocalDateLabelledMatrix1D
+'Bucketed Gamma CS01' com.opengamma.financial.analytics.LocalDateLabelledMatrix1D
+'Bucketed IR01' com.opengamma.financial.analytics.LocalDateLabelledMatrix1D
+'CAPM Beta' java.lang.Double
+'CAPM Regression Adjusted R-Squared' java.lang.Double
+'CAPM Regression Alpha Residual' java.lang.Double
+'CAPM Regression Alpha Standard Error' java.lang.Double
+'CAPM Regression Alpha' java.lang.Double
+'CAPM Regression Beta Residual' java.lang.Double
+'CAPM Regression Beta Standard Error' java.lang.Double
+'CAPM Regression Beta' java.lang.Double
+'Clean Price' java.lang.Double
+'CreditSpreadCurve' com.opengamma.analytics.math.curve.NodalObjectsCurve
+'Dirty Price' java.lang.Double
+'FX Present Value' com.opengamma.financial.analytics.CurrencyLabelledMatrix1D
+'Forward' java.lang.Double
+'ForwardCurve' com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve
+'HazardRateCurve' com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve
+'HistoricalVaR Standard Deviation' java.lang.Double
+'HistoricalVaR' java.lang.Double
+'Implied Volatility' java.lang.Double
+'InterpolatedVolatilitySurfaceData' com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface
+'Jensen's Alpha' java.lang.Double
+'LocalVolatilitySurface' com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness
+'Macaulay Duration' java.lang.Double
+'Market Clean Price' java.lang.Double
+'Market Dirty Price' java.lang.Double
+'Market Yield To Maturity' java.lang.Double
+'Market_Value' java.lang.Double
+'Modified Duration' java.lang.Double
+'Par Rate' java.lang.Double
+'PV Z Spread Sensitivity' java.lang.Double
+'PV01' java.lang.Double
+'Par Rate' java.lang.Double
+'Piecewise SABR fitted surface' com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness
+'Present Value Curve Sensitivity' java.util.HashMap
+'Present Value SABR Alpha Node Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
+'Present Value SABR Alpha Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
+'Present Value SABR Nu Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
+'Present Value SABR Rho Sensitivity' com.opengamma.financial.analytics.DoubleLabelledMatrix2D
+'Security Market Price' java.lang.Double
+'Sharpe Ratio' java.lang.Double
+'Spot' java.lang.Double
+'StandardVolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
+'Total Risk Alpha' java.lang.Double
+'Treynor Ratio' java.lang.Double
+'Underlying Market Price' java.lang.Double
+'Value' java.lang.Double
+'ValueRho' java.lang.Double
+'ValueVanna' java.lang.Double
+'ValueVomma' java.lang.Double
+'VolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
+'Yield Curve Node Sensitivities' com.opengamma.financial.analytics.DoubleLabelledMatrix1D
+'Yield Curve P&L Series' com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D
+'Yield Curve Return Series' com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D
+'Yield To Maturity' java.lang.Double
+'Z Spread' java.lang.Double

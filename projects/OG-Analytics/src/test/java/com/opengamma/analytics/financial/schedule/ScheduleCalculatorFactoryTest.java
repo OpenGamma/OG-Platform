@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.schedule;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.MonthOfYear;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Month;
 
 /**
  * 
@@ -34,12 +33,12 @@ public class ScheduleCalculatorFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName2() {
-    ScheduleCalculatorFactory.getScheduleCalculator(null, 31, MonthOfYear.DECEMBER);
+    ScheduleCalculatorFactory.getScheduleCalculator(null, 31, Month.DECEMBER);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName3() {
-    ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.DAILY, 23, MonthOfYear.APRIL);
+    ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.DAILY, 23, Month.APRIL);
   }
 
   @Test
@@ -58,7 +57,7 @@ public class ScheduleCalculatorFactoryTest {
     assertEquals(ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.END_OF_YEAR), ScheduleCalculatorFactory.END_OF_YEAR_CALCULATOR);
     assertEquals(ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.ANNUAL_EOM), ScheduleCalculatorFactory.ANNUAL_EOM_CALCULATOR);
     assertEquals(ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.WEEKLY_ON_DAY, DayOfWeek.MONDAY), new WeeklyScheduleOnDayCalculator(DayOfWeek.MONDAY));
-    assertEquals(ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.ANNUAL_ON_DAY_AND_MONTH, 11, MonthOfYear.APRIL), new AnnualScheduleOnDayAndMonthCalculator(11,
-        MonthOfYear.APRIL));
+    assertEquals(ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.ANNUAL_ON_DAY_AND_MONTH, 11, Month.APRIL), new AnnualScheduleOnDayAndMonthCalculator(11,
+        Month.APRIL));
   }
 }

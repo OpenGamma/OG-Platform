@@ -8,10 +8,9 @@ package com.opengamma.financial.analytics.timeseries;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -21,11 +20,11 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -61,24 +60,20 @@ public abstract class VolatilitySurfaceHistoricalTimeSeriesFunction extends Abst
     final String resolutionKey;
     final Set<String> resolutionKeyConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY);
     if (resolutionKeyConstraint == null || resolutionKeyConstraint.size() != 1) {
-      resolutionKey = "";
+      resolutionKey = "Null";
     } else {
       resolutionKey = Iterables.getOnlyElement(resolutionKeyConstraint);
     }
-    final LocalDate startDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
+    final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
     final Set<String> endDateConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
     final String endDateString;
     if (endDateConstraint == null || endDateConstraint.size() != 1) {
-      endDateString = "";
+      endDateString = "Now";
     } else {
       endDateString = Iterables.getOnlyElement(endDateConstraint);
     }
-    LocalDate endDate = DateConstraint.getLocalDate(executionContext, endDateString);
-    if (endDate == null) {
-      // If end date was not specified, use the context valuation time, rather than the real "up to present day" we'd get from passing null
-      endDate = executionContext.getValuationClock().today();
-    }
+    LocalDate endDate = DateConstraint.evaluate(executionContext, endDateString);
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(target, surfaceName, definitionSource);
@@ -100,13 +95,13 @@ public abstract class VolatilitySurfaceHistoricalTimeSeriesFunction extends Abst
         }
       }
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, desiredValue.getTargetSpecification(),
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, target.toSpecification(),
         desiredValue.getConstraints()), bundle));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override

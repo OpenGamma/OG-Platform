@@ -84,7 +84,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
       // If no more rows to get in the current csv, and no more zip entries, then we've reached the end
       } else if (!_zipEntries.hasMoreElements()) {
         return null;
-      
+
       // More zip entries, try get another csv and return a row from it
       } else {
         // Get the portfolio reader for this csv file
@@ -189,4 +189,8 @@ public class ZippedPortfolioReader implements PortfolioReader {
     }
   }
 
+  @Override
+  public String getPortfolioName() {
+    return null;
+  }
 }

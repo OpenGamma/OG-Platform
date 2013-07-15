@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.instrument.swap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
@@ -23,8 +22,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Test the swap Ibor+spread to Ibor+spread constructor and to derivative.
@@ -33,8 +33,8 @@ public class SwapIborIborDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = INDEX_MASTER.getIndex("USDLIBOR3M", CALENDAR);
-  private static final IborIndex USDLIBOR6M = INDEX_MASTER.getIndex("USDLIBOR6M", CALENDAR);
+  private static final IborIndex USDLIBOR3M = INDEX_MASTER.getIndex("USDLIBOR3M");
+  private static final IborIndex USDLIBOR6M = INDEX_MASTER.getIndex("USDLIBOR6M");
   private static final Period ANNUITY_TENOR = Period.ofYears(2);
 
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 4, 18);
@@ -42,10 +42,10 @@ public class SwapIborIborDefinitionTest {
 
   private static final boolean IS_PAYER_1 = true;
   private static final double SPREAD_1 = 0.0012;
-  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_1 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR3M, SPREAD_1, IS_PAYER_1);
+  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_1 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR3M, SPREAD_1, IS_PAYER_1, CALENDAR);
   private static final boolean IS_PAYER_2 = false;
   private static final double SPREAD_2 = 0.0;
-  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR6M, SPREAD_2, IS_PAYER_2);
+  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, USDLIBOR6M, SPREAD_2, IS_PAYER_2, CALENDAR);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(IBOR_LEG_1, IBOR_LEG_2);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -69,8 +69,8 @@ public class SwapIborIborDefinitionTest {
    * Tests the builder (from) using a Ibor/Ibor swap generator.
    */
   public void from() {
-    GeneratorSwapIborIbor generator = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M);
-    SwapIborIborDefinition swapFrom = SwapIborIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, generator, NOTIONAL, SPREAD_1, IS_PAYER_1);
+    final GeneratorSwapIborIbor generator = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M, CALENDAR, CALENDAR);
+    final SwapIborIborDefinition swapFrom = SwapIborIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, generator, NOTIONAL, SPREAD_1, IS_PAYER_1);
     assertEquals("SwapIborIborDefinition: from", swapFrom, SWAP_IBOR_IBOR);
   }
 
@@ -80,11 +80,11 @@ public class SwapIborIborDefinitionTest {
   @Test
   public void toDerivative() {
     final String[] yieldCurveNames = new String[] {"dsc", "fwd", "fwd6m"};
-    final ArrayZonedDateTimeDoubleTimeSeries fixingTs3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()},
+    final ZonedDateTimeDoubleTimeSeries fixingTs3 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()},
         new double[] {0.0123});
-    final ArrayZonedDateTimeDoubleTimeSeries fixingTs6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()},
+    final ZonedDateTimeDoubleTimeSeries fixingTs6 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()},
         new double[] {0.0135});
-    final ArrayZonedDateTimeDoubleTimeSeries[] fixingTs = new ArrayZonedDateTimeDoubleTimeSeries[] {fixingTs3, fixingTs6};
+    final ZonedDateTimeDoubleTimeSeries[] fixingTs = new ZonedDateTimeDoubleTimeSeries[] {fixingTs3, fixingTs6};
     final ZonedDateTime referenceDateBeforeFirstFixing = DateUtils.getUTCDate(2012, 4, 13);
     final Swap<? extends Payment, ? extends Payment> swapConvertedBeforeFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateBeforeFirstFixing, yieldCurveNames);
     for (int loopcpn = 0; loopcpn < swapConvertedBeforeFirstFixing.getFirstLeg().getNumberOfPayments(); loopcpn++) {

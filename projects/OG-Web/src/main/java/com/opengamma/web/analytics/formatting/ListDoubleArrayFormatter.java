@@ -13,8 +13,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Formatter.
  */
+@SuppressWarnings("rawtypes")
 /* package */ class ListDoubleArrayFormatter extends AbstractFormatter<List> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ListDoubleArrayFormatter.class);
@@ -23,14 +24,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(List.class);
     addFormatter(new Formatter<List>(Format.EXPANDED) {
       @Override
-      Object format(List value, ValueSpecification valueSpec) {
+      Object format(List value, ValueSpecification valueSpec, Object inlineKey) {
         return value;
       }
     });
   }
 
   @Override
-  public Object formatCell(List value, ValueSpecification valueSpec) {
+  public Object formatCell(List value, ValueSpecification valueSpec, Object inlineKey) {
     int rowCount = value.size();
     int colCount;
     if (rowCount == 0) {
@@ -50,6 +51,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public DataType getDataType() {
-    return DataType.LABELLED_MATRIX_2D;
+    return DataType.MATRIX_2D;
   }
+
 }

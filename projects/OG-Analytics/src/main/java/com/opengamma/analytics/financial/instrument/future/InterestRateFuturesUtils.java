@@ -8,11 +8,11 @@ package com.opengamma.analytics.financial.instrument.future;
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Month;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,11 +24,11 @@ public class InterestRateFuturesUtils {
   /**
    * Adjuster to the third Wednesday of a given month (most used reference date for interest rate futures).
    */
-  private static final DateAdjuster THIRD_WED = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
+  private static final TemporalAdjuster THIRD_WED = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
   /**
    * The IMM Expiry months
    */
-  private static final Set<MonthOfYear> FUTURES_QUARTERS = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+  private static final Set<Month> FUTURES_QUARTERS = EnumSet.of(Month.MARCH, Month.JUNE, Month.SEPTEMBER, Month.DECEMBER);
 
   /**
    * Moves the date to the next IMM quarter month (at least one month in the future). The returned date is the same date in the month as the initial date.
@@ -39,7 +39,7 @@ public class InterestRateFuturesUtils {
     ZonedDateTime result = date;
     do {
       result = result.plusMonths(1);
-    } while (!FUTURES_QUARTERS.contains(result.getMonthOfYear()));
+    } while (!FUTURES_QUARTERS.contains(result.getMonth()));
     return result;
   }
 
@@ -49,7 +49,7 @@ public class InterestRateFuturesUtils {
    * @return The next quarterly date.
    */
   public static ZonedDateTime nextQuarterlyDate(final ZonedDateTime date) {
-    if (FUTURES_QUARTERS.contains(date.getMonthOfYear()) && date.with(THIRD_WED).isAfter(date)) { // in a quarter
+    if (FUTURES_QUARTERS.contains(date.getMonth()) && date.with(THIRD_WED).isAfter(date)) { // in a quarter
       return date.with(THIRD_WED);
     }
     return nextQuarter(date).with(THIRD_WED);

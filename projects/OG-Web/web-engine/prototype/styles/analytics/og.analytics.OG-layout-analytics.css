@@ -10,5 +10,18 @@
 }
 
 .OG-layout-analytics-center {
-    background: #f8f8f8;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-top: none;
+}
+.OG-layout-analytics-legacy-container {
+    height: 100%;
+    background: #fff;
+    visibility: hidden;
+}
+
+.OG-layout-analytics-legacy-center {
+    background: #fff;
+    border: 1px solid #bbb;
+    border-top: none;
 }

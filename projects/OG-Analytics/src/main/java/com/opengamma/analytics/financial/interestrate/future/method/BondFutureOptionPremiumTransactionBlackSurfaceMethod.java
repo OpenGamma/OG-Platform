@@ -57,7 +57,7 @@ public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(curves, "curves");
     final Currency ccy = option.getUnderlyingOption().getCurrency();
-    final CurrencyAmount premiumPV = PVC.visit(option.getPremium(), curves).getCurrencyAmount(ccy);
+    final CurrencyAmount premiumPV = option.getPremium().accept(PVC, curves).getCurrencyAmount(ccy);
     final double optionPV = price * option.getQuantity() * option.getUnderlyingOption().getUnderlyingFuture().getNotional();
     return premiumPV.plus(optionPV);
   }

@@ -12,7 +12,7 @@ $.register_module({
         'og.common.util.ui.toolbar'
     ],
     obj: function () {
-        var api = og.api.rest, routes = og.common.routes, module = this, view, details = og.common.details,
+        var api = og.api, routes = og.common.routes, module = this, view, details = og.common.details,
             ui = og.common.util.ui, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
             details_page = function (args, config) {
@@ -25,7 +25,7 @@ $.register_module({
                     id: args.id,
                     loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 };
-                $.when(api.regions.get(rest_options), og.api.text({module: module.name}))
+                $.when(api.rest.regions.get(rest_options), api.text({module: module.name}))
                     .then(function (result, template) {
                         if (result.error) return view.notify(null), view.error(result.message);
                         var region_functions = details.region_functions, json = result.data,

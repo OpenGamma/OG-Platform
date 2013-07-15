@@ -26,7 +26,9 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
  * Provides access to a ViewProcessor by starting an engine.
+ * @deprecated Doesn't works correctly in cases where the engine or JMS is remote.  Use RemoteEngineTestUtils instead.
  */
+@Deprecated
 public final class DemoViewProcessor {
 
   /**
@@ -57,7 +59,6 @@ public final class DemoViewProcessor {
 
   public ViewProcessor getViewProcessor() {
     ComponentInfo info = _componentServer.getComponentInfo(ViewProcessor.class, "main");
-    
     URI jmsBrokerUri = URI.create(info.getAttribute(ComponentInfoAttributes.JMS_BROKER_URI));
     ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(jmsBrokerUri);
     JmsConnectorFactoryBean factory = new JmsConnectorFactoryBean();

@@ -1,0 +1,61 @@
+.OG-contextmenu {
+    background-color: #f7f7f7;
+    border: 1px solid #e5e5e5;
+    line-height: 26px;
+    cursor: default;
+}
+
+.OG-contextmenu div {
+    padding: 0 20px 0 8px;
+    position: relative;
+}
+
+.OG-contextmenu span {
+    display: inline-block;
+    width: 28px;
+}
+
+.OG-contextmenu hr {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.1);
+    left: 30px;
+    margin: -1px 0 0 0;
+    position: absolute;
+    right: 0;
+}
+
+.OG-contextmenu span:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 28px;
+    width: 1px;
+    display: block;
+    background-color: #fff;
+    opacity: 0.3;
+}
+
+.OG-contextmenu span:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 29px;
+    width: 1px;
+    display: block;
+    background-color: #000;
+    opacity: 0.05;
+}
+
+
+.OG-contextmenu div:hover {
+    background-color: #80c696;
+    color: #fff;
+}
+
+.OG-contextmenu div[data-active=false],
+.OG-contextmenu div[data-active=false]:hover {
+    color: #ccc;
+    background-color: transparent;
+}

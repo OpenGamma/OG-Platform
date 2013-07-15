@@ -18,15 +18,15 @@ import com.opengamma.engine.value.ValueSpecification;
   private static final Logger s_logger = LoggerFactory.getLogger(UnknownTypeFormatter.class);
 
   @Override
-  public String formatCell(Object value, ValueSpecification valueSpec) {
+  public String formatCell(Object value, ValueSpecification valueSpec, Object inlineKey) {
     logType(value, valueSpec);
-    return super.formatCell(value, valueSpec);
+    return super.formatCell(value, valueSpec, inlineKey);
   }
 
   @Override
-  public Object format(Object value, ValueSpecification valueSpec, Format format) {
+  public Object format(Object value, ValueSpecification valueSpec, Format format, Object inlineKey) {
     logType(value, valueSpec);
-    return super.format(value, valueSpec, format);
+    return super.format(value, valueSpec, format, inlineKey);
   }
 
   private static void logType(Object value, ValueSpecification valueSpec) {

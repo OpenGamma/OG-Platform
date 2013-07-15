@@ -14,10 +14,12 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QuerySecurityDbSecurityMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecurityMasterWorkerTest {
   // superclass sets up dummy database
 

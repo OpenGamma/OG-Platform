@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
@@ -17,26 +17,45 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Autogenerates Tullett-Prebon FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from
+ * ATM.
  */
 public class TullettPrebonFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
+  /** The Tullett-Prebon scheme */
   private static final ExternalScheme SCHEME = ExternalSchemes.SURF;
-
+  /** The prefix */
   private final String _fxPrefix; //expecting something like FV
+  /** The currency pair */
   private final String _ccyPair; // expecting something like USDJPY
+  /** The data field name */
   private final String _dataFieldName;
 
+  /**
+   * @param fxPrefix The code prefix, not null
+   * @param ccyPair The currency pair, not null
+   * @param dataFieldName The data field name, not null
+   */
   public TullettPrebonFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String ccyPair, final String dataFieldName) {
     ArgumentChecker.notNull(fxPrefix, "fx prefix");
+    ArgumentChecker.notNull(ccyPair, "currency pair");
+    ArgumentChecker.notNull(dataFieldName, "data field name");
     _fxPrefix = fxPrefix;
     _ccyPair = ccyPair;
     _dataFieldName = dataFieldName;
   }
 
+  /**
+   * Gets the code prefix.
+   * @return The code prefix
+   */
   public String getFXPrefix() {
     return _fxPrefix;
   }
 
+  /**
+   * Gets the currency pair.
+   * @return The currency pair
+   */
   public String getCurrencyPair() {
     return _ccyPair;
   }

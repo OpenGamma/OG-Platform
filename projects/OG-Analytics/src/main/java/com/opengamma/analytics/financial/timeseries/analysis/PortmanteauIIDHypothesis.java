@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.ChiSquareDistribution;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -43,7 +43,7 @@ public class PortmanteauIIDHypothesis extends IIDHypothesis {
     if (x.size() < _h) {
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
     }
-    final double[] autocorrelation = _calculator.evaluate(x.toFastLongDoubleTimeSeries());
+    final double[] autocorrelation = _calculator.evaluate(x);
     double q = 0;
     for (int i = 1; i < _h; i++) {
       q += autocorrelation[i] * autocorrelation[i];

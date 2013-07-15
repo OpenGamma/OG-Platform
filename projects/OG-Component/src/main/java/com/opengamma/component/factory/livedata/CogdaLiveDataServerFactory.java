@@ -30,6 +30,7 @@ import com.opengamma.livedata.server.LastKnownValueStoreProvider;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
  * 
@@ -69,6 +70,7 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
     if (getListenPort() != null) {
       liveDataServer.setPortNumber(getListenPort());
     }
+    liveDataServer.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "CogdaLiveDataServer");
     
     CogdaLiveDataServerUpdateListener updateListener = new CogdaLiveDataServerUpdateListener(liveDataServer);
     
@@ -382,7 +384,7 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "listenJmsConnector",
         "listenTopicName",
         "dataRedisServer",

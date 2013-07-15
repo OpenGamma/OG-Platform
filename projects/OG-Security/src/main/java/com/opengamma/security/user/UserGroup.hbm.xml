@@ -6,16 +6,18 @@
 
   <class name="UserGroup" table="user_group">
   	<id name="id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">auth_hibernate_sequence</param> 
+      </generator>
     </id>
     <property name="name" not-null="true" unique="true"/>
     <set name="users" inverse="true" table="user_to_user_group">
-    	<key column="user_group_id"/>
-    	<many-to-many column="user_id" class="User"/>
+      <key column="user_group_id"/>
+      <many-to-many column="user_id" class="User"/>
     </set>
     <set name="authorities" table="user_group_to_authority" lazy="false">
-    	<key column="group_id"/>
-    	<many-to-many column="authority_id" class="Authority"/>
+      <key column="group_id"/>
+      <many-to-many column="authority_id" class="Authority"/>
     </set>
   </class>
   

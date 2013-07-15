@@ -168,6 +168,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    * 
    * @return the fudge context, not null
    */
+  @Override
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
@@ -177,6 +178,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    * 
    * @param fudgeContext  the fudge context, not null
    */
+  @Override
   public void setFudgeContext(FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
@@ -305,6 +307,9 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
       case SNAPSHOT_RESPONSE:
         dispatchSnapshotResponse(msg, subHandle);
         break;
+      default:
+        s_logger.warn("Got unexpected msg type {} as a command response - {}", msgType, msg);
+        break;
     }
   }
 
@@ -430,7 +435,7 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
    * @param args Command-line args. Ignored.
    * @throws InterruptedException Required to make the compiler happy
    */
-  public static void main(final String[] args) throws InterruptedException {
+  public static void main(final String[] args) throws InterruptedException { // CSIGNORE
     CogdaLiveDataClient client = new CogdaLiveDataClient(UserPrincipal.getLocalUser());
     //client.setServerName("cogdasvr-lx-1.hq.opengamma.com");
     client.start();
@@ -449,6 +454,11 @@ public class CogdaLiveDataClient extends AbstractLiveDataClient implements Lifec
       @Override
       public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
         s_logger.warn("Sub result {}", subscriptionResult);
+      }
+
+      @Override
+      public void subscriptionResultsReceived(final Collection<LiveDataSubscriptionResponse> subscriptionResults) {
+        s_logger.warn("Sub result {}", subscriptionResults);
       }
 
       @Override

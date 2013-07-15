@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -62,7 +63,8 @@ public class ForexNonDeliverableForward implements InstrumentDerivative {
    * @param dsc1 The discounting curve name used for currency1.
    * @param dsc2 The discounting curve name used for currency2.
    */
-  public ForexNonDeliverableForward(Currency currency1, Currency currency2, double notional, double exchangeRate, double fixingTime, double paymentTime, String dsc1, String dsc2) {
+  public ForexNonDeliverableForward(final Currency currency1, final Currency currency2, final double notional, final double exchangeRate, final double fixingTime, final double paymentTime,
+      final String dsc1, final String dsc2) {
     Validate.notNull(currency1, "First currency");
     Validate.notNull(currency2, "Second currency");
     Validate.isTrue(currency1 != currency2, "Currencies should be different");
@@ -150,12 +152,14 @@ public class ForexNonDeliverableForward implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableForward(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableForward(this);
   }
 
@@ -178,7 +182,7 @@ public class ForexNonDeliverableForward implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -188,7 +192,7 @@ public class ForexNonDeliverableForward implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexNonDeliverableForward other = (ForexNonDeliverableForward) obj;
+    final ForexNonDeliverableForward other = (ForexNonDeliverableForward) obj;
     if (!ObjectUtils.equals(_currency1, other._currency1)) {
       return false;
     }

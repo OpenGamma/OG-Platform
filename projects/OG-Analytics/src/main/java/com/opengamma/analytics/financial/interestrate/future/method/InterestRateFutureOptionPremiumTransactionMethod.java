@@ -23,9 +23,10 @@ public abstract class InterestRateFutureOptionPremiumTransactionMethod implement
    * @return The present value.
    */
   public double presentValueFromPrice(final InterestRateFutureOptionPremiumTransaction option, final YieldCurveBundle curves, final double price) {
-    PresentValueCalculator pvc = PresentValueCalculator.getInstance();
-    double premiumPV = pvc.visit(option.getPremium(), curves);
-    double optionPV = price * option.getQuantity() * option.getUnderlyingOption().getUnderlyingFuture().getNotional() * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+    final PresentValueCalculator pvc = PresentValueCalculator.getInstance();
+    final double premiumPV = option.getPremium().accept(pvc, curves);
+    final double optionPV = price * option.getQuantity() * option.getUnderlyingOption().getUnderlyingFuture().getNotional()
+        * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
     return optionPV + premiumPV;
   }
 

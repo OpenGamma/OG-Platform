@@ -6,14 +6,14 @@
 package com.opengamma.analytics.financial.interestrate.cash.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
@@ -86,14 +86,14 @@ public class DepositZeroDiscountingMethodTest {
    * Tests present value when the valuation date is on trade date.
    */
   public void presentValueTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    CurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(deposit, CURVES);
-    double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
-    double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
-    double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final CurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(deposit, CURVES);
+    final double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
+    final double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
+    final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
     assertEquals("DepositDefinition: present value", pvExpected, pvMethod.getAmount(), TOLERANCE_PRICE);
-    double pvCalculator = PVC.visit(deposit, CURVES);
+    final double pvCalculator = deposit.accept(PVC, CURVES);
     assertEquals("DepositDefinition: present value", pvMethod.getAmount(), pvCalculator, TOLERANCE_PRICE);
   }
 
@@ -102,12 +102,12 @@ public class DepositZeroDiscountingMethodTest {
    * Tests present value.
    */
   public void presentValueBetweenTradeAndSettle() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    CurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, CURVES);
-    double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
-    double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
-    double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final CurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, CURVES);
+    final double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
+    final double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
+    final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
     assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PRICE);
   }
 
@@ -116,14 +116,14 @@ public class DepositZeroDiscountingMethodTest {
    * Tests present value.
    */
   public void presentValueSettle() {
-    ZonedDateTime referenceDate = SPOT_DATE;
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    CurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(deposit, CURVES);
-    double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
-    double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
-    double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final CurrencyAmount pvMethod = METHOD_DEPOSIT.presentValue(deposit, CURVES);
+    final double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
+    final double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
+    final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
     assertEquals("DepositDefinition: present value", pvExpected, pvMethod.getAmount(), TOLERANCE_PRICE);
-    double pvCalculator = PVC.visit(deposit, CURVES);
+    final double pvCalculator = deposit.accept(PVC, CURVES);
     assertEquals("DepositDefinition: present value", pvMethod.getAmount(), pvCalculator, TOLERANCE_PRICE);
   }
 
@@ -132,11 +132,11 @@ public class DepositZeroDiscountingMethodTest {
    * Tests present value.
    */
   public void presentValueBetweenSettleMaturity() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    CurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, CURVES);
-    double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
-    double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd;
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final CurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, CURVES);
+    final double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
+    final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd;
     assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PRICE);
   }
 
@@ -145,10 +145,10 @@ public class DepositZeroDiscountingMethodTest {
    * Tests present value.
    */
   public void presentValueMaturity() {
-    ZonedDateTime referenceDate = END_DATE;
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    CurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, CURVES);
-    double pvExpected = NOTIONAL + deposit.getInterestAmount();
+    final ZonedDateTime referenceDate = END_DATE;
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final CurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, CURVES);
+    final double pvExpected = NOTIONAL + deposit.getInterestAmount();
     assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PRICE);
   }
 
@@ -157,9 +157,9 @@ public class DepositZeroDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivityTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    InterestRateCurveSensitivity pvcsMethod = METHOD_DEPOSIT.presentValueCurveSensitivity(deposit, CURVES);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final InterestRateCurveSensitivity pvcsMethod = METHOD_DEPOSIT.presentValueCurveSensitivity(deposit, CURVES);
     assertEquals("DepositDefinition: present value curve sensitivity", 1, pvcsMethod.getSensitivities().size());
     assertEquals("DepositDefinition: present value curve sensitivity", 2, pvcsMethod.getSensitivities().get(CURVES_NAME[0]).size());
     final double deltaTolerancePrice = 1.0E+2;
@@ -167,8 +167,8 @@ public class DepositZeroDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // Discounting curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    DepositZero depositBunped = DEPOSIT_DEFINITION.toDerivative(referenceDate, bumpedCurveName);
-    final double[] nodeTimesDisc = new double[] {deposit.getStartTime(), deposit.getEndTime()};
+    final DepositZero depositBunped = DEPOSIT_DEFINITION.toDerivative(referenceDate, bumpedCurveName);
+    final double[] nodeTimesDisc = new double[] {deposit.getStartTime(), deposit.getEndTime() };
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(depositBunped, CURVES, CURVES_NAME[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_DEPOSIT);
     final List<DoublesPair> sensiPvDisc = pvcsMethod.getSensitivities().get(CURVES_NAME[0]);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
@@ -176,7 +176,7 @@ public class DepositZeroDiscountingMethodTest {
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[loopnode], deltaTolerancePrice);
     }
-    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC.visit(deposit, CURVES));
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PVCSC, CURVES));
     AssertSensivityObjects.assertEquals("DepositZero: present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_RATE);
   }
 
@@ -185,8 +185,8 @@ public class DepositZeroDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivityBetweenSettleMaturity() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
     InterestRateCurveSensitivity pvcsMethod = METHOD_DEPOSIT.presentValueCurveSensitivity(deposit, CURVES);
     pvcsMethod = pvcsMethod.cleaned(0.0, 1.0E-4);
     assertEquals("DepositDefinition: present value curve sensitivity", 1, pvcsMethod.getSensitivities().size());
@@ -196,14 +196,14 @@ public class DepositZeroDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // Discounting curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    DepositZero depositBumped = DEPOSIT_DEFINITION.toDerivative(referenceDate, bumpedCurveName);
-    final double[] nodeTimesDisc = new double[] {deposit.getEndTime()};
+    final DepositZero depositBumped = DEPOSIT_DEFINITION.toDerivative(referenceDate, bumpedCurveName);
+    final double[] nodeTimesDisc = new double[] {deposit.getEndTime() };
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(depositBumped, CURVES, CURVES_NAME[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_DEPOSIT);
     final List<DoublesPair> sensiPvDisc = pvcsMethod.getSensitivities().get(CURVES_NAME[0]);
     final DoublesPair pairPv = sensiPvDisc.get(0);
     assertEquals("Sensitivity coupon pv to forward curve: Node " + 0, nodeTimesDisc[0], pairPv.getFirst(), 1E-8);
     AssertJUnit.assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[0], deltaTolerancePrice);
-    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC.visit(deposit, CURVES));
+    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PVCSC, CURVES));
     pvcsCalculator = pvcsCalculator.cleaned(0.0, 1.0E-4);
     AssertSensivityObjects.assertEquals("DepositZero: present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_RATE);
   }
@@ -213,15 +213,15 @@ public class DepositZeroDiscountingMethodTest {
    * Tests the par rate when the valuation date is on trade date.
    */
   public void parRateTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    double prMethod = METHOD_DEPOSIT.parRate(deposit, CURVES);
-    double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
-    double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final double prMethod = METHOD_DEPOSIT.parRate(deposit, CURVES);
+    final double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
+    final double dfStart = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getStartTime());
     final double rcc = Math.log(dfStart / dfEnd) / deposit.getPaymentAccrualFactor();
-    double prExpected = deposit.getRate().fromContinuous(new ContinuousInterestRate(rcc)).getRate();
+    final double prExpected = deposit.getRate().fromContinuous(new ContinuousInterestRate(rcc)).getRate();
     assertEquals("DepositZero: par rate", prExpected, prMethod, TOLERANCE_RATE);
-    double prCalculator = PRC.visit(deposit, CURVES);
+    final double prCalculator = deposit.accept(PRC, CURVES);
     assertEquals("DepositZero: par rate", prMethod, prCalculator, TOLERANCE_RATE);
   }
 
@@ -230,15 +230,15 @@ public class DepositZeroDiscountingMethodTest {
    * Tests the par rate when the valuation date is on trade date.
    */
   public void parRateSettle() {
-    ZonedDateTime referenceDate = SPOT_DATE;
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    double prMethod = METHOD_DEPOSIT.parRate(deposit, CURVES);
-    double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
-    double dfStart = 1.0;
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final double prMethod = METHOD_DEPOSIT.parRate(deposit, CURVES);
+    final double dfEnd = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(deposit.getEndTime());
+    final double dfStart = 1.0;
     final double rcc = Math.log(dfStart / dfEnd) / deposit.getPaymentAccrualFactor();
-    double prExpected = deposit.getRate().fromContinuous(new ContinuousInterestRate(rcc)).getRate();
+    final double prExpected = deposit.getRate().fromContinuous(new ContinuousInterestRate(rcc)).getRate();
     assertEquals("DepositZero: par rate", prExpected, prMethod, TOLERANCE_RATE);
-    double prCalculator = PRC.visit(deposit, CURVES);
+    final double prCalculator = deposit.accept(PRC, CURVES);
     assertEquals("DepositZero: par rate", prMethod, prCalculator, TOLERANCE_RATE);
   }
 
@@ -247,15 +247,15 @@ public class DepositZeroDiscountingMethodTest {
    * Tests the par rate curve sensitivity when the valuation date is on trade date.
    */
   public void parRateCurveSensitivityTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    InterestRateCurveSensitivity prcsMethod = METHOD_DEPOSIT.parRateCurveSensitivity(deposit, CURVES);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final InterestRateCurveSensitivity prcsMethod = METHOD_DEPOSIT.parRateCurveSensitivity(deposit, CURVES);
     final List<DoublesPair> sensiPvDisc = prcsMethod.getSensitivities().get(CURVES_NAME[0]);
-    double pr = METHOD_DEPOSIT.parRate(deposit, CURVES);
+    final double pr = METHOD_DEPOSIT.parRate(deposit, CURVES);
     final YieldAndDiscountCurve curveToBump = CURVES.getCurve(CURVES_NAME[0]);
-    double deltaShift = 0.0001;
-    int nbNode = 2;
-    double[] result = new double[nbNode];
+    final double deltaShift = 0.0001;
+    final int nbNode = 2;
+    final double[] result = new double[nbNode];
     final double[] nodeTimesExtended = new double[nbNode + 1];
     nodeTimesExtended[1] = deposit.getStartTime();
     nodeTimesExtended[2] = deposit.getEndTime();
@@ -274,7 +274,7 @@ public class DepositZeroDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, result[loopnode], TOLERANCE_PRICE);
     }
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
-    InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(PRCSC.visit(deposit, CURVES));
+    InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PRCSC, CURVES));
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
     AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
   }
@@ -284,15 +284,15 @@ public class DepositZeroDiscountingMethodTest {
    * Tests the par rate curve sensitivity when the valuation date is on trade date.
    */
   public void parRateCurveSensitivitySettle() {
-    ZonedDateTime referenceDate = SPOT_DATE;
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    InterestRateCurveSensitivity prcsMethod = METHOD_DEPOSIT.parRateCurveSensitivity(deposit, CURVES);
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final InterestRateCurveSensitivity prcsMethod = METHOD_DEPOSIT.parRateCurveSensitivity(deposit, CURVES);
     final List<DoublesPair> sensiPvDisc = prcsMethod.getSensitivities().get(CURVES_NAME[0]);
-    double pr = METHOD_DEPOSIT.parRate(deposit, CURVES);
+    final double pr = METHOD_DEPOSIT.parRate(deposit, CURVES);
     final YieldAndDiscountCurve curveToBump = CURVES.getCurve(CURVES_NAME[0]);
-    double deltaShift = 0.0001;
-    int nbNode = 2;
-    double[] result = new double[nbNode];
+    final double deltaShift = 0.0001;
+    final int nbNode = 2;
+    final double[] result = new double[nbNode];
     final double[] nodeTimesExtended = new double[nbNode];
     nodeTimesExtended[0] = deposit.getStartTime();
     nodeTimesExtended[1] = deposit.getEndTime();
@@ -310,7 +310,7 @@ public class DepositZeroDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, result[loopnode], TOLERANCE_PRICE);
     }
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
-    InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(PRCSC.visit(deposit, CURVES));
+    final InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(deposit.accept(PRCSC, CURVES));
     AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", prcsMethod, prcsCalculator, TOLERANCE_RATE);
   }
 
@@ -319,14 +319,14 @@ public class DepositZeroDiscountingMethodTest {
    * Tests the par spread when the valuation date is on trade date.
    */
   public void parSpreadTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    double psMethod = METHOD_DEPOSIT.parSpread(deposit, CURVES);
-    DepositZeroDefinition deposit0Definition = new DepositZeroDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE + psMethod, 1));
-    DepositZero deposit0 = deposit0Definition.toDerivative(referenceDate, CURVES_NAME[0]);
-    CurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, CURVES);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final double psMethod = METHOD_DEPOSIT.parSpread(deposit, CURVES);
+    final DepositZeroDefinition deposit0Definition = new DepositZeroDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE + psMethod, 1));
+    final DepositZero deposit0 = deposit0Definition.toDerivative(referenceDate, CURVES_NAME[0]);
+    final CurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, CURVES);
     assertEquals("DepositZero: par spread", 0, pv0.getAmount(), TOLERANCE_PRICE);
-    double psCalculator = PSC.visit(deposit, CURVES);
+    final double psCalculator = deposit.accept(PSC, CURVES);
     assertEquals("DepositZero: par rate", psMethod, psCalculator, TOLERANCE_RATE);
   }
 
@@ -335,15 +335,15 @@ public class DepositZeroDiscountingMethodTest {
    * Tests parSpread curve sensitivity.
    */
   public void parSpreadCurveSensitivity() {
-    ZonedDateTime referenceDate = TRADE_DATE;
-    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
-    InterestRateCurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, CURVES);
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final InterestRateCurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, CURVES);
     final List<DoublesPair> sensiPvDisc = pscsMethod.getSensitivities().get(CURVES_NAME[0]);
-    double ps = METHOD_DEPOSIT.parSpread(deposit, CURVES);
+    final double ps = METHOD_DEPOSIT.parSpread(deposit, CURVES);
     final YieldAndDiscountCurve curveToBump = CURVES.getCurve(CURVES_NAME[0]);
-    double deltaShift = 0.0001;
-    int nbNode = 2;
-    double[] result = new double[nbNode];
+    final double deltaShift = 0.0001;
+    final int nbNode = 2;
+    final double[] result = new double[nbNode];
     final double[] nodeTimesExtended = new double[nbNode + 1];
     nodeTimesExtended[1] = deposit.getStartTime();
     nodeTimesExtended[2] = deposit.getEndTime();
@@ -362,7 +362,7 @@ public class DepositZeroDiscountingMethodTest {
       assertEquals("Sensitivity par spread to curve: Node", pairPv.second, result[loopnode], TOLERANCE_PRICE);
     }
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
-    InterestRateCurveSensitivity prcsCalculator = PSCSC.visit(deposit, CURVES);
+    InterestRateCurveSensitivity prcsCalculator = deposit.accept(PSCSC, CURVES);
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
     AssertSensivityObjects.assertEquals("DepositZero: par rate curve sensitivity", pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA);
   }

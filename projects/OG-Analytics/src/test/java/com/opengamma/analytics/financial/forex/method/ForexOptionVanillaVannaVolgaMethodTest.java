@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -32,7 +31,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -52,7 +51,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   // Smile data
   private static final Currency EUR = Currency.EUR;
   private static final Currency USD = Currency.USD;
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -69,12 +68,12 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   }
   private static final double SPOT = 1.25;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, SPOT);
-  private static final double[] ATM = {0.11, 0.115, 0.12, 0.12, 0.125, 0.13};
-  private static final double[] DELTA = new double[] {0.25};
-  private static final double[][] RISK_REVERSAL = new double[][] { {0.015}, {0.020}, {0.025}, {0.03}, {0.025}, {0.030}};
-  private static final double[][] STRANGLE = new double[][] { {0.002}, {0.003}, {0.004}, {0.0045}, {0.0045}, {0.0045}};
-  private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0}, {0.0}, {0.0}, {0.0}, {0.0}, {0.0}};
-  private static final double[][] STRANGLE_FLAT = new double[][] { {0.0}, {0.0}, {0.0}, {0.0}, {0.0}, {0.0}};
+  private static final double[] ATM = {0.11, 0.115, 0.12, 0.12, 0.125, 0.13 };
+  private static final double[] DELTA = new double[] {0.25 };
+  private static final double[][] RISK_REVERSAL = new double[][] { {0.015 }, {0.020 }, {0.025 }, {0.03 }, {0.025 }, {0.030 } };
+  private static final double[][] STRANGLE = new double[][] { {0.002 }, {0.003 }, {0.004 }, {0.0045 }, {0.0045 }, {0.0045 } };
+  private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0 }, {0.0 }, {0.0 }, {0.0 }, {0.0 }, {0.0 } };
+  private static final double[][] STRANGLE_FLAT = new double[][] { {0.0 }, {0.0 }, {0.0 }, {0.0 }, {0.0 }, {0.0 } };
   private static final Interpolator1D INTERPOLATOR_STRIKE = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final SmileDeltaTermStructureParameters SMILE_TERM = new SmileDeltaTermStructureParameters(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
@@ -91,8 +90,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
 
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(
-      EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
   private static final SmileDeltaTermStructureVannaVolgaDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILE_TERM, Pair.of(EUR, USD));
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
@@ -217,8 +215,10 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final double strikeMin = 1.00;
     final double strikeRange = 0.80;
     final double[] strikes = new double[nbStrike + 1];
-    final double[] pvExpected = new double[] {2.2310683662940994E7, 1.5555161312097391E7, 1.0190176799879666E7, 6473496.491, 4163016.359783777, 2771166.010, 1878371.939, 1251328.424, 796469.444,
-        477901.996, 269615.783};
+    final double[] pvExpected = new double[] {2.424230702209554E7, 1.7281121064678535E7, 1.1555353254317978E7, 7427784.598448814, 4779647.986370251, 3172355.215467841, 2160614.7441477147,
+        1463552.789015782, 956054.5074424933, 591821.3170718873, 345218.2942715228 };
+    //        {2.2310683662940994E7, 1.5555161312097391E7, 1.0190176799879666E7, 6473496.491, 4163016.359783777, 2771166.010, 1878371.939, 1251328.424, 796469.444,
+    //        477901.996, 269615.783 };
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;

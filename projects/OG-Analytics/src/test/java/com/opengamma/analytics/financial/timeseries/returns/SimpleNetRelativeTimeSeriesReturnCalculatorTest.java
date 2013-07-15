@@ -7,13 +7,12 @@ package com.opengamma.analytics.financial.timeseries.returns;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -23,17 +22,17 @@ public class SimpleNetRelativeTimeSeriesReturnCalculatorTest {
       .getReturnCalculator(TimeSeriesReturnCalculatorFactory.SIMPLE_NET_RELATIVE_STRICT);
   private static final TimeSeriesReturnCalculator LENIENT_CALCULATOR = TimeSeriesReturnCalculatorFactory
       .getReturnCalculator(TimeSeriesReturnCalculatorFactory.SIMPLE_NET_RELATIVE_LENIENT);
-  private static final LocalDateDoubleTimeSeries TS1 = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), 
-                                                                                                           LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4), 
-                                                                                                           LocalDate.ofEpochDays(5) }, 
+  private static final LocalDateDoubleTimeSeries TS1 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+                                                                                                           LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4), 
+                                                                                                           LocalDate.ofEpochDay(5) }, 
                                                                                           new double[] {1, 2, 3, 4, 5});
-  private static final LocalDateDoubleTimeSeries TS2 = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), 
-                                                                                                           LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4), 
-                                                                                                           LocalDate.ofEpochDays(5) }, 
+  private static final LocalDateDoubleTimeSeries TS2 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+                                                                                                           LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4), 
+                                                                                                           LocalDate.ofEpochDay(5) }, 
                                                                                           new double[] {2, 4, 6, 8, 10});
-  private static final LocalDateDoubleTimeSeries TS3 = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), 
-                                                                                                           LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4), 
-                                                                                                           LocalDate.ofEpochDays(6) }, 
+  private static final LocalDateDoubleTimeSeries TS3 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+                                                                                                           LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4), 
+                                                                                                           LocalDate.ofEpochDay(6) }, 
                                                                                           new double[] {2, 4, 6, 8, 10});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -60,9 +59,9 @@ public class SimpleNetRelativeTimeSeriesReturnCalculatorTest {
   public void testStrict() {
     final LocalDateDoubleTimeSeries result = STRICT_CALCULATOR.evaluate(TS1, TS2);
     assertEquals(result.size(), 5);
-    assertEquals(result, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] { LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), 
-                                                                              LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4), 
-                                                                              LocalDate.ofEpochDays(5) }, 
+    assertEquals(result, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] { LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+                                                                              LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4), 
+                                                                              LocalDate.ofEpochDay(5) }, 
                                                             new double[] {-0.5, -0.5, -0.5, -0.5, -0.5}));
   }
 
@@ -70,8 +69,8 @@ public class SimpleNetRelativeTimeSeriesReturnCalculatorTest {
   public void testLenient() {
     final LocalDateDoubleTimeSeries result = LENIENT_CALCULATOR.evaluate(TS1, TS3);
     assertEquals(result.size(), 4);
-    assertEquals(result, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] { LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), 
-                                                                              LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4)}, 
+    assertEquals(result, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] { LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+                                                                              LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4)}, 
                                                             new double[] {-0.5, -0.5, -0.5, -0.5}));
   }
 }

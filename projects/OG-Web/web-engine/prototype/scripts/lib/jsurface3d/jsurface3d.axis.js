@@ -7,6 +7,7 @@
     /**
      * Remove every nth item in Array keeping the first and last,
      * also specifically remove the second last (as we want to keep the last)
+     * @private
      * @param {Array} arr
      * @param {Number} nth
      * @returns {Array}
@@ -20,12 +21,17 @@
     };
     /**
      * Creates an Axis with labels for the bottom grid
+     * @name JSurface3D.Axis
+     * @namespace JSurface3D.Axis
      * @param {Object} config
-     * config.axis {String} x or z
-     * config.spacing {Array} Array of numbers adjusted to fit units of mesh
-     * config.labels {Array} Array of ladles
-     * config.label {String} Axis label
-     * @param {Object} js3d
+     * <pre>
+     *     axis     {String} x or z
+     *     spacing  {Array}  Array of numbers adjusted to fit units of mesh
+     *     labels   {Array}  Array of labels
+     *     label    {String} Axis label
+     * </pre>
+     * @param {Object} js3d A JSurface3D instance
+     * @private
      * @return {THREE.Object3D}
      */
     window.JSurface3D.Axis = function (config, js3d) {
@@ -58,6 +64,7 @@
                 }
                 value.matrixAutoUpdate = false;
                 value.updateMatrix();
+                js3d.buffers.load.add(value);
                 mesh.add(value);
             }
         }());
@@ -68,9 +75,10 @@
             label.rotation.x = -Math.PI * 0.5;
             label.position.x = -(axis_len / 2) -3;
             label.position.y = 1;
-            label.position.z = 25;
+            label.position.z = 22;
             label.matrixAutoUpdate = false;
             label.updateMatrix();
+            js3d.buffers.load.add(label);
             mesh.add(label);
         }());
         (function () { // axis ticks
@@ -84,6 +92,7 @@
                     var offset = config.axis === 'y' ? 0 : axis_len / 2;
                     return (val + offset) * (settings.texture_size / axis_len);
                 }), nth);
+            plane.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
             canvas.width = settings.texture_size;
             canvas.height = 32;
             ctx.beginPath();
@@ -105,6 +114,7 @@
             }
             axis.matrixAutoUpdate = false;
             axis.updateMatrix();
+            js3d.buffers.surface.add(axis);
             mesh.add(axis);
         }());
         return mesh;

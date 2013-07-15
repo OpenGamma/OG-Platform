@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -23,11 +23,11 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -38,15 +38,12 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprec
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -83,7 +80,7 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(VISITOR);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
@@ -103,9 +100,9 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curveNames = new String[] {fullPutCurveName, fullCallCurveName};
+      curveNames = new String[] {fullPutCurveName, fullCallCurveName };
     } else {
-      curveNames = new String[] {fullCallCurveName, fullPutCurveName};
+      curveNames = new String[] {fullCallCurveName, fullPutCurveName };
     }
     final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName);
     final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callCurveName);
@@ -119,11 +116,11 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
-      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
-      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName};
+      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve };
+      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName };
     } else {
-      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve};
-      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
+      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve };
+      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName };
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
@@ -151,19 +148,8 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof FXOptionSecurity
-        || target.getSecurity() instanceof FXBarrierOptionSecurity
-        || target.getSecurity() instanceof FXDigitalOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
+    return FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY);
   }
 
   @Override
@@ -235,7 +221,7 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
     final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putForwardCurveName, putCurveName, putCurveCalculationMethod, putCurrency);
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callForwardCurveName, callCurveName, callCurveCalculationMethod, callCurrency);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
+    final ValueRequirement spotRequirement = ConventionBasedFXRateFunction.getSpotRateRequirement(callCurrency, putCurrency);
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
   }
 
@@ -262,7 +248,7 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
           .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
           .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
     }
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY.specification(currency), properties.get());
   }
 
   protected static ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency,
@@ -275,12 +261,12 @@ public abstract class FXOptionBlackFunctionDeprecated extends AbstractFunction.N
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
+    return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currenciesTarget), surfaceProperties);
   }
 
   private static YieldAndDiscountCurve getCurve(final FunctionInputs inputs, final Currency currency, final String curveName) {
     final ValueProperties.Builder properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName);
-    final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get()));
+    final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY.specification(currency), properties.get()));
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + curveName + " curve");
     }

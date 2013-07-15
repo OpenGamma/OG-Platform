@@ -18,6 +18,10 @@ public enum StandardCDSCoupon {
    */
   _100bps,
   /**
+   * 125bps contract (not sure if this is actually traded)
+   */
+  _125bps,
+  /**
    * 300bps contract (Europe)
    */
   _300bps,

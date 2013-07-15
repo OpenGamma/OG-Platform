@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -17,10 +19,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.json.JSONObject;
+
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.analytics.AnalyticsNodeJsonWriter;
 import com.opengamma.web.analytics.DependencyGraphGridStructure;
+import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.PortfolioGridStructure;
 
 /**
@@ -30,9 +35,9 @@ import com.opengamma.web.analytics.PortfolioGridStructure;
 @Produces(MediaType.APPLICATION_JSON)
 public class DependencyGraphGridStructureMessageBodyWriter implements MessageBodyWriter<DependencyGraphGridStructure> {
 
-  private final AnalyticsColumnsJsonWriter _writer;
+  private final GridColumnsJsonWriter _writer;
 
-  public DependencyGraphGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+  public DependencyGraphGridStructureMessageBodyWriter(GridColumnsJsonWriter writer) {
     ArgumentChecker.notNull(writer, "writer");
     _writer = writer;
   }
@@ -60,8 +65,12 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
-    String columnsJson = _writer.getJson(DependencyGraphGridStructure.COLUMN_GROUPS.getGroups());
-    entityStream.write(("{\"columnSets\":" + columnsJson + ",\"rootNode\":" + rootNodeJson + "}").getBytes());
+    Object[] rootNode = AnalyticsNodeJsonWriter.getJsonStructure(gridStructure.getRootNode());
+    List<Map<String, Object>> columns = _writer.getJsonStructure(gridStructure.getColumnStructure().getGroups());
+    ImmutableMap<String, Object> jsonMap = ImmutableMap.of("columnSets", columns,
+                                                           "rootNode", rootNode,
+                                                           "rootRowName", gridStructure.getRootRowName(),
+                                                           "rootColumnName", gridStructure.getRootColumnName());
+    entityStream.write(new JSONObject(jsonMap).toString().getBytes());
   }
 }

@@ -9,11 +9,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -30,7 +29,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -56,7 +55,7 @@ import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -106,7 +105,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
@@ -137,13 +136,18 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final int numCurveNames = curveNames.length;
+    final String[] fullCurveNames = new String[numCurveNames];
+    for (int i = 0; i < numCurveNames; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle knownCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, curves, desiredValue);
     final SABRInterestRateDataBundle knownData = knownCurves == null ? null : getModelParameters(target, inputs, currency, dayCount, knownCurves, desiredValue);
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNames, timeSeries); //TODO
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, fullCurveNames, timeSeries); //TODO
     final ValueProperties properties = createValueProperties(target, desiredValue).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
     final Object jacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);
@@ -163,13 +167,9 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     } else {
       sensitivities = CALCULATOR.calculateFromParRate(derivative, knownData, data, jacobian, nodeCalculator);
     }
-    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, data, sensitivities, curveSpec, spec);
+    final String fullCurveName = curveName + "_" + currency.getCode();
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, data, sensitivities, curveSpec, spec);
 
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
   }
 
   @Override
@@ -207,7 +207,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     if (cubeNames == null || cubeNames.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final Set<String> fittingMethods = constraints.getValues(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
@@ -224,8 +224,8 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
       return null;
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+    if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
       return null;
     }
     final String[] availableCurveNames = curveCalculationConfig.getYieldCurveNames();
@@ -252,7 +252,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     for (final ValueRequirement curveRequirement : curveRequirements) {
       final ValueProperties.Builder properties = curveRequirement.getConstraints().copy();
       properties.with(PROPERTY_REQUESTED_CURVE, curveName).withOptional(PROPERTY_REQUESTED_CURVE);
-      requirements.add(new ValueRequirement(curveRequirement.getValueName(), curveRequirement.getTargetSpecification(), properties.get()));
+      requirements.add(new ValueRequirement(curveRequirement.getValueName(), curveRequirement.getTargetReference(), properties.get()));
     }
     requirements.add(getCubeRequirement(cubeName, currency, fittingMethod));
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
@@ -278,9 +278,9 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod).get();
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), properties);
   }
 
   protected abstract ValueProperties.Builder createValueProperties(final Currency currency);
@@ -292,21 +292,21 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
   private ValueRequirement getCouponSensitivitiesRequirement(final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING).get();
-    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, currency, properties);
+    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetSpecification.of(currency), properties);
   }
 
   private ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currency, properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency), properties);
   }
 
 }

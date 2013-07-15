@@ -65,11 +65,27 @@ public class EquitySecurity extends FinancialSecurity {
    */
   @PropertyDefinition
   private GICSCode _gicsCode;
+  /**
+   * The flag indicating whether the equity has preferred status or not.
+   */
+  @PropertyDefinition
+  private boolean _preferred;
 
+  /**
+   * Creates an instance.
+   */
   EquitySecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param exchange  the exchange, not null
+   * @param exchangeCode  the exchange code, not null
+   * @param companyName  the company name, not null
+   * @param currency  the currency, not null
+   */
   public EquitySecurity(String exchange, String exchangeCode, String companyName, Currency currency) {
     super(SECURITY_TYPE);
     setExchange(exchange);
@@ -117,6 +133,8 @@ public class EquitySecurity extends FinancialSecurity {
         return getCurrency();
       case 762040799:  // gicsCode
         return getGicsCode();
+      case -1294005119:  // preferred
+        return isPreferred();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -141,6 +159,9 @@ public class EquitySecurity extends FinancialSecurity {
         return;
       case 762040799:  // gicsCode
         setGicsCode((GICSCode) newValue);
+        return;
+      case -1294005119:  // preferred
+        setPreferred((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -168,6 +189,7 @@ public class EquitySecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getCompanyName(), other.getCompanyName()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getGicsCode(), other.getGicsCode()) &&
+          JodaBeanUtils.equal(isPreferred(), other.isPreferred()) &&
           super.equals(obj);
     }
     return false;
@@ -182,6 +204,7 @@ public class EquitySecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPreferred());
     return hash ^ super.hashCode();
   }
 
@@ -341,6 +364,31 @@ public class EquitySecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the flag indicating whether the equity has preferred status or not.
+   * @return the value of the property
+   */
+  public boolean isPreferred() {
+    return _preferred;
+  }
+
+  /**
+   * Sets the flag indicating whether the equity has preferred status or not.
+   * @param preferred  the new value of the property
+   */
+  public void setPreferred(boolean preferred) {
+    this._preferred = preferred;
+  }
+
+  /**
+   * Gets the the {@code preferred} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> preferred() {
+    return metaBean().preferred().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EquitySecurity}.
    */
   public static class Meta extends FinancialSecurity.Meta {
@@ -380,16 +428,22 @@ public class EquitySecurity extends FinancialSecurity {
     private final MetaProperty<GICSCode> _gicsCode = DirectMetaProperty.ofReadWrite(
         this, "gicsCode", EquitySecurity.class, GICSCode.class);
     /**
+     * The meta-property for the {@code preferred} property.
+     */
+    private final MetaProperty<Boolean> _preferred = DirectMetaProperty.ofReadWrite(
+        this, "preferred", EquitySecurity.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "shortName",
         "exchange",
         "exchangeCode",
         "companyName",
         "currency",
-        "gicsCode");
+        "gicsCode",
+        "preferred");
 
     /**
      * Restricted constructor.
@@ -412,6 +466,8 @@ public class EquitySecurity extends FinancialSecurity {
           return _currency;
         case 762040799:  // gicsCode
           return _gicsCode;
+        case -1294005119:  // preferred
+          return _preferred;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -478,6 +534,14 @@ public class EquitySecurity extends FinancialSecurity {
      */
     public final MetaProperty<GICSCode> gicsCode() {
       return _gicsCode;
+    }
+
+    /**
+     * The meta-property for the {@code preferred} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> preferred() {
+      return _preferred;
     }
 
   }

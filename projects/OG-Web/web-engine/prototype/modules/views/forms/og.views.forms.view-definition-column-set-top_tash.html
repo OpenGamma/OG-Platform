@@ -1,0 +1,62 @@
+<label class="og-name">
+  <span>Name</span>
+  <input name="{{name}}" class="og-c4" type="text" value="{{value}}" />
+</label>
+<div class="og-main-nav">
+  <ul>
+    <li class="og-js-colset-nav og-active">Column Values</li>
+    <li class="og-js-colset-nav">Additional Values</li>
+    <li class="og-js-colset-nav">Scenario</li>
+    <li class="og-js-colset-nav">Default Properties</li>
+    <li class="og-js-colset-nav">Resolution Rule Transform</li>
+  </ul>
+</div>
+<!-- column values -->
+<div class="og-column og-col-vals og-js-col-vals" style="display: block;">
+  <div class="og-top-bar"></div>
+  <ul class="og-nav og-js-col-tabs">
+    {{{item_0}}}
+    <li class="og-new og-js-col-tab og-js-new">
+      <span class="og-new-link">add</span>
+    </li>
+    <li class="og-new og-js-col-tab og-js-clone">
+      <span class="og-new-link">clone</span>
+    </li>
+  </ul>
+  <div class="og-col-content og-js-cols">
+    {{{item_1}}}
+  </div>
+  <!-- empty columns -->
+  <div class="og-column-empty og-js-empty-cols" style="display: none">
+    <p><span>There are no columns in this column set.</span></p>
+  </div>
+</div>
+<!-- additional values -->
+<div class="og-column og-js-specs" style="display: none">
+  <div class="og-col-content">
+    <div class="og-content-items">
+      {{{item_2}}}
+      <span class="og-new-link og-js-add-spec">add additional value</span>
+    </div>
+  </div>
+</div>
+<!-- scenario -->
+<div class="og-column og-js-scenario" style="display: none">
+  <div class="og-col-content">
+    <div class="og-content-items">
+      {{{item_3}}}
+    </div>
+  </div>
+</div>
+<!-- default properties -->
+<div class="og-column og-js-def-prop" style="display: none">
+  <div class="og-col-content">
+    {{{item_4}}}
+  </div>
+</div>
+<!-- resolution rule transform -->
+<div class="og-column og-js-rule-trans" style="display: none">
+  <div class="og-col-content">
+    {{{item_5}}}
+  </div>
+</div>

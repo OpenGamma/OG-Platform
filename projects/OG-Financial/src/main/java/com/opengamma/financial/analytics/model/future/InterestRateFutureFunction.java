@@ -8,11 +8,10 @@ package com.opengamma.financial.analytics.model.future;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -25,11 +24,12 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -80,7 +80,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Trade trade = target.getTrade();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -89,11 +89,16 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
+    final String currency = FinancialSecurityUtils.getCurrency(trade.getSecurity()).getCode();
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0]} : curveNames;
+    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
+    final String[] fullYieldCurveNames = new String[yieldCurveNames.length];
+    for (int i = 0; i < yieldCurveNames.length; i++) {
+      fullYieldCurveNames[i] = yieldCurveNames[i] + "_" + currency;
+    }
     final YieldCurveBundle data = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, _curveConfigSource);
     final InstrumentDefinition<InstrumentDerivative> irFutureDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, yieldCurveNames, timeSeries);
+    final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, fullYieldCurveNames, timeSeries);
     final ValueSpecification spec = getSpecification(target, curveCalculationConfigName);
     return getResults(irFuture, data, spec);
   }
@@ -107,9 +112,6 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     return target.getTrade().getSecurity() instanceof InterestRateFutureSecurity;
   }
 
@@ -135,8 +137,8 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     final Trade trade = target.getTrade();
     final Security security = trade.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+    if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
@@ -151,15 +153,15 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
   private ValueSpecification getSpecification(final ComputationTarget target) {
     return new ValueSpecification(_valueRequirement, target.toSpecification(),
         createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get());
+            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get());
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target, final String curveCalculationConfig) {
     return new ValueSpecification(_valueRequirement, target.toSpecification(),
         createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get());
+            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get());
   }
 
 }

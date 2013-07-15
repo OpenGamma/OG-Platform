@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
@@ -73,12 +72,12 @@ public class EnergyFutureOptionDefinitionTest {
     EnergyFutureOption secondDerivative = second.toDerivative(A_DATE);
     assertEquals(firstDerivative.getStrike(), 100.);
     assertEquals(firstDerivative.getExerciseType(), ExerciseDecisionType.EUROPEAN);
-    assertEquals(firstDerivative.getUnderlying(), AN_UNDERLYING);
+    assertEquals(firstDerivative.getUnderlying(), AN_UNDERLYING.toDerivative(A_DATE));
     assertTrue(firstDerivative.isCall());
     assertEquals(secondDerivative.getExerciseType(), ExerciseDecisionType.AMERICAN);
     assertFalse(secondDerivative.isCall());
 
-    EnergyFutureOption firstDerivative2 = new EnergyFutureOption(0.0027397260273972603, AN_UNDERLYING, 100, ExerciseDecisionType.EUROPEAN, true);
+    EnergyFutureOption firstDerivative2 = new EnergyFutureOption(0.0027397260273972603, AN_UNDERLYING.toDerivative(A_DATE), 100, ExerciseDecisionType.EUROPEAN, true);
     assertEquals(firstDerivative.hashCode(), firstDerivative2.hashCode());
     assertEquals(firstDerivative, firstDerivative2);
   }

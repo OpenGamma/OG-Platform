@@ -34,6 +34,14 @@
         mesh.updateMatrix();
         return mesh;
     };
+    /**
+     * Create slicing functionality
+     * @param {Object} js3d An instance of JSurface3D
+     * @name JSurface3D.Slice
+     * @mamespace JSurface3D.Slice
+     * @private
+     * @constructor
+     */
     window.JSurface3D.Slice = function (js3d) {
         var slice = this, matlib = js3d.matlib, settings = js3d.settings;
         slice.lft_x_handle_position = js3d.x_segments;
@@ -41,8 +49,9 @@
         slice.lft_z_handle_position = js3d.z_segments;
         slice.rgt_z_handle_position = 0;
         slice.load = function () {
-            var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0),
-                mesh = new THREE.Mesh(plane, matlib.get_material('wire', '0xcccccc'));
+            var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0), mesh;
+            plane.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+            mesh = new THREE.Mesh(plane, matlib.get_material('wire', 0xcccccc));
             mesh.matrixAutoUpdate = false;
             mesh.updateMatrix();
             slice.intersection_plane = mesh;

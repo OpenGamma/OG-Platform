@@ -42,14 +42,14 @@ import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
@@ -189,10 +189,10 @@ public class BondLoader extends SecurityLoader {
     }
     // These will need to be sorted out.
     LocalTime expiryTime = LocalTime.of(17, 00);
-    TimeZone zone = TimeZone.UTC;
+    ZoneId zone = ZoneOffset.UTC;
  
     LocalDate localDate = LocalDate.parse(fieldData.getString(fieldName));
-    return ZonedDateTime.of(localDate, expiryTime, zone);
+    return localDate.atTime(expiryTime).atZone(zone);
   }
 
   //-------------------------------------------------------------------------
@@ -214,10 +214,10 @@ public class BondLoader extends SecurityLoader {
       String maturityStr = validateAndGetStringField(fieldData, FIELD_MATURITY);
       // These will need to be sorted out.
       LocalTime expiryTime = LocalTime.of(17, 00);
-      TimeZone zone = TimeZone.UTC;
+      ZoneId zone = ZoneOffset.UTC;
       Expiry maturity = null;
       try {
-        maturity = new Expiry(ZonedDateTime.of(LocalDate.parse(maturityStr), expiryTime, zone), ExpiryAccuracy.DAY_MONTH_YEAR);
+        maturity = new Expiry(LocalDate.parse(maturityStr).atTime(expiryTime).atZone(zone), ExpiryAccuracy.DAY_MONTH_YEAR);
       } catch (Exception e) {
         throw new OpenGammaRuntimeException(maturityStr + " returned from bloomberg not in format yyyy-mm-dd", e);
       }

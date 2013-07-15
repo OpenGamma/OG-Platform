@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.analytics.forwardcurve;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -19,6 +21,8 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class BloombergForwardSwapCurveInstrumentProvider extends ForwardSwapCurveInstrumentProvider {
+  private static final String DATA_FIELD = MarketDataRequirementNames.MARKET_VALUE;
+  private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private static final String[] MONTHS = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "1A", "1B", "1C", "1D", "1E", "1F", "1G", "1H", "1I", "1J", "1K", "1L" };
   private final String _prefix;
@@ -55,6 +59,16 @@ public class BloombergForwardSwapCurveInstrumentProvider extends ForwardSwapCurv
   }
 
   @Override
+  public String getMarketDataField() {
+    return DATA_FIELD;
+  }
+
+  @Override
+  public DataFieldType getDataFieldType() {
+    return FIELD_TYPE;
+  }
+
+  @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor forwardTenor) {
     final String swapCode = getTenorCode(tenor.getPeriod(), false);
     final String forwardCode = getTenorCode(forwardTenor.getPeriod(), true);
@@ -85,6 +99,11 @@ public class BloombergForwardSwapCurveInstrumentProvider extends ForwardSwapCurv
       }
     }
     throw new OpenGammaRuntimeException("Can only handle tenors of months or years; have " + period);
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFutureFromTenor) {
+    throw new UnsupportedOperationException();
   }
 
   private String getSwapCode(final Period period) {

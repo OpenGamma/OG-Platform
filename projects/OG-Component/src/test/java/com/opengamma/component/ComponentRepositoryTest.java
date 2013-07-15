@@ -16,11 +16,12 @@ import org.springframework.web.context.ServletContextAware;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.SingletonFactoryBean;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test component repository.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComponentRepositoryTest {
 
   private static final ComponentLogger LOGGER = ComponentLogger.Sink.INSTANCE;

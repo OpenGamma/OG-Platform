@@ -30,10 +30,11 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.ClassUtils;
 
 /**
  * An item stored in the config master.
- *
+ * 
  * @param <T> the type of the underlying item
  */
 @BeanDefinition
@@ -64,9 +65,9 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    * Obtains an item that wraps the underlying object.
    * <p>
    * The name will be extracted if the target object has a {@code getName} method.
-   *
-   * @param <T>  the type of the item
-   * @param object  the underlying object, not null
+   * 
+   * @param <T> the type of the item
+   * @param object the underlying object, not null
    * @return the item, not null
    */
   public static <T> ConfigItem<T> of(final T object) {
@@ -88,10 +89,10 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Obtains an item that wraps the underlying object.
-   *
-   * @param <T>  the type of the item
-   * @param object  the underlying object, not null
-   * @param name  the name of the item, not null
+   * 
+   * @param <T> the type of the item
+   * @param object the underlying object, not null
+   * @param name the name of the item, not null
    * @return the item, not null
    */
   public static <T> ConfigItem<T> of(final T object, final String name) {
@@ -102,11 +103,11 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Obtains an item that wraps the underlying object.
-   *
-   * @param <T>  the type of the item
-   * @param object  the underlying object, not null
-   * @param name  the name of the item, not null
-   * @param type  the type of the item, not null
+   * 
+   * @param <T> the type of the item
+   * @param object the underlying object, not null
+   * @param name the name of the item, not null
+   * @param type the type of the item, not null
    * @return the item, not null
    */
   public static <T> ConfigItem<T> of(final T object, final String name, final Class<?> type) {
@@ -118,10 +119,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an empty item.
-   *
-   * This constructor is here for automated bean construction.
-   * This item is invalid until the item class gets set.
+   * Creates an empty item. This constructor is here for automated bean construction. This item is invalid until the item class gets set.
    */
   protected ConfigItem() {
     _type = null;
@@ -129,14 +127,14 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Creates an instance.
-   *
-   * @param value  the underlying value of the configuration item
+   * 
+   * @param value the underlying value of the configuration item
    */
   protected ConfigItem(final T value) {
     _value = value;
   }
 
- //-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public ObjectId getObjectId() {
     return _uniqueId.getObjectId();
@@ -144,7 +142,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the type of the config item.
-   *
+   * 
    * @return the type, null if no value
    */
   public Class<?> getType() {
@@ -155,11 +153,20 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigItem}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static ConfigItem.Meta meta() {
+    return ConfigItem.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code ConfigItem}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ConfigItem.Meta<R> meta() {
+  public static <R> ConfigItem.Meta<R> metaConfigItem(Class<R> cls) {
     return ConfigItem.Meta.INSTANCE;
   }
   static {
@@ -461,7 +468,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   public static ConfigItem<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final Class<?> type;
     try {
-      type = Class.forName(msg.getString(Meta.INSTANCE.type().name()));
+      type = ClassUtils.loadClass(msg.getString(Meta.INSTANCE.type().name()));
     } catch (final Exception e) {
       throw new IllegalArgumentException("Invalid type", e);
     }

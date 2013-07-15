@@ -5,11 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -22,7 +20,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of deposit characteristics (conventions, calendar, ...).
  */
-public class GeneratorDeposit extends GeneratorInstrument {
+public class GeneratorDeposit extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The index currency. Not null.
@@ -124,26 +122,14 @@ public class GeneratorDeposit extends GeneratorInstrument {
 
   @Override
   /**
-   * The deposit start at spot and end at spot+tenor.
+   * The deposit start at spot+start tenor and end at spot+end tenor.
    */
-  public CashDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double rate, final double notional, final Object... objects) {
+  public CashDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
-    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, this);
-    final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
-    return new CashDefinition(_currency, startDate, endDate, notional, rate, accrualFactor);
-  }
-
-  @Override
-  /**
-   * The deposit start at spot+startTenor and end at spot+endTenor.
-   */
-  public CashDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double rate, final double notional,
-      final Object... objects) {
-    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, this);
-    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spot, endTenor, this);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), this);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, attribute.getEndPeriod(), this);
     final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
     return new CashDefinition(_currency, startDate, endDate, notional, rate, accrualFactor);
   }

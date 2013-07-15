@@ -14,11 +14,14 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergIRFuturePri
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FuturePriceCurveSpecificationFudgeEncodingTest extends FinancialTestBase {
+
   private static final String NAME = "SN";
   private static final Currency UID = Currency.USD;
   private static final FuturePriceCurveInstrumentProvider<?> PROVIDER = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", 

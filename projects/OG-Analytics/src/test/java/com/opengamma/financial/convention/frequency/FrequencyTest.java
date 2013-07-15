@@ -6,10 +6,12 @@
 package com.opengamma.financial.convention.frequency;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 /**
  * 

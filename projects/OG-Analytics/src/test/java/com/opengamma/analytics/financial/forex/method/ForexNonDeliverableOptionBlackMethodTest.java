@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.ForwardRateForexCalculator;
@@ -47,7 +48,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
 
   private static final Currency KRW = Currency.of("KRW");
-  private static final Currency USD = Currency.USD;
+  private static final Currency USD = Currency.EUR;
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2012, 5, 2);
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_USD = 100000000; // 1m
@@ -65,8 +66,8 @@ public class ForexNonDeliverableOptionBlackMethodTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVE_NAMES = TestsDataSetsForex.curveNames();
 
-  private static final ForexNonDeliverableOption NDO = NDO_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1]});
-  private static final ForexOptionVanilla FOREX_OPT = FOREX_OPT_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1]});
+  private static final ForexNonDeliverableOption NDO = NDO_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1] });
+  private static final ForexOptionVanilla FOREX_OPT = FOREX_OPT_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1] });
 
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXO = ForexOptionVanillaBlackSmileMethod.getInstance();
@@ -75,7 +76,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
   private static final CurrencyExposureBlackSmileForexCalculator CE_BLACK = CurrencyExposureBlackSmileForexCalculator.getInstance();
 
   // Smile data
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime[] PAY_DATE = new ZonedDateTime[NB_EXP];
@@ -89,10 +90,10 @@ public class ForexNonDeliverableOptionBlackMethodTest {
       TIME_TO_EXPIRY[loopexp + 1] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
     }
   }
-  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16};
-  private static final double[] DELTA = new double[] {0.10, 0.25};
-  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};
-  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
+  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16 };
+  private static final double[] DELTA = new double[] {0.10, 0.25 };
+  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050 }, {-0.011, -0.0060 }, {-0.012, -0.0070 }, {-0.013, -0.0080 }, {-0.014, -0.0090 }, {-0.014, -0.0090 } };
+  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 }, {0.0340, 0.0140 } };
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM, Pair.of(USD, KRW));
 
@@ -112,7 +113,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_NDO.presentValue(NDO, SMILE_BUNDLE);
-    final MultipleCurrencyAmount pvCalculator = PVC_BLACK.visit(NDO, SMILE_BUNDLE);
+    final MultipleCurrencyAmount pvCalculator = NDO.accept(PVC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex non-deliverable option: present value", pvMethod, pvCalculator);
   }
 
@@ -133,7 +134,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
    */
   public void currencyExposureMethodVsCalculator() {
     final MultipleCurrencyAmount ceMethod = METHOD_NDO.currencyExposure(NDO, SMILE_BUNDLE);
-    final MultipleCurrencyAmount ceCalculator = CE_BLACK.visit(NDO, SMILE_BUNDLE);
+    final MultipleCurrencyAmount ceCalculator = NDO.accept(CE_BLACK, SMILE_BUNDLE);
     assertEquals("Forex non-deliverable option: currency exposure", ceMethod, ceCalculator);
   }
 
@@ -165,7 +166,7 @@ public class ForexNonDeliverableOptionBlackMethodTest {
   public void forwardRateMethodVsCalculator() {
     final double fwdMethod = METHOD_NDO.forwardForexRate(NDO, SMILE_BUNDLE);
     final ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
-    final double fwdCalculator = FWDC.visit(NDO, SMILE_BUNDLE);
+    final double fwdCalculator = NDO.accept(FWDC, SMILE_BUNDLE);
     assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
   }
 

@@ -164,7 +164,7 @@
       pos_position
     @INCLUDE(SearchWhere)
     ORDER BY
-      oid
+      pos_position.id
 
 
 -- ==========================================================================

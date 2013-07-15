@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a cap/floor on Ibor.
+ * Class describing a cap/floor on Ibor - aka caplet/floorlet, which can be view as a call/put on an Ibor rate.
  */
 public class CapFloorIbor extends CouponFloating implements CapFloor {
 
@@ -85,7 +85,7 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
    */
   public CapFloorIbor withStrike(final double strike) {
     return new CapFloorIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getIndex(), getFixingPeriodStartTime(),
-        getFixingPeriodEndTime(), getFixingYearFraction(), getForwardCurveName(), strike, _isCap);
+        getFixingPeriodEndTime(), getFixingAccrualFactor(), getForwardCurveName(), strike, _isCap);
   }
 
   /**
@@ -128,7 +128,7 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
    * Gets the accrual factor for the fixing period.
    * @return The accrual factor.
    */
-  public double getFixingYearFraction() {
+  public double getFixingAccrualFactor() {
     return _fixingAccrualFactor;
   }
 
@@ -163,7 +163,7 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
   }
 
   public CouponIborSpread toCoupon() {
-    return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getFixingYearFraction(), getNotional(), getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+    return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getFixingAccrualFactor(), getNotional(), getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
         _fixingAccrualFactor, _forwardCurveName);
   }
 

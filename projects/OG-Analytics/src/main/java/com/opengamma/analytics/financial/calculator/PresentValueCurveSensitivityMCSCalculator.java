@@ -12,16 +12,18 @@ import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
@@ -39,7 +41,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
  */
-public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
+public class PresentValueCurveSensitivityMCSCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -70,7 +72,8 @@ public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumen
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUTURES_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FXSWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
@@ -115,8 +118,13 @@ public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumen
   // -----     Futures     ------
 
   @Override
-  public MultipleCurrencyInterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return MultipleCurrencyInterestRateCurveSensitivity.of(future.getCurrency(), METHOD_IR_FUTURES.presentValueCurveSensitivity(future, curves));
+  public MultipleCurrencyInterestRateCurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return MultipleCurrencyInterestRateCurveSensitivity.of(future.getCurrency(), METHOD_IR_FUTURES_TRANSACTION.presentValueCurveSensitivity(future, curves));
+  }
+
+  @Override
+  public MultipleCurrencyInterestRateCurveSensitivity visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    return MultipleCurrencyInterestRateCurveSensitivity.of(future.getCurrency(), METHOD_IR_FUTURES_SECURITY.presentValueCurveSensitivity(future, curves));
   }
 
   // -----     Annuity     ------
@@ -125,7 +133,7 @@ public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumen
   public MultipleCurrencyInterestRateCurveSensitivity visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle data) {
     MultipleCurrencyInterestRateCurveSensitivity sensi = new MultipleCurrencyInterestRateCurveSensitivity();
     for (final Payment p : annuity.getPayments()) {
-      sensi = sensi.plus(visit(p, data));
+      sensi = sensi.plus(p.accept(this, data));
     }
     return sensi;
   }
@@ -139,8 +147,8 @@ public class PresentValueCurveSensitivityMCSCalculator extends AbstractInstrumen
 
   @Override
   public MultipleCurrencyInterestRateCurveSensitivity visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
-    final MultipleCurrencyInterestRateCurveSensitivity sensi1 = visit(swap.getFirstLeg(), curves);
-    final MultipleCurrencyInterestRateCurveSensitivity sensi2 = visit(swap.getSecondLeg(), curves);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi1 = swap.getFirstLeg().accept(this, curves);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi2 = swap.getSecondLeg().accept(this, curves);
     return sensi1.plus(sensi2);
   }
 

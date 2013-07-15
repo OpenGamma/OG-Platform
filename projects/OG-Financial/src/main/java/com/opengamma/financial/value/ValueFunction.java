@@ -8,7 +8,7 @@ package com.opengamma.financial.value;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -21,8 +21,8 @@ public class ValueFunction extends ValueRenamingFunction {
       ValueRequirementNames.PRESENT_VALUE,
       ValueRequirementNames.FAIR_VALUE);
   
-  public ValueFunction(ComputationTargetType targetType) {
-    super(VALUE_NAMES, ValueRequirementNames.VALUE, targetType);
+  public ValueFunction() {
+    super(VALUE_NAMES, ValueRequirementNames.VALUE, ComputationTargetType.POSITION.or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE));
   }
 
 }

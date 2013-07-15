@@ -108,7 +108,7 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ void connect(Continuation continuation) {
     synchronized (_lock) {
-      //s_logger.debug("Long polling connection established, resetting timeout task {}", _timeoutTask);
+      s_logger.debug("Long polling connection established, resetting timeout task {}", _timeoutTask);
       _timeoutTask.reset();
       _continuation = continuation;
       _continuation.setTimeout(10000);

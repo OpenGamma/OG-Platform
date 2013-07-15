@@ -11,8 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.volatility.smile.function.SmileModelData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.curve.Curve;
@@ -31,6 +29,7 @@ import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * @param <T> The type of data (i.e. model parameters) used by the smile model
@@ -68,32 +67,32 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
    * @param nodePoints The time position of the nodes on each model parameter curve
    * @param interpolators The base interpolator used for each model parameter curve
    */
-  public VolatilitySurfaceFitter(final double[] forwards, final double[][] strikes, final double[] expiries, final double[][] impliedVols,
-      final double[][] errors, final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> nodePoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
+  public VolatilitySurfaceFitter(final double[] forwards, final double[][] strikes, final double[] expiries, final double[][] impliedVols, final double[][] errors,
+      final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> nodePoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
 
-    Validate.notNull(forwards, "null forwards");
-    Validate.notNull(strikes, "null strikes");
-    Validate.notNull(expiries, "null expiries");
-    Validate.notNull(impliedVols, "null implied vols");
-    Validate.notNull(errors, "null error");
-    Validate.notNull(model, "null model");
+    ArgumentChecker.notNull(forwards, "null forwards");
+    ArgumentChecker.notNull(strikes, "null strikes");
+    ArgumentChecker.notNull(expiries, "null expiries");
+    ArgumentChecker.notNull(impliedVols, "null implied vols");
+    ArgumentChecker.notNull(errors, "null error");
+    ArgumentChecker.notNull(model, "null model");
 
     _nExpiries = expiries.length;
-    Validate.isTrue(forwards.length == _nExpiries, "#forwards != #expiries");
-    Validate.isTrue(strikes.length == _nExpiries, "#strike sets != #expiries");
-    Validate.isTrue(impliedVols.length == _nExpiries, "#vol sets != #expiries");
-    Validate.isTrue(errors.length == _nExpiries, "#error sets != #expiries");
+    ArgumentChecker.isTrue(forwards.length == _nExpiries, "#forwards != #expiries");
+    ArgumentChecker.isTrue(strikes.length == _nExpiries, "#strike sets != #expiries");
+    ArgumentChecker.isTrue(impliedVols.length == _nExpiries, "#vol sets != #expiries");
+    ArgumentChecker.isTrue(errors.length == _nExpiries, "#error sets != #expiries");
 
-    _volFuncs = new ArrayList<Function1D<T, double[]>>(_nExpiries);
-    _volAdjointFuncs = new ArrayList<Function1D<T, double[][]>>(_nExpiries);
+    _volFuncs = new ArrayList<>(_nExpiries);
+    _volAdjointFuncs = new ArrayList<>(_nExpiries);
 
     _struture = new int[_nExpiries];
     //check structure of common expiry strips
     int sum = 0;
     for (int i = 0; i < _nExpiries; i++) {
       final int n = strikes[i].length;
-      Validate.isTrue(impliedVols[i].length == n, "#vols in strip " + i + " is wrong");
-      Validate.isTrue(errors[i].length == n, "#vols in strip " + i + " is wrong");
+      ArgumentChecker.isTrue(impliedVols[i].length == n, "#vols in strip " + i + " is wrong");
+      ArgumentChecker.isTrue(errors[i].length == n, "#vols in strip " + i + " is wrong");
 
       final Function1D<T, double[]> func = model.getVolatilityFunction(forwards[i], strikes[i], expiries[i]);
       _volFuncs.add(func);
@@ -125,7 +124,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
     _parameterNames = nodePoints.keySet();
     _nSmileModelParameters = _parameterNames.size();
 
-    final LinkedHashMap<String, Interpolator1D> transformedInterpolators = new LinkedHashMap<String, Interpolator1D>(_nSmileModelParameters);
+    final LinkedHashMap<String, Interpolator1D> transformedInterpolators = new LinkedHashMap<>(_nSmileModelParameters);
     sum = 0;
     index = 0;
     for (final String name : _parameterNames) {
@@ -141,7 +140,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
 
   public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start) {
     final LeastSquareResults lsRes = SOLVER.solve(_vols, _errors, getModelValueFunction(), getModelJacobianFunction(), start);
-    return new LeastSquareResultsWithTransform(lsRes, new UncoupledParameterTransforms(start, getTransforms(), new BitSet()));
+    return new LeastSquareResultsWithTransform(lsRes, new UncoupledParameterTransforms(start, getTransforms(), new BitSet(start.getNumberOfElements())));
   }
 
   /**
@@ -155,7 +154,8 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
         final LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
-        Validate.isTrue(x.getNumberOfElements() == _nKnotPoints); //TODO remove when working properly
+        ArgumentChecker.isTrue(x.getNumberOfElements() == _nKnotPoints, "number of elements {} does not equal number of knot points {}",
+            x.getNumberOfElements(), _nKnotPoints); //TODO remove when working properly
 
         final double[] res = new double[_nOptions];
         int index = 0;
@@ -213,7 +213,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
           //this thing will be (#strikes/vols) x (# model Params)
           final double[][] temp = _volAdjointFuncs.get(i).evaluate(data);
           final int l = temp.length;
-          Validate.isTrue(l == _strikes[i].length); //TODO remove when working properly
+          ArgumentChecker.isTrue(l == _strikes[i].length, "number of elements {} does not equal number of knot points {}", l, _strikes[i].length); //TODO remove when working properly
           for (int j = 0; j < l; j++) {
             int paramOffset = 0;
             for (p = 0; p < _nSmileModelParameters; p++) {

@@ -32,7 +32,7 @@ public class LeisenReimerBinomialOptionModelDefinition extends BinomialOptionMod
     final double sigma = data.getVolatility(t, k);
     final double d1 = getD1(s, k, t, sigma, b);
     final double d2 = getD2(d1, sigma, t);
-    return new ConstantRecombiningBinomialTree<Double>(getH(d2, n));
+    return new ConstantRecombiningBinomialTree<>(getH(d2, n));
   }
 
   @Override

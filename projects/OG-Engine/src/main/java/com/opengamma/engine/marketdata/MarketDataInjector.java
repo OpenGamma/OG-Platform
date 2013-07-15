@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.marketdata;
 
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -15,40 +15,38 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface MarketDataInjector {
-  
+
   /**
-   * Injects a live data value by {@link ValueRequirement}.
-   * 
-   * @param valueRequirement  the value requirement, not null
-   * @param value  the value to add
+   * Injects a live data value by {@link ValueRequirement}. The requirement will be resolved using the same logic as the related {@link MarketDataAvailabilityProvider} to determine the
+   * {@link ValueSpecification} that describes the injected data.
+   *
+   * @param valueRequirement the value requirement, not null
+   * @param value the value to add
    */
   void addValue(ValueRequirement valueRequirement, Object value);
 
   /**
-   * Injects a live data value by {@link ExternalId}. This identifier is resolved automatically into the
-   * {@link UniqueId} to use in a {@link ValueRequirement}.
-   * 
-   * @param identifier  an identifier of the target, not null
-   * @param valueName  the name of the value being added, not null
-   * @param value  the value to add
+   * Injects a live data value by {@link ValueSpecification}.
+   *
+   * @param valueSpecification the value specification, not null
+   * @param value the value to add
    */
-  void addValue(ExternalId identifier, String valueName, Object value);
-  
+  void addValue(ValueSpecification valueSpecification, Object value);
+
   /**
-   * Removes a previously-added live data value by {@link ValueRequirement}.
-   * 
-   * @param valueRequirement  the value requirement, not null
+   * Removes a previously-added live data value by {@link ValueRequirement}. The requirement will be resolved using the same logic as the related {@link MarketDataAvailabilityProvider} to determine
+   * the {@link ValueSpecification} that describes the injected data to be removed. It does not need to be the same as the original value requirement that added the data, as long as it resolves to the
+   * same value specification.
+   *
+   * @param valueRequirement the value requirement, not null
    */
   void removeValue(ValueRequirement valueRequirement);
-  
+
   /**
-   * Removes a previously-added live data value by {@link ExternalId}. This identifier is resolved automatically into
-   * a {@link ValueRequirement} so could be different from the one used when the value was added, as long as it
-   * resolves to the same target.
-   * 
-   * @param identifier  an identifier of the target, not null
-   * @param valueName  the name of the value being removed, not null
+   * Removes a previously-added live data value by {@link ValueSpecification}.
+   *
+   * @param valueSpecification the value specification, not null
    */
-  void removeValue(ExternalId identifier, String valueName);
-  
+  void removeValue(ValueSpecification valueSpecification);
+
 }

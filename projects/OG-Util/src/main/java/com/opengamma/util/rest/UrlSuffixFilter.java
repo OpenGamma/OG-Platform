@@ -7,13 +7,13 @@ package com.opengamma.util.rest;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
+import com.google.common.collect.Maps;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.sun.jersey.core.header.InBoundHeaders;
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -32,9 +32,9 @@ public class UrlSuffixFilter implements ContainerRequestFilter {
   /**
    * Map of suffix to mime type.
    */
-  private static final Map<String, String> SUFFIXES = new HashMap<String, String>();
+  private static final Map<String, String> SUFFIXES = Maps.newHashMap();
   static {
-    SUFFIXES.put(".csv", "text/csv");
+    SUFFIXES.put(".csv", RestUtils.TEXT_CSV);
     SUFFIXES.put(".json", MediaType.APPLICATION_JSON);
     SUFFIXES.put(".xml", MediaType.APPLICATION_XML);
     SUFFIXES.put(".fudge", FudgeRest.MEDIA);

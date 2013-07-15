@@ -10,12 +10,11 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
@@ -24,10 +23,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -48,7 +49,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
 
   @Test
   public void test_removePosition_removed() {
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbPos", "122", "0");
     _posMaster.remove(uniqueId);

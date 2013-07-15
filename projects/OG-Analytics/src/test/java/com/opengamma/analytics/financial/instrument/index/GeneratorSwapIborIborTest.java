@@ -18,9 +18,9 @@ public class GeneratorSwapIborIborTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M", NYC);
-  private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M", NYC);
-  private static final GeneratorSwapIborIbor USDLIBOR3MLIBOR6M = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M);
+  private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M");
+  private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M");
+  private static final GeneratorSwapIborIbor USDLIBOR3MLIBOR6M = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M, NYC, NYC);
 
   @Test
   /**
@@ -40,7 +40,7 @@ public class GeneratorSwapIborIborTest {
    * Tests the constructor with business day convention and end-of-month.
    */
   public void constructor() {
-    GeneratorSwapIborIbor generator2 = new GeneratorSwapIborIbor("Generator 2", USDLIBOR3M, USDLIBOR6M, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, 1);
+    final GeneratorSwapIborIbor generator2 = new GeneratorSwapIborIbor("Generator 2", USDLIBOR3M, USDLIBOR6M, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, 1, NYC, NYC);
     assertEquals("GeneratorSwapIborIbor: getter", USDLIBOR3M, generator2.getIborIndex1());
     assertEquals("GeneratorSwapIborIbor: getter", USDLIBOR6M, generator2.getIborIndex2());
     assertTrue("GeneratorSwapIborIbor: getter", generator2.getName().equals("Generator 2"));

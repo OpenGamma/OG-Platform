@@ -7,12 +7,10 @@ package com.opengamma.financial.convention.daycount;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubCalculator;
 import com.opengamma.financial.convention.StubType;
@@ -144,9 +142,9 @@ public final class AccruedInterestCalculator {
     if (index == length) {
       throw new IllegalArgumentException("Settlement date is after maturity date");
     }
-    final ZonedDateTime previousCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(nominalDates[index]), TimeZone.UTC);
-    final ZonedDateTime date = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
-    final ZonedDateTime nextCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(nominalDates[index + 1]), TimeZone.UTC);
+    final ZonedDateTime previousCouponDate = nominalDates[index].atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime date = settlementDate.atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime nextCouponDate = nominalDates[index + 1].atStartOfDay(ZoneOffset.UTC);
     final double accruedInterest = getAccruedInterest(dayCount, index, length, previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, isEndOfMonthConvention);
     LocalDate exDividendDate = nominalDates[index + 1];
     for (int j = 0; j < exDividendDays; j++) {
@@ -185,9 +183,9 @@ public final class AccruedInterestCalculator {
     Validate.isTrue(exDividendDays >= 0);
     final int length = nominalDates.length;
     Validate.isTrue(index >= 0 && index < length);
-    final ZonedDateTime previousCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(nominalDates[index]), TimeZone.UTC);
-    final ZonedDateTime date = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
-    final ZonedDateTime nextCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(nominalDates[index + 1]), TimeZone.UTC);
+    final ZonedDateTime previousCouponDate = nominalDates[index].atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime date = settlementDate.atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime nextCouponDate = nominalDates[index + 1].atStartOfDay(ZoneOffset.UTC);
     double accruedInterest;
     if (date.isAfter(nextCouponDate)) {
       accruedInterest = 0;
@@ -300,10 +298,12 @@ public final class AccruedInterestCalculator {
       final boolean isEndOfMonthConvention) {
     StubType stubType;
     if (index == 0) {
-      stubType = StubCalculator.getStartStubType(new ZonedDateTime[] {previousCouponDate, nextCouponDate}, paymentsPerYear, isEndOfMonthConvention);
+      LocalDate[] schedule = new LocalDate[] {previousCouponDate.toLocalDate(), nextCouponDate.toLocalDate()};
+      stubType = StubCalculator.getStartStubType(schedule, paymentsPerYear, isEndOfMonthConvention);
 
     } else if (index == length - 2) {
-      stubType = StubCalculator.getEndStubType(new ZonedDateTime[] {previousCouponDate, nextCouponDate}, paymentsPerYear, isEndOfMonthConvention);
+      LocalDate[] schedule = new LocalDate[] {previousCouponDate.toLocalDate(), nextCouponDate.toLocalDate()};
+      stubType = StubCalculator.getEndStubType(schedule, paymentsPerYear, isEndOfMonthConvention);
 
     } else {
       stubType = StubType.NONE;
@@ -315,10 +315,12 @@ public final class AccruedInterestCalculator {
       final boolean isEndOfMonthConvention) {
     StubType stubType;
     if (index == 0) {
-      stubType = StubCalculator.getStartStubType(new LocalDate[] {previousCouponDate, nextCouponDate}, paymentsPerYear, isEndOfMonthConvention);
+      LocalDate[] schedule = new LocalDate[] {previousCouponDate, nextCouponDate};
+      stubType = StubCalculator.getStartStubType(schedule, paymentsPerYear, isEndOfMonthConvention);
 
     } else if (index == length - 2) {
-      stubType = StubCalculator.getEndStubType(new LocalDate[] {previousCouponDate, nextCouponDate}, paymentsPerYear, isEndOfMonthConvention);
+      LocalDate[] schedule = new LocalDate[] {previousCouponDate, nextCouponDate};
+      stubType = StubCalculator.getEndStubType(schedule, paymentsPerYear, isEndOfMonthConvention);
 
     } else {
       stubType = StubType.NONE;

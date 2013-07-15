@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.test;
 
 import java.io.IOException;
@@ -26,13 +31,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public class BuilderTestProxyFactory {
 
-  public interface BuilderTestProxy {
-    public FudgeMsg proxy(final Class<?> clazz, FudgeMsg orig);
+  interface BuilderTestProxy {
+    FudgeMsg proxy(final Class<?> clazz, FudgeMsg orig);
   }
 
   public BuilderTestProxy getProxy() {
     String execPath = System.getProperty("com.opengamma.util.test.BuilderTestProxyFactory.ExecBuilderTestProxy.execPath");
-    if (execPath!=null) {
+    if (execPath != null) {
       return new ExecBuilderTestProxy(execPath);
     }
     return new NullBuilderTestProxy();
@@ -46,12 +51,12 @@ public class BuilderTestProxyFactory {
   }
 
   private static class ExecBuilderTestProxy implements BuilderTestProxy {
-    private static final Logger s_logger = LoggerFactory.getLogger (ExecBuilderTestProxy.class);
-    
-    final String _execPath;
+    private static final Logger s_logger = LoggerFactory.getLogger(ExecBuilderTestProxy.class);
+
+    private final String _execPath;
 
     public ExecBuilderTestProxy(String execPath) {
-      _execPath=execPath;
+      _execPath = execPath;
     }
 
     @Override
@@ -65,16 +70,14 @@ public class BuilderTestProxyFactory {
       final ProcessBuilder processBuilder = new ProcessBuilder(command);
       try {
         final Process proc = processBuilder.start();
-        try{
-          OutputStream outputStream = proc.getOutputStream();
-          try {
+        try {
+          try (OutputStream outputStream = proc.getOutputStream()) {
             FudgeDataOutputStreamWriter fudgeDataOutputStreamWriter = new FudgeDataOutputStreamWriter(context, outputStream);
             FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(fudgeDataOutputStreamWriter);
             fudgeMsgWriter.writeMessage(orig);
             fudgeMsgWriter.flush();
             
-            InputStream inputStream = proc.getInputStream();
-            try {
+            try (InputStream inputStream = proc.getInputStream()) {
               FudgeDataInputStreamReader fudgeDataInputStreamReader = new FudgeDataInputStreamReader(context, inputStream);
               final FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(fudgeDataInputStreamReader);
               
@@ -102,15 +105,11 @@ public class BuilderTestProxyFactory {
                 s_logger.warn(err);
               }
               int ret = proc.waitFor();
-              if (ret!=0) {
-                throw new IOException("Exit code not expected: "+ret);
+              if (ret != 0) {
+                throw new IOException("Exit code not expected: " + ret);
               }
               return retMsgFuture.get();
-            } finally {
-              inputStream.close();
             }
-          } finally {
-            outputStream.close();
           }
         } finally {
           proc.destroy();
@@ -119,7 +118,6 @@ public class BuilderTestProxyFactory {
         throw new AssertionError(ex);
       }
     }
-
   }
 
 }

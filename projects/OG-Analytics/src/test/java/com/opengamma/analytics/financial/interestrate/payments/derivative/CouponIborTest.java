@@ -8,9 +8,8 @@ package com.opengamma.analytics.financial.interestrate.payments.derivative;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
@@ -31,7 +30,7 @@ public class CouponIborTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final IndexIborMaster INDEX_IBOR_MASTER = IndexIborMaster.getInstance();
-  private static final IborIndex INDEX_EURIBOR3M = INDEX_IBOR_MASTER.getIndex("EURIBOR3M", TARGET);
+  private static final IborIndex INDEX_EURIBOR3M = INDEX_IBOR_MASTER.getIndex("EURIBOR3M");
   private static final Currency EUR = INDEX_EURIBOR3M.getCurrency();
   // Coupon
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -42,11 +41,9 @@ public class CouponIborTest {
   private static final double NOTIONAL = 1000000; //1m
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE, -INDEX_EURIBOR3M.getSpotLag(), TARGET); // In arrears
   private static final ZonedDateTime FIXING_START_DATE = ACCRUAL_END_DATE;
-  private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, INDEX_EURIBOR3M);
+  private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, INDEX_EURIBOR3M, TARGET);
 
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
-  //  private static final double ACCRUAL_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATE);
-  //  private static final double ACCRUAL_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_START_DATE);
   private static final double FIXING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE);
   private static final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_START_DATE);
   private static final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
@@ -102,7 +99,7 @@ public class CouponIborTest {
    */
   public void testEqualHash() {
     assertEquals("CouponIbor: equal-hash", CPN_IBOR, CPN_IBOR);
-    CouponIbor other = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+    final CouponIbor other = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
         FORWARD_CURVE_NAME);
     assertEquals("CouponIbor: equal-hash", other, CPN_IBOR);
     assertEquals("CouponIbor: equal-hash", other.hashCode(), CPN_IBOR.hashCode());
@@ -121,7 +118,7 @@ public class CouponIborTest {
     modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME - 0.1, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
         FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(Currency.USD, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_IBOR_MASTER.getIndex("USDLIBOR3M", TARGET), FIXING_START_TIME,
+    modified = new CouponIbor(Currency.USD, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_IBOR_MASTER.getIndex("USDLIBOR3M"), FIXING_START_TIME,
         FIXING_END_TIME, FIXING_ACCRUAL_FACTOR, FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
     modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME + 0.1, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,

@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Computes the sensitivity of the par spread to the curve rates. 
  */
-public final class PresentValueBasisPointCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
+public final class PresentValueBasisPointCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -49,13 +49,6 @@ public final class PresentValueBasisPointCurveSensitivityCalculator extends Abst
   }
 
   @Override
-  public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
-
-  @Override
   public InterestRateCurveSensitivity visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle data) {
     return new InterestRateCurveSensitivity();
   }
@@ -64,10 +57,10 @@ public final class PresentValueBasisPointCurveSensitivityCalculator extends Abst
     Validate.notNull(curves);
     Validate.notNull(coupon);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(coupon.getFundingCurveName());
-    double df = fundingCurve.getDiscountFactor(coupon.getPaymentTime());
+    final double df = fundingCurve.getDiscountFactor(coupon.getPaymentTime());
     // Backward sweep
-    double pvbpBar = 1.0;
-    double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * pvbpBar;
+    final double pvbpBar = 1.0;
+    final double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * pvbpBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
@@ -91,7 +84,7 @@ public final class PresentValueBasisPointCurveSensitivityCalculator extends Abst
   }
 
   @Override
-  public InterestRateCurveSensitivity visitCouponIborCompounded(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity visitCouponIborCompounding(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     return visitCoupon(coupon, curves);
   }
 
@@ -101,7 +94,7 @@ public final class PresentValueBasisPointCurveSensitivityCalculator extends Abst
     Validate.notNull(annuity);
     InterestRateCurveSensitivity pvbpSensi = new InterestRateCurveSensitivity();
     for (final Payment p : annuity.getPayments()) {
-      pvbpSensi = pvbpSensi.plus(visit(p, curves));
+      pvbpSensi = pvbpSensi.plus(p.accept(this, curves));
     }
     return pvbpSensi;
   }

@@ -29,20 +29,19 @@ public class FXOneLookBarrierOptionBlackCurveSensitivityFunction extends FXOneLo
   private static final PresentValueCurveSensitivityBlackTermStructureForexCalculator FLAT_CALCULATOR = PresentValueCurveSensitivityBlackTermStructureForexCalculator.getInstance();
 
   @Override
-  protected Object computeValues(Set<ForexOptionVanilla> vanillaOptions, ForexOptionDataBundle<?> market) {
-    MultipleCurrencyInterestRateCurveSensitivity sum = new MultipleCurrencyInterestRateCurveSensitivity();
+  protected Object computeValues(final Set<ForexOptionVanilla> vanillaOptions, final ForexOptionDataBundle<?> market) {
+    final MultipleCurrencyInterestRateCurveSensitivity sum = new MultipleCurrencyInterestRateCurveSensitivity();
     final boolean isVolFlat = market instanceof YieldCurveWithBlackForexTermStructureBundle;
-    for (ForexOptionVanilla derivative : vanillaOptions) {
+    for (final ForexOptionVanilla derivative : vanillaOptions) {
       if (isVolFlat) {
-        final MultipleCurrencyInterestRateCurveSensitivity result = FLAT_CALCULATOR.visit(derivative, market);
+        final MultipleCurrencyInterestRateCurveSensitivity result = derivative.accept(FLAT_CALCULATOR, market);
         ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
         sum.plus(result);
       }
-      final MultipleCurrencyInterestRateCurveSensitivity result = SMILE_CALCULATOR.visit(derivative, market);
+      final MultipleCurrencyInterestRateCurveSensitivity result = derivative.accept(SMILE_CALCULATOR, market);
       ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
       sum.plus(result);
     }
     return sum;
   }
 }
-

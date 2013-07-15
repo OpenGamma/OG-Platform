@@ -20,33 +20,33 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 public class GeneratorIborONTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
-  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", NYC);
+  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
   private static final String USD_NAME = "USDLIBOR3MFEDFUND";
   private static final BusinessDayConvention USD_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean USD_IS_EOM = true;
   private static final int USD_SPOT_LAG = 2;
 
-  private static final GeneratorSwapIborON USDLIBOR3MFEDFUND = new GeneratorSwapIborON(USD_NAME, USDLIBOR3M, FEDFUND, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+  private static final GeneratorSwapIborON USDLIBOR3MFEDFUND = new GeneratorSwapIborON(USD_NAME, USDLIBOR3M, FEDFUND, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG, NYC, NYC);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullName() {
-    new GeneratorSwapIborON(null, USDLIBOR3M, FEDFUND, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapIborON(null, USDLIBOR3M, FEDFUND, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG, NYC, NYC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIbor() {
-    new GeneratorSwapIborON(USD_NAME, null, FEDFUND, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapIborON(USD_NAME, null, FEDFUND, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG, NYC, NYC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullON() {
-    new GeneratorSwapIborON(USD_NAME, USDLIBOR3M, null, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapIborON(USD_NAME, USDLIBOR3M, null, USD_BUSINESS_DAY, USD_IS_EOM, USD_SPOT_LAG, NYC, NYC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullBusDay() {
-    new GeneratorSwapIborON(USD_NAME, USDLIBOR3M, FEDFUND, null, USD_IS_EOM, USD_SPOT_LAG);
+    new GeneratorSwapIborON(USD_NAME, USDLIBOR3M, FEDFUND, null, USD_IS_EOM, USD_SPOT_LAG, NYC, NYC);
   }
 
   @Test

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.math.utilities;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Computes the numerical difference between adjacent elements in vector. 
@@ -19,7 +19,7 @@ public class Diff {
    * @return the numerical difference between adjacent elements in v
    */
   public static double[] values(final double[] v) {
-    Validate.notNull(v);
+    ArgumentChecker.notNull(v, "v");
     final int n = v.length - 1;
     double[] tmp = new double[n];
     for (int i = 0; i < n; i++) {
@@ -30,15 +30,15 @@ public class Diff {
 
   /**
    * Finds the t^{th} numerical difference between value at position (i+1) and (i)
-   * (effectively recurses {@link Diff.values} "t" times);
+   * (effectively recurses #values "t" times);
    * @param v the vector
    * @param t the number of differences to be taken (t positive).
    * @return the numerical difference between adjacent elements in v
    */
   public static double[] values(final double[] v, final int t) {
-    Validate.notNull(v);
-    Validate.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
-    Validate.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
+    ArgumentChecker.notNull(v, "v");
+    ArgumentChecker.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
+    ArgumentChecker.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
         v.length + " elements.");
     double[] tmp;
     if (t == 0) { // no differencing done
@@ -60,7 +60,7 @@ public class Diff {
    * @return the numerical difference between adjacent elements in v
    */
   public static float[] values(final float[] v) {
-    Validate.notNull(v);
+    ArgumentChecker.notNull(v, "v");
     final int n = v.length - 1;
     float[] tmp = new float[n];
     for (int i = 0; i < n; i++) {
@@ -71,15 +71,15 @@ public class Diff {
 
   /**
    * Finds the t^{th} numerical difference between value at position (i+1) and (i)
-   * (effectively recurses {@link Diff.values} "t" times);
+   * (effectively recurses #values "t" times);
    * @param v the vector
    * @param t the number of differences to be taken (t positive).
    * @return the numerical difference between adjacent elements in v
    */
   public static float[] values(final float[] v, final int t) {
-    Validate.notNull(v);
-    Validate.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
-    Validate.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
+    ArgumentChecker.notNull(v, "v");
+    ArgumentChecker.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
+    ArgumentChecker.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
         v.length + " elements.");
     float[] tmp;
     if (t == 0) { // no differencing done
@@ -101,7 +101,7 @@ public class Diff {
    * @return the numerical difference between adjacent elements in v
    */
   public static int[] values(final int[] v) {
-    Validate.notNull(v);
+    ArgumentChecker.notNull(v, "v");
     final int n = v.length - 1;
     int[] tmp = new int[n];
     for (int i = 0; i < n; i++) {
@@ -112,15 +112,15 @@ public class Diff {
 
   /**
    * Finds the t^{th} numerical difference between value at position (i+1) and (i)
-   * (effectively recurses {@link Diff.values} "t" times);
+   * (effectively recurses #values "t" times);
    * @param v the vector
    * @param t the number of differences to be taken (t positive).
    * @return the numerical difference between adjacent elements in v
    */
   public static int[] values(final int[] v, final int t) {
-    Validate.notNull(v);
-    Validate.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
-    Validate.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
+    ArgumentChecker.notNull(v, "v");
+    ArgumentChecker.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
+    ArgumentChecker.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
         v.length + " elements.");
     int[] tmp;
     if (t == 0) { // no differencing done
@@ -142,7 +142,7 @@ public class Diff {
    * @return the numerical difference between adjacent elements in v
    */
   public static long[] values(final long[] v) {
-    Validate.notNull(v);
+    ArgumentChecker.notNull(v, "v");
     final int n = v.length - 1;
     long[] tmp = new long[n];
     for (int i = 0; i < n; i++) {
@@ -153,15 +153,15 @@ public class Diff {
 
   /**
    * Finds the t^{th} numerical difference between value at position (i+1) and (i)
-   * (effectively recurses {@link Diff.values} "t" times);
+   * (effectively recurses #values "t" times);
    * @param v the vector
    * @param t the number of differences to be taken (t positive).
    * @return the numerical difference between adjacent elements in v
    */
   public static long[] values(final long[] v, final int t) {
-    Validate.notNull(v);
-    Validate.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
-    Validate.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
+    ArgumentChecker.notNull(v, "v");
+    ArgumentChecker.isTrue((t > -1), "Invalid number of differences requested, t must be positive or 0. The given t was: " + t);
+    ArgumentChecker.isTrue((t < v.length), "Invalid number of differences requested, 't' is greater than the number of elements in 'v'. The given 't' was: " + t + " and 'v' contains " +
         v.length + " elements.");
     long[] tmp;
     if (t == 0) { // no differencing done

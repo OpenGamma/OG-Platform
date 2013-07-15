@@ -26,10 +26,12 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QuerySecurityDbSecurityMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSecurityMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -585,7 +587,6 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     
-    System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
   }

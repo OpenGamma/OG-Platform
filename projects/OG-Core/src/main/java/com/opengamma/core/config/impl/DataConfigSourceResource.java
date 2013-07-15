@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.Collection;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -97,7 +98,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
   @Path("configs")
   public Response search(
     @QueryParam("type") final String typeStr,
-      @QueryParam("versionCorrection") final String versionCorrectionStr,
+    @QueryParam("versionCorrection") final String versionCorrectionStr,
     @QueryParam("name") final String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
@@ -247,6 +248,23 @@ public class DataConfigSourceResource extends AbstractDataResource {
     } else {
       bld.queryParam("versionCorrection", VersionCorrection.LATEST.toString());
     }
+    return bld.build();
+  }
+
+  // TODO: put is not a RESTful URI!
+  @PUT
+  @Path("put")
+  public Response put(
+    @QueryParam("type") final String typeStr,
+    @QueryParam("versionCorrection") final String versionCorrectionStr) {
+    final Class<?> type = ReflectionUtils.loadClass(typeStr);
+    final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
+    return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
+  }
+
+  public static <T> URI uriPut(final URI baseUri) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("put");
     return bld.build();
   }
 

@@ -5,11 +5,12 @@
  */
 package com.opengamma.analytics.financial.model.volatility.local;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *  A local volatility surface parameterised by time and moneyness m = strike/forward
@@ -29,7 +30,7 @@ public class LocalVolatilitySurfaceMoneyness extends LocalVolatilitySurface<Mone
    */
   public LocalVolatilitySurfaceMoneyness(final Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve) {
     super(surface);
-    Validate.notNull(forwardCurve, "null forward curve");
+    ArgumentChecker.notNull(forwardCurve, "null forward curve");
     _fc = forwardCurve;
   }
 
@@ -60,4 +61,32 @@ public class LocalVolatilitySurfaceMoneyness extends LocalVolatilitySurface<Mone
   public ForwardCurve getForwardCurve() {
     return _fc;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _fc.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof LocalVolatilitySurfaceMoneyness)) {
+      return false;
+    }
+    final LocalVolatilitySurfaceMoneyness other = (LocalVolatilitySurfaceMoneyness) obj;
+    if (!ObjectUtils.equals(_fc, other._fc)) {
+      return false;
+    }
+    return true;
+  }
+
+
 }

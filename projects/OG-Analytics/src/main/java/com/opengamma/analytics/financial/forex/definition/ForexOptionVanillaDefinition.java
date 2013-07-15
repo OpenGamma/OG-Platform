@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.forex.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
@@ -16,12 +15,13 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class describing a vanilla foreign exchange European option. When the option is a call, the option holder has the right to enter into the Forex transaction; 
+ * Class describing a vanilla foreign exchange European option. When the option is a call, the option holder has the right to enter into the Forex transaction;
  * if the option is a put, the option holder has the right to enter into a Forex transaction equal to the underlying but with opposite signs.
- * A Call on a Forex EUR 1.00 / USD -1.41 is thus the right to call 1.00 EUR and put 1.41 USD. A put on a Forex EUR -1.00 / USD 1.41 is the right to 
- * exchange -(-1.00) EUR = 1.00 EUR and -1.41 EUR; it is thus also the right to call 1.00 EUR and put 1.41 USD. A put on a Forex  USD 1.41 / EUR -1.00 is 
+ * A Call on a Forex EUR 1.00 / USD -1.41 is thus the right to call 1.00 EUR and put 1.41 USD. A put on a Forex EUR -1.00 / USD 1.41 is the right to
+ * exchange -(-1.00) EUR = 1.00 EUR and -1.41 EUR; it is thus also the right to call 1.00 EUR and put 1.41 USD. A put on a Forex  USD 1.41 / EUR -1.00 is
  * also the right to call 1.00 EUR and put 1.41 USD.
  */
 public class ForexOptionVanillaDefinition implements InstrumentDefinition<InstrumentDerivative> {
@@ -50,7 +50,7 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
    * @param isCall The call (true) / put (false) flag.
    * @param isLong The long (true) / short (false) flag.
    */
-  public ForexOptionVanillaDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, boolean isLong) {
+  public ForexOptionVanillaDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, final boolean isLong) {
     Validate.notNull(forex, "Underlying forex");
     Validate.notNull(expirationDate, "Expiration date");
     Validate.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
@@ -109,6 +109,7 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
    */
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionVanillaDefinition(this, data);
   }
 
@@ -117,6 +118,7 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
    */
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionVanillaDefinition(this);
   }
 
@@ -132,7 +134,7 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -142,7 +144,7 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexOptionVanillaDefinition other = (ForexOptionVanillaDefinition) obj;
+    final ForexOptionVanillaDefinition other = (ForexOptionVanillaDefinition) obj;
     if (!ObjectUtils.equals(_expirationDate, other._expirationDate)) {
       return false;
     }

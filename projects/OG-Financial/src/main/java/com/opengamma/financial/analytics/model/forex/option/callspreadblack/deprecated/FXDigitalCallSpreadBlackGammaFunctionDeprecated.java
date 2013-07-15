@@ -31,7 +31,7 @@ public class FXDigitalCallSpreadBlackGammaFunctionDeprecated extends FXDigitalCa
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final GammaValueCallSpreadBlackForexCalculator calculator = new GammaValueCallSpreadBlackForexCalculator(spread);
-    final CurrencyAmount result = calculator.visit(fxDigital, data);
+    final CurrencyAmount result = fxDigital.accept(calculator, data);
     final double amount = result.getAmount();
     return Collections.singleton(new ComputedValue(spec, amount));
   }

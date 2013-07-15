@@ -5,16 +5,15 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -25,7 +24,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
   /**
    * Underlying future security.
    */
-  private final InterestRateFutureDefinition _underlyingFuture;
+  private final InterestRateFutureSecurityDefinition _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -46,9 +45,9 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
-    Validate.notNull(underlyingFuture, "underlying future");
-    Validate.notNull(expirationDate, "expiration");
+  public InterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureSecurityDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
+    ArgumentChecker.notNull(underlyingFuture, "underlying future");
+    ArgumentChecker.notNull(expirationDate, "expiration");
     this._underlyingFuture = underlyingFuture;
     this._expirationDate = expirationDate;
     this._strike = strike;
@@ -59,7 +58,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFutureDefinition getUnderlyingFuture() {
+  public InterestRateFutureSecurityDefinition getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -96,21 +95,22 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
   }
 
   @Override
-  public InterestRateFutureOptionPremiumSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
-    final Double referencePrice = 0.0; // FIXME FutureRefactor Urgently need to update Options on Futures 
-    final InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
+  public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
+    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     return new InterestRateFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumSecurityDefinition(this);
   }
 
@@ -128,7 +128,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -138,7 +138,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionPremiumSecurityDefinition other = (InterestRateFutureOptionPremiumSecurityDefinition) obj;
+    final InterestRateFutureOptionPremiumSecurityDefinition other = (InterestRateFutureOptionPremiumSecurityDefinition) obj;
     if (!ObjectUtils.equals(_expirationDate, other._expirationDate)) {
       return false;
     }

@@ -38,7 +38,6 @@ import com.opengamma.engine.value.ValueRequirement;
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.debug("Failed on {} for {}", value, this);
-    storeFailure(failure);
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
       if (_pendingTasks == Integer.MIN_VALUE) {
@@ -60,6 +59,7 @@ import com.opengamma.engine.value.ValueRequirement;
         }
       }
     }
+    storeFailure(failure);
     pumpImpl(context, pumps);
   }
 
@@ -147,6 +147,11 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
+  public void recursionDetected() {
+    // No-op by default
+  }
+
+  @Override
   protected void pumpImpl(final GraphBuildingContext context) {
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
@@ -196,6 +201,10 @@ import com.opengamma.engine.value.ValueRequirement;
 
   public void addProducer(final GraphBuildingContext context, final ResolvedValueProducer producer) {
     synchronized (this) {
+      if (_pendingTasks == Integer.MIN_VALUE) {
+        s_logger.debug("Discarded before fallback producer {} added to {}", producer, this);
+        return;
+      }
       assert _pendingTasks >= 0;
       if (_pendingTasks == 0) {
         _wantResult = true;

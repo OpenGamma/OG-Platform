@@ -19,20 +19,22 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.CacheSelectHint;
+import com.opengamma.engine.calcnode.CalculationJob;
+import com.opengamma.engine.calcnode.CalculationJobItem;
+import com.opengamma.engine.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.view.cache.CacheSelectHint;
-import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
-import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Fudge message builder for {@code CalculationJob}.
  * 
  * <pre>
  * message CalculationJob extends CalculationJobSpecification, CacheSelect {
- *   optional long[] required;                 // pre-requisite job identifiers
- *   required long functionInitId;             // function initialization latch flag
- *   required CalculationJobItem[] items;      // job items
+ *   optional long[] required;                              // pre-requisite job identifiers
+ *   required long functionInitId;                          // function initialization latch flag
+ *   required VersionCorrection versionCorrection;          // resolver version/correction timestamps
+ *   required CalculationJobItem[] items;                   // job items
  * }
  * </pre>
  */
@@ -41,6 +43,7 @@ public class CalculationJobFudgeBuilder implements FudgeBuilder<CalculationJob> 
 
   private static final String REQUIRED_FIELD_NAME = "required";
   private static final String FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME = "functionInitId";
+  private static final String RESOLVER_VERSION_CORRECTION_FIELD_NAME = "versionCorrection";
   private static final String ITEMS_FIELD_NAME = "items";
 
   protected FudgeMsg buildItemsMessage(final FudgeSerializer serializer, final List<CalculationJobItem> items) {
@@ -63,6 +66,7 @@ public class CalculationJobFudgeBuilder implements FudgeBuilder<CalculationJob> 
       msg.add(REQUIRED_FIELD_NAME, object.getRequiredJobIds());
     }
     msg.add(FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME, object.getFunctionInitializationIdentifier());
+    serializer.addToMessage(msg, RESOLVER_VERSION_CORRECTION_FIELD_NAME, null, object.getResolverVersionCorrection());
     msg.add(ITEMS_FIELD_NAME, buildItemsMessage(serializer, object.getJobItems()));
     return msg;
   }
@@ -84,8 +88,9 @@ public class CalculationJobFudgeBuilder implements FudgeBuilder<CalculationJob> 
     final CacheSelectHint cacheSelectHint = CacheSelectHintFudgeBuilder.buildObjectImpl(message);
     final long[] requiredJobIds = message.getValue(long[].class, REQUIRED_FIELD_NAME);
     final long functionInitializationIdentifier = message.getLong(FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME);
+    final VersionCorrection resolverVersionCorrection = deserializer.fieldValueToObject(VersionCorrection.class, message.getByName(RESOLVER_VERSION_CORRECTION_FIELD_NAME));
     final List<CalculationJobItem> jobItems = buildItemsObject(deserializer, message.getMessage(ITEMS_FIELD_NAME));
-    return new CalculationJob(jobSpec, functionInitializationIdentifier, requiredJobIds, jobItems, cacheSelectHint);
+    return new CalculationJob(jobSpec, functionInitializationIdentifier, resolverVersionCorrection, requiredJobIds, jobItems, cacheSelectHint);
   }
 
 }

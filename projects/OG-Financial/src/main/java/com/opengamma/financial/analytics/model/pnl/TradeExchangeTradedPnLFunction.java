@@ -5,16 +5,16 @@
  */
 package com.opengamma.financial.analytics.model.pnl;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -47,7 +47,7 @@ public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPosition
     if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
       return false;
     }
-    return (target.getType() == ComputationTargetType.TRADE && (FinancialSecurityUtils.isExchangeTraded(security)) || security instanceof BondSecurity);
+    return FinancialSecurityUtils.isExchangeTraded(security) || (security instanceof BondSecurity);
   }
 
   @Override

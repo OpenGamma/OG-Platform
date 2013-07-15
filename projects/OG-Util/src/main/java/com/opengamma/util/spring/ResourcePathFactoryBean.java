@@ -7,10 +7,9 @@ package com.opengamma.util.spring;
 
 import java.io.IOException;
 
-import org.springframework.util.ResourceUtils;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**

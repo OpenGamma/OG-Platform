@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.source.HistoricalTimeSeriesSourceComponentFactory;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
@@ -42,7 +43,7 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
 
   //-------------------------------------------------------------------------
   @Override
-  protected HistoricalTimeSeriesResolver initResolver() {
+  protected HistoricalTimeSeriesResolver createResolver(ComponentRepository repo) {
     HistoricalTimeSeriesFieldAdjustmentMap bbgFieldAdjustmentMap = BloombergDataUtils.createFieldAdjustmentMap(getBbgReferenceData(), getCacheManager());
     Collection<HistoricalTimeSeriesFieldAdjustmentMap> fieldAdjustmentMaps = ImmutableList.of(bbgFieldAdjustmentMap);
     
@@ -159,7 +160,7 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "bbgReferenceData");
 
     /**

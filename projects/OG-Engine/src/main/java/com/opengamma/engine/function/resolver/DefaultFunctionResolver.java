@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
@@ -22,10 +22,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Default implementation of the function resolver.
  * <p>
- * The aim of the resolution is to find functions that are capable of satisfying a requirement.
- * In addition, a priority mechanism is used to return functions in priority order
- * from highest to lowest. Resolution actually occurs in the {@code CompiledFunctionResolver}.
- * This class creates a {@code DefaultCompiledFunctionResolver} instance.
+ * The aim of the resolution is to find functions that are capable of satisfying a requirement. In addition, a priority mechanism is used to return functions in priority order from highest to lowest.
+ * Resolution actually occurs in the {@code CompiledFunctionResolver}. This class creates a {@code DefaultCompiledFunctionResolver} instance.
  * <p>
  * This class is not thread-safe.
  */
@@ -47,7 +45,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
   /**
    * Creates an instance.
    * 
-   * @param functionCompilationService  the provider of compiled functions, not null
+   * @param functionCompilationService the provider of compiled functions, not null
    */
   public DefaultFunctionResolver(final CompiledFunctionService functionCompilationService) {
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
@@ -58,8 +56,8 @@ public class DefaultFunctionResolver implements FunctionResolver {
   /**
    * Creates an instance.
    * 
-   * @param functionCompilationService  the provider of compiled functions, not null
-   * @param prioritizer  the provider of the priority of a function, not null
+   * @param functionCompilationService the provider of compiled functions, not null
+   * @param prioritizer the provider of the priority of a function, not null
    */
   public DefaultFunctionResolver(final CompiledFunctionService functionCompilationService, final FunctionPriority prioritizer) {
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
@@ -72,7 +70,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
   /**
    * Adds a single rule to the resolver.
    * 
-   * @param resolutionRule  the rule to add, not null
+   * @param resolutionRule the rule to add, not null
    */
   public void addRule(ResolutionRule resolutionRule) {
     addRules(Collections.singleton(resolutionRule));
@@ -81,7 +79,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
   /**
    * Adds rules to the resolver.
    * 
-   * @param resolutionRules  the rules to add, no nulls, not null
+   * @param resolutionRules the rules to add, no nulls, not null
    */
   public void addRules(Collection<ResolutionRule> resolutionRules) {
     if (_defaultRules == null) {
@@ -92,10 +90,9 @@ public class DefaultFunctionResolver implements FunctionResolver {
 
   //-------------------------------------------------------------------------
   /**
-   * Extracts all the compiled function definitions from the repository and
-   * converts them to resolution rules.
+   * Extracts all the compiled function definitions from the repository and converts them to resolution rules.
    * 
-   * @param repository  the function repository, not null
+   * @param repository the function repository, not null
    * @return the rules, not null
    */
   protected Collection<ResolutionRule> getRepositoryRules(final CompiledFunctionRepository repository) {
@@ -103,17 +100,18 @@ public class DefaultFunctionResolver implements FunctionResolver {
     final Collection<CompiledFunctionDefinition> functions = repository.getAllFunctions();
     final Collection<ResolutionRule> result = new ArrayList<ResolutionRule>(functions.size());
     for (CompiledFunctionDefinition compiledFnDefn : repository.getAllFunctions()) {
-      ParameterizedFunction paramFn = new ParameterizedFunction(compiledFnDefn, compiledFnDefn.getFunctionDefinition().getDefaultParameters());
-      result.add(new ResolutionRule(paramFn, ApplyToAllTargets.INSTANCE, getPriority(compiledFnDefn)));
+      if (compiledFnDefn.getTargetType() != null) {
+        ParameterizedFunction paramFn = new ParameterizedFunction(compiledFnDefn, compiledFnDefn.getFunctionDefinition().getDefaultParameters());
+        result.add(new ResolutionRule(paramFn, ApplyToAllTargets.INSTANCE, getPriority(compiledFnDefn)));
+      }
     }
     return result;
   }
 
   /**
-   * Gets the priority of a compiled function definition.
-   * This uses the stored priority provider.
+   * Gets the priority of a compiled function definition. This uses the stored priority provider.
    * 
-   * @param function  the function to examine, not null
+   * @param function the function to examine, not null
    * @return the priority, default zero
    */
   protected int getPriority(final CompiledFunctionDefinition function) {
@@ -122,12 +120,13 @@ public class DefaultFunctionResolver implements FunctionResolver {
 
   //-------------------------------------------------------------------------
   @Override
-  public CompiledFunctionResolver compile(final InstantProvider atInstant) {
+  public CompiledFunctionResolver compile(final Instant atInstant) {
     final DefaultCompiledFunctionResolver result = new DefaultCompiledFunctionResolver(_functionCompilationService.getFunctionCompilationContext());
     result.addRules(getRepositoryRules(_functionCompilationService.compileFunctionRepository(atInstant)));
     if (_defaultRules != null) {
       result.addRules(_defaultRules);
     }
+    result.compileRules();
     return result;
   }
 

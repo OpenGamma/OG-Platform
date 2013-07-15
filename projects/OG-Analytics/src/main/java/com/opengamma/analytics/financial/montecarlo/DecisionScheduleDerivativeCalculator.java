@@ -8,12 +8,9 @@ package com.opengamma.analytics.financial.montecarlo;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
@@ -24,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 /**
  * Calculator of decision schedule for different instruments. Used in particular for Monte Carlo pricing.
  */
-public class DecisionScheduleDerivativeCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, DecisionScheduleDerivative> {
+public class DecisionScheduleDerivativeCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, DecisionScheduleDerivative> {
 
   /**
    * The cash-flow equivalent calculator.
@@ -52,35 +49,29 @@ public class DecisionScheduleDerivativeCalculator extends AbstractInstrumentDeri
   }
 
   @Override
-  public DecisionScheduleDerivative visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
-
-  @Override
   public DecisionScheduleDerivative visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
-    double[] decisionTime = new double[] {swaption.getTimeToExpiry()};
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), curves);
-    double[][] impactTime = new double[1][cfe.getNumberOfPayments()];
-    double[][] impactAmount = new double[1][cfe.getNumberOfPayments()];
+    final double[] decisionTime = new double[] {swaption.getTimeToExpiry() };
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, curves);
+    final double[][] impactTime = new double[1][cfe.getNumberOfPayments()];
+    final double[][] impactAmount = new double[1][cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       impactTime[0][loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       impactAmount[0][loopcf] = cfe.getNthPayment(loopcf).getAmount();
     }
-    ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, InterestRateCurveSensitivity>>();
-    impactAmountDerivative.add(CFECSC.visit(swaption.getUnderlyingSwap(), curves));
-    DecisionScheduleDerivative decision = new DecisionScheduleDerivative(decisionTime, impactTime, impactAmount, impactAmountDerivative);
+    final ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<>();
+    impactAmountDerivative.add(swaption.getUnderlyingSwap().accept(CFECSC, curves));
+    final DecisionScheduleDerivative decision = new DecisionScheduleDerivative(decisionTime, impactTime, impactAmount, impactAmountDerivative);
     return decision;
   }
 
   @Override
   public DecisionScheduleDerivative visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final YieldCurveBundle curves) {
-    int nbCpn = annuity.getNumberOfPayments();
-    double[] decisionTime = new double[nbCpn];
-    double[][] impactTime = new double[nbCpn][];
-    double[][] impactAmount = new double[nbCpn][];
+    final int nbCpn = annuity.getNumberOfPayments();
+    final double[] decisionTime = new double[nbCpn];
+    final double[][] impactTime = new double[nbCpn][];
+    final double[][] impactAmount = new double[nbCpn][];
     for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
-      AnnuityPaymentFixed cfe = CFEC.visit(annuity.getNthPayment(loopcpn), curves);
+      final AnnuityPaymentFixed cfe = annuity.getNthPayment(loopcpn).accept(CFEC, curves);
       decisionTime[loopcpn] = annuity.isFixed()[loopcpn] ? 0.0 : ((CouponFloating) annuity.getNthPayment(loopcpn)).getFixingTime();
       impactTime[loopcpn] = new double[cfe.getNumberOfPayments()];
       impactAmount[loopcpn] = new double[cfe.getNumberOfPayments()];
@@ -89,11 +80,11 @@ public class DecisionScheduleDerivativeCalculator extends AbstractInstrumentDeri
         impactAmount[loopcpn][loopcf] = cfe.getNthPayment(loopcf).getAmount();
       }
     }
-    ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, InterestRateCurveSensitivity>>();
+    final ArrayList<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative = new ArrayList<>();
     for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
-      impactAmountDerivative.add(CFECSC.visit(annuity.getNthPayment(loopcpn), curves));
+      impactAmountDerivative.add(annuity.getNthPayment(loopcpn).accept(CFECSC, curves));
     }
-    DecisionScheduleDerivative decision = new DecisionScheduleDerivative(decisionTime, impactTime, impactAmount, impactAmountDerivative);
+    final DecisionScheduleDerivative decision = new DecisionScheduleDerivative(decisionTime, impactTime, impactAmount, impactAmountDerivative);
     return decision;
   }
 

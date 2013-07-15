@@ -8,15 +8,15 @@ package com.opengamma.analytics.financial.equity.capm;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.GeometricMeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleCovarianceCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -51,10 +51,10 @@ public class CAPMCalculatorsTest {
       r2[i] = r0[i] * HIGH_BETA;
       r3[i] = r0[i] * LOW_BETA;
     }
-    RISK_FREE_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, r1);
-    MARKET_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, r0);
-    HIGH_BETA_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, r2);
-    LOW_BETA_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, r3);
+    RISK_FREE_RETURN = ImmutableInstantDoubleTimeSeries.of(t, r1);
+    MARKET_RETURN = ImmutableInstantDoubleTimeSeries.of(t, r0);
+    HIGH_BETA_RETURN = ImmutableInstantDoubleTimeSeries.of(t, r2);
+    LOW_BETA_RETURN = ImmutableInstantDoubleTimeSeries.of(t, r3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -89,15 +89,15 @@ public class CAPMCalculatorsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testShortTS() {
-    BETA.evaluate(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1}, new double[] {1}), new FastArrayLongDoubleTimeSeries(
-        DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1}, new double[] {1}));
+    BETA.evaluate(ImmutableInstantDoubleTimeSeries.of(new long[] {1}, new double[] {1}),
+        ImmutableInstantDoubleTimeSeries.of(new long[] {1}, new double[] {1}));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMismatchingDates() {
-    final Long[] t = (Long[]) MARKET_RETURN.timesArray();
-    t[1] = t[1] * 100;
-    final DoubleTimeSeries<?> ts = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, MARKET_RETURN.valuesArray());
+    final Instant[] t = (Instant[]) MARKET_RETURN.timesArray();
+    t[1] = t[1].plusMillis(100);
+    final DoubleTimeSeries<?> ts = ImmutableInstantDoubleTimeSeries.of(t, MARKET_RETURN.valuesArrayFast());
     BETA.evaluate(MARKET_RETURN, ts);
   }
 

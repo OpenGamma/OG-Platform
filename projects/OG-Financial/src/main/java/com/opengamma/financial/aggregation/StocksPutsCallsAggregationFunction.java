@@ -29,6 +29,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -40,26 +41,38 @@ import com.opengamma.util.CompareUtils;
  *
  */
 public class StocksPutsCallsAggregationFunction implements AggregationFunction<String> {
-  private final boolean _useAttributes;
 
   private static final String NAME = "Stocks/Puts/Calls";
   private static final String NA = "N/A";
   private static final String STOCKS = "Stocks";
   private static final String PUTS = "Puts";
   private static final String CALLS = "Calls";
-
   private static final List<String> REQUIRED_ENTRIES = Arrays.asList(STOCKS, CALLS, PUTS, NA);
-  private final SecuritySource _secSource;
 
+  private final SecuritySource _secSource;
+  private final boolean _useAttributes;
+
+  /**
+   * Creates an instance that does not use attributes.
+   * 
+   * @param secSource  the security source, not null
+   */
   public StocksPutsCallsAggregationFunction(final SecuritySource secSource) {
     this(secSource, false);
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param secSource  the security source, not null
+   * @param useAttributes  whether to use attributes
+   */
   public StocksPutsCallsAggregationFunction(final SecuritySource secSource, final boolean useAttributes) {
     _secSource = secSource;
     _useAttributes = useAttributes;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String classifyPosition(final Position position) {
     if (_useAttributes) {
@@ -71,7 +84,7 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
       }
     } else {
       position.getSecurityLink().resolve(_secSource);
-      final FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitorSameValueAdapter<String>(NA){
+      final FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitorSameValueAdapter<String>(NA) {
         
       
         @Override
@@ -111,7 +124,12 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         }
 
         @Override
-        public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+        public String visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
+          return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
+        }
+
+        @Override
+        public String visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
           return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
         }
 
@@ -179,4 +197,5 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
   public Comparator<Position> getPositionComparator() {
     return new SimplePositionComparator();
   }
+
 }

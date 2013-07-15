@@ -95,8 +95,12 @@ public class DataMarketDataSnapshotResource extends AbstractDocumentDataResource
   @Path("versions")
   public Response history(@Context UriInfo uriInfo) {
     MarketDataSnapshotHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, MarketDataSnapshotHistoryRequest.class);
-    if (getUrlId().equals(request.getObjectId()) == false) {
-      throw new IllegalArgumentException("Document objectId does not match URI");
+    if (request.getObjectId() != null) {
+      if (!request.getObjectId().equals(getUrlId())) {
+        throw new IllegalArgumentException("Document objectId " + request.getObjectId() + " does not match URI " + getUrlId());
+      }
+    } else {
+      request.setObjectId(getUrlId());
     }
     MarketDataSnapshotHistoryResult result = getMaster().history(request);
     return responseOkFudge(result);

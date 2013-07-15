@@ -31,7 +31,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.provider.security.SecurityProvider;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * The portfolio loader tool
@@ -134,7 +134,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
           portfolioMaster, 
           positionMaster, 
           securityMaster,
-          overwrite, false, false);
+          overwrite, false, false, false);
     } else {
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new PrettyPrintingPortfolioWriter(true);         

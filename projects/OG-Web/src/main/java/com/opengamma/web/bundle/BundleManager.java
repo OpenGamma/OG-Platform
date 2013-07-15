@@ -7,8 +7,12 @@ package com.opengamma.web.bundle;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -63,6 +67,16 @@ public class BundleManager {
    */
   public Set<String> getBundleIds() {
     return Collections.unmodifiableSet(_bundleMap.keySet());
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE);
+    for (Entry<String, Bundle> entry : _bundleMap.entrySet()) {
+      builder.append(entry.getKey(), entry.getValue().toString());
+    }
+    return builder.toString();
+//    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
 
 }

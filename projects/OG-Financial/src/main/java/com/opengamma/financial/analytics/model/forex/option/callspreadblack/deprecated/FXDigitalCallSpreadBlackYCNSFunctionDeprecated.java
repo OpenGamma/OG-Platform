@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.calculator.MarketQuoteSensitivityCalculator;
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -26,11 +26,11 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -43,36 +43,27 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunction
  */
 @Deprecated
 public class FXDigitalCallSpreadBlackYCNSFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(FXDigitalCallSpreadBlackYCNSFunctionDeprecated.class);
   private static final MarketQuoteSensitivityCalculator CALCULATOR =
-    new MarketQuoteSensitivityCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
+      new MarketQuoteSensitivityCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof FXDigitalOptionSecurity;
+    return FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY;
   }
 
   @Override
@@ -235,7 +226,7 @@ public class FXDigitalCallSpreadBlackYCNSFunctionDeprecated extends AbstractFunc
     final String leftExtrapolatorName = leftExtrapolatorNames.iterator().next();
     final String rightExtrapolatorName = rightExtrapolatorNames.iterator().next();
     final String spread = spreads.iterator().next();
-    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
+    final ValueRequirement spotRequirement = ConventionBasedFXRateFunction.getSpotRateRequirement(callCurrency, putCurrency);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(spotRequirement);
     requirements.add(getCurveRequirement(curveName, forwardCurveName, curveName, curveCalculationMethod, currency));
@@ -338,7 +329,7 @@ public class FXDigitalCallSpreadBlackYCNSFunctionDeprecated extends AbstractFunc
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.CURRENCY.specification(currency), properties);
   }
 
   private ValueRequirement getJacobianRequirement(final String curveName, final String forwardCurveName, final String curveCalculationMethod, final Currency currency) {

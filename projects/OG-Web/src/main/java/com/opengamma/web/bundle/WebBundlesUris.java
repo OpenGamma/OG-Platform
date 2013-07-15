@@ -34,7 +34,7 @@ public class WebBundlesUris {
   public URI bundles() {
     return WebBundlesResource.uri(_data);
   }
-
+  
   /**
    * Gets the URI for a bundle.
    * 
@@ -52,5 +52,5 @@ public class WebBundlesUris {
         return bundles();
     }
   }
-
+  
 }

@@ -20,13 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcess;
-import com.opengamma.engine.view.ViewProcessInternal;
-import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.event.ViewProcessorEventListener;
+import com.opengamma.engine.view.impl.ViewProcessInternal;
+import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 

@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.interestrate.payments.derivative;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
@@ -41,14 +40,14 @@ public class CouponOISTest {
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("EUR");
   private static final int EUR_PUBLICATION_LAG = 0;
   private static final DayCount EUR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG, EUR_CALENDAR);
+  private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG);
   // USD OIS
   private static final String US_OIS_NAME = "US OIS";
-  private static final Currency US_CUR = Currency.USD;
+  private static final Currency US_CUR = Currency.EUR;
   private static final DayCount US_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final int US_PUBLICATION_LAG = 1;
   private static final Calendar US_CALENDAR = new MondayToFridayCalendar("A");
-  private static final IndexON US_OIS = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
+  private static final IndexON US_OIS = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG);
 
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
@@ -68,7 +67,7 @@ public class CouponOISTest {
       NOTIONAL, EUR_OIS, START_ACCRUAL_DATE, END_ACCRUAL_DATE, FIXING_YEAR_FRACTION);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 9, 7);
   private static final double PAYMENT_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE_1, PAYMENT_DATE);
@@ -116,7 +115,7 @@ public class CouponOISTest {
    */
   public void equalHash() {
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED, EONIA_COUPON_STARTED);
-    CouponOIS other = new CouponOIS(EUR_CUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
+    final CouponOIS other = new CouponOIS(EUR_CUR, PAYMENT_TIME_2, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_FIXING_TIME_2, END_FIXING_TIME_2, FIXING_YEAR_FRACTION_2,
         NOTIONAL_WITH_ACCRUED, CURVES_NAMES[1]);
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED, other);
     assertEquals("CouponOIS derivative: equal/hash code", EONIA_COUPON_STARTED.hashCode(), other.hashCode());

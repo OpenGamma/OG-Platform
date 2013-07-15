@@ -7,17 +7,19 @@ package com.opengamma.financial.convention;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFutureOptionExpiryCalculatorTest {
+
   private static final BondFutureOptionExpiryCalculator CALCULATOR = BondFutureOptionExpiryCalculator.getInstance();
   static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("a");
   private static final Calendar CALENDAR = new MyCalendar();

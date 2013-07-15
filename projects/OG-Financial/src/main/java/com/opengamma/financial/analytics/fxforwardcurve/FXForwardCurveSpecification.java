@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
  */
+@Config
 public class FXForwardCurveSpecification {
   /** The type of the FX forward quote */
   public enum QuoteType {

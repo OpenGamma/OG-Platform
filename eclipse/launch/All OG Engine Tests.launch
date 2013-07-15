@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.testng.eclipse.launchconfig">
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="og-engine"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+<mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
+<mapEntry key="com.opengamma.language.view.ViewClientDescriptorTest" value="testHistoricalMarketData"/>
+</mapAttribute>
+<listAttribute key="org.testng.eclipse.CLASS_TEST_LIST"/>
+<listAttribute key="org.testng.eclipse.GROUP_LIST"/>
+<listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
+<stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
+<listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
+<listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.engine"/>
+<listEntry value="com.opengamma.engine.depgraph"/>
+<listEntry value="com.opengamma.engine.fudgemsg"/>
+<listEntry value="com.opengamma.engine.function"/>
+<listEntry value="com.opengamma.engine.function.config"/>
+<listEntry value="com.opengamma.engine.function.resolver"/>
+<listEntry value="com.opengamma.engine.management"/>
+<listEntry value="com.opengamma.engine.marketdata"/>
+<listEntry value="com.opengamma.engine.position.csv"/>
+<listEntry value="com.opengamma.engine.position.rest"/>
+<listEntry value="com.opengamma.engine.value"/>
+<listEntry value="com.opengamma.engine.view"/>
+<listEntry value="com.opengamma.engine.view.cache"/>
+<listEntry value="com.opengamma.engine.view.calc"/>
+<listEntry value="com.opengamma.engine.view.calc.stats"/>
+<listEntry value="com.opengamma.engine.view.calcnode"/>
+<listEntry value="com.opengamma.engine.view.calcnode.stats"/>
+<listEntry value="com.opengamma.engine.view.client"/>
+<listEntry value="com.opengamma.engine.view.client.merging"/>
+<listEntry value="com.opengamma.engine.view.compilation"/>
+<listEntry value="com.opengamma.engine.view.server"/>
+<listEntry value="com.opengamma.engine.view.server"/>
+</listAttribute>
+<mapAttribute key="org.testng.eclipse.PARAMETERS"/>
+<intAttribute key="org.testng.eclipse.TYPE" value="5"/>
+</launchConfiguration>

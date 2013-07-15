@@ -5,18 +5,17 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.threeten.bp.Instant;
 
-import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
-import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewResultModel;
 
 /**
  * 

@@ -9,9 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.ArgumentChecker;
 
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 
@@ -20,30 +19,30 @@ import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
  */
 public class JTransformsWrapper {
   // TODO this needs to be changed
-  private static final Map<Integer, DoubleFFT_1D> CACHE_1D = new HashMap<Integer, DoubleFFT_1D>();
+  private static final Map<Integer, DoubleFFT_1D> CACHE_1D = new HashMap<>();
 
   /**
    * The forward discrete Fourier transform. *Note:* In this definition $-i$
-   * appears in the exponential rather than $i$. 
+   * appears in the exponential rather than $i$.
    * <p>
    * If $z$ is an array of $N$ complex values sampled at intervals $\Delta$
-   * from a function $h(t)$, then the transform 
-   * $$ 
+   * from a function $h(t)$, then the transform
+   * $$
    * $H(f) = \int^{\infty}_{-\infty} e^{-2i\pi f t} h(t) dt$
    * $$
-   * is sampled at $N$ points at intervals of $\frac{1}{N\Delta}$. 
+   * is sampled at $N$ points at intervals of $\frac{1}{N\Delta}$.
    * <p>
    * The first $\frac{N}{2} + 1$ values ($i = 0$ to $\frac{N}{2}$) are
    * $f = \frac{i}{N\Delta}$, while the values $i = \frac{N}{2}$ to $N-1$
-   * are $f = \frac{i-N}{N \Delta}$ (i.e. negative frequencies with 
+   * are $f = \frac{i-N}{N \Delta}$ (i.e. negative frequencies with
    * $H(\frac{1}{2 \Delta}) = H(\frac{-1}{2 \Delta})$).
    * @param z Array of N complex values
    * @return The Fourier transform of the array
    */
   public static ComplexNumber[] transform1DComplex(final ComplexNumber[] z) {
-    Validate.notNull(z, "array of complex number");
-    int n = z.length;
-    double[] a = packFull(z);
+    ArgumentChecker.notNull(z, "array of complex number");
+    final int n = z.length;
+    final double[] a = packFull(z);
     DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
       fft = new DoubleFFT_1D(n);
@@ -58,24 +57,24 @@ public class JTransformsWrapper {
    * definition $i$ appears in the exponential rather than $-i$.
    * <p>
    * If $z$ is a array of $N$ complex values sampled at intervals $\Delta$ from
-   * a function $H(f)$, then the transform 
-   * $$ 
+   * a function $H(f)$, then the transform
+   * $$
    * $h(t) = \int^{\infty}_{-\infty} e^{2i\pi f t} H(f) df$
    * $$
-   * is sampled at $N$ at intervals of $\frac{1}{N\Delta}$. 
+   * is sampled at $N$ at intervals of $\frac{1}{N\Delta}$.
    * <p>
    * The first $\frac{N}{2} + 1$ values ($i = 0$ to $\frac{N}{2}$) are $t =
    * \frac{i}{N\Delta}$, while the values $i = \frac{N}{2}$ to $N - 1$ are $t =
    * \frac{i-N}{N\Delta}$ (i.e. negative times with $h(\frac{1}{2\Delta}) =
    * h(\frac{-1}{2\Delta})$).
    * @param z Array of N complex values
-   * @param scale Scale the output by $\frac{1}{N}$ 
+   * @param scale Scale the output by $\frac{1}{N}$
    * @return The inverse Fourier transform of the array
    */
   public static ComplexNumber[] inverseTransform1DComplex(final ComplexNumber[] z, final boolean scale) {
-    Validate.notNull(z, "array of complex number");
+    ArgumentChecker.notNull(z, "array of complex number");
     final int n = z.length;
-    double[] a = packFull(z);
+    final double[] a = packFull(z);
     DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
       fft = new DoubleFFT_1D(n);
@@ -87,14 +86,14 @@ public class JTransformsWrapper {
 
   /**
    * The forward discrete Fourier transform. *Note:* In this definition
-   * $-i$ appears in the exponential rather than $i$. 
+   * $-i$ appears in the exponential rather than $i$.
    * <p>
    * If $z$ is an array of $N$ complex values sampled at intervals $\Delta$
-   * from a function $h(t)$, then the transform 
-   * $$ 
+   * from a function $h(t)$, then the transform
+   * $$
    * $H(f) = \int^{\infty}_{-\infty} e^{-2i\pi f t} h(t) dt$
    * $$
-   * is sampled at $N$ points at intervals of $\frac{1}{N\Delta}$. 
+   * is sampled at $N$ points at intervals of $\frac{1}{N\Delta}$.
    * <p>
    * The first $\frac{N}{2} + 1$ values ($i = 0$ to $\frac{N}{2}$) are $f =
    * \frac{i}{N\Delta}$, while the values $i = \frac{N}{2}$ to $N - 1$ are $f =
@@ -107,9 +106,8 @@ public class JTransformsWrapper {
    * @return The Fourier transform of the array
    */
   public static ComplexNumber[] fullTransform1DReal(final double[] h) {
-    Validate.notNull(h, "array of doubles");
+    ArgumentChecker.notEmpty(h, "array of doubles");
     final int n = h.length;
-    Validate.isTrue(n > 0);
     final double[] a = Arrays.copyOf(h, 2 * n);
     DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
@@ -125,27 +123,26 @@ public class JTransformsWrapper {
    * definition $i$ appears in the exponential rather than $-i$.
    * <p>
    * If $z$ is a array of $N$ complex values sampled at intervals $\Delta$ from
-   * a function $H(f)$, then the transform 
-   * $$ 
+   * a function $H(f)$, then the transform
+   * $$
    * $h(t) = \int^{\infty}_{-\infty} e^{2i\pi f t} H(f) df$
    * $$
-   * is sampled at $N$ at intervals of $\frac{1}{N\Delta}$. 
+   * is sampled at $N$ at intervals of $\frac{1}{N\Delta}$.
    * <p>
    * The first $\frac{N}{2} + 1$ values ($i = 0$ to $\frac{N}{2}$) are $t =
    * \frac{i}{N\Delta}$, while the values $i = \frac{N}{2}$ to $N - 1$ are $t =
    * \frac{i-N}{N\Delta}$ (i.e. negative times with $h(\frac{1}{2\Delta}) =
    * h(\frac{-1}{2\Delta})$).
-   * <p> 
+   * <p>
    * As $H(f)$ is real, $h(t) = h(-t)^*$, so the second half of the array
-   * (negative values of t) are superfluous. 
+   * (negative values of t) are superfluous.
    * @param x Array of N real values
-   * @param scale Scale the output by $\frac{1}{N}$ 
+   * @param scale Scale the output by $\frac{1}{N}$
    * @return The inverse Fourier transform of the array
    */
   public static ComplexNumber[] fullInverseTransform1DReal(final double[] x, final boolean scale) {
-    Validate.notNull(x, "array of doubles");
+    ArgumentChecker.notEmpty(x, "array of doubles");
     final int n = x.length;
-    Validate.isTrue(n > 0);
     final double[] a = Arrays.copyOf(x, 2 * n);
     DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
@@ -161,21 +158,20 @@ public class JTransformsWrapper {
    * appears in the exponential rather than $i$.  If $h$ is a array of $N$ real
    * values sampled at intervals of $\Delta$ from a function $h(t)$, then the
    * transform:
-   * $$ 
+   * $$
    * $H(f) = \int^{\infty}_{-\infty} e^{-2i\pi f t} h(t) dt$
    * $$
    * is sampled at $\frac{N}{2}$ points at intervals of $\frac{1}{N\Delta}$,
-   * with $f = \frac{i}{N\Delta}$ for $i = 0$ to $\frac{N}{2} - 1$. 
-   * <p> 
+   * with $f = \frac{i}{N\Delta}$ for $i = 0$ to $\frac{N}{2} - 1$.
+   * <p>
    * As $h(t)$ is real, $H(f) = F(-f)^*$, so the negative values of f, which
    * would be in $\frac{N}{2}$ to $N - 1$ of the return array, are suppressed.
    * @param h Array of $N$ real values
    * @return The Fourier transform of the array
    */
   public static ComplexNumber[] transform1DReal(final double[] h) {
-    Validate.notNull(h, "array of doubles");
+    ArgumentChecker.notEmpty(h, "array of doubles");
     final int n = h.length;
-    Validate.isTrue(n > 0);
     final double[] a = Arrays.copyOf(h, n);
     DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
@@ -188,26 +184,25 @@ public class JTransformsWrapper {
 
   /**
    * The backward discrete Fourier transform. *Note:* In this definition $i$
-   * appears in the exponential rather than $-i$. 
+   * appears in the exponential rather than $-i$.
    * <p>
    * If $x$ is a array of $N$ real values sampled at intervals of $\Delta$ from
-   * a function $H(f)$, then the transform 
-   * $$ 
+   * a function $H(f)$, then the transform
+   * $$
    * $h(t) = \int^{\infty}_{-\infty} e^{2i\pi f t} H(f) df$
    * $$
    * is sampled at $\frac{N}{2}$ points at intervals of $\frac{1}{N\Delta}$; $t
    * = \frac{i}{N\Delta}$ for $i = 0$ to $\frac{N}{2} - 1$.
-   * <p> 
+   * <p>
    * As $H(f)$ is real, $h(t) = h(-t)^*$, so the negative values of t, which
-   * would be in $\frac{N}{2}$ to $N - 1$ of the return array, are suppressed. 
+   * would be in $\frac{N}{2}$ to $N - 1$ of the return array, are suppressed.
    * @param x Array of $N$ real values
    * @param scale Scale the output by $\frac{1}{N}$
    * @return The inverse Fourier transform of the array
    */
   public static ComplexNumber[] inverseTransform1DReal(final double[] x, final boolean scale) {
-    Validate.notNull(x, "array of doubles");
+    ArgumentChecker.notEmpty(x, "array of doubles");
     final int n = x.length;
-    Validate.isTrue(n > 0);
     final double[] a = Arrays.copyOf(x, n);
     DoubleFFT_1D fft = CACHE_1D.get(n);
     if (fft == null) {
@@ -219,9 +214,8 @@ public class JTransformsWrapper {
   }
 
   private static double[] packFull(final ComplexNumber[] z) {
-    int n = z.length;
-    Validate.isTrue(n > 0);
-    double[] a = new double[2 * n];
+    final int n = z.length;
+    final double[] a = new double[2 * n];
     for (int i = 0; i < n; i++) {
       a[2 * i] = z[i].getReal();
       a[2 * i + 1] = z[i].getImaginary();
@@ -244,7 +238,7 @@ public class JTransformsWrapper {
   private static ComplexNumber[] unpack(final double[] a) {
     final int n = a.length;
     if (n % 2 == 0) {
-      int m = n / 2 + 1;
+      final int m = n / 2 + 1;
       final ComplexNumber[] z = new ComplexNumber[m];
       z[0] = new ComplexNumber(a[0]);
       z[n / 2] = new ComplexNumber(a[1]);
@@ -254,7 +248,7 @@ public class JTransformsWrapper {
       return z;
     }
 
-    int m = (n - 1) / 2 + 1;
+    final int m = (n - 1) / 2 + 1;
     final ComplexNumber[] z = new ComplexNumber[m];
     z[0] = new ComplexNumber(a[0]);
     z[m - 1] = new ComplexNumber(a[n - 1], a[1]);

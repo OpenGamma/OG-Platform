@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class FXMatrix {
    * Constructor with no currency. The FXMatrix constructed has no currency and no fx rates.
    */
   public FXMatrix() {
-    _currencies = new LinkedHashMap<Currency, Integer>();
+    _currencies = new LinkedHashMap<>();
     _fxRates = new double[0][0];
     _nbCurrencies = 0;
   }
@@ -52,7 +53,7 @@ public class FXMatrix {
    */
   public FXMatrix(final Currency ccy) {
     ArgumentChecker.notNull(ccy, "Currency");
-    _currencies = new LinkedHashMap<Currency, Integer>();
+    _currencies = new LinkedHashMap<>();
     _currencies.put(ccy, 0);
     _fxRates = new double[1][1];
     _fxRates[0][0] = 1.0;
@@ -63,12 +64,31 @@ public class FXMatrix {
    * Constructor with an initial currency pair.
    * @param ccy1 The first currency.
    * @param ccy2 The second currency.
-   * @param fxRate TheFX rate between ccy1 and the ccy2. It is 1 ccy1 = fxRate * ccy2. The FX matrix will be completed with the ccy2/ccy1 rate.
+   * @param fxRate The FX rate between ccy1 and the ccy2. It is 1 ccy1 = fxRate * ccy2. The FX matrix will be completed with the ccy2/ccy1 rate.
    */
   public FXMatrix(final Currency ccy1, final Currency ccy2, final double fxRate) {
-    _currencies = new LinkedHashMap<Currency, Integer>();
+    _currencies = new LinkedHashMap<>();
     _fxRates = new double[0][0];
     addCurrency(ccy1, ccy2, fxRate);
+  }
+
+  /**
+   * Constructor from a map of currency to order and an array of FX rates. The input data is copied.
+   * @param currencies The currencies, not null
+   * @param fxRates The rates, not null
+   */
+  public FXMatrix(final Map<Currency, Integer> currencies, final double[][] fxRates) {
+    ArgumentChecker.notNull(currencies, "currencies");
+    ArgumentChecker.notNull(fxRates, "FX rates");
+    _nbCurrencies = currencies.size();
+    _currencies = new LinkedHashMap<>(currencies);
+    _fxRates = new double[_nbCurrencies][];
+    for (int loopc = 0; loopc < _nbCurrencies; loopc++) {
+      final double[] src = fxRates[loopc];
+      final int length = src.length;
+      _fxRates[loopc] = new double[length];
+      System.arraycopy(src, 0, _fxRates[loopc], 0, length);
+    }
   }
 
   /**
@@ -78,10 +98,13 @@ public class FXMatrix {
   public FXMatrix(final FXMatrix fxMatrix) {
     ArgumentChecker.notNull(fxMatrix, "FXMatrix");
     _nbCurrencies = fxMatrix._nbCurrencies;
-    _currencies = new LinkedHashMap<Currency, Integer>(fxMatrix._currencies);
+    _currencies = new LinkedHashMap<>(fxMatrix._currencies);
     _fxRates = new double[_nbCurrencies][];
     for (int loopc = 0; loopc < _nbCurrencies; loopc++) {
-      _fxRates[loopc] = fxMatrix._fxRates[loopc].clone();
+      final double[] src = fxMatrix._fxRates[loopc];
+      final int length = src.length;
+      _fxRates[loopc] = new double[length];
+      System.arraycopy(src, 0, _fxRates[loopc], 0, length);
     }
   }
 
@@ -170,7 +193,7 @@ public class FXMatrix {
 
   /**
    * Reset the exchange rate of a given currency.
-   * @param ccyToUpdate The currency for which the exchange rats should be updated. Should be in the FX matrix already.
+   * @param ccyToUpdate The currency for which the exchange rates should be updated. Should be in the FX matrix already.
    * @param ccyReference The reference currency used to compute the cross rates with the new currency. Should already be in the matrix.
    * @param fxRate TheFX rate between the new currency and the reference currency. It is 1.0 * ccyToAdd = fxrate * ccyReference. The FX matrix will be changed for currency1
    * using cross rate coherent with the data provided.
@@ -185,6 +208,22 @@ public class FXMatrix {
       _fxRates[loopccy][indexUpdate] = 1.0 / _fxRates[indexUpdate][loopccy];
     }
     _fxRates[indexUpdate][indexUpdate] = 1.0;
+  }
+
+  /**
+   * Returns an unmodifiable copy of the map containing currency and order information.
+   * @return The currency and order information
+   */
+  public Map<Currency, Integer> getCurrencies() {
+    return Collections.unmodifiableMap(_currencies);
+  }
+
+  /**
+   * Returns the array of FX rates.
+   * @return The FX rates
+   */
+  public double[][] getRates() {
+    return _fxRates;
   }
 
   @Override

@@ -14,12 +14,12 @@ import static org.testng.AssertJUnit.assertSame;
 import java.math.BigDecimal;
 import java.net.URI;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.id.ExternalId;
@@ -27,11 +27,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.FudgeResponse;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataPositionSourceResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataPositionSourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");
@@ -54,10 +56,10 @@ public class DataPositionSourceResourceTest {
   @Test
   public void testGetPortfolioByUid() {
     final SimplePortfolio target = new SimplePortfolio("Test");
-    
-    when(_underlying.getPortfolio(eq(UID))).thenReturn(target);
-    
-    Response test = _resource.getPortfolio(OID.toString(), UID.getVersion(), "", "");
+
+    when(_underlying.getPortfolio(eq(UID), eq(VersionCorrection.LATEST))).thenReturn(target);
+
+    final Response test = _resource.getPortfolio(OID.toString(), UID.getVersion(), null, null);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, test.getEntity());
   }
@@ -65,10 +67,10 @@ public class DataPositionSourceResourceTest {
   @Test
   public void testGetPortfolioByOid() {
     final SimplePortfolio target = new SimplePortfolio("Test");
-    
+
     when(_underlying.getPortfolio(eq(OID), eq(VC))).thenReturn(target);
-    
-    Response test = _resource.getPortfolio(OID.toString(), null, VC.getVersionAsOfString(), VC.getCorrectedToString());
+
+    final Response test = _resource.getPortfolio(OID.toString(), null, VC.getVersionAsOfString(), VC.getCorrectedToString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, test.getEntity());
   }
@@ -76,10 +78,10 @@ public class DataPositionSourceResourceTest {
   @Test
   public void testGetNodeByUid() {
     final SimplePortfolioNode target = new SimplePortfolioNode("Test");
-    
-    when(_underlying.getPortfolioNode(eq(UID))).thenReturn(target);
-    
-    Response test = _resource.getNode(OID.toString(), UID.getVersion());
+
+    when(_underlying.getPortfolioNode(eq(UID), eq(VersionCorrection.LATEST))).thenReturn(target);
+
+    final Response test = _resource.getNode(OID.toString(), UID.getVersion(), null, null);
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, ((FudgeResponse) test.getEntity()).getValue());
   }
@@ -87,10 +89,19 @@ public class DataPositionSourceResourceTest {
   @Test
   public void testGetPositionByUid() {
     final SimplePosition target = new SimplePosition(BigDecimal.ONE, EID);
-    
+
     when(_underlying.getPosition(eq(UID))).thenReturn(target);
-    
-    Response test = _resource.getPosition(OID.toString(), UID.getVersion());
+
+    final Response test = _resource.getPosition(OID.toString(), UID.getVersion(), null, null);
+    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    assertSame(target, test.getEntity());
+  }
+
+  @Test
+  public void testGetPositionByOid() {
+    final SimplePosition target = new SimplePosition(BigDecimal.ONE, EID);
+    when(_underlying.getPosition(eq(OID), eq(VC))).thenReturn(target);
+    final Response test = _resource.getPosition(OID.toString(), null, VC.getVersionAsOfString(), VC.getCorrectedToString());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, test.getEntity());
   }
@@ -99,10 +110,10 @@ public class DataPositionSourceResourceTest {
   public void testGetTradeByUid() {
     final SimpleTrade target = new SimpleTrade();
     target.setQuantity(BigDecimal.ONE);
-    
+
     when(_underlying.getTrade(eq(UID))).thenReturn(target);
-    
-    Response test = _resource.getTrade(OID.toString(), UID.getVersion());
+
+    final Response test = _resource.getTrade(OID.toString(), UID.getVersion());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(target, test.getEntity());
   }

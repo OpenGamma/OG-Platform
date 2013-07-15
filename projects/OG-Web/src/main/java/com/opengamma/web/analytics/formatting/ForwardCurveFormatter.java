@@ -29,14 +29,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(ForwardCurve.class);
     addFormatter(new Formatter<ForwardCurve>(Format.EXPANDED) {
       @Override
-      Object format(ForwardCurve value, ValueSpecification valueSpec) {
+      Object format(ForwardCurve value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public List<Double[]> formatCell(ForwardCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatCell(ForwardCurve value, ValueSpecification valueSpec, Object inlineKey) {
     List<Double[]> data = new ArrayList<Double[]>();
     if (value.getForwardCurve() instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getForwardCurve();

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
+import com.opengamma.bbg.loader.hts.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -123,7 +123,7 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
       ids = security.getExternalIdBundle().getExternalIds();
       Map<ExternalId, UniqueId> tsMap = null;
       for (ExternalId id : ids) {
-        tsMap = bbgLoader.addTimeSeries(Collections.singleton(id), dataProvider, dataField, null, null);
+        tsMap = bbgLoader.loadTimeSeries(Collections.singleton(id), dataProvider, dataField, null, null);
         String message = "historical time series " + id.toString() + ", fields " + dataField + 
             " from " + dataProvider;
         if (tsMap.size() > 0) {

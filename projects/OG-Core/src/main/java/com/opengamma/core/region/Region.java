@@ -7,10 +7,10 @@ package com.opengamma.core.region;
 
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
-
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.threeten.bp.ZoneId;
 
+import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -21,14 +21,12 @@ import com.opengamma.util.money.Currency;
 /**
  * A region of the world.
  * <p>
- * Many aspects of business, algorithms and contracts are specific to a region.
- * The region may be of any size, from a municipality to a super-national group.
+ * Many aspects of business, algorithms and contracts are specific to a region. The region may be of any size, from a municipality to a super-national group.
  * <p>
- * This interface is read-only.
- * Implementations may be mutable.
+ * This interface is read-only. Implementations may be mutable.
  */
 @PublicAPI
-public interface Region extends UniqueIdentifiable {
+public interface Region extends UniqueIdentifiable, ExternalBundleIdentifiable {
 
   /**
    * Gets the unique identifier of the region.
@@ -37,19 +35,20 @@ public interface Region extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this region, not null within the engine
    */
+  @Override
   UniqueId getUniqueId();
 
   /**
    * Gets the external identifier bundle defining the region.
    * <p>
-   * Each external system has one or more identifiers by which they refer to the region.
-   * Some of these may be unique within that system, while others may be more descriptive.
-   * This bundle stores the set of these external identifiers.
+   * Each external system has one or more identifiers by which they refer to the region. Some of these may be unique within that system, while others may be more descriptive. This bundle stores the
+   * set of these external identifiers.
    * <p>
    * This will include the country, currency and time-zone.
    * 
    * @return the bundle, null if not applicable
    */
+  @Override
   ExternalIdBundle getExternalIdBundle();
 
   /**
@@ -60,8 +59,7 @@ public interface Region extends UniqueIdentifiable {
   RegionClassification getClassification();
 
   /**
-   * Gets the unique identifiers of the regions that this region is a member of.
-   * For example, a country might be a member of the World, UN, European Union and NATO.
+   * Gets the unique identifiers of the regions that this region is a member of. For example, a country might be a member of the World, UN, European Union and NATO.
    * 
    * @return the parent unique identifiers, null if this is the root entry
    */
@@ -82,13 +80,11 @@ public interface Region extends UniqueIdentifiable {
   Currency getCurrency();
 
   /**
-   * Gets the time-zone.
-   * For larger regions, there can be multiple time-zones, so this is only reliable
-   * for municipalities.
+   * Gets the time-zone. For larger regions, there can be multiple time-zones, so this is only reliable for municipalities.
    * 
    * @return the time-zone, null if not applicable
    */
-  TimeZone getTimeZone();
+  ZoneId getTimeZone();
 
   /**
    * Gets the short descriptive name of the region.
@@ -105,8 +101,7 @@ public interface Region extends UniqueIdentifiable {
   String getFullName();
 
   /**
-   * Gets the extensible data store for additional information.
-   * Applications may store additional region based information here.
+   * Gets the extensible data store for additional information. Applications may store additional region based information here.
    * 
    * @return the additional data, not null
    */

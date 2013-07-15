@@ -21,11 +21,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link MasterConfigSource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterConfigSourceTest {
 
   private static final ConfigItem<ExternalId> ITEM;

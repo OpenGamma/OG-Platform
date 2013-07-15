@@ -29,8 +29,11 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -81,6 +84,8 @@ public class JodaBeanRowParser extends RowParser {
     "com.opengamma.financial.security.bond",
     "com.opengamma.financial.security.capfloor",
     "com.opengamma.financial.security.cash",
+    "com.opengamma.financial.security.cashflow",
+    "com.opengamma.financial.security.cds",
     "com.opengamma.financial.security.deposit",
     "com.opengamma.financial.security.equity",
     "com.opengamma.financial.security.forward",
@@ -153,6 +158,11 @@ public class JodaBeanRowParser extends RowParser {
     FloatingVarianceSwapLeg.meta();
     EquitySecurity.meta();
     SwapSecurity.meta();
+    InterestRateFutureSecurity.meta();
+    MetalFutureSecurity.meta();
+    AgricultureFutureSecurity.meta();
+    FXFutureSecurity.meta();
+    SwaptionSecurity.meta();
   }
   
   protected JodaBeanRowParser(String securityName) throws OpenGammaRuntimeException {
@@ -421,7 +431,7 @@ public class JodaBeanRowParser extends RowParser {
       return builder.build();
   
     } catch (Throwable ex) {
-      s_logger.error("Could not create a " + clazz.getSimpleName() + ": " + ex.getMessage());
+      s_logger.info("Not creating a " + clazz.getSimpleName() + ": " + ex.getMessage());
       return null;
     }
   }

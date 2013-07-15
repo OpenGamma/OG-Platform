@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * TODO make this InterpolatedDoubleCurveFormatter
  */
 /* package */ class DoublesCurveFormatter extends AbstractFormatter<DoublesCurve> {
 
@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatCell(DoublesCurve value, ValueSpecification valueSpec) {
+  public Object formatCell(DoublesCurve value, ValueSpecification valueSpec, Object inlineKey) {
     if (value instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value;
       List<Double[]> data = new ArrayList<Double[]>();

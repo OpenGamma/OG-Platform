@@ -15,7 +15,8 @@ import org.testng.annotations.Test;
  */
 public class DoubleMatrix2DTest {
   private static final DoubleMatrix2D PRIMITIVES = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3, 4}, new double[] {5, 6, 7, 8}, new double[] {9, 10, 11, 12}});
-  private static final DoubleMatrix2D OBJECTS = new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3., 4.}, new Double[] {5., 6., 7., 8.}, new Double[] {9., 10., 11., 12.}});
+  private static final DoubleMatrix2D OBJECTS = new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3., 4.}, new Double[] {5., 6., 7., 8.},
+      new Double[] {9., 10., 11., 12.}});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPrimitiveArray() {
@@ -25,16 +26,6 @@ public class DoubleMatrix2DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectArray() {
     new DoubleMatrix2D((Double[][]) null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNonRectangularMatrix1() {
-    new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9, 10}});
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNonRectangularMatrix2() {
-    new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3.}, new Double[] {4., 5., 6.}, new Double[] {7., 8., 9., 10.}});
   }
 
   @Test

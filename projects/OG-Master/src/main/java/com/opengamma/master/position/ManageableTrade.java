@@ -10,9 +10,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,6 +21,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.Maps;
 import com.opengamma.core.position.Counterparty;
@@ -61,14 +60,12 @@ public class ManageableTrade extends DirectBean
   @PropertyDefinition
   private UniqueId _uniqueId;
   /**
-   * The unique identifier of the parent position.
-   * This field is managed by the master.
+   * The unique identifier of the parent position. This field is managed by the master.
    */
   @PropertyDefinition
   private UniqueId _parentPositionId;
   /**
-   * The quantity.
-   * This field must not be null for the object to be valid.
+   * The quantity. This field must not be null for the object to be valid.
    */
   @PropertyDefinition
   private BigDecimal _quantity;
@@ -79,9 +76,9 @@ public class ManageableTrade extends DirectBean
   @PropertyDefinition(validate = "notNull")
   private ManageableSecurityLink _securityLink;
   /**
-   * The counterparty external identifier, null if not known.
+   * The counterparty external identifier, not null.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ExternalId _counterpartyExternalId;
   /**
    * The trade date.
@@ -145,24 +142,24 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Creates an instance, copying the values from another {@link Trade} object.
-   * 
+   *
    * @param trade the object to copy values from
    */
   public ManageableTrade(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     ArgumentChecker.notNull(trade.getAttributes(), "trade.attributes");
-    _parentPositionId = trade.getParentPositionId();
     _quantity = trade.getQuantity();
     _securityLink = new ManageableSecurityLink(trade.getSecurityLink());
     _tradeDate = trade.getTradeDate();
     _tradeTime = trade.getTradeTime();
+    // this is a bug - PLAT-3117 - counterparty ID isn't nullable. use a default or throw an exception?
     _counterpartyExternalId = (trade.getCounterparty() != null ? trade.getCounterparty().getExternalId() : null);
     _premium = trade.getPremium();
     _premiumCurrency = trade.getPremiumCurrency();
     _premiumDate = trade.getPremiumDate();
     _premiumTime = trade.getPremiumTime();
     if (trade.getAttributes() != null) {
-      for (Entry<String, String> entry : trade.getAttributes().entrySet()) {
+      for (final Entry<String, String> entry : trade.getAttributes().entrySet()) {
         addAttribute(entry.getKey(), entry.getValue());
       }
     }
@@ -170,7 +167,7 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Creates a trade from trade quantity, instant and counterparty identifier.
-   * 
+   *
    * @param quantity  the amount of the trade, not null
    * @param securityId  the security identifier, not null
    * @param tradeDate  the trade date, not null
@@ -191,7 +188,7 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Creates a trade from trade quantity, instant and counterparty identifier.
-   * 
+   *
    * @param quantity  the amount of the trade, not null
    * @param securityId  the security identifier, not null
    * @param tradeDate  the trade date, not null
@@ -212,7 +209,7 @@ public class ManageableTrade extends DirectBean
 
   //-------------------------------------------------------------------------
   @Override
-  public void addAttribute(String key, String value) {
+  public void addAttribute(final String key, final String value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
     _attributes.put(key, value);
@@ -335,6 +332,7 @@ public class ManageableTrade extends DirectBean
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_securityLink, "securityLink");
+    JodaBeanUtils.notNull(_counterpartyExternalId, "counterpartyExternalId");
     JodaBeanUtils.notNull(_attributes, "attributes");
     super.validate();
   }
@@ -414,8 +412,7 @@ public class ManageableTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unique identifier of the parent position.
-   * This field is managed by the master.
+   * Gets the unique identifier of the parent position. This field is managed by the master.
    * @return the value of the property
    */
   public UniqueId getParentPositionId() {
@@ -423,8 +420,7 @@ public class ManageableTrade extends DirectBean
   }
 
   /**
-   * Sets the unique identifier of the parent position.
-   * This field is managed by the master.
+   * Sets the unique identifier of the parent position. This field is managed by the master.
    * @param parentPositionId  the new value of the property
    */
   public void setParentPositionId(UniqueId parentPositionId) {
@@ -433,7 +429,6 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Gets the the {@code parentPositionId} property.
-   * This field is managed by the master.
    * @return the property, not null
    */
   public final Property<UniqueId> parentPositionId() {
@@ -442,8 +437,7 @@ public class ManageableTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the quantity.
-   * This field must not be null for the object to be valid.
+   * Gets the quantity. This field must not be null for the object to be valid.
    * @return the value of the property
    */
   public BigDecimal getQuantity() {
@@ -451,8 +445,7 @@ public class ManageableTrade extends DirectBean
   }
 
   /**
-   * Sets the quantity.
-   * This field must not be null for the object to be valid.
+   * Sets the quantity. This field must not be null for the object to be valid.
    * @param quantity  the new value of the property
    */
   public void setQuantity(BigDecimal quantity) {
@@ -461,7 +454,6 @@ public class ManageableTrade extends DirectBean
 
   /**
    * Gets the the {@code quantity} property.
-   * This field must not be null for the object to be valid.
    * @return the property, not null
    */
   public final Property<BigDecimal> quantity() {
@@ -499,18 +491,19 @@ public class ManageableTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the counterparty external identifier, null if not known.
-   * @return the value of the property
+   * Gets the counterparty external identifier, not null.
+   * @return the value of the property, not null
    */
   public ExternalId getCounterpartyExternalId() {
     return _counterpartyExternalId;
   }
 
   /**
-   * Sets the counterparty external identifier, null if not known.
-   * @param counterpartyExternalId  the new value of the property
+   * Sets the counterparty external identifier, not null.
+   * @param counterpartyExternalId  the new value of the property, not null
    */
   public void setCounterpartyExternalId(ExternalId counterpartyExternalId) {
+    JodaBeanUtils.notNull(counterpartyExternalId, "counterpartyExternalId");
     this._counterpartyExternalId = counterpartyExternalId;
   }
 

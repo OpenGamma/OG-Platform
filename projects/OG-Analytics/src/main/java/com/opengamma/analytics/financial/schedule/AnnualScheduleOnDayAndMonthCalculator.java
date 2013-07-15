@@ -8,12 +8,11 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthDay;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.MonthDay;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * 
@@ -31,7 +30,7 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
    * @param dayOfMonth  the day-of-month
    * @param monthOfYear  the month-of-year, not null
    */
-  public AnnualScheduleOnDayAndMonthCalculator(final int dayOfMonth, final MonthOfYear monthOfYear) {
+  public AnnualScheduleOnDayAndMonthCalculator(final int dayOfMonth, final Month monthOfYear) {
     _monthDay = MonthDay.of(monthOfYear, dayOfMonth);
   }
 
@@ -45,7 +44,7 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.matches(_monthDay)) {
+      if (MonthDay.from(startDate).equals(_monthDay)) {
         return new LocalDate[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but the day of month and month of year were not those required");
@@ -54,7 +53,7 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final List<LocalDate> dates = new ArrayList<>();
     while (!date.isAfter(endDate)) {
       dates.add(date);
       date = date.plusYears(1);
@@ -72,7 +71,7 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.matches(_monthDay)) {
+      if (MonthDay.from(startDate).equals(_monthDay)) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but the day of month and month of year were not those required");
@@ -81,7 +80,7 @@ public class AnnualScheduleOnDayAndMonthCalculator extends Schedule {
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    final List<ZonedDateTime> dates = new ArrayList<>();
     while (!date.isAfter(endDate)) {
       dates.add(date);
       date = date.plusYears(1);

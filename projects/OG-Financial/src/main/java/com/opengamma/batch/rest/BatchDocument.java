@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,6 +20,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.batch.domain.BatchError;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -115,7 +114,7 @@ public class BatchDocument extends DirectBean {
   /**
    * Creates an instance specifying a unique identifier.
    * 
-   * @param uniqueId  the batch unique identifier, not null
+   * @param batchId  the batch unique identifier, not null
    */
   public BatchDocument(ObjectId batchId) {
     ArgumentChecker.notNull(batchId, "batchId");

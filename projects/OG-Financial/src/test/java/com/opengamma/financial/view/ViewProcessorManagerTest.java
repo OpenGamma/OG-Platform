@@ -17,9 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -33,23 +32,25 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
+import com.opengamma.engine.resource.EngineResourceManager;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ViewProcess;
-import com.opengamma.engine.view.ViewProcessorInternal;
-import com.opengamma.engine.view.calc.EngineResourceManager;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
+import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
- * Test the ViewProcessorManager class.
+ * Test.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public class ViewProcessorManagerTest {
 
   //-------------------------------------------------------------------------
@@ -62,7 +63,7 @@ public class ViewProcessorManagerTest {
     public MockViewProcessor() {
       final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
       _compiledFunctionService = new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
-      functions.addFunction(new MockFunction("mock", new ComputationTarget("Foo")) {
+      functions.addFunction(new MockFunction("mock", ComputationTarget.NULL) {
 
         @Override
         public void init(final FunctionCompilationContext context) {

@@ -11,7 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -168,7 +168,7 @@ public final class YieldCurveFunction {
     if (advisoryFunding != null) {
       props.with(PROPERTY_FUNDING_CURVE, advisoryFunding).withOptional(PROPERTY_FUNDING_CURVE);
     }
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), props.get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), props.get());
   }
 
   public static ValueRequirement getCurveRequirement(final Currency currency, final String curveName, final String advisoryForward, final String advisoryFunding, final String calculationMethod) {
@@ -180,18 +180,18 @@ public final class YieldCurveFunction {
       props.with(PROPERTY_FUNDING_CURVE, advisoryFunding).withOptional(PROPERTY_FUNDING_CURVE);
     }
     props.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), props.get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), props.get());
   }
 
   public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency),
         ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .get());
   }
 
   public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName, final String calculationMethod) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency),
         ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
@@ -199,21 +199,21 @@ public final class YieldCurveFunction {
   }
 
   public static ValueRequirement getCouponSensitivityRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
-    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetSpecification.of(currency),
         ValueProperties.builder()
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
   }
 
   public static ValueRequirement getCouponSensitivityRequirement(final Currency currency) {
-    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetSpecification.of(currency),
         ValueProperties.withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .get());
   }
 
   public static ValueRequirement getJacobianRequirement(final Currency currency, final String calculationMethod) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency),
         ValueProperties.withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)

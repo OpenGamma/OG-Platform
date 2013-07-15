@@ -104,7 +104,6 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
    * The meta-bean for {@code HolidaySearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HolidaySearchResult.Meta meta() {
     return HolidaySearchResult.Meta.INSTANCE;
   }
@@ -158,7 +157,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

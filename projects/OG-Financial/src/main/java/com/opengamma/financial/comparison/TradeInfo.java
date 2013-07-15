@@ -8,10 +8,9 @@ package com.opengamma.financial.comparison;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;

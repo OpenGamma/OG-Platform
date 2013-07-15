@@ -13,14 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.CalendricalParseException;
-
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
@@ -150,11 +149,11 @@ public abstract class SecurityLoader {
     LocalDate deliveryDate = null;
     try {
       deliveryDate = LocalDate.parse(deliveryDateStr);
-    } catch (CalendricalParseException ex) {
+    } catch (DateTimeParseException ex) {
       _logger.warn("delivery date not in mm/dd/yyyy format - {}", deliveryDateStr);
       return null;
     }
-    return deliveryDate.atStartOfDayInZone(TimeZone.UTC);
+    return deliveryDate.atStartOfDay(ZoneOffset.UTC);
   }
 
   //-------------------------------------------------------------------------  
@@ -173,7 +172,7 @@ public abstract class SecurityLoader {
     LocalDate expiryInLocalDate = null;
     try {
       expiryInLocalDate = LocalDate.parse(expiryDate);
-    } catch (CalendricalParseException ex) {
+    } catch (DateTimeParseException ex) {
       _logger.warn("expiry not in mm/dd/yyyy format - {}", expiryDate);
       return null;
     }
@@ -213,7 +212,7 @@ public abstract class SecurityLoader {
         _logger.warn("Cannot parse futureTrading hours - {}", futureTradingHours);
       }
     }
-    ZonedDateTime utcDate = DateUtils.getUTCDate(expiryInLocalDate.getYear(), expiryInLocalDate.getMonthOfYear().getValue(), expiryInLocalDate.getDayOfMonth(), closeHr, closeMins);
+    ZonedDateTime utcDate = DateUtils.getUTCDate(expiryInLocalDate.getYear(), expiryInLocalDate.getMonthValue(), expiryInLocalDate.getDayOfMonth(), closeHr, closeMins);
     return new Expiry(utcDate, ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
   }
   

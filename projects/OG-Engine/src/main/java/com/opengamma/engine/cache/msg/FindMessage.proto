@@ -1,0 +1,22 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.cache.msg {
+
+  message FindMessage extends CacheMessage {
+  
+    required id.UniqueId viewCycleId;
+    required string calculationConfigurationName;
+  
+    required repeated long identifier;
+  
+    binding Java {
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitFindMessage (this); }";
+    }
+    
+  }
+
+}

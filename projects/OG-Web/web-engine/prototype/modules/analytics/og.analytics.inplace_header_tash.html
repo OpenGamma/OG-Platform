@@ -1,0 +1,42 @@
+<div class="OG-gadget-inplace-header">
+  <div class="og-container">
+    <table>
+      <tr>
+        {{#if menu.complex_gadgets.length}}
+          {{#each menu.complex_gadgets}}
+            <td class="og-menu">
+              <div class="og-js-icon OG-gadget-buttons{{#if this.default_type}} og-active{{/if}}"
+                  title="{{this.gadget_name}}"
+                  data-gadget_type="{{this.name}}" data-gadget_name="{{this.gadget_name}}">
+                <span class="OG-icon og-icon-{{this.name}}"></span>
+              </div>
+            </td>
+          {{/each}}
+        {{/if}}
+        {{#if menu.simple_gadgets.length}}
+          {{#if menu.complex_gadgets.length}}<td class="og-separator"><span></span></td>{{/if}}
+          {{#each menu.simple_gadgets}}
+            <td class="og-menu">
+              <div class="og-js-icon OG-gadget-buttons{{#if this.default_type}} og-active{{/if}}"
+                  title="{{this.gadget_name}}"
+                  data-gadget_type="{{this.name}}" data-gadget_name="{{this.gadget_name}}">
+                <span class="OG-icon og-icon-{{this.name}}"></span>
+              </div>
+            </td>
+          {{/each}}
+        {{/if}}
+        <td class="og-separator"><span></span></td>
+        <td class="og-menu og-dock">
+          <div class="og-js-icon OG-gadget-buttons" data-gadget_type="dock" title="Dock">
+            <span class="OG-icon og-icon-dock"></span>
+          </div>
+        </td>
+        <td class="og-label og-tab-inplace">
+          <div>
+            {{#if this.col_name}}{{this.col_name}}<span>&nbsp;on&nbsp;</span>{{this.row_name}}{{/if}}
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.calcnode.msg {
+
+  message Ready extends RemoteCalcNodeMessage {
+    // TODO this is where published capabilities could go, but make them optional so they only go on the first and if they've changed (if changes are allowed)
+    
+    /**
+     * Capacity at the remote node. This is the number of jobs that could be sent for invocation
+     * without waiting for earlier ones to complete.
+     */
+    required int capacity;
+    
+    /**
+     * Handshake address of the remote host process. This is to allow host specific blacklists to
+     * be applied and meaningful diagnostic messages. 
+     */
+    required string hostId;
+  
+    binding Java {
+      body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitReadyMessage (this); }";
+    }
+  
+  }
+  
+}

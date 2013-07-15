@@ -81,7 +81,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConfigSearchSortOrder so = buildSortOrder(sort, ConfigSearchSortOrder.NAME_ASC);
     FlexiBean out = search(pr, so, name, type, configIdStrs, uriInfo);
-    return getFreemarker().build("configs/configs.ftl", out);
+    return getFreemarker().build(HTML_DIR + "configs.ftl", out);
   }
 
   @GET
@@ -99,7 +99,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConfigSearchSortOrder so = buildSortOrder(sort, ConfigSearchSortOrder.NAME_ASC);
     FlexiBean out = search(pr, so, name, type, configIdStrs, uriInfo);
-    return getFreemarker().build("configs/jsonconfigs.ftl", out);
+    return getFreemarker().build(JSON_DIR + "configs.ftl", out);
   }
 
   @SuppressWarnings("unchecked")
@@ -162,7 +162,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       if (type == null) {
         out.put("err_typeMissing", true);
       }
-      String html = getFreemarker().build("configs/config-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "config-add.ftl", out);
       return Response.ok(html).build();
     }
      
@@ -237,7 +237,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getMetaDataJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("configs/jsonmetadata.ftl", out);
+    return getFreemarker().build(JSON_DIR + "metadata.ftl", out);
   }
   
   //-------------------------------------------------------------------------
@@ -259,7 +259,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     if (typeClazz != null) {
       out.put("type", typeClazz.getName());
     }
-    return getFreemarker().build("configs/jsontemplate.ftl", out);
+    return getFreemarker().build(JSON_DIR + "template.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -292,7 +292,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     ConfigSearchRequest<Object> searchRequest = new ConfigSearchRequest<Object>();
     searchRequest.setType(Object.class);
     out.put("searchRequest", searchRequest);
-    out.put("typeMap", data().getTypeMap());
+    out.put("configTypes", getConfigTypesProvider().getConfigTypes());
     out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }

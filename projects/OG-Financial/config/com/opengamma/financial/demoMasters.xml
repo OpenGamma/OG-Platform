@@ -15,7 +15,7 @@
   <!-- Active MQ -->
   <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
     <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
+    <property name="watchTopicAdvisories" value="false" /> <!-- IGN-94 -->
   </bean>
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
     <constructor-arg ref="activeMQConnectionFactory"/>
@@ -293,7 +293,7 @@
 
   <!-- ================================================================== -->
   <!-- Function configuration -->
-  <bean id="sharedRepositoryConfigurationSource" class="com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource">
+  <bean id="sharedFunctionConfigurationSource" class="com.opengamma.engine.function.config.CombiningFunctionConfigurationSource">
     <constructor-arg>
       <list>
         <bean class="com.opengamma.web.spring.DemoStandardFunctionConfiguration" />

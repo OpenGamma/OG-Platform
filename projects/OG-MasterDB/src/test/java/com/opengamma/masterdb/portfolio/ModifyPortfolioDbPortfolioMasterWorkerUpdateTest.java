@@ -10,12 +10,11 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
@@ -26,10 +25,12 @@ import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDbPortfolioMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -82,7 +83,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
 
   @Test
   public void test_update_getUpdateGet() {
-    Instant now = Instant.now(_prtMaster.getTimeSource());
+    Instant now = Instant.now(_prtMaster.getClock());
     
     UniqueId oldPortfolioId = UniqueId.of("DbPrt", "101", "0");
     PortfolioDocument base = _prtMaster.get(oldPortfolioId);

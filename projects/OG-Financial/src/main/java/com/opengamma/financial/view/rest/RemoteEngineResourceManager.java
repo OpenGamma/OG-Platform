@@ -8,8 +8,8 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
-import com.opengamma.engine.view.calc.EngineResourceManager;
-import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.resource.EngineResourceManager;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.rest.FudgeRestClient;

@@ -13,15 +13,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.Pair;
 
 /**
 /**
- * Parent class for a family of curves that can have any time of data on the <i>x</i> and <i>y</i> axes, provided that the <i>x</i> data is {@link Comparable}. 
- * It is possible to construct a curve using either unsorted (in <i>x</i>) data or sorted (ascending in <i>x</i>). Note that if the constructor 
+ * Parent class for a family of curves that can have any time of data on the <i>x</i> and <i>y</i> axes, provided that the <i>x</i> data is {@link Comparable}.
+ * It is possible to construct a curve using either unsorted (in <i>x</i>) data or sorted (ascending in <i>x</i>). Note that if the constructor
  * is told that unsorted data are sorted then no sorting will take place, which will give unpredictable results.
  * @param <T> The type of the x data
  * @param <U> The type of the y data
@@ -39,15 +39,15 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted) {
     super();
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
     _n = xData.length;
-    Validate.isTrue(_n == yData.length);
+    ArgumentChecker.isTrue(_n == yData.length, "size of x data {} does not match size of y data {}", _n, yData.length);
     _xData = Arrays.copyOf(xData, _n);
     _yData = Arrays.copyOf(yData, _n);
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(xData[i], "element " + i + " of x data");
-      Validate.notNull(yData[i], "element " + i + " of y data");
+      ArgumentChecker.notNull(xData[i], "element " + i + " of x data");
+      ArgumentChecker.notNull(yData[i], "element " + i + " of y data");
     }
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
@@ -61,9 +61,8 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted) {
     super();
-    Validate.notNull(data, "data");
-    Validate.noNullElements(data.keySet(), "x values");
-    Validate.noNullElements(data.values(), "y values");
+    ArgumentChecker.noNulls(data.keySet(), "x values");
+    ArgumentChecker.noNulls(data.values(), "y values");
     _n = data.size();
     final Map.Entry<T, U> firstEntry = data.entrySet().iterator().next();
     _xData = data.keySet().toArray((T[]) Array.newInstance(firstEntry.getKey().getClass(), 0));
@@ -80,18 +79,18 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted) {
     super();
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.size();
-    final List<T> xTemp = new ArrayList<T>(_n);
-    final List<U> yTemp = new ArrayList<U>(_n);
+    final List<T> xTemp = new ArrayList<>(_n);
+    final List<U> yTemp = new ArrayList<>(_n);
     for (final Pair<T, U> entry : data) {
-      Validate.notNull(entry, "element of data");
+      ArgumentChecker.notNull(entry, "element of data");
       xTemp.add(entry.getFirst());
       yTemp.add(entry.getSecond());
     }
     final Pair<T, U> firstEntry = data.iterator().next();
-    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry.getKey().getClass(), 0));
-    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry.getValue().getClass(), 0));
+    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry.getFirst().getClass(), 0));
+    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry.getSecond().getClass(), 0));
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
     }
@@ -105,10 +104,10 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
     super();
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
     _n = xData.size();
-    Validate.isTrue(_n == yData.size());
+    ArgumentChecker.isTrue(_n == yData.size(), "size of x data {} does not match size of y data {}", _n, yData.size());
     _xData = xData.toArray((T[]) Array.newInstance(xData.get(0).getClass(), 0));
     _yData = yData.toArray((U[]) Array.newInstance(yData.get(0).getClass(), 0));
     if (!isSorted) {
@@ -125,10 +124,10 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(xData, "x data");
+    ArgumentChecker.notNull(xData, "x data");
     _n = xData.length;
-    Validate.notNull(yData, "y data");
-    Validate.isTrue(_n == yData.length);
+    ArgumentChecker.notNull(yData, "y data");
+    ArgumentChecker.isTrue(_n == yData.length, "size of x data {} does not match size of y data {}", _n, yData.length);
     _xData = Arrays.copyOf(xData, _n);
     _yData = Arrays.copyOf(yData, _n);
     if (!isSorted) {
@@ -144,9 +143,8 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(data, "data");
-    Validate.noNullElements(data.keySet(), "x values");
-    Validate.noNullElements(data.values(), "y values");
+    ArgumentChecker.noNulls(data.keySet(), "x values");
+    ArgumentChecker.noNulls(data.values(), "y values");
     _n = data.size();
     final Map.Entry<T, U> firstEntry = data.entrySet().iterator().next();
     _xData = data.keySet().toArray((T[]) Array.newInstance(firstEntry.getKey().getClass(), 0));
@@ -165,19 +163,19 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.size();
-    final List<T> xTemp = new ArrayList<T>(_n);
-    final List<U> yTemp = new ArrayList<U>(_n);
+    final List<T> xTemp = new ArrayList<>(_n);
+    final List<U> yTemp = new ArrayList<>(_n);
     final int i = 0;
     for (final Pair<T, U> entry : data) {
-      Validate.notNull(entry, "element " + i + " of data");
+      ArgumentChecker.notNull(entry, "element " + i + " of data");
       xTemp.add(entry.getFirst());
       yTemp.add(entry.getSecond());
     }
     final Pair<T, U> firstEntry = data.iterator().next();
-    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry.getKey().getClass(), 0));
-    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry.getValue().getClass(), 0));
+    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry.getFirst().getClass(), 0));
+    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry.getSecond().getClass(), 0));
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
     }
@@ -192,10 +190,10 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    */
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
     _n = xData.size();
-    Validate.isTrue(_n == yData.size());
+    ArgumentChecker.isTrue(_n == yData.size(), "size of x data {} does not match size of y data {}", _n, yData.size());
     _xData = xData.toArray((T[]) Array.newInstance(xData.get(0).getClass(), 0));
     _yData = yData.toArray((U[]) Array.newInstance(yData.get(0).getClass(), 0));
     if (!isSorted) {

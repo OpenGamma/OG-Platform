@@ -8,6 +8,11 @@ package com.opengamma.financial.currency;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.core.config.Config;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -16,7 +21,13 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class CurrencyPairs {
+@Config
+public final class CurrencyPairs implements MutableUniqueIdentifiable, UniqueIdentifiable {
+
+  /**
+   * The engine type corresponding to the data.
+   */
+  public static final ComputationTargetType TYPE = ComputationTargetType.of(CurrencyPairs.class);
 
   // TODO not sure about hard-coding the name of the default set of currency pairs
   /**
@@ -30,9 +41,14 @@ public final class CurrencyPairs {
   private final Set<CurrencyPair> _pairs;
 
   /**
+   * The unique identifier of the convention document these pairs were fetched from.
+   */
+  private UniqueId _uniqueId;
+
+  /**
    * Obtains an instance based on a set of pairs.
    * 
-   * @param pairs  the pairs, not null
+   * @param pairs the pairs, not null
    * @return the currency pairs instance, not null
    */
   public static CurrencyPairs of(Set<CurrencyPair> pairs) {
@@ -42,25 +58,35 @@ public final class CurrencyPairs {
   /**
    * Creates an instance based on a set of pairs.
    * 
-   * @param pairs  the pairs, not null
+   * @param pairs the pairs, not null
    */
   private CurrencyPairs(Set<CurrencyPair> pairs) {
     ArgumentChecker.notNull(pairs, "pairs");
     _pairs = ImmutableSet.copyOf(pairs);
   }
 
+  @Override
+  public void setUniqueId(final UniqueId uniqueId) {
+    _uniqueId = uniqueId;
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return _uniqueId;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Finds the currency pair instance for the two currencies.
    * 
-   * @param currency1  the first currency, not null
-   * @param currency2  the second currency, not null
+   * @param currency1 the first currency, not null
+   * @param currency2 the second currency, not null
    * @return the market convention currency pair for the two currencies, null if not found
    */
   public CurrencyPair getCurrencyPair(Currency currency1, Currency currency2) {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
-    
+
     CurrencyPair pair = CurrencyPair.of(currency1, currency2);
     if (_pairs.contains(pair)) {
       return pair;
@@ -77,7 +103,7 @@ public final class CurrencyPairs {
    * 
    * @return the immutable pairs set, not null
    */
-  /* package */ Set<CurrencyPair> getPairs() {
+  public Set<CurrencyPair> getPairs() {
     return _pairs;
   }
 

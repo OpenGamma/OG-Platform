@@ -13,12 +13,12 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 
 /**
  * Calculates the present value sensitivity to parallel curve movements.
  */
-public final class PresentValueParallelCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, StringValue> {
+public final class PresentValueParallelCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, StringAmount> {
   // TODO: This calculator is similar (equivalent?) to the PV01Calculator. Should they be merged?
 
   /**
@@ -46,33 +46,28 @@ public final class PresentValueParallelCurveSensitivityCalculator extends Abstra
   private static final PaymentFixedDiscountingMethod METHOD_PAYMENTFIXED = PaymentFixedDiscountingMethod.getInstance();
 
   @Override
-  public StringValue visit(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    return instrument.accept(this, curves);
-  }
-
-  @Override
-  public StringValue visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle curves) {
+  public StringAmount visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle curves) {
     return METHOD_PAYMENTFIXED.presentValueParallelCurveSensitivity(payment, curves);
   }
 
   @Override
-  public StringValue visitCouponFixed(final CouponFixed payment, final YieldCurveBundle data) {
+  public StringAmount visitCouponFixed(final CouponFixed payment, final YieldCurveBundle data) {
     return visitFixedPayment(payment.toPaymentFixed(), data);
   }
 
   @Override
-  public StringValue visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
+  public StringAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(annuity);
-    StringValue pvpcs = new StringValue();
+    StringAmount pvpcs = new StringAmount();
     for (final Payment p : annuity.getPayments()) {
-      pvpcs = StringValue.plus(pvpcs, visit(p, curves));
+      pvpcs = StringAmount.plus(pvpcs, p.accept(this, curves));
     }
     return pvpcs;
   }
 
   @Override
-  public StringValue visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle data) {
+  public StringAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle data) {
     return visitGenericAnnuity(annuity, data);
   }
 

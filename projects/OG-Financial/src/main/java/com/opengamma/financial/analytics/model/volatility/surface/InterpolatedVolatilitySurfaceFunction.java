@@ -23,11 +23,11 @@ import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -36,7 +36,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
@@ -97,23 +96,19 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
+    return ComputationTargetType.PRIMITIVE.or(ComputationTargetType.CURRENCY);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    if (uid == null) {
-      return false;
+    if (target.getValue() instanceof Currency) {
+      return true;
+    } else {
+      final String scheme = target.getUniqueId().getScheme();
+      return scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
+          || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())
+          || scheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
     }
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null, {}", target);
-      return false;
-    }
-    final String scheme = target.getUniqueId().getScheme();
-    return (scheme.equals(Currency.OBJECT_SCHEME)
-        || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
-        || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }
 
   @Override

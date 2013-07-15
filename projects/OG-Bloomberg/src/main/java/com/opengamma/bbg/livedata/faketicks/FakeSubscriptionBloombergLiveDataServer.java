@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 
-import javax.time.Duration;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -32,6 +30,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
@@ -57,7 +56,7 @@ public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataSer
   /**
    * Timer period.
    */
-  private static final long PERIOD_MILLIS = Duration.ofStandardHours(24).toMillisLong();
+  private static final long PERIOD_MILLIS = Duration.ofHours(24).toMillis();
 
   /**
    * The subscriptions that have been made.

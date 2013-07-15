@@ -8,8 +8,6 @@ package com.opengamma.financial.fudgemsg;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -17,6 +15,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;

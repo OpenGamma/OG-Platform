@@ -45,8 +45,8 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
     //    double temp = w[0] * f[0] + w[2] * f[2];
     //    f[1] = (1.0 - temp) / w[1];
     DATA = new MixedLogNormalModelData(w, vols);
-    TRUE_PARAMS = new double[DATA.getNumberOfparameters()];
-    for (int i = 0; i < DATA.getNumberOfparameters(); i++) {
+    TRUE_PARAMS = new double[DATA.getNumberOfParameters()];
+    for (int i = 0; i < DATA.getNumberOfParameters(); i++) {
       TRUE_PARAMS[i] = DATA.getParameter(i) * (1 + RANDOM.nextDouble() * 0.2);
     }
   }
@@ -61,7 +61,7 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   }
 
   @Test(enabled = false)
-  public void ExactFittingTest() {
+  public void exactFittingTest() {
     final double forward = 1172.011012;
     final double expiry = 1.5;
     final double[] strikes = new double[] {700, 782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534, 2000 };

@@ -10,12 +10,13 @@ import javax.ws.rs.core.Response;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test UnsupportedOperationExceptionMapper.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class UnsupportedOperationExceptionMapperTest extends AbstractExceptionMapperTestHelper {
 
   @Test(dataProvider="mediaTypes")

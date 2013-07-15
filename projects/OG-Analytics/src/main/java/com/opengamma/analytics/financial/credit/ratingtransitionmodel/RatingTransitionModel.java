@@ -10,4 +10,9 @@ package com.opengamma.analytics.financial.credit.ratingtransitionmodel;
  */
 public abstract class RatingTransitionModel {
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Add the CreditMetrics style model for generating correlated rating transitions
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

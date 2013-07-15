@@ -44,7 +44,8 @@ public class SecurityMasterRequestReceiver implements ByteArrayRequestReceiver {
 
   /**
    * Constructor.
-   * @param secSource  the source of securities, not null
+   * 
+   * @param secSource the source of securities, not null
    */
   public SecurityMasterRequestReceiver(SecuritySource secSource) {
     this(secSource, new FudgeContext());
@@ -52,8 +53,9 @@ public class SecurityMasterRequestReceiver implements ByteArrayRequestReceiver {
 
   /**
    * Constructor.
-   * @param secSource  the source of securities, not null
-   * @param fudgeContext  the Fudge context, not null
+   * 
+   * @param secSource the source of securities, not null
+   * @param fudgeContext the Fudge context, not null
    */
   public SecurityMasterRequestReceiver(SecuritySource secSource, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(secSource, "secSource");
@@ -65,6 +67,7 @@ public class SecurityMasterRequestReceiver implements ByteArrayRequestReceiver {
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying source of securities.
+   * 
    * @return the underlying source of securities, not null
    */
   public SecuritySource getSecuritySource() {
@@ -78,12 +81,12 @@ public class SecurityMasterRequestReceiver implements ByteArrayRequestReceiver {
     SecurityMasterRequestMessage secMasterRequest = SecurityMasterRequestMessage.fromFudgeMsg(new FudgeDeserializer(_fudgeContext), requestFudgeMsg);
     MessageType messageType = secMasterRequest.getMessageType();
     String secDes = secMasterRequest.getUniqueId() != null ? secMasterRequest.getUniqueId().getValue() : secMasterRequest.getSecKey().toString();
-    s_logger.debug("Received {} request for {} ", new Object[]{secMasterRequest.getMessageType(), secDes});
+    s_logger.debug("Received {} request for {} ", new Object[] {secMasterRequest.getMessageType(), secDes });
     Security sec = null;
     SecurityMasterResponseMessage responseMessage = new SecurityMasterResponseMessage();
-    switch(messageType) {
+    switch (messageType) {
       case GET_SECURITIES_BY_KEY:
-        Collection<Security> securities = _securitySource.get(secMasterRequest.getSecKey());
+        Collection<? extends Security> securities = _securitySource.get(secMasterRequest.getSecKey());
         responseMessage.setSecurities(Collections.unmodifiableCollection(securities));
         break;
       case GET_SECURITY_BY_KEY:
@@ -103,7 +106,8 @@ public class SecurityMasterRequestReceiver implements ByteArrayRequestReceiver {
 
   /**
    * Converts a message to a byte array.
-   * @param message  the message to convert, null returns null
+   * 
+   * @param message the message to convert, null returns null
    * @return the converted message, null if null input
    */
   private byte[] toByteArray(final SecurityMasterResponseMessage message) {

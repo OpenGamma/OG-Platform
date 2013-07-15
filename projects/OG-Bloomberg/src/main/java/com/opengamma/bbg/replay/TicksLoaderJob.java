@@ -19,14 +19,13 @@ import java.util.ListIterator;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -66,9 +65,9 @@ public class TicksLoaderJob extends TerminatableJob {
     _securities = securities;
     _ticksQueue = ticksQueue;
     _startTime = startTime;
-    _startTimeInEpochsMillis = _startTime.toInstant().toEpochMillisLong();
+    _startTimeInEpochsMillis = _startTime.toInstant().toEpochMilli();
     _endTime = endTime;
-    _endTimeInEpochsMillis = _endTime.toInstant().toEpochMillisLong();
+    _endTimeInEpochsMillis = _endTime.toInstant().toEpochMilli();
     _infiniteLoop = infiniteLoop;
   }
   
@@ -208,7 +207,7 @@ public class TicksLoaderJob extends TerminatableJob {
   private String getFileNameFromDate(LocalDate date) {
     StringBuilder buf = new StringBuilder();
     buf.append(_rootDir).append(File.separator).append(date.getYear()).append(File.separator);
-    int month = date.getMonthOfYear().getValue();
+    int month = date.getMonthValue();
     if (month < 10) {
       buf.append("0").append(month);
     } else {

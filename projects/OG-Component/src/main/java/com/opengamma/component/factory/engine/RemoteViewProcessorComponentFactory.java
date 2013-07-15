@@ -6,7 +6,6 @@
 package com.opengamma.component.factory.engine;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
@@ -22,9 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.ComponentServer;
-import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.util.jms.JmsConnector;
@@ -33,18 +29,8 @@ import com.opengamma.util.jms.JmsConnector;
  * Component factory for accessing remote View processor from the local machine.
  */
 @BeanDefinition
-public class RemoteViewProcessorComponentFactory extends AbstractComponentFactory {
+public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponentServerComponentFactory {
 
-  /**
-   * The remote URI.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private URI _baseUri;
-  /**
-   * The flag determining whether the component should be published by REST (default true).
-   */
-  @PropertyDefinition
-  private boolean _publishRest = true;
   /**
    * The JMS connector.
    */
@@ -53,25 +39,9 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    RemoteComponentServer remote = new RemoteComponentServer(_baseUri);
-    ComponentServer server = remote.getComponentServer();
-    for (ComponentInfo info : server.getComponentInfos()) {
-      initComponent(repo, info);
-    }
-  }
- 
-  /**
-   * Initialize the remote component.
-   * 
-   * @param repo  the local repository, not null
-   * @param info  the remote information, not null
-   */
   protected void initComponent(ComponentRepository repo, ComponentInfo info) {
-    URI componentUri = info.getUri();
-    
     if (ViewProcessor.class.isAssignableFrom(info.getType())) {
-      ViewProcessor viewProcessor = new RemoteViewProcessor(componentUri, _jmsConnector, Executors.newSingleThreadScheduledExecutor());
+      ViewProcessor viewProcessor = new RemoteViewProcessor(info.getUri(), _jmsConnector, Executors.newSingleThreadScheduledExecutor());
       repo.registerComponent(info, viewProcessor);
       if (isPublishRest()) {
         repo.getRestComponents().republish(info);
@@ -100,10 +70,6 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        return getBaseUri();
-      case -614707837:  // publishRest
-        return isPublishRest();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
     }
@@ -113,23 +79,11 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -332625701:  // baseUri
-        setBaseUri((URI) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_baseUri, "baseUri");
-    super.validate();
   }
 
   @Override
@@ -139,9 +93,7 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RemoteViewProcessorComponentFactory other = (RemoteViewProcessorComponentFactory) obj;
-      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+      return JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           super.equals(obj);
     }
     return false;
@@ -150,61 +102,8 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     return hash ^ super.hashCode();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the remote URI.
-   * @return the value of the property, not null
-   */
-  public URI getBaseUri() {
-    return _baseUri;
-  }
-
-  /**
-   * Sets the remote URI.
-   * @param baseUri  the new value of the property, not null
-   */
-  public void setBaseUri(URI baseUri) {
-    JodaBeanUtils.notNull(baseUri, "baseUri");
-    this._baseUri = baseUri;
-  }
-
-  /**
-   * Gets the the {@code baseUri} property.
-   * @return the property, not null
-   */
-  public final Property<URI> baseUri() {
-    return metaBean().baseUri().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the flag determining whether the component should be published by REST (default true).
-   * @return the value of the property
-   */
-  public boolean isPublishRest() {
-    return _publishRest;
-  }
-
-  /**
-   * Sets the flag determining whether the component should be published by REST (default true).
-   * @param publishRest  the new value of the property
-   */
-  public void setPublishRest(boolean publishRest) {
-    this._publishRest = publishRest;
-  }
-
-  /**
-   * Gets the the {@code publishRest} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> publishRest() {
-    return metaBean().publishRest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -236,22 +135,12 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
   /**
    * The meta-bean for {@code RemoteViewProcessorComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta extends AbstractRemoteComponentServerComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code baseUri} property.
-     */
-    private final MetaProperty<URI> _baseUri = DirectMetaProperty.ofReadWrite(
-        this, "baseUri", RemoteViewProcessorComponentFactory.class, URI.class);
-    /**
-     * The meta-property for the {@code publishRest} property.
-     */
-    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
-        this, "publishRest", RemoteViewProcessorComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code jmsConnector} property.
      */
@@ -261,9 +150,7 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "baseUri",
-        "publishRest",
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "jmsConnector");
 
     /**
@@ -275,10 +162,6 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -332625701:  // baseUri
-          return _baseUri;
-        case -614707837:  // publishRest
-          return _publishRest;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
       }
@@ -301,22 +184,6 @@ public class RemoteViewProcessorComponentFactory extends AbstractComponentFactor
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code baseUri} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<URI> baseUri() {
-      return _baseUri;
-    }
-
-    /**
-     * The meta-property for the {@code publishRest} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> publishRest() {
-      return _publishRest;
-    }
-
     /**
      * The meta-property for the {@code jmsConnector} property.
      * @return the meta-property, not null

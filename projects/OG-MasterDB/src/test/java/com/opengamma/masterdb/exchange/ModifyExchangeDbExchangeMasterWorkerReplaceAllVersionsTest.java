@@ -7,17 +7,19 @@ package com.opengamma.masterdb.exchange;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.HOURS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
+import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -27,10 +29,12 @@ import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends AbstractDbExchangeMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -77,12 +81,12 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends 
    *
    */
   public void test_ReplaceAllVersions1() {
-    TimeSource origTimeSource = _exgMaster.getTimeSource();
+    Clock origClock = _exgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _exgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _exgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ExchangeDocument latestDoc = _exgMaster.get(baseOid, VersionCorrection.LATEST);
 
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
@@ -91,7 +95,7 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends 
       for (int i = 1; i <= 4; i++) {
         ManageableExchange ex = new ManageableExchange(bundle, "replace_" + i, region, null);
         ExchangeDocument doc = new ExchangeDocument(ex);
-        doc.setVersionFromInstant(now.plus(2, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.plus(2, MINUTES).plus(i * 20, SECONDS));
         replacement.add(doc);
       }
 
@@ -99,26 +103,26 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends 
 
       ExchangeHistoryRequest historyRequest = new ExchangeHistoryRequest();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ExchangeHistoryResult result = _exgMaster.history(historyRequest);
       List<ExchangeDocument> exchanges = result.getDocuments();
 
       assertEquals(4, exchanges.size());
 
-      assertEquals(now.plus(2, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), exchanges.get(3).getVersionFromInstant());
-      assertEquals(now.plus(2, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), exchanges.get(3).getVersionToInstant());
+      assertEquals(now.plus(2, MINUTES).plus(20, SECONDS), exchanges.get(3).getVersionFromInstant());
+      assertEquals(now.plus(2, MINUTES).plus(40, SECONDS), exchanges.get(3).getVersionToInstant());
       //
-      assertEquals(now.plus(2, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), exchanges.get(2).getVersionFromInstant());
-      assertEquals(now.plus(3, TimeUnit.MINUTES).plus(0, TimeUnit.SECONDS), exchanges.get(2).getVersionToInstant());
+      assertEquals(now.plus(2, MINUTES).plus(40, SECONDS), exchanges.get(2).getVersionFromInstant());
+      assertEquals(now.plus(3, MINUTES).plus(0, SECONDS), exchanges.get(2).getVersionToInstant());
       //
-      assertEquals(now.plus(3, TimeUnit.MINUTES).plus(0, TimeUnit.SECONDS), exchanges.get(1).getVersionFromInstant());
-      assertEquals(now.plus(3, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), exchanges.get(1).getVersionToInstant());
+      assertEquals(now.plus(3, MINUTES).plus(0, SECONDS), exchanges.get(1).getVersionFromInstant());
+      assertEquals(now.plus(3, MINUTES).plus(20, SECONDS), exchanges.get(1).getVersionToInstant());
       //
-      assertEquals(now.plus(3, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), exchanges.get(0).getVersionFromInstant());
+      assertEquals(now.plus(3, MINUTES).plus(20, SECONDS), exchanges.get(0).getVersionFromInstant());
       assertEquals(null, exchanges.get(0).getVersionToInstant());
       //
     } finally {
-      _exgMaster.setTimeSource(origTimeSource);
+      _exgMaster.setClock(origClock);
     }
   }
 
@@ -162,50 +166,49 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends 
    *
    */
   public void test_ReplaceAllVersions2() {
-    TimeSource origTimeSource = _exgMaster.getTimeSource();
+    Clock origClock = _exgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _exgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _exgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ExchangeDocument latestDoc = _exgMaster.get(baseOid, VersionCorrection.LATEST);
-      Instant latestFrom = latestDoc.getVersionFromInstant();
-
+      
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
       List<ExchangeDocument> replacement = newArrayList();
       for (int i = 1; i <= 4; i++) {
         ManageableExchange ex = new ManageableExchange(bundle, "replace_" + i, region, null);
         ExchangeDocument doc = new ExchangeDocument(ex);
-        doc.setVersionFromInstant(now.plus(2, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.plus(2, MINUTES).plus(i * 20, SECONDS));
         replacement.add(doc);
       }
-      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(2, TimeUnit.MINUTES).plus(100, TimeUnit.SECONDS));
+      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(2, MINUTES).plus(100, SECONDS));
 
       _exgMaster.replaceAllVersions(latestDoc, replacement);
 
       ExchangeHistoryRequest historyRequest = new ExchangeHistoryRequest();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ExchangeHistoryResult result = _exgMaster.history(historyRequest);
       List<ExchangeDocument> exchanges = result.getDocuments();
 
       assertEquals(4, exchanges.size());
 
-      assertEquals(now.plus(2, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), exchanges.get(3).getVersionFromInstant());
-      assertEquals(now.plus(2, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), exchanges.get(3).getVersionToInstant());
+      assertEquals(now.plus(2, MINUTES).plus(20, SECONDS), exchanges.get(3).getVersionFromInstant());
+      assertEquals(now.plus(2, MINUTES).plus(40, SECONDS), exchanges.get(3).getVersionToInstant());
       //
-      assertEquals(now.plus(2, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), exchanges.get(2).getVersionFromInstant());
-      assertEquals(now.plus(3, TimeUnit.MINUTES), exchanges.get(2).getVersionToInstant());
+      assertEquals(now.plus(2, MINUTES).plus(40, SECONDS), exchanges.get(2).getVersionFromInstant());
+      assertEquals(now.plus(3, MINUTES), exchanges.get(2).getVersionToInstant());
       //
-      assertEquals(now.plus(3, TimeUnit.MINUTES), exchanges.get(1).getVersionFromInstant());
-      assertEquals(now.plus(3, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), exchanges.get(1).getVersionToInstant());
+      assertEquals(now.plus(3, MINUTES), exchanges.get(1).getVersionFromInstant());
+      assertEquals(now.plus(3, MINUTES).plus(20, SECONDS), exchanges.get(1).getVersionToInstant());
       //
-      assertEquals(now.plus(3, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), exchanges.get(0).getVersionFromInstant());
-      assertEquals(now.plus(3, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), exchanges.get(0).getVersionToInstant());
+      assertEquals(now.plus(3, MINUTES).plus(20, SECONDS), exchanges.get(0).getVersionFromInstant());
+      assertEquals(now.plus(3, MINUTES).plus(40, SECONDS), exchanges.get(0).getVersionToInstant());
 
     } finally {
-      _exgMaster.setTimeSource(origTimeSource);
+      _exgMaster.setClock(origClock);
     }
   }
 
@@ -246,51 +249,50 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends 
    * 
    */
   public void test_ReplaceAllVersions3() {
-    TimeSource origTimeSource = _exgMaster.getTimeSource();
+    Clock origClock = _exgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _exgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _exgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ExchangeDocument latestDoc = _exgMaster.get(baseOid, VersionCorrection.LATEST);
-      Instant latestFrom = latestDoc.getVersionFromInstant();
-
+      
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
       List<ExchangeDocument> replacement = newArrayList();
       for (int i = 1; i <= 4; i++) {
         ManageableExchange ex = new ManageableExchange(bundle, "replace_" + i, region, null);
         ExchangeDocument doc = new ExchangeDocument(ex);
-        doc.setVersionFromInstant(now.minus(60, TimeUnit.SECONDS).plus(i * 30, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.minus(60, SECONDS).plus(i * 30, SECONDS));
         replacement.add(doc);
       }
-      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(90, TimeUnit.SECONDS));
+      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(90, SECONDS));
 
       _exgMaster.replaceAllVersions(latestDoc, replacement);
 
       ExchangeHistoryRequest historyRequest = new ExchangeHistoryRequest();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ExchangeHistoryResult result = _exgMaster.history(historyRequest);
       List<ExchangeDocument> exchanges = result.getDocuments();
 
       assertEquals(4, exchanges.size());
 
       //
-      assertEquals(now.plus(-30, TimeUnit.SECONDS), exchanges.get(3).getVersionFromInstant());
-      assertEquals(now.plus(0, TimeUnit.SECONDS), exchanges.get(3).getVersionToInstant());
+      assertEquals(now.plus(-30, SECONDS), exchanges.get(3).getVersionFromInstant());
+      assertEquals(now.plus(0, SECONDS), exchanges.get(3).getVersionToInstant());
       //
-      assertEquals(now.plus(0, TimeUnit.SECONDS), exchanges.get(2).getVersionFromInstant());
-      assertEquals(now.plus(30, TimeUnit.SECONDS), exchanges.get(2).getVersionToInstant());
+      assertEquals(now.plus(0, SECONDS), exchanges.get(2).getVersionFromInstant());
+      assertEquals(now.plus(30, SECONDS), exchanges.get(2).getVersionToInstant());
       //
-      assertEquals(now.plus(30, TimeUnit.SECONDS), exchanges.get(1).getVersionFromInstant());
-      assertEquals(now.plus(60, TimeUnit.SECONDS), exchanges.get(1).getVersionToInstant());
+      assertEquals(now.plus(30, SECONDS), exchanges.get(1).getVersionFromInstant());
+      assertEquals(now.plus(60, SECONDS), exchanges.get(1).getVersionToInstant());
       //
-      assertEquals(now.plus(60, TimeUnit.SECONDS), exchanges.get(0).getVersionFromInstant());
-      assertEquals(now.plus(90, TimeUnit.SECONDS), exchanges.get(0).getVersionToInstant());
+      assertEquals(now.plus(60, SECONDS), exchanges.get(0).getVersionFromInstant());
+      assertEquals(now.plus(90, SECONDS), exchanges.get(0).getVersionToInstant());
       //      
     } finally {
-      _exgMaster.setTimeSource(origTimeSource);
+      _exgMaster.setClock(origClock);
     }
   }
 }

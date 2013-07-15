@@ -92,7 +92,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     Validate.notNull(sabrData);
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactorTp = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName())
         .getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
@@ -143,7 +143,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     Validate.notNull(sabrData);
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
@@ -197,7 +197,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
-    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(cmsCapFloor.getUnderlyingSwap().accept(PRSC, sabrData));
     result = result.plus(forwardDr.multipliedBy(deltaS0));
     return result;
   }
@@ -212,7 +212,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactorTp = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName())
         .getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double strike = cmsCapFloor.getStrike();
@@ -270,7 +270,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
   public double presentValueStrikeSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
@@ -484,7 +484,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / g - h * gp / (g * g);
       final double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     /**

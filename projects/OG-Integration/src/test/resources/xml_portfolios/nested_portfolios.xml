@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+
+    <!-- Trade id must be unique in this list -->
+    <swapTrade id="t1">
+      <!-- Probably should be unique in this file too -->
+      <externalSystemId>
+        <id scheme="External">Id1FromExternalSystem</id>
+      </externalSystemId>
+      <tradeDate>2013-01-20</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+      <counterparty>
+        <id scheme="Cpty">GOLDMAN</id>
+      </counterparty>
+      <effectiveDate>2013-02-01</effectiveDate>
+      <legs>
+	      <fixedLeg>
+	        <payReceive>Pay</payReceive>
+	        <currency>USD</currency>
+	        <!-- Notional could be array-valued -->
+	        <notional>500000</notional>
+	        <frequency>12m</frequency>
+	        <dayCount>Actual/365</dayCount>
+	        <interestCalculation>Adjusted</interestCalculation>
+	        <businessDayConvention>Modified Following</businessDayConvention>
+	        <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+	        <endOfMonth>true</endOfMonth>
+	        <isIMM>false</isIMM>
+	        <paymentCalendars>
+	          <calendar type="bank"> <!-- default=BANK  -->
+	            <id scheme="CountryISO2">FD</id>
+	          </calendar>
+	          <calendar type="bank"> <!-- default=BANK  -->
+	            <id scheme="CountryISO2">EN</id>
+	          </calendar>
+	        </paymentCalendars>
+	        <stubPeriodType>LongCoupon</stubPeriodType>
+	        <rate>105.25</rate>
+	      </fixedLeg>
+	
+	      <floatingLeg>
+	        <payReceive>Receive</payReceive>
+	        <currency>USD</currency>
+	        <!-- Notional could be array-valued -->
+	        <notional>500000</notional>
+	        <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
+	        <frequency>12m</frequency>
+	        <!-- use DayCountFactory -->
+	        <dayCount>Actual/365</dayCount>
+	        <!-- only adjusted supported now -->
+	        <interestCalculation>Adjusted</interestCalculation>
+	        <!-- use BusinessDayConventionFactory -->
+	        <businessDayConvention>Modified Following</businessDayConvention>
+	        <!-- only Backward supported -->
+	        <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+	        <!-- EOM -->
+	        <endOfMonth>true</endOfMonth>
+	        <!-- must be false for now -->
+	        <isIMM>false</isIMM>
+	
+	
+	        <paymentCalendars>
+	          <calendar type="bank"> <!-- default=BANK  -->
+	            <id scheme="CountryISO2">FD</id>
+	          </calendar>
+	          <calendar>
+	            <id scheme="CountryISO2">EN</id>
+	          </calendar>
+	          <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
+	        </paymentCalendars>
+	
+	        <stubPeriodType>LongCoupon</stubPeriodType>
+	
+	        <!-- always short for now -->
+	        <!-- same as frequency for now -->
+	        <resetFrequency></resetFrequency>
+	        <!-- not supported at the moment as frequencies must match -->
+	        <compoundingMethod></compoundingMethod>
+	        <!-- we're assuming that resetLag == settlementLag at the moment -->
+	        <resetLag></resetLag>
+	        <!-- In Advance or In Arrears.  Only support In advance at the mo -->
+	        <resetType>InAdvance</resetType>
+	        <stubPeriodCouponAdjustment>LegIndex</stubPeriodCouponAdjustment>
+	        <!-- same as payment calendar at the moment -->
+	        <fixingCalendars></fixingCalendars>
+	        <fixingIndex>
+	          <id scheme="BLOOMBERG_TICKER">US0003M Curncy</id>
+	          <!-- OIS|CMS|IBOR -->
+	          <rateType>IBOR</rateType>
+	        </fixingIndex>
+	
+	
+	        <!-- loader should support either spread or gearing for now, schema should allow both -->
+	        <spread>5.25</spread>
+	        <gearing>-3</gearing>
+	      </floatingLeg>
+      </legs>
+    </swapTrade>
+
+    <swapTrade id="t2">
+      <!-- Probably should be unique in this file too -->
+      <externalSystemId>
+        <id scheme="External">Id2FromExternalSystem</id>
+      </externalSystemId>
+      <tradeDate>2013-01-20</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+      <counterparty>
+        <id scheme="Cpty">GOLDMAN</id>
+      </counterparty>
+      <effectiveDate>2013-02-01</effectiveDate>
+      <legs>
+	      <fixedLeg>
+	        <payReceive>Pay</payReceive>
+	        <currency>USD</currency>
+	        <!-- Notional could be array-valued -->
+	        <notional>1000000</notional>
+	        <frequency>12m</frequency>
+	        <dayCount>Actual/365</dayCount>
+	        <interestCalculation>Adjusted</interestCalculation>
+	        <businessDayConvention>Modified Following</businessDayConvention>
+	        <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+	        <endOfMonth>true</endOfMonth>
+	        <isIMM>true</isIMM>
+	        <paymentCalendars>
+	          <calendar type="bank"> <!-- default=BANK  -->
+	            <id scheme="CountryISO2">FD</id>
+	          </calendar>
+	          <calendar type="bank"> <!-- default=BANK  -->
+	            <id scheme="CountryISO2">EN</id>
+	          </calendar>
+	        </paymentCalendars>
+	        <stubPeriodType>LongCoupon</stubPeriodType>
+	        <rate>105.25</rate>
+	      </fixedLeg>
+	
+	      <floatingLeg>
+	        <payReceive>Receive</payReceive>
+	        <currency>USD</currency>
+	        <!-- Notional could be array-valued -->
+	        <notional>1000000</notional>
+	        <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
+	        <frequency>12m</frequency>
+	        <!-- use DayCountFactory -->
+	        <dayCount>Actual/365</dayCount>
+	        <!-- only adjusted supported now -->
+	        <interestCalculation>Adjusted</interestCalculation>
+	        <!-- use BusinessDayConventionFactory -->
+	        <businessDayConvention>Modified Following</businessDayConvention>
+	        <!-- only Backward supported -->
+	        <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+	        <!-- EOM -->
+	        <endOfMonth>true</endOfMonth>
+	        <!-- must be false for now -->
+	        <isIMM>true</isIMM>
+	
+	
+	        <paymentCalendars>
+	          <calendar type="bank"> <!-- default=BANK  -->
+	            <id scheme="CountryISO2">FD</id>
+	          </calendar>
+	          <calendar>
+	            <id scheme="CountryISO2">EN</id>
+	          </calendar>
+	          <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
+	        </paymentCalendars>
+	
+	        <stubPeriodType>LongCoupon</stubPeriodType>
+	        <!-- Interpolated - Default to ShortCoupon-->
+	
+	        <!-- always short for now -->
+	        <!-- same as frequency for now -->
+	        <resetFrequency></resetFrequency>
+	        <!-- not supported at the moment as frequencies must match -->
+	        <compoundingMethod></compoundingMethod>
+	        <!-- we're assuming that resetLag == settlementLag at the moment -->
+	        <resetLag></resetLag>
+	        <!-- In Advance or In Arrears.  Only support In advance at the mo -->
+	        <resetType>InAdvance</resetType>
+	        <stubPeriodCouponAdjustment>LegIndex</stubPeriodCouponAdjustment>
+	        <!-- same as payment calendar at the moment -->
+	        <fixingCalendars></fixingCalendars>
+	        <fixingIndex>
+	          <id scheme="BLOOMBERG_TICKER">US0003M Curncy</id>
+	          <!-- OIS|CMS|IBOR -->
+	          <rateType>IBOR</rateType>
+	        </fixingIndex>
+	
+	
+	        <!-- loader should support either spread or gearing for now, schema should allow both -->
+	        <spread>5.25</spread>
+	        <gearing>-3</gearing>
+	      </floatingLeg>
+	    </legs>
+    </swapTrade>
+
+    <fxOptionTrade id="t3">
+      <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
+
+
+      <tradeDate>2013-01-20</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <optionType>Put</optionType>
+      <buySell>Buy</buySell>
+      <currencyPair>EUR/USD</currencyPair>
+      <optionCurrency>EUR</optionCurrency>
+
+      <strike>1.9</strike>
+
+      <fxExpiry>
+        <expiryDate>2018-01-31</expiryDate>
+        <expiryCutoff>ECB|10am NY</expiryCutoff>
+
+
+        <expiryCalendars>
+          <calendar type="bank">
+            <id scheme="CountryISO2">FD</id>
+          </calendar>
+        </expiryCalendars>
+      </fxExpiry>
+      <paymentCalendars>
+        <calendar type="bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </paymentCalendars>
+
+      <notional>1000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>European</exerciseType>
+
+    </fxOptionTrade>
+
+    <fxOptionTrade id="t4">
+      <externalSystemId><id scheme="External">IdFromExternalSystem2</id></externalSystemId>
+
+      <tradeDate>2013-01-25</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <optionType>Call</optionType>
+      <buySell>Sell</buySell>
+      <currencyPair>EUR/USD</currencyPair>
+      <optionCurrency>EUR</optionCurrency>
+
+      <strike>1.9</strike>
+
+      <fxExpiry>
+        <expiryDate>2018-01-31</expiryDate>
+        <expiryCutoff>ECB|10am NY</expiryCutoff>
+
+        <expiryCalendars>
+          <calendar type="bank">
+            <id scheme="CountryISO2">FD</id>
+          </calendar>
+        </expiryCalendars>
+      </fxExpiry>
+
+      <paymentCalendars>
+        <calendar type="bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </paymentCalendars>
+
+      <notional>2000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>European</exerciseType>
+
+
+    </fxOptionTrade>
+  </trades>
+
+  <positions>
+    <position id="p1">
+      <quantity>1</quantity>
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </position>
+    <position id="p2">
+      <quantity>1</quantity>
+      <trades>
+        <trade ref="t2"/>
+      </trades>
+    </position>
+    <position id="p3">
+      <quantity>1</quantity>
+      <trades>
+        <trade ref="t3"/>
+      </trades>
+    </position>
+    <position id="p4">
+      <quantity>1</quantity>
+      <trades>
+        <trade ref="t4"/>
+      </trades>
+    </position>
+  </positions>
+
+  <portfolios>
+    <portfolio name="nested_portfolio">
+      <portfolio name="IRS trades">
+        <positions>
+          <position ref="p1"/>
+          <position ref="p2"/>
+        </positions>
+      </portfolio>
+      <portfolio name="FX option trades">
+        <positions>
+          <position ref="p3"/>
+          <position ref="p4"/>
+        </positions>
+      </portfolio>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

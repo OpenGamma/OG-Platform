@@ -50,11 +50,11 @@ public class CapFloorIborLMMDDMethod implements PricingMethod {
     double beta = lmmData.getCurve(cap.getForwardCurveName()).getDiscountFactor(cap.getFixingPeriodStartTime())
         / lmmData.getCurve(cap.getForwardCurveName()).getDiscountFactor(cap.getFixingPeriodEndTime()) * lmmData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodEndTime())
         / lmmData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodStartTime());
-    double strikeAdjusted = (cap.getStrike() - (beta - 1) / cap.getFixingYearFraction()) / beta;
+    double strikeAdjusted = (cap.getStrike() - (beta - 1) / cap.getFixingAccrualFactor()) / beta;
     EuropeanVanillaOption option = new EuropeanVanillaOption(strikeAdjusted + displacement, 1.0, cap.isCap()); // Time is in timeDependentFactor
     double forwardDsc = (lmmData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodStartTime())
         / lmmData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodEndTime()) - 1.0)
-        / cap.getFixingYearFraction();
+        / cap.getFixingAccrualFactor();
     final double df = lmmData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardDsc + displacement, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);

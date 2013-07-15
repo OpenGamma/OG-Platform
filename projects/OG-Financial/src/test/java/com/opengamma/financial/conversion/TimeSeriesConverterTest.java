@@ -10,16 +10,17 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeSeriesConverterTest {
   
   private final TimeSeriesConverter _converter = new TimeSeriesConverter();
@@ -28,7 +29,7 @@ public class TimeSeriesConverterTest {
   public void convertEmpty() {
     Map<String, Double> expected = new HashMap<String, Double>();
     
-    Map<String, Double> actual = _converter.convert("Foo", new ArrayLocalDateDoubleTimeSeries());
+    Map<String, Double> actual = _converter.convert("Foo", ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     
     assertEquals(expected, actual);
   }
@@ -40,7 +41,7 @@ public class TimeSeriesConverterTest {
     expected.put("Foo[2005-04-05]", 6.6);
     
     Map<String, Double> actual = _converter.convert("Foo", 
-        new ArrayLocalDateDoubleTimeSeries(
+        ImmutableLocalDateDoubleTimeSeries.of(
             new LocalDate[] { LocalDate.of(2005, 4, 4), LocalDate.of(2005, 4, 5) },
             new double[] { 5.5, 6.6 }));
     

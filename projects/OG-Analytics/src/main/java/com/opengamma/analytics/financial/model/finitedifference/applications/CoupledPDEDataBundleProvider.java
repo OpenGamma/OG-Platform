@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.finitedifference.CoupledPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoupledCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
@@ -36,14 +36,13 @@ public class CoupledPDEDataBundleProvider {
    *  is the maturity. The solution at $t=0$ $(\tau=T)$ for $V_1$ and $V_2$ is the option price if the Markov chain started in state 1 or 2. If the
    *  initial state of the Markov chain is unknown (but the probability of being in a state is known), then the option price is the probability weighting of the two solutions.
    * @param forward The forward curve
-   * @param strike The strike
    * @param maturity The option maturity (in years)
    * @param data Data relating to the Markov chain
    * @return a pair of convection diffusion data bundles
    */
-  public CoupledPDEDataBundle[] getCoupledBackwardsPair(final ForwardCurve forward, final double strike, final double maturity, final TwoStateMarkovChainDataBundle data) {
+  public ConvectionDiffusionPDE1DCoupledCoefficients[] getCoupledBackwardsPair(final ForwardCurve forward, final double maturity, final TwoStateMarkovChainDataBundle data) {
     final AbsoluteLocalVolatilitySurface localVolOverlay = new AbsoluteLocalVolatilitySurface(ConstantDoublesSurface.from(1.0));
-    return getCoupledBackwardsPair(forward, strike, maturity, data, localVolOverlay);
+    return getCoupledBackwardsPair(forward, maturity, data, localVolOverlay);
   }
 
   /**
@@ -60,21 +59,20 @@ public class CoupledPDEDataBundleProvider {
    *  is the maturity. The solution at $t = 0$ $(\tau=T)$ for $V_1$ and $V_2$ is the option price if the Markov chain started in state 1 or 2. If the
    *  initial state of the Markov chain is unknown (but the probability of being in a state is know), then the option price is the probability weighting of the two solutions.
    * @param forward The forward curve
-   * @param strike The strike
    * @param maturity The option maturity (in years)
    * @param data Data relating to the Markov chain
    * @param localVolOverlay The local vol term
    * @return a pair of convection diffusion data bundles
    */
-  public CoupledPDEDataBundle[] getCoupledBackwardsPair(final ForwardCurve forward, final double strike, final double maturity, final TwoStateMarkovChainDataBundle data,
+  public ConvectionDiffusionPDE1DCoupledCoefficients[] getCoupledBackwardsPair(final ForwardCurve forward, final double maturity, final TwoStateMarkovChainDataBundle data,
       final AbsoluteLocalVolatilitySurface localVolOverlay) {
     Validate.notNull(forward, "null forward");
     Validate.notNull(data, "null data");
     Validate.notNull(localVolOverlay, "null localVolOverlay");
 
-    final CoupledPDEDataBundle[] res = new CoupledPDEDataBundle[2];
-    res[0] = getCoupledBackwardsPDE(forward, data.getVol1(), strike, maturity, data.getLambda12(), data.getBeta1(), localVolOverlay);
-    res[1] = getCoupledBackwardsPDE(forward, data.getVol2(), strike, maturity, data.getLambda21(), data.getBeta2(), localVolOverlay);
+    final ConvectionDiffusionPDE1DCoupledCoefficients[] res = new ConvectionDiffusionPDE1DCoupledCoefficients[2];
+    res[0] = getCoupledBackwardsPDE(forward, data.getVol1(), maturity, data.getLambda12(), data.getBeta1(), localVolOverlay);
+    res[1] = getCoupledBackwardsPDE(forward, data.getVol2(), maturity, data.getLambda21(), data.getBeta2(), localVolOverlay);
     return res;
   }
 
@@ -94,7 +92,7 @@ public class CoupledPDEDataBundleProvider {
    * @param data Data relating to the Markov chain
    * @return a pair of convection diffusion data bundles
    */
-  public CoupledPDEDataBundle[] getCoupledForwardPair(final ForwardCurve forward, final TwoStateMarkovChainDataBundle data) {
+  public ConvectionDiffusionPDE1DCoupledCoefficients[] getCoupledForwardPair(final ForwardCurve forward, final TwoStateMarkovChainDataBundle data) {
     final AbsoluteLocalVolatilitySurface localVolOverlay = new AbsoluteLocalVolatilitySurface(ConstantDoublesSurface.from(1.0));
     return getCoupledForwardPair(forward, data, localVolOverlay);
   }
@@ -115,14 +113,15 @@ public class CoupledPDEDataBundleProvider {
    * @param localVolOverlay The local vol term
    * @return a pair of convection diffusion data bundles
    */
-  public CoupledPDEDataBundle[] getCoupledForwardPair(final ForwardCurve forward, final TwoStateMarkovChainDataBundle data, final AbsoluteLocalVolatilitySurface localVolOverlay) {
+  public ConvectionDiffusionPDE1DCoupledCoefficients[] getCoupledForwardPair(final ForwardCurve forward, final TwoStateMarkovChainDataBundle data,
+      final AbsoluteLocalVolatilitySurface localVolOverlay) {
     Validate.notNull(forward, "null forward");
     Validate.notNull(data, "null data");
     Validate.notNull(localVolOverlay, "null localVolOverlay");
 
-    final CoupledPDEDataBundle[] res = new CoupledPDEDataBundle[2];
-    res[0] = getCoupledForwardPDE(forward, data.getVol1(), data.getLambda12(), data.getLambda21(), data.getP0(), data.getBeta1(), localVolOverlay);
-    res[1] = getCoupledForwardPDE(forward, data.getVol2(), data.getLambda21(), data.getLambda12(), 1.0 - data.getP0(), data.getBeta2(), localVolOverlay);
+    final ConvectionDiffusionPDE1DCoupledCoefficients[] res = new ConvectionDiffusionPDE1DCoupledCoefficients[2];
+    res[0] = getCoupledForwardPDE(forward, data.getVol1(), data.getLambda12(), data.getLambda21(), data.getBeta1(), localVolOverlay);
+    res[1] = getCoupledForwardPDE(forward, data.getVol2(), data.getLambda21(), data.getLambda12(), data.getBeta2(), localVolOverlay);
     return res;
   }
 
@@ -175,7 +174,7 @@ public class CoupledPDEDataBundleProvider {
     return res;
   }
 
-  private CoupledPDEDataBundle getCoupledBackwardsPDE(final ForwardCurve forward, final double vol, final double strike, final double maturity, final double lambda, final double beta,
+  private ConvectionDiffusionPDE1DCoupledCoefficients getCoupledBackwardsPDE(final ForwardCurve forward, final double vol, final double maturity, final double lambda, final double beta,
       final AbsoluteLocalVolatilitySurface localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -211,18 +210,11 @@ public class CoupledPDEDataBundleProvider {
       }
     };
 
-    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double x) {
-        return Math.max(0, x - strike);
-      }
-    };
-
-    return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda, payoff);
+    return new ConvectionDiffusionPDE1DCoupledCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda);
   }
 
-  private CoupledPDEDataBundle getCoupledForwardPDE(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2, final double initialProb, final double beta,
+  private ConvectionDiffusionPDE1DCoupledCoefficients getCoupledForwardPDE(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2,
+      final double beta,
       final AbsoluteLocalVolatilitySurface localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -253,15 +245,7 @@ public class CoupledPDEDataBundleProvider {
       }
     };
 
-    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double k) {
-        return initialProb * Math.max(0, forward.getSpot() - k);
-      }
-    };
-
-    return new CoupledPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda2, initialCondition);
+    return new ConvectionDiffusionPDE1DCoupledCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), -lambda2);
   }
 
   private ExtendedCoupledPDEDataBundle getCoupledFokkerPlank(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2, final double initialProb, final double beta,

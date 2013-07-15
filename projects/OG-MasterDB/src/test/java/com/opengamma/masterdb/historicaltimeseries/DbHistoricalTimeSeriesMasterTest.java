@@ -10,20 +10,18 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbHistoricalTimeSeriesMaster.
  */
-public class DbHistoricalTimeSeriesMasterTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbHistoricalTimeSeriesMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHistoricalTimeSeriesMasterTest.class);
 
@@ -31,26 +29,19 @@ public class DbHistoricalTimeSeriesMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHistoricalTimeSeriesMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _htsMaster = (DbHistoricalTimeSeriesMaster) context.getBean(getDatabaseType() + "DbHistoricalTimeSeriesMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _htsMaster = new DbHistoricalTimeSeriesMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _htsMaster = null;
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
@@ -59,7 +50,7 @@ public class DbHistoricalTimeSeriesMasterTest extends DbTest {
     assertNotNull(_htsMaster);
     assertEquals(true, _htsMaster.getUniqueIdScheme().equals("DbHts"));
     assertNotNull(_htsMaster.getDbConnector());
-    assertNotNull(_htsMaster.getTimeSource());
+    assertNotNull(_htsMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

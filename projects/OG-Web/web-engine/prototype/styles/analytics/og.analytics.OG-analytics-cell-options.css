@@ -3,10 +3,7 @@
  * Please see distribution for license.
  */
 .OG-cell-options {
-    background-color: #fff;
-    border-bottom: 1px solid #dadcdd;
-    border-top: 1px solid #dadcdd;
-    border-right: 1px solid #dadcdd;
+    background-color: transparent;
     height: 20px;
     position: absolute;
     width: 32px;
@@ -14,111 +11,70 @@
     z-index: 3;
 }
 
-.OG-cell-options.og-expanded {
-    background-color: #fafafa;
-    border-top: 1px solid #c9cacb;
-    border-bottom: 1px solid #c9cacb;
-    box-shadow: 2px 2px 2px #ebebeb;
-    width: 102px;
-    -moz-box-shadow: 2px 2px 2px #ebebeb;
-    -webkit-box-shadow: 2px 2px 2px #ebebeb;
-}
-
-.OG-cell-options.og-frozen{
-    z-index:5;
-}
-
-.OG-cell-options.og-expanded .og-num {
-    color: #555;
-    background-color: #fff;
-    margin-right: 2px;
-}
-
-.OG-cell-options .og-small {
-    float: left;
-    height: 15px;
-    width: 12px;
-    background-color: #ccc;
-}
-
-.OG-cell-options.og-expanded .og-small {
-    display: none;
-}
-
-.OG-cell-options.og-expanded .og-big {
-    display: block;
-}
-
-.OG-cell-options .OG-icon.og-icon-down-chevron,
-.OG-cell-options .OG-icon.og-icon-ellipsis {
-    background-color: #ccc;
-    float: left;
-    margin-left: 1px;
-    padding: 1px;
-}
-.OG-cell-options .OG-icon.og-icon-ellipsis {
-    background: transparent;
-    padding:1px;
-}
-
-.OG-cell-options .OG-icon.og-icon-ellipsis::after {
-    top: 9px;
-    left: -1px;
-    margin-left: 1px;
+.OG-cell-options.og-frozen {
+    z-index: 5;
 }
 
 .OG-cell-options .OG-icon.og-icon-down-chevron {
-    background: transparent;
+    float: left;
+}
+
+.OG-cell-options .OG-icon.og-icon-down-chevron {
+    background: #fff;
     border: 1px solid #dadcdd;
     cursor: pointer;
-    height: 11px;
-    left: -2px;
 }
 
 .OG-cell-options .OG-icon.og-icon-down-chevron::after {
-    top: 4px;
+    top: 7px;
+    left: -4px;
 }
 
-.OG-cell-options .og-big {
-    display: none;
+.OG-cell-options .OG-icon.og-complex::after {
+    top: 2px;
+    left: -5px;
 }
 
 .OG-cell-options .og-group {
-    padding-left: 4px;
     position: relative;
-    top: 3px;
-}
-.OG-cell-options .og-icon-new-window-2 {
-    background-color: #c9cacb;
-    padding: 5px 4px 4px 3px;
-    top: -3px;
-    right: -2px;
-    height: 11px;
 }
 
-.OG-cell-options .og-num {
-    border: 1px solid #dadcdd;
-    color: #c9cacb;
-    cursor: pointer;
-    display: inline-block;
-    float: left;
-    font-weight: bold;
-    height: 13px;
-    line-height: 13px;
-    padding: 0;
-    width: 12px;
-    text-align: center;
+.OG-icon.og-icon-down-chevron:hover {
+    border-color: #01467a!important;
 }
 
-.OG-cell-options .OG-icon:hover,
-.OG-cell-options .og-small:hover,
-.OG-cell-options.og-expanded .OG-icon:hover {
-    background-color: #6fd66f;
+.OG-cell-options .og-cell-border {
+    position: absolute;
+    height: 0;
+    right: 32px;
+    display: none;
 }
 
-.OG-cell-options .og-num:hover,
-.OG-cell-options.og-expanded .og-num:hover {
-    background-color: #6fd66f;
-    border: 1px solid #6fd66f;
-    color: #fff;
+.OG-cell-options .og-cell-border-top {
+    border-top: 1px solid #01467a;
+    height: 0;
+}
+
+.OG-cell-options .og-cell-border-bottom {
+    border-bottom: 1px solid #01467a;
+    height: 0;
+    bottom: -2px;
+}
+
+.OG-cell-options.og-frozen .og-cell-border-bottom {
+    border-bottom: 1px solid #eee;
+}
+
+.OG-cell-options.og-frozen.og-pop-up .og-cell-border-bottom {
+    border-bottom: 1px solid #01467a;
+}
+
+.OG-cell-options.og-frozen.og-pop-up .og-cell-border-top {
+    border-top: 1px solid #eee;
+}
+
+.OG-cell-options .og-cell-border-left {
+    border-left: 1px solid #01467a;
+    height: 22px;
+    width: 1px;
 }

@@ -11,11 +11,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -35,11 +35,12 @@ import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalc
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -54,8 +55,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Computes a Profit and Loss time series for a position based on value greeks.
@@ -90,8 +91,9 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
       }
     }
     final Position position = target.getPosition();
+    final ComputationTargetSpecification positionSpec = target.toSpecification();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -109,7 +111,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
     final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorName);
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    final LocalDateDoubleTimeSeries sampledTS = samplingFunction.getSampledTimeSeries(timeSeries.getTimeSeries(), schedule).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries sampledTS = samplingFunction.getSampledTimeSeries(timeSeries.getTimeSeries(), schedule);
     for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
       if (underlyingType != UnderlyingType.SPOT_PRICE) {
         throw new OpenGammaRuntimeException("Have hard-coded to only use delta; should not have anything with " + underlyingType + " as the underlying type");
@@ -125,10 +127,9 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next())
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta")
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta")
         .get();
-    final ValueRequirement resultRequirements = new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties);
-    final ValueSpecification resultSpecification = new ValueSpecification(resultRequirements, getUniqueId());
+    final ValueSpecification resultSpecification = new ValueSpecification(ValueRequirementNames.PNL_SERIES, positionSpec, properties);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
   }
@@ -140,9 +141,6 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (!canApplyTo(context, target)) {
-      return null;
-    }
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> samplingPeriodName = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
     if (samplingPeriodName == null || samplingPeriodName.isEmpty() || samplingPeriodName.size() != 1) {
@@ -161,7 +159,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(new ValueRequirement(REQUIREMENT_NAME, target.getPosition()));
+    requirements.add(new ValueRequirement(REQUIREMENT_NAME, target.toSpecification()));
     final UnderlyingTimeSeriesProvider timeSeriesProvider = new UnderlyingTimeSeriesProvider(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context), _resolutionKey,
         context.getSecuritySource());
     requirements.add(timeSeriesProvider.getSeriesRequirement(GREEK, (FinancialSecurity) target.getPosition().getSecurity(), DateConstraint.VALUATION_TIME.minus(samplingPeriodName.iterator().next()),
@@ -171,9 +169,6 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!canApplyTo(context, target)) {
-      return null;
-    }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
@@ -182,8 +177,8 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+    results.add(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     return results;
   }
 
@@ -211,9 +206,9 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
+    results.add(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     return results;
   }
 

@@ -5,16 +5,15 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collection;
 import java.util.List;
 
-import javax.time.Duration;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.MissingInput;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Set of calculation results for displaying in the viewport of a grid of analytics data.
@@ -22,13 +21,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 public class ViewportResults {
 
   /** The result values by row. */
-  private final List<Cell> _allResults;
+  private final List<ResultsCell> _allResults;
   /** The grid columns. */
-  private final AnalyticsColumnGroups _columns;
+  private final GridColumnGroups _columns;
   /** Definition of the viewport. */
   private final ViewportDefinition _viewportDefinition;
   /** Duration of the last calculation cycle. */
   private final Duration _calculationDuration;
+  /** The time at which these results became available. */
+  private final Instant _valuationTime;
 
   /**
    * @param allResults Cells in the viewport containing the data, history and the value specification. The outer
@@ -36,35 +37,28 @@ public class ViewportResults {
    * @param viewportDefinition Definition of the rows and columns in the viewport
    * @param columns The columns in the viewport's grid
    */
-  /* package */ ViewportResults(List<Cell> allResults,
+  /* package */ ViewportResults(List<ResultsCell> allResults,
                                 ViewportDefinition viewportDefinition,
-                                AnalyticsColumnGroups columns,
-                                Duration calculationDuration) {
+                                GridColumnGroups columns,
+                                Duration calculationDuration, Instant valuationTime) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(calculationDuration, "calculationDuration");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
     _calculationDuration = calculationDuration;
+    _valuationTime = valuationTime;
   }
 
   /**
    * @return Cells in the viewport containing the data, history and the value specification. The outer
    * list contains the data by rows and the inner lists contain the data for each row
    */
-  /* package */ List<Cell> getResults() {
+  /* package */ List<ResultsCell> getResults() {
     return _allResults;
-  }
-
-  /**
-   *
-   * @return Whether the data is a summary or the full data. Summary data fits in a single grid cell whereas
-   * the full data might need more space. e.g. displaying matrix data in a window that pops up over the main grid.
-   */
-  /* package */ TypeFormatter.Format getFormat() {
-    return _viewportDefinition.getFormat();
   }
 
   /**
@@ -76,215 +70,44 @@ public class ViewportResults {
   }
 
   /**
-   * @param colIndex The column index in the grid (zero based)
-   * @return The type of the specified column
-   */
-  /* package */ Class<?> getColumnType(int colIndex) {
-    return _columns.getColumn(colIndex).getType();
-  }
-
-  /**
    * @return The duration of the last calculation cycle.
    */
-  public Duration getCalculationDuration() {
+  /* package */ Duration getCalculationDuration() {
     return _calculationDuration;
   }
-
+  
   /**
-   * Factory method that creates a grid cell for displaying a string value.
-   * @param value The cell's value
-   * @return A cell for displaying the value
+   * Gets the calculationTime.
+   * @return the calculationTime
    */
-  /* package */ static Cell stringCell(String value, int column) {
-    ArgumentChecker.notNull(value, "value");
-    return new Cell(value, null, null, column, null, null);
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
-
+  
+  /* package */ ViewportDefinition getViewportDefinition() {
+    return _viewportDefinition;
+  }
+  
   /**
-   * Factory method that creates a grid cell for displaying a calculated value.
-   * @param value The value
-   * @param valueSpecification The value's specification
-   * @param history The value's history
-   * @return A cell for displaying the value
+   * Gets the columns.
+   * @return the columns
    */
-  /* package */ static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history, int column) {
-    return new Cell(value, valueSpecification, history, column, null, null);
-  }
-
-  /**
-   * Factory method that returns a grid cell with no value.
-   * @return An empty cell
-   * @param emptyHistory Empty history appropriate for the cell's type. For types that support history it should
-   * be an empty collection, for types that don't it should be null.
-   * @param colIndex Index of the cell's grid column
-   */
-  /* package */ static Cell emptyCell(Collection<Object> emptyHistory, int colIndex) {
-    return new Cell(null, null, emptyHistory, colIndex, null, null);
-  }
-
-  /* package */ static Cell positionCell(String name, int colIndex, UniqueId positionId) {
-    return new Cell(name, null, null, colIndex, positionId, null);
-  }
-
-  /* package */ static Cell nodeCell(String name, int colIndex, UniqueId nodeId) {
-    return new Cell(name, null, null, colIndex, null, nodeId);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ViewportResults that = (ViewportResults) o;
-
-    if (!_columns.equals(that._columns)) {
-      return false;
-    }
-    if (!_viewportDefinition.equals(that._viewportDefinition)) {
-      return false;
-    }
-    if (!_allResults.equals(that._allResults)) {
-      return false;
-    }
-    return true;
+  public GridColumnGroups getColumns() {
+    return _columns;
   }
 
   @Override
   public int hashCode() {
-    int result = _allResults.hashCode();
-    result = 31 * result + _columns.hashCode();
-    result = 31 * result + _viewportDefinition.hashCode();
-    return result;
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
-  public String toString() {
-    return "ViewportResults [" +
-        "_allResults=" + _allResults +
-        ", _columns=" + _columns +
-        ", _viewportDefinition=" + _viewportDefinition +
-        "]";
+  public boolean equals(Object obj) {
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
-
-  /**
-   * A single grid cell in a set of results, including the cell's value, value specification and history.
-   */
-  /* package */ static class Cell {
-
-    private final Object _value;
-    private final ValueSpecification _valueSpecification;
-    private final Collection<Object> _history;
-    private final int _column;
-    private final UniqueId _positionId;
-    private final UniqueId _nodeId;
-
-    private Cell(Object value,
-                 ValueSpecification valueSpecification,
-                 Collection<Object> history,
-                 int column,
-                 UniqueId positionId,
-                 UniqueId nodeId) {
-      _value = value;
-      _valueSpecification = valueSpecification;
-      _history = history;
-      _column = column;
-      _positionId = positionId;
-      _nodeId = nodeId;
-    }
-
-    /**
-     * @return The cell's value, can be null
-     */
-    /* package */ Object getValue() {
-      return _value;
-    }
-
-    /**
-     * @return The cell's value specification, can be null
-     */
-    /* package */ ValueSpecification getValueSpecification() {
-      return _valueSpecification;
-    }
-
-    /**
-     * @return The cell's value history, can be null or empty
-     */
-    /* package */ Collection<Object> getHistory() {
-      return _history;
-    }
-
-    /**
-     * @return true if the cell's value couldn't be calculated because of an error
-     */
-    /* package */ boolean isError() {
-      return _value instanceof MissingInput;
-    }
-
-    /* package */ int getColumn() {
-      return _column;
-    }
-
-    /* package */ UniqueId getPositionId() {
-      return _positionId;
-    }
-
-    /* package */ UniqueId getNodeId() {
-      return _nodeId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      Cell cell = (Cell) o;
-
-      if (_column != cell._column) {
-        return false;
-      }
-      if (_history != null) {
-        if (!_history.equals(cell._history)) {
-          return false;
-        }
-      } else {
-        if (cell._history != null) {
-          return false;
-        }
-      }
-      if (_value != null) {
-        if (!_value.equals(cell._value)) {
-          return false;
-        }
-      } else {
-        if (cell._value != null) {
-          return false;
-        }
-      }
-      if (_valueSpecification != null) {
-        if (!_valueSpecification.equals(cell._valueSpecification)) {
-          return false;
-        }
-      } else {
-        if (cell._valueSpecification != null) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = _value != null ? _value.hashCode() : 0;
-      result = 31 * result + (_valueSpecification != null ? _valueSpecification.hashCode() : 0);
-      result = 31 * result + (_history != null ? _history.hashCode() : 0);
-      result = 31 * result + _column;
-      return result;
-    }
+  
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 }

@@ -9,10 +9,10 @@ package com.opengamma.integration.copier.portfolio.writer;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +45,10 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolio _portfolio;
 
-  
+  /** Generate one row per trade instead of one row per position */
+  private boolean _includeTrades;
+
   public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, Map<String, RowParser> rowParsers) {
-    
     super(sheet);
     
     ArgumentChecker.notNull(rowParsers, "rowParsers");
@@ -57,28 +58,72 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
     _currentNode = new ManageablePortfolioNode("Root");
     _portfolio = new ManageablePortfolio("Portfolio", _currentNode);
     _currentNode.setPortfolioId(_portfolio.getUniqueId());
+
+    _includeTrades = false;
+  }
+
+  public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, Map<String, RowParser> rowParsers, boolean includeTrades) {
+    this(sheet, rowParsers);
+    _includeTrades = includeTrades;
   }
     
   public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, String[] securityTypes) {
-    this(sheet, getParsers(securityTypes));    
+    this(sheet, getParsers(securityTypes));
+    _includeTrades = false;
   }
 
-  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, Map<String, RowParser> rowParsers) {
+  public SingleSheetMultiParserPortfolioWriter(SheetWriter sheet, String[] securityTypes, boolean includeTrades) {
+    this(sheet, securityTypes);
+    _includeTrades = includeTrades;
+  }
+
+  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream,
+                                               Map<String, RowParser> rowParsers) {
     this(SheetWriter.newSheetWriter(sheetFormat, outputStream, getColumns(rowParsers)), rowParsers);
+    _includeTrades = false;
   }  
+
+  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream,
+                                               Map<String, RowParser> rowParsers, boolean includeTrades) {
+    this(sheetFormat, outputStream, rowParsers);
+    _includeTrades = includeTrades;
+  }
 
   public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String[] securityTypes) {
     this(SheetWriter.newSheetWriter(sheetFormat, outputStream, getColumns(getParsers(securityTypes))), getParsers(securityTypes));
+    _includeTrades = false;
   }
-  
+
+  public SingleSheetMultiParserPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String[] securityTypes,
+                                               boolean includeTrades) {
+    this(sheetFormat, outputStream, securityTypes);
+    _includeTrades = includeTrades;
+  }
+
   public SingleSheetMultiParserPortfolioWriter(String filename, Map<String, RowParser> rowParsers) {
     this(SheetWriter.newSheetWriter(filename, getColumns(rowParsers)), rowParsers);
+    _includeTrades = false;
   }
-  
+
+  public SingleSheetMultiParserPortfolioWriter(String filename, Map<String, RowParser> rowParsers, boolean includeTrades) {
+    this(filename, rowParsers);
+    _includeTrades = includeTrades;
+  }
+
   public SingleSheetMultiParserPortfolioWriter(String filename, String[] securityTypes) {
     this(filename, getParsers(securityTypes));
+    _includeTrades = false;
   }
-  
+
+  public SingleSheetMultiParserPortfolioWriter(String filename, String[] securityTypes, boolean  includeTrades) {
+    this(filename, securityTypes);
+    _includeTrades = includeTrades;
+  }
+
+  @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
+  }
 
   private void writeSecurities(ManageableSecurity[] securities) {
         
@@ -91,7 +136,6 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
 
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
-
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(securities, "securities");
     
@@ -100,23 +144,62 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
     
     // Write position
     if (_currentParser != null) {
-      _currentRow.putAll(_currentParser.constructRow(position));
-      
-      List<ManageableTrade> trades = position.getTrades();
-      if (trades.size() > 1) {
-        s_logger.warn("Omitting extra trades: only one trade per position is currently supported");
-      }
-      if (trades.size() > 0) {
-        _currentRow.putAll(_currentParser.constructRow(trades.get(0)));
+
+//      List<ManageableTrade> trades = position.getTrades();
+//      if (trades.size() > 1) {
+//        s_logger.warn("Omitting extra trades: only one trade per position is currently supported");
+//      }
+//      if (trades.size() > 0) {
+//        _currentRow.putAll(_currentParser.constructRow(trades.get(0)));
+//      }
+
+      if (_includeTrades) {
+        // Write each trade as a separate row if the current position contains trades
+        if (position.getTrades().size() > 0) {
+          ManageablePosition subPosition = JodaBeanUtils.clone(position);
+          for (ManageableTrade trade : position.getTrades()) {
+            Map<String, String> tempRow = new HashMap<>();
+            tempRow.putAll(_currentRow);
+            tempRow.putAll(_currentParser.constructRow(trade));
+
+            // Set position quantity to its trade's quantity and write position
+            subPosition.setQuantity(trade.getQuantity());
+            tempRow.putAll(_currentParser.constructRow(subPosition));
+
+            // Flush out the current row with trade
+            if (!tempRow.isEmpty()) {
+              getSheet().writeNextRow(tempRow);
+            }
+          }
+        } else {
+          // Write position
+          _currentRow.putAll(_currentParser.constructRow(position));
+
+          // Flush out the current row (excluding trades)
+          if (!_currentRow.isEmpty()) {
+            getSheet().writeNextRow(_currentRow);
+          }
+        }
+      } else {
+        // Write position
+        _currentRow.putAll(_currentParser.constructRow(position));
+
+        // Export only the first trade of each position or none at all
+        if (!position.getTrades().isEmpty()) {
+          _currentRow.putAll(_currentParser.constructRow(position.getTrades().get(0)));
+        }
+        if (position.getTrades().size() > 1) {
+          s_logger.warn("Omitting extra trades: only one trade per position is supported in the current mode");
+        }
+        if (!_currentRow.isEmpty()) {
+          getSheet().writeNextRow(_currentRow);
+        }
       }
     }
-    
-    // Flush out the current row and prepare a new one
-    if (!_currentRow.isEmpty()) {
-      getSheet().writeNextRow(_currentRow);
-      _currentRow = new HashMap<String, String>();
-    }
-    
+
+    // Empty the current row buffer
+    _currentRow = new HashMap<String, String>();
+
     return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);
   }
 

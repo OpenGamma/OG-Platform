@@ -105,9 +105,16 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
 
   protected FinancialSecuritySource initUnderlying(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     FinancialSecuritySource source = new MasterFinancialSecuritySource(getUnderlyingSecurityMaster());
+    
+    // REVIEW kirk 2013-04-19 -- The block below should only be enabled when developing
+    // the RedisCachingFinancialSecuritySource.
+    /*JedisPool jedisPool = new JedisPool("localhost");
+    source = new RedisCachingFinancialSecuritySource(source, jedisPool, "", OpenGammaFudgeContext.getInstance());*/
+    
     if (getCacheManager() != null) {
       source = new EHCachingFinancialSecuritySource(source, getCacheManager());
     }
+    
     if (getUnderlyingClassifier() != null) {
       ComponentInfo info = new ComponentInfo(SecuritySource.class, getUnderlyingClassifier());
       info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -469,7 +476,7 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "cacheManager",

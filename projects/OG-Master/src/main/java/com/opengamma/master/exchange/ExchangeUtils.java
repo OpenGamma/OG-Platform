@@ -5,12 +5,11 @@
  */
 package com.opengamma.master.exchange;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
@@ -29,7 +28,7 @@ public class ExchangeUtils {
    * @param defaultTime a fallback time to use if a close time could not be established, if set to null, will return null in time field.
    * @return a pair of values, the end of trading period and the time zone or null if no exchange with that code was found.  Time can be null if defaultTime==null.
    */
-  public static Pair<LocalTime, TimeZone> getTradingCloseTime(ExchangeSource exchangeSource, ExternalId isoMic, LocalDate today, LocalTime defaultTime) {
+  public static Pair<LocalTime, ZoneId> getTradingCloseTime(ExchangeSource exchangeSource, ExternalId isoMic, LocalDate today, LocalTime defaultTime) {
     ManageableExchange exchange = (ManageableExchange) exchangeSource.getSingle(isoMic);
     if (exchange != null) {
       for (ManageableExchangeDetail detail : exchange.getDetail()) {

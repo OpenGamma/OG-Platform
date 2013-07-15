@@ -10,9 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -28,11 +29,12 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -52,8 +54,9 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * @deprecated Use the version of the function that does not refer to funding and forward curves
@@ -68,9 +71,10 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
+    final ComputationTargetSpecification positionSpec = target.toSpecification();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -81,14 +85,14 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
     final String surfaceName = getPropertyName(constraints.getValues(ValuePropertyNames.SURFACE));
     final ValueProperties.Builder forwardCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, forwardCurveName);
     final ValueRequirement forwardCurveSpecRequirement =
-        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), forwardCurveSpecProperties.get());
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), forwardCurveSpecProperties.get());
     final Object forwardCurveSpecObject = inputs.getValue(forwardCurveSpecRequirement);
     if (forwardCurveSpecObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveSpecRequirement);
     }
     final ValueProperties.Builder fundingCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName);
     final ValueRequirement fundingCurveSpecRequirement =
-        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), fundingCurveSpecProperties.get());
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), fundingCurveSpecProperties.get());
     final Object fundingCurveSpecObject = inputs.getValue(fundingCurveSpecRequirement);
     if (fundingCurveSpecObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + fundingCurveSpecRequirement);
@@ -99,12 +103,12 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
         forwardCurveName, surfaceName);
     final ValueProperties fundingCurveProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName,
         fundingCurveName, surfaceName);
-    final Object forwardCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, forwardCurveProperties));
+    final Object forwardCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, positionSpec, forwardCurveProperties));
     if (forwardCurveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + forwardCurveName);
     }
     final DoubleLabelledMatrix1D forwardCurveSensitivities = (DoubleLabelledMatrix1D) forwardCurveSensitivitiesObject;
-    final Object fundingCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, fundingCurveProperties));
+    final Object fundingCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, positionSpec, fundingCurveProperties));
     if (fundingCurveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + fundingCurveName);
     }
@@ -124,9 +128,6 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Security security = target.getPosition().getSecurity();
     return security instanceof SwaptionSecurity;
   }
@@ -134,6 +135,7 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Position position = target.getPosition();
+    final ComputationTargetSpecification positionSpec = target.toSpecification();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueProperties constraints = desiredValue.getConstraints();
@@ -161,14 +163,13 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
         surfaceName);
     final ValueProperties fundingSensitivityProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, fundingCurveName,
         surfaceName);
-    final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, forwardSensitivityProperties);
-    final ValueRequirement fundingCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, fundingSensitivityProperties);
+    final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, positionSpec, forwardSensitivityProperties);
+    final ValueRequirement fundingCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, positionSpec, fundingSensitivityProperties);
+    final ComputationTargetSpecification curveSpec = ComputationTargetSpecification.of(currency);
     final ValueProperties.Builder forwardCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, forwardCurveName);
-    final ValueRequirement forwardCurveSpecRequirement =
-        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), forwardCurveSpecProperties.get());
+    final ValueRequirement forwardCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, curveSpec, forwardCurveSpecProperties.get());
     final ValueProperties.Builder fundingCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName);
-    final ValueRequirement fundingCurveSpecRequirement =
-        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), fundingCurveSpecProperties.get());
+    final ValueRequirement fundingCurveSpecRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, curveSpec, fundingCurveSpecProperties.get());
     return Sets.newHashSet(forwardCurveRequirement, fundingCurveRequirement, forwardCurveSpecRequirement, fundingCurveSpecRequirement);
   }
 
@@ -260,7 +261,7 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " using the field " + MarketDataRequirementNames.MARKET_VALUE);
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {
         pnlSeries = nodeTimeSeries.multiply(sensitivity);

@@ -10,23 +10,24 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * A surface that is defined by a set of nodal points (i.e. <i>x-y-z</i> data) and an interpolator to return values of <i>z</i> for values 
- * of <i>(x, y)</i> that do not lie on nodal <i>(x, y)</i> values. 
+ * A surface that is defined by a set of nodal points (i.e. <i>x-y-z</i> data) and an interpolator to return values of <i>z</i> for values
+ * of <i>(x, y)</i> that do not lie on nodal <i>(x, y)</i> values.
  */
 public class InterpolatedDoublesSurface extends DoublesSurface {
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
@@ -37,7 +38,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   }
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
@@ -59,7 +60,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   }
 
   /**
-   * @param xyData An array of <i>x-y</i> data points, not null 
+   * @param xyData An array of <i>x-y</i> data points, not null
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x-y</i>
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
@@ -107,7 +108,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   }
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
@@ -120,7 +121,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   }
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
@@ -146,7 +147,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   }
 
   /**
-   * @param xyData An array of <i>x-y</i> data points, not null 
+   * @param xyData An array of <i>x-y</i> data points, not null
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x-y</i>
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
@@ -207,11 +208,11 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @return An interpolated surface with automatically-generated name.
    */
   public static InterpolatedDoublesSurface fromGrid(final double[] xVector, final double[] yVector, final double[] zData, final Interpolator2D interpolator) {
-    int nX = xVector.length;
-    int nY = yVector.length;
-    Validate.isTrue(zData.length == nX * nY, "Sizes not compatible");
-    double[] xData = new double[nX * nY];
-    double[] yData = new double[nX * nY];
+    final int nX = xVector.length;
+    final int nY = yVector.length;
+    ArgumentChecker.isTrue(zData.length == nX * nY, "Sizes not compatible");
+    final double[] xData = new double[nX * nY];
+    final double[] yData = new double[nX * nY];
     for (int loopy = 0; loopy < nY; loopy++) {
       System.arraycopy(xVector, 0, xData, loopy * nX, nX);
     }
@@ -227,15 +228,15 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   private Map<Double, Interpolator1DDataBundle> _data;
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
    */
   public InterpolatedDoublesSurface(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator) {
     super(xData, yData, zData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -248,8 +249,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator) {
     super(xData, yData, zData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -262,8 +263,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator) {
     super(xData, yData, zData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -275,8 +276,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final DoublesPair[] xyData, final double[] zData, final Interpolator2D interpolator) {
     super(xyData, zData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -288,8 +289,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D interpolator) {
     super(xyData, zData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -301,8 +302,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D interpolator) {
     super(xyData, zData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -313,8 +314,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final Map<DoublesPair, Double> xyzData, final Interpolator2D interpolator) {
     super(xyzData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -325,14 +326,14 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D interpolator) {
     super(xyzData);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
@@ -340,8 +341,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator, final String name) {
     super(xData, yData, zData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -355,8 +356,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator, final String name) {
     super(xData, yData, zData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -371,8 +372,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator,
       final String name) {
     super(xData, yData, zData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -385,8 +386,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final DoublesPair[] xyData, final double[] zData, final Interpolator2D interpolator, final String name) {
     super(xyData, zData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -399,8 +400,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D interpolator, final String name) {
     super(xyData, zData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -413,8 +414,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D interpolator, final String name) {
     super(xyData, zData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -426,8 +427,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final Map<DoublesPair, Double> xyzData, final Interpolator2D interpolator, final String name) {
     super(xyzData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
@@ -439,15 +440,15 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   public InterpolatedDoublesSurface(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D interpolator, final String name) {
     super(xyzData, name);
-    Validate.notNull(interpolator, "interpolator");
-    Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me
     _interpolator = (GridInterpolator2D) interpolator;
     init();
   }
 
   // TODO this logic should be in the interpolator
   private void init() {
-    final Map<DoublesPair, Double> map = new TreeMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> map = new TreeMap<>(new FirstThenSecondDoublesPairComparator());
     final double[] x = getXDataAsPrimitive();
     final double[] y = getYDataAsPrimitive();
     final double[] z = getZDataAsPrimitive();
@@ -462,8 +463,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   @Override
   public Double getZValue(final Double x, final Double y) {
-    Validate.notNull(x, "x");
-    Validate.notNull(y, "y");
+    ArgumentChecker.notNull(x, "x");
+    ArgumentChecker.notNull(y, "y");
     return _interpolator.interpolate(_data, new DoublesPair(x, y));
   }
 
@@ -472,7 +473,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    */
   @Override
   public Double getZValue(final Pair<Double, Double> xy) {
-    Validate.notNull(xy, "xy");
+    ArgumentChecker.notNull(xy, "xy");
     return _interpolator.interpolate(_data, DoublesPair.of(xy));
   }
 

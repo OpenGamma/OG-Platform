@@ -30,8 +30,6 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
 
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
-    validateSetup(grid, lowerBoundary1, upperBoundary1);
-    validateSetup(grid, lowerBoundary2, upperBoundary2);
     final int tNodes = grid.getNumTimeNodes();
     final int xNodes = grid.getNumSpaceNodes();
     final double theta = getTheta();
@@ -66,10 +64,10 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
     double[] x1st, x2nd;
 
     for (int i = 0; i < xNodes; i++) {
-      f[i] = pdeData1.getInitialValue(grid.getSpaceNode(i));
+      f[i] = pdeData1.getInitialCondition(grid.getSpaceNode(i));
     }
     for (int i = 0; i < xNodes; i++) {
-      f[i + xNodes] = pdeData2.getInitialValue(grid.getSpaceNode(i));
+      f[i + xNodes] = pdeData2.getInitialCondition(grid.getSpaceNode(i));
     }
 
     full1[0] = Arrays.copyOfRange(f, 0, xNodes);
@@ -145,74 +143,55 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
         m[xNodes + i][i] = dt * theta * lambda2;
       }
 
-      double[] temp = lowerBoundary1.getLeftMatrixCondition(pdeData1.getCoefficients(), grid, t2);
+      double[] temp = lowerBoundary1.getLeftMatrixCondition(null, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
 
-      temp = upperBoundary1.getLeftMatrixCondition(pdeData1.getCoefficients(), grid, t2);
+      temp = upperBoundary1.getLeftMatrixCondition(null, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes - 1][xNodes - temp.length + k] = temp[k];
       }
 
-      temp = lowerBoundary2.getLeftMatrixCondition(pdeData2.getCoefficients(), grid, t2);
+      temp = lowerBoundary2.getLeftMatrixCondition(null, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes][xNodes + k] = temp[k];
       }
 
-      temp = upperBoundary2.getLeftMatrixCondition(pdeData2.getCoefficients(), grid, t2);
+      temp = upperBoundary2.getLeftMatrixCondition(null, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[2 * xNodes - 1][2 * xNodes - temp.length + k] = temp[k];
       }
 
-      temp = lowerBoundary1.getRightMatrixCondition(pdeData1.getCoefficients(), grid, t1);
+      temp = lowerBoundary1.getRightMatrixCondition(null, grid, t1);
       double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary1.getConstant(pdeData1.getCoefficients(), t2);
+      q[0] = sum + lowerBoundary1.getConstant(null, t2);
 
-      temp = upperBoundary1.getRightMatrixCondition(pdeData1.getCoefficients(), grid, t1);
+      temp = upperBoundary1.getRightMatrixCondition(null, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[xNodes - 1] = sum + upperBoundary1.getConstant(pdeData1.getCoefficients(), t2);
+      q[xNodes - 1] = sum + upperBoundary1.getConstant(null, t2);
 
-      temp = lowerBoundary2.getRightMatrixCondition(pdeData2.getCoefficients(), grid, t1);
+      temp = lowerBoundary2.getRightMatrixCondition(null, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[xNodes] = sum + lowerBoundary2.getConstant(pdeData2.getCoefficients(), t2);
+      q[xNodes] = sum + lowerBoundary2.getConstant(null, t2);
 
-      temp = upperBoundary2.getRightMatrixCondition(pdeData2.getCoefficients(), grid, t1);
+      temp = upperBoundary2.getRightMatrixCondition(null, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[2 * xNodes - 1] = sum + upperBoundary2.getConstant(pdeData2.getCoefficients(), t2);
-
-      //TODO work out why SOR does not converge here
-      //      final DoubleMatrix2D mM = new DoubleMatrix2D(m);
-      //      final DecompositionResult res = DCOMP.evaluate(mM);
-      //      f = res.solve(q);
-
-      //      // SOR
-      //
-      //      int count = sor(omega, grid, freeBoundary, xNodes, f, q, m, t2);
-      //      if (oldCount > 0) {
-      //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
-      //          omega = Math.max(1.0, omega * 0.9);
-      //          omegaIncrease = false;
-      //        } else {
-      //          omega = Math.min(1.99, 1.1 * omega);
-      //          omegaIncrease = true;
-      //        }
-      //      }
-      //      oldCount = count;
+      q[2 * xNodes - 1] = sum + upperBoundary2.getConstant(null, t2);
 
       if (first) {
         final DoubleMatrix2D mM = new DoubleMatrix2D(m);

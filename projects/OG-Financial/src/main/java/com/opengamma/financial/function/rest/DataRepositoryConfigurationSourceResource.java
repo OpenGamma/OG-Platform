@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.engine.function.config.RepositoryConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.FunctionConfigurationBundle;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -30,14 +30,14 @@ public class DataRepositoryConfigurationSourceResource extends AbstractDataResou
   /**
    * The source.
    */
-  private final RepositoryConfigurationSource _source;
+  private final FunctionConfigurationSource _source;
 
   /**
    * Creates the resource, exposing the underlying source over REST.
    * 
    * @param source  the underlying source, not null
    */
-  public DataRepositoryConfigurationSourceResource(final RepositoryConfigurationSource source) {
+  public DataRepositoryConfigurationSourceResource(final FunctionConfigurationSource source) {
     ArgumentChecker.notNull(source, "source");
     _source = source;
   }
@@ -48,7 +48,7 @@ public class DataRepositoryConfigurationSourceResource extends AbstractDataResou
    * 
    * @return the source, not null
    */
-  public RepositoryConfigurationSource getRepositoryConfigurationSource() {
+  public FunctionConfigurationSource getRepositoryConfigurationSource() {
     return _source;
   }
 
@@ -61,7 +61,7 @@ public class DataRepositoryConfigurationSourceResource extends AbstractDataResou
   @GET
   @Path("repoConfigs/all")
   public Response getAll() {
-    RepositoryConfiguration result = getRepositoryConfigurationSource().getRepositoryConfiguration();
+    FunctionConfigurationBundle result = getRepositoryConfigurationSource().getFunctionConfiguration();
     return responseOkFudge(result);
   }
 

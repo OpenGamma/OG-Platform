@@ -16,10 +16,9 @@ import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -37,14 +36,13 @@ public class SensitivityPnLCalculatorTest {
   private static final double VOMMA_VALUE = 500.;
   private static final ValueGreekSensitivity RHO = new ValueGreekSensitivity(new ValueGreek(Greek.RHO), "A");
   private static final double RHO_VALUE = 600.;
-  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_MILLIS;
   private static final long[] TIMES = new long[] {400, 401};
   private static final double[] TS_SPOT_DATA = new double[] {0.4, 0.45};
   private static final double[] TS_IR_DATA = new double[] {0.3, 0.35};
   private static final double[] TS_IMP_VOL_DATA = new double[] {0.7, 0.75};
-  private static final DoubleTimeSeries<?> TS_SPOT = new FastArrayLongDoubleTimeSeries(ENCODING, TIMES, TS_SPOT_DATA);
-  private static final DoubleTimeSeries<?> TS_IR = new FastArrayLongDoubleTimeSeries(ENCODING, TIMES, TS_IR_DATA);
-  private static final DoubleTimeSeries<?> TS_IMP_VOL = new FastArrayLongDoubleTimeSeries(ENCODING, TIMES, TS_IMP_VOL_DATA);
+  private static final DoubleTimeSeries<?> TS_SPOT = ImmutableInstantDoubleTimeSeries.of(TIMES, TS_SPOT_DATA);
+  private static final DoubleTimeSeries<?> TS_IR = ImmutableInstantDoubleTimeSeries.of(TIMES, TS_IR_DATA);
+  private static final DoubleTimeSeries<?> TS_IMP_VOL = ImmutableInstantDoubleTimeSeries.of(TIMES, TS_IMP_VOL_DATA);
   private static final SensitivityAndReturnDataBundle[] DATA;
   private static final Function<SensitivityAndReturnDataBundle, DoubleTimeSeries<?>> CALCULATOR = new SensitivityPnLCalculator();
 
@@ -75,12 +73,10 @@ public class SensitivityPnLCalculatorTest {
   @Test
   public void test() {
     final DoubleTimeSeries<?> ts = CALCULATOR.evaluate(DATA);
-    final FastLongDoubleTimeSeries pnl = ts.toFastLongDoubleTimeSeries();
-    assertEquals(pnl.getEncoding(), ENCODING);
-    assertEquals(pnl.getTimeAt(0).longValue(), TIMES[0]);
-    assertEquals(pnl.getTimeAt(1).longValue(), TIMES[1]);
-    assertEquals(pnl.getValueAt(0), 680.5, 1e-9);
-    assertEquals(pnl.getValueAt(1), 775.875, 1e-9);
-
+    final PreciseDoubleTimeSeries<?> pnl = (PreciseDoubleTimeSeries<?>) ts;
+    assertEquals(pnl.getTimeAtIndexFast(0), TIMES[0]);
+    assertEquals(pnl.getTimeAtIndexFast(1), TIMES[1]);
+    assertEquals(pnl.getValueAtIndexFast(0), 680.5, 1e-9);
+    assertEquals(pnl.getValueAtIndexFast(1), 775.875, 1e-9);
   }
 }

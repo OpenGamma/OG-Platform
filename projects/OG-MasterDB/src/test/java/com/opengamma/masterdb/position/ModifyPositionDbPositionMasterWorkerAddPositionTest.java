@@ -11,15 +11,14 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.OffsetTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -29,10 +28,12 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -58,7 +59,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   @Test
   public void test_add_add() {
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     PositionDocument doc = new PositionDocument();
@@ -96,7 +97,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _posMaster.add(doc);
     
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     UniqueId uniqueId = test.getUniqueId();
     assertNotNull(uniqueId);
     assertEquals("DbPos", uniqueId.getScheme());
@@ -144,7 +145,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     doc.setPosition(position);
     PositionDocument test = _posMaster.add(doc);
     
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     UniqueId uniqueId = test.getUniqueId();
     assertNotNull(uniqueId);
     assertEquals("DbPos", uniqueId.getScheme());
@@ -208,7 +209,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   @Test
   public void test_addWithTwoTrades_add() {
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     
     OffsetDateTime offsetDateTime = OffsetDateTime.now();
     
@@ -248,7 +249,6 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
       assertTrue(portfolioId.isVersioned());
       assertTrue(Long.parseLong(portfolioId.getValue()) >= 1000);
       assertEquals("0", portfolioId.getVersion());
-      assertEquals(portfolioId, testTrade.getParentPositionId());
     }
   }
 
@@ -348,7 +348,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   @Test
   public void test_addTradeDeal_add() {
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
         
@@ -416,6 +416,70 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(fromDb.getUniqueId());
     
     assertEquals(added, fromDb);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingQuantityProperty() {
+    ManageablePosition position = new ManageablePosition();
+    PositionDocument doc = new PositionDocument(position);
+    _posMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    PositionDocument doc = new PositionDocument(position);
+    _posMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addTradeWithMissingTradeDateProperty() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
+    trade.setQuantity(BigDecimal.ONE);
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    _posMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addTradeWithMissingCounterpartyExternalIdProperty() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setTradeDate(_now.toLocalDate());
+    trade.setQuantity(BigDecimal.ONE);
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    _posMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addTradeWithMissingQuantityProperty() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setTradeDate(_now.toLocalDate());
+    trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    _posMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addTradeWithMinimalProperties() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setTradeDate(_now.toLocalDate());
+    trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
+    trade.setQuantity(BigDecimal.ONE);
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    _posMaster.add(doc);
   }
 
 }

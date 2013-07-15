@@ -14,13 +14,13 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackGammaSpotFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackValueGammaSpotFunction;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function to compute the Gamma Spot of Forex options in the Black model.
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see FXOptionBlackGammaSpotFunction
+ * @see FXOptionBlackValueGammaSpotFunction
  */
 @Deprecated
 public class FXOptionBlackGammaSpotFunctionDeprecated extends FXOptionBlackSingleValuedFunctionDeprecated {
@@ -36,7 +36,7 @@ public class FXOptionBlackGammaSpotFunctionDeprecated extends FXOptionBlackSingl
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final CurrencyAmount result = CALCULATOR.visit(fxOption, data);
+    final CurrencyAmount result = fxOption.accept(CALCULATOR, data);
     final double gammaValue = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
     return Collections.singleton(new ComputedValue(spec, gammaValue));
   }

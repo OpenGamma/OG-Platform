@@ -79,7 +79,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
   private String _exchange;
 
   EquityOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityOptionSecurity(OptionType optionType, double strike, Currency currency, ExternalId underlyingIdentifier,
@@ -478,7 +478,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "optionType",
         "strike",
         "currency",

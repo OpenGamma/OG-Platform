@@ -1,0 +1,137 @@
+/**
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-blotter-form-block section{
+    margin-bottom:10px;
+}
+.OG-blotter-dialog input{
+    width: auto;
+}
+.OG-blotter-dialog input[type="text"]{
+    width: 50%;
+}
+.OG-blotter-dialog select{
+    width: 50%;
+}
+.OG-blotter-form-block .og-triple-cell div{
+    width:96%;
+}
+.OG-blotter-form-block .og-triple-cell span{
+    width: 33%;
+    padding-right:1%;
+    display: inline-block;
+}
+.OG-blotter-form-block .og-triple-cell span:last-child{
+    width: 32%;
+    padding-right: 0;
+}
+.OG-blotter-form-block .og-triple-cell input[type="text"],
+.OG-blotter-form-block .og-triple-cell select {
+    width: 100%;
+}
+.OG-blotter-form-block .og-double-cell div{
+    width:96%;
+}
+.OG-blotter-form-block .og-double-cell span{
+    width: 49%;
+    padding-right:1%;
+    display: inline-block;
+}
+.OG-blotter-form-block .og-double-cell span + span{
+    padding-right:0;
+}
+.OG-blotter-form-block .og-double-cell label{
+    margin-left:3%
+}
+.OG-blotter-form-block .og-double-cell label span{
+    width: 65%
+}
+.OG-blotter-form-block label input[type=radio] {
+    vertical-align: top;
+}
+.OG-blotter-form-block .og-double-cell span:last-child{
+    width: 50%;
+    padding-right: 0;
+}
+.OG-blotter-form-block .og-double-cell input[type="text"],
+.OG-blotter-form-block .og-double-cell select {
+    width: 100%;
+}
+.OG-blotter-form-block .og-attribute-cell input[type="text"]{
+    width: 43%;
+}
+.OG-blotter-form-block .OG-table{
+    margin-top: 2px;
+}
+.OG-blotter-form-block label{
+    display: inline;
+}
+.OG-blotter-form-block .og-awesome-list {
+   	background-color: #FFFFFF;
+    border: 1px solid #E3E3E3;
+    height: 71px;
+    margin-top: 4px;
+    overflow-y: scroll;
+    width: 97%;
+}
+.OG-blotter-form-block .og-blotter-portfolio {
+    margin-top: 0!important;
+}
+.OG-blotter-error-block {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.OG-blotter-trade-select {
+    margin-left: 15px;
+}
+.OG-blotter-trade-select h3, h2{
+    padding: 10px 0;
+}
+.OG-blotter-trade-select a{
+    background: none repeat scroll 0 0 transparent;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+.OG-blotter-trade-select li{
+    display: block;
+    padding-top: 2px;
+}
+.OG-blotter-trade-select ul{
+    padding bottom: 10px;
+    padding-left: 10px;
+    white-space: nowrap;
+}
+.OG-blotter-trade-select hr{
+    margin-top: 20px;
+    width: 90%;
+}
+.OG-blotter-trade-select .existing-table{
+    margin-top: 15px;
+    width: 90%;
+}
+.OG-blotter-trade-select table{
+    width: 100%;
+}
+.OG-blotter-trade-select td{
+    vertical-align: top;
+}
+.OG-blotter-trade-save{
+    display: none;
+}
+.OG-blotter-form-block .og-blotter-portfolio .premium-toggle{
+    cursor:pointer;
+}
+.OG-blotter-form-block .og-blotter-portfolio .hidden {
+    display: none;
+}
+.OG-blotter-form-block .og-double-cell span{
+    padding-right: 3%;
+    width: 47%;
+}
+.OG-blotter-form-block .premium-toggle .og-icon-down {
+    top: -5px;
+    right: -2px;
+}

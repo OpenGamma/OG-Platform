@@ -1,0 +1,23 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.cache.msg {
+
+  /**
+   * States that the connection this is sent on is part of a bundle, and asynchronous state messages
+   * from the server must not be sent down it. For example a cache client may use two connections,
+   * one for "put" and one for "get" so that a big "put" from the previous calculation can't delay a
+   * "get" needed for the next. One of these is then nominated a slave. 
+   */
+  message SlaveChannelMessage extends CacheMessage {
+  
+    binding Java {
+      body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitSlaveChannelMessage (this); }";
+    }
+    
+  }
+
+}

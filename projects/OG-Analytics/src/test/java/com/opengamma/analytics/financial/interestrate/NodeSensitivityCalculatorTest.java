@@ -14,10 +14,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -39,6 +38,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -47,17 +47,17 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public abstract class NodeSensitivityCalculatorTest {
 
-  protected static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
-  protected static final String FORWARD_CURVE_NAME = "USD Forward 3M";
-  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
+  private static final String FORWARD_CURVE_NAME = "USD Forward 3M";
+  private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
-  protected static final YieldCurveBundle CURVE_BUNDLE_YIELD;
-  protected static final YieldAndDiscountCurve DISCOUNTING_YIELD_CURVE;
-  protected static final YieldAndDiscountCurve FORWARD_YIELD_CURVE;
+  private static final YieldCurveBundle CURVE_BUNDLE_YIELD;
+  private static final YieldAndDiscountCurve DISCOUNTING_YIELD_CURVE;
+  private static final YieldAndDiscountCurve FORWARD_YIELD_CURVE;
 
-  protected static final YieldCurveBundle CURVE_BUNDLE_DISCOUNTING;
-  protected static final YieldAndDiscountCurve DISCOUNTING_DISCOUNTING_CURVE;
-  protected static final YieldAndDiscountCurve FORWARD_DISCOUNTING_CURVE;
+  private static final YieldCurveBundle CURVE_BUNDLE_DISCOUNTFACTOR;
+  private static final YieldAndDiscountCurve DISCOUNTING_DF_CURVE;
+  private static final YieldAndDiscountCurve FORWARD_DF_CURVE;
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
@@ -68,25 +68,25 @@ public abstract class NodeSensitivityCalculatorTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 6, 29);
   private static final ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USDLIBOR6M.getSpotLag(), NYC);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, USD6MLIBOR3M, SWAP_NOTIONAL, SWAP_RATE, true);
-  protected static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
+  private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
       FLAT_EXTRAPOLATOR);
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_CS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, LINEAR_EXTRAPOLATOR,
       FLAT_EXTRAPOLATOR);
 
-  protected static final double TOLERANCE_SENSI = 1.0E-6;
+  private static final double TOLERANCE_SENSI = 1.0E-6;
 
   static {
-    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0};
-    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0};
+    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0 };
+    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0 };
 
-    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03};
-    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032};
+    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03 };
+    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032 };
 
     DISCOUNTING_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
     FORWARD_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
-    LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<>();
     curvesY.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_YIELD_CURVE);
     curvesY.put(FORWARD_CURVE_NAME, FORWARD_YIELD_CURVE);
     CURVE_BUNDLE_YIELD = new YieldCurveBundle(curvesY);
@@ -100,12 +100,12 @@ public abstract class NodeSensitivityCalculatorTest {
       fwdCurveDf[loopnode] = Math.exp(-fwdCurveNodes[loopnode] * fwdCurveYields[loopnode]);
     }
 
-    DISCOUNTING_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveDf, INTERPOLATOR_DQ));
-    FORWARD_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveDf, INTERPOLATOR_CS));
-    LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_DISCOUNTING_CURVE);
-    curvesDF.put(FORWARD_CURVE_NAME, FORWARD_DISCOUNTING_CURVE);
-    CURVE_BUNDLE_DISCOUNTING = new YieldCurveBundle(curvesDF);
+    DISCOUNTING_DF_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveDf, INTERPOLATOR_DQ));
+    FORWARD_DF_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveDf, INTERPOLATOR_CS));
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<>();
+    curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_DF_CURVE);
+    curvesDF.put(FORWARD_CURVE_NAME, FORWARD_DF_CURVE);
+    CURVE_BUNDLE_DISCOUNTFACTOR = new YieldCurveBundle(curvesDF);
   }
 
   protected abstract NodeYieldSensitivityCalculator getCalculator();
@@ -138,9 +138,9 @@ public abstract class NodeSensitivityCalculatorTest {
   public void testWithKnownYieldCurve() {
     final YieldCurveBundle fixedCurve = new YieldCurveBundle();
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_YIELD_CURVE);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_YIELD_CURVE);
-    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
+    final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = getSensitivityCalculator();
     final DoubleMatrix1D result = getCalculator().calculateSensitivities(SWAP, sensitivityCalculator, fixedCurve, fittingCurve);
@@ -151,18 +151,18 @@ public abstract class NodeSensitivityCalculatorTest {
   @Test
   public void testWithKnownDiscountingCurve() {
     final YieldCurveBundle fixedCurve = new YieldCurveBundle();
-    fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_DISCOUNTING_CURVE);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_DISCOUNTING_CURVE);
-    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
+    fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_DF_CURVE);
+    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<>();
+    fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_DF_CURVE);
+    final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = getSensitivityCalculator();
     final DoubleMatrix1D result = getCalculator().calculateSensitivities(SWAP, sensitivityCalculator, fixedCurve, fittingCurve);
     final DoubleMatrix1D resultFdDf = finiteDiffNodeSensitivitiesDsc(SWAP, valueCalculator, fixedCurve, fittingCurve); // Sensi with respect to df
     final double[] resultFdY = new double[resultFdDf.getNumberOfElements()];
     for (int loopnode = 0; loopnode < resultFdDf.getNumberOfElements(); loopnode++) {
-      resultFdY[loopnode] = -resultFdDf.getEntry(loopnode) * ((DiscountCurve) FORWARD_DISCOUNTING_CURVE).getCurve().getXData()[loopnode]
-          * ((DiscountCurve) FORWARD_DISCOUNTING_CURVE).getCurve().getYData()[loopnode];
+      resultFdY[loopnode] = -resultFdDf.getEntry(loopnode) * ((DiscountCurve) FORWARD_DF_CURVE).getCurve().getXData()[loopnode]
+          * ((DiscountCurve) FORWARD_DF_CURVE).getCurve().getYData()[loopnode];
     }
     assertArrayEquals("Sensitivity to rates: DiscountingCurve", resultFdY, result.getData(), TOLERANCE_SENSI);
   }
@@ -203,7 +203,7 @@ public abstract class NodeSensitivityCalculatorTest {
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);
         }
-        return valueCalculator.visit(ird, curves);
+        return ird.accept(valueCalculator, curves);
       }
     };
 
@@ -218,6 +218,7 @@ public abstract class NodeSensitivityCalculatorTest {
       final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
     int nNodes = 0;
     for (final String curveName : interpolatedCurves.getAllNames()) {
+      ArgumentChecker.isTrue(interpolatedCurves.getCurve(curveName) instanceof DiscountCurve, "Curve should be DiscountCurve");
       final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) ((DiscountCurve) interpolatedCurves.getCurve(curveName)).getCurve()).getDataBundle();
       nNodes += dataBundle.size();
     }
@@ -247,7 +248,7 @@ public abstract class NodeSensitivityCalculatorTest {
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);
         }
-        return valueCalculator.visit(ird, curves);
+        return ird.accept(valueCalculator, curves);
       }
     };
 
@@ -256,4 +257,19 @@ public abstract class NodeSensitivityCalculatorTest {
     return grad.evaluate(new DoubleMatrix1D(df));
   }
 
+  protected InstrumentDerivative getSwap() {
+    return SWAP;
+  }
+
+  protected YieldCurveBundle getYieldCurve() {
+    return CURVE_BUNDLE_YIELD;
+  }
+
+  protected YieldCurveBundle getDiscountCurve() {
+    return CURVE_BUNDLE_DISCOUNTFACTOR;
+  }
+
+  protected double getTolerance() {
+    return TOLERANCE_SENSI;
+  }
 }

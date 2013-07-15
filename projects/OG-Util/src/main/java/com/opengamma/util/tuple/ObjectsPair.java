@@ -39,7 +39,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable 
    * @return a pair formed from the two parameters, not null
    */
   public static <A, B> ObjectsPair<A, B> of(A first, B second) {
-    return new ObjectsPair<A, B>(first, second);
+    return new ObjectsPair<>(first, second);
   }
 
   /**

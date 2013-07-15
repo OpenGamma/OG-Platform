@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.test.TestViewDefinitionProvider;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ViewDefinitionBuilder
  */
+@Test(groups = TestGroup.UNIT)
 public class ViewDefinitionBuilderTest extends AbstractFudgeBuilderTestCase {
   
   @Test

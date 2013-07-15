@@ -17,17 +17,17 @@ import org.testng.annotations.Test;
 
 import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DistributedAuditLoggerTest {
-  
+
   private static final FudgeContext s_fudgeContext = new FudgeContext ();
-  
+
   public void testClientServerAuditLogging() {
-    
     CollectingByteArrayMessageSender msgStore = new CollectingByteArrayMessageSender();
     assertEquals(0, msgStore.getMessages().size());
     

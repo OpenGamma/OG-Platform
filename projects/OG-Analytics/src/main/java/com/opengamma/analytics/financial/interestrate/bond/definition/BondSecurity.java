@@ -13,6 +13,8 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Describes a generic single currency bond issue.
@@ -45,11 +47,11 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * Bond constructor from the bond nominal and coupon.
    * @param nominal The notional payments.
    * @param coupon The bond coupons.
-   * @param settlementTime The time (in years) to settlement date. 
+   * @param settlementTime The time (in years) to settlement date.
    * @param discountingCurveName The name of the curve used for settlement amount discounting.
    * @param issuer The bond issuer name.
    */
-  public BondSecurity(Annuity<N> nominal, Annuity<C> coupon, double settlementTime, String discountingCurveName, String issuer) {
+  public BondSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final String discountingCurveName, final String issuer) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(discountingCurveName, "Repo curve name");
@@ -110,6 +112,14 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
   }
 
   /**
+   * Gets the bond issuer name and currency.
+   * @return The name/currency.
+   */
+  public Pair<String, Currency> getIssuerCcy() {
+    return new ObjectsPair<>(_issuer, _nominal.getCurrency());
+  }
+
+  /**
    * Gets the name of the curve used for discounting.
    * @return The curve name.
    */
@@ -135,7 +145,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -145,7 +155,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondSecurity<?, ?> other = (BondSecurity<?, ?>) obj;
+    final BondSecurity<?, ?> other = (BondSecurity<?, ?>) obj;
     if (!ObjectUtils.equals(_coupon, other._coupon)) {
       return false;
     }

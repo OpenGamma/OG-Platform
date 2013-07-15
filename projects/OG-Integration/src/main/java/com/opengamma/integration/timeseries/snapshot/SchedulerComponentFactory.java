@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.quartz.Scheduler;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import com.opengamma.component.ComponentInfo;
@@ -42,7 +43,8 @@ public class SchedulerComponentFactory extends AbstractComponentFactory {
     ComponentInfo info = new ComponentInfo(Scheduler.class, getClassifier());
     
     Properties quartzProperties = new Properties();
-    quartzProperties.setProperty("org.quartz.scheduler.jmx.export", "true");
+    quartzProperties.setProperty(StdSchedulerFactory.PROP_SCHED_JMX_EXPORT, "true");
+    quartzProperties.setProperty(StdSchedulerFactory.PROP_SCHED_SKIP_UPDATE_CHECK, "true");
     
     SchedulerFactoryBean schedulerBean = new SchedulerFactoryBean();
     schedulerBean.setWaitForJobsToCompleteOnShutdown(true);
@@ -160,7 +162,7 @@ public class SchedulerComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier");
 
     /**

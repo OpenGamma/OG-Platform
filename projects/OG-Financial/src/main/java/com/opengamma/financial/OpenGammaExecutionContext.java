@@ -9,13 +9,24 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsResolver;
+import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.id.ExternalId;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionExecutionContext}.
@@ -43,7 +54,26 @@ public final class OpenGammaExecutionContext {
   private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
 
   /**
+   * The name under which an instance of {@link ConventionSource} should be bound.
+   */
+  private static final String CONVENTION_SOURCE_NAME = "conventionSource";
+
+  /**
+   * The name under which an instance of {@link ConfigMaster} should be bound. The config source must return elements from this master, but may return additional elements other sources/masters too.
+   * <p>
+   * This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This allows the flexibility
+   * to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   */
+  public static final String CONFIG_MASTER_NAME = "configMaster";
+
+  /**
    * The name under which an instance of {@link ConfigSource} should be bound.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    */
   public static final String CONFIG_SOURCE_NAME = "configSource";
 
@@ -61,6 +91,14 @@ public final class OpenGammaExecutionContext {
    * The name under which an instance of {@link CurveCalculationConfigSource} should be bound.
    */
   public static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
+
+  /**
+   * The name under which an instance of {@link ViewProcessor} should be bound. The view processor might not be the same one that an execution is being performed on behalf of, but one which can be
+   * used for nested/slave computations. The view processor should use the {@link #CONFIG_MASTER_NAME} from this context so that dynamically created view definitions are visible.
+   */
+  public static final String VIEW_PROCESSOR_NAME = "viewProcessor";
+
+  private static final String CURRENCY_PAIRS_SOURCE = "currencyPairsSource";
 
   /**
    * Restricted constructor.
@@ -129,6 +167,26 @@ public final class OpenGammaExecutionContext {
     context.put(CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
   }
 
+  /**
+   * Gets a {@link ConventionSource} from the context.
+   * 
+   * @param context the context to examine, not null
+   * @return the value, null if not found
+   */
+  public static ConventionSource getConventionSource(final FunctionExecutionContext context) {
+    return (ConventionSource) context.get(CONVENTION_SOURCE_NAME);
+  }
+
+  /**
+   * Stores a {@code ConventionSource} in the context.
+   * 
+   * @param context the context to store in, not null
+   * @param conventionSource the value to store, not null
+   */
+  public static void setConventionSource(final FunctionExecutionContext context, final ConventionSource conventionSource) {
+    context.put(CONVENTION_SOURCE_NAME, conventionSource);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets a {@code RegionSource} from the context.
@@ -173,6 +231,27 @@ public final class OpenGammaExecutionContext {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets a {@code OrganizationSource} from the context.
+   *
+   * @param context the context to examine, not null
+   * @return the value, null if not found
+   */
+  public static OrganizationSource getOrganizationSource(final FunctionExecutionContext context) {
+    return context.getOrganizationSource();
+  }
+
+  /**
+   * Stores a {@code OrganizationSource} in the context.
+   *
+   * @param context the context to store in, not null
+   * @param organizationSource the value to store, not null
+   */
+  public static void setOrganizationSource(final FunctionExecutionContext context, final OrganizationSource organizationSource) {
+    context.setOrganizationSource(organizationSource);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets a {@code ExchangeSource} from the context.
    * 
    * @param context the context to examine, not null
@@ -212,7 +291,26 @@ public final class OpenGammaExecutionContext {
     context.put(CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Gets a {@code ConfigMaster} from the context.
+   * 
+   * @param context the context to examine, not null
+   * @return the value, null if not found
+   */
+  public static ConfigMaster getConfigMaster(final FunctionExecutionContext context) {
+    return (ConfigMaster) context.get(CONFIG_MASTER_NAME);
+  }
+
+  /**
+   * Stores a {@code ConfigMaster} in the context.
+   * 
+   * @param context the context to store in, not null
+   * @param configMaster the config master instance to store, not null
+   */
+  public static void setConfigMaster(final FunctionExecutionContext context, final ConfigMaster configMaster) {
+    context.put(CONFIG_MASTER_NAME, configMaster);
+  }
+
   /**
    * Gets a {@code ConfigSource} from the context.
    * 
@@ -240,4 +338,42 @@ public final class OpenGammaExecutionContext {
   public static void setOverrideOperationCompiler(final FunctionExecutionContext context, final OverrideOperationCompiler overrideOperationCompiler) {
     context.put(OVERRIDE_OPERATION_COMPILER_NAME, overrideOperationCompiler);
   }
+
+  public static ViewProcessor getViewProcessor(final FunctionExecutionContext context) {
+    return (ViewProcessor) context.get(VIEW_PROCESSOR_NAME);
+  }
+
+  public static void setViewProcessor(final FunctionExecutionContext context, final ViewProcessor viewProcessor) {
+    context.put(VIEW_PROCESSOR_NAME, viewProcessor);
+  }
+
+  /**
+   * @deprecated [PLAT-2782] interim measure to move away from direct use of a config source
+   */
+  @Deprecated
+  public static CurrencyPairsSource getCurrencyPairsSource(final FunctionExecutionContext context) {
+    final ComputationTargetResolverWrapper resolver = new ComputationTargetResolverWrapper(context.getComputationTargetResolver());
+    return new CurrencyPairsSource() {
+
+      @Override
+      public CurrencyPairs getCurrencyPairs(String name) {
+        if (name == null) {
+          name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+        }
+        return (CurrencyPairs) resolver.get(CurrencyPairs.TYPE, ExternalId.of(CurrencyPairsResolver.IDENTIFIER_SCHEME, name));
+      }
+
+      @Override
+      public CurrencyPair getCurrencyPair(final String name, final Currency currency1, final Currency currency2) {
+        ArgumentChecker.notNull(currency1, "currency1");
+        ArgumentChecker.notNull(currency2, "currency2");
+        final CurrencyPairs currencyPairs = getCurrencyPairs(name);
+        if (currencyPairs == null) {
+          return null;
+        }
+        return currencyPairs.getCurrencyPair(currency1, currency2);
+      }
+    };
+  }
+
 }

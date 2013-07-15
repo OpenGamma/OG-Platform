@@ -10,8 +10,8 @@ import java.util.Map;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
  * This service handles the relationship between running {@link ViewClient}s and {@link StructuredMarketDataSnapshot}s.

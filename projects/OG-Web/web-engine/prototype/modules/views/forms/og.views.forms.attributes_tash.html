@@ -1,0 +1,35 @@
+<section class="og-attributes" id="{{id}}">
+  <div class="og-js-deal-attributes">
+    <table class="OG-table">
+    <thead>
+      <tr>
+        <th>
+          <span><em>Attributes</em></span>
+        </th>
+      </tr>
+    </thead>   
+    <tbody>
+      <tr>
+        <td class="og-attribute-cell">        
+          <input type="text" class="attr_key"> =
+          <input type="text" class="attr_val">
+          <a class="OG-link-add og-js-add-attribute" href="#">add</a>
+        </td>
+      </tr>
+      <tr>
+        <td>    
+          <ul class="og-awesome-list og-attributes-add-list">
+            {{#each data}}
+              <li>
+                <div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}
+                <input type="hidden" class="og-attributes-key" value="{{{key}}} "/>
+                <input type="hidden" class="og-attributes-value" value="{{{value}}}"/>
+              </li>
+            {{/each}}
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+    </table> 
+  </div>
+</section>

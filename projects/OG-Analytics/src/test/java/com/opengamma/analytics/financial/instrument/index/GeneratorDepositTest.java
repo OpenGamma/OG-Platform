@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.index.generator.USDDeposit;
@@ -108,7 +108,8 @@ public class GeneratorDepositTest {
     Period tenor = Period.ofMonths(6);
     double rate = 0.01;
     double notional = 12345;
-    CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, tenor, rate, notional);
+    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor);
+    CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, rate, notional, attribute);
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
     ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
     double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);

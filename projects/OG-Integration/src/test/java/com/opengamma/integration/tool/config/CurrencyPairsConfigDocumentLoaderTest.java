@@ -14,7 +14,12 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CurrencyPairsConfigDocumentLoaderTest {
 
   @Test

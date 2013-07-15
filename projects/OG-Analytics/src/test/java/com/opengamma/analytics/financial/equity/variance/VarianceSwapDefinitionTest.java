@@ -5,44 +5,44 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class VarianceSwapDefinitionTest {
 
-  private final ZonedDateTime now = ZonedDateTime.now();
-  private final ZonedDateTime tPlus2 = now.plusDays(2);
+  private static final ZonedDateTime now = ZonedDateTime.now();
+  private static final ZonedDateTime tPlus2 = now.plusDays(2);
   @SuppressWarnings("unused")
-  private final ZonedDateTime plus1y = now.plusYears(1);
-  private final ZonedDateTime plus5y = now.plusYears(5);
-  private final PeriodFrequency obsFreq = PeriodFrequency.DAILY;
-  private final Currency ccy = Currency.EUR;
+  private static final ZonedDateTime plus1y = now.plusYears(1);
+  private static final ZonedDateTime plus5y = now.plusYears(5);
+  private static final PeriodFrequency obsFreq = PeriodFrequency.DAILY;
+  private static final Currency ccy = Currency.EUR;
   private static final Calendar WEEKENDCAL = new MondayToFridayCalendar("WEEKEND");
-  private final double obsPerYear = 250;
-  private final double volStrike = 0.25;
-  private final double volNotional = 1.0E6;
+  private static final double obsPerYear = 250;
+  private static final double volStrike = 0.25;
+  private static final double volNotional = 1.0E6;
 
-  private final DoubleTimeSeries<LocalDate> emptyTimeSeries = new ArrayLocalDateDoubleTimeSeries(new LocalDate[0], new double[0]);
+  private final DoubleTimeSeries<LocalDate> emptyTimeSeries = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   @Test
   public void forwardStarting() {
     // Construct a forward starting swap, Definition
     final VarianceSwapDefinition varSwapDefn = new VarianceSwapDefinition(tPlus2, plus5y, plus5y, obsFreq, ccy, WEEKENDCAL, obsPerYear, volStrike, volNotional);
-    // Construct a forward starting swap, Derivative 
-    varSwapDefn.toDerivative(now, emptyTimeSeries);
+    // Construct a forward starting swap, Derivative
+    varSwapDefn.toDerivative(now, emptyTimeSeries, ArrayUtils.EMPTY_STRING_ARRAY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

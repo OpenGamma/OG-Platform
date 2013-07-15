@@ -10,8 +10,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.timeseries.TimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.InstantDoubleTimeSeries;
 
 /**
  * 
@@ -36,8 +35,8 @@ public class LiMcLeodPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase 
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    final TimeSeries<Long, Double> subSeries = RANDOM.subSeries(RANDOM.getTimeAt(0), RANDOM.getTimeAt(3));
-    LI_MCLEOD.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
+    final InstantDoubleTimeSeries subSeries = RANDOM.subSeries(RANDOM.getTimeAtIndex(0), RANDOM.getTimeAtIndex(3));
+    LI_MCLEOD.evaluate(subSeries);
   }
 
   @Test

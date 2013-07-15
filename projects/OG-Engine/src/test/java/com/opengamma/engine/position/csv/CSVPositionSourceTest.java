@@ -27,11 +27,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test CSVPositionSource.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class CSVPositionSourceTest {
 
   private static UniqueId UID = UniqueId.of("A", "B");
@@ -121,23 +122,23 @@ public class CSVPositionSourceTest {
     
     // Loaded correctly
     ObjectId[] portIds = pm.getPortfolioIds().toArray(new ObjectId[0]);
-    Portfolio port1 = pm.getPortfolio(portIds[0].atVersion("0"));
+    Portfolio port1 = pm.getPortfolio(portIds[0].atVersion("0"), VersionCorrection.LATEST);
     assertEquals(6, port1.getRootNode().getPositions().size());   
-    Portfolio port2 = pm.getPortfolio(portIds[1].atVersion("0"));
+    Portfolio port2 = pm.getPortfolio(portIds[1].atVersion("0"), VersionCorrection.LATEST);
     assertEquals(4, port2.getRootNode().getPositions().size());
     Portfolio port2b = pm.getPortfolio(portIds[1], VersionCorrection.LATEST);
     assertEquals(4, port2b.getRootNode().getPositions().size());
     
     // Unknown portfolio
     try {
-      pm.getPortfolio(UniqueId.of("Wrong scheme", "Irrelevant value"));
+      pm.getPortfolio(UniqueId.of("Wrong scheme", "Irrelevant value"), VersionCorrection.LATEST);
       fail();
     } catch (DataNotFoundException ex) {
       // expected
     }
     
     // Retrieval by root node
-    PortfolioNode rootNode1 = pm.getPortfolioNode(port1.getRootNode().getUniqueId());
+    PortfolioNode rootNode1 = pm.getPortfolioNode(port1.getRootNode().getUniqueId(), VersionCorrection.LATEST);
     assertEquals(6, rootNode1.getPositions().size());
     
     // Retrieval by position

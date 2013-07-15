@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import com.opengamma.id.ExternalId;
@@ -22,7 +23,12 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-public class LiveDataSpecification {
+public class LiveDataSpecification implements Serializable {
+
+  /**
+   * Serialization version.
+   */
+  private static final long serialVersionUID = 6038819203285248721L;
 
   /**
    * The external identifier bundle describing the desired data, such as the ticker.

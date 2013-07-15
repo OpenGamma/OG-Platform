@@ -93,7 +93,6 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
    * The meta-bean for {@code HistoricalTimeSeriesInfoHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HistoricalTimeSeriesInfoHistoryResult.Meta meta() {
     return HistoricalTimeSeriesInfoHistoryResult.Meta.INSTANCE;
   }
@@ -147,7 +146,7 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

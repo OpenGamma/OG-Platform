@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDi
 /**
  * Calculate modified duration for bonds.
  */
-public final class ModifiedDurationFromCurvesCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ModifiedDurationFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The calculator instance.

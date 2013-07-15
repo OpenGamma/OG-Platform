@@ -7,13 +7,13 @@ package com.opengamma.engine.function;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
+
+import com.opengamma.util.PoolExecutor;
 
 /**
- * Defers the compilation of any functions until the definitions are requested. This may be useful for
- * remote calculation nodes to only compile functions that a node needs. It should not be used by a
+ * Defers the compilation of any functions until the definitions are requested. This may be useful for remote calculation nodes to only compile functions that a node needs. It should not be used by a
  * view processor for dependency graph compilation as not all function definitions may be available.
  */
 public class LazyFunctionRepositoryCompiler extends CachingFunctionRepositoryCompiler {
@@ -62,7 +62,7 @@ public class LazyFunctionRepositoryCompiler extends CachingFunctionRepositoryCom
 
   @Override
   protected InMemoryCompiledFunctionRepository compile(final FunctionCompilationContext context, final FunctionRepository functions, final Instant atInstant,
-      final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final ExecutorService executorService) {
+      final InMemoryCompiledFunctionRepository before, final InMemoryCompiledFunctionRepository after, final PoolExecutor executorService) {
     final Repository compiled = new Repository(context, atInstant);
     for (final FunctionDefinition function : functions.getAllFunctions()) {
       if (addFunctionFromCachedRepository(before, after, compiled, function, atInstant)) {

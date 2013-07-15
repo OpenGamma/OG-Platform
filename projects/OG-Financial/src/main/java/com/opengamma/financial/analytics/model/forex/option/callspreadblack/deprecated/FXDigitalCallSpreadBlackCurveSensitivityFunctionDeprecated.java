@@ -31,7 +31,7 @@ public class FXDigitalCallSpreadBlackCurveSensitivityFunctionDeprecated extends 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueCurveSensitivityCallSpreadBlackForexCalculator calculator = new PresentValueCurveSensitivityCallSpreadBlackForexCalculator(spread);
-    final MultipleCurrencyInterestRateCurveSensitivity result = calculator.visit(fxDigital, data);
+    final MultipleCurrencyInterestRateCurveSensitivity result = fxDigital.accept(calculator, data);
     ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
     return Collections.singleton(new ComputedValue(spec, result));
   }

@@ -7,12 +7,11 @@ package com.opengamma.masterdb.config;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -22,10 +21,12 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -61,7 +62,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test
   public void test_correct_getUpdateGet() {
-    Instant now = Instant.now(_cfgMaster.getTimeSource());
+    Instant now = Instant.now(_cfgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument base = _cfgMaster.get(uniqueId);
@@ -97,7 +98,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test
   public void test_correct_nameChangeNullValue() {
-    Instant now = Instant.now(_cfgMaster.getTimeSource());
+    Instant now = Instant.now(_cfgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument base = _cfgMaster.get(uniqueId);

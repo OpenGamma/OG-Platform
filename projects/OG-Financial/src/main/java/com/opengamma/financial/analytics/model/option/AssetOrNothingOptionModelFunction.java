@@ -11,14 +11,16 @@ import com.opengamma.analytics.financial.model.option.definition.StandardOptionD
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AssetOrNothingOptionModel;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
- * 
+ *
  */
+@Deprecated
 public class AssetOrNothingOptionModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
   private final AnalyticOptionModel<AssetOrNothingOptionDefinition, StandardOptionDataBundle> _model = new AssetOrNothingOptionModel();
 
@@ -34,20 +36,17 @@ public class AssetOrNothingOptionModelFunction extends StandardOptionDataAnalyti
   }
 
   @Override
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
+  }
+
+  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
     /*
-    if (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof AssetOrNothingPayoffStyle) {
-      return true;
-    }
+    return (target.getSecurity() instanceof OptionSecurity && ((OptionSecurity) target.getSecurity()).getPayoffStyle() instanceof AssetOrNothingPayoffStyle);
     */
-    if (target.getSecurity() instanceof EquityOptionSecurity) {
-      return true;
-    }
-    return false;
+    return true;
   }
 
   @Override

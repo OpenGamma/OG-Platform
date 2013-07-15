@@ -9,21 +9,21 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemoryHolidayMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryHolidayMasterTest {
 
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);

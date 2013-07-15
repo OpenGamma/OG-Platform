@@ -6,14 +6,17 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -41,6 +44,8 @@ public enum InterestRateInstrumentType {
   SWAP_CROSS_CURRENCY,
   /** Cash */
   CASH, //TODO do we need ibor, deposit, OIS?
+  /** Cashflow */
+  CASHFLOW,
   /** FRA */
   FRA,
   /** Interest rate future */
@@ -96,6 +101,11 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
+    public InterestRateInstrumentType visitCashFlowSecurity(final CashFlowSecurity security) {
+      return CASHFLOW;
+    }
+
+    @Override
     public InterestRateInstrumentType visitFRASecurity(final FRASecurity security) {
       return FRA;
     }
@@ -114,5 +124,15 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitSwapSecurity(final SwapSecurity security) {
       return SwapSecurityUtils.getSwapType(security);
     }
+
   }
+
+  /**
+   * Engine {@link ComputationTargetType} corresponding to securities which would return true for {@link #isFixedIncomeInstrumentType}.
+   */
+  public static final ComputationTargetType FIXED_INCOME_INSTRUMENT_TARGET_TYPE = FinancialSecurityTypes.CASH_SECURITY
+      .or(FinancialSecurityTypes.FRA_SECURITY)
+      .or(FinancialSecurityTypes.INTEREST_RATE_FUTURE_SECURITY)
+      .or(FinancialSecurityTypes.SWAP_SECURITY);
+
 }

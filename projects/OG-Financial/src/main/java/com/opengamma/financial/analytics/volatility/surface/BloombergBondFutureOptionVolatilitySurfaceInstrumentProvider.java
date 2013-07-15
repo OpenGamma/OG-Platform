@@ -7,8 +7,10 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.text.DecimalFormat;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
+import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -70,5 +72,10 @@ public class BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider extend
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());
+  }
+
+  @Override
+  public ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator() {
+    return BondFutureOptionExpiryCalculator.getInstance();
   }
 }

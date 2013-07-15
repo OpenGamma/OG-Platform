@@ -33,6 +33,15 @@ public final class Interpolator1DFactory {
   public static final String STEP = "Step";
   /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
+  /**Monotonicity-Preserving-Cubic-Spline
+   * @deprecated Use the name PCHIP instead 
+   * */
+  @Deprecated
+  public static final String MONOTONIC_CUBIC = "MonotonicityPreservingCubicSpline";
+  /**Piecewise Cubic Hermite Interpolating Polynomial (PCHIP)*/
+  public static final String PCHIP = "PCHIP";
+  /**Modified Piecewise Cubic Hermite Interpolating Polynomial (PCHIP) for yield curves*/
+  public static final String MOD_PCHIP = "ModifiedPCHIP";
   /** Time square */
   public static final String TIME_SQUARE = "TimeSquare";
   /** Flat extrapolator */
@@ -57,6 +66,15 @@ public final class Interpolator1DFactory {
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
+  /** MonotonicityPreservingCubicSpline
+   * @deprecated use PCHIP_INSTANCE instead 
+   * */
+  @Deprecated
+  public static final PCHIPInterpolator1D MONOTONIC_CUBIC_INSTANCE = new PCHIPInterpolator1D();
+  /**Piecewise Cubic Hermite Interpolating Polynomial (PCHIP)*/
+  public static final PCHIPInterpolator1D PCHIP_INSTANCE = new PCHIPInterpolator1D();
+  /**Modified Piecewise Cubic Hermite Interpolating Polynomial (PCHIP) for yield curves*/
+  public static final PCHIPYieldCurveInterpolator1D MOD_PCHIP_INSTANCE = new PCHIPYieldCurveInterpolator1D();
   /** Time square instance */
   public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
   /** Flat extrapolator instance */
@@ -67,13 +85,15 @@ public final class Interpolator1DFactory {
   public static final ISDAInterpolator1D ISDA_INTERPOLATOR_INSTANCE = new ISDAInterpolator1D();
   /** ISDA extrapolator instance */
   public static final ISDAExtrapolator1D ISDA_EXTRAPOLATOR_INSTANCE = new ISDAExtrapolator1D();
+  /** 
+   */
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, Interpolator1D> staticInstances = new HashMap<String, Interpolator1D>();
-    final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
+    final Map<String, Interpolator1D> staticInstances = new HashMap<>();
+    final Map<Class<?>, String> instanceNames = new HashMap<>();
     staticInstances.put(LINEAR, LINEAR_INSTANCE);
     instanceNames.put(LinearInterpolator1D.class, LINEAR);
     staticInstances.put(EXPONENTIAL, EXPONENTIAL_INSTANCE);
@@ -86,6 +106,12 @@ public final class Interpolator1DFactory {
     instanceNames.put(StepInterpolator1D.class, STEP);
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
+    staticInstances.put(MONOTONIC_CUBIC, MONOTONIC_CUBIC_INSTANCE);
+    instanceNames.put(PCHIPInterpolator1D.class, MONOTONIC_CUBIC);
+    staticInstances.put(PCHIP, PCHIP_INSTANCE);
+    instanceNames.put(PCHIPInterpolator1D.class, PCHIP);
+    staticInstances.put(MOD_PCHIP, MOD_PCHIP_INSTANCE);
+    instanceNames.put(PCHIPYieldCurveInterpolator1D.class, MOD_PCHIP);
     staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
     instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
     staticInstances.put(FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR_INSTANCE);
@@ -97,8 +123,8 @@ public final class Interpolator1DFactory {
     staticInstances.put(ISDA_EXTRAPOLATOR, ISDA_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ISDAExtrapolator1D.class, ISDA_EXTRAPOLATOR);
 
-    s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
-    s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
+    s_staticInstances = new HashMap<>(staticInstances);
+    s_instanceNames = new HashMap<>(instanceNames);
   }
 
   private Interpolator1DFactory() {

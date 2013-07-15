@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.fudgemsg.FixedIncomeStripFudgeBuilder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -173,7 +174,6 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    */
   public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final Tenor resetTenor,
       final IndexType indexType, final String conventionName) {
-    ArgumentChecker.isTrue(instrumentType == StripInstrumentType.SWAP || instrumentType == StripInstrumentType.OIS_SWAP, "Strip type for this constructor must be a swap or OIS");
     ArgumentChecker.notNull(curveNodePointTime, "curve node tenor");
     ArgumentChecker.notNull(resetTenor, "reset tenor");
     ArgumentChecker.notNull(conventionName, "convention name");
@@ -280,7 +280,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    * @return The effective tenor of the strip
    */
   public Tenor getEffectiveTenor() {
-    return new Tenor(getInstrumentType() == StripInstrumentType.FUTURE ?
+    return Tenor.of(getInstrumentType() == StripInstrumentType.FUTURE ?
         getCurveNodePointTime().getPeriod().plusMonths(3 * getNumberOfFuturesAfterTenor()) : getCurveNodePointTime().getPeriod());
   }
 
@@ -307,13 +307,10 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   }
 
   /**
-   * Gets the reset tenor for a basis swap
-   * @return The receive tenor
+   * Gets the reset tenor.
+   * @return The reset tenor
    */
   public Tenor getResetTenor() {
-    if (_instrumentType != StripInstrumentType.SWAP && _instrumentType != StripInstrumentType.OIS_SWAP) {
-      throw new IllegalStateException("Cannot get the receive tenor for an instrument that is not a swap or OIS; have " + toString());
-    }
     return _resetTenor;
   }
 
@@ -340,13 +337,10 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   }
 
   /**
-   * Gets the receive tenor for a basis swap
+   * Gets the index type.
    * @return The receive tenor
    */
   public IndexType getIndexType() {
-    if (_instrumentType != StripInstrumentType.SWAP && _instrumentType != StripInstrumentType.OIS_SWAP) {
-      throw new IllegalStateException("Cannot get the index type for an instrument that is not a swap or OIS; have " + toString());
-    }
     return _indexType;
   }
 
@@ -374,7 +368,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
-    int result = getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(other.getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration());
+    int result = DateUtils.estimatedDuration(getEffectiveTenor().getPeriod()).compareTo(DateUtils.estimatedDuration(other.getEffectiveTenor().getPeriod()));
     if (result != 0) {
       return result;
     }

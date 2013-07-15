@@ -22,6 +22,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -70,15 +71,16 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
     }
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccy.getCode(), forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethodName);
-    final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, sensitivityProperties));
     if (alphaSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get alpha sensitivity");
     }
-    final Object nuSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getTrade(), sensitivityProperties));
+    final Object nuSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, targetSpec, sensitivityProperties));
     if (nuSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get nu sensitivity");
     }
-    final Object rhoSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getTrade(), sensitivityProperties));
+    final Object rhoSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, targetSpec, sensitivityProperties));
     if (rhoSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get rho sensitivity");
     }
@@ -155,9 +157,10 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
     final String ccyCode = ccy.getCode();
     final String surfaceName = surfaceNames.iterator().next();
     final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccyCode, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethodName);
-    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
-    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getTrade(), sensitivityProperties));
-    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getTrade(), sensitivityProperties));
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, sensitivityProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, targetSpec, sensitivityProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, targetSpec, sensitivityProperties));
     requirements.add(getFittedDataRequirement(ccy, surfaceName));
     final Set<ValueRequirement> timeSeriesRequirements = getTimeSeriesRequirements(target, fundingCurveName, forwardCurveName);
     if (timeSeriesRequirements == null) {
@@ -204,6 +207,6 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS, ccy, properties);
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS, ComputationTargetSpecification.of(ccy), properties);
   }
 }

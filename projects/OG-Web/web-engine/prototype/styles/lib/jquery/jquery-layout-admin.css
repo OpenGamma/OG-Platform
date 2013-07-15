@@ -3,13 +3,13 @@
     visibility: hidden;
 }
 
-.OG-layout-admin-masthead {
+.OG-layout-masthead {
     background: transparent;
-    z-index: 0!important;
+    z-index: 6!important;
 }
 
 .OG-layout-admin-search,
-.OG-layout-analytics { /* legacy analytics */
+.OG-layout-analytics-legacy { /* legacy analytics */
     background: #fff;
     border-top: 1px solid #bbb;
     border-right: 1px solid #bbb;

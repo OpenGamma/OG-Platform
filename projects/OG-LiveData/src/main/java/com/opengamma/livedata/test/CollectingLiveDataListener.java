@@ -6,6 +6,7 @@
 package com.opengamma.livedata.test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +63,17 @@ public class CollectingLiveDataListener implements LiveDataListener {
       _client2ServerSpec.put(subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
     }
     _responseLatch.countDown();
+  }
+
+  @Override
+  public synchronized void subscriptionResultsReceived(Collection<LiveDataSubscriptionResponse> subscriptionResults) {
+    _subscriptionResponses.addAll(subscriptionResults);
+    for (LiveDataSubscriptionResponse subscriptionResult : subscriptionResults) {
+      if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+        _client2ServerSpec.put(subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
+      }
+      _responseLatch.countDown();
+    }
   }
 
   @Override

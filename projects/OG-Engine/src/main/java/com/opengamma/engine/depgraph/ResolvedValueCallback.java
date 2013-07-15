@@ -31,6 +31,11 @@ import com.opengamma.engine.value.ValueRequirement;
    */
   void failed(GraphBuildingContext context, ValueRequirement value, ResolutionFailure failure);
 
+  /**
+   * Notifies the implementer that a recursion constraint was hit by the producer.
+   */
+  void recursionDetected();
+
   interface ResolvedValueCallbackChain extends ResolvedValueCallback, ResolvedValueProducer.Chain {
 
   }

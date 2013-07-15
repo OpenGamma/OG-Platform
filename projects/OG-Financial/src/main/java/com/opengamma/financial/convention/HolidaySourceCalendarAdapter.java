@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -57,7 +57,7 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     _exchange = exchange;
     _type = type;
   }
-  
+
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Currency[] currencies) {
     Validate.notNull(holidaySource);
     Validate.notNull(currencies);
@@ -74,26 +74,26 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
   public String getConventionName() {
     switch (_type) {
       case BANK: {
-        StringBuilder regionName = new StringBuilder();
-        Iterator<Region> regionIter = _regions.iterator();
+        final StringBuilder regionName = new StringBuilder();
+        final Iterator<Region> regionIter = _regions.iterator();
         while (regionIter.hasNext()) {
           regionName.append(regionIter.next().getName());
           if (regionIter.hasNext()) {
             regionName.append(", ");
-          }  
+          }
         }
         regionName.append(" Bank");
         return regionName.toString();
       }
       case CURRENCY: {
-        StringBuilder ccyName = new StringBuilder();
-        Iterator<Currency> ccyIter = _currencies.iterator();
+        final StringBuilder ccyName = new StringBuilder();
+        final Iterator<Currency> ccyIter = _currencies.iterator();
         while (ccyIter.hasNext()) {
           ccyName.append(ccyIter.next().getCode());
           if (ccyIter.hasNext()) {
             ccyName.append(", ");
           }
-        }        
+        }
         ccyName.append(" Currency");
         return ccyName.toString();
       }
@@ -132,4 +132,45 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     }
     throw new OpenGammaRuntimeException("switch doesn't support " + _type);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_currencies == null) ? 0 : _currencies.hashCode());
+    result = prime * result + ((_exchange == null) ? 0 : _exchange.hashCode());
+    result = prime * result + _holidaySource.hashCode();
+    result = prime * result + _regions.hashCode();
+    result = prime * result + ((_type == null) ? 0 : _type.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof HolidaySourceCalendarAdapter)) {
+      return false;
+    }
+    final HolidaySourceCalendarAdapter other = (HolidaySourceCalendarAdapter) obj;
+    if (_type != other._type) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_currencies, other._currencies)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_exchange, other._exchange)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_holidaySource, other._holidaySource)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_regions, other._regions)) {
+      return false;
+    }
+    return true;
+  }
+
+
 }

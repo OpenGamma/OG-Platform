@@ -8,7 +8,8 @@ package com.opengamma.livedata.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.LiveDataValueUpdateBeanFudgeBuilder;
@@ -84,6 +86,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   /**
    * @return the fudgeContext
    */
+  @Override
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
@@ -198,7 +201,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
             subscriptionRequestFailed(handle, new LiveDataSubscriptionResponse(
                 handle.getRequestedSpecification(), 
                 LiveDataSubscriptionResult.INTERNAL_ERROR, 
-                e.getMessage(),
+                e.toString(),
                 null,
                 null,
                 null));          
@@ -247,10 +250,21 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       responses.putAll(getSuccessResponses());
       responses.putAll(getFailedResponses());
       
+      int total = responses.size();
+      s_logger.info("{} subscription responses received", total);
+      Map<LiveDataListener, Collection<LiveDataSubscriptionResponse>> batch = new HashMap<LiveDataListener, Collection<LiveDataSubscriptionResponse>>();
       for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> successEntry : responses.entrySet()) {
         SubscriptionHandle handle = successEntry.getKey();
         LiveDataSubscriptionResponse response = successEntry.getValue();
-        handle.subscriptionResultReceived(response);
+        Collection<LiveDataSubscriptionResponse> responseBatch = batch.get(handle.getListener());
+        if (responseBatch == null) {
+          responseBatch = new LinkedList<LiveDataSubscriptionResponse>();
+          batch.put(handle.getListener(), responseBatch);
+        }
+        responseBatch.add(response);
+      }
+      for (Map.Entry<LiveDataListener, Collection<LiveDataSubscriptionResponse>> batchEntry : batch.entrySet()) {
+        batchEntry.getKey().subscriptionResultsReceived(batchEntry.getValue());
       }
 
     }
@@ -296,7 +310,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         // This is unexpected. Fail everything.
         for (LiveDataSubscriptionResponse response : getSuccessResponses().values()) {
           response.setSubscriptionResult(LiveDataSubscriptionResult.INTERNAL_ERROR);          
-          response.setUserMessage(e.getMessage());
+          response.setUserMessage(e.toString());
         }
         
         getFailedResponses().putAll(getSuccessResponses());
@@ -306,7 +320,8 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   
     private void startReceivingTicks() {
       Map<SubscriptionHandle, LiveDataSubscriptionResponse> resps = getSuccessResponses();
-      List<String> distributionSpecs = new ArrayList<String>(resps.size());
+      // tick distribution specifications can be duplicated, only pass each down once to startReceivingTicks()
+      Collection<String> distributionSpecs = new HashSet<>(resps.size());
       for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> entry : resps.entrySet()) {
         DistributedLiveDataClient.this.subscriptionStartingToReceiveTicks(entry.getKey(), entry.getValue());
         distributionSpecs.add(entry.getValue().getTickDistributionSpecification());

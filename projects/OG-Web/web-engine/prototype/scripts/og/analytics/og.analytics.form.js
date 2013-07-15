@@ -65,7 +65,6 @@ $.register_module({
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                 og.api.text({module: 'og.analytics.form_datasources_tash'}),
-                og.api.rest.viewdefinitions.get({page: '*'}),
                 og.api.rest.aggregators.get()
             ).pipe(function (tmpl, ag_tmpl, ds_tmpl, vds, ag_data) {
                 if (!tmpl.error) template = tmpl;
@@ -134,6 +133,7 @@ $.register_module({
             });
         };
         var keydown_handler = function (event) {
+            if (event.keyCode === 13 && $('.OG-analytics-form .ui-autocomplete-input').is(':focus')) load_query();
             if (event.keyCode !== 9) return;
             var $elem = $(this), shift_key = event.shiftKey;
             if (!$elem || !ac_menu || !ag_menu || !ds_menu || !$dom.ag || !$dom.ds) return;

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -18,16 +18,24 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Converts interest rate future option trades into the form used by the analytics library
  */
 public class InterestRateFutureOptionTradeConverter {
+  /** Converter for the interest rate future option security */
   private final InterestRateFutureOptionSecurityConverter _securityConverter;
 
+  /**
+   * @param securityConverter The interest rate future option security, not null
+   */
   public InterestRateFutureOptionTradeConverter(final InterestRateFutureOptionSecurityConverter securityConverter) {
     ArgumentChecker.notNull(securityConverter, "security converter");
     _securityConverter = securityConverter;
   }
 
+  /**
+   * @param trade An interest rate future option trade, not null
+   * @return The instrument definition
+   */
   public InstrumentDefinition<?> convert(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
     ArgumentChecker.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity, "Can only handle trades with security type IRFutureOptionSecurity");
@@ -35,8 +43,8 @@ public class InterestRateFutureOptionTradeConverter {
     final int quantity = 1; // trade.getQuantity().intValue(); TODO: correct when position/trade dilemma is solved.
     //TODO trade time or premium time?
     //    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
-    //        TimeZone.UTC); //TODO get the real time zone 
-    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO get the real time zone
+    //        ZoneOffset.UTC); //TODO get the real time zone
+    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
 
     final Double tradePrice = trade.getPremium();
     ArgumentChecker.notNull(tradePrice, "IRFutureOption trade must have a premium set. The interpretation of premium is the market price, without unit, i.e. not %");

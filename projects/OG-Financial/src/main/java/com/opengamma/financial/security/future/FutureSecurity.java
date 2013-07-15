@@ -55,7 +55,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
   /**
-   * The unit amount.
+   * The unit amount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'. 
    */
   @PropertyDefinition
   private double _unitAmount;
@@ -294,7 +294,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unit amount.
+   * Gets the unit amount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'.
    * @return the value of the property
    */
   public double getUnitAmount() {
@@ -302,7 +302,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets the unit amount.
+   * Sets the unit amount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'.
    * @param unitAmount  the new value of the property
    */
   public void setUnitAmount(double unitAmount) {
@@ -387,7 +387,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "expiry",
         "tradingExchange",
         "settlementExchange",

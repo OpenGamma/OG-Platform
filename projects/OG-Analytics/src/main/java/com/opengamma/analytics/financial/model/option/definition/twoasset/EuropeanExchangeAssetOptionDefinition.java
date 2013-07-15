@@ -30,15 +30,15 @@ import com.opengamma.util.time.Expiry;
  * the spot price of the second underlying.
  */
 public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardTwoAssetOptionDataBundle>();
+  private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardTwoAssetOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardTwoAssetOptionDataBundle>() {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public double getPayoff(StandardTwoAssetOptionDataBundle data, Double optionPrice) {
+    public double getPayoff(final StandardTwoAssetOptionDataBundle data, final Double optionPrice) {
       Validate.notNull(data, "data");
-      double s1 = data.getFirstSpot();
-      double s2 = data.getSecondSpot();
+      final double s1 = data.getFirstSpot();
+      final double s2 = data.getSecondSpot();
       return Math.max(_firstQuantity * s1 - _secondQuantity * s2, 0);
     }
 
@@ -52,7 +52,7 @@ public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
    * @param firstQuantity The quantity of the first asset
    * @param secondQuantity The quantity of the second asset
    */
-  public EuropeanExchangeAssetOptionDefinition(Expiry expiry, double firstQuantity, double secondQuantity) {
+  public EuropeanExchangeAssetOptionDefinition(final Expiry expiry, final double firstQuantity, final double secondQuantity) {
     super(null, expiry, null);
     ArgumentChecker.notNegativeOrZero(firstQuantity, "quantity 1");
     ArgumentChecker.notNegativeOrZero(secondQuantity, "quantity 2");
@@ -108,7 +108,7 @@ public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -118,7 +118,7 @@ public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    EuropeanExchangeAssetOptionDefinition other = (EuropeanExchangeAssetOptionDefinition) obj;
+    final EuropeanExchangeAssetOptionDefinition other = (EuropeanExchangeAssetOptionDefinition) obj;
     if (Double.doubleToLongBits(_firstQuantity) != Double.doubleToLongBits(other._firstQuantity)) {
       return false;
     }

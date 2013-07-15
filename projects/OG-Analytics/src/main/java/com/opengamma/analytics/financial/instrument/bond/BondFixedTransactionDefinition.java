@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -94,11 +94,13 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFixedTransactionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFixedTransactionDefinition(this);
   }
 

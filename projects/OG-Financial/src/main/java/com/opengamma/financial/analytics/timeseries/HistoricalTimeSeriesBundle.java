@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.timeseries;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeField;
@@ -15,21 +16,26 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.collect.Iterators;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.lambdava.functions.Function3;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.functional.Function3;
 
 /**
- * A collection of historical time series objects. The time series are keyed by the originally requested data field name and the external ids associated with them. The original field is not generally
- * necessary but is to allow override operations to identify the nature of the data points in the time series they are being applied to.
+ * A collection of historical time-series objects. The time-series are keyed by the originally requested data field
+ * name and the external ids associated with them. The original field is not generally necessary but is to allow
+ * override operations to identify the nature of the data points in the time series they are being applied to. The
+ * time-series are maintained in the order in which they were added, for example tenor order, and are iterable in this
+ * order.
  */
 public final class HistoricalTimeSeriesBundle {
 
-  private static final class Entry {
+  private static final class Entry implements Iterable<HistoricalTimeSeries> {
 
-    private final Map<ExternalIdBundle, HistoricalTimeSeries> _timeSeries = new HashMap<ExternalIdBundle, HistoricalTimeSeries>();
+    // Maintain insertion order, so that the bundle can be ordered e.g. by tenor
+    private final Map<ExternalIdBundle, HistoricalTimeSeries> _timeSeries = new LinkedHashMap<ExternalIdBundle, HistoricalTimeSeries>();
     private Map<ExternalId, HistoricalTimeSeries> _lookup;
 
     private HistoricalTimeSeries getImpl(final ExternalId id) {
@@ -77,6 +83,15 @@ public final class HistoricalTimeSeriesBundle {
       if (_lookup != null) {
         addImpl(bundle, timeSeries);
       }
+    }
+    
+    public int size() {
+      return _timeSeries.size();
+    }
+    
+    @Override
+    public Iterator<HistoricalTimeSeries> iterator() {
+      return _timeSeries.values().iterator();
     }
 
     public MutableFudgeMsg toFudgeMsg(final FudgeSerializer context) {
@@ -135,6 +150,31 @@ public final class HistoricalTimeSeriesBundle {
       return null;
     }
     return e.get(ids);
+  }
+  
+  public int size(final String field) {
+    ArgumentChecker.notNull(field, "field");
+    final Entry e = _data.get(field);
+    if (e == null) {
+      return 0;
+    }
+    return e.size();
+  }
+  
+  /**
+   * Gets an iterator for the time-series stored under the given field name. This iterates over the time-series in the
+   * same order as they were added.
+   * 
+   * @param field  the data field, not null
+   * @return an iterator, not null
+   */
+  public Iterator<HistoricalTimeSeries> iterator(final String field) {
+    ArgumentChecker.notNull(field, "field");
+    final Entry e = _data.get(field);
+    if (e == null) {
+      return Iterators.emptyIterator();
+    }
+    return e.iterator();
   }
 
   protected HistoricalTimeSeriesBundle apply(final Function3<String, ExternalIdBundle, HistoricalTimeSeries, HistoricalTimeSeries> function) {

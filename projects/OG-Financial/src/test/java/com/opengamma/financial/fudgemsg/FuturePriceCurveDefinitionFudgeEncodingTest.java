@@ -11,11 +11,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FuturePriceCurveDefinitionFudgeEncodingTest extends FinancialTestBase {
+
   private static final String NAME = "DN";
   private static final Currency UID = Currency.USD;
   private static final Double[] X = new Double[] {.1, 2., 3., 4., 5., 6., 7., 8.};

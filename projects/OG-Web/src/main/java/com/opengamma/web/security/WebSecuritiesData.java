@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -73,6 +74,11 @@ public class WebSecuritiesData extends DirectBean {
    */
   @PropertyDefinition
   private SecurityDocument _versioned;
+  /**
+   * The organization master.
+   */
+  @PropertyDefinition
+  private OrganizationMaster _organizationMaster;
 
   /**
    * Creates an instance.
@@ -138,6 +144,8 @@ public class WebSecuritiesData extends DirectBean {
         return getSecurity();
       case -1407102089:  // versioned
         return getVersioned();
+      case -1158737547:  // organizationMaster
+        return getOrganizationMaster();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -169,6 +177,9 @@ public class WebSecuritiesData extends DirectBean {
       case -1407102089:  // versioned
         setVersioned((SecurityDocument) newValue);
         return;
+      case -1158737547:  // organizationMaster
+        setOrganizationMaster((OrganizationMaster) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -187,7 +198,8 @@ public class WebSecuritiesData extends DirectBean {
           JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster());
     }
     return false;
   }
@@ -203,6 +215,7 @@ public class WebSecuritiesData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     return hash;
   }
 
@@ -408,6 +421,31 @@ public class WebSecuritiesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the organization master.
+   * @return the value of the property
+   */
+  public OrganizationMaster getOrganizationMaster() {
+    return _organizationMaster;
+  }
+
+  /**
+   * Sets the organization master.
+   * @param organizationMaster  the new value of the property
+   */
+  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
+    this._organizationMaster = organizationMaster;
+  }
+
+  /**
+   * Gets the the {@code organizationMaster} property.
+   * @return the property, not null
+   */
+  public final Property<OrganizationMaster> organizationMaster() {
+    return metaBean().organizationMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code WebSecuritiesData}.
    */
   public static class Meta extends DirectMetaBean {
@@ -457,6 +495,11 @@ public class WebSecuritiesData extends DirectBean {
     private final MetaProperty<SecurityDocument> _versioned = DirectMetaProperty.ofReadWrite(
         this, "versioned", WebSecuritiesData.class, SecurityDocument.class);
     /**
+     * The meta-property for the {@code organizationMaster} property.
+     */
+    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organizationMaster", WebSecuritiesData.class, OrganizationMaster.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -468,7 +511,8 @@ public class WebSecuritiesData extends DirectBean {
         "uriSecurityId",
         "uriVersionId",
         "security",
-        "versioned");
+        "versioned",
+        "organizationMaster");
 
     /**
      * Restricted constructor.
@@ -495,6 +539,8 @@ public class WebSecuritiesData extends DirectBean {
           return _security;
         case -1407102089:  // versioned
           return _versioned;
+        case -1158737547:  // organizationMaster
+          return _organizationMaster;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -577,6 +623,14 @@ public class WebSecuritiesData extends DirectBean {
      */
     public final MetaProperty<SecurityDocument> versioned() {
       return _versioned;
+    }
+
+    /**
+     * The meta-property for the {@code organizationMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganizationMaster> organizationMaster() {
+      return _organizationMaster;
     }
 
   }

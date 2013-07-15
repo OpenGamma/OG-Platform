@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security.equity;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -34,6 +35,8 @@ public class EquitySecurityFudgeBuilder extends AbstractFudgeBuilder implements 
   public static final String CURRENCY_FIELD_NAME = "currency";
   /** Field name. */
   public static final String GICS_CODE_FIELD_NAME = "gicsCode";
+  /** Field name. */
+  public static final String PREFERRED_FIELD_NAME = "preferred";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, EquitySecurity object) {
@@ -50,6 +53,7 @@ public class EquitySecurityFudgeBuilder extends AbstractFudgeBuilder implements 
     addToMessage(msg, COMPANY_NAME_FIELD_NAME, object.getCompanyName());
     addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
     addToMessage(msg, GICS_CODE_FIELD_NAME, object.getGicsCode());
+    addToMessage(msg, PREFERRED_FIELD_NAME, object.isPreferred());
   }
 
   @Override
@@ -67,6 +71,7 @@ public class EquitySecurityFudgeBuilder extends AbstractFudgeBuilder implements 
     object.setCompanyName(msg.getString(COMPANY_NAME_FIELD_NAME));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
     object.setGicsCode(msg.getValue(GICSCode.class, GICS_CODE_FIELD_NAME));
+    object.setPreferred(BooleanUtils.isTrue(msg.getBoolean(PREFERRED_FIELD_NAME)));
   }
 
 }

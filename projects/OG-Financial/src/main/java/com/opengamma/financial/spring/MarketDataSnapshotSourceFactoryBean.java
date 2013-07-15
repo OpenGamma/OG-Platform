@@ -63,7 +63,6 @@ public class MarketDataSnapshotSourceFactoryBean extends SpringFactoryBean<Marke
    * The meta-bean for {@code MarketDataSnapshotSourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static MarketDataSnapshotSourceFactoryBean.Meta meta() {
     return MarketDataSnapshotSourceFactoryBean.Meta.INSTANCE;
   }
@@ -196,7 +195,7 @@ public class MarketDataSnapshotSourceFactoryBean extends SpringFactoryBean<Marke
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "snapshotMaster",
         "cacheManager");
 

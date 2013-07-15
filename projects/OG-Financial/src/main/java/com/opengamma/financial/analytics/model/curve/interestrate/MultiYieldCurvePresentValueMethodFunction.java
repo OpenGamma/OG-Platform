@@ -18,19 +18,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -39,6 +40,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCouponSensitiv
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -50,6 +52,7 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -75,8 +78,8 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -104,7 +107,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String absoluteToleranceName = desiredValue.getConstraint(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
@@ -120,20 +123,27 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final LinkedHashSet<String> curveNames = new LinkedHashSet<>();
+    for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
+      curveNames.add(curveName);
+    }
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Map<String, Integer> nodesPerCurve = new HashMap<String, Integer>();
     final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveCalculationConfigName);
     for (final String curveName : curveNames) {
-      int nInstruments = 0;
       final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
+      if (spec == null) {
+        continue;
+      }
+      int nInstruments = 0;
       final Interpolator1D interpolator = spec.getInterpolator();
-      final Map<ExternalId, Double> marketDataMap = getMarketData(inputs, targetSpec, curveName);
+      final SnapshotDataBundle marketData = getMarketData(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
+      FixedIncomeStripWithSecurity previousStrip = null;
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
-        final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
+        final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
         if (marketValue == null) {
           throw new OpenGammaRuntimeException("Could not get market data for " + strip);
         }
@@ -143,8 +153,14 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
         final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesForSecurity, timeSeries);
         if (derivative != null) {
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-            final InstrumentDefinition<?> unitNotional = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
-            // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
+            InstrumentDefinition<?> unitNotional;
+            if (definition instanceof InterestRateFutureSecurityDefinition) {
+              final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
+              unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+            } else {
+              unitNotional = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
+              // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
+            }
             final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
             derivatives.add(unitNotionalDerivative);
             initialRatesGuess.add(1 - marketValue);
@@ -152,8 +168,14 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
             derivatives.add(derivative);
             initialRatesGuess.add(marketValue);
           }
-          nodeTimes.add(LAST_TIME_CALCULATOR.visit(derivative));
+          final double t = derivative.accept(LAST_TIME_CALCULATOR);
+          if (nInstruments > 0 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), t, 1e-12)) {
+            throw new OpenGammaRuntimeException("Strip " + strip + " has same maturity as one already added (" + previousStrip + ") - will lead to" +
+                "equal nodes in the curve. Remove one of these strips.");
+          }
+          nodeTimes.add(t);
           marketValues.add(0.0);
+          previousStrip = strip;
           nInstruments++;
         }
       }
@@ -183,6 +205,9 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     for (final String curveName : curveNames) {
       final Integer offset = nodesPerCurve.get(curveName);
+      if (offset == null) {
+        continue;
+      }
       final double[] yields = Arrays.copyOfRange(fittedYields, i, i + offset);
       final YieldCurve yieldCurve = YieldCurve.from(InterpolatedDoublesCurve.from(curveNodes.get(curveName), yields, interpolators.get(curveName)));
       final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, curveName, absoluteToleranceName,
@@ -195,7 +220,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     i = 0;
     final double[] couponSensitivities = new double[derivatives.size()];
     for (final InstrumentDerivative derivative : derivatives) {
-      couponSensitivities[i++] = PV_COUPON_SENSITIVITY_CALCULATOR.visit(derivative, curveBundle);
+      couponSensitivities[i++] = derivative.accept(PV_COUPON_SENSITIVITY_CALCULATOR, curveBundle);
     }
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties), new DoubleMatrix1D(couponSensitivities)));
     return results;
@@ -318,4 +343,8 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
 
+  @Override
+  protected String getCalculationMethod() {
+    return PRESENT_VALUE_STRING;
+  }
 }

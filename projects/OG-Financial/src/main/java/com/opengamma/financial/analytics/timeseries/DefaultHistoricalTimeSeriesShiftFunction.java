@@ -8,11 +8,11 @@ package com.opengamma.financial.analytics.timeseries;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**

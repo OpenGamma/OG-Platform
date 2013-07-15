@@ -40,14 +40,14 @@ public class WebPortfolioVersionNodeResource extends WebPortfolioNodeResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createPortfolioNodeData();
-    return getFreemarker().build("portfolios/portfolionode.ftl", out);
+    return getFreemarker().build(HTML_DIR + "portfolionode.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON() {
     FlexiBean out = createPortfolioNodeData();
-    String s = getFreemarker().build("portfolios/jsonportfolionode.ftl", out);
+    String s = getFreemarker().build(JSON_DIR + "portfolionode.ftl", out);
     return Response.ok(s).build();
   }
 

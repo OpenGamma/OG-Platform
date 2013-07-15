@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -20,7 +21,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
   /**
    * Underlying future security.
    */
-  private final InterestRateFuture _underlyingFuture;
+  private final InterestRateFutureSecurity _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -49,7 +50,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionPremiumSecurity(final InterestRateFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionPremiumSecurity(final InterestRateFutureSecurity underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
     this._underlyingFuture = underlyingFuture;
     this._expirationTime = expirationTime;
@@ -63,7 +64,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFuture getUnderlyingFuture() {
+  public InterestRateFutureSecurity getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -116,12 +117,14 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumSecurity(this);
   }
 
@@ -142,7 +145,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -152,7 +155,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionPremiumSecurity other = (InterestRateFutureOptionPremiumSecurity) obj;
+    final InterestRateFutureOptionPremiumSecurity other = (InterestRateFutureOptionPremiumSecurity) obj;
     if (!ObjectUtils.equals(_discountingCurveName, other._discountingCurveName)) {
       return false;
     }

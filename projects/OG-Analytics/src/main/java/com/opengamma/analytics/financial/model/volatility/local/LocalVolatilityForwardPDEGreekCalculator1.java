@@ -41,7 +41,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  * @param <T> The strike type parameterization to be used
+ * @deprecated Do not use
  */
+@Deprecated
 public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private final double _theta;
@@ -96,7 +98,7 @@ public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
     LocalVolatilitySurfaceStrike strikeLocalVolatility;
     if (localVolatility instanceof LocalVolatilitySurfaceStrike) {
       strikeLocalVolatility = (LocalVolatilitySurfaceStrike) localVolatility;
-    } else if (localVolatility instanceof LocalVolatilitySurfaceMoneyness) {      
+    } else if (localVolatility instanceof LocalVolatilitySurfaceMoneyness) {
       strikeLocalVolatility = LocalVolatilitySurfaceConverter.toStrikeSurface(((LocalVolatilitySurfaceMoneyness) localVolatility));
     } else {
       throw new IllegalArgumentException("Cannot handle surface of type " + localVolatility.getClass());
@@ -462,7 +464,7 @@ public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
     final MeshingFunction spaceMesh = new HyperbolicMeshing(minMoneyness, maxMoneyness, centreMoneyness, nStrikeSteps, strikeMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     final Function1D<Double, Double> initialCond = (new InitialConditionsProvider()).getForwardCallPut(isCall);
-    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCond, lower, upper, grid));
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(new PDE1DDataBundle<>(pde, initialCond, lower, upper, grid));
     return res;
   }
 }

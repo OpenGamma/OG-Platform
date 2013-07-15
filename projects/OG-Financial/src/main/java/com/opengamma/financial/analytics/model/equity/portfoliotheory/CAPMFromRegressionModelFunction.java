@@ -19,10 +19,12 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -40,14 +42,15 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
-public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.NonCompiledInvoker {
+public class CAPMFromRegressionModelFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double DAYS_IN_YEAR = 365.25;
   private static final CAPMFromRegressionCalculator CAPM_REGRESSION_MODEL = new CAPMFromRegressionCalculator();
+  private static final ComputationTargetType TYPE = ComputationTargetType.POSITION.or(ComputationTargetType.PORTFOLIO_NODE);
   private final String _resolutionKey;
 
   public CAPMFromRegressionModelFunction(final String resolutionKey) {
@@ -74,7 +77,7 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
         timeSeries.add(input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY), timeSeriesSource.getExternalIdBundle(ts.getUniqueId()), ts);
       }
     }
-    final Object positionOrNode = getTarget(target);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM")); //TODO 
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -97,33 +100,19 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
     final double alphaStdError = regression.getStandardErrorOfBetas()[0];
     final ValueProperties resultProperties = getResultProperties(desiredValues.iterator().next());
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
-    final String uniqueId = getUniqueId();
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, positionOrNode, resultProperties), uniqueId),
-        regression.getAdjustedRSquared()));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, positionOrNode, resultProperties), uniqueId), alpha));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, positionOrNode, resultProperties), uniqueId), regression
-        .getBetas()[1]));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, positionOrNode, resultProperties), uniqueId),
-        regression.getMeanSquareError()));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, positionOrNode, resultProperties), uniqueId),
-        alphaPValue));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, positionOrNode, resultProperties), uniqueId),
-        regression.getPValues()[1]));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, positionOrNode, resultProperties), uniqueId), regression
-        .getRSquared()));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, positionOrNode, resultProperties), uniqueId),
-        alphaResidual));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, positionOrNode, resultProperties), uniqueId),
-        regression.getResiduals()[1]));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, positionOrNode, resultProperties),
-        uniqueId), alphaStdError));
-    result.add(new ComputedValue(
-        new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, positionOrNode, resultProperties), uniqueId), regression
-            .getStandardErrorOfBetas()[1]));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, positionOrNode, resultProperties), uniqueId),
-        alphaTStat));
-    result.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, positionOrNode, resultProperties), uniqueId),
-        regression.getTStatistics()[1]));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, targetSpec, resultProperties), regression.getAdjustedRSquared()));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA, targetSpec, resultProperties), alpha));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA, targetSpec, resultProperties), regression.getBetas()[1]));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, targetSpec, resultProperties), regression.getMeanSquareError()));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, targetSpec, resultProperties), alphaPValue));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, targetSpec, resultProperties), regression.getPValues()[1]));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, targetSpec, resultProperties), regression.getRSquared()));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, targetSpec, resultProperties), alphaResidual));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, targetSpec, resultProperties), regression.getResiduals()[1]));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, targetSpec, resultProperties), alphaStdError));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, targetSpec, resultProperties), regression.getStandardErrorOfBetas()[1]));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, targetSpec, resultProperties), alphaTStat));
+    result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, targetSpec, resultProperties), regression.getTStatistics()[1]));
     return result;
   }
 
@@ -148,14 +137,13 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    final Object positionOrNode = getTarget(target);
-    requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, ValueProperties.builder()
+    requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.builder()
         .withAny(ValuePropertyNames.CURRENCY)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next()).get()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, target.toSpecification()));
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM")); //TODO 
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
@@ -176,30 +164,24 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final ValueProperties resultProperties = getResultProperties();
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      final Object positionOrNode = getTarget(target);
-      final String uniqueId = getUniqueId();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, positionOrNode, resultProperties), uniqueId));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, positionOrNode, resultProperties), uniqueId));
-      return results;
-    }
-    return null;
+    final ValueProperties resultProperties = getResultProperties();
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, targetSpec, resultProperties));
+    results.add(new ValueSpecification(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, targetSpec, resultProperties));
+    return results;
   }
-
-  public abstract Object getTarget(ComputationTarget target);
 
   private ValueProperties getResultProperties() {
     return createValueProperties()
@@ -223,4 +205,10 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
     }
     return TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorNames.iterator().next());
   }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return TYPE;
+  }
+
 }

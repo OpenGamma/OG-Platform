@@ -5,9 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -36,11 +34,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Converts FX instruments into a form suitable for use by the analytics library.
  */
 public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** The currency pairs */
   private final CurrencyPairs _currencyPairs;
 
+  /**
+   * @param currencyPairs The currency pairs, not null
+   */
   public ForexSecurityConverter(final CurrencyPairs currencyPairs) {
     ArgumentChecker.notNull(currencyPairs, "currency pairs");
     _currencyPairs = currencyPairs;
@@ -48,7 +50,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
-    Validate.notNull(fxDigitalOptionSecurity, "fx digital option (ndf) security");
+    ArgumentChecker.notNull(fxDigitalOptionSecurity, "fx digital option (ndf) security");
     final Currency putCurrency = fxDigitalOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxDigitalOptionSecurity.getCallCurrency();
     final double putAmount = fxDigitalOptionSecurity.getPutAmount();
@@ -76,7 +78,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity fxNDFDigitalOptionSecurity) {
-    Validate.notNull(fxNDFDigitalOptionSecurity, "fx digital option (ndf) security");
+    ArgumentChecker.notNull(fxNDFDigitalOptionSecurity, "fx digital option (ndf) security");
     final Currency putCurrency = fxNDFDigitalOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxNDFDigitalOptionSecurity.getCallCurrency();
     final double putAmount = fxNDFDigitalOptionSecurity.getPutAmount();
@@ -102,7 +104,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
-    Validate.notNull(fxOptionSecurity, "fx option security");
+    ArgumentChecker.notNull(fxOptionSecurity, "fx option security");
     final Currency putCurrency = fxOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxOptionSecurity.getCallCurrency();
     final double putAmount = fxOptionSecurity.getPutAmount();
@@ -125,7 +127,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity fxOptionSecurity) {
-    Validate.notNull(fxOptionSecurity, "fx option security");
+    ArgumentChecker.notNull(fxOptionSecurity, "fx option security");
     final Currency putCurrency = fxOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxOptionSecurity.getCallCurrency();
     final double putAmount = fxOptionSecurity.getPutAmount();
@@ -148,9 +150,9 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity barrierOptionSecurity) {
-    Validate.notNull(barrierOptionSecurity, "fx barrier option security");
-    Validate.isTrue(barrierOptionSecurity.getBarrierType() != BarrierType.DOUBLE, "Can only handle single barrier options");
-    Validate.isTrue(barrierOptionSecurity.getMonitoringType() == MonitoringType.CONTINUOUS, "Can only handle continuously-monitored barrier options");
+    ArgumentChecker.notNull(barrierOptionSecurity, "fx barrier option security");
+    ArgumentChecker.isTrue(barrierOptionSecurity.getBarrierType() != BarrierType.DOUBLE, "Can only handle single barrier options");
+    ArgumentChecker.isTrue(barrierOptionSecurity.getMonitoringType() == MonitoringType.CONTINUOUS, "Can only handle continuously-monitored barrier options");
     final ZonedDateTime expiry = barrierOptionSecurity.getExpiry().getExpiry();
     final ZonedDateTime settlementDate = barrierOptionSecurity.getSettlementDate();
     final boolean isLong = barrierOptionSecurity.isLong();
@@ -179,7 +181,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitFXForwardSecurity(final FXForwardSecurity fxForwardSecurity) {
-    Validate.notNull(fxForwardSecurity, "fx forward security");
+    ArgumentChecker.notNull(fxForwardSecurity, "fx forward security");
     final Currency payCurrency = fxForwardSecurity.getPayCurrency();
     final Currency receiveCurrency = fxForwardSecurity.getReceiveCurrency();
     final double payAmount = fxForwardSecurity.getPayAmount();
@@ -190,7 +192,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity fxForwardSecurity) {
-    Validate.notNull(fxForwardSecurity, "fx forward security");
+    ArgumentChecker.notNull(fxForwardSecurity, "fx forward security");
     final Currency payCurrency = fxForwardSecurity.getPayCurrency();
     final Currency receiveCurrency = fxForwardSecurity.getReceiveCurrency();
     final double payAmount = fxForwardSecurity.getPayAmount();

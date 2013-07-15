@@ -22,13 +22,14 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class UnionFakeSubscriptionSelectorTest {
 
   private BloombergReferenceDataProvider _underlying;

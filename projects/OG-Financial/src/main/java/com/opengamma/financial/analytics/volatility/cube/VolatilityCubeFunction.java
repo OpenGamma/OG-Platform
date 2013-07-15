@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -18,19 +18,19 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -53,20 +53,20 @@ public class VolatilityCubeFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ComputationTargetSpecification currencyTargetSpec = new ComputationTargetSpecification(_helper.getCurrency());
+    final ComputationTargetSpecification currencyTargetSpec = ComputationTargetSpecification.of(_helper.getCurrency());
     _cubeResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA, currencyTargetSpec,
         createValueProperties().with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
     _results = Sets.newHashSet(_cubeResult);
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final Set<ValueRequirement> requirements = Sets.newHashSet(getMarketDataRequirement());
     return new AbstractFunction.AbstractInvokingCompiledFunction() {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.CURRENCY;
       }
 
       @Override
@@ -82,7 +82,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        return _helper.getCurrency().getUniqueId().equals(target.getUniqueId());
+        return _helper.getCurrency().equals(target.getValue());
       }
 
       @Override
@@ -92,8 +92,8 @@ public class VolatilityCubeFunction extends AbstractFunction {
         final VolatilityCubeData normalizedData = new VolatilityCubeData();
         final Map<VolatilityPoint, Double> volatilityPoints = data.getDataPoints();
         final Map<VolatilityPoint, Double> normalizedVolatilityPoints = new HashMap<VolatilityPoint, Double>();
-        final Map<VolatilityPoint, ExternalId> volatilityPointIds = data.getDataIds();
-        final Map<VolatilityPoint, ExternalId> normalizedVolatilityPointIds = new HashMap<VolatilityPoint, ExternalId>();
+        final Map<VolatilityPoint, ExternalIdBundle> volatilityPointIds = data.getDataIds();
+        final Map<VolatilityPoint, ExternalIdBundle> normalizedVolatilityPointIds = new HashMap<VolatilityPoint, ExternalIdBundle>();
         final Map<VolatilityPoint, Double> relativeStrikes = data.getRelativeStrikes();
         final Map<VolatilityPoint, Double> normalizedRelativeStrikes = new HashMap<VolatilityPoint, Double>();
         final Map<Pair<Tenor, Tenor>, Double> atmStrikes = data.getATMStrikes();
@@ -108,7 +108,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
             final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
             final double absoluteStrike = atmStrikes.get(tenorPair) + relativeStrike / 10000;
             final double vol = entry.getValue();
-            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);            
+            final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);
             if (Double.doubleToLongBits(relativeStrike) == 0) {
               if (normalizedATMStrikes.containsKey(tenorPair)) {
                 throw new OpenGammaRuntimeException("Normalized ATM strike data set already contains value for " + tenorPair);
@@ -140,7 +140,7 @@ public class VolatilityCubeFunction extends AbstractFunction {
 
   private ValueRequirement getMarketDataRequirement() {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA,
-        new ComputationTargetSpecification(_helper.getCurrency()),
+        ComputationTargetSpecification.of(_helper.getCurrency()),
         ValueProperties.with(ValuePropertyNames.CUBE, _helper.getDefinitionName()).get());
   }
 

@@ -79,6 +79,7 @@ $.register_module({
                                         ui.dialog({type: 'confirm', action: 'close'});
                                         if (result.error) return view.error(result.message);
                                         routes.go(routes.hash(view.rules.load, routes.current().args));
+                                        setTimeout(function () {view.search(args);});
                                     }, id: routes.current().args.id
                                 });
                             },
@@ -137,6 +138,16 @@ $.register_module({
                             view.layout.inner.close('north');
                             $('.OG-layout-admin-details-north').empty();
                         }
+                        // Update button
+                        $('.OG-layout-admin-details-center .og-update').on('click', function () {
+                            var args = routes.current().args;
+                            view.notify('Updating TimeSeries...', 3000);
+                            $.when(api.rest.timeseries.put({id: args.id})).then(function (result) {
+                                if (result.error) return view.error(result.message);
+                                view.notify('Updated', 3000);
+                                view.details(routes.current().args, {hide_loading: true});
+                            });
+                        });
                         // Identifiers
                         $('.OG-layout-admin-details-center .og-js-identifiers tbody').html(
                             json_id.reduce(function (acc, cur) {
@@ -148,11 +159,11 @@ $.register_module({
                             }, '')
                         ).end().find('.OG-table').tablesorter();
                         // Plot
-                        new common.gadgets.TimeseriesPlot({
+                        new og.common.gadgets.Timeseries({
+                            rest_options: {id: result.data.template_data.object_id},
                             selector: '.OG-timeseries-container',
-                            id: result.data.template_data.object_id,
-                            datapoints: true, height: 400
-                        });
+                            datapoints: true
+                        })
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
                     });

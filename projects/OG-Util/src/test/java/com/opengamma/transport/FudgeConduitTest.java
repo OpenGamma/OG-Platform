@@ -17,10 +17,12 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the various Fudge-specific conduit forms.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class FudgeConduitTest {
 
   public void oneWayTest() {

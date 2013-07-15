@@ -17,11 +17,11 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -37,9 +37,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.money.Currency;
 
 /**
  * Function to source time series data from a {@link HistoricalTimeSeriesSource} attached to the execution context needed to convert each of the instruments in a curve to their OG-Analytics derivative
@@ -75,13 +73,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecate
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    return (uid != null) && uid.getScheme().equals(Currency.OBJECT_SCHEME);
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -125,7 +117,8 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecate
     final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle();
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     for (ValueRequirement timeSeriesRequirement : timeSeriesRequirements) {
-      final HistoricalTimeSeries hts = HistoricalTimeSeriesFunction.executeImpl(executionContext, timeSeriesSource, timeSeriesRequirement);
+      final HistoricalTimeSeries hts = HistoricalTimeSeriesFunction.executeImpl(executionContext, timeSeriesSource,
+          timeSeriesRequirement.getTargetReference().getSpecification(), timeSeriesRequirement);
       if (hts == null) {
         throw new OpenGammaRuntimeException("Can't get time series for " + timeSeriesRequirement);
       }

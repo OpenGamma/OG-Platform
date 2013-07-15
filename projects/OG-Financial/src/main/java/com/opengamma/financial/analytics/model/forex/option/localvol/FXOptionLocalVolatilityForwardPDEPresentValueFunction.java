@@ -12,11 +12,11 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.conversion.ForexDomesticPipsToPresentValueConverter;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -24,15 +24,16 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEFunction;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfaceUtils;
 import com.opengamma.financial.analytics.model.volatility.local.PDEFunctionUtils;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
@@ -72,13 +73,8 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof FXOptionSecurity;
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.FX_OPTION_SECURITY;
   }
 
   @Override
@@ -102,7 +98,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
   private ValueRequirement getSpotRequirement(final FXOptionSecurity fxOption) {
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
-    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
+    return ConventionBasedFXRateFunction.getSpotRateRequirement(callCurrency, putCurrency);
   }
 
   private ValueRequirement getPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
@@ -112,7 +108,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
 
   private ValueProperties getResultProperties() {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();
@@ -121,7 +117,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
 
   private ValueProperties getResultProperties(final ValueRequirement desiredValue) {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result, desiredValue)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();
@@ -130,7 +126,7 @@ public class FXOptionLocalVolatilityForwardPDEPresentValueFunction extends Abstr
 
   private ValueProperties getPriceProperties(final ValueRequirement desiredValue) {
     ValueProperties result = ValueProperties.builder().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, InstrumentTypeProperties.FOREX, _blackSmileInterpolatorName,
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     result = PDEFunctionUtils.addForwardPDEProperties(result, desiredValue)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();

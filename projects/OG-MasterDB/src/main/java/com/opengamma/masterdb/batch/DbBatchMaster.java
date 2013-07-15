@@ -40,14 +40,14 @@ import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueProperties;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
@@ -99,8 +99,8 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     final Long id = extractOid(uniqueId);
     return getHibernateTransactionTemplate().execute(new HibernateCallback<RiskRun>() {
       @Override
-      public RiskRun doInHibernate(Session session) throws HibernateException, SQLException {
-        RiskRun run = _dbBatchWriter.getRiskRunById(id);
+      public RiskRun doInHibernate(final Session session) throws HibernateException, SQLException {
+        final RiskRun run = _dbBatchWriter.getRiskRunById(id);
         if (run != null) {
           return run;
         } else {
@@ -133,7 +133,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
           paging = Paging.of(pagingRequest, results);
         } else {
           criteria.setProjection(Projections.rowCount());
-          Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
+          final Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
           paging = Paging.of(pagingRequest, totalCount.intValue());
         }
         //     
@@ -183,7 +183,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
           paging = Paging.of(pagingRequest, results);
         } else {
           criteria.setProjection(Projections.rowCount());
-          Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
+          final Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
           paging = Paging.of(pagingRequest, totalCount.intValue());
         }
         //
@@ -254,7 +254,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
             paging = Paging.of(pagingRequest, results);
           } else {
             criteria.setProjection(Projections.rowCount());
-            Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
+            final Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
             paging = Paging.of(pagingRequest, totalCount.intValue());
             //
             criteria.setProjection(null);
@@ -326,16 +326,16 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Pair<List<D>, Paging>>() {
       @Override
       public Pair<List<D>, Paging> doInTransaction(final TransactionStatus status) {
-        List<D> result = newArrayList();
+        final List<D> result = newArrayList();
         Paging paging;
         s_logger.debug("with args {}", args);
-        final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+        final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
         if (pagingRequest.equals(PagingRequest.ALL)) {
           result.addAll(namedJdbc.query(sql[0], args, extractor));
           paging = Paging.of(pagingRequest, result);
         } else {
           s_logger.debug("executing sql {}", sql[1]);
-          final int count = namedJdbc.queryForInt(sql[1], args);
+          final int count = namedJdbc.queryForObject(sql[1], args, Integer.class);
           paging = Paging.of(pagingRequest, count);
           if (count > 0 && !pagingRequest.equals(PagingRequest.NONE)) {
             s_logger.debug("executing sql {}", sql[0]);
@@ -359,7 +359,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
       args.addValue("paging_fetch", pagingRequest.getPagingSize());
     }
     
-    String[] sql = {getElSqlBundle().getSql("GetBatchValues", args), getElSqlBundle().getSql("BatchValuesCount", args)};
+    final String[] sql = {getElSqlBundle().getSql("GetBatchValues", args), getElSqlBundle().getSql("BatchValuesCount", args)};
     return searchWithPaging(pagingRequest, sql, args, new BatchValuesExtractor());
   }
 
@@ -390,7 +390,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
       @Override
       public Void doInTransaction(final TransactionStatus status) {
-        _dbBatchWriter.addJobResultsInTransaction(riskRunId, result);
+        _dbBatchWriter.addJobResultsInTransaction(status, riskRunId, result);
         return null;
       }
     });
@@ -421,7 +421,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
       final String valueName = rs.getString("name");
 //      final Timestamp evalInstant = rs.getTimestamp("eval_instant");
 //      final long computeNodeId = rs.getLong("compute_node_id");
-      final ComputationTargetType computationTargetType = ComputationTargetType.valueOf(rs.getString("target_type"));
+      final ComputationTargetType computationTargetType = ComputationTargetType.parse(rs.getString("target_type"));
       final String valueRequirementsSyntheticForm = rs.getString("synthetic_form");
       final String targetTypeIdScheme = rs.getString("target_type_id_scheme");
       final String targetTypeIdValue = rs.getString("target_type_id_value");
@@ -430,7 +430,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
       final ValueProperties valueProperties = RiskValueProperties.parseJson(valueRequirementsSyntheticForm);
       final String configurationName = rs.getString("config_name");
       final ValueSpecification valueSpecification = ValueSpecification.of(valueName, computationTargetType, targetId, valueProperties);
-      final ComputedValueResult computedValue = new ComputedValueResult(valueSpecification, value, ExecutionLog.EMPTY);
+      final ComputedValueResult computedValue = new ComputedValueResult(valueSpecification, value, AggregatedExecutionLog.EMPTY);
       final ViewResultEntry viewResultEntry = new ViewResultEntry(configurationName, computedValue);
 
       return viewResultEntry;

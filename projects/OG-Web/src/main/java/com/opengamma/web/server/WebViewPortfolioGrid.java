@@ -7,19 +7,20 @@ package com.opengamma.web.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cometd.Client;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerSession;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
@@ -34,20 +35,24 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
 
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
 
-  public WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote,
-      ComputationTargetResolver computationTargetResolver) {
+  public WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache,
+      LocalSession local, ServerSession remote, ComputationTargetResolver computationTargetResolver) {
     this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, local, remote, computationTargetResolver);
   }
 
-  private WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
-                               Client local, Client remote, ComputationTargetResolver computationTargetResolver) {
+  private WebViewPortfolioGrid(
+      ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
+      LocalSession local, ServerSession remote, ComputationTargetResolver computationTargetResolver) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
-        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
-        remote, "Loading...", computationTargetResolver);
+        // [PLAT-2286] Hack to get PositionWeight results to show up
+        ImmutableSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION, ComputationTargetType.PORTFOLIO_NODE.containing(ComputationTargetType.POSITION)), resultConverterCache,
+        local, remote, "Loading...", computationTargetResolver);
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
-      int rowId = getGridStructure().getRowId(row.getTarget());
-      _rowIdToRowMap.put(rowId, row);
+      final int[] rowIds = getGridStructure().getRowIds(row.getTarget());
+      for (int rowId : rowIds) {
+        _rowIdToRowMap.put(rowId, row);
+      }
     }
   }
 
@@ -56,12 +61,12 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
     details.put("indent", row.getDepth());
     if (row.getParentRow() != null) {
-      int parentRowId = getGridStructure().getRowId(row.getParentRow().getTarget());
-      details.put("parentRowId", parentRowId);
+      final int[] parentRowIds = getGridStructure().getRowIds(row.getParentRow().getTarget());
+      details.put("parentRowId", parentRowIds[0]);
     }
     ComputationTargetType targetType = row.getTarget().getType();
     details.put("type", targetType.toString());
-    
+
     if (targetType == ComputationTargetType.POSITION) {
       Position position = row.getPosition();
       details.put("posId", position.getUniqueId());
@@ -92,13 +97,11 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
 
   private static void flattenPortfolio(final PortfolioNode portfolio, final PortfolioRow parentRow, final int depth,
                                        final String nodeName, final List<PortfolioRow> rows) {
-    PortfolioRow aggregateRow = new PortfolioRow(depth, parentRow,
-        new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, portfolio.getUniqueId()), null, nodeName);
+    PortfolioRow aggregateRow = new PortfolioRow(depth, parentRow, ComputationTargetSpecification.of(portfolio), null, nodeName);
     rows.add(aggregateRow);
 
     for (Position position : portfolio.getPositions()) {
-      PortfolioRow portfolioRow = new PortfolioRow(depth + 1, aggregateRow,
-          new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId()), position, null);
+      PortfolioRow portfolioRow = new PortfolioRow(depth + 1, aggregateRow, ComputationTargetSpecification.of(position), position, null);
       rows.add(portfolioRow);
     }
     Collection<PortfolioNode> subNodes = portfolio.getChildNodes();
@@ -134,8 +137,8 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
     PortfolioRow portfolioRow = _rowIdToRowMap.get(rowId);
     PortfolioRow parentRow = portfolioRow.getParentRow();
-    String parentRowIdText = parentRow != null ? getGridStructure().getRowId(parentRow.getTarget()).toString() : null;
-    
+    String parentRowIdText = parentRow != null ? Integer.toString(getGridStructure().getRowIds(parentRow.getTarget())[0]) : null;
+
     String name;
     String quantity;
     if (target.getType() == ComputationTargetType.POSITION) {
@@ -146,7 +149,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
       name = portfolioRow.getAggregateName();
       quantity = "";
     }
-    
+
     row[0] = Integer.toString(rowId);
     row[1] = parentRowIdText;
     row[2] = name;

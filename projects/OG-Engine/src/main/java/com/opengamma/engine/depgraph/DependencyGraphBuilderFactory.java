@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -16,10 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
+import com.opengamma.engine.target.digest.TargetDigests;
 
 /**
- * Constructs {@link DependencyGraphBuider} instances with common parameters. All dependency graph builders
- * created by a single factory will share the same additional thread allowance.
+ * Constructs {@link DependencyGraphBuider} instances with common parameters. All dependency graph builders created by a single factory will share the same additional thread allowance.
  */
 public class DependencyGraphBuilderFactory {
 
@@ -51,6 +51,8 @@ public class DependencyGraphBuilderFactory {
   private boolean _enableFailureReporting = System.getProperty("DependencyGraphBuilderFactory.enableFailureReporting", "FALSE").equalsIgnoreCase("TRUE");
   private RunQueueFactory _runQueue = DependencyGraphBuilder.getDefaultRunQueueFactory();
   private FunctionExclusionGroups _functionExclusionGroups;
+  private TargetDigests _targetDigests;
+  private ComputationTargetCollapser _computationTargetCollapser;
   private final Executor _executor = createExecutor();
 
   public DependencyGraphBuilderFactory() {
@@ -103,6 +105,22 @@ public class DependencyGraphBuilderFactory {
     return _functionExclusionGroups;
   }
 
+  public void setTargetDigests(final TargetDigests targetDigests) {
+    _targetDigests = targetDigests;
+  }
+
+  public TargetDigests getTargetDigests() {
+    return _targetDigests;
+  }
+
+  public void setComputationTargetCollapser(final ComputationTargetCollapser computationTargetCollapser) {
+    _computationTargetCollapser = computationTargetCollapser;
+  }
+
+  public ComputationTargetCollapser getComputationTargetCollapser() {
+    return _computationTargetCollapser;
+  }
+
   public DependencyGraphBuilder newInstance() {
     final DependencyGraphBuilder builder = new DependencyGraphBuilder(getExecutor(), getRunQueueFactory());
     configureBuilder(builder);
@@ -113,6 +131,8 @@ public class DependencyGraphBuilderFactory {
     builder.setMaxAdditionalThreads(getMaxAdditionalThreadsPerBuilder());
     builder.setDisableFailureReporting(!isEnableFailureReporting());
     builder.setFunctionExclusionGroups(getFunctionExclusionGroups());
+    builder.setTargetDigests(getTargetDigests());
+    builder.setComputationTargetCollapser(getComputationTargetCollapser());
   }
 
   protected Executor createExecutor() {
@@ -122,20 +142,31 @@ public class DependencyGraphBuilderFactory {
       private final AtomicInteger _threads = new AtomicInteger();
       private final Queue<Runnable> _commands = new ConcurrentLinkedQueue<Runnable>();
 
-      private Runnable wrap(final Runnable command) {
-        return new Runnable() {
-          @Override
-          public void run() {
-            try {
-              s_logger.debug("Starting job execution");
-              command.run();
-            } finally {
-              s_logger.debug("Job execution complete");
-              threadExit();
-              s_logger.debug("Thread exit complete");
-            }
+      class WrappedRunnable implements Runnable {
+
+        private Runnable _command;
+
+        public WrappedRunnable(final Runnable command) {
+          _command = command;
+        }
+
+        @Override
+        public void run() {
+          try {
+            s_logger.debug("Starting job execution");
+            _command.run();
+          } finally {
+            _command = null;
+            s_logger.debug("Job execution complete");
+            threadExit();
+            s_logger.debug("Thread exit complete");
           }
-        };
+        }
+
+      }
+
+      private Runnable wrap(final Runnable command) {
+        return new WrappedRunnable(command);
       }
 
       private void executeImpl(final Runnable command) {

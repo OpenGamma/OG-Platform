@@ -4,10 +4,23 @@
  */
 (function () {
     if (!window.JSurface3D) throw new Error('JSurface3D.Hud requires JSurface3D');
+    /**
+     * Create the html overlay with the log option and volatility display
+     * @param {Object} js3d A JSurface3D instance
+     * @param {String} $selector A Jquery selector to the surfaces container
+     * @param {String} stylesheet Selector to the surfaces shared stylesheet location
+     * @name JSurface3D.Hud
+     * @namespace JSurface3D.Hud
+     * @private
+     * @constructor
+     */
     window.JSurface3D.Hud = function (js3d, $selector, stylesheet) {
         var hud = this, settings = js3d.settings;
         /**
          * Loads 2D overlay display with form
+         * @name JSurface3D.Hud.load
+         * @function
+         * @private
          */
         hud.load = function () {
             if (!settings.hud) return;
@@ -46,12 +59,16 @@
                 html = tmpl.replace(/\{\{(?:max|min)\}\}/g, function (m) {return m === '{{min}}' ? min : max;}),
                 $html = $(html).appendTo($selector);
             hud.vol_canvas_height = js3d.height / 2;
+            if (!js3d.settings.log_function) $html.find('.j-o').hide();
             if (js3d.webgl) hud.volatility($html.find('canvas')[0]);
             else $html.find('.j-v').hide();
             hud.form();
         };
         /**
-         * Configure surface gadget display
+         * Attach change handler to log option
+         * @function
+         * @private
+         * @ignore
          */
         hud.form = function () {
             $selector.find('.j-o input').prop('checked', js3d.settings.log).on('change', function () {
@@ -62,6 +79,9 @@
         /**
          * Set a value in the 2D volatility display
          * @param {Number} value The value to set. If value is not a number the indicator is hidden
+         * @function
+         * @private
+         * @ignore
          */
         hud.set_volatility = function (value) {
             if (!settings.hud) return;
@@ -76,6 +96,9 @@
         /**
          * Volatility gradient canvas
          * @param {Object} canvas html canvas element
+         * @function
+         * @private
+         * @ignore
          */
         hud.volatility = function (canvas) {
             var ctx = canvas.getContext('2d'), gradient,

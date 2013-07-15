@@ -23,7 +23,7 @@ public final class ForexDomesticPipsToPresentValueConverter {
     ArgumentChecker.isTrue(spotFX > 0.0, "Spot rate must be greater than zero. value gvien is {}", spotFX);
     ArgumentChecker.notNull(putCurrency, "put currency");
     ArgumentChecker.notNull(callCurrency, "call currency");
-    final Map<Currency, Double> amountMap = new HashMap<Currency, Double>();
+    final Map<Currency, Double> amountMap = new HashMap<>();
     final double putPV = putAmount * domesticPipsPV;
     final double callPV = callAmount * domesticPipsPV / spotFX;
     amountMap.put(callCurrency, callPV);

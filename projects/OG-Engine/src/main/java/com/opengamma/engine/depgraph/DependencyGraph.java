@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
 
-import static com.opengamma.util.functional.Functional.submapByKeySet;
+import static com.opengamma.lambdava.streams.Lambdava.submapByKeySet;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -21,14 +21,16 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents a directed graph of nodes describing how to execute a view to produce the required terminal outputs.
@@ -43,33 +45,33 @@ public class DependencyGraph {
   /**
    * All nodes in the graph, including the root nodes.
    */
-  private final Set<DependencyNode> _dependencyNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _dependencyNodes = new HashSet<>();
 
   /**
    * The root nodes in the graph.
    */
-  private final Set<DependencyNode> _rootNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _rootNodes = new HashSet<>();
 
   /**
    * A cache of terminal output values from this graph's nodes. Each output may be associated with one or more original value requirements that triggered the outputs inclusion in the graph.
    */
-  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+  private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputs = new HashMap<>();
 
   /**
    * A cache of output values from this graph's nodes. Each output is associated with the node that produces it.
    */
-  private final Map<ValueSpecification, DependencyNode> _outputValues = new HashMap<ValueSpecification, DependencyNode>();
+  private final Map<ValueSpecification, DependencyNode> _outputValues = new HashMap<>();
 
-  private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredMarketData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
+  private final Set<ValueSpecification> _allRequiredMarketData = new HashSet<>();
 
-  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
+  private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<>();
 
   /**
    * Creates a new, initially empty, dependency graph for the named configuration.
    * 
    * @param calcConfName configuration name, not null
    */
-  public DependencyGraph(String calcConfName) {
+  public DependencyGraph(final String calcConfName) {
     ArgumentChecker.notNull(calcConfName, "Calculation configuration name");
     _calculationConfigurationName = calcConfName;
   }
@@ -87,14 +89,14 @@ public class DependencyGraph {
    * Returns nodes that have no dependent nodes in this graph.
    * <p>
    * The case of unconnected sub-graphs: say your original graph is
+   * 
    * <pre>
    *  A->B->C
    * </pre>
-   * and your subgraph contains only nodes A and C,
-   * then according to the above definition (no dependent nodes),
-   * both A and C are considered to be root.
-   * Of course unconnected sub-graphs should not occur in practice.
-   *  
+   * 
+   * and your subgraph contains only nodes A and C, then according to the above definition (no dependent nodes), both A and C are considered to be root. Of course unconnected sub-graphs should not
+   * occur in practice.
+   * 
    * @return Nodes that have no dependent nodes in this graph.
    */
   public Set<DependencyNode> getRootNodes() {
@@ -107,7 +109,7 @@ public class DependencyGraph {
    * @param node node to test, not null
    * @return true if the node is a root node
    */
-  public boolean isRootNode(DependencyNode node) {
+  public boolean isRootNode(final DependencyNode node) {
     return _rootNodes.contains(node);
   }
 
@@ -117,7 +119,7 @@ public class DependencyGraph {
    * @param node node to test, not null
    * @return true if the node is in his graph or sub-graph
    */
-  public boolean containsNode(DependencyNode node) {
+  public boolean containsNode(final DependencyNode node) {
     return _dependencyNodes.contains(node);
   }
 
@@ -131,10 +133,8 @@ public class DependencyGraph {
   }
 
   /**
-   * Returns the set of output values from the graph that are marked as terminal outputs.
-   * These are the requested values that drove the graph construction and will not be pruned.
-   * Any other output values in the graph are intermediate values required by the functions
-   * used to deliver the requested terminal outputs.
+   * Returns the set of output values from the graph that are marked as terminal outputs. These are the requested values that drove the graph construction and will not be pruned. Any other output
+   * values in the graph are intermediate values required by the functions used to deliver the requested terminal outputs.
    * 
    * @return the set of terminal output values
    */
@@ -143,11 +143,9 @@ public class DependencyGraph {
   }
 
   /**
-   * Returns the set of output values from the graph that are marked as terminal outputs.
-   * These are the requested values that drove the graph construction and will not be pruned.
-   * Any other output values in the graph are intermediate values required by the functions
-   * used to deliver the requested terminal outputs.
-   *
+   * Returns the set of output values from the graph that are marked as terminal outputs. These are the requested values that drove the graph construction and will not be pruned. Any other output
+   * values in the graph are intermediate values required by the functions used to deliver the requested terminal outputs.
+   * 
    * @return the set of terminal output values
    */
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs() {
@@ -164,16 +162,15 @@ public class DependencyGraph {
   }
 
   /**
-   * Returns the set of all output values for computation targets of a specific type. For example
-   * the output values for all {@link PortfolioNode} targets.
+   * Returns the set of all output values for computation targets of a specific type. For example the output values for all {@link PortfolioNode} targets.
    * 
    * @param type computation target type, not null
    * @return the set of output values
    */
-  public Set<ValueSpecification> getOutputSpecifications(ComputationTargetType type) {
+  public Set<ValueSpecification> getOutputSpecifications(final ComputationTargetType type) {
     // REVIEW 2012-05-24 aiwg -- Do we really need this? It's only used by some of the unit tests.
-    Set<ValueSpecification> outputValues = new HashSet<ValueSpecification>();
-    for (ValueSpecification spec : _outputValues.keySet()) {
+    final Set<ValueSpecification> outputValues = new HashSet<>();
+    for (final ValueSpecification spec : _outputValues.keySet()) {
       if (spec.getTargetSpecification().getType() == type) {
         outputValues.add(spec);
       }
@@ -182,8 +179,7 @@ public class DependencyGraph {
   }
 
   /**
-   * Returns an immutable set of all nodes in the graph. The set is backed by the graph,
-   * so structural changes to the graph will be reflected in the returned set.
+   * Returns an immutable set of all nodes in the graph. The set is backed by the graph, so structural changes to the graph will be reflected in the returned set.
    * 
    * @return the set of nodes
    */
@@ -201,30 +197,11 @@ public class DependencyGraph {
   }
 
   /**
-   * Returns an immutable set of all nodes in the graph for the given target type.
+   * Returns the set of market data required for successful execution of the graph. These correspond to the leaf nodes of the graph and can be queried from a market data provider.
    * 
-   * @param type computation target type, not null
-   * @return the set of nodes
+   * @return the set of market data requirements.
    */
-  public Set<DependencyNode> getDependencyNodes(final ComputationTargetType type) {
-    // REVIEW 2012-05-24 aiwg -- Do we really need this? It's only used by some of the unit tests.
-    Set<DependencyNode> dependencyNodes = new HashSet<DependencyNode>();
-    for (Map.Entry<ValueSpecification, DependencyNode> entry : _outputValues.entrySet()) {
-      if (entry.getKey().getTargetSpecification().getType() == type) {
-        dependencyNodes.add(entry.getValue());
-      }
-    }
-    return dependencyNodes;
-  }
-
-  /**
-   * Returns the set of market data required for successful execution of the graph. Each market data entry is given as
-   * a requirement/specification pair. The requirement may be passed to a market data provider. The corresponding
-   * specification may be used to add the market data to a computation value cache.
-   * 
-   * @return the set of market data requirements. 
-   */
-  public Set<Pair<ValueRequirement, ValueSpecification>> getAllRequiredMarketData() {
+  public Set<ValueSpecification> getAllRequiredMarketData() {
     return Collections.unmodifiableSet(_allRequiredMarketData);
   }
 
@@ -239,27 +216,22 @@ public class DependencyGraph {
   }
 
   /**
-   * Adds a node to the graph. A node will be rejected if there is already one in the graph that produces the same
-   * output value - indicating a fault in the graph construction algorithm.
+   * Adds a node to the graph. A node will be rejected if there is already one in the graph that produces the same output value - indicating a fault in the graph construction algorithm.
    * 
    * @param node node to add, not null
    */
-  public void addDependencyNode(DependencyNode node) {
+  public void addDependencyNode(final DependencyNode node) {
     ArgumentChecker.notNull(node, "Node");
     if (!_dependencyNodes.add(node)) {
       throw new IllegalStateException("Node " + node + " already in the graph");
     }
-    for (ValueSpecification output : node.getTerminalOutputValues()) {
-      if (!_terminalOutputs.containsKey(output)) {
-        _terminalOutputs.put(output, null);
-      }
-    }
-    Pair<ValueRequirement, ValueSpecification> marketData = node.getRequiredMarketData();
+    node.gatherTerminalOutputValues(_terminalOutputs);
+    final ValueSpecification marketData = node.getRequiredMarketData();
     if (marketData != null) {
       _allRequiredMarketData.add(marketData);
     }
     _allComputationTargets.add(node.getComputationTarget());
-    for (ValueSpecification output : node.getOutputValues()) {
+    for (final ValueSpecification output : node.getOutputValues()) {
       final DependencyNode previous = _outputValues.put(output, node);
       if (previous != null) {
         throw new IllegalStateException("Node producing " + output + " already in the graph (previus = " + previous + ", this node = " + node + ")");
@@ -267,7 +239,7 @@ public class DependencyGraph {
     }
     // is this node root at the moment?
     boolean isRoot = true;
-    for (DependencyNode dependentNode : node.getDependentNodes()) {
+    for (final DependencyNode dependentNode : node.getDependentNodes()) {
       if (_dependencyNodes.contains(dependentNode)) {
         isRoot = false;
         break;
@@ -277,7 +249,7 @@ public class DependencyGraph {
       _rootNodes.add(node);
     }
     // might be that some children became non-root as a result of adding this node
-    for (DependencyNode childNode : node.getInputNodes()) {
+    for (final DependencyNode childNode : node.getInputNodes()) {
       _rootNodes.remove(childNode);
     }
   }
@@ -292,23 +264,20 @@ public class DependencyGraph {
     if (!_dependencyNodes.remove(node)) {
       return;
     }
-    final Pair<ValueRequirement, ValueSpecification> marketData = node.getRequiredMarketData();
+    final ValueSpecification marketData = node.getRequiredMarketData();
     if (marketData != null) {
       _allRequiredMarketData.remove(marketData);
     }
-    // Note: a target may be shared by multiple nodes so don't remove target from _allComputationTargets - this is wrong in some cases
-    for (ValueSpecification output : node.getOutputValues()) {
+    for (final ValueSpecification output : node.getOutputValues()) {
       _outputValues.remove(output);
-    }
-    for (ValueSpecification output : node.getTerminalOutputValues()) {
       _terminalOutputs.remove(output);
     }
     if (_rootNodes.remove(node)) {
       // Some children might become root as a result of removing this node
-      for (DependencyNode childNode : node.getInputNodes()) {
+      for (final DependencyNode childNode : node.getInputNodes()) {
         final Set<DependencyNode> dependentNodes = childNode.getDependentNodes();
         boolean isRoot = true;
-        for (DependencyNode dependentNode : dependentNodes) {
+        for (final DependencyNode dependentNode : dependentNodes) {
           if (_dependencyNodes.contains(dependentNode)) {
             isRoot = false;
             break;
@@ -322,76 +291,198 @@ public class DependencyGraph {
   }
 
   /**
-   * Marks an output as terminal, meaning that it cannot be pruned.
-   * @param requirement the output requirement to mark as terminal
-   * @param specification the output specification to mark as terminal
+   * Do not call directly; used by {@link DependencyNode#replaceWithinGraph}.
    */
-  public void addTerminalOutput(ValueRequirement requirement, ValueSpecification specification) {
-    // Register it with the node responsible for producing it - informs the node that the output is required
+  /* package */void replaceValueSpecification(final ValueSpecification oldSpec, final ValueSpecification newSpec) {
+    _outputValues.put(newSpec, _outputValues.remove(oldSpec));
+    final Set<ValueRequirement> reqs = _terminalOutputs.remove(oldSpec);
+    if (reqs != null) {
+      _terminalOutputs.put(newSpec, reqs);
+    }
+  }
+
+  /**
+   * Replaces a node in the dependency graph with a new node based on the replacement target. The new target must be compatible with the original.
+   * 
+   * @param node the node to replace
+   * @param newTarget the target for the new node
+   * @return the new node
+   */
+  public DependencyNode replaceNode(final DependencyNode node, final ComputationTargetSpecification newTarget) {
+    ArgumentChecker.notNull(node, "node");
+    ArgumentChecker.notNull(newTarget, "newTarget");
+    if (!_dependencyNodes.remove(node)) {
+      throw new IllegalStateException("Node " + node + " is not in graph");
+    }
+    final DependencyNode newNode = new DependencyNode(newTarget);
+    newNode.setFunction(node.getFunction());
+    node.replaceWithinGraph(newNode, this);
+    _allComputationTargets.add(newTarget);
+    if (_rootNodes.remove(node)) {
+      _rootNodes.add(newNode);
+    }
+    _dependencyNodes.add(newNode);
+    return newNode;
+  }
+
+  /**
+   * Creates a new node with the same definition as the specified node, which is automatically placed in the dependency graph such that it effectively proxies the original node. It will takes its
+   * inputs from the outputs of the original node and it will expose the same output specifications along with the same set of dependents. Meanwhile the original node will be adjusted such that its
+   * only dependent is the new node. As each node must produce a unique ValueSpecification, additional properties are added to the value spec produced by the new node to maintain this uniqueness.
+   * 
+   * @param original the node to be proxied, not equal and not this node
+   * @param function the function for the new node, not null
+   * @param discriminatorProperties properties added to the value spec of the original node, such that the new node produces a unique value spec, not null
+   * @return the newly created proxy node, not null
+   */
+  public DependencyNode appendInput(final DependencyNode original,
+      final CompiledFunctionDefinition function,
+      final Map<String, String> discriminatorProperties) {
+
+    ArgumentChecker.notNull(original, "node");
+    ArgumentChecker.isFalse(equals(original), "Proxy node must be different to the proxied node");
+    ArgumentChecker.notNull(function, "function");
+    ArgumentChecker.notEmpty(discriminatorProperties, "discriminatorProperties");
+
+    // Create the new proxy node based on the original
+    DependencyNode proxyNode = new DependencyNode(original.getComputationTarget());
+    proxyNode.setFunction(function);
+
+    // TODO - this implementation is naive as it proxies all output specs - we should actually only proxy the spec we are interested in
+    // However, in most cases there will only be one output anyway
+
+    Map<ValueSpecification, ValueSpecification> newValueSpecifications = copyValueSpecifications(original, discriminatorProperties);
+    proxyNode.addOutputValues(ImmutableSet.copyOf(newValueSpecifications.values()));
+
+    // Note the dependents of the original
+    Set<DependencyNode> originalDependents = new HashSet<>(original.getDependentNodes());
+
+    // Now switch the inputs for each of the dependents
+    for (DependencyNode dependent : originalDependents) {
+      for (Map.Entry<ValueSpecification, ValueSpecification> entry : newValueSpecifications.entrySet()) {
+        dependent.replaceInput(entry.getKey(), entry.getValue(), original, proxyNode);
+      }
+    }
+
+    // Now the input values
+    proxyNode.addInputNode(original);
+    for (ValueSpecification specification : original.getOutputValues()) {
+      proxyNode.addInputValue(specification);
+    }
+
+    addDependencyNode(proxyNode);
+
+    return proxyNode;
+  }
+
+  private Map<ValueSpecification, ValueSpecification> copyValueSpecifications(final DependencyNode node,
+      final Map<String, String> discriminatorProperties) {
+
+    Map<ValueSpecification, ValueSpecification> converted = new HashMap<>();
+
+    for (ValueSpecification original : node.getOutputValues()) {
+
+      ValueProperties.Builder builder = original.getProperties().copy();
+
+      for (Map.Entry<String, String> entry : discriminatorProperties.entrySet()) {
+        builder = builder.with(entry.getKey(), entry.getValue());
+      }
+
+      converted.put(original,
+          new ValueSpecification(original.getValueName(), original.getTargetSpecification(), builder.get()));
+    }
+    return converted;
+  }
+
+  private Set<ValueRequirement> getTerminalOutputValueRequirements(final ValueSpecification specification) {
     final DependencyNode node = _outputValues.get(specification);
     if (node == null) {
       throw new IllegalArgumentException("No node produces " + specification);
     }
     node.addTerminalOutputValue(specification);
-    // Maintain a cache of all terminal outputs at the graph level
     Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
     if (requirements == null) {
-      requirements = new HashSet<ValueRequirement>();
+      requirements = new HashSet<>();
       _terminalOutputs.put(specification, requirements);
     }
-    requirements.add(requirement);
+    return requirements;
+  }
+
+  /**
+   * Marks an output as terminal, meaning that it cannot be pruned.
+   * <p>
+   * Terminal outputs are marked on each node, and a cache is held at the graph level for the specifications against the original requirements that requested them.
+   * 
+   * @param requirement the output requirement to mark as terminal
+   * @param specification the output specification to mark as terminal
+   */
+  public void addTerminalOutput(final ValueRequirement requirement, final ValueSpecification specification) {
+    getTerminalOutputValueRequirements(specification).add(requirement);
   }
 
   /**
    * Marks an outputs as terminals, meaning that it cannot be pruned.
-   *
+   * <p>
+   * Terminal outputs are marked on each node, and a cache is held at the graph level for the specifications against the original requirements that requested them.
+   * 
    * @param specifications the outputs to mark as terminals
    */
-  public void addTerminalOutputs(Map<ValueSpecification, Set<ValueRequirement>> specifications) {
-    for (ValueSpecification specification : specifications.keySet()) {
-      // Register it with the node responsible for producing it - informs the node that the output is required
-      final DependencyNode node = _outputValues.get(specification);
-      if (node == null) {
-        throw new IllegalArgumentException("No node produces " + specification);
-      }
-      node.addTerminalOutputValue(specification);
-      // Maintain a cache of all terminal outputs at the graph level
-      Set<ValueRequirement> requirements = _terminalOutputs.get(specification);
-      if (requirements == null) {
-        requirements = new HashSet<ValueRequirement>();
-        _terminalOutputs.put(specification, requirements);
-      }
-      requirements.addAll(specifications.get(specification));
+  public void addTerminalOutputs(final Map<ValueSpecification, Set<ValueRequirement>> specifications) {
+    for (Map.Entry<ValueSpecification, Set<ValueRequirement>> specification : specifications.entrySet()) {
+      getTerminalOutputValueRequirements(specification.getKey()).addAll(specification.getValue());
     }
   }
 
   /**
-   * Go through the entire graph and remove any output values that
-   * aren't actually consumed.
+   * Unmarks an output as terminal. The output and node producing it are kept in the graph but can be removed if needed by calling {@link #removeUnnecessaryValues}. If the output was terminal because
+   * it satisfies other requirements only the stated mappings are removed, it will remain terminal with the remaining requirements.
+   * 
+   * @param requirements the requirements associated with the output, not null
+   * @param specification the specification of the output value, not null
+   */
+  public void removeTerminalOutputs(final Collection<ValueRequirement> requirements, final ValueSpecification specification) {
+    final DependencyNode node = _outputValues.get(specification);
+    if (node == null) {
+      throw new IllegalArgumentException("No node produces " + specification);
+    }
+    node.removeTerminalOutputValue(specification);
+    // Maintain the cache of all terminal outputs
+    final Set<ValueRequirement> terminalRequirements = _terminalOutputs.get(specification);
+    if (terminalRequirements != null) {
+      terminalRequirements.removeAll(requirements);
+      if (terminalRequirements.isEmpty()) {
+        _terminalOutputs.remove(specification);
+      }
+    }
+  }
+
+  /**
+   * Go through the entire graph and remove any output values that aren't actually consumed.
    * <p>
-   * Functions can possibly produce more than their minimal set of values, so
-   * we need to strip out the ones that aren't actually used after the whole graph
-   * is constructed.
+   * Functions can possibly produce more than their minimal set of values, so we need to strip out the ones that aren't actually used after the whole graph is constructed.
    * <p>
-   * When a backtracking algorithm is used for graph building nodes may remain
-   * which generate no terminal output. These nodes are also removed.
+   * When a backtracking algorithm is used for graph building nodes may remain which generate no terminal output. These nodes are also removed.
    */
   public void removeUnnecessaryValues() {
-    final List<DependencyNode> unnecessaryNodes = new LinkedList<DependencyNode>();
+    final List<DependencyNode> unnecessaryNodes = new LinkedList<>();
     do {
-      for (DependencyNode node : _dependencyNodes) {
-        Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
+      for (final DependencyNode node : _dependencyNodes) {
+        final Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
+        if (unnecessaryValues == null) {
+          continue;
+        }
         if (!unnecessaryValues.isEmpty()) {
           s_logger.info("{}: removed {} unnecessary potential result(s)", this, unnecessaryValues.size());
-          if (node.getOutputValues().isEmpty()) {
-            unnecessaryNodes.add(node);
-          }
-          for (ValueSpecification unnecessaryValue : unnecessaryValues) {
-            DependencyNode removed = _outputValues.remove(unnecessaryValue);
+          for (final ValueSpecification unnecessaryValue : unnecessaryValues) {
+            final DependencyNode removed = _outputValues.remove(unnecessaryValue);
             if (removed == null) {
               throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped to a node");
             }
+            _allRequiredMarketData.remove(unnecessaryValue);
           }
+        }
+        if (node.getOutputValues().isEmpty()) {
+          unnecessaryNodes.add(node);
         }
       }
       if (unnecessaryNodes.isEmpty()) {
@@ -400,8 +491,7 @@ public class DependencyGraph {
       s_logger.info("{}: removed {} unnecessary node(s)", this, unnecessaryNodes.size());
       _dependencyNodes.removeAll(unnecessaryNodes);
       _rootNodes.removeAll(unnecessaryNodes);
-      for (DependencyNode node : unnecessaryNodes) {
-        _allRequiredMarketData.remove(node.getRequiredMarketData());
+      for (final DependencyNode node : unnecessaryNodes) {
         node.clearInputs();
       }
       unnecessaryNodes.clear();
@@ -411,36 +501,29 @@ public class DependencyGraph {
   /**
    * Orders the nodes into a valid execution sequence suitable for a single thread executor.
    * 
-   * @return Nodes in an executable order. E.g., if there are two nodes, A and B, and A
-   * depends on B, then list [B, A] is returned (and not [A, B]).
+   * @return Nodes in an executable order. E.g., if there are two nodes, A and B, and A depends on B, then list [B, A] is returned (and not [A, B]).
    */
   public List<DependencyNode> getExecutionOrder() {
-    ArrayList<DependencyNode> executionOrder = new ArrayList<DependencyNode>();
-    HashSet<DependencyNode> alreadyEvaluated = new HashSet<DependencyNode>();
-
-    for (DependencyNode root : getRootNodes()) {
+    final ArrayList<DependencyNode> executionOrder = new ArrayList<>();
+    final HashSet<DependencyNode> alreadyEvaluated = new HashSet<>();
+    for (final DependencyNode root : getRootNodes()) {
       getExecutionOrder(root, executionOrder, alreadyEvaluated);
     }
-
     return executionOrder;
   }
 
-  private void getExecutionOrder(DependencyNode currentNode, List<DependencyNode> executionOrder, Set<DependencyNode> alreadyEvaluated) {
+  private void getExecutionOrder(final DependencyNode currentNode, final List<DependencyNode> executionOrder, final Set<DependencyNode> alreadyEvaluated) {
     if (!containsNode(currentNode)) { // this check is necessary because of sub-graphing
       return;
     }
-
-    for (DependencyNode child : currentNode.getInputNodes()) {
+    for (final DependencyNode child : currentNode.getInputNodes()) {
       getExecutionOrder(child, executionOrder, alreadyEvaluated);
     }
-
     if (!alreadyEvaluated.contains(currentNode)) {
       executionOrder.add(currentNode);
       alreadyEvaluated.add(currentNode);
     }
   }
-
-
 
   /**
    * Applies a filter to the graph to create a sub-graph.
@@ -448,47 +531,55 @@ public class DependencyGraph {
    * @param filter Tells whether to include node or not
    * @return A sub-graph consisting of all nodes accepted by the filter.
    */
-  public DependencyGraph subGraph(DependencyNodeFilter filter) {
-    DependencyGraph subGraph = new DependencyGraph(getCalculationConfigurationName());
-    for (DependencyNode node : getDependencyNodes()) {
+  public DependencyGraph subGraph(final DependencyNodeFilter filter) {
+    final DependencyGraph subGraph = new DependencyGraph(getCalculationConfigurationName());
+    for (final DependencyNode node : getDependencyNodes()) {
       if (filter.accept(node)) {
         subGraph.addDependencyNode(node);
+        for (ValueSpecification terminalOutput : node.getTerminalOutputValues()) {
+          if (_terminalOutputs.containsKey(terminalOutput)) {
+            if (_terminalOutputs.get(terminalOutput) == null) {
+              System.err.println("This is bad");
+            }
+          } else {
+            System.err.println("This is very bad");
+          }
+        }
       }
     }
-    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getOutputSpecifications()));
+    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getTerminalOutputSpecifications()));
     return subGraph;
   }
 
   /**
    * Creates a sub-graph containing the given nodes.
    * 
-   * @param subNodes Each node must belong to this graph - 
-   * this is not checked in the method for performance reasons
+   * @param subNodes Each node must belong to this graph - this is not checked in the method for performance reasons
    * @return Sub-graph of the given nodes
    */
-  public DependencyGraph subGraph(Collection<DependencyNode> subNodes) {
-    DependencyGraph subGraph = new DependencyGraph(getCalculationConfigurationName());
-    for (DependencyNode node : subNodes) {
+  public DependencyGraph subGraph(final Collection<DependencyNode> subNodes) {
+    final DependencyGraph subGraph = new DependencyGraph(getCalculationConfigurationName());
+    for (final DependencyNode node : subNodes) {
       subGraph.addDependencyNode(node);
     }
-    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getOutputSpecifications()));
+    subGraph.addTerminalOutputs(submapByKeySet(_terminalOutputs, subGraph.getTerminalOutputSpecifications()));
     return subGraph;
   }
 
   @Override
   public String toString() {
-    return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",size=" + getSize() + "]";
+    return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",nodes=" + getSize() + ",terminals=" + getTerminalOutputs().size() + "]";
   }
 
   public void dumpStructureLGL(final PrintStream out) {
-    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    final Map<DependencyNode, Integer> uid = new HashMap<>();
     int nextId = 1;
-    for (DependencyNode node : getDependencyNodes()) {
+    for (final DependencyNode node : getDependencyNodes()) {
       uid.put(node, nextId++);
     }
-    for (DependencyNode node : getDependencyNodes()) {
+    for (final DependencyNode node : getDependencyNodes()) {
       out.println("# " + (uid.get(node) + " [" + node.getFunction().getFunction().getFunctionDefinition().getUniqueId() + "]").replace(' ', '_'));
-      for (DependencyNode input : node.getDependentNodes()) {
+      for (final DependencyNode input : node.getDependentNodes()) {
         out.println((uid.get(input) + " [" + input.getFunction().getFunction().getFunctionDefinition().getUniqueId() + "]").replace(' ', '_'));
       }
     }
@@ -496,40 +587,43 @@ public class DependencyGraph {
 
   private void dumpNodeASCII(final PrintStream out, String indent, final DependencyNode node, final Map<DependencyNode, Integer> uidMap, final Set<DependencyNode> visited) {
     out.println(indent + uidMap.get(node) + " " + node);
-    visited.add(node);
-    indent = indent + "  ";
-    for (ValueSpecification input : node.getInputValues()) {
-      out.println(indent + "Iv=" + input);
-    }
-    for (ValueSpecification output : node.getOutputValues()) {
-      out.println(indent + "Ov=" + output);
-    }
-    for (DependencyNode input : node.getInputNodes()) {
-      if (!input.getDependentNodes().contains(node)) {
-        out.println(indent + "** " + input);
+    if (visited.add(node)) {
+      indent = indent + "  ";
+      for (final ValueSpecification input : node.getInputValues()) {
+        out.println(indent + "Iv=" + input);
       }
-      dumpNodeASCII(out, indent, input, uidMap, visited);
+      for (final ValueSpecification output : node.getOutputValues()) {
+        out.println(indent + "Ov=" + output);
+      }
+      for (final DependencyNode input : node.getInputNodes()) {
+        if (!input.getDependentNodes().contains(node)) {
+          out.println(indent + "** " + input);
+        }
+        dumpNodeASCII(out, indent, input, uidMap, visited);
+      }
+    } else {
+      out.println(indent + "  ...");
     }
   }
 
   public void dumpStructureASCII(final PrintStream out) {
-    final Map<DependencyNode, Integer> uid = new HashMap<DependencyNode, Integer>();
+    final Map<DependencyNode, Integer> uid = new HashMap<>();
     int nextId = 1;
-    for (DependencyNode node : getDependencyNodes()) {
+    for (final DependencyNode node : getDependencyNodes()) {
       uid.put(node, nextId++);
     }
-    final Set<DependencyNode> visited = new HashSet<DependencyNode>();
-    for (DependencyNode root : _rootNodes) {
+    final Set<DependencyNode> visited = new HashSet<>();
+    for (final DependencyNode root : _rootNodes) {
       dumpNodeASCII(out, "", root, uid, visited);
     }
     // Nodes disjoint from the tree
-    for (DependencyNode node : getDependencyNodes()) {
+    for (final DependencyNode node : getDependencyNodes()) {
       if (!visited.contains(node)) {
         dumpNodeASCII(out, "- ", node, uid, visited);
       }
     }
     // Nodes in tree but not in graph
-    for (DependencyNode node : visited) {
+    for (final DependencyNode node : visited) {
       if (!containsNode(node)) {
         dumpNodeASCII(out, "+ ", node, uid, visited);
       }

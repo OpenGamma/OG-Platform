@@ -7,8 +7,6 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -119,7 +118,7 @@ public class CDSSecurity extends FinancialSecurity {
   
   
   CDSSecurity() {
-    // For Fudge builder
+    super(SECURITY_TYPE);
   }
 
   public CDSSecurity(double notional, double recoveryRate, double spread, Currency currency,
@@ -796,7 +795,7 @@ public class CDSSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "notional",
         "spread",
         "recoveryRate",

@@ -17,11 +17,12 @@ import org.apache.commons.io.IOUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test BundleParser.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BundleParserTest {
 
   public void testParser() throws Exception {

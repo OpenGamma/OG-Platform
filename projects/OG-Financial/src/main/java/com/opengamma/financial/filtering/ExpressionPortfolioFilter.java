@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.Maps;
 import com.opengamma.core.position.Counterparty;
@@ -111,11 +111,6 @@ public class ExpressionPortfolioFilter extends AbstractFilteringFunction {
     @Override
     public void addAttribute(String key, String value) {
       throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public UniqueId getParentPositionId() {
-      return getTrade().getParentPositionId();
     }
 
     @Override

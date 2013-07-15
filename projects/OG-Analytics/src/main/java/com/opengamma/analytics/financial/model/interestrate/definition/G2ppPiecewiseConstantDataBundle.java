@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -45,6 +46,32 @@ public class G2ppPiecewiseConstantDataBundle extends YieldCurveBundle {
    */
   public G2ppPiecewiseConstantParameters getG2ppParameter() {
     return _parameters;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _parameters.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof G2ppPiecewiseConstantDataBundle)) {
+      return false;
+    }
+    final G2ppPiecewiseConstantDataBundle other = (G2ppPiecewiseConstantDataBundle) obj;
+    if (!ObjectUtils.equals(_parameters, other._parameters)) {
+      return false;
+    }
+    return true;
   }
 
 }

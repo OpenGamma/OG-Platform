@@ -10,10 +10,14 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class StringLabelledMatrix1DTest {
+
   private static final String[] NAMES1 = new String[] {"A", "D", "C", "B"};
   private static final double[] VALUES1 = new double[] {1, 4, 3, 2};
   private static final String[] NAMES2 = new String[] {"A", "B", "C", "D"};

@@ -10,10 +10,9 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
@@ -86,10 +85,10 @@ public class BillTransactionDiscountingMethodTest {
    * Tests the present value against explicit computation.
    */
   public void presentValue() {
-    CurrencyAmount pvTransactionComputed = METHOD_TRANSACTION.presentValue(BILL_TRA, CURVE_BUNDLE);
+    final CurrencyAmount pvTransactionComputed = METHOD_TRANSACTION.presentValue(BILL_TRA, CURVE_BUNDLE);
     CurrencyAmount pvSecurity = METHOD_SECURITY.presentValue(BILL_TRA.getBillPurchased(), CURVE_BUNDLE);
     pvSecurity = pvSecurity.multipliedBy(QUANTITY);
-    double pvSettle = BILL_TRA_DEFINITION.getSettlementAmount() * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_TRA.getBillPurchased().getSettlementTime());
+    final double pvSettle = BILL_TRA_DEFINITION.getSettlementAmount() * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_TRA.getBillPurchased().getSettlementTime());
     assertEquals("Bill Security: discounting method - present value", pvSecurity.plus(pvSettle).getAmount(), pvTransactionComputed.getAmount(), TOLERANCE_PV);
   }
 
@@ -98,14 +97,14 @@ public class BillTransactionDiscountingMethodTest {
    * Tests the present value: Method vs Calculator
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD_TRANSACTION.presentValue(BILL_TRA, CURVE_BUNDLE);
-    double pvCalculator = PVC.visit(BILL_TRA, CURVE_BUNDLE);
+    final CurrencyAmount pvMethod = METHOD_TRANSACTION.presentValue(BILL_TRA, CURVE_BUNDLE);
+    final double pvCalculator = BILL_TRA.accept(PVC, CURVE_BUNDLE);
     assertEquals("Bill Security: discounting method - present value", pvMethod.getAmount(), pvCalculator, TOLERANCE_PV);
   }
 
   @Test
   public void presentValueCurveSensitivity() {
-    InterestRateCurveSensitivity pvcsComputed = METHOD_TRANSACTION.presentValueCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
+    final InterestRateCurveSensitivity pvcsComputed = METHOD_TRANSACTION.presentValueCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
     assertEquals("Bill Security: present value curve sensitivity", 2, pvcsComputed.getSensitivities().size());
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().get(NAME_CURVES[0]).size());
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().get(NAME_CURVES[1]).size());
@@ -115,7 +114,7 @@ public class BillTransactionDiscountingMethodTest {
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     BillTransaction billBumped = BILL_TRA_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES[0], bumpedCurveName);
-    final double[] nodeTimesCre = new double[] {billBumped.getBillPurchased().getEndTime()};
+    final double[] nodeTimesCre = new double[] {billBumped.getBillPurchased().getEndTime() };
     final double[] sensi = SensitivityFiniteDifference.curveSensitivity(billBumped, CURVE_BUNDLE, NAME_CURVES[1], bumpedCurveName, nodeTimesCre, deltaShift, METHOD_TRANSACTION);
     final List<DoublesPair> sensiPv = pvcsComputed.getSensitivities().get(NAME_CURVES[1]);
     for (int loopnode = 0; loopnode < sensi.length; loopnode++) {
@@ -125,7 +124,7 @@ public class BillTransactionDiscountingMethodTest {
     }
     // Discounting curve sensitivity
     billBumped = BILL_TRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurveName, NAME_CURVES[1]);
-    final double[] nodeTimesDsc = new double[] {billBumped.getBillPurchased().getSettlementTime()};
+    final double[] nodeTimesDsc = new double[] {billBumped.getBillPurchased().getSettlementTime() };
     final double[] sensiDsc = SensitivityFiniteDifference.curveSensitivity(billBumped, CURVE_BUNDLE, NAME_CURVES[0], bumpedCurveName, nodeTimesDsc, deltaShift, METHOD_TRANSACTION);
     final List<DoublesPair> sensiDscPv = pvcsComputed.getSensitivities().get(NAME_CURVES[0]);
     for (int loopnode = 0; loopnode < sensiDsc.length; loopnode++) {
@@ -137,8 +136,8 @@ public class BillTransactionDiscountingMethodTest {
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity pvcsMethod = METHOD_TRANSACTION.presentValueCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
-    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC.visit(BILL_TRA, CURVE_BUNDLE));
+    final InterestRateCurveSensitivity pvcsMethod = METHOD_TRANSACTION.presentValueCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(BILL_TRA.accept(PVCSC, CURVE_BUNDLE));
     AssertSensivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
@@ -147,10 +146,10 @@ public class BillTransactionDiscountingMethodTest {
    * Tests the par spread.
    */
   public void parSpread() {
-    double spread = METHOD_TRANSACTION.parSpread(BILL_TRA, CURVE_BUNDLE);
-    BillTransactionDefinition bill0Definition = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD + spread);
-    BillTransaction bill0 = bill0Definition.toDerivative(REFERENCE_DATE, NAME_CURVES);
-    CurrencyAmount pv0 = METHOD_TRANSACTION.presentValue(bill0, CURVE_BUNDLE);
+    final double spread = METHOD_TRANSACTION.parSpread(BILL_TRA, CURVE_BUNDLE);
+    final BillTransactionDefinition bill0Definition = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD + spread);
+    final BillTransaction bill0 = bill0Definition.toDerivative(REFERENCE_DATE, NAME_CURVES);
+    final CurrencyAmount pv0 = METHOD_TRANSACTION.presentValue(bill0, CURVE_BUNDLE);
     assertEquals("Bill Security: discounting method - par spread", 0, pv0.getAmount(), TOLERANCE_PV);
   }
 
@@ -159,8 +158,8 @@ public class BillTransactionDiscountingMethodTest {
    * Tests the par spread (Method vs Calculator).
    */
   public void parSpreadMethodVsCalculator() {
-    double spreadMethod = METHOD_TRANSACTION.parSpread(BILL_TRA, CURVE_BUNDLE);
-    double spreadCalculator = PSMQC.visit(BILL_TRA, CURVE_BUNDLE);
+    final double spreadMethod = METHOD_TRANSACTION.parSpread(BILL_TRA, CURVE_BUNDLE);
+    final double spreadCalculator = BILL_TRA.accept(PSMQC, CURVE_BUNDLE);
     assertEquals("Bill Security: discounting method - par spread", spreadMethod, spreadCalculator, TOLERANCE_SPREAD);
   }
 
@@ -178,12 +177,12 @@ public class BillTransactionDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    BillTransaction billBumped = BILL_TRA_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES[0], bumpedCurveName);
-    final double[] nodeTimesDsc = new double[] {billBumped.getBillPurchased().getSettlementTime()};
+    final BillTransaction billBumped = BILL_TRA_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES[0], bumpedCurveName);
+    final double[] nodeTimesDsc = new double[] {billBumped.getBillPurchased().getSettlementTime() };
     final List<DoublesPair> sensiDscFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(BILL_TRA, PSMQC, CURVE_BUNDLE, NAME_CURVES[0], nodeTimesDsc, deltaShift);
     final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(NAME_CURVES[0]);
     assertTrue("Bill Transaction: par spread curve sensitivity - dsc", InterestRateCurveSensitivityUtils.compare(sensiDscFD, sensiDscComputed, TOLERANCE_SPREAD_DELTA));
-    final double[] nodeTimesCre = new double[] {billBumped.getBillPurchased().getEndTime()};
+    final double[] nodeTimesCre = new double[] {billBumped.getBillPurchased().getEndTime() };
     final List<DoublesPair> sensiFwdFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(BILL_TRA, PSMQC, CURVE_BUNDLE, NAME_CURVES[1], nodeTimesCre, deltaShift);
     final List<DoublesPair> sensiFwdComputed = pscsComputed.getSensitivities().get(NAME_CURVES[1]);
     assertTrue("Bill Transaction: par spread curve sensitivity - fwd", InterestRateCurveSensitivityUtils.compare(sensiFwdFD, sensiFwdComputed, TOLERANCE_SPREAD_DELTA));
@@ -194,8 +193,8 @@ public class BillTransactionDiscountingMethodTest {
    * Tests the par spread curve sensitivity  (Method vs Calculator).
    */
   public void parSpreadCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity pscsMethod = METHOD_TRANSACTION.parSpreadCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
-    InterestRateCurveSensitivity pscsCalculator = PSMQCSC.visit(BILL_TRA, CURVE_BUNDLE);
+    final InterestRateCurveSensitivity pscsMethod = METHOD_TRANSACTION.parSpreadCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
+    final InterestRateCurveSensitivity pscsCalculator = BILL_TRA.accept(PSMQCSC, CURVE_BUNDLE);
     AssertSensivityObjects.assertEquals("parSpread: curve sensitivity - fwd", pscsMethod, pscsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 

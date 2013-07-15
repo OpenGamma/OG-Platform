@@ -10,18 +10,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
+import com.opengamma.engine.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -48,7 +47,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   /**
    * The time-source to use.
    */
-  private TimeSource _timeSource = TimeSource.system();
+  private Clock _timeSource = Clock.systemUTC();
 
   /**
    * Creates an instance.
@@ -97,7 +96,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
    * 
    * @return the time-source, not null
    */
-  public TimeSource getTimeSource() {
+  public Clock getClock() {
     return _timeSource;
   }
 
@@ -106,16 +105,16 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
    * 
    * @param timeSource  the time-source, not null
    */
-  public void setTimeSource(final TimeSource timeSource) {
+  public void setClock(final Clock timeSource) {
     ArgumentChecker.notNull(timeSource, "timeSource");
-    s_logger.debug("installed TimeSource: {}", timeSource);
+    s_logger.debug("installed Clock: {}", timeSource);
     _timeSource = timeSource;
   }
 
   //-------------------------------------------------------------------------
   public int getSchemaVersion() {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
     String version = namedJdbc.queryForObject(sql, args, String.class);
     return Integer.parseInt(version);
@@ -126,16 +125,16 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   public FunctionCostsDocument load(final String configuration, final String functionId, Instant versionAsOf) {
     s_logger.debug("load: {} {}", configuration, functionId);
     if (versionAsOf == null) {
-      versionAsOf = Instant.now(getTimeSource());
+      versionAsOf = Instant.now(getClock());
     }
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("configuration", configuration)
-      .addValue("function", functionId)
+      .addValue("configuration", configuration.trim())
+      .addValue("function", functionId.trim())
       .addTimestamp("version_instant", versionAsOf)
       .addValue("paging_offset", 0)
       .addValue("paging_fetch", 1);
     final FunctionCostsDocumentExtractor extractor = new FunctionCostsDocumentExtractor();
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetCosts", args);
     final List<FunctionCostsDocument> docs = namedJdbc.query(sql, args, extractor);
     return docs.isEmpty() ? null : docs.get(0);
@@ -147,17 +146,27 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
     ArgumentChecker.notNull(costs, "costs");
     ArgumentChecker.notNull(costs.getConfigurationName(), "costs.configurationName");
     ArgumentChecker.notNull(costs.getFunctionId(), "costs.functionId");
-    costs.setVersion(Instant.now(getTimeSource()));
+    costs.setVersion(Instant.now(getClock()));
     
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("configuration", costs.getConfigurationName())
-      .addValue("function", costs.getFunctionId())
+      .addValue("configuration", costs.getConfigurationName().trim())
+      .addValue("function", costs.getFunctionId().trim())
       .addTimestamp("version_instant", costs.getVersion())
       .addValue("invocation_cost", costs.getInvocationCost())
       .addValue("data_input_cost", costs.getDataInputCost())
       .addValue("data_output_cost", costs.getDataOutputCost());
     final String sql = getElSqlBundle().getSql("InsertCosts", args);
     getDbConnector().getJdbcTemplate().update(sql, args);
+    
+    // delete older data
+    final DbMapSqlParameterSource deleteArgs = new DbMapSqlParameterSource()
+      .addValue("configuration", costs.getConfigurationName().trim())
+      .addValue("function", costs.getFunctionId().trim())
+      .addValue("offset_zero", 0)
+      .addValue("keep_rows", 20);
+    final String deleteSql = getElSqlBundle().getSql("DeleteOld", deleteArgs);
+    getDbConnector().getJdbcTemplate().update(deleteSql, deleteArgs);
+    
     return costs;
   }
 

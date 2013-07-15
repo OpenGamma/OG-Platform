@@ -11,13 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.sensitivity.AbstractParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.AbstractParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -78,8 +79,8 @@ public final class MarketQuoteSensitivityCalculator {
       final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : curves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
-          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), curves.getCurve(curveName))).toArray(new Double[0]));
+      final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), curves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
       final int n = nodeSensitivity.getNumberOfElements();
       final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
       for (int i = 0; i < n; i++) {
@@ -93,11 +94,12 @@ public final class MarketQuoteSensitivityCalculator {
     return new DoubleMatrix1D(resultList.toDoubleArray());
   }
 
+  // REVIEW: Would work only for one curve? MH:11-Jun-2013
   public DoubleMatrix1D calculateFromParRate(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
-          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName))).toArray(new Double[0]));
+      final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
       final int n = nodeSensitivity.getNumberOfElements();
       final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
       for (int i = 0; i < n; i++) {
@@ -111,11 +113,22 @@ public final class MarketQuoteSensitivityCalculator {
     return new DoubleMatrix1D(resultList.toDoubleArray());
   }
 
+  public DoubleMatrix1D calculateFromParRateFromTransition(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D transition) {
+    Set<String> curvesNames = interpolatedCurves.getAllNames();
+    ArgumentChecker.isTrue(curvesNames.size() == 1, "More than one curve");
+    String[] curvesNamesArray = curvesNames.toArray(new String[1]);
+    final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curvesNamesArray[0]),
+        interpolatedCurves.getCurve(curvesNamesArray[0]));
+    final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
+    final DoubleMatrix1D result = (DoubleMatrix1D) MATRIX_ALGEBRA.multiply(nodeSensitivity, transition);
+    return result;
+  }
+
   public DoubleMatrix1D calculateFromSimpleInterpolatedCurve(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
-          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName))).toArray(new Double[0]));
+      final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
       final int n = nodeSensitivity.getNumberOfElements();
       for (int i = 0; i < n; i++) {
         double sum = 0;

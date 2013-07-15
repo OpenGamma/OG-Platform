@@ -13,22 +13,22 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.impl.SimpleSecurity;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ComputedValue.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputedValueTest {
   
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public void test_constructor_Object_Portfolio() {
-    ValueRequirement vreq = new ValueRequirement("DATA", new SimpleSecurity(""));
-    ValueSpecification vspec = new ValueSpecification(vreq, "mockFunctionid");
+    ValueSpecification vspec = ValueSpecification.of("DATA", ComputationTargetType.SECURITY, UniqueId.of("Foo", "Bar"), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionid").get());
     ComputedValue test = new ComputedValue(vspec, "HELLO");
     assertEquals("HELLO", test.getValue());
     assertEquals(vspec, test.getSpecification());
@@ -78,9 +78,8 @@ public class ComputedValueTest {
   }
 
   private ValueSpecification createValueSpecification() {
-    return new ValueSpecification(
-        new ValueRequirement("test", ComputationTargetType.PRIMITIVE, UniqueId.of("foo", "bar")),
-        "mockFunctionId");
+    return new ValueSpecification("test", ComputationTargetSpecification.of(UniqueId.of("foo", "bar")),
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
   }
 
   public void testDouble() {

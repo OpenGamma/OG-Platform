@@ -9,6 +9,10 @@
   margin: 15px 0 20px 0;
 }
 
+.OG-form .og-column-sets h3 {
+  margin: 15px 0 20px 0;
+}
+
 .OG-form .og-column-sets .og-name {
   margin-bottom: 10px;
   padding-bottom: 10px;
@@ -147,7 +151,6 @@
   float: left;
   padding-right: 10px;
   width: 75%;
-  height: 500px;
   overflow: auto;
 }
 

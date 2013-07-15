@@ -22,10 +22,12 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Unit test for InMemoryConventionBundleMaster.
  */
+@Test(groups = TestGroup.UNIT)
 public class InMemoryConventionBundleMasterTest {
 
   @Test

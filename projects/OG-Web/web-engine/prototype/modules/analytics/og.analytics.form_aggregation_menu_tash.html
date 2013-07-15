@@ -1,0 +1,28 @@
+<div class="OG-background-03"></div>
+<table class="OG-aggregation-options">
+  <tr class="OG-dropmenu-options">
+    <td class="number"><span>1</span></td>
+    <td>
+      <select class="type">
+        <option selected="selected">select aggregation...</option>
+        {{#each this.aggregations}}<option>{{this}}</option>{{/each}}
+      </select>
+    </td>
+    <td>
+      <label class="og-option"><input type="checkbox" disabled="true" />
+        <span>Include required fields</span>
+      </label>
+    </td>
+    <td>
+      <div class="OG-icon og-icon-delete"></div>
+    </td>
+  </tr>
+  <tr class="OG-dropmenu-actions og-menu-actions">
+    <td></td>
+    <td><a href="#" class="OG-link-add">add</a></td>
+    <td>
+      <button>OK</button>
+      <button>Cancel</button>
+    </td>
+  </tr>
+</table>

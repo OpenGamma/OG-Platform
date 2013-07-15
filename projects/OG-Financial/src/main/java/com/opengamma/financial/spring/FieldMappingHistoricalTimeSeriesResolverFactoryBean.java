@@ -69,7 +69,6 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
    * The meta-bean for {@code FieldMappingHistoricalTimeSeriesResolverFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta meta() {
     return FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE;
   }
@@ -241,7 +240,7 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "fieldAdjustmentMaps",
         "historicalTimeSeriesMaster",
         "configSource");

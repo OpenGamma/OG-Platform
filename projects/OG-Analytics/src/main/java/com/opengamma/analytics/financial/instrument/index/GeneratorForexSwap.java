@@ -5,14 +5,11 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -22,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of Forex swaps (currencies, conventions, ...).
  */
-public class GeneratorForexSwap extends GeneratorInstrument {
+public class GeneratorForexSwap extends GeneratorInstrument<GeneratorAttributeFX> {
 
   /**
    * The first currency. Not null.
@@ -59,7 +56,8 @@ public class GeneratorForexSwap extends GeneratorInstrument {
    * @param businessDayConvention The business day convention.
    * @param endOfMonth The flag indicating if the end-of-month rule is used.
    */
-  public GeneratorForexSwap(String name, Currency currency1, Currency currency2, Calendar calendar, int spotLag, BusinessDayConvention businessDayConvention, boolean endOfMonth) {
+  public GeneratorForexSwap(final String name, final Currency currency1, final Currency currency2, final Calendar calendar, final int spotLag,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
     super(name);
     Validate.notNull(currency1, "Currency 1");
     Validate.notNull(currency2, "Currency 2");
@@ -123,38 +121,14 @@ public class GeneratorForexSwap extends GeneratorInstrument {
 
   @Override
   /**
-   * The Forex swap starts at spot and end at spot+tenor.
-   */
-  public ForexSwapDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double forwardPoints, final double notional, final Object... objects) {
-    ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
-    ArgumentChecker.isTrue((objects[0] instanceof Double) || (objects[0] instanceof FXMatrix), "forex rate should be a double");
-    Double fx;
-    if (objects[0] instanceof Double) {
-      fx = (Double) objects[0];
-    } else {
-      fx = ((FXMatrix) objects[0]).getFxRate(_currency1, _currency2);
-    }
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
-    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, _businessDayConvention, _calendar, _endOfMonth);
-    return new ForexSwapDefinition(_currency1, _currency2, startDate, endDate, notional, fx, forwardPoints);
-  }
-
-  @Override
-  /**
    * The Forex swap starts at spot+startTenor and end at spot+endTenor.
    */
-  public ForexSwapDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double forwardPoints, final double notional, final Object... objects) {
-    ArgumentChecker.isTrue(objects.length == 1, "Forex rate required");
-    ArgumentChecker.isTrue((objects[0] instanceof Double) || (objects[0] instanceof FXMatrix), "forex rate should be a double");
-    Double fx;
-    if (objects[0] instanceof Double) {
-      fx = (Double) objects[0];
-    } else {
-      fx = ((FXMatrix) objects[0]).getFxRate(_currency1, _currency2);
-    }
+  public ForexSwapDefinition generateInstrument(final ZonedDateTime date, final double forwardPoints, final double notional, final GeneratorAttributeFX attribute) {
+    ArgumentChecker.notNull(attribute, "Attribute");
+    final double fx = attribute.getFXMatrix().getFxRate(_currency1, _currency2);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _businessDayConvention, _calendar, _endOfMonth);
-    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spot, endTenor, _businessDayConvention, _calendar, _endOfMonth);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _businessDayConvention, _calendar, _endOfMonth);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getEndPeriod(), _businessDayConvention, _calendar, _endOfMonth);
     return new ForexSwapDefinition(_currency1, _currency2, startDate, endDate, notional, fx, forwardPoints);
   }
 
@@ -172,7 +146,7 @@ public class GeneratorForexSwap extends GeneratorInstrument {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -182,7 +156,7 @@ public class GeneratorForexSwap extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorForexSwap other = (GeneratorForexSwap) obj;
+    final GeneratorForexSwap other = (GeneratorForexSwap) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

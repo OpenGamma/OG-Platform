@@ -45,7 +45,7 @@ public class WebRegionVersionResource extends AbstractWebRegionResource {
   @GET
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("regions/regionversion.ftl", out);
+    return getFreemarker().build(HTML_DIR + "regionversion.ftl", out);
   }
 
   @GET
@@ -68,7 +68,7 @@ public class WebRegionVersionResource extends AbstractWebRegionResource {
     }
     
     FlexiBean out = createRootData();
-    String json = getFreemarker().build("regions/jsonregion.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "region.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
 

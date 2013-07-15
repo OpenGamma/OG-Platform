@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 

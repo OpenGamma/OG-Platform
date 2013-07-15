@@ -9,6 +9,7 @@ import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -40,7 +41,7 @@ public final class LocalMastersTestUtils extends MastersTestUtils {
    */
   LocalMastersTestUtils() {
     PlatformConfigUtils.configureSystemProperties();
-    _toolContext = ToolContextUtils.getToolContext("classpath:toolcontext/toolcontext-tests.properties",
+    _toolContext = ToolContextUtils.getToolContext("classpath:/toolcontext/toolcontext-tests.properties",
         ToolContext.class);
   }
 
@@ -67,6 +68,11 @@ public final class LocalMastersTestUtils extends MastersTestUtils {
   @Override
   public RegionSource getRegionSource() {
     return _toolContext.getRegionSource();
+  }
+
+  @Override
+  public OrganizationSource getOrganizationSource() {
+    return _toolContext.getOrganizationSource();
   }
 
   /**

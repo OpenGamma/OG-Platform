@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -35,7 +36,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.SABRVegaCalculationUtils;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -70,27 +71,29 @@ public abstract class SABRVegaFunctionDeprecated extends SABRFunctionDeprecated 
     }
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, desiredValue);
     final ValueProperties sensitivityProperties = getSensitivityProperties(target, currency.getCode(), desiredValue);
-    final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getSecurity(), sensitivityProperties));
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, sensitivityProperties));
     if (alphaSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get alpha sensitivity");
     }
-    final Object nuSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getSecurity(), sensitivityProperties));
+    final Object nuSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, targetSpec, sensitivityProperties));
     if (nuSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get nu sensitivity");
     }
-    final Object rhoSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getSecurity(), sensitivityProperties));
+    final Object rhoSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, targetSpec, sensitivityProperties));
     if (rhoSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get rho sensitivity");
     }
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object sabrSurfacesObject = inputs.getValue(cubeRequirement);
     if (sabrSurfacesObject == null) {
       throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
     }
     final SABRFittedSurfaces sabrFittedSurfaces = (SABRFittedSurfaces) sabrSurfacesObject;
-    final ValueRequirement fittedPointsRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, currency, getFittedPointsProperties(cubeName, currency.getCode(),
+    final ValueRequirement fittedPointsRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, ComputationTargetSpecification.of(currency),
+        getFittedPointsProperties(cubeName, currency.getCode(),
         fittingMethod));
     final Object fittedDataPointsObject = inputs.getValue(fittedPointsRequirement);
     if (fittedDataPointsObject == null) {
@@ -165,11 +168,12 @@ public abstract class SABRVegaFunctionDeprecated extends SABRFunctionDeprecated 
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final ValueProperties sensitivityProperties = getSensitivityProperties(target, currency.getCode(), desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), sensitivityProperties));
-    requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, currency, getFittedPointsProperties(cubeName, currency.getCode(), fittingMethod)));
+    requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, ComputationTargetSpecification.of(currency),
+        getFittedPointsProperties(cubeName, currency.getCode(), fittingMethod)));
     return requirements;
   }
 
@@ -182,8 +186,8 @@ public abstract class SABRVegaFunctionDeprecated extends SABRFunctionDeprecated 
 
   protected ValueProperties getFittedPointsProperties(final String cubeName, final String currency, final String fittingMethod) {
     return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CUBE, cubeName)
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod).get();
   }
 
   @Override

@@ -90,9 +90,9 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
    * @return the matching position, not null
    * @throws IllegalStateException if no position was found
    */
-  public ManageablePosition getSingleSecurity() {
+  public ManageablePosition getSinglePosition() {
     if (getDocuments().size() != 1) {
-      throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
+      throw new OpenGammaRuntimeException("Expecting single resulting match, and was " + getDocuments().size());
     } else {
       return getDocuments().get(0).getPosition();
     }
@@ -104,7 +104,6 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
    * The meta-bean for {@code PositionSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PositionSearchResult.Meta meta() {
     return PositionSearchResult.Meta.INSTANCE;
   }
@@ -158,7 +157,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

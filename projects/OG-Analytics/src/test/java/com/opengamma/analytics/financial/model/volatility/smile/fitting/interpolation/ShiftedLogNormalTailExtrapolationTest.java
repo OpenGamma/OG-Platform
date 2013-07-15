@@ -24,7 +24,7 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 public class ShiftedLogNormalTailExtrapolationTest {
   private static final ShiftedLogNormalTailExtrapolationFitter FITTER = new ShiftedLogNormalTailExtrapolationFitter();
   private static final double FORWARD = 0.04;
-  private static final double EXPIARY = 2.5;
+  private static final double EXPIRY = 2.5;
   private static final double[][] LEFT_STRIKES = {
       {0.0057, 0.0061 },
       {0.02, 0.025 },
@@ -55,20 +55,20 @@ public class ShiftedLogNormalTailExtrapolationTest {
     LEFT_PRICES = new double[nl][2];
     LEFT_DV_DK = new double[nl];
     for (int i = 0; i < nl; i++) {
-      LEFT_DV_DK[i] = (LEFT_DD[i] - BlackFormulaRepository.dualDelta(FORWARD, LEFT_STRIKES[i][0], EXPIARY, LEFT_VOLS[i][0], false)) /
-          BlackFormulaRepository.vega(FORWARD, LEFT_STRIKES[i][0], EXPIARY, LEFT_VOLS[i][0]);
+      LEFT_DV_DK[i] = (LEFT_DD[i] - BlackFormulaRepository.dualDelta(FORWARD, LEFT_STRIKES[i][0], EXPIRY, LEFT_VOLS[i][0], false)) /
+          BlackFormulaRepository.vega(FORWARD, LEFT_STRIKES[i][0], EXPIRY, LEFT_VOLS[i][0]);
       for (int j = 0; j < 2; j++) {
-        LEFT_PRICES[i][j] = BlackFormulaRepository.price(FORWARD, LEFT_STRIKES[i][j], EXPIARY, LEFT_VOLS[i][j], false);
+        LEFT_PRICES[i][j] = BlackFormulaRepository.price(FORWARD, LEFT_STRIKES[i][j], EXPIRY, LEFT_VOLS[i][j], false);
       }
     }
     final int nr = RIGHT_STRIKES.length;
     RIGHT_PRICES = new double[nl][2];
     RIGHT_DV_DK = new double[nr];
     for (int i = 0; i < nr; i++) {
-      RIGHT_DV_DK[i] = (RIGHT_DD[i] - BlackFormulaRepository.dualDelta(FORWARD, RIGHT_STRIKES[i][0], EXPIARY, RIGHT_VOLS[i][0], true)) /
-          BlackFormulaRepository.vega(FORWARD, RIGHT_STRIKES[i][0], EXPIARY, RIGHT_VOLS[i][0]);
+      RIGHT_DV_DK[i] = (RIGHT_DD[i] - BlackFormulaRepository.dualDelta(FORWARD, RIGHT_STRIKES[i][0], EXPIRY, RIGHT_VOLS[i][0], true)) /
+          BlackFormulaRepository.vega(FORWARD, RIGHT_STRIKES[i][0], EXPIRY, RIGHT_VOLS[i][0]);
       for (int j = 0; j < 2; j++) {
-        RIGHT_PRICES[i][j] = BlackFormulaRepository.price(FORWARD, RIGHT_STRIKES[i][j], EXPIARY, RIGHT_VOLS[i][j], true);
+        RIGHT_PRICES[i][j] = BlackFormulaRepository.price(FORWARD, RIGHT_STRIKES[i][j], EXPIRY, RIGHT_VOLS[i][j], true);
       }
     }
   }
@@ -77,15 +77,15 @@ public class ShiftedLogNormalTailExtrapolationTest {
   public void leftTailVolTest() {
     final int nl = LEFT_STRIKES.length;
     for (int i = 0; i < nl; i++) {
-      double[] res = FITTER.fitTwoVolatilities(FORWARD, LEFT_STRIKES[i], LEFT_VOLS[i], EXPIARY);
+      double[] res = FITTER.fitTwoVolatilities(FORWARD, LEFT_STRIKES[i], LEFT_VOLS[i], EXPIRY);
       assertEquals(2, res.length);
       for (int j = 0; j < 2; j++) {
-        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[i][j], EXPIARY, res[0], res[1]);
+        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[i][j], EXPIRY, res[0], res[1]);
         assertEquals(LEFT_VOLS[i][j], vol, 1e-9);
       }
       for (int j = 0; j < 5; j++) {
         double k = FORWARD * (j / 10.);
-        double vol0 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIARY, res[0], res[1]);
+        double vol0 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIRY, res[0], res[1]);
         assertTrue(vol0 > 0.0 && !Double.isInfinite(vol0) && !Double.isNaN(vol0));
       }
     }
@@ -95,17 +95,17 @@ public class ShiftedLogNormalTailExtrapolationTest {
   public void leftTailPriceTest() {
     final int nl = LEFT_STRIKES.length;
     for (int i = 0; i < nl; i++) {
-      double[] res = FITTER.fitTwoPrices(FORWARD, LEFT_STRIKES[i], LEFT_PRICES[i], EXPIARY, false);
+      double[] res = FITTER.fitTwoPrices(FORWARD, LEFT_STRIKES[i], LEFT_PRICES[i], EXPIRY, false);
       assertEquals(2, res.length);
       for (int j = 0; j < 2; j++) {
-        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, LEFT_STRIKES[i][j], EXPIARY, false, res[0], res[1]);
+        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, LEFT_STRIKES[i][j], EXPIRY, false, res[0], res[1]);
         assertEquals(LEFT_PRICES[i][j], price, 1e-9);
       }
-      double pOld = ShiftedLogNormalTailExtrapolation.price(FORWARD, 0.0, EXPIARY, false, res[0], res[1]);
+      double pOld = ShiftedLogNormalTailExtrapolation.price(FORWARD, 0.0, EXPIRY, false, res[0], res[1]);
       assertEquals(0.0, pOld, 0.0);
       for (int j = 1; j < 5; j++) {
         double k = FORWARD * (j / 10.);
-        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, k, EXPIARY, false, res[0], res[1]);
+        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, k, EXPIRY, false, res[0], res[1]);
         assertTrue(price > pOld);
         pOld = price;
       }
@@ -117,11 +117,11 @@ public class ShiftedLogNormalTailExtrapolationTest {
     final boolean isCall = false;
     final int n = LEFT_STRIKES.length;
     for (int i = 0; i < n; i++) {
-      double[] res = FITTER.fitPriceAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_PRICES[i][0], LEFT_DD[i], EXPIARY, isCall);
+      double[] res = FITTER.fitPriceAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_PRICES[i][0], LEFT_DD[i], EXPIRY, isCall);
       assertEquals(2, res.length);
-      double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, LEFT_STRIKES[i][0], EXPIARY, isCall, res[0], res[1]);
+      double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, LEFT_STRIKES[i][0], EXPIRY, isCall, res[0], res[1]);
       assertEquals(LEFT_PRICES[i][0], price, 1e-9);
-      double dd = ShiftedLogNormalTailExtrapolation.dualDelta(FORWARD, LEFT_STRIKES[i][0], EXPIARY, isCall, res[0], res[1]);
+      double dd = ShiftedLogNormalTailExtrapolation.dualDelta(FORWARD, LEFT_STRIKES[i][0], EXPIRY, isCall, res[0], res[1]);
       assertEquals(LEFT_DD[i], dd, 1e-9);
     }
   }
@@ -130,28 +130,80 @@ public class ShiftedLogNormalTailExtrapolationTest {
   public void leftTailVolGradTest() {
     final int n = LEFT_STRIKES.length;
     for (int i = 0; i < n; i++) {
-      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_VOLS[i][0], LEFT_DV_DK[i], EXPIARY);
+      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_VOLS[i][0], LEFT_DV_DK[i], EXPIRY);
       assertEquals(2, res.length);
-      double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[i][0], EXPIARY, res[0], res[1]);
+      double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[i][0], EXPIRY, res[0], res[1]);
       assertEquals(LEFT_VOLS[i][0], vol, 1e-8);
-      double dd = ShiftedLogNormalTailExtrapolation.dVdK(FORWARD, LEFT_STRIKES[i][0], EXPIARY, res[0], res[1], vol);
+      double dd = ShiftedLogNormalTailExtrapolation.dVdK(FORWARD, LEFT_STRIKES[i][0], EXPIRY, res[0], res[1], vol);
       assertEquals(LEFT_DV_DK[i], dd, 1e-6);
     }
   }
+  
+  @Test
+  public void leftTailVolGradZeroTest() {
+    final int n = LEFT_STRIKES.length;
+    final double volGrad00 = 0.0;
+    for (int i = 0; i < n; i++) {
+      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_VOLS[i][0], volGrad00, EXPIRY);
+      assertEquals(2, res.length);
+      double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[i][0], EXPIRY, res[0], res[1]);
+      assertEquals(LEFT_VOLS[i][0], vol, 1e-8);
+    }
+  }
+  
+  @Test
+  public void leftTailVolMaxGradTest() {
+    int i = 2;
+    final double strike = LEFT_STRIKES[i][0];
+    final double volInput = LEFT_VOLS[i][0];
 
+    final boolean isCall = strike >= FORWARD;
+    final double blackDD = BlackFormulaRepository.dualDelta(FORWARD, strike, EXPIRY, volInput, isCall);
+    final double blackVega = BlackFormulaRepository.vega(FORWARD, strike, EXPIRY, volInput);
+
+    final double maxGrad = (isCall ? -blackDD : 1 - blackDD) / blackVega;
+
+    double[] res = FITTER.fitVolatilityAndGrad(FORWARD, strike, volInput, maxGrad-1e-8, EXPIRY);
+    double volOutput = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[i][0], EXPIRY, res[0], res[1]);
+    assertEquals(volInput, volOutput, 1e-8);
+  }
+  
+  @Test(enabled = false)
+  public void leftTailVolGradComparison() {
+    final int i = 2;
+    double[] shiftedParams = FITTER.fitVolatilityAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_VOLS[i][0], LEFT_DV_DK[i], EXPIRY);
+    double[] shiftedParamsZero = FITTER.fitVolatilityAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_VOLS[i][0], 0.0, EXPIRY);
+    
+    final int nSteps = 200;
+    final double kMax = LEFT_STRIKES[i][0];
+    final double sizeSteps = kMax / nSteps;
+    double k = sizeSteps;
+    
+    System.out.println("Strike" + "," + "DualDelta" + "," + "Flat");
+    for (int j = 0; j < nSteps; j++) {
+      
+      double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIRY, shiftedParams[0], shiftedParams[1]);
+      double volZero = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIRY, shiftedParamsZero[0], shiftedParamsZero[1]);
+      System.out.println(k + "," + vol + "," + volZero);
+      k += sizeSteps;
+    }
+  }
+  
+  
+  
   @Test
   public void rightTailVolTest() {
     final int nl = RIGHT_STRIKES.length;
     for (int i = 0; i < nl; i++) {
-      double[] res = FITTER.fitTwoVolatilities(FORWARD, RIGHT_STRIKES[i], RIGHT_VOLS[i], EXPIARY);
+      double[] res = FITTER.fitTwoVolatilities(FORWARD, RIGHT_STRIKES[i], RIGHT_VOLS[i], EXPIRY);
       assertEquals(2, res.length);
       for (int j = 0; j < 2; j++) {
-        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, RIGHT_STRIKES[i][j], EXPIARY, res[0], res[1]);
+        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, RIGHT_STRIKES[i][j], EXPIRY, res[0], res[1]);
         assertEquals(RIGHT_VOLS[i][j], vol, 1e-9);
       }
       for (int j = 1; j < 6; j++) {
         double k = 2 * FORWARD * j;
-        double vol0 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIARY, res[0], res[1]);
+        double vol0 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIRY, res[0], res[1]);
         assertTrue(vol0 > 0.0 && !Double.isInfinite(vol0) && !Double.isNaN(vol0));
       }
     }
@@ -161,16 +213,16 @@ public class ShiftedLogNormalTailExtrapolationTest {
   public void rightTailPriceTest() {
     final int nl = RIGHT_STRIKES.length;
     for (int i = 0; i < nl; i++) {
-      double[] res = FITTER.fitTwoPrices(FORWARD, RIGHT_STRIKES[i], RIGHT_PRICES[i], EXPIARY, true);
+      double[] res = FITTER.fitTwoPrices(FORWARD, RIGHT_STRIKES[i], RIGHT_PRICES[i], EXPIRY, true);
       assertEquals(2, res.length);
       for (int j = 0; j < 2; j++) {
-        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, RIGHT_STRIKES[i][j], EXPIARY, true, res[0], res[1]);
+        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, RIGHT_STRIKES[i][j], EXPIRY, true, res[0], res[1]);
         assertEquals(RIGHT_PRICES[i][j], price, 1e-9);
       }
-      double pOld = ShiftedLogNormalTailExtrapolation.price(FORWARD, 2.0 * FORWARD, EXPIARY, true, res[0], res[1]);
+      double pOld = ShiftedLogNormalTailExtrapolation.price(FORWARD, 2.0 * FORWARD, EXPIRY, true, res[0], res[1]);
       for (int j = 2; j < 6; j++) {
         double k = 2 * FORWARD * j;
-        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, k, EXPIARY, true, res[0], res[1]);
+        double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, k, EXPIRY, true, res[0], res[1]);
         assertTrue(price < pOld);
         pOld = price;
       }
@@ -182,11 +234,11 @@ public class ShiftedLogNormalTailExtrapolationTest {
     final boolean isCall = true;
     final int nr = RIGHT_STRIKES.length;
     for (int i = 0; i < nr; i++) {
-      double[] res = FITTER.fitPriceAndGrad(FORWARD, RIGHT_STRIKES[i][0], RIGHT_PRICES[i][0], RIGHT_DD[i], EXPIARY, isCall);
+      double[] res = FITTER.fitPriceAndGrad(FORWARD, RIGHT_STRIKES[i][0], RIGHT_PRICES[i][0], RIGHT_DD[i], EXPIRY, isCall);
       assertEquals(2, res.length);
-      double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, RIGHT_STRIKES[i][0], EXPIARY, isCall, res[0], res[1]);
+      double price = ShiftedLogNormalTailExtrapolation.price(FORWARD, RIGHT_STRIKES[i][0], EXPIRY, isCall, res[0], res[1]);
       assertEquals(RIGHT_PRICES[i][0], price, 1e-9);
-      double dd = ShiftedLogNormalTailExtrapolation.dualDelta(FORWARD, RIGHT_STRIKES[i][0], EXPIARY, isCall, res[0], res[1]);
+      double dd = ShiftedLogNormalTailExtrapolation.dualDelta(FORWARD, RIGHT_STRIKES[i][0], EXPIRY, isCall, res[0], res[1]);
       assertEquals(RIGHT_DD[i], dd, 1e-7);
     }
   }
@@ -195,28 +247,39 @@ public class ShiftedLogNormalTailExtrapolationTest {
   public void rightTailVolGradTest() {
     final int n = RIGHT_STRIKES.length;
     for (int i = 0; i < n; i++) {
-      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, RIGHT_STRIKES[i][0], RIGHT_VOLS[i][0], RIGHT_DV_DK[i], EXPIARY);
+      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, RIGHT_STRIKES[i][0], RIGHT_VOLS[i][0], RIGHT_DV_DK[i], EXPIRY);
       assertEquals(2, res.length);
-      double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, RIGHT_STRIKES[i][0], EXPIARY, res[0], res[1]);
+      double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, RIGHT_STRIKES[i][0], EXPIRY, res[0], res[1]);
       assertEquals(RIGHT_VOLS[i][0], vol, 1e-7);
-      double dd = ShiftedLogNormalTailExtrapolation.dVdK(FORWARD, RIGHT_STRIKES[i][0], EXPIARY, res[0], res[1], vol);
+      double dd = ShiftedLogNormalTailExtrapolation.dVdK(FORWARD, RIGHT_STRIKES[i][0], EXPIRY, res[0], res[1], vol);
       assertEquals(RIGHT_DV_DK[i], dd, 1e-6);
     }
   }
 
+  @Test
+  public void rightTailVolGradZeroTest() {
+    final int n = RIGHT_STRIKES.length;
+    for (int i = 0; i < n; i++) {
+      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, RIGHT_STRIKES[i][0], RIGHT_VOLS[i][0], 0.0, EXPIRY);
+      assertEquals(2, res.length);
+      double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, RIGHT_STRIKES[i][0], EXPIRY, res[0], res[1]);
+      assertEquals(RIGHT_VOLS[i][0], vol, 1e-7);
+    }
+  }
+  
   @Test
       (enabled = false)
       public void leftTailVolPrint() {
     final int nl = LEFT_STRIKES.length;
     for (int i = 0; i < nl; i++) {
       //  double[] res = FITTER.fitTwoVolatilities(FORWARD, LEFT_STRIKES[i], LEFT_VOLS[i], EXPIARY);
-      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_VOLS[i][0], LEFT_DV_DK[i], EXPIARY);
+      double[] res = FITTER.fitVolatilityAndGrad(FORWARD, LEFT_STRIKES[i][0], LEFT_VOLS[i][0], LEFT_DV_DK[i], EXPIRY);
       assertEquals(2, res.length);
       System.out.println("fit:\t" + res[0] + "\t" + res[1]);
       for (int j = 0; j < 101; j++) {
         double d = -5.0 + 4.8 * j / 100.;
-        double k = FORWARD * Math.exp(d * Math.sqrt(EXPIARY));
-        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIARY, res[0], res[1]);
+        double k = FORWARD * Math.exp(d * Math.sqrt(EXPIRY));
+        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIRY, res[0], res[1]);
         System.out.println(k + "\t" + vol);
       }
       System.out.print("\n");
@@ -229,13 +292,13 @@ public class ShiftedLogNormalTailExtrapolationTest {
     System.out.println("ShiftedLogNormalTailExtrapolationTest");
     final int n = RIGHT_STRIKES.length;
     for (int i = 0; i < n; i++) {
-      double[] res = FITTER.fitTwoVolatilities(FORWARD, RIGHT_STRIKES[i], RIGHT_VOLS[i], EXPIARY);
+      double[] res = FITTER.fitTwoVolatilities(FORWARD, RIGHT_STRIKES[i], RIGHT_VOLS[i], EXPIRY);
       assertEquals(2, res.length);
       System.out.println("fit:\t" + res[0] + "\t" + res[1]);
       for (int j = 0; j < 101; j++) {
         double d = 1.0 + 4.5 * j / 100.;
-        double k = FORWARD * Math.exp(d * Math.sqrt(EXPIARY));
-        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIARY, res[0], res[1]);
+        double k = FORWARD * Math.exp(d * Math.sqrt(EXPIRY));
+        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, k, EXPIRY, res[0], res[1]);
         System.out.println(k + "\t" + vol);
       }
       System.out.print("\n");
@@ -251,8 +314,8 @@ public class ShiftedLogNormalTailExtrapolationTest {
       public Double evaluate(Double... x) {
         double mu = x[0];
         double sigma = x[1];
-        double vol1 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[1][0], EXPIARY, mu, sigma) - LEFT_VOLS[1][0];
-        double vol2 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[1][1], EXPIARY, mu, sigma) - LEFT_VOLS[1][1];
+        double vol1 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[1][0], EXPIRY, mu, sigma) - LEFT_VOLS[1][0];
+        double vol2 = ShiftedLogNormalTailExtrapolation.impliedVolatility(FORWARD, LEFT_STRIKES[1][1], EXPIRY, mu, sigma) - LEFT_VOLS[1][1];
         return vol1 * vol1 + vol2 * vol2;
       }
     };

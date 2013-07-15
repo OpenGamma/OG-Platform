@@ -8,22 +8,20 @@ package com.opengamma.analytics.financial.timeseries.util;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 
 /**
  * 
  */
-public class TimeSeriesDifferenceOperator extends Function1D<DoubleTimeSeries<?>, DoubleTimeSeries<?>> {
+public class TimeSeriesDifferenceOperator extends Function1D<DateDoubleTimeSeries<?>, DateDoubleTimeSeries<?>> {
 
   @Override
-  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?> ts) {
+  public DateDoubleTimeSeries<?> evaluate(final DateDoubleTimeSeries<?> ts) {
     Validate.notNull(ts, "time series");
     Validate.isTrue(ts.size() > 1, "time series length must be > 1");
-    final FastIntDoubleTimeSeries fastTS = ts.toFastIntDoubleTimeSeries();
-    final int[] times = fastTS.timesArrayFast();
-    final double[] values = fastTS.valuesArrayFast();
+    final int[] times = ts.timesArrayFast();
+    final double[] values = ts.valuesArrayFast();
     final int n = times.length;
     final int[] differenceTimes = new int[n - 1];
     final double[] differenceValues = new double[n - 1];
@@ -31,7 +29,7 @@ public class TimeSeriesDifferenceOperator extends Function1D<DoubleTimeSeries<?>
       differenceTimes[i - 1] = times[i];
       differenceValues[i - 1] = values[i] - values[i - 1];
     }
-    return new FastArrayIntDoubleTimeSeries(fastTS.getEncoding(), differenceTimes, differenceValues).toLocalDateDoubleTimeSeries();
+    return ImmutableLocalDateDoubleTimeSeries.of(differenceTimes, differenceValues);
   }
   
 }

@@ -45,13 +45,14 @@ public class CoupledForwardFiniteDifferenceTest {
   private static final double LAMBDA12 = 0.3;
   private static final double LAMBDA21 = 4.0;
   private static final double PROB_STATE1 = 1.0;
-
+  private static final Function1D<Double, Double> INITIAL_COND1;
+  private static final Function1D<Double, Double> INITIAL_COND2;
   private static final boolean ISCALL = true;
 
   static {
 
     final Function1D<Double, Double> strikeZeroPrice1 = new Function1D<Double, Double>() {
-      @SuppressWarnings({"synthetic-access", "unused"})
+      @SuppressWarnings({"synthetic-access", "unused" })
       @Override
       public Double evaluate(final Double t) {
         if (ISCALL) {
@@ -62,7 +63,7 @@ public class CoupledForwardFiniteDifferenceTest {
     };
 
     final Function1D<Double, Double> strikeZeroPrice2 = new Function1D<Double, Double>() {
-      @SuppressWarnings({"synthetic-access", "unused"})
+      @SuppressWarnings({"synthetic-access", "unused" })
       @Override
       public Double evaluate(final Double t) {
         if (ISCALL) {
@@ -84,6 +85,20 @@ public class CoupledForwardFiniteDifferenceTest {
     } else {
       UPPER = new NeumannBoundaryCondition(1.0, 5.0 * SPOT * Math.exp(T * RATE), false);
     }
+
+    INITIAL_COND1 = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double x) {
+        return PROB_STATE1 * Math.max(0, SPOT - x);
+      }
+    };
+
+    INITIAL_COND2 = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double x) {
+        return (1.0 - PROB_STATE1) * Math.max(0, SPOT - x);
+      }
+    };
 
   }
 
@@ -183,10 +198,10 @@ public class CoupledForwardFiniteDifferenceTest {
 
   @Test
   public void testDegenerate() {
-    //NOT vols equal 
+    //NOTE vols equal 
     final TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL1, LAMBDA12, LAMBDA21, PROB_STATE1);
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
-    final CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(new ForwardCurve(SPOT, RATE), mcData);
+    final ConvectionDiffusionPDE1DCoupledCoefficients[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(new ForwardCurve(SPOT, RATE), mcData);
 
     final int tNodes = 50;
     final int xNodes = 150;
@@ -197,7 +212,10 @@ public class CoupledForwardFiniteDifferenceTest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    final CoupledPDEDataBundle d1 = new CoupledPDEDataBundle(pdeData[0], INITIAL_COND1, LOWER1, UPPER, grid);
+    final CoupledPDEDataBundle d2 = new CoupledPDEDataBundle(pdeData[1], INITIAL_COND2, LOWER2, UPPER, grid);
+
+    final PDEResults1D[] res = solver.solve(d1, d2);
     final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
@@ -237,7 +255,7 @@ public class CoupledForwardFiniteDifferenceTest {
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
 
     final TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
-    final CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
+    final ConvectionDiffusionPDE1DCoupledCoefficients[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
 
     final int tNodes = 51;
     final int xNodes = 151;
@@ -261,8 +279,10 @@ public class CoupledForwardFiniteDifferenceTest {
     final double[][] mcPrices = mc.price(forwards, df, strikes, expiries, mcSims);
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final CoupledPDEDataBundle d1 = new CoupledPDEDataBundle(pdeData[0], INITIAL_COND1, LOWER1, UPPER, grid);
+    final CoupledPDEDataBundle d2 = new CoupledPDEDataBundle(pdeData[1], INITIAL_COND2, LOWER2, UPPER, grid);
 
-    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    final PDEResults1D[] res = solver.solve(d1, d2);
     final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;
@@ -306,7 +326,7 @@ public class CoupledForwardFiniteDifferenceTest {
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.55, true);
 
     final TwoStateMarkovChainDataBundle mcData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, PROB_STATE1);
-    final CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
+    final ConvectionDiffusionPDE1DCoupledCoefficients[] pdeData = PDE_DATA_PROVIDER.getCoupledForwardPair(FORWARD, mcData);
 
     final int tNodes = 51;
     final int xNodes = 151;
@@ -321,8 +341,10 @@ public class CoupledForwardFiniteDifferenceTest {
     //MeshingFunction spaceMesh = new ExponentialMeshing(LOWER1.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final CoupledPDEDataBundle d1 = new CoupledPDEDataBundle(pdeData[0], INITIAL_COND1, LOWER1, UPPER, grid);
+    final CoupledPDEDataBundle d2 = new CoupledPDEDataBundle(pdeData[1], INITIAL_COND2, LOWER2, UPPER, grid);
 
-    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER1, UPPER, LOWER2, UPPER, null);
+    final PDEResults1D[] res = solver.solve(d1, d2);
     final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     double t, k;

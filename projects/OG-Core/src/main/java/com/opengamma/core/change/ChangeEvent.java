@@ -8,8 +8,6 @@ package com.opengamma.core.change;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
@@ -49,7 +48,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
   @PropertyDefinition
   private Instant _versionFrom;
   /**
-   * The end of a timespan of the change of the entity, not null.
+   * The end of a timespan of the change of the entity.
    */
   @PropertyDefinition
   private Instant _versionTo;
@@ -235,7 +234,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the end of a timespan of the change of the entity, not null.
+   * Gets the end of a timespan of the change of the entity.
    * @return the value of the property
    */
   public Instant getVersionTo() {
@@ -243,7 +242,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
   }
 
   /**
-   * Sets the end of a timespan of the change of the entity, not null.
+   * Sets the end of a timespan of the change of the entity.
    * @param versionTo  the new value of the property
    */
   public void setVersionTo(Instant versionTo) {

@@ -5,35 +5,41 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorFRA extends GeneratorInstrument {
+public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The Ibor index underlying the FRA.
    */
   private final IborIndex _iborIndex;
+  /**
+   * The holiday calendar associated with the ibor index.
+   */
+  private final Calendar _calendar;
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
    * @param name The generator name. Not null.
    * @param iborIndex The Ibor index of the floating leg.
+   * @param calendar The holiday calendar for the ibor leg.
    */
-  public GeneratorFRA(String name, IborIndex iborIndex) {
+  public GeneratorFRA(final String name, final IborIndex iborIndex, final Calendar calendar) {
     super(name);
-    Validate.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(calendar, "calendar");
     _iborIndex = iborIndex;
+    _calendar = calendar;
   }
 
   /**
@@ -57,24 +63,18 @@ public class GeneratorFRA extends GeneratorInstrument {
    * @return The calendar.
    */
   public Calendar getCalendar() {
-    return _iborIndex.getCalendar();
+    return _calendar;
   }
 
   @Override
   /**
-   * The FRA is from spot+(tenor-_iborIndex.getTenor()) to spot + tenor.
+   * The FRA is from spot+(endtenor-_iborIndex.getTenor()) to spot + endtenor. The start period is not used.
    */
-  public ForwardRateAgreementDefinition generateInstrument(ZonedDateTime date, Period tenor, double rate, double notional, Object... objects) {
-    Period startPeriod = tenor.minus(_iborIndex.getTenor());
-    return ForwardRateAgreementDefinition.fromTrade(date, startPeriod, notional, _iborIndex, rate);
-  }
-
-  @Override
-  /**
-   * The FRA is from spot+startTenor to spot + (startTenor+_iborIndex.getTenor()). The endTenor is not used.
-   */
-  public ForwardRateAgreementDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double rate, double notional, Object... objects) {
-    return ForwardRateAgreementDefinition.fromTrade(date, startTenor, notional, _iborIndex, rate);
+  public ForwardRateAgreementDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
+    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(attribute, "Attributes");
+    final Period startPeriod = attribute.getEndPeriod().minus(_iborIndex.getTenor());
+    return ForwardRateAgreementDefinition.fromTrade(date, startPeriod, notional, _iborIndex, rate, _calendar);
   }
 
   @Override
@@ -86,12 +86,13 @@ public class GeneratorFRA extends GeneratorInstrument {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_iborIndex == null) ? 0 : _iborIndex.hashCode());
+    result = prime * result + _iborIndex.hashCode();
+    result = prime * result + _calendar.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -101,8 +102,11 @@ public class GeneratorFRA extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorFRA other = (GeneratorFRA) obj;
+    final GeneratorFRA other = (GeneratorFRA) obj;
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

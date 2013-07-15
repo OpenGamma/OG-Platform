@@ -48,9 +48,16 @@ public class SecurityProviderComponentFactory extends AbstractComponentFactory {
   private boolean _publishRest = true;
 
   //-------------------------------------------------------------------------
+  /**
+   * Initializes the security provider, setting up component information and REST.
+   * Override using {@link #createSecurityProvider(ComponentRepository)}.
+   * 
+   * @param repo  the component repository, not null
+   * @param configuration  the remaining configuration, not null
+   */
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final SecurityProvider provider = initSecurityProvider(repo);
+    final SecurityProvider provider = createSecurityProvider(repo);
     final ComponentInfo info = new ComponentInfo(SecurityProvider.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteSecurityProvider.class);
@@ -69,7 +76,7 @@ public class SecurityProviderComponentFactory extends AbstractComponentFactory {
    * @param repo  the component repository, only used to register secondary items like lifecycle, not null
    * @return the provider, not null
    */
-  protected SecurityProvider initSecurityProvider(ComponentRepository repo) {
+  protected SecurityProvider createSecurityProvider(ComponentRepository repo) {
     return new NoneFoundSecurityProvider();
   }
 
@@ -218,7 +225,7 @@ public class SecurityProviderComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest");
 

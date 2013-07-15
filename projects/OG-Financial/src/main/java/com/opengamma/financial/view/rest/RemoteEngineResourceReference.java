@@ -16,7 +16,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.rest.FudgeRestClient;
 

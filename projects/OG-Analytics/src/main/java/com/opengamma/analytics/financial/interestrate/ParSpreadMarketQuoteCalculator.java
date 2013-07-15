@@ -17,10 +17,10 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCou
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
  * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "market quote" will depend of each instrument.
  */
-public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -58,15 +58,9 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  //  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUTURES_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
 
   //     -----     Deposit     -----
 
@@ -92,7 +86,7 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
     return METHOD_BILL_TRANSACTION.parSpread(bill, curves);
   }
 
-  //     -----     Swaps     -----
+  //-----     Swaps     -----
 
   /**
    * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
@@ -106,7 +100,7 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    return -curves.getFxRates().convert(PVMCC.visit(swap, curves), swap.getFirstLeg().getCurrency()).getAmount() / PVBPC.visit(swap.getFirstLeg(), curves);
+    return -curves.getFxRates().convert(swap.accept(PVMCC, curves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVBPC, curves);
   }
 
   @Override
@@ -136,9 +130,14 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
    * @return The par spread.
    */
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.price(future, curves) - future.getReferencePrice();
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return METHOD_IR_FUTURES_SECURITY.price(future.getUnderlying(), curves) - future.getReferencePrice();
   }
+
+  //  @Override
+  //  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  //    return METHOD_IR_FUTURES_SECURITY.price(future, curves);
+  //  }
 
   //     -----     Forex     -----
 

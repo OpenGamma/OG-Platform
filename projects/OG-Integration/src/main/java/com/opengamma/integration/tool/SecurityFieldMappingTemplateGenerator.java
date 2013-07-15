@@ -21,7 +21,7 @@ import com.opengamma.master.security.SecurityMetaDataRequest;
 import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.paging.PagingRequest;
 
 /**

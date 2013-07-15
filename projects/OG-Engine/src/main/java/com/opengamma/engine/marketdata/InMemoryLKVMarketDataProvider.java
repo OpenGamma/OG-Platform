@@ -14,74 +14,57 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * An implementation of {@link MarketDataProvider} which maintains an LKV cache of externally-provided values.
  */
-public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider implements MarketDataInjector, MarketDataAvailabilityProvider {
-  
+public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider implements MarketDataInjector {
+
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVMarketDataProvider.class);
-  
-  private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new ConcurrentHashMap<ValueRequirement, ComputedValue>();
-  private final SecuritySource _securitySource;
+
+  private final Map<ValueSpecification, Object> _lastKnownValues = new ConcurrentHashMap<ValueSpecification, Object>();
+  private final FixedMarketDataAvailabilityProvider _availability = new FixedMarketDataAvailabilityProvider();
   private final MarketDataPermissionProvider _permissionProvider;
 
   /**
-   * Constructs an instance with no support for automatic resolution of Identifiers.
+   * Constructs an instance.
    */
   public InMemoryLKVMarketDataProvider() {
-    this(null);
-  }
-  
-  /**
-   * Constructs an instance.
-   * 
-   * @param securitySource  the security source for resolution of Identifiers, null to prevent this support
-   */
-  public InMemoryLKVMarketDataProvider(SecuritySource securitySource) {
-    _securitySource = securitySource;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
-  public void subscribe(ValueRequirement valueRequirement) {
-    subscribe(Collections.singleton(valueRequirement));
+  public void subscribe(final ValueSpecification valueSpecification) {
+    subscribe(Collections.singleton(valueSpecification));
   }
 
   @Override
-  public void subscribe(Set<ValueRequirement> valueRequirements) {
+  public void subscribe(final Set<ValueSpecification> valueSpecifications) {
     // No actual subscription to make, but we still need to acknowledge it.
-    s_logger.debug("Added subscriptions to {}", valueRequirements);
-    subscriptionSucceeded(valueRequirements);
-  }
-  
-  @Override
-  public void unsubscribe(ValueRequirement valueRequirement) {
-    unsubscribe(Collections.singleton(valueRequirement));
+    s_logger.debug("Added subscriptions to {}", valueSpecifications);
+    subscriptionsSucceeded(valueSpecifications);
   }
 
   @Override
-  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
-    // No actual unsubscription to make
-    s_logger.debug("Unsubscribed from {}", valueRequirements);
+  public void unsubscribe(final ValueSpecification valueSpecification) {
+    unsubscribe(Collections.singleton(valueSpecification));
   }
-  
+
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    return this;
+  public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
+    // No actual unsubscription to make
+    s_logger.debug("Unsubscribed from {}", valueSpecifications);
+  }
+
+  @Override
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
+    return _availability;
   }
 
   @Override
@@ -90,90 +73,54 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
 
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     return true;
   }
 
   @Override
-  public InMemoryLKVMarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+  public InMemoryLKVMarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
     return new InMemoryLKVMarketDataSnapshot(this);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public ValueSpecification getAvailability(ValueRequirement requirement) {
-    return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement) : null;
+  public void addValue(final ValueSpecification specification, final Object value) {
+    _lastKnownValues.put(specification, value);
+    _availability.addAvailableData(specification);
+    valueChanged(specification);
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public void addValue(ValueRequirement requirement, Object value) {
-    _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), value));
-    valueChanged(requirement);
+  public void addValue(final ValueRequirement requirement, final Object value) {
+    final ValueSpecification resolved = _availability.resolveRequirement(requirement);
+    addValue(resolved, value);
   }
-  
+
   @Override
-  public void addValue(ExternalId identifier, String valueName, Object value) {
-    ValueRequirement valueRequirement = resolveRequirement(identifier, valueName);
-    addValue(valueRequirement, value);
+  public void removeValue(final ValueSpecification specification) {
+    _availability.removeAvailableData(specification);
+    _lastKnownValues.remove(specification);
+    valueChanged(specification);
   }
 
   @Override
   public void removeValue(final ValueRequirement valueRequirement) {
-    _lastKnownValues.remove(valueRequirement);
-    valueChanged(valueRequirement);
+    final ValueSpecification resolved = _availability.resolveRequirement(valueRequirement);
+    removeValue(resolved);
   }
-  
-  @Override
-  public void removeValue(ExternalId identifier, String valueName) {
-    ValueRequirement valueRequirement = resolveRequirement(identifier, valueName);
-    removeValue(valueRequirement);
-  }
-  
+
   //-------------------------------------------------------------------------
-  public Set<ValueRequirement> getAllValueKeys() {
+  public Set<ValueSpecification> getAllValueKeys() {
     return Collections.unmodifiableSet(_lastKnownValues.keySet());
   }
 
-  public ComputedValue getCurrentValue(ValueRequirement valueRequirement) {
-    return _lastKnownValues.get(valueRequirement);
-  }
-  
-  //-------------------------------------------------------------------------
-  /*package*/Map<ValueRequirement, ComputedValue> doSnapshot() {
-    return new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
-  }
-  
-  private ValueRequirement resolveRequirement(ExternalId identifier, String valueName) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    ArgumentChecker.notNull(valueName, "valueName");
-    
-    Security security = null;
-    if (_securitySource != null) {
-      // 1 - see if the identifier can be resolved to a security
-      security = _securitySource.getSingle(ExternalIdBundle.of(identifier));
-      
-      // 2 - see if the so-called Identifier is actually the UniqueId of a security
-      // if (security == null) {
-        // Can't do this as the UniqueId may be the wrong type for the master - does this case really matter?
-        // security = _securitySource.getSecurity(uniqueIdentifier);
-      // }
-    }
-    if (security != null) {
-      return new ValueRequirement(valueName, ComputationTargetType.SECURITY, security.getUniqueId());
-    } else {
-      // 3 - treat the identifier as a UniqueId and assume it's a PRIMITIVE
-      UniqueId uniqueIdentifier = UniqueId.of(identifier.getScheme().getName(), identifier.getValue());
-      return new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueIdentifier);
-    }
+  public Object getCurrentValue(final ValueSpecification specification) {
+    return _lastKnownValues.get(specification);
   }
 
-  /**
-   * Gets the securitySource.
-   * @return the securitySource
-   */
-  protected SecuritySource getSecuritySource() {
-    return _securitySource;
+  //-------------------------------------------------------------------------
+
+  /*package*/Map<ValueSpecification, Object> doSnapshot() {
+    return new HashMap<ValueSpecification, Object>(_lastKnownValues);
   }
-  
+
 }

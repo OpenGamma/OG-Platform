@@ -5,8 +5,10 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,21 +20,20 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
-import com.opengamma.engine.target.LazyComputationTargetResolver;
+import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Unit of task resolution. A resolve task executes to convert a {@link ValueRequirement} into a dependency node.
  */
-/* package */final class ResolveTask extends AbstractResolvedValueProducer implements ContextRunnable {
+/* package */final class ResolveTask extends DirectResolvedValueProducer implements ContextRunnable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolveTask.class);
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
 
   /**
-   * State within a task. As the task executes, the execution is delegated to the
-   * current state object.
+   * State within a task. As the task executes, the execution is delegated to the current state object.
    */
   protected abstract static class State implements ResolvedValueProducer.Chain {
 
@@ -58,14 +59,18 @@ import com.opengamma.engine.value.ValueSpecification;
       getTask().finished(context);
     }
 
-    protected void setTaskState(final State nextState) {
-      getTask().setState(nextState);
+    protected boolean setTaskState(final State nextState) {
+      return getTask().setState(this, nextState);
     }
 
-    protected void setRunnableTaskState(final State nextState, final GraphBuildingContext context) {
+    protected boolean setRunnableTaskState(final State nextState, final GraphBuildingContext context) {
       final ResolveTask task = getTask();
-      task.setState(nextState);
-      context.run(task);
+      if (task.setState(this, nextState)) {
+        context.run(task);
+        return true;
+      } else {
+        return false;
+      }
     }
 
     protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue resolvedValue, final boolean lastResult) {
@@ -85,39 +90,44 @@ import com.opengamma.engine.value.ValueSpecification;
       return getTask().getValueRequirement();
     }
 
+    protected ComputationTargetSpecification getTargetSpecification(final GraphBuildingContext context) {
+      return context.resolveTargetReference(getValueRequirement().getTargetReference());
+    }
+
     protected ComputationTarget getComputationTarget(final GraphBuildingContext context) {
-      return getTask().getComputationTarget(context);
+      final ComputationTargetSpecification specification = getTargetSpecification(context);
+      if (specification == null) {
+        return null;
+      }
+      final ComputationTarget target = LazyComputationTargetResolver.resolve(context.getCompilationContext().getComputationTargetResolver(), specification);
+      if (target == null) {
+        s_logger.warn("Computation target {} not found", specification);
+      }
+      return target;
     }
 
     protected boolean run(final GraphBuildingContext context) {
       throw new UnsupportedOperationException("Not runnable state (" + toString() + ")");
     }
 
-    protected void pump(final GraphBuildingContext context) {
-      // No-op; happens if a worker "finishes" a function application PumpingState and it progresses to the next natural
-      // state in advance of the pump from the abstract value producer
-    }
+    protected abstract void pump(final GraphBuildingContext context);
 
     @Override
-    public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
-      return getTask().cancelLoopMembers(context, visited);
+    public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+      return cancelLoopMembersImpl(context, visited);
     }
 
-    /**
-     * Tests if the state is somehow active and may reschedule the task to run (i.e. it's blocked on something) given that the
-     * parent task is going to neither call {@link #run} nor {@link #pump}
-     * 
-     * @return true if the state is active
-     */
-    protected abstract boolean isActive();
+    protected int cancelLoopMembersImpl(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+      return getTask().cancelLoopMembers(context, visited);
+    }
 
     /**
      * Called when the parent task is discarded.
      * 
      * @param context the graph building context, not null
      */
-    protected void onDiscard(final GraphBuildingContext context) {
-      // No-op
+    protected void discard(final GraphBuildingContext context) {
+      // No-op; only implement if there is data to discard (e.g. cancel things to free resources) for the state
     }
 
   }
@@ -138,16 +148,11 @@ import com.opengamma.engine.value.ValueSpecification;
   private volatile State _state;
 
   /**
-   * Flag to mark whether any child production was rejected because of a value requirement loop.
+   * Function mutual exclusion group hints. Functions shouldn't be considered for the same value requirement name if their group hint is already present.
    */
-  private volatile boolean _recursion;
+  private final Collection<FunctionExclusionGroup> _functionExclusion;
 
-  /**
-   * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task.
-   */
-  private final Set<FunctionExclusionGroup> _functionExclusion;
-
-  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Set<FunctionExclusionGroup> functionExclusion) {
+  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Collection<FunctionExclusionGroup> functionExclusion) {
     super(valueRequirement);
     final int hc;
     if (parent != null) {
@@ -169,49 +174,43 @@ import com.opengamma.engine.value.ValueSpecification;
       _functionExclusion = null;
       _hashCode = hc;
     }
-    setState(new GetFunctionsStep(this));
+    _state = new GetFunctionsStep(this);
   }
 
   private State getState() {
     return _state;
   }
 
-  private void setState(final State state) {
-    assert state != null;
-    s_logger.debug("State transition {} to {}", _state, state);
-    if (_state == null) {
-      // Increase the ref-count as the state holds a reference to us 
-      addRef();
-    }
-    _state = state;
-  }
-
-  public boolean isFinished() {
-    return _state == null;
-  }
-
-  public boolean isActive() {
-    final State state = getState();
-    if (state != null) {
-      return state.isActive();
+  private synchronized boolean setState(final State previousState, final State nextState) {
+    assert nextState != null;
+    if (_state == previousState) {
+      s_logger.debug("State transition {} to {}", previousState, nextState);
+      _state = nextState;
+      return true;
     } else {
+      System.err.println("Invalid state transition - was " + _state + ", not " + previousState + " - not advancing to " + nextState);
       return false;
     }
+  }
+
+  @Override
+  public boolean isFinished() {
+    return _state == null;
   }
 
   @Override
   protected void finished(final GraphBuildingContext context) {
     assert _state != null;
     _state = null;
-    // Decrease the ref-count as the state no longer holds a reference to us
-    release(context);
     super.finished(context);
   }
 
   @Override
   public boolean tryRun(final GraphBuildingContext context) {
-    if (getState().run(context)) {
-      // Release the lock that the context added before we got queued
+    final State state = getState();
+    assert state != null;
+    if (state.run(context)) {
+      // Release the lock that the context added before we got queued (or run in-line)
       release(context);
       return true;
     } else {
@@ -221,15 +220,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
   private Set<ValueRequirement> getParentValueRequirements() {
     return _parentRequirements;
-  }
-
-  private ComputationTarget getComputationTarget(final GraphBuildingContext context) {
-    final ComputationTargetSpecification specification = getValueRequirement().getTargetSpecification();
-    final ComputationTarget target = LazyComputationTargetResolver.resolve(context.getCompilationContext().getComputationTargetResolver(), specification);
-    if (target == null) {
-      s_logger.warn("Computation target {} not found", specification);
-    }
-    return target;
   }
 
   public boolean hasParent(final ResolveTask task) {
@@ -250,7 +240,39 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  public Set<FunctionExclusionGroup> getFunctionExclusion() {
+  /**
+   * Tests if the parent value requirements of this task are the same as a task would have if it used the given task as its parent.
+   * <p>
+   * This is part of a cheaper test for an existing task than creating a new instance and using the {@link #equals} method.
+   * 
+   * @param parent the candidate parent to test, not null
+   * @return true if the parent value requirements would match
+   */
+  public boolean hasParentValueRequirements(final ResolveTask parent) {
+    if (getParentValueRequirements() != null) {
+      if (parent != null) {
+        if (parent.getParentValueRequirements() != null) {
+          if (getParentValueRequirements().size() == parent.getParentValueRequirements().size() + 1) {
+            return getParentValueRequirements().contains(parent.getValueRequirement()) && getParentValueRequirements().containsAll(parent.getParentValueRequirements());
+          } else {
+            return false;
+          }
+        } else {
+          if (getParentValueRequirements().size() == 1) {
+            return getParentValueRequirements().contains(parent.getValueRequirement());
+          } else {
+            return false;
+          }
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return parent == null;
+    }
+  }
+
+  public Collection<FunctionExclusionGroup> getFunctionExclusion() {
     return _functionExclusion;
   }
 
@@ -274,7 +296,7 @@ import com.opengamma.engine.value.ValueSpecification;
     if (!(o instanceof ResolveTask)) {
       return false;
     }
-    ResolveTask other = (ResolveTask) o;
+    final ResolveTask other = (ResolveTask) o;
     if (!getValueRequirement().equals(other.getValueRequirement())) {
       return false;
     }
@@ -297,39 +319,21 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public int release(final GraphBuildingContext context) {
-    final int count = super.release(context);
-    if (getState() != null) {
-      if (count == 2) {
-        // References held from the cache and the simulated one from our state
-        final State state = getState();
-        if (!state.isActive()) {
-          s_logger.debug("Remove unfinished {} from the cache", this);
-          context.discardTask(this);
-        }
-      } else if (count == 1) {
-        // Simulated reference held from our state only
-        final State state = getState();
-        if (!state.isActive()) {
-          s_logger.debug("Discarding state for unfinished {}", this);
-          state.onDiscard(context);
-          _state = null;
-        }
+    int count = super.release(context);
+    if (count == 1) {
+      // It's possible that only the _requirements collection from the graph builder now holds a reference to us that we care about
+      if (!isFinished()) {
+        // Only discard unfinished tasks; others might be useful and worth keeping if we can afford the memory
+        context.discardTask(this);
+      }
+    } else if (count == 0) {
+      // Nothing holds a reference to us; discard any state remnants
+      final State state = getState();
+      if (state != null) {
+        state.discard(context);
       }
     }
     return count;
-  }
-
-  // TODO: The recursion logic isn't entirely correct. A resolve task may end up working from
-  // a substitute/delegate (see FunctionApplicationStep) that encountered recursion causing a
-  // failure. This will not be flagged using the current mechanism preventing complete state
-  // exploration.
-
-  public void setRecursionDetected() {
-    _recursion = true;
-  }
-
-  public boolean wasRecursionDetected() {
-    return _recursion;
   }
 
 }

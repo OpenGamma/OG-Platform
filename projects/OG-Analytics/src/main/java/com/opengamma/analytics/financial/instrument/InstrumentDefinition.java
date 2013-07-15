@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 
@@ -17,8 +17,22 @@ public interface InstrumentDefinition<T extends InstrumentDerivative> {
 
   T toDerivative(ZonedDateTime date, String... yieldCurveNames);
 
-  <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data);
+  /**
+   * accept() method for visitors
+   * @param <U> The type of the data
+   * @param <V> The return type of the visitor
+   * @param visitor The visitor, not null
+   * @param data Data to be used in the visitor
+   * @return The result from the supplied visitor appropriate to this type of instrument definition
+   */
+  <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data);
 
+  /**
+   * accept() method for visitors
+   * @param <V> The return type of the visitor
+   * @param visitor The visitor, not null
+   * @return The result from the supplied visitor appropriate to this type of instrument definition
+   */
   <V> V accept(InstrumentDefinitionVisitor<?, V> visitor);
 
 }

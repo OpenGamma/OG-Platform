@@ -6,15 +6,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.0.0</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-security</artifactId>
   <packaging>jar</packaging>
   <name>OG-Security</name>
-  <description>OpenGamma platform user security</description>
+  <description>OpenGamma Platform user security</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Security</url>
@@ -22,8 +22,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-utildb</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -38,11 +43,6 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.ant</groupId>
-      <artifactId>ant</artifactId>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 

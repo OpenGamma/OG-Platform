@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -35,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -43,6 +42,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.bbg.util.ReferenceDataProviderUtils;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -76,7 +76,7 @@ public class BloombergSecurityFileLoader {
   private static final String OPTION = "option";
   private static final String IDENTIFICATION_SCHEME = "scheme";
 
-  private final BloombergSecurityLoader _securityLoader;
+  private final DefaultSecurityLoader _securityLoader;
   private ReferenceDataProvider _refDataProvider;
   private String[] _files;
   private int _optionSize;
@@ -91,7 +91,7 @@ public class BloombergSecurityFileLoader {
   public BloombergSecurityFileLoader(final SecurityProvider securityProvider, final SecurityMaster securityMaster) {
     ArgumentChecker.notNull(securityProvider, "securityProvider");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
-    _securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
+    _securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -132,11 +132,11 @@ public class BloombergSecurityFileLoader {
     
     Set<ExternalIdBundle> identifiers = readInputFiles();
     
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurity(identifiers);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurities(identifiers);
     List<ExternalIdBundle> errors = findErrors(loadedSecurities);
     if (_optionSize > 0) {
       Set<ExternalIdBundle> optionIdentifiers = loadOptionIdentifiers(identifiers);
-      Map<ExternalIdBundle, UniqueId> loadedOptionSecurities = _securityLoader.loadSecurity(optionIdentifiers);
+      Map<ExternalIdBundle, UniqueId> loadedOptionSecurities = _securityLoader.loadSecurities(optionIdentifiers);
       errors.addAll(findErrors(loadedOptionSecurities));
     }
    
@@ -187,11 +187,11 @@ public class BloombergSecurityFileLoader {
           throw new OpenGammaRuntimeException(expiryStr + " returned from bloomberg not in format yyyy-mm-dd", e);
         }
         int year = expiryLocalDate.getYear();
-        int month = expiryLocalDate.getMonthOfYear().getValue();
+        int month = expiryLocalDate.getMonthValue();
         int day = expiryLocalDate.getDayOfMonth();
         Expiry expiry = new Expiry(DateUtils.getUTCDate(year, month, day));
 
-        if (expiry.toInstant().toEpochMillisLong() < (System.currentTimeMillis() + (25L * 60L * 60L * 1000L))) {
+        if (expiry.getExpiry().toInstant().toEpochMilli() < (System.currentTimeMillis() + (25L * 60L * 60L * 1000L))) {
           s_logger.info("Option {} in future, so passing on it.", optionTickerStr);
           continue;
         }

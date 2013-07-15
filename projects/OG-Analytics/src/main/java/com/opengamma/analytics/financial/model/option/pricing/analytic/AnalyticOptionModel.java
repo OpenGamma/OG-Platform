@@ -24,7 +24,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * @param <T> The type of the option definition
  * @param <U> The type of the option data bundle
- * Base class for analytic option models. 
+ * Base class for analytic option models.
  */
 public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
@@ -47,7 +47,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
     Validate.notNull(pricingFunction);
     Validate.notNull(data);
     Validate.notNull(definition);
-    return new AnalyticOptionModelFiniteDifferenceGreekVisitor<U, T>(pricingFunction, data, definition);
+    return new AnalyticOptionModelFiniteDifferenceGreekVisitor<>(pricingFunction, data, definition);
   }
 
   /**

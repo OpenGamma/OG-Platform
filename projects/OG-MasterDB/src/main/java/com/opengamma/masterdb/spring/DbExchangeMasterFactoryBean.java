@@ -54,7 +54,6 @@ public class DbExchangeMasterFactoryBean extends AbstractDbMasterFactoryBean<DbE
    * The meta-bean for {@code DbExchangeMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbExchangeMasterFactoryBean.Meta meta() {
     return DbExchangeMasterFactoryBean.Meta.INSTANCE;
   }
@@ -108,7 +107,7 @@ public class DbExchangeMasterFactoryBean extends AbstractDbMasterFactoryBean<DbE
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

@@ -5,11 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapIborONDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -20,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorSwapIborON extends GeneratorInstrument {
+public class GeneratorSwapIborON extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The Ibor index.
@@ -54,6 +51,14 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
    * The dates in the schedule can be computed from the end date (true) or from the start date (false).
    */
   private final boolean _fromEnd;
+  /**
+   * The holiday calendar associated with the ibor index.
+   */
+  private final Calendar _iborCalendar;
+  /**
+   * The holiday calendar associated with the overnight index.
+   */
+  private final Calendar _overnightCalendar;
 
   /**
    * Constructor from all details. The stub is short and date constructed from the end.
@@ -63,12 +68,17 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
    * @param businessDayConvention The business day convention for the payments (used for both legs).
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
+   * @param iborCalendar The holiday calendar for the ibor index.
+   * @param overnightCalendar The holiday calendar for the overnight index.
    */
-  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
+  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth, final int spotLag, final Calendar iborCalendar, final Calendar overnightCalendar) {
     super(name);
-    Validate.notNull(indexIbor, "Index Ibor");
-    Validate.notNull(indexON, "Index ON");
-    Validate.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(indexIbor, "Index Ibor");
+    ArgumentChecker.notNull(indexON, "Index ON");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(iborCalendar, "ibor calendar");
+    ArgumentChecker.notNull(overnightCalendar, "overnight calendar");
     _indexIbor = indexIbor;
     _indexON = indexON;
     _businessDayConvention = businessDayConvention;
@@ -77,6 +87,8 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
     _paymentLag = spotLag;
     _stubShort = true;
     _fromEnd = true;
+    _iborCalendar = iborCalendar;
+    _overnightCalendar = overnightCalendar;
   }
 
   /**
@@ -88,13 +100,17 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    * @param paymentLag The lag in days between the last ON fixing date and the coupon payment.
+   * @param iborCalendar The holiday calendar for the ibor index.
+   * @param overnightCalendar The holiday calendar for the overnight index.
    */
-  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag,
-      final int paymentLag) {
+  public GeneratorSwapIborON(final String name, final IborIndex indexIbor, final IndexON indexON, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth, final int spotLag, final int paymentLag, final Calendar iborCalendar, final Calendar overnightCalendar) {
     super(name);
-    Validate.notNull(indexIbor, "Index Ibor");
-    Validate.notNull(indexON, "Index ON");
-    Validate.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(indexIbor, "Index Ibor");
+    ArgumentChecker.notNull(indexON, "Index ON");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(iborCalendar, "ibor calendar");
+    ArgumentChecker.notNull(overnightCalendar, "overnight calendar");
     _indexIbor = indexIbor;
     _indexON = indexON;
     _businessDayConvention = businessDayConvention;
@@ -103,6 +119,8 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
     _paymentLag = paymentLag;
     _stubShort = true;
     _fromEnd = true;
+    _iborCalendar = iborCalendar;
+    _overnightCalendar = overnightCalendar;
   }
 
   /**
@@ -173,28 +191,28 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
    * Gets the calendar associated to the Ibor index.
    * @return The calendar.
    */
-  public Calendar getCalendar() {
-    return _indexIbor.getCalendar();
+  public Calendar getIborCalendar() {
+    return _iborCalendar;
+  }
+
+  /**
+   * Gets the calendar associated to the overnight index.
+   * @return The calendar.
+   */
+  public Calendar getOvernightCalendar() {
+    return _overnightCalendar;
   }
 
   @Override
   /**
    * The effective date is spot+startTenor. The end of fixing period is effective date+tenor.
    */
-  public SwapIborONDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+  public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final double spread, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
-    return SwapIborONDefinition.from(startDate, tenor, this, notional, spread, true);
-  }
-
-  @Override
-  /**
-   * The effective date is spot+startTenor. The end of fixing period is effective date+endTenor.
-   */
-  public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double spread, double notional, Object... objects) {
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _indexIbor);
-    return SwapIborONDefinition.from(startDate, endTenor, this, notional, spread, true);
+    ArgumentChecker.notNull(attribute, "Attributes");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborCalendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _indexIbor, _iborCalendar);
+    return SwapIborONDefinition.from(startDate, attribute.getEndPeriod(), this, notional, spread, true, _iborCalendar);
   }
 
   @Override
@@ -204,16 +222,19 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
     result = prime * result + ((_businessDayConvention == null) ? 0 : _businessDayConvention.hashCode());
     result = prime * result + (_endOfMonth ? 1231 : 1237);
     result = prime * result + (_fromEnd ? 1231 : 1237);
-    result = prime * result + ((_indexIbor == null) ? 0 : _indexIbor.hashCode());
-    result = prime * result + ((_indexON == null) ? 0 : _indexON.hashCode());
+    result = prime * result + _indexIbor.hashCode();
+    result = prime * result + _indexON.hashCode();
     result = prime * result + _paymentLag;
     result = prime * result + _spotLag;
     result = prime * result + (_stubShort ? 1231 : 1237);
+    result = prime * result + _iborCalendar.hashCode();
+    result = prime * result + _overnightCalendar.hashCode();
+    result = prime * result + _indexON.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -223,7 +244,7 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapIborON other = (GeneratorSwapIborON) obj;
+    final GeneratorSwapIborON other = (GeneratorSwapIborON) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }
@@ -246,6 +267,12 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
       return false;
     }
     if (_stubShort != other._stubShort) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_iborCalendar, other._iborCalendar)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_overnightCalendar, other._overnightCalendar)) {
       return false;
     }
     return true;

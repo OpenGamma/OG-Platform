@@ -23,13 +23,14 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
-@Test(groups="unit")
+@Test(groups = TestGroup.UNIT)
 public class DataHistoricalTimeSeriesProviderResourceTest {
 
   private HistoricalTimeSeriesProvider _underlying;

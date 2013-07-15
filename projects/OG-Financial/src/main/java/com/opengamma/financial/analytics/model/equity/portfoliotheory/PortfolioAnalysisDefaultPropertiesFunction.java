@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public abstract class PortfolioAnalysisDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class PortfolioAnalysisDefaultPropertiesFunction extends DefaultPropertyFunction {
   private final String[] _valueNames;
   private final String _samplingPeriodName;
   private final String _scheduleCalculatorName;
@@ -29,8 +29,8 @@ public abstract class PortfolioAnalysisDefaultPropertiesFunction extends Default
   private final String _expectedExcessReturnCalculatorName;
   
   public PortfolioAnalysisDefaultPropertiesFunction(final String samplingPeriodName, final String scheduleCalculatorName, final String samplingFunctionName, final String returnCalculatorName,  
-      final String stdDevCalculatorName, final String expectedExcessReturnCalculatorName, final String[] valueNames, final ComputationTargetType target) {
-    super(target, true);
+      final String stdDevCalculatorName, final String expectedExcessReturnCalculatorName, final String[] valueNames) {
+    super(ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION), true);
     ArgumentChecker.notNull(samplingPeriodName, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculatorName, "schedule calculator name");
     ArgumentChecker.notNull(samplingFunctionName, "sampling function name");

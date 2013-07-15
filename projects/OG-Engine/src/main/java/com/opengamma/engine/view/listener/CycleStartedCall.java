@@ -6,7 +6,7 @@
 package com.opengamma.engine.view.listener;
 
 import com.google.common.base.Function;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 
 /**
  * Represents a call to {@link ViewResultListener#cycleStarted(ViewCycleMetadata)}.

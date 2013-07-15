@@ -16,34 +16,43 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class RectangularViewportDefinitionTest {
 
   @Test
   public void iterator() {
-    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(0, ImmutableList.of(3, 4, 6),
+    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(0,
+                                                                                    ImmutableList.of(3, 4, 6),
                                                                                     ImmutableList.of(8, 10, 11),
-                                                                                    TypeFormatter.Format.EXPANDED);
+                                                                                    TypeFormatter.Format.EXPANDED,
+                                                                                    false);
     ImmutableList<GridCell> gridCells = ImmutableList.copyOf(viewportCells.iterator());
     List<GridCell> expectedCells = ImmutableList.of(
-        new GridCell(3, 8),
-        new GridCell(3, 10),
-        new GridCell(3, 11),
-        new GridCell(4, 8),
-        new GridCell(4, 10),
-        new GridCell(4, 11),
-        new GridCell(6, 8),
-        new GridCell(6, 10),
-        new GridCell(6, 11));
+        new GridCell(3, 8, TypeFormatter.Format.EXPANDED),
+        new GridCell(3, 10, TypeFormatter.Format.EXPANDED),
+        new GridCell(3, 11, TypeFormatter.Format.EXPANDED),
+        new GridCell(4, 8, TypeFormatter.Format.EXPANDED),
+        new GridCell(4, 10, TypeFormatter.Format.EXPANDED),
+        new GridCell(4, 11, TypeFormatter.Format.EXPANDED),
+        new GridCell(6, 8, TypeFormatter.Format.EXPANDED),
+        new GridCell(6, 10, TypeFormatter.Format.EXPANDED),
+        new GridCell(6, 11, TypeFormatter.Format.EXPANDED));
     assertEquals(expectedCells, gridCells);
   }
 
   @Test
   public void isValidForGrid() {
-    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(0, ImmutableList.of(3, 4, 6),
+    RectangularViewportDefinition viewportCells = new RectangularViewportDefinition(0,
+                                                                                    ImmutableList.of(3, 4, 6),
                                                                                     ImmutableList.of(8, 10),
-                                                                                    TypeFormatter.Format.EXPANDED);
+                                                                                    TypeFormatter.Format.EXPANDED,
+                                                                                    false);
     GridStructure validStructure = mock(GridStructure.class);
     stub(validStructure.getColumnCount()).toReturn(20);
     stub(validStructure.getRowCount()).toReturn(10);

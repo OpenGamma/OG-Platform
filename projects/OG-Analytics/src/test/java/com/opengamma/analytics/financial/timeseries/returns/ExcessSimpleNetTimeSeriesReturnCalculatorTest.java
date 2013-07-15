@@ -7,26 +7,25 @@ package com.opengamma.analytics.financial.timeseries.returns;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class ExcessSimpleNetTimeSeriesReturnCalculatorTest {
   private static final TimeSeriesReturnCalculator CALCULATOR = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.EXCESS_SIMPLE_NET_STRICT);
-  private static final LocalDateDoubleTimeSeries TS1 = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3), 
+  private static final LocalDateDoubleTimeSeries TS1 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3), 
                                                                                                            LocalDate.of(2000, 1, 4), LocalDate.of(2000, 1, 5) }, 
                                                                                           new double[] {1, 2, 3, 4, 5});
-  private static final LocalDateDoubleTimeSeries TS2 = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3), 
+  private static final LocalDateDoubleTimeSeries TS2 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3), 
                                                                                                            LocalDate.of(2000, 1, 4), LocalDate.of(2000, 1, 5) }, 
                                                                                           new double[] {1, 1, 1, 1, 1});
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
   private static final TimeSeriesReturnCalculator RETURNS = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT);
   
 
@@ -42,7 +41,7 @@ public class ExcessSimpleNetTimeSeriesReturnCalculatorTest {
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentLengths() {
-    CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {TS1, null, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}), null});
+    CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {TS1, null, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}), null});
   }
 
   @Test

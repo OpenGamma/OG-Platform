@@ -10,9 +10,7 @@ import static com.opengamma.core.id.ExternalSchemes.icapSecurityId;
 import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
@@ -27,14 +25,19 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Contains information used to construct standard versions of USD instruments.
  */
 public class USConventions {
 
+  /**
+   * Adds conventions for deposit, Libor fixings, swaps, FRAs and IR futures.
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -143,6 +146,7 @@ public class USConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_SWAP")), "USD_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency, 2, simpleNameSecurityId("USD LIBOR 3m"),
         usgb, true);
+
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_3M_SWAP")), "USD_3M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, quarterly, 2, simpleNameSecurityId("USD LIBOR 3m"), usgb, true);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_6M_SWAP")), "USD_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
@@ -186,9 +190,13 @@ public class USConventions {
     for (final int element : isdaFixTenor) {
       final String tenorString = element + "Y";
       final String tenorStringBbg = String.format("%02d", element);
+//      utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_ISDAFIX_USDLIBOR10_" + tenorString),
+//          ExternalSchemes.ricSecurityId("USDSFIX" + tenorString + "="), bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index")),
+//          "USD_ISDAFIX_USDLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, us, act360, modified, semiAnnual, 2,
+//          simpleNameSecurityId("USD LIBOR 3m"), us, true, Period.ofYears(element));
       utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_ISDAFIX_USDLIBOR10_" + tenorString),
-          ExternalSchemes.ricSecurityId("USDSFIX" + tenorString + "="), bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index")),
-          "USD_ISDAFIX_USDLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, us, act360, modified, semiAnnual, 2,
+          ExternalSchemes.ricSecurityId("USDSFIX" + tenorString + "="), bloombergTickerSecurityId("USSW" + tenorStringBbg + " Curncy")),
+          "USSW" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, us, act360, modified, semiAnnual, 2,
           simpleNameSecurityId("USD LIBOR 3m"), us, true, Period.ofYears(element));
     }
 
@@ -204,30 +212,45 @@ public class USConventions {
     utils.addConventionBundle(ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.360M").toBundle(), "IR.SWAP.USD.360M", act360, modified, Period.ofMonths(360), 2, false, null);
   }
 
+  /**
+   * @param conventionMaster The convention master, not null
+   */
   public static void addCAPMConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_CAPM")), "USD_CAPM",
         ExternalIdBundle.of(bloombergTickerSecurityId("US0003M Index")), ExternalIdBundle.of(bloombergTickerSecurityId("SPX Index")));
   }
 
+  /**
+   * Adds conventions for US Treasury bonds,
+   * @param conventionMaster The convention master, not null
+   */
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_TREASURY_BOND_CONVENTION")), "US_TREASURY_BOND_CONVENTION", true, true, 0, 1,
         true);
   }
 
+  /**
+   * Adds conventions for USD-denominated corporate bonds
+   * @param conventionMaster The convention master, not null
+   */
   //TODO need to get the correct convention
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_CORPORATE_BOND_CONVENTION")), "US_CORPORATE_BOND_CONVENTION", true, true, 0, 1,
         true);
   }
 
+  /**
+   * Add conventions for USD bond futures
+   * @param conventionMaster The convention master, not null
+   */
   public static void addBondFutureConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_BOND_FUTURE_DELIVERABLE_CONVENTION")),
         "USD_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 0, 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),

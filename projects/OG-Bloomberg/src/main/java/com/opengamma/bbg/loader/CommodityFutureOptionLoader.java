@@ -9,8 +9,11 @@ import static com.opengamma.bbg.BloombergConstants.BBG_BASE_METAL_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_COAL;
 import static com.opengamma.bbg.BloombergConstants.BBG_CRUDE_OIL;
 import static com.opengamma.bbg.BloombergConstants.BBG_ELECTRICITY;
+import static com.opengamma.bbg.BloombergConstants.BBG_FOODSTUFF;
+import static com.opengamma.bbg.BloombergConstants.BBG_LIVESTOCK;
 import static com.opengamma.bbg.BloombergConstants.BBG_PRECIOUS_METAL_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_REFINED_PRODUCTS;
+import static com.opengamma.bbg.BloombergConstants.BBG_SOY;
 import static com.opengamma.bbg.BloombergConstants.BBG_WHEAT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
@@ -22,17 +25,17 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_STRIKE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PRIMARY_EXCHANGE_NAME;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_ID_BB_UNIQUE;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
@@ -42,6 +45,8 @@ import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
+import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
@@ -74,16 +79,22 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
     FIELD_UNDL_ID_BB_UNIQUE);
 
   /**
-   * The valid Bloomberg security types for Interest Rate Future Option
+   * The valid Bloomberg security types for Commodity Future Option
+   * These strings will often come up as 'FUTURES_CATEGORY'
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
-    BBG_PRECIOUS_METAL_TYPE,
-    BBG_BASE_METAL_TYPE,
-    BBG_REFINED_PRODUCTS,
-    BBG_ELECTRICITY,
-    BBG_COAL,
-    BBG_CRUDE_OIL,
-    BBG_WHEAT);
+      BBG_PRECIOUS_METAL_TYPE,
+      BBG_BASE_METAL_TYPE,
+      BBG_REFINED_PRODUCTS,
+      BBG_ELECTRICITY,
+      BBG_COAL,
+      BBG_CRUDE_OIL,
+      BBG_WHEAT,
+      BBG_SOY,
+      BBG_FOODSTUFF,
+      BBG_LIVESTOCK);
+
+  private static final ExchangeDataProvider exchangeData = DefaultExchangeDataProvider.getInstance();
 
   /**
    * Creates an instance.
@@ -98,6 +109,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
     String rootTicker = fieldData.getString(FIELD_TICKER);
     String exchangeCode = fieldData.getString(FIELD_EXCH_CODE);
+    String exchangeDescription = fieldData.getString(FIELD_PRIMARY_EXCHANGE_NAME);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX); // Bloomberg data in percent.
     double pointValue = fieldData.getDouble(FIELD_FUT_VAL_PT);
@@ -154,7 +166,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
       throw new OpenGammaRuntimeException(expiryDate + " returned from bloomberg not in format yyyy-mm-dd", e);
     }
     int year = expiryLocalDate.getYear();
-    int month = expiryLocalDate.getMonthOfYear().getValue();
+    int month = expiryLocalDate.getMonthValue();
     int day = expiryLocalDate.getDayOfMonth();
     Expiry expiry = new Expiry(DateUtils.getUTCDate(year, month, day));
 
@@ -164,6 +176,14 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId(bbgUniqueID));
     if (BloombergDataUtils.isValidField(secDes)) {
       identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes));
+    }
+
+    // currently we will pick up the unified bbg exchange code - we try to map to MIC via the description
+    if (exchangeDescription != null) {
+      final String exchangeMIC = exchangeData.getExchangeFromDescription(exchangeCode).getMic();
+      if (exchangeMIC != null) {
+        exchangeCode = exchangeMIC;
+      }
     }
 
     final CommodityFutureOptionSecurity security = new CommodityFutureOptionSecurity(

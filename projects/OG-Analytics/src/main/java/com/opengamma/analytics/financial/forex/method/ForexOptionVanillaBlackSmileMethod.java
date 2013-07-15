@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTerm
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -255,6 +255,20 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
   }
 
   /**
+   * Computes the delta of the Forex option. The delta is the first order derivative of the option present value to the spot fx rate.
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @param directQuote Flag indicating if the delta should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The delta.
+   */
+  public CurrencyAmount delta(final ForexOptionVanilla optionForex, final YieldCurveBundle curves, final boolean directQuote) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double deltaRelative = deltaRelative(optionForex, smile, directQuote);
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), deltaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+  }
+  /**
    * Computes the gamma of the Forex option. The gamma is the second order derivative of the option present value to the spot fx rate.
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
@@ -292,7 +306,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
    * @param curves The yield curve bundle.
    * @return The theta. In the same currency as present value.
    */
-  public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+  public CurrencyAmount theta(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(curves, "Curves");
     ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
     final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
@@ -302,15 +316,119 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
-    final double theta = BlackFormulaRepository.theta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
+    final double theta = BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
   }
 
   /**
+   * Computes the forward driftless theta (derivative with respect to the time). The theta is not scaled.
+   * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The forward driftless theta
+   */
+  public double forwardDriftlessThetaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
+  }
+
+  //TODO theta
+
+  /**
+   * Computes the forward vega (first derivative with respect to spot).
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The forward vega
+   */
+  public double forwardVegaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.vega(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
+  }
+
+  /**
+   * Computes the spot delta (first derivative with respect to spot).
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The spot delta
+   */
+  public double spotDeltaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    return forwardDeltaTheoretical(optionForex, curves) * dfForeign;
+  }
+
+  /**
+   * Computes the forward delta (first derivative with respect to forward).
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The forward delta
+   */
+  public double forwardDeltaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall());
+  }
+
+  /**
+   * Computes the spot gamma (second derivative with respect to spot).
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The spot gamma
+   */
+  public double spotGammaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    return forwardGammaTheoretical(optionForex, curves) * (dfForeign * dfForeign) / dfDomestic;
+  }
+
+  /**
+   * Computes the forward gamma (second derivative with respect to forward).
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The forward gamma
+   */
+  public double forwardGammaTheoretical(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.gamma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
+  }
+
+  /**
    * Computes the Vanna (2nd order cross-sensitivity of the option present value to the spot fx and implied vol),
-   *  
-   * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$ 
+   * 
+   * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @return The Vanna. In the same currency as present value.
@@ -405,14 +523,14 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
     final double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
-    final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listForeign = new ArrayList<>();
     listForeign.add(new DoublesPair(payTime, rForeignBar * factor));
-    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<>();
     resultForeignMap.put(foreignCurveName, listForeign);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
-    final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDomestic = new ArrayList<>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar * factor));
-    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));
     return MultipleCurrencyInterestRateCurveSensitivity.of(optionForex.getUnderlyingForex().getCurrency2(), result);

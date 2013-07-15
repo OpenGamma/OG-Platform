@@ -6,11 +6,10 @@
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
@@ -23,174 +22,166 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * Instrument
+ * Contains information used to construct standard versions of GBP instruments.
  *
  */
 public class GBConventions {
+  /** Month codes used by Bloomberg */
+  private static final char[] BBG_MONTH_CODES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'};
+  /** Modified business day convention */
+  private static final BusinessDayConvention MODIFIED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  /** Following business day convention */
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  /** Act/365 */
+  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  /** Annual frequency */
+  private static final Frequency ANNUAL = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
+  /** Semi-annual frequency */
+  private static final Frequency SEMI_ANNUAL = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
+  /** Quarterly frequency */
+  private static final Frequency QUARTERLY = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
+  /** GB holidays */
+  private static final ExternalId GB = ExternalSchemes.financialRegionId("GB");
 
+  /**
+   * Adds conventions for deposit, Libor fixings, swaps, FRAs and IR futures.
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-    final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
-    final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
-    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
-
-    final ExternalId gb = ExternalSchemes.financialRegionId("GB");
-
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
 
-    //TODO looked at BSYM and the codes seem right but need to check
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP00O/N Index"), simpleNameSecurityId("GBP LIBOR O/N")),
-        "GBP LIBOR O/N", act365, following, Period.ofDays(1), 0, false, gb);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP00O/N Index"), simpleNameSecurityId("GBP LIBOR O/N"),
+        tullettPrebonSecurityId("ASLIBGBPONL")), "GBP LIBOR O/N", ACT_365, FOLLOWING, Period.ofDays(1), 0, false, GB);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP00T/N Index"), simpleNameSecurityId("GBP LIBOR T/N")),
-        "GBP LIBOR T/N", act365, following, Period.ofDays(1), 1, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0001W Index"), simpleNameSecurityId("GBP LIBOR 1w")),
-        "GBP LIBOR 1w", act365, following, Period.ofDays(7), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0002W Index"), simpleNameSecurityId("GBP LIBOR 2w")),
-        "GBP LIBOR 2w", act365, following, Period.ofDays(14), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0001M Index"), simpleNameSecurityId("GBP LIBOR 1m")),
-        "GBP LIBOR 1m", act365, modified, Period.ofMonths(1), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0002M Index"), simpleNameSecurityId("GBP LIBOR 2m")),
-        "GBP LIBOR 2m", act365, modified, Period.ofMonths(2), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0003M Index"), simpleNameSecurityId("GBP LIBOR 3m")),
-        "GBP LIBOR 3m", act365, modified, Period.ofMonths(3), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0004M Index"), simpleNameSecurityId("GBP LIBOR 4m")),
-        "GBP LIBOR 4m", act365, modified, Period.ofMonths(4), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0005M Index"), simpleNameSecurityId("GBP LIBOR 5m")),
-        "GBP LIBOR 5m", act365, modified, Period.ofMonths(5), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0006M Index"), simpleNameSecurityId("GBP LIBOR 6m")),
-        "GBP LIBOR 6m", act365, modified, Period.ofMonths(6), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0007M Index"), simpleNameSecurityId("GBP LIBOR 7m")),
-        "GBP LIBOR 7m", act365, modified, Period.ofMonths(7), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0008M Index"), simpleNameSecurityId("GBP LIBOR 8m")),
-        "GBP LIBOR 8m", act365, modified, Period.ofMonths(8), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0009M Index"), simpleNameSecurityId("GBP LIBOR 9m")),
-        "GBP LIBOR 9m", act365, modified, Period.ofMonths(9), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0010M Index"), simpleNameSecurityId("GBP LIBOR 10m")),
-        "GBP LIBOR 10m", act365, modified, Period.ofMonths(10), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0011M Index"), simpleNameSecurityId("GBP LIBOR 11m")),
-        "GBP LIBOR 11m", act365, modified, Period.ofMonths(11), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP0012M Index"), simpleNameSecurityId("GBP LIBOR 12m")),
-        "GBP LIBOR 12m", act365, modified, Period.ofMonths(12), 0, false, gb);
+        "GBP LIBOR T/N", ACT_365, FOLLOWING, Period.ofDays(1), 1, false, GB);
 
-    //TODO need to check that these are right for deposit rates
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR1T Curncy"), simpleNameSecurityId("GBP DEPOSIT 1d")), "GBP DEPOSIT 1d", act365,
-        following, Period.ofDays(1), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR2T Curncy"), simpleNameSecurityId("GBP DEPOSIT 2d")), "GBP DEPOSIT 2d", act365,
-        following, Period.ofDays(1), 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR3T Curncy"), simpleNameSecurityId("GBP DEPOSIT 3d")), "GBP DEPOSIT 3d", act365,
-        following, Period.ofDays(1), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR1Z Curncy"), simpleNameSecurityId("GBP DEPOSIT 1w")), "GBP DEPOSIT 1w", act365,
-        following, Period.ofDays(7), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR2Z Curncy"), simpleNameSecurityId("GBP DEPOSIT 2w")), "GBP DEPOSIT 2w", act365,
-        following, Period.ofDays(14), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR3Z Curncy"), simpleNameSecurityId("GBP DEPOSIT 3w")), "GBP DEPOSIT 3w", act365,
-        following, Period.ofDays(21), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRA Curncy"), simpleNameSecurityId("GBP DEPOSIT 1m")), "GBP DEPOSIT 1m", act365,
-        following, Period.ofMonths(1), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRB Curncy"), simpleNameSecurityId("GBP DEPOSIT 2m")), "GBP DEPOSIT 2m", act365,
-        following, Period.ofMonths(2), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRC Curncy"), simpleNameSecurityId("GBP DEPOSIT 3m")), "GBP DEPOSIT 3m", act365,
-        following, Period.ofMonths(3), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRD Curncy"), simpleNameSecurityId("GBP DEPOSIT 4m")), "GBP DEPOSIT 4m", act365,
-        following, Period.ofMonths(4), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRE Curncy"), simpleNameSecurityId("GBP DEPOSIT 5m")), "GBP DEPOSIT 5m", act365,
-        following, Period.ofMonths(5), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRF Curncy"), simpleNameSecurityId("GBP DEPOSIT 6m")), "GBP DEPOSIT 6m", act365,
-        following, Period.ofMonths(6), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRG Curncy"), simpleNameSecurityId("GBP DEPOSIT 7m")), "GBP DEPOSIT 7m", act365,
-        following, Period.ofMonths(7), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRH Curncy"), simpleNameSecurityId("GBP DEPOSIT 8m")), "GBP DEPOSIT 8m", act365,
-        following, Period.ofMonths(8), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRI Curncy"), simpleNameSecurityId("GBP DEPOSIT 9m")), "GBP DEPOSIT 9m", act365,
-        following, Period.ofMonths(9), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRJ Curncy"), simpleNameSecurityId("GBP DEPOSIT 10m")), "GBP DEPOSIT 10m", act365,
-        following, Period.ofMonths(10), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDRK Curncy"), simpleNameSecurityId("GBP DEPOSIT 11m")), "GBP DEPOSIT 11m", act365,
-        following, Period.ofMonths(11), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR1 Curncy"), simpleNameSecurityId("GBP DEPOSIT 1y")), "GBP DEPOSIT 1y", act365,
-        following, Period.ofYears(1), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR2 Curncy"), simpleNameSecurityId("GBP DEPOSIT 2y")), "GBP DEPOSIT 2y", act365,
-        following, Period.ofYears(2), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR3 Curncy"), simpleNameSecurityId("GBP DEPOSIT 3y")), "GBP DEPOSIT 3y", act365,
-        following, Period.ofYears(3), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR4 Curncy"), simpleNameSecurityId("GBP DEPOSIT 4y")), "GBP DEPOSIT 4y", act365,
-        following, Period.ofYears(4), 2, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR5 Curncy"), simpleNameSecurityId("GBP DEPOSIT 5y")), "GBP DEPOSIT 5y", act365,
-        following, Period.ofYears(5), 2, false, gb);
+    for (int i = 1; i < 3; i++) {
+      final String dayDepositName = "GBP DEPOSIT " + i + "d";
+      final ExternalId dayBbgDeposit = bloombergTickerSecurityId("BPDR" + i + "T Curncy");
+      final ExternalId daySimpleDeposit = simpleNameSecurityId(dayDepositName);
+      final String weekDepositName = "GBP DEPOSIT " + i + "w";
+      final ExternalId weekBbgDeposit = bloombergTickerSecurityId("BPDR" + i + "Z Curncy");
+      final ExternalId weekTullettDeposit = tullettPrebonSecurityId("MNDEPGBDTDY0" + i + "W");
+      final ExternalId weekSimpleDeposit = simpleNameSecurityId(weekDepositName);
+      final String weekLiborName = "GBP LIBOR " + i + "w";
+      final ExternalId weekBbgLibor = bloombergTickerSecurityId("BP000" + i + "W Index");
+      final ExternalId weekTullettLibor = tullettPrebonSecurityId("ASLIBGBP" + i + "WL");
+      final ExternalId weekSimpleLibor = simpleNameSecurityId(weekDepositName);
+      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, ACT_365, FOLLOWING, Period.ofDays(i), 0, false, GB);
+      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekTullettDeposit, weekSimpleDeposit), weekDepositName, ACT_365, FOLLOWING, Period.ofDays(i * 7), 0, false, GB);
+      utils.addConventionBundle(ExternalIdBundle.of(weekBbgLibor, weekTullettLibor, weekSimpleLibor), weekLiborName, ACT_365, FOLLOWING, Period.ofDays(i * 7), 0, false, GB);
+    }
 
-    final DayCount swapFixedDayCount = act365;
-    final BusinessDayConvention swapFixedBusinessDay = modified;
-    final Frequency swapFixedPaymentFrequency = semiAnnual;
-    final Frequency swapFixedPaymentFrequency1Y = annual;
-    final DayCount liborDayCount = act365;
+    for (int i = 1; i < 13; i++) {
+      final String liborName = "GBP LIBOR " + i + "m";
+      final ExternalId bbgLibor = bloombergTickerSecurityId("BP00" + (i < 10 ? "0" : "") + i + "M Index");
+      final ExternalId tullettLibor = tullettPrebonSecurityId("ASLIBGBP" + (i < 10 ? "0" : "") + i + "L");
+      final ExternalId simpleLibor = simpleNameSecurityId(liborName);
+      final String depositName = "GBP DEPOSIT " + i + "m";
+      ExternalId bbgDeposit;
+      if (i == 12) {
+        bbgDeposit = bloombergTickerSecurityId("BPDR1" + " Curncy");
+      } else {
+        bbgDeposit = bloombergTickerSecurityId("BPDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
+      }
+      final ExternalId tullettDeposit = tullettPrebonSecurityId("MNDEPGBDTDY" + (i < 10 ? "0" : "") + i + "M");
+      final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgLibor, tullettLibor, simpleLibor), liborName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, tullettDeposit, simpleDeposit), depositName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
+    }
+
+    for (int i = 1; i < 6; i++) {
+      final String depositName = "GBP DEPOSIT " + i + "y";
+      final ExternalId bbgDeposit = bloombergTickerSecurityId("BPDR" + i + " Curncy");
+      final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, ACT_365, MODIFIED, Period.ofYears(i), 0, false, GB);
+    }
+
+    final DayCount swapFixedDayCount = ACT_365;
+    final BusinessDayConvention swapFixedBusinessDay = MODIFIED;
+    final Frequency swapFixedPaymentFrequency = SEMI_ANNUAL;
+    final Frequency swapFixedPaymentFrequency1Y = ANNUAL;
+    final DayCount liborDayCount = ACT_365;
     // Overnight Index Swap Convention have additional flag, publicationLag
     final int publicationLagON = 0;
 
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_SWAP")), "GBP_SWAP", act365, modified, semiAnnual, 0, gb, act365,
-        modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_SWAP")), "GBP_SWAP", ACT_365, MODIFIED, SEMI_ANNUAL, 0, GB, ACT_365,
+        MODIFIED, SEMI_ANNUAL, 0, simpleNameSecurityId("GBP LIBOR 6m"), GB, true);
 
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_SWAP")), "GBP_3M_SWAP", swapFixedDayCount, modified, annual, 0, gb, act365,
-        modified, quarterly, 0, simpleNameSecurityId("GBP LIBOR 3m"), gb, true);
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_SWAP")), "GBP_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 0, gb,
-        liborDayCount, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_SWAP")), "GBP_3M_SWAP", swapFixedDayCount, MODIFIED, ANNUAL, 0, GB, ACT_365,
+        MODIFIED, QUARTERLY, 0, simpleNameSecurityId("GBP LIBOR 3m"), GB, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_SWAP")), "GBP_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 0, GB,
+        liborDayCount, MODIFIED, SEMI_ANNUAL, 0, simpleNameSecurityId("GBP LIBOR 6m"), GB, true);
 
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_FRA")), "GBP_3M_FRA", act365, modified, annual, 0, gb, act365,
-        modified, quarterly, 0, simpleNameSecurityId("GBP LIBOR 3m"), gb, true);
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_FRA")), "GBP_6M_FRA", act365, modified, semiAnnual, 0, gb,
-        act365, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_FRA")), "GBP_3M_FRA", ACT_365, MODIFIED, ANNUAL, 0, GB, ACT_365,
+        MODIFIED, QUARTERLY, 0, simpleNameSecurityId("GBP LIBOR 3m"), GB, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_FRA")), "GBP_6M_FRA", ACT_365, MODIFIED, SEMI_ANNUAL, 0, GB,
+        ACT_365, MODIFIED, SEMI_ANNUAL, 0, simpleNameSecurityId("GBP LIBOR 6m"), GB, true);
 
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P3M")), IndexType.Libor + "_P3M", act365, modified,
-        null, 0, false, gb);
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P6M")), IndexType.Libor + "_P6M", act365, modified,
-        null, 0, false, gb);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P3M")), IndexType.Libor + "_P3M", ACT_365, MODIFIED,
+        null, 0, false, GB);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P6M")), IndexType.Libor + "_P6M", ACT_365, MODIFIED,
+        null, 0, false, GB);
     // SONIA
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SONIO/N Index"), simpleNameSecurityId("GBP SONIO/N")), "GBP SONIO/N", act365,
-        following, Period.ofDays(1), 0, false, gb, publicationLagON);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SONIO/N Index"), simpleNameSecurityId("GBP SONIO/N")), "GBP SONIO/N", ACT_365,
+        FOLLOWING, Period.ofDays(1), 0, false, GB, publicationLagON);
     // OIS - SONIA
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_OIS_SWAP")), "GBP_OIS_SWAP", act365, modified, annual, 2, gb,
-        act365, modified, annual, 2, simpleNameSecurityId("GBP SONIO/N"), gb, true, publicationLagON);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_OIS_SWAP")), "GBP_OIS_SWAP", ACT_365, MODIFIED, ANNUAL, 2, GB,
+        ACT_365, MODIFIED, ANNUAL, 2, simpleNameSecurityId("GBP SONIO/N"), GB, true, publicationLagON);
 
     //TODO sort out the swap names so that they are consistent
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_IBOR_INDEX")), "GBP_IBOR_INDEX", act365, modified, 0, false);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_IBOR_INDEX")), "GBP_IBOR_INDEX", ACT_365, MODIFIED, 0, false);
 
     final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
     // ISDA fixing Libor 11:00am London
     utils.addConventionBundle(
         ExternalIdBundle.of(simpleNameSecurityId("GBP_ISDAFIX_GBPLIBOR11_1Y"), ExternalSchemes.ricSecurityId("GBPSFIX1Y="),
-            bloombergTickerSecurityId("BPISDB01 Index")), "GBP_ISDAFIX_GBPLIBOR11_1Y", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency1Y, 0, gb, liborDayCount, modified,
-        quarterly, 2, simpleNameSecurityId("GBP LIBOR 3m"), gb, true, Period.ofYears(1));
+            bloombergTickerSecurityId("BPISDB01 Index")), "GBP_ISDAFIX_GBPLIBOR11_1Y", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency1Y, 0, GB, liborDayCount, MODIFIED,
+        QUARTERLY, 2, simpleNameSecurityId("GBP LIBOR 3m"), GB, true, Period.ofYears(1));
     for (final int element : isdaFixTenor) {
       final String tenorString = element + "Y";
       final String tenorStringBbg = String.format("%02d", element);
       utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_ISDAFIX_GBPLIBOR11_" + tenorString),
           ExternalSchemes.ricSecurityId("GBPSFIX" + tenorString + "="), bloombergTickerSecurityId("BPISDB" + tenorStringBbg + " Index")), "GBP_ISDAFIX_GBPLIBOR11_" + tenorString,
-          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 0, gb, liborDayCount, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"),
-          gb, true, Period.ofYears(element));
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 0, GB, liborDayCount, MODIFIED, SEMI_ANNUAL, 0, simpleNameSecurityId("GBP LIBOR 6m"),
+          GB, true, Period.ofYears(element));
     }
 
   }
 
+  /**
+   * Adds conventions for GBP government bonds.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GB_TREASURY_BOND_CONVENTION")), "GB_TREASURY_BOND_CONVENTION", false,
         true, 6, 0, true);
   }
 
+  /**
+   * Adds conventions for GBP-denominated corporate bonds.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GB_CORPORATE_BOND_CONVENTION")), "GB_CORPORATE_BOND_CONVENTION", false,
         true, 6, 0, true);
   }
 
+  /**
+   * Adds conventions for GBP bond futures.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addBondFutureConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_BOND_FUTURE_DELIVERABLE_CONVENTION")),
         "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 7, 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),

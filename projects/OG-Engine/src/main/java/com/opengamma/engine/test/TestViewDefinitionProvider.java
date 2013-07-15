@@ -1,6 +1,7 @@
 package com.opengamma.engine.test;
 
 import com.opengamma.engine.function.resolver.SimpleResolutionRuleTransform;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -42,18 +43,19 @@ public final class TestViewDefinitionProvider {
 
     final ViewDefinition viewDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_ID, TEST_USER, new ResultModelDefinition());
     final ViewCalculationConfiguration calcConfig1 = new ViewCalculationConfiguration(viewDefinition, "1");
-    calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", UniqueId.of("Test", "Foo")));
-    calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", UniqueId.of("Test", "Bar"), constraints));
+    calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Foo")));
+    calcConfig1.addSpecificRequirement(new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Bar"), constraints));
     calcConfig1.setDefaultProperties(ValueProperties.with(ValuePropertyNames.CURRENCY, "GBP").get());
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOutput", constraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOtherOutput", allConstraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOtherOutput", allConstraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "YetAnotherOutput", noConstraints);
     calcConfig1.addPortfolioRequirement("SomeOtherSecType", "YetAnotherOutput", nearlyAllConstraints);
+    calcConfig1.setScenarioId(UniqueId.of("ScenarioDefinition", "sd1"));
 
     final ViewCalculationConfiguration calcConfig2 = new ViewCalculationConfiguration(viewDefinition, "2");
-    calcConfig2.addSpecificRequirement(new ValueRequirement("Value2", UniqueId.of("Test", "Foo")));
-    calcConfig2.addSpecificRequirement(new ValueRequirement("Value2", UniqueId.of("Test", "Bar")));
+    calcConfig2.addSpecificRequirement(new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Foo")));
+    calcConfig2.addSpecificRequirement(new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Bar")));
     final SimpleResolutionRuleTransform transform = new SimpleResolutionRuleTransform();
     transform.suppressRule("Foo");
     calcConfig2.setResolutionRuleTransform(transform);

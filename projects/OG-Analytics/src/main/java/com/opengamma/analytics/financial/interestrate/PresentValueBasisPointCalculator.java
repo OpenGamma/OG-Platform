@@ -11,13 +11,13 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
  * For swaps it is the pvbp of the first leg.
  */
 // TODO: Maybe changing the name to "PresentValueMarketQuoteSensitivityCalculator" may be a good idea.
-public final class PresentValueBasisPointCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class PresentValueBasisPointCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -60,13 +60,6 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
    * Methods used in the calculator.
    */
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
 
   // -----     Deposit     ------
 
@@ -106,7 +99,7 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   }
 
   @Override
-  public Double visitCouponIborCompounded(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+  public Double visitCouponIborCompounding(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     return visitCoupon(coupon, curves);
   }
 
@@ -118,7 +111,7 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   // -----     Futures     ------
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(future, "Futures");
     ArgumentChecker.notNull(curves, "Bundle");
     return future.getNotional() * future.getPaymentAccrualFactor() * future.getQuantity();
@@ -132,7 +125,7 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
     Validate.notNull(annuity);
     double pvbp = 0;
     for (final Payment p : annuity.getPayments()) {
-      pvbp += visit(p, curves);
+      pvbp += p.accept(this, curves);
     }
     return pvbp;
   }
@@ -148,7 +141,7 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    return visit(swap.getFirstLeg(), curves);
+    return swap.getFirstLeg().accept(this, curves);
   }
 
   @Override

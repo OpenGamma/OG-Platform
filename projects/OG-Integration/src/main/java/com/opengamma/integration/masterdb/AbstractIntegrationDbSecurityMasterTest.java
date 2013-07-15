@@ -6,7 +6,11 @@
 package com.opengamma.integration.masterdb;
 
 import static org.testng.AssertJUnit.assertNotNull;
+import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -20,6 +24,7 @@ import com.opengamma.masterdb.security.EHCachingSecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbSecurityMaster.
@@ -29,11 +34,27 @@ public abstract class AbstractIntegrationDbSecurityMasterTest extends AbstractLo
   private static final int PAGE_SIZE = 1000;
 
   private DbSecurityMaster _secMaster;
+  private CacheManager _cacheManager;
 
-  @BeforeMethod
+  @BeforeClass(groups = TestGroup.INTEGRATION)
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass(groups = TestGroup.INTEGRATION)
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod(groups = TestGroup.INTEGRATION)
   public void setUp() throws Exception {
     _secMaster = (DbSecurityMaster) getTestHelper().getSecurityMaster();
-    _secMaster.setDetailProvider(new EHCachingSecurityMasterDetailProvider(new HibernateSecurityMasterDetailProvider(), EHCacheUtils.createCacheManager()));
+    _secMaster.setDetailProvider(new EHCachingSecurityMasterDetailProvider(new HibernateSecurityMasterDetailProvider(), _cacheManager));
+  }
+
+  @AfterMethod(groups = TestGroup.INTEGRATION)
+  public void tearDown() throws Exception {
+    _secMaster = null;
   }
 
   protected SecurityMaster getSecurityMaster() {
@@ -41,7 +62,7 @@ public abstract class AbstractIntegrationDbSecurityMasterTest extends AbstractLo
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(enabled = false, description = "Queries the entire database")
   public void test_queryAll() throws Exception {
     final SecuritySearchRequest request = new SecuritySearchRequest();
     request.setPagingRequest(PagingRequest.NONE);

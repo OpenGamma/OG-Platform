@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -78,7 +79,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double tenor = swaption.getMaturityTime();
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
@@ -91,7 +92,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionCashFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof YieldCurveWithBlackSwaptionBundle, "Bundle should contain Black Swaption data");
     return presentValue((SwaptionCashFixedIbor) instrument, (YieldCurveWithBlackSwaptionBundle) curves);
@@ -109,9 +110,9 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double tenor = swaption.getMaturityTime();
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
     // Derivative of the forward with respect to the rates.
-    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), curveBlack));
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(swaption.getUnderlyingSwap().accept(PRSC, curveBlack));
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Derivative of the cash annuity with respect to the forward.
     final double pvbpDf = METHOD_SWAP.getAnnuityCashDerivative(swaption.getUnderlyingSwap(), forward);
@@ -145,17 +146,32 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     Validate.notNull(curveBlack, "Curves with Black volatility");
     Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double discountFactorSettle = curveBlack.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
-    DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), swaption.getMaturityTime());
+    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), swaption.getMaturityTime());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
-    Map<DoublesPair, Double> sensitivity = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> sensitivity = new HashMap<DoublesPair, Double>();
     sensitivity.put(point, bsAdjoint[2] * pvbp * discountFactorSettle * (swaption.isLong() ? 1.0 : -1.0));
     return new PresentValueBlackSwaptionSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
   }
 
+  /**
+   * Computes the implied Black volatility of the vanilla swaption.
+   * @param swaption The swaption.
+   * @param curves The yield curve bundle.
+   * @return The implied volatility.
+   */
+  public double impliedVolatility(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackSwaptionBundle, "Yield curve bundle should contain Black swaption data");
+    final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
+    Validate.notNull(swaption, "Forex option");
+    final double tenor = swaption.getMaturityTime();
+    final double volatility = curvesBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), tenor);
+    return volatility;
+  }
 }

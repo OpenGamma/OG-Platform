@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.DoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.engine.value.ValueSpecification;
@@ -27,21 +28,22 @@ import com.opengamma.engine.value.ValueSpecification;
     super(VolatilitySurface.class);
     addFormatter(new Formatter<VolatilitySurface>(Format.EXPANDED) {
       @Override
-      Object format(VolatilitySurface value, ValueSpecification valueSpec) {
+      Object format(VolatilitySurface value, ValueSpecification valueSpec, Object inlineKey) {
         return SurfaceFormatterUtils.formatExpanded(value.getSurface());
       }
     });
   }
 
   @Override
-  public String formatCell(VolatilitySurface value, ValueSpecification valueSpec) {
+  public String formatCell(VolatilitySurface value, ValueSpecification valueSpec, Object inlineKey) {
     Surface<Double, Double, Double> inputSurface = value.getSurface();
     if (inputSurface instanceof DoublesSurface) {
       Set<Double> uniqueXValues = Sets.newHashSet(inputSurface.getXData());
       Set<Double> uniqueYValues = Sets.newHashSet(inputSurface.getYData());
       return "Volatility Surface (" + uniqueXValues.size() + " x " + uniqueYValues.size() + ")";
+    } else if (inputSurface instanceof ConstantDoublesSurface) {
+      return "Constant Volatility Surface (z = " + inputSurface.getZValue(0.0, 0.0) + ")";
     } else {
-      // TODO ConstantDoublesSurface
       s_logger.warn("Unable to format surface of type {}", inputSurface.getClass());
       return null;
     }

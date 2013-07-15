@@ -5,10 +5,6 @@
  */
 package com.opengamma.analytics.financial.calculator;
 
-import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureHullWhiteMethod;
 
 /**
  * Calculator of the present value curve sensitivity as a multiple currency sensitivity object with Hull-White one factor model.
@@ -34,16 +30,16 @@ public class PresentValueCurveSensitivityHullWhiteCalculator extends PresentValu
   public PresentValueCurveSensitivityHullWhiteCalculator() {
   }
 
-  /**
-   * The methods used by the different instruments.
-   */
-  private static final InterestRateFutureHullWhiteMethod METHOD_IR_FUTURES = InterestRateFutureHullWhiteMethod.getInstance();
+  //  /**
+  //   * The methods used by the different instruments.
+  //   */
+  //  private static final InterestRateFutureHullWhiteMethod METHOD_IR_FUTURES = InterestRateFutureHullWhiteMethod.getInstance();
 
   // -----     Futures     ------
 
-  @Override
-  public MultipleCurrencyInterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return MultipleCurrencyInterestRateCurveSensitivity.of(future.getCurrency(), METHOD_IR_FUTURES.presentValueCurveSensitivity(future, curves));
-  }
+  //  @Override
+  //  public MultipleCurrencyInterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  //    return MultipleCurrencyInterestRateCurveSensitivity.of(future.getCurrency(), METHOD_IR_FUTURES.presentValueCurveSensitivity(future, curves));
+  //  }
 
 }

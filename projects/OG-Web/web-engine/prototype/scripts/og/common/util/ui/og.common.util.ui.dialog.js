@@ -7,14 +7,17 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (obj) {
-            var $obj, css_class, class_name, default_options;
+            var constructor = this, $obj, css_class, class_name, default_options;
+            constructor.close = function () {
+                $(css_class).dialog('close');
+            };
             if (obj.type === 'confirm') css_class = '.og-js-dialog-confirm';
             if (obj.type === 'input') css_class = '.og-js-dialog-input';
             if (obj.type === 'error') css_class = '.og-js-error-input';
             if (obj.action === 'close') {$(css_class).dialog('close'); return;}
             if (obj.html) { // Just update the dialog contents and return
                 $(css_class).html(obj.html);
-                return
+                return;
             }
             // Return field values
             if (obj.return_field_value) return $('#og-js-dialog-' + obj.return_field_value).val();
@@ -30,7 +33,7 @@ $.register_module({
                                 // Set the focus in the first form element
                                 // Doest work without setTimeout!
                                 var $first_input = $(css_class).find('[id^="og-js-dialog-"]')[0];
-                                if ($first_input) setTimeout(function () {$first_input.focus()}, 1);
+                                if ($first_input) setTimeout(function () {$first_input.focus();}, 1);
                         }
                     }
                 },
@@ -38,7 +41,7 @@ $.register_module({
                 input: {html: '<div class="' + class_name + '"></div>'},
                 'error': {
                     html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'Dismiss': function () {$(this).dialog('close')}}}
+                    jquery: {buttons: {'Dismiss': function () {$(this).dialog('close');}}}
                 }
             };
             // Merge default_options.all with the options for each dialog
@@ -86,7 +89,7 @@ $.register_module({
                 if (obj.fields) {
                     $obj.append(obj.fields.reduce(function (acc, val) {
                         return acc + (function () {
-                            var str;
+                            var str, value;
                             if (val.type === 'input') {
                                 if (!val.name) throw new Error('val.name is required for an input field');
                                 if (!val.id) throw new Error('val.id is required for an input field');
@@ -103,13 +106,15 @@ $.register_module({
                                 str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);
                             }
                             if (val.type === 'select') {
+                                value = typeof val.value === 'function' ? val.value() : val.value;
                                 if (!val.name) throw new Error('val.name is required for a select');
                                 if (!val.id) throw new Error('val.id is required for a select');
                                 if (!val.options) throw new Error('val.options is required for a select');
                                 str = '<label for="[PLACEHOLDER]">' + val.name + '</label>';
                                 str += '<select id="[PLACEHOLDER]" name="[PLACEHOLDER]">';
                                 $.each(val.options, function (i, v) {
-                                    str += '<option value=' + v.value + '>'+ v.name +'</option>';
+                                    var selected = value === v.value ? ' selected="selected"' : '';
+                                    str += '<option value="' + v.value + '"' + selected + '>'+ v.name +'</option>';
                                 });
                                 str += '</select>';
                                 str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);
@@ -126,9 +131,8 @@ $.register_module({
                 // Create custom content
                 if (obj.custom) {$obj.append(obj.custom);}
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
-
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');
-        }
+        };
     }
 });

@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.math.function;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 2-D function implementation.
  * @param <S> Type of the arguments
- * @param <T> Return type of function 
+ * @param <T> Return type of function
  */
 public abstract class Function2D<S, T> implements Function<S, T> {
 
@@ -21,12 +21,8 @@ public abstract class Function2D<S, T> implements Function<S, T> {
    */
   @Override
   public T evaluate(final S... x) {
-    Validate.notNull(x);
-    if (x.length != 2) {
-      throw new IllegalArgumentException("Need two arguments");
-    }
-    Validate.notNull(x[0], "first argument");
-    Validate.notNull(x[1], "second argument");
+    ArgumentChecker.noNulls(x, "parameter list");
+    ArgumentChecker.isTrue(x.length == 2, "parameter list must be of length 2");
     return evaluate(x[0], x[1]);
   }
 

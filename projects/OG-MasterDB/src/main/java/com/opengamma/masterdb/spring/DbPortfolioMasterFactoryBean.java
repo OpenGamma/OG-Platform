@@ -54,7 +54,6 @@ public class DbPortfolioMasterFactoryBean extends AbstractDbMasterFactoryBean<Db
    * The meta-bean for {@code DbPortfolioMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbPortfolioMasterFactoryBean.Meta meta() {
     return DbPortfolioMasterFactoryBean.Meta.INSTANCE;
   }
@@ -108,7 +107,7 @@ public class DbPortfolioMasterFactoryBean extends AbstractDbMasterFactoryBean<Db
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

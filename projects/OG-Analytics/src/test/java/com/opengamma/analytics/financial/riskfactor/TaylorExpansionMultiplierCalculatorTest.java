@@ -22,10 +22,9 @@ import com.opengamma.analytics.financial.greeks.MixedOrderUnderlying;
 import com.opengamma.analytics.financial.greeks.NthOrderUnderlying;
 import com.opengamma.analytics.financial.greeks.Underlying;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 public class TaylorExpansionMultiplierCalculatorTest {
   private static final Underlying NEW_TYPE = new Underlying() {
@@ -45,8 +44,8 @@ public class TaylorExpansionMultiplierCalculatorTest {
   private static final long[] T;
   private static final double[] X_DATA;
   private static final double[] Y_DATA;
-  private static final DoubleTimeSeries<?> X;
-  private static final DoubleTimeSeries<?> Y;
+  private static final PreciseDoubleTimeSeries<?> X;
+  private static final PreciseDoubleTimeSeries<?> Y;
   private static final Underlying ZEROTH_ORDER = new NthOrderUnderlying(0, null);
   private static final Underlying FIRST_ORDER = new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE);
   private static final Underlying SECOND_ORDER = new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE);
@@ -66,8 +65,8 @@ public class TaylorExpansionMultiplierCalculatorTest {
       X_DATA[i] = Math.random() - 0.5;
       Y_DATA[i] = Math.random() - 0.5;
     }
-    X = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, X_DATA);
-    Y = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, Y_DATA);
+    X = ImmutableInstantDoubleTimeSeries.of(T, X_DATA);
+    Y = ImmutableInstantDoubleTimeSeries.of(T, Y_DATA);
     UNDERLYING_DATA.put(UnderlyingType.SPOT_PRICE, X);
     UNDERLYING_DATA.put(UnderlyingType.IMPLIED_VOLATILITY, Y);
     MIXED_ORDER = new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(4, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(5, UnderlyingType.IMPLIED_VOLATILITY)));
@@ -115,7 +114,7 @@ public class TaylorExpansionMultiplierCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongTSLength() {
-    final DoubleTimeSeries<?> z = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5}, new double[] {1, 1, 1, 1, 1});
+    final DoubleTimeSeries<?> z = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4, 5}, new double[] {1, 1, 1, 1, 1});
     final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
     m.put(UnderlyingType.SPOT_PRICE, X);
     m.put(UnderlyingType.IMPLIED_VOLATILITY, z);
@@ -131,7 +130,7 @@ public class TaylorExpansionMultiplierCalculatorTest {
       t[i] = i + 1;
       z[i] = Math.random() - 0.5;
     }
-    final DoubleTimeSeries<?> ts = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, z);
+    final DoubleTimeSeries<?> ts = ImmutableInstantDoubleTimeSeries.of(t, z);
     final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
     m.put(UnderlyingType.SPOT_PRICE, X);
     m.put(UnderlyingType.IMPLIED_VOLATILITY, ts);
@@ -162,15 +161,15 @@ public class TaylorExpansionMultiplierCalculatorTest {
       x5[i] = x * x * x * x * x / 120;
       x6[i] = x4[i] * y * y * y * y * y / 120;
     }
-    assertTimeSeriesEquals(getTimeSeries(UNDERLYING_DATA, FIRST_ORDER).toFastLongDoubleTimeSeries(), X.toFastLongDoubleTimeSeries());
-    assertTimeSeriesEquals(getTimeSeries(UNDERLYING_DATA, SECOND_ORDER).toFastLongDoubleTimeSeries(), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, x2));
-    assertTimeSeriesEquals(getTimeSeries(UNDERLYING_DATA, THIRD_ORDER).toFastLongDoubleTimeSeries(), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, x3));
-    assertTimeSeriesEquals(getTimeSeries(UNDERLYING_DATA, FOURTH_ORDER).toFastLongDoubleTimeSeries(), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, x4));
-    assertTimeSeriesEquals(getTimeSeries(UNDERLYING_DATA, FIFTH_ORDER).toFastLongDoubleTimeSeries(), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, x5));
-    assertTimeSeriesEquals(getTimeSeries(UNDERLYING_DATA, MIXED_ORDER).toFastLongDoubleTimeSeries(), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, x6));
+    assertTimeSeriesEquals((PreciseDoubleTimeSeries<?>) getTimeSeries(UNDERLYING_DATA, FIRST_ORDER), X);
+    assertTimeSeriesEquals((PreciseDoubleTimeSeries<?>) getTimeSeries(UNDERLYING_DATA, SECOND_ORDER), ImmutableInstantDoubleTimeSeries.of(T, x2));
+    assertTimeSeriesEquals((PreciseDoubleTimeSeries<?>) getTimeSeries(UNDERLYING_DATA, THIRD_ORDER), ImmutableInstantDoubleTimeSeries.of(T, x3));
+    assertTimeSeriesEquals((PreciseDoubleTimeSeries<?>) getTimeSeries(UNDERLYING_DATA, FOURTH_ORDER), ImmutableInstantDoubleTimeSeries.of(T, x4));
+    assertTimeSeriesEquals((PreciseDoubleTimeSeries<?>) getTimeSeries(UNDERLYING_DATA, FIFTH_ORDER), ImmutableInstantDoubleTimeSeries.of(T, x5));
+    assertTimeSeriesEquals((PreciseDoubleTimeSeries<?>) getTimeSeries(UNDERLYING_DATA, MIXED_ORDER), ImmutableInstantDoubleTimeSeries.of(T, x6));
   }
 
-  private void assertTimeSeriesEquals(final FastLongDoubleTimeSeries ts1, final FastLongDoubleTimeSeries ts2) {
+  private void assertTimeSeriesEquals(final PreciseDoubleTimeSeries<?> ts1, final PreciseDoubleTimeSeries<?> ts2) {
     assertEquals(ts1.size(), ts2.size());
     assertArrayEquals(ts1.timesArrayFast(), ts2.timesArrayFast());
     assertArrayEquals(ts1.valuesArrayFast(), ts2.valuesArrayFast(), EPS);

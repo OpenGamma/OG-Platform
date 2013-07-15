@@ -11,13 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
@@ -26,10 +25,12 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHolidayMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -55,7 +56,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_currency() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
@@ -85,7 +86,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_bank() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.BANK, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
@@ -115,7 +116,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_settlement() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.SETTLEMENT, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
@@ -145,7 +146,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_trading() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.TRADING, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
@@ -181,6 +182,99 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     
     HolidayDocument test = _holMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingTypeProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addBankWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.BANK);
+    holiday.setRegionExternalId(ExternalId.of("A", "B"));
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addBankWithMissingRegionProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.BANK);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addCurrencyWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.CURRENCY);
+    holiday.setCurrency(Currency.USD);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addCurrencyWithMissingCurrencyProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.CURRENCY);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addSettlementWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.SETTLEMENT);
+    holiday.setExchangeExternalId(ExternalId.of("A", "B"));
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addSettlementWithMissingExchangeProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.SETTLEMENT);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addTradingWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.TRADING);
+    holiday.setExchangeExternalId(ExternalId.of("A", "B"));
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addTradingWithMissingExchangeProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.TRADING);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
+    _holMaster.add(doc);
   }
 
 }

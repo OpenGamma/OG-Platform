@@ -35,7 +35,7 @@ public class EquityIndexDividendFutureOptionSecurity extends FinancialSecurity {
   /**
    * The security type.
    */
-  public static final String SECURITY_TYPE = "EQUITY_INDEX_FUTURE_OPTION";
+  public static final String SECURITY_TYPE = "EQUITY_INDEX_DIVIDEND_FUTURE_OPTION";
 
   /**
    * The exchange.
@@ -84,7 +84,7 @@ public class EquityIndexDividendFutureOptionSecurity extends FinancialSecurity {
   private OptionType _optionType;
 
   EquityIndexDividendFutureOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityIndexDividendFutureOptionSecurity(String exchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,
@@ -521,7 +521,7 @@ public class EquityIndexDividendFutureOptionSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "exchange",
         "expiry",
         "exerciseType",

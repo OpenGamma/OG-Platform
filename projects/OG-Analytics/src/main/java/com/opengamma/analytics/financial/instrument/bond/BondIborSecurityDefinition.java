@@ -5,9 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -27,22 +25,23 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Describes a floating coupon bond (or Floating Rate Note) issue with Ibor-like coupon.
  */
-public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition> implements
-    InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
+public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition>
+implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The default notional for the security.
    */
   private static final double DEFAULT_NOTIONAL = 1.0;
   /**
-   * The default ex-coupn number of days.
+   * The default ex-coupon number of days.
    */
   private static final int DEFAULT_EX_COUPON_DAYS = 0;
   /**
@@ -58,10 +57,11 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The calendar used to compute the standard settlement date.
    * @param dayCount The coupon day count convention.
+   * @param issuer The issuer name.
    */
   public BondIborSecurityDefinition(final AnnuityPaymentFixedDefinition nominal, final AnnuityCouponIborDefinition coupon, final int exCouponDays, final int settlementDays, final Calendar calendar,
-      final DayCount dayCount) {
-    super(nominal, coupon, exCouponDays, settlementDays, calendar);
+      final DayCount dayCount, final String issuer) {
+    super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer);
     _dayCount = dayCount;
   }
 
@@ -74,20 +74,22 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
    * @param dayCount The coupon day count convention.
    * @param businessDay The business day convention for the payments.
    * @param isEOM The end-of-month flag.
+   * @param issuer The issuer name.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The fixed coupon bond.
    */
   public static BondIborSecurityDefinition from(final ZonedDateTime maturityDate, final ZonedDateTime firstAccrualDate, final IborIndex index, final int settlementDays, final DayCount dayCount,
-      final BusinessDayConvention businessDay, final boolean isEOM) {
-    Validate.notNull(maturityDate, "Maturity date");
-    Validate.notNull(firstAccrualDate, "First accrual date");
-    Validate.notNull(index, "Ibor index");
-    Validate.notNull(dayCount, "Day count");
-    Validate.notNull(businessDay, "Business day convention");
-    final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false);
-    final PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate),
-        DEFAULT_NOTIONAL)};
+      final BusinessDayConvention businessDay, final boolean isEOM, final String issuer, final Calendar calendar) {
+    ArgumentChecker.notNull(maturityDate, "Maturity date");
+    ArgumentChecker.notNull(firstAccrualDate, "First accrual date");
+    ArgumentChecker.notNull(index, "Ibor index");
+    ArgumentChecker.notNull(dayCount, "Day count");
+    ArgumentChecker.notNull(businessDay, "Business day convention");
+    final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false, calendar);
+    final PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(calendar, maturityDate),
+        DEFAULT_NOTIONAL) };
     final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
-    return new BondIborSecurityDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount);
+    return new BondIborSecurityDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, calendar, dayCount, issuer);
   }
 
   /**
@@ -100,26 +102,25 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
 
   @Override
   public BondIborSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
-    return toDerivative(date, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(1800, 1, 1)}, new double[] {0.0}), spot, yieldCurveNames);
-
+    return toDerivative(date, ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(1800, 1, 1), 0.0), spot, yieldCurveNames);
   }
 
   @Override
   public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, indexFixingTS, spot, yieldCurveNames);
   }
 
   public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final ZonedDateTime settlementDate, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
-    Validate.notNull(date, "date");
-    Validate.notNull(indexFixingTS, "fixing time series");
-    Validate.notNull(settlementDate, "settlement date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(indexFixingTS, "fixing time series");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final String creditCurveName = yieldCurveNames[0];
     final String riskFreeCurveName = yieldCurveNames[1];
     double settlementTime;
@@ -135,11 +136,13 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborSecurityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborSecurityDefinition(this);
   }
 

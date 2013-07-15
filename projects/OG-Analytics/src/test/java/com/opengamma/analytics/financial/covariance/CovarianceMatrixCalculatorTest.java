@@ -11,15 +11,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
  */
 public class CovarianceMatrixCalculatorTest {
-  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4}, new double[] {-1, 1, -1, 1});
+  private static final DoubleTimeSeries<?> TS1 = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4}, new double[] {-1, 1, -1, 1});
   private static final DoubleTimeSeries<?> TS2 = TS1.multiply(-1);
   private static final CovarianceCalculator COVARIANCE = new HistoricalCovarianceCalculator();
   private static final Function<DoubleTimeSeries<?>, DoubleMatrix2D> CALCULATOR = new CovarianceMatrixCalculator(COVARIANCE);

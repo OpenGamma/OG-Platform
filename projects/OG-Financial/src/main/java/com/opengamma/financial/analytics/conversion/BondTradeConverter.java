@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -37,10 +36,13 @@ public class BondTradeConverter {
       throw new OpenGammaRuntimeException("Can only handle fixed coupon bonds");
     }
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
-    final int quantity = 1; // trade.getQuantity().intValue();
-    // REVIEW: The quantity mechanism should be reviewed.
-    final ZonedDateTime settlementDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO
+    final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
+    final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+    if (trade.getPremium() == null) {
+      throw new OpenGammaRuntimeException("Trade premium should not be null.");
+    }
     final double price = trade.getPremium().doubleValue();
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
   }
+
 }

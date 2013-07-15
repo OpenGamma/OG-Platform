@@ -5,48 +5,53 @@
  */
 package com.opengamma.analytics.financial.timeseries.filter;
 
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Filter that partitions the time-series points based on negative vs positive/zero.
  */
 public class NegativeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
-  private static final Logger s_logger = LoggerFactory.getLogger(NegativeValueDoubleTimeSeriesFilter.class);
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(NegativeValueDoubleTimeSeriesFilter.class);
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
+
+  /**
+   * Creates an instance.
+   */
+  public NegativeValueDoubleTimeSeriesFilter() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public FilteredTimeSeries evaluate(final LocalDateDoubleTimeSeries ts) {
-    Validate.notNull(ts, "ts");
+    ArgumentChecker.notNull(ts, "ts");
     if (ts.isEmpty()) {
       s_logger.info("Time series was empty");
       return new FilteredTimeSeries(EMPTY_SERIES, EMPTY_SERIES);
     }
     final int n = ts.size();
-    final FastIntDoubleTimeSeries x = (FastIntDoubleTimeSeries) ts.getFastSeries();
     final int[] filteredDates = new int[n];
     final double[] filteredData = new double[n];
     final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
-    final ObjectIterator<Int2DoubleMap.Entry> iter = x.iteratorFast();
-    Int2DoubleMap.Entry entry;
+    final LocalDateDoubleEntryIterator it = ts.iterator();
     int i = 0, j = 0;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      if (entry.getValue() < 0) {
-        rejectedDates[j] = entry.getKey();
-        rejectedData[j++] = entry.getValue();
+    while (it.hasNext()) {
+      int date = it.nextTimeFast();
+      double value = it.currentValue();
+      if (value < 0) {
+        rejectedDates[j] = date;
+        rejectedData[j++] = value;
       } else {
-        filteredDates[i] = entry.getKey();
-        filteredData[i++] = entry.getValue();
+        filteredDates[i] = date;
+        filteredData[i++] = value;
       }
     }
     return getFilteredSeries(filteredDates, filteredData, i, rejectedDates, rejectedData, j);

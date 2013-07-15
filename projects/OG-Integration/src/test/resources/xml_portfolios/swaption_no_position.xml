@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+    <swaptionTrade id="t1">
+
+      <externalSystemId>
+        <id scheme="External">Id1FromExternalSystem</id>
+      </externalSystemId>
+
+      <tradeDate>2013-01-10</tradeDate>
+
+      <counterparty>
+        <id scheme="Cpty">GOLDMAN</id>
+      </counterparty>
+
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <!-- (by default it should be the currency of the first leg of the swap)-->
+          <monetaryAmount currency="USD">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <buySell>Buy</buySell>
+
+      <paymentCalendars>
+        <calendar type="bank"> <!-- default=BANK  -->
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+        <calendar type="bank"> <!-- default=BANK  -->
+          <id scheme="CountryISO2">EN</id>
+        </calendar>
+      </paymentCalendars>
+
+      <exerciseCalendars>
+        <calendar type="bank"> <!-- default=BANK  -->
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+        <calendar type="bank"> <!-- default=BANK  -->
+          <id scheme="CountryISO2">EN</id>
+        </calendar>
+      </exerciseCalendars>
+
+      <expirationDate>2013-11-18</expirationDate>
+      <exerciseType>European</exerciseType>
+
+      <!--    In case of bermudan we need to specify the dates, so it is similar to a swap:
+          Maybe we can turn this "schedule builders" into an object if it makes it easier
+          If our data model does not support bermudans, this next block can be ignored-->
+<!--      <frequency>12m</frequency>
+      <businessDayConvention>Modified Following</businessDayConvention>
+      <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+      <generationRule>EOM</generationRule>-->
+
+      <!--this is a bit odd to call it long coupon when all it is doing is generating dates in which you can exercise-->
+      <stubPeriodType>LongCoupon</stubPeriodType>
+
+
+      <settlementType>CashSettled</settlementType>
+
+      <!--for cash settlement:-->
+      <cashSettlementCalculationMethod>CashPrice</cashSettlementCalculationMethod>
+      <cashSettlementPaymentDate>2013-11-20</cashSettlementPaymentDate>
+      <!-- (by default it should be the premium currency) -->
+      <cashSettlementCurrency>EUR</cashSettlementCurrency>
+
+
+      <underlyingSwapTrade>
+        <!-- Ideally we wouldn't need to specify any part of the external id as it will be ignored anyway -->
+        <externalSystemId><id/></externalSystemId>
+        <tradeDate>2013-01-20</tradeDate>
+        <maturityDate>2018-01-31</maturityDate>
+        <counterparty>
+          <id scheme="Cpty">GOLDMAN</id>
+        </counterparty>
+
+        <effectiveDate>2013-02-01</effectiveDate>
+        <legs>
+	        <fixedLeg>
+	          <payReceive>Pay</payReceive>
+	          <currency>USD</currency>
+	          <!-- Notional could be array-valued -->
+	          <notional>1000000</notional>
+	          <frequency>12m</frequency>
+	          <dayCount>Actual/365</dayCount>
+	          <interestCalculation>Adjusted</interestCalculation>
+	          <businessDayConvention>Modified Following</businessDayConvention>
+	          <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+	          <endOfMonth>true</endOfMonth>
+	          <isIMM>true</isIMM>
+	          <paymentCalendars>
+	            <calendar type="bank"> <!-- default=BANK  -->
+	              <id scheme="CountryISO2">FD</id>
+	            </calendar>
+	            <calendar type="bank"> <!-- default=BANK  -->
+	              <id scheme="CountryISO2">EN</id>
+	            </calendar>
+	          </paymentCalendars>
+	          <!-- One of LongCoupon|ShortCoupon - default to ShortCoupon -->
+	          <stubPeriodType>ShortCoupon</stubPeriodType>
+	          <rate>105.25</rate>
+	        </fixedLeg>
+	
+	        <!--type="InterestRate|Inflation"-->
+	        <floatingLeg>
+	          <payReceive>Receive</payReceive>
+	          <currency>USD</currency>
+	          <!-- Notional could be array-valued -->
+	          <notional>1000000</notional>
+	          <!-- map to our InterestRateNotional where sign = Pay/Recieve flag -->
+	          <frequency>12m</frequency>
+	          <!-- use DayCountFactory -->
+	          <dayCount>Actual/365</dayCount>
+	          <!-- only adjusted supported now -->
+	          <interestCalculation>Adjusted</interestCalculation>
+	          <!-- use BusinessDayConventionFactory -->
+	          <businessDayConvention>Modified Following</businessDayConvention>
+	          <!-- only Backward supported -->
+	          <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+	          <!-- EOM -->
+	          <endOfMonth>true</endOfMonth>
+	          <!-- must be false for now -->
+	          <isIMM>true</isIMM>
+	
+	
+	          <paymentCalendars>
+	            <calendar type="bank"> <!-- default=BANK  -->
+	              <id scheme="CountryISO2">FD</id>
+	            </calendar>
+	            <calendar>
+	              <id scheme="CountryISO2">EN</id>
+	            </calendar>
+	            <!-- loader should enforce type=BANK for now and id schemes all the same for now -->
+	          </paymentCalendars>
+	
+	
+	          <stubPeriodType>LongCoupon</stubPeriodType>
+	
+	          <!-- always short for now -->
+	          <!-- same as frequency for now -->
+	          <resetFrequency></resetFrequency>
+	          <!-- not supported at the moment as frequencies must match -->
+	          <compoundingMethod></compoundingMethod>
+	          <!-- we're assuming that resetLag == settlementLag at the moment -->
+	          <resetLag></resetLag>
+	          <!-- In Advance or In Arrears.  Only support In advance at the mo -->
+	          <resetType>InAdvance</resetType>
+	          <stubPeriodCouponAdjustment>LegIndex</stubPeriodCouponAdjustment>
+	          <!-- same as payment calendar at the moment -->
+	          <fixingCalendars></fixingCalendars>
+	          <fixingIndex>
+	            <id scheme="BLOOMBERG_TICKER">US0003M Curncy</id>
+	            <!-- OIS|CMS|IBOR -->
+	            <rateType>IBOR</rateType>
+	          </fixingIndex>
+	
+	          <!-- loader should support either spread or gearing for now, schema should allow both -->
+	          <spread>5.25</spread>
+	          <gearing>-3</gearing>
+	
+	        </floatingLeg>
+        </legs>
+
+      </underlyingSwapTrade>
+    </swaptionTrade>
+  </trades>
+
+
+  <portfolios>
+    <!-- portfolio name must be unique in this set -->
+    <portfolio name="swaption_portfolio">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

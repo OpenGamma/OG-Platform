@@ -5,90 +5,123 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
+import com.opengamma.engine.marketdata.manipulator.NoOpMarketDataSelector;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.compilation.PortfolioCompiler;
+import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
- * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient},
- * connecting it to a view process, handling events from the engine and forwarding data to the {@code ViewClient}.
+ * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting
+ * it to a view process, handling events from the engine and forwarding data to the
+ * {@code ViewClient}.
  */
 /* package */ class AnalyticsViewClientConnection {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
+  private final List<AutoCloseable> _listeners;
+  private final ExecutorService _executor;
+  private final SecuritySource _securitySource;
 
   private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
 
   /**
    * @param viewRequest Defines the view that should be created
+   * @param aggregatedViewDef The view definition including any aggregation
    * @param viewClient Connects this class to the calculation engine
    * @param view The object that encapsulates the state of the view user interface
-   * @param marketDataSpecRepo For looking up sources of market data
-   * @param aggregatedViewDefManager For looking up view definitions
-   * @param snapshotMaster For looking up snapshots
+   * @param parallelViewRecompilation Whether to recompile the view whilst running the current version
+   * @param marketDataSpecificationRepository For looking up market data specs
+   * @param executor
+   * @param securitySource
    */
   /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
+                                              AggregatedViewDefinition aggregatedViewDef,
                                               ViewClient viewClient,
                                               AnalyticsView view,
-                                              NamedMarketDataSpecificationRepository marketDataSpecRepo,
-                                              AggregatedViewDefinitionManager aggregatedViewDefManager,
-                                              MarketDataSnapshotMaster snapshotMaster) {
+                                              List<AutoCloseable> listeners,
+                                              ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation,
+                                              NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
+                                              ExecutorService executor,
+                                              SecuritySource securitySource) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
-    ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
-    ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(listeners, "listeners");
+    ArgumentChecker.notNull(executor, "executor");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    _executor = executor;
+    _securitySource = securitySource;
     _view = view;
     _viewClient = viewClient;
-    _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
-    _marketDataSpecRepo = marketDataSpecRepo;
+    _aggregatedViewDef = aggregatedViewDef;
+    _marketDataSpecRepo = marketDataSpecificationRepository;
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
+
+    // TODO - At this point we need to pick up a shift specification from the UI - for now we'll add the NoOp
+    MarketDataSelector marketDataSelector = NoOpMarketDataSelector.getInstance();
+
     ViewCycleExecutionOptions defaultOptions =
-        new ViewCycleExecutionOptions(viewRequest.getValuationTime(), actualMarketDataSpecs);
-    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(),
-                                            defaultOptions,
-                                            // this recalcs periodically or when market data changes. might need to give
-                                            // the user the option to specify the behaviour
-                                            ExecutionFlags.triggersEnabled().get(),
-                                            viewRequest.getPortfolioVersionCorrection());
+        ViewCycleExecutionOptions
+            .builder()
+            .setValuationTime(viewRequest.getValuationTime())
+            .setMarketDataSpecifications(actualMarketDataSpecs)
+            .setMarketDataSelector(marketDataSelector)
+            .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection())
+            .create();
+    EnumSet<ViewExecutionFlags> flags =
+        ExecutionFlags.triggersEnabled().parallelCompilation(parallelViewRecompilation).get();
+    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, flags);
+    _listeners = listeners;
+    // this recalcs periodically or when market data changes. might need to give
+    // the user the option to specify the behaviour
   }
 
   /**
-   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture
-   * of data sources including live sources, multiple live sources combined, live sources backed by historical data
-   * and pure historical data. The new UI only shows live sources, and the names of those sources don't match the
-   * names in the old UI (which include something to tell the user it's a live source). The real data sources
-   * are looked up using the old names so this method rebuilds the list of data sources and replaces the new source
-   * specs with the old ones.
+   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture of
+   * data sources including live sources, multiple live sources combined, live
+   * sources backed by historical data and pure historical data. The new UI only shows live sources, and the names of
+   * those sources don't match the names in the old UI (which include something to tell
+   * the user it's a live source). The real data sources are looked up using the old names so this method rebuilds the
+   * list of data sources and replaces the new source specs with the old ones.
+   *
    * @param requestedMarketDataSpecs The market data sources requested by the user
    * @return The specs needed to look up the sources the user requested
    */
@@ -113,6 +146,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
    * Connects to the engine in order to start receiving results. This should only be called once.
    */
   /* package */ void start() {
+    s_logger.debug("Starting client connection");
     _viewClient.setResultListener(new Listener());
     _viewClient.setViewCycleAccessSupported(true);
     _viewClient.setResultMode(ViewResultMode.FULL_THEN_DELTA);
@@ -130,9 +164,17 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */ void close() {
     try {
       _viewClient.detachFromViewProcess();
+      _viewClient.shutdown();
     } finally {
       _cycleReference.release();
       _aggregatedViewDef.close();
+      for (AutoCloseable listener : _listeners) {
+        try {
+          listener.close();
+        } catch (Exception e) {
+          s_logger.warn("Failed to close listener " + listener, e);
+        }
+      }
     }
   }
 
@@ -142,28 +184,42 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */ AnalyticsView getView() {
     return _view;
   }
+  
+  /**
+   * Gets the viewClient.
+   * @return the viewClient
+   */
+  /* package */ ViewClient getViewClient() {
+    return _viewClient;
+  }
 
   /**
-   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with
-   * public callback methods.
+   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public
+   * callback methods.
    */
   private class Listener extends AbstractViewResultListener {
 
     @Override
     public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-      _cycleReference.release();
-      ViewResultModel results = deltaResult != null ? deltaResult : fullResult;
-      // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
-      // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
-      // this allows dependency graphs grids to be opened and populated without any delay
-      EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(results.getViewCycleId());
-      if (cycleReference == null) {
-        // this shouldn't happen if everything in the engine is working as it should
-        _cycleReference = EmptyViewCycle.REFERENCE;
-      } else {
-        _cycleReference = cycleReference;
+      EngineResourceReference<? extends ViewCycle> oldReference = _cycleReference;
+      try {
+        ViewResultModel results = deltaResult != null ? deltaResult : fullResult;
+        // always retain a reference to the most recent cycle so the dependency graphs are available at all times.
+        // without this it would be necessary to wait at least one cycle before it would be possible to access the graphs.
+        // this allows dependency graphs grids to be opened and populated without any delay
+        EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(results.getViewCycleId());
+        if (cycleReference == null) {
+          // this shouldn't happen if everything in the engine is working as it should
+          _cycleReference = EmptyViewCycle.REFERENCE;
+        } else {
+          _cycleReference = cycleReference;
+        }
+        _view.updateResults(results, _cycleReference.get());
+      } finally {
+        // don't release the reference to the previous cycle until the view has received an update containing
+        // the new one. this prevents the view making a request to a released cycle
+        oldReference.release();
       }
-      _view.updateResults(results, _cycleReference.get());
     }
 
     @Override
@@ -173,40 +229,23 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
     @Override
     public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-      _view.updateStructure(compiledViewDefinition);
-    }
-  }
-
-  /**
-   * Wrapper that hides a bit of the ugliness of {@link AggregatedViewDefinitionManager}.
-   */
-  private static final class AggregatedViewDefinition {
-
-    private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
-    private final UniqueId _baseViewDefId;
-    private final List<String> _aggregatorNames;
-    private final UniqueId _id;
-
-    private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager, ViewRequest viewRequest) {
-      ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
-      ArgumentChecker.notNull(viewRequest, "viewRequest");
-      _aggregatedViewDefManager = aggregatedViewDefManager;
-      _baseViewDefId = viewRequest.getViewDefinitionId();
-      _aggregatorNames = viewRequest.getAggregators();
-      try {
-        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorNames);
-      } catch (Exception e) {
-        close();
-        throw new OpenGammaRuntimeException("Failed to get aggregated view definition", e);
+      s_logger.debug("View definition compiled: '{}'", compiledViewDefinition.getViewDefinition().getName());
+      // resolve the portfolio, it won't be resolved if the engine is in a different VM from the web components
+      // if it's in the same VM then resolution is fairly cheap and doesn't touch the DB
+      Portfolio portfolio = compiledViewDefinition.getPortfolio();
+      Portfolio resolvedPortfolio;
+      if (portfolio != null) {
+        resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio, _executor, _securitySource);
+      } else {
+        resolvedPortfolio = null;
       }
+      _view.updateStructure(compiledViewDefinition, resolvedPortfolio);
     }
 
-    private UniqueId getUniqueId() {
-      return _id;
-    }
-
-    private void close() {
-      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorNames);
+    @Override
+    public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+      s_logger.warn("Compilation of the view definition failed", exception);
     }
   }
+
 }

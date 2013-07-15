@@ -5,19 +5,21 @@
  */
 package com.opengamma.analytics.financial.equity.future.definition;
 
-import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
-import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
+
+import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class EquityFutureDefinition {
+public class EquityFutureDefinition implements InstrumentDefinitionWithData<EquityFuture, Double> {
 
   private final ZonedDateTime _expiryDate;
   private final ZonedDateTime _settlementDate;
@@ -26,10 +28,10 @@ public class EquityFutureDefinition {
   private final double _unitAmount;
 
   /**
-   * Basic setup for an Equity Future. TODO resolve conventions; complete param set 
-   * @param expiryDate The date-time at which the reference rate is fixed and the future is cash settled  
-   * @param settlementDate The date on which exchange is made, whether physical asset or cash equivalent 
-   * @param strikePrice The reference price at which the future will be settled 
+   * Basic setup for an Equity Future. TODO resolve conventions; complete param set
+   * @param expiryDate The date-time at which the reference rate is fixed and the future is cash settled
+   * @param settlementDate The date on which exchange is made, whether physical asset or cash equivalent
+   * @param strikePrice The reference price at which the future will be settled
    * @param currency The reporting currency of the future
    * @param unitValue The currency value that the price of one contract will move by when the asset's price moves by one point
    */
@@ -82,7 +84,7 @@ public class EquityFutureDefinition {
   }
 
   /**
-   * Gets the _unitAmount.
+   * Gets the _unitAmount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'. 
    * @return the _unitAmount
    */
   public double getUnitAmount() {
@@ -93,29 +95,34 @@ public class EquityFutureDefinition {
    * In this form, the reference (strike) price must already be set in the constructor of the Definition.
    * The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
    * @param date time of valuation
+   * @param yieldCurveNames not used
    * @return derivative form
    */
-  public EquityFuture toDerivative(ZonedDateTime date) {
-    double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
-    double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
-    EquityFuture newDeriv = new EquityFuture(timeToFixing, timeToDelivery, _strikePrice, _currency, _unitAmount);
+  @Override
+  public EquityFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "date");
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
+    final double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
+    final EquityFuture newDeriv = new EquityFuture(timeToFixing, timeToDelivery, _strikePrice, _currency, _unitAmount);
     return newDeriv;
   }
 
   /**
-   * In this form, the reference (strike) price must be provided. 
+   * In this form, the reference (strike) price must be provided.
    * @param date time of valuation
    * @param referencePrice The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
+   * @param yieldCurveNames Not used
    * @return derivative form
    */
-  public EquityFuture toDerivative(ZonedDateTime date, Double referencePrice) {
-    Validate.notNull(date, "null date provided.");
+  @Override
+  public EquityFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "date");
     if (referencePrice == null) {
       return toDerivative(date);
     }
-    double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
-    double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
-    EquityFuture newDeriv = new EquityFuture(timeToFixing, timeToDelivery, referencePrice, _currency, _unitAmount);
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
+    final double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
+    final EquityFuture newDeriv = new EquityFuture(timeToFixing, timeToDelivery, referencePrice, _currency, _unitAmount);
     return newDeriv;
   }
 
@@ -135,7 +142,7 @@ public class EquityFutureDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -162,6 +169,18 @@ public class EquityFutureDefinition {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityFutureDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityFutureDefinition(this);
   }
 
 }

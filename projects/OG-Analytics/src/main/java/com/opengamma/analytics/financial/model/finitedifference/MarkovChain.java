@@ -122,7 +122,6 @@ public class MarkovChain {
     final double m2 = (sum2 - n * m1 * m1) / (n - 1);
     final double m3 = (sum3 - 3 * m1 * sum2 + 2 * n * m1 * m1 * m1) / n;
 
-    //System.out.println("MC m1: " + m1 + " m2: " + m2 + " m3: " + m3);
     return new double[] {m1, m2, m3 };
   }
 

@@ -46,11 +46,11 @@ public class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod implem
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(swaption);
     Validate.notNull(hwData);
-    double expiryTime = swaption.getTimeToExpiry();
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hwData);
-    double[] alpha = new double[cfe.getNumberOfPayments()];
-    double[] df = new double[cfe.getNumberOfPayments()];
-    double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
+    final double expiryTime = swaption.getTimeToExpiry();
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hwData);
+    final double[] alpha = new double[cfe.getNumberOfPayments()];
+    final double[] df = new double[cfe.getNumberOfPayments()];
+    final double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       alpha[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime());
       df[loopcf] = hwData.getCurve(cfe.getDiscountCurve()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
@@ -72,7 +72,7 @@ public class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod implem
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);

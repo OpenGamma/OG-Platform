@@ -42,7 +42,7 @@ public class RemoteReferenceDataProvider extends AbstractRemoteClient implements
   //-------------------------------------------------------------------------
   @Override
   public String getReferenceDataValue(String identifier, String dataField) {
-    return getReferenceDataValues(Collections.singleton(identifier), dataField).get(dataField);
+    return getReferenceDataValues(Collections.singleton(identifier), dataField).get(identifier);
   }
 
   @Override

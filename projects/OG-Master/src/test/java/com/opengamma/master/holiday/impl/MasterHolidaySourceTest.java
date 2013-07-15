@@ -13,10 +13,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.Holiday;
@@ -32,11 +31,12 @@ import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link MasterHolidaySource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterHolidaySourceTest {
 
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);

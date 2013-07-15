@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -42,11 +42,6 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
   }
 
   @Override

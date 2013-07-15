@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.greeks.GreekVisitor;
@@ -43,7 +41,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
   }
 
   public TrinomialOptionModel(final TrinomialOptionModelDefinition<OptionDefinition, T> model, final int n, final int maxDepthToSave) {
-    Validate.notNull(model, "model");
+    ArgumentChecker.notNull(model, "model");
     ArgumentChecker.notNegativeOrZero(n, "n");
     ArgumentChecker.notNegative(maxDepthToSave, "max. depth to save");
     if (maxDepthToSave > n) {
@@ -68,7 +66,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
 
     };
     final GreekResultCollection results = new GreekResultCollection();
-    final GreekVisitor<Double> visitor = new FiniteDifferenceGreekVisitor<T, OptionDefinition>(function, data, definition);
+    final GreekVisitor<Double> visitor = new FiniteDifferenceGreekVisitor<>(function, data, definition);
     for (final Greek greek : requiredGreeks) {
       final Double result = greek.accept(visitor);
       results.put(greek, result);
@@ -116,7 +114,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
             }
           }
         }
-        return new RecombiningTrinomialTree<DoublesPair>(spotAndOptionPrices);
+        return new RecombiningTrinomialTree<>(spotAndOptionPrices);
       }
 
     };

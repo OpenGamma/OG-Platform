@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -38,6 +39,7 @@ import com.opengamma.util.money.Currency;
  * This class is mutable.
  */
 @BeanDefinition
+@Config
 public class YieldCurveDefinition extends DirectBean implements Serializable, UniqueIdentifiable,
     MutableUniqueIdentifiable {
 
@@ -53,37 +55,37 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * The currency that the curve is for.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Currency _currency;
+  private Currency _currency;
   /**
    * The region that the curve is for.
    */
   @PropertyDefinition
-  private final ExternalId _regionId;
+  private ExternalId _regionId;
   /**
    * The display name of the curve.
    */
   @PropertyDefinition
-  private final String _name;
+  private String _name;
   /**
    * The name of the interpolator to use.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String _interpolatorName;
+  private String _interpolatorName;
   /**
    * The name of the left extrapolator.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String _leftExtrapolatorName;
+  private String _leftExtrapolatorName;
   /**
    * The name of the right extrapolator.
    */
   @PropertyDefinition(validate = "notNull")
-  private final String _rightExtrapolatorName;
+  private String _rightExtrapolatorName;
   /**
    * Whether to interpolate between yields (true) or discount factors (false)
    */
   @PropertyDefinition
-  private final boolean _interpolateYields;
+  private boolean _interpolateYields;
   /**
    * The underlying strips.
    */
@@ -94,7 +96,6 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Creates an instance for Joda-Beans.
    */
   private YieldCurveDefinition() {
-    throw new UnsupportedOperationException();
   }
 
   /**
@@ -208,40 +209,26 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
         setUniqueId((UniqueId) newValue);
         return;
       case 575402001:  // currency
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: currency");
+        setCurrency((Currency) newValue);
+        return;
       case -690339025:  // regionId
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: regionId");
+        setRegionId((ExternalId) newValue);
+        return;
       case 3373707:  // name
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: name");
+        setName((String) newValue);
+        return;
       case -1247314958:  // interpolatorName
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: interpolatorName");
+        setInterpolatorName((String) newValue);
+        return;
       case -718701979:  // leftExtrapolatorName
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: leftExtrapolatorName");
+        setLeftExtrapolatorName((String) newValue);
+        return;
       case -556150150:  // rightExtrapolatorName
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: rightExtrapolatorName");
+        setRightExtrapolatorName((String) newValue);
+        return;
       case -987835673:  // interpolateYields
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: interpolateYields");
+        setInterpolateYields((Boolean) newValue);
+        return;
       case -891985829:  // strips
         setStrips((SortedSet<FixedIncomeStrip>) newValue);
         return;
@@ -328,6 +315,15 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   /**
+   * Sets the currency that the curve is for.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(Currency currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
+  }
+
+  /**
    * Gets the the {@code currency} property.
    * @return the property, not null
    */
@@ -342,6 +338,14 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    */
   public ExternalId getRegionId() {
     return _regionId;
+  }
+
+  /**
+   * Sets the region that the curve is for.
+   * @param regionId  the new value of the property
+   */
+  public void setRegionId(ExternalId regionId) {
+    this._regionId = regionId;
   }
 
   /**
@@ -362,6 +366,14 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   /**
+   * Sets the display name of the curve.
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    this._name = name;
+  }
+
+  /**
    * Gets the the {@code name} property.
    * @return the property, not null
    */
@@ -376,6 +388,15 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    */
   public String getInterpolatorName() {
     return _interpolatorName;
+  }
+
+  /**
+   * Sets the name of the interpolator to use.
+   * @param interpolatorName  the new value of the property, not null
+   */
+  public void setInterpolatorName(String interpolatorName) {
+    JodaBeanUtils.notNull(interpolatorName, "interpolatorName");
+    this._interpolatorName = interpolatorName;
   }
 
   /**
@@ -396,6 +417,15 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   /**
+   * Sets the name of the left extrapolator.
+   * @param leftExtrapolatorName  the new value of the property, not null
+   */
+  public void setLeftExtrapolatorName(String leftExtrapolatorName) {
+    JodaBeanUtils.notNull(leftExtrapolatorName, "leftExtrapolatorName");
+    this._leftExtrapolatorName = leftExtrapolatorName;
+  }
+
+  /**
    * Gets the the {@code leftExtrapolatorName} property.
    * @return the property, not null
    */
@@ -413,6 +443,15 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   /**
+   * Sets the name of the right extrapolator.
+   * @param rightExtrapolatorName  the new value of the property, not null
+   */
+  public void setRightExtrapolatorName(String rightExtrapolatorName) {
+    JodaBeanUtils.notNull(rightExtrapolatorName, "rightExtrapolatorName");
+    this._rightExtrapolatorName = rightExtrapolatorName;
+  }
+
+  /**
    * Gets the the {@code rightExtrapolatorName} property.
    * @return the property, not null
    */
@@ -427,6 +466,14 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    */
   public boolean isInterpolateYields() {
     return _interpolateYields;
+  }
+
+  /**
+   * Sets whether to interpolate between yields (true) or discount factors (false)
+   * @param interpolateYields  the new value of the property
+   */
+  public void setInterpolateYields(boolean interpolateYields) {
+    this._interpolateYields = interpolateYields;
   }
 
   /**

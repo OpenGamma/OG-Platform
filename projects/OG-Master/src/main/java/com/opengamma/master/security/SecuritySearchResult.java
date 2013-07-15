@@ -104,7 +104,6 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
    * The meta-bean for {@code SecuritySearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SecuritySearchResult.Meta meta() {
     return SecuritySearchResult.Meta.INSTANCE;
   }
@@ -158,7 +157,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

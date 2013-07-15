@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.web.json;
@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
@@ -28,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -36,9 +35,9 @@ import com.opengamma.OpenGammaRuntimeException;
  * A Fudge reader that interprets JSON.
  */
 public class FudgeMsgJSONReader {
-  
+
   /**
-   * The taxonomy identifier to use for any messages that are passed without envelopes. 
+   * The taxonomy identifier to use for any messages that are passed without envelopes.
    */
   private static final short DEFAULT_TAXONOMY_ID = 0;
   /**
@@ -49,7 +48,7 @@ public class FudgeMsgJSONReader {
    * The processing directive flags to add to the envelope header for any messages that are passed without envelopes.
    */
   private static final int DEFAULT_MESSAGE_PROCESSING_DIRECTIVES = 0;
-  
+
   private final FudgeJSONSettings _settings;
   private final FudgeContext _fudgeContext;
   private final Reader _underlying;
@@ -59,10 +58,10 @@ public class FudgeMsgJSONReader {
   private int _schemaVersion = DEFAULT_MESSAGE_VERSION;
   private JSONObject _jsonObject;
   private final List<String> _envelopeAttibutesFields = Lists.newArrayList();
-  
+
   /**
    * Creates a new instance for reading a Fudge stream from a JSON reader.
-   * 
+   *
    * @param fudgeContext  the Fudge context, not null
    * @param reader  the underlying reader, not null
    */
@@ -72,7 +71,7 @@ public class FudgeMsgJSONReader {
 
   /**
    * Creates a new instance for reading a Fudge stream from a JSON reader.
-   * 
+   *
    * @param fudgeContext  the Fudge context, not null
    * @param reader  the underlying reader, not null
    * @param settings  the JSON settings to fine tune the read, not null
@@ -84,23 +83,23 @@ public class FudgeMsgJSONReader {
     try {
       _jsonObject = new JSONObject(new JSONTokener(reader));
       init(_fudgeContext, _jsonObject, _settings);
-    } catch (JSONException ex) {
+    } catch (final JSONException ex) {
       wrapException("Creating json object from reader", ex);
     }
   }
 
-  private void init(FudgeContext fudgeContext, final JSONObject jsonObject, final FudgeJSONSettings settings) throws JSONException {
-    String processingDirectivesField = settings.getProcessingDirectivesField();
+  private void init(final FudgeContext fudgeContext, final JSONObject jsonObject, final FudgeJSONSettings settings) throws JSONException {
+    final String processingDirectivesField = settings.getProcessingDirectivesField();
     if (jsonObject.has(processingDirectivesField)) {
       _processingDirectives = integerValue(jsonObject.get(processingDirectivesField));
       _envelopeAttibutesFields.add(processingDirectivesField);
     }
-    String schemaVersionField = getSettings().getSchemaVersionField();
+    final String schemaVersionField = getSettings().getSchemaVersionField();
     if (jsonObject.has(schemaVersionField)) {
       _schemaVersion = integerValue(jsonObject.get(schemaVersionField));
       _envelopeAttibutesFields.add(schemaVersionField);
     }
-    String taxonomyField = getSettings().getTaxonomyField();
+    final String taxonomyField = getSettings().getTaxonomyField();
     if (jsonObject.has(taxonomyField)) {
       _taxonomyId = integerValue(jsonObject.get(taxonomyField));
       _taxonomy = fudgeContext.getTaxonomyResolver().resolveTaxonomy((short) _taxonomyId);
@@ -111,13 +110,13 @@ public class FudgeMsgJSONReader {
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying reader.
-   * 
+   *
    * @return the reader, not null
    */
   public Reader getUnderlying() {
     return _underlying;
   }
-  
+
   /**
    * Gets the fudgeContext.
    * @return the fudgeContext
@@ -125,7 +124,7 @@ public class FudgeMsgJSONReader {
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
+
   /**
    * Gets the settings.
    * @return the settings
@@ -142,11 +141,11 @@ public class FudgeMsgJSONReader {
       return new FudgeRuntimeException(message, ex);
     }
   }
-  
-  
+
+
   /**
    * Reads the next message, discarding the envelope.
-   * 
+   *
    * @return the message read without the envelope
    */
   public FudgeMsg readMessage() {
@@ -156,30 +155,30 @@ public class FudgeMsgJSONReader {
     }
     return msgEnv.getMessage();
   }
-  
-  
+
+
   /**
    * Reads the next message, returning the envelope.
-   * 
+   *
    * @return the {@link FudgeMsgEnvelope}
    */
   public FudgeMsgEnvelope readMessageEnvelope() {
     FudgeMsgEnvelope msgEnv = null;
-    try { 
-      JSONObject meta = (JSONObject) _jsonObject.get("meta");
-      JSONObject data = (JSONObject) _jsonObject.get("data");
-      MutableFudgeMsg msg = processFields(data, meta);
+    try {
+      final JSONObject meta = (JSONObject) _jsonObject.get("meta");
+      final JSONObject data = (JSONObject) _jsonObject.get("data");
+      final MutableFudgeMsg msg = processFields(data, meta);
       msgEnv = getFudgeMsgEnvelope(msg, _jsonObject);
-    } catch (JSONException ex) {
+    } catch (final JSONException ex) {
       wrapException("reading message envelope", ex);
     }
     return msgEnv;
   }
-  
-  private FudgeMsgEnvelope getFudgeMsgEnvelope(MutableFudgeMsg fudgeMsg, final JSONObject jsonObject) throws JSONException {    
+
+  private FudgeMsgEnvelope getFudgeMsgEnvelope(final MutableFudgeMsg fudgeMsg, final JSONObject jsonObject) throws JSONException {
     return new FudgeMsgEnvelope(fudgeMsg, _schemaVersion, _processingDirectives);
   }
-  
+
   private int integerValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).intValue();
@@ -189,7 +188,7 @@ public class FudgeMsgJSONReader {
       throw new NumberFormatException(o + " is not a number");
     }
   }
-  
+
   private byte byteValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).byteValue();
@@ -199,7 +198,7 @@ public class FudgeMsgJSONReader {
       throw new NumberFormatException(o + " is not a number");
     }
   }
-  
+
   private short shortValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).shortValue();
@@ -209,7 +208,17 @@ public class FudgeMsgJSONReader {
       throw new NumberFormatException(o + " is not a number");
     }
   }
-  
+
+  private long longValue(final Object o) {
+    if (o instanceof Number) {
+      return ((Number) o).longValue();
+    } else if (o instanceof String) {
+      return Long.parseLong((String) o);
+    } else {
+      throw new NumberFormatException(o + " is not a number");
+    }
+  }
+
   private double doubleValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).doubleValue();
@@ -219,7 +228,7 @@ public class FudgeMsgJSONReader {
       throw new NumberFormatException(o + " is not a number");
     }
   }
-  
+
   private float floatValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).floatValue();
@@ -229,10 +238,11 @@ public class FudgeMsgJSONReader {
       throw new NumberFormatException(o + " is not a number");
     }
   }
-  
+
   private MutableFudgeMsg processFields(final JSONObject data, final JSONObject meta) {
-    MutableFudgeMsg fudgeMsg = getFudgeContext().newMessage();
+    final MutableFudgeMsg fudgeMsg = getFudgeContext().newMessage();
     @SuppressWarnings("unchecked")
+    final
     Iterator<String> keys = data.keys();
     while (keys.hasNext()) {
       final String fieldName = keys.next();
@@ -252,7 +262,7 @@ public class FudgeMsgJSONReader {
               }
               final Object primitiveArray = jsonArrayToPrimitiveArray(dataArray, fieldType);
               addField(fudgeMsg, fieldName, getFieldType((String) metaValue), primitiveArray);
-            } catch (JSONException e) {
+            } catch (final JSONException e) {
               wrapException("converting json array to primitive array", e);
             }
           } else {
@@ -271,19 +281,19 @@ public class FudgeMsgJSONReader {
     return fudgeMsg;
   }
 
-  private boolean isPrimitiveArray(Object metaValue) {
+  private boolean isPrimitiveArray(final Object metaValue) {
     if (metaValue instanceof JSONArray) {
       return false;
     }
     return true;
   }
 
-  private void addField(MutableFudgeMsg fudgeMsg, final String fieldName, FudgeFieldType fieldType, final Object fieldValue) {
+  private void addField(final MutableFudgeMsg fudgeMsg, final String fieldName, final FudgeFieldType fieldType, final Object fieldValue) {
     Integer ordinal = null;
     String name = null;
     try {
       ordinal = Integer.parseInt(fieldName);
-    } catch (NumberFormatException nfe) {
+    } catch (final NumberFormatException nfe) {
       if (StringUtils.isNotEmpty(fieldName)) {
         if (!getPreserveFieldNames()) {
           if (_taxonomy != null) {
@@ -310,13 +320,16 @@ public class FudgeMsgJSONReader {
       case FudgeWireType.DATE_TYPE_ID:
         fudgeMsg.add(name, ordinal, fieldType, toLocalDate(fieldValue));
         break;
+      case FudgeWireType.LONG_TYPE_ID:
+        fudgeMsg.add(name, ordinal, fieldType, longValue(fieldValue));
+        break;
       default:
         fudgeMsg.add(name, ordinal, fieldType, fieldValue);
         break;
     }
   }
- 
-  private LocalDate toLocalDate(Object fieldValue) {
+
+  private LocalDate toLocalDate(final Object fieldValue) {
     if (fieldValue != null) {
       return LocalDate.parse((String) fieldValue);
     }
@@ -327,7 +340,7 @@ public class FudgeMsgJSONReader {
     return getSettings().getPreserveFieldNames();
   }
 
-  private void addRepeatedFields(MutableFudgeMsg fudgeMsg, final String fieldName, final JSONArray dataArray, final JSONArray metaArray) {
+  private void addRepeatedFields(final MutableFudgeMsg fudgeMsg, final String fieldName, final JSONArray dataArray, final JSONArray metaArray) {
     try {
       for (int i = 0; i < dataArray.length(); i++) {
         final Object arrValue = dataArray.get(i);
@@ -336,23 +349,23 @@ public class FudgeMsgJSONReader {
           final MutableFudgeMsg subMsg = processFields((JSONObject) arrValue, (JSONObject) metaValue);
           addField(fudgeMsg, fieldName, FudgeWireType.SUB_MESSAGE, subMsg);
         } else {
-          FudgeFieldType fieldType = getFieldType((String) metaValue);
+          final FudgeFieldType fieldType = getFieldType((String) metaValue);
           if (fieldType == null) {
             throw new OpenGammaRuntimeException("Unknown field type " + metaValue + " for " + fieldName + ":" + arrValue);
           }
           addField(fudgeMsg, fieldName, fieldType, arrValue);
         }
       }
-    } catch (JSONException e) {
+    } catch (final JSONException e) {
       wrapException("adding repeated fields", e);
     }
   }
-  
+
   private FudgeFieldType getFieldType(final String typeValue) {
-    Integer typeId = getSettings().stringToFudgeTypeId(typeValue);
+    final Integer typeId = getSettings().stringToFudgeTypeId(typeValue);
     return getFudgeContext().getTypeDictionary().getByTypeId(typeId);
   }
-  
+
   private Object jsonArrayToPrimitiveArray(final JSONArray arr, final FudgeFieldType fieldType) throws JSONException {
     switch (fieldType.getTypeId()) {
       case FudgeWireType.BYTE_ARRAY_TYPE_ID:
@@ -404,7 +417,7 @@ public class FudgeMsgJSONReader {
         return null;
     }
   }
-    
+
   private Object getFieldValue(final JSONObject jsonObject, final String fieldName) {
     Object fieldValue = null;
     try {
@@ -412,7 +425,7 @@ public class FudgeMsgJSONReader {
       if (JSONObject.NULL.equals(fieldValue)) {
         fieldValue = IndicatorType.INSTANCE;
       }
-    } catch (JSONException e) {
+    } catch (final JSONException e) {
       wrapException("reading field value", e);
     }
     return fieldValue;

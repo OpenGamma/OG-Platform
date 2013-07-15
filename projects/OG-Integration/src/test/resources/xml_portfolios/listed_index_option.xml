@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+    <listedSecurityTrade id="t1" >
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
+
+      <tradeDate>2013-01-20</tradeDate>
+
+      <additionalCashflows>
+        <additionalCashflow type="clearingFee">
+          <counterparty><id scheme="Broker">ClearingHouse</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-09-12</cashflowDate>
+        </additionalCashflow>
+
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">250</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <buySell>Buy</buySell>
+      <numContracts>25000</numContracts>
+
+      <brokers>
+        <broker type="executingBroker"><id scheme="BROKER">executingbrokerId</id></broker>
+        <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId</id></broker>
+      </brokers>
+
+      <optionSecurity type="equityIndexOption">
+
+        <underlyingId><id scheme="BLOOMBERG_BUID">EI09SPX</id></underlyingId>
+        <pointValue>100</pointValue>
+        <currency>USD</currency>
+        <exchange>US</exchange>
+
+        <optionType>Call</optionType>
+
+        <strike>1400</strike>
+
+        <optionExpiry>DEC13</optionExpiry>
+        <exerciseType>European</exerciseType>
+
+      </optionSecurity>
+
+    </listedSecurityTrade>
+
+    <!-- Same as previous trade in terms of security but different quantity - position will aggregate them -->
+    <listedSecurityTrade id="t2" >
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem2</id></externalSystemId>
+
+      <tradeDate>2013-01-21</tradeDate>
+
+      <additionalCashflows>
+        <additionalCashflow type="clearingFee">
+          <counterparty><id scheme="Broker">ClearingHouse</id></counterparty>
+          <monetaryAmount currency="EUR">350</monetaryAmount>
+          <cashflowDate>2013-09-12</cashflowDate>
+        </additionalCashflow>
+
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">120</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <buySell>Sell</buySell>
+      <numContracts>10000</numContracts>
+
+      <brokers>
+        <broker type="executingBroker"><id scheme="BROKER">executingbrokerId2</id></broker>
+        <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId2</id></broker>
+      </brokers>
+
+      <optionSecurity type="equityIndexOption">
+
+        <underlyingId><id scheme="BLOOMBERG_BUID">EI09SPX</id></underlyingId>
+
+        <pointValue>100</pointValue>
+        <currency>USD</currency>
+        <exchange>US</exchange>
+
+        <optionType>Call</optionType>
+        <strike>1400</strike>
+
+        <optionExpiry>DEC13</optionExpiry>
+        <exerciseType>European</exerciseType>
+
+      </optionSecurity>
+
+    </listedSecurityTrade>
+  </trades>
+
+  <positions>
+    <position id="p1">
+      <trades>
+        <trade ref="t1"/>
+        <trade ref="t2"/>
+      </trades>
+      <additionalAttributes>
+        <attribute name="pos-attr1">pos-attr1-value</attribute>
+        <attribute name="pos-attr2">pos-attr2-value</attribute>
+      </additionalAttributes>
+    </position>
+  </positions>
+
+  <portfolios>
+    <portfolio name="listed_equity_index_option_portfolio">
+      <positions>
+        <position ref="p1"/>
+      </positions>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

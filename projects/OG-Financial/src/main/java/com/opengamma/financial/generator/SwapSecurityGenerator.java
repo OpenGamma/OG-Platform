@@ -5,13 +5,12 @@
  */
 package com.opengamma.financial.generator;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Counterparty;
@@ -96,14 +95,14 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
         tradeDate = getSwaptionExpiry().plusDays(2 + i++); // effective date should be at least two days after expiry of swaption.
       }
     } while (getHolidaySource().isHoliday(tradeDate, ccy));
-    ConventionBundle swapConvention = getConventionSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
+    ConventionBundle swapConvention = getConventionBundleSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {
       s_logger.error("Couldn't get swap convention for {}", ccy.getCode());
       return null;
     }
     final Tenor maturity = getRandom(TENORS);
     // get the convention of the identifier of the initial rate
-    ConventionBundle liborConvention = getConventionSource().getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
+    ConventionBundle liborConvention = getConventionBundleSource().getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     if (liborConvention == null) {
       s_logger.error("Couldn't get libor convention for {}", swapConvention.getSwapFloatingLegInitialRate());
       return null;
@@ -133,8 +132,8 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
     }
     Double fixedRate = (fixedRateSeries.getTimeSeries().getEarliestValue() + getRandom().nextDouble()) / 100d;
     Double notional = (double) (getRandom(99999) + 1) * 1000;
-    ZonedDateTime tradeDateTime = ZonedDateTime.of(tradeDate, LocalTime.MIDNIGHT, TimeZone.UTC);
-    ZonedDateTime maturityDateTime = ZonedDateTime.of(tradeDate.plus(maturity.getPeriod()), LocalTime.MIDNIGHT, TimeZone.UTC);
+    ZonedDateTime tradeDateTime = tradeDate.atStartOfDay(ZoneOffset.UTC);
+    ZonedDateTime maturityDateTime = tradeDate.plus(maturity.getPeriod()).atStartOfDay(ZoneOffset.UTC);
     String counterparty = "CParty";
     SwapLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(),
         swapConvention.getSwapFixedLegFrequency(),
@@ -178,7 +177,7 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
     ManageableTrade trade = null;
     final SwapSecurity swap = createSecurity();
     if (swap != null) {
-      trade = new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetTime(), 
+      trade = new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetDateTime().toOffsetTime(), 
           ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     }
     return trade;

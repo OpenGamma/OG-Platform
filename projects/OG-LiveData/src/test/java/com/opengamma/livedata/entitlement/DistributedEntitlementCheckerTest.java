@@ -16,11 +16,12 @@ import com.opengamma.livedata.client.DistributedEntitlementChecker;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Integration test between {@link DistributedEntitlementChecker} and {@link EntitlementServer}.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class DistributedEntitlementCheckerTest {
 
   public void testRequestResponse() {

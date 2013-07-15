@@ -29,12 +29,13 @@ import com.opengamma.util.time.Expiry;
  * \end{align*}
  * $$
  * where $c_{BSM}$ is the general Black-Scholes Merton call price, $c_{BSM}$ is
- * the general Black-Scholes Merton put price (see {@link * BlackScholesMertonModel}),
+ * the general Black-Scholes Merton put price (see {@link BlackScholesMertonModel}),
  * $K$ is the strike, $S$ is the spot and $T_2$ is the time to expiry of the
  * underlying option.
  */
 
 public class SimpleChooserOptionDefinition extends OptionDefinition {
+  /** The payoff function */
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @SuppressWarnings("synthetic-access")
@@ -46,12 +47,19 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
       return Math.max(callPrice, putPrice);
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  /** The exercise function */
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
+  /** The strike of the underlying option */
   private final double _underlyingStrike;
+  /** The expiry of the underlying option */
   private final Expiry _underlyingExpiry;
+  /** The underlying call */
   private final OptionDefinition _callDefinition;
+  /** The underlying put */
   private final OptionDefinition _putDefinition;
+  /** Black-Scholes Merton model */
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  /** The greeks that can be computed */
   private static final Set<Greek> GREEKS = Collections.singleton(Greek.FAIR_PRICE);
 
   /**

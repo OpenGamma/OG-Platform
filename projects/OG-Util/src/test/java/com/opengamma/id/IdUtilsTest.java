@@ -12,10 +12,12 @@ import java.lang.reflect.Modifier;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link IdUtils}. 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class IdUtilsTest {
 
   @SuppressWarnings("unchecked")

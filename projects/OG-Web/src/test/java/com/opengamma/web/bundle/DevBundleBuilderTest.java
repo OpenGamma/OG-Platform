@@ -14,10 +14,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test DevBundleBuilder.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DevBundleBuilderTest {
 
   public void test_builder() throws Exception {

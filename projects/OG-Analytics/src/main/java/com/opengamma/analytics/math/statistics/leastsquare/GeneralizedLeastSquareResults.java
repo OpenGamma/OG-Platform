@@ -7,6 +7,8 @@ package com.opengamma.analytics.math.statistics.leastsquare;
 
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.BasisFunctionAggregation;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -29,7 +31,7 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
   public GeneralizedLeastSquareResults(final List<Function1D<T, Double>> basisFunctions, final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
     super(chiSq, parameters, covariance, null);
 
-    _function = new BasisFunctionAggregation<T>(basisFunctions, parameters.getData());
+    _function = new BasisFunctionAggregation<>(basisFunctions, parameters.getData());
   }
 
   /**
@@ -38,6 +40,32 @@ public class GeneralizedLeastSquareResults<T> extends LeastSquareResults {
    */
   public Function1D<T, Double> getFunction() {
     return _function;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _function.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof GeneralizedLeastSquareResults)) {
+      return false;
+    }
+    final GeneralizedLeastSquareResults<?> other = (GeneralizedLeastSquareResults<?>) obj;
+    if (!ObjectUtils.equals(_function, other._function)) {
+      return false;
+    }
+    return true;
   }
 
 }

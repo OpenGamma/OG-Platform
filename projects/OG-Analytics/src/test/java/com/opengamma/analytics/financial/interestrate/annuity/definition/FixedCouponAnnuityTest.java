@@ -26,7 +26,7 @@ public class FixedCouponAnnuityTest {
   private static final CouponFixed[] PAYMENTS;
   private static final double DIFF = 0.02;
   private static final CouponFixed[] HIGHER;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   //CouponFixed(PAYMENT_TIMES[i], NOTIONAL, YEAR_FRACTIONS[i], COUPON_RATE, CURVE_NAME);
   static {

@@ -10,9 +10,11 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -24,6 +26,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class RowParser {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(RowParser.class);
+  
   // CSOFF
   /** Standard date-time formatter for the input. */
   protected DateTimeFormatter CSV_DATE_FORMATTER;
@@ -104,7 +108,9 @@ public abstract class RowParser {
    * Constructs one or more securities associated with the supplied row. As a convention, the underlying security
    * is returned at array location 0.
    * @param row The mapping between column names and contents for the current row
-   * @return An array of securities constructed from the current row's data; underlying is at index 0
+   * @return An array of securities constructed from the current row's data; underlying is at index 0; null or an
+   *         empty array if unable to construct any securities from the row; this will cause the entire row to be
+   *         skipped (constructPosition() won't be called for that row
    */
   public abstract ManageableSecurity[] constructSecurity(Map<String, String> row);
   
@@ -112,7 +118,7 @@ public abstract class RowParser {
    * Constructs a position associated with the supplied row. 
    * @param row The mapping between column names and contents for the current row
    * @param security  The associated security
-   * @return The constructed position
+   * @return The constructed position or null if position construction failed
    */
   public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
     
@@ -127,7 +133,7 @@ public abstract class RowParser {
    * @param row The mapping between column names and contents for the current row
    * @param security  The associated security
    * @param position  The associated position
-   * @return  The constructed trade
+   * @return  The constructed trade or null if unable to construct a trade
    */
   public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
     return null;
@@ -143,13 +149,11 @@ public abstract class RowParser {
     return 0;
   }
   
- 
   public static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
-    
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
-      System.err.println(fieldValueMap);
-      throw new IllegalArgumentException("Could not find field '" + fieldName + "'");
+      s_logger.warn("No value for field " + fieldName);
+      return null;
     }
     return result;
   }

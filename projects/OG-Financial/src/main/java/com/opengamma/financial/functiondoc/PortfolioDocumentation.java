@@ -23,6 +23,7 @@ import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -95,7 +96,7 @@ public class PortfolioDocumentation extends AbstractDocumentation {
     for (final UniqueId portfolioId : getPortfolios()) {
       try {
         final long t1 = System.nanoTime();
-        final Portfolio rawPortfolio = getPositionSource().getPortfolio(portfolioId);
+        final Portfolio rawPortfolio = getPositionSource().getPortfolio(portfolioId, VersionCorrection.LATEST);
         final long t2 = System.nanoTime();
         final Portfolio resolvedPortfolio = PortfolioCompiler.resolvePortfolio(rawPortfolio, getExecutorService(), getSecuritySource());
         final long t3 = System.nanoTime();

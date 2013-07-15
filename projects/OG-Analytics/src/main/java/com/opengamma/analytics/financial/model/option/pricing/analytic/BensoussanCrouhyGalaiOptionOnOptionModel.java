@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.greeks.Greek;

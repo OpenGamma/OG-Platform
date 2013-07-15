@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.view.rest;
 
-import com.opengamma.engine.view.calc.EngineResourceManager;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.resource.EngineResourceManager;
+import com.opengamma.engine.resource.EngineResourceReference;
+import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
  * RESTful resource for {@link EngineResourceManager} on {@link ViewCycle}.

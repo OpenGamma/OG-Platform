@@ -17,10 +17,12 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link WebSecuritiesResource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class WebSecuritiesResourceTest extends AbstractWebSecurityResourceTestCase {
 
   public void testGetMetaDataJSON() throws Exception {

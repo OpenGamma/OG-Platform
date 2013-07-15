@@ -5,11 +5,13 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
  * Generator of random time-series for testing/demo purposes.
@@ -28,7 +30,7 @@ public final class RandomTimeSeriesGenerator {
    * @param numDays  the number of days
    * @return the time-series, not null
    */
-  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeries(int numDays) {
+  public static LocalDateDoubleTimeSeries makeRandomTimeSeries(int numDays) {
     LocalDate previousWeekDay = DateUtils.previousWeekDay();
     return makeRandomTimeSeries(previousWeekDay, numDays);
   }
@@ -40,17 +42,17 @@ public final class RandomTimeSeriesGenerator {
    * @param numDays  the number of days
    * @return the time-series, not null
    */
-  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate startDate, int numDays) {
-    MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
+  public static LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate startDate, int numDays) {
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate current = startDate;
-    tsMap.putDataPoint(current, Math.random());
-    while (tsMap.size() < numDays) {
+    bld.put(current, Math.random());
+    while (bld.size() < numDays) {
       if (isWeekday(current)) {
-        tsMap.putDataPoint(current, Math.random());
+        bld.put(current, Math.random());
       }
       current = current.plusDays(1);
     }
-    return tsMap;
+    return bld.build();
   }
 
   /**

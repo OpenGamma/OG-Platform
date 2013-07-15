@@ -70,16 +70,10 @@ public class EHCachingFinancialSecuritySource
       result = getUnderlying().getBondsWithIssuerName(issuerType);
       if (result != null) {
         _bondCache.put(new Element(issuerType, result));
-        cacheSecurities(result);
+        cacheItems(result);
       }
     }
     return result;
-  }
-
-  private void cacheSecurities(Collection<Security> securities) {    
-    for (Security security : securities) {
-      getUidCache().put(new Element(security.getUniqueId(), security));
-    }
   }
 
 }

@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.sensitivity.Sensitivity;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -41,9 +41,9 @@ public class VaRCovarianceMatrixCalculator implements Function<SensitivityAndRet
     Validate.notEmpty(data, "data");
     Validate.noNullElements(data, "data");
     List<String> firstOrderNames = null;
-    final List<Double> firstOrderSensitivity = new ArrayList<Double>();
-    final List<DoubleTimeSeries<?>> firstOrderTimeSeries = new ArrayList<DoubleTimeSeries<?>>();
-    final List<DoubleTimeSeries<?>> secondOrderTimeSeries = new ArrayList<DoubleTimeSeries<?>>();
+    final List<Double> firstOrderSensitivity = new ArrayList<>();
+    final List<DoubleTimeSeries<?>> firstOrderTimeSeries = new ArrayList<>();
+    final List<DoubleTimeSeries<?>> secondOrderTimeSeries = new ArrayList<>();
     List<String> secondOrderNames = null;
     for (final SensitivityAndReturnDataBundle dataForSensitivity : data) {
       final Sensitivity<?> sensitivity = dataForSensitivity.getSensitivity();
@@ -52,7 +52,7 @@ public class VaRCovarianceMatrixCalculator implements Function<SensitivityAndRet
         final UnderlyingType type = sensitivity.getUnderlyingTypes().get(0);
         final String name = identifier + "_" + type;
         if (firstOrderNames == null) {
-          firstOrderNames = new ArrayList<String>();
+          firstOrderNames = new ArrayList<>();
         }
         if (!firstOrderNames.contains(name)) {
           firstOrderNames.add(name);
@@ -64,7 +64,7 @@ public class VaRCovarianceMatrixCalculator implements Function<SensitivityAndRet
         }
       } else if (sensitivity.getOrder() == 2) {
         if (secondOrderNames == null) {
-          secondOrderNames = new ArrayList<String>();
+          secondOrderNames = new ArrayList<>();
         }
         if (sensitivity.getUnderlying() instanceof NthOrderUnderlying) {
           final UnderlyingType type = sensitivity.getUnderlyingTypes().get(0);
@@ -91,14 +91,14 @@ public class VaRCovarianceMatrixCalculator implements Function<SensitivityAndRet
         throw new IllegalArgumentException("Can only handle first and second order sensitivities");
       }
     }
-    final Map<Integer, ParametricVaRDataBundle> result = new HashMap<Integer, ParametricVaRDataBundle>();
+    final Map<Integer, ParametricVaRDataBundle> result = new HashMap<>();
     DoubleMatrix2D firstOrderCovarianceMatrix = null;
     DoubleMatrix1D firstOrderSensitivityMatrix = null;
     DoubleMatrix2D secondOrderCovarianceMatrix = null;
     DoubleMatrix2D secondOrderSensitivityMatrix = null;
     if (firstOrderNames != null) {
       firstOrderCovarianceMatrix = _calculator.evaluate(firstOrderTimeSeries.toArray(EMPTY));
-      firstOrderSensitivityMatrix = new DoubleMatrix1D(firstOrderSensitivity.toArray(new Double[0]));
+      firstOrderSensitivityMatrix = new DoubleMatrix1D(firstOrderSensitivity.toArray(new Double[firstOrderSensitivity.size()]));
       result.put(1, new ParametricVaRDataBundle(firstOrderNames, firstOrderSensitivityMatrix, firstOrderCovarianceMatrix, 1));
     }
     if (secondOrderNames != null) {

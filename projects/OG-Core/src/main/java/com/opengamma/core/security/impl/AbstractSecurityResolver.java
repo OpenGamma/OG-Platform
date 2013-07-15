@@ -21,10 +21,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An abstract base implementation of {@code SecurityResolver}.
  * <p>
- * This resolver implementation obtains the securities from {@link SecuritySource}.
- * It uses a single fixed instance variable of {@link VersionCorrection}.
- * Resolution between the candidate options returned for an external identifier bundle
- * is determined by the subclass.
+ * This resolver implementation obtains the securities from {@link SecuritySource}. It uses a single fixed instance variable of {@link VersionCorrection}. Resolution between the candidate options
+ * returned for an external identifier bundle is determined by the subclass.
  */
 public abstract class AbstractSecurityResolver implements SecurityResolver {
 
@@ -40,11 +38,10 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
   /**
    * Creates an instance decorating a {@code SecuritySource}.
    * <p>
-   * It is recommended to use a locked version-correction rather than one with "latest"
-   * wherever possible.
+   * It is recommended to use a locked version-correction rather than one with "latest" wherever possible.
    * 
-   * @param securitySource  the source of securities, not null
-   * @param versionCorrection  the version-correction at which the resolver will operate, not null
+   * @param securitySource the source of securities, not null
+   * @param versionCorrection the version-correction at which the resolver will operate, not null
    * @throws IllegalArgumentException if either version-correction instant is "latest"
    */
   protected AbstractSecurityResolver(SecuritySource securitySource, VersionCorrection versionCorrection) {
@@ -103,7 +100,7 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
   @Override
   public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    Collection<Security> securities = getSecuritySource().get(bundle, getVersionCorrection());
+    Collection<? extends Security> securities = getSecuritySource().get(bundle, getVersionCorrection());
     if (securities.isEmpty()) {
       throw new DataNotFoundException("Security not found: " + bundle + " at " + getVersionCorrection());
     }
@@ -116,10 +113,10 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
    * <p>
    * The selection of a "best match" distinguishes one implementation from another.
    * 
-   * @param candidates  the candidate securities, not empty, not null
+   * @param candidates the candidate securities, not empty, not null
    * @return the best matching security, not null
    */
-  protected abstract Security selectBestMatch(Collection<Security> candidates);
+  protected abstract Security selectBestMatch(Collection<? extends Security> candidates);
 
   //-------------------------------------------------------------------------
   @Override

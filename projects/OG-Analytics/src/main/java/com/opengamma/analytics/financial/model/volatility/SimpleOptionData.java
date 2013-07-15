@@ -31,7 +31,7 @@ public class SimpleOptionData {
    * Gets the f.
    * @return the f
    */
-  protected double getForward() {
+  public double getForward() {
     return _f;
   }
 
@@ -39,7 +39,7 @@ public class SimpleOptionData {
    * Gets the k.
    * @return the k
    */
-  protected double getStrike() {
+  public double getStrike() {
     return _k;
   }
 
@@ -47,7 +47,7 @@ public class SimpleOptionData {
    * Gets the t.
    * @return the t
    */
-  protected double getTimeToExpiry() {
+  public double getTimeToExpiry() {
     return _t;
   }
 
@@ -55,7 +55,7 @@ public class SimpleOptionData {
    * Gets the df.
    * @return the df
    */
-  protected double getDiscountFactor() {
+  public double getDiscountFactor() {
     return _df;
   }
 
@@ -63,8 +63,16 @@ public class SimpleOptionData {
    * Gets the isCall.
    * @return the isCall
    */
-  protected boolean isCall() {
+  public boolean isCall() {
     return _isCall;
+  }
+
+  /**
+   * The intrinsic value of the option (i.e. the minimum value)
+   * @return the intrinsic value
+   */
+  public double getIntrinsicValue() {
+    return _df * (_isCall ? Math.max(_f - _k, 0.) : Math.max(_k - _f, 0.));
   }
 
   @Override

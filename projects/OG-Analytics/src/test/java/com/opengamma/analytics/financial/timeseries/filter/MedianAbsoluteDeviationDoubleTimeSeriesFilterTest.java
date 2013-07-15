@@ -7,16 +7,15 @@ package com.opengamma.analytics.financial.timeseries.filter;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -32,16 +31,16 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   private static final double[] DATA = new double[N];
   private static final LocalDateDoubleTimeSeries TS;
   private static final double EPS = 1e-15;
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   static {
     for (int i = 0; i < N; i++) {
-      DATES[i] = LocalDate.ofEpochDays(i);
+      DATES[i] = LocalDate.ofEpochDay(i);
       DATA[i] = RANDOM.nextDouble();
     }
     DATA[0] = DATA1;
     DATA[1] = DATA2;
-    TS = new ArrayLocalDateDoubleTimeSeries(DATES, DATA);
+    TS = ImmutableLocalDateDoubleTimeSeries.of(DATES, DATA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -59,7 +58,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   @Test
   public void testMasked() {
     final LocalDateDoubleTimeSeries subSeries = TS.subSeries(DATES[0], DATES[11]);
-    final FilteredTimeSeries result = FILTER.evaluate(new ArrayLocalDateDoubleTimeSeries(subSeries));
+    final FilteredTimeSeries result = FILTER.evaluate(ImmutableLocalDateDoubleTimeSeries.of(subSeries));
     assertTimeSeries(result, 9);
   }
 
@@ -71,9 +70,9 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   private void assertTimeSeries(final FilteredTimeSeries result, final int size) {
     assertEquals(result.getFilteredTS().size(), size);
     final LocalDateDoubleTimeSeries rejected = result.getRejectedTS();
-    assertEquals(rejected.getTimeAt(0), LocalDate.ofEpochDays(0));
-    assertEquals(rejected.getValueAt(0), DATA1, EPS);
-    assertEquals(rejected.getTimeAt(1), LocalDate.ofEpochDays(1));
-    assertEquals(rejected.getValueAt(1), DATA2, EPS);
+    assertEquals(rejected.getTimeAtIndex(0), LocalDate.ofEpochDay(0));
+    assertEquals(rejected.getValueAtIndex(0), DATA1, EPS);
+    assertEquals(rejected.getTimeAtIndex(1), LocalDate.ofEpochDay(1));
+    assertEquals(rejected.getValueAtIndex(1), DATA2, EPS);
   }
 }

@@ -29,9 +29,9 @@ public class AnnuityPaymentFixed extends Annuity<PaymentFixed> {
    * @return The trimmed annuity.
    */
   @Override
-  public AnnuityPaymentFixed trimBefore(double trimTime) {
-    List<PaymentFixed> list = new ArrayList<PaymentFixed>();
-    for (PaymentFixed payment : getPayments()) {
+  public AnnuityPaymentFixed trimBefore(final double trimTime) {
+    final List<PaymentFixed> list = new ArrayList<>();
+    for (final PaymentFixed payment : getPayments()) {
       if (payment.getPaymentTime() > trimTime) {
         list.add(payment);
       }

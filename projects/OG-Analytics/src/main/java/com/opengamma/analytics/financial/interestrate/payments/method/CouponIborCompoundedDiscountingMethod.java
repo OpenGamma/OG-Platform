@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -49,7 +49,7 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -67,8 +67,8 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof CouponIborCompounded, "CouponIborCompounded");
-    return presentValue((CouponIborCompounded) instrument, curves);
+    Validate.isTrue(instrument instanceof CouponIborCompounding, "CouponIborCompounded");
+    return presentValue((CouponIborCompounding) instrument, curves);
   }
 
   /**
@@ -77,7 +77,7 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());

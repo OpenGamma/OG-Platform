@@ -7,8 +7,6 @@ package com.opengamma.master.config;
 
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectId;
@@ -291,7 +290,7 @@ public class ConfigDocument extends AbstractDocument {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "config",
         "uniqueId");
 

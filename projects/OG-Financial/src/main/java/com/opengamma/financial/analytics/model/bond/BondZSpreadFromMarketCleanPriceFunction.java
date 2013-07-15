@@ -9,20 +9,41 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.FinancialSecurityTypes;
+import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
  * 
  */
-public class BondZSpreadFromMarketCleanPriceFunction extends BondZSpreadFunction {
+public class BondZSpreadFromMarketCleanPriceFunction extends BondFromPriceFunction {
+  private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties.Builder properties = getResultProperties();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), properties.get()));
+  }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
@@ -60,12 +81,47 @@ public class BondZSpreadFromMarketCleanPriceFunction extends BondZSpreadFunction
 
   @Override
   protected ValueRequirement getCleanPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId());
+    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, target.toSpecification());
   }
 
   @Override
   protected String getCalculationMethodName() {
     return BondFunction.FROM_CLEAN_PRICE_METHOD;
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.BOND_SECURITY;
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties() {
+    return createValueProperties()
+        .withAny(BondFunction.PROPERTY_RISK_FREE_CURVE)
+        .withAny(BondFunction.PROPERTY_CREDIT_CURVE)
+        .withAny(ValuePropertyNames.CURVE)
+        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final String curveName) {
+    return createValueProperties()
+        .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
+        .with(BondFunction.PROPERTY_CREDIT_CURVE, creditCurveName)
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
+  }
+
+  @Override
+  protected double getValue(FunctionExecutionContext context, ZonedDateTime date, String riskFreeCurveName, String creditCurveName, ComputationTarget target, YieldCurveBundle data, double price) {
+    BondSecurity bond = (BondSecurity) target.getSecurity();
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bond.accept(visitor);
+    BondFixedSecurity derivative = definition.toDerivative(date, riskFreeCurveName, creditCurveName);
+    return CALCULATOR.zSpreadFromCurvesAndClean(derivative, data, price);
   }
 
 }

@@ -8,34 +8,36 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 /**
  * {@code DatAdjuster} that finds the next Expiry in Interest Rate Futures Options. 
  * This is the 3rd Wednesday of the next IMM Future Expiry Month.
  */
-public class NextMonthlyExpiryAdjuster implements DateAdjuster {
+public class NextMonthlyExpiryAdjuster implements TemporalAdjuster {
 
   /** An adjuster finding the 3rd Wednesday in a month. May be before or after date */
-  private static final DateAdjuster s_dayOfMonth = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
+  private static final TemporalAdjuster s_dayOfMonth = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
 
   /** An adjuster moving to the next quarter. */
-  private static final DateAdjuster s_nextMonthAdjuster = new NextMonthAdjuster();
+  private static final TemporalAdjuster s_nextMonthAdjuster = new NextMonthAdjuster();
 
   /** The IMM Expiry months  */
-  private final Set<MonthOfYear> _futureQuarters = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+  private final Set<Month> _futureQuarters = EnumSet.of(Month.MARCH, Month.JUNE, Month.SEPTEMBER, Month.DECEMBER);
 
   @Override
-  public LocalDate adjustDate(final LocalDate date) {
-    if (_futureQuarters.contains(date.getMonthOfYear()) &&
+  public Temporal adjustInto(Temporal temporal) {
+    LocalDate date = LocalDate.from(temporal);
+    if (_futureQuarters.contains(date.getMonth()) &&
         date.with(s_dayOfMonth).isAfter(date)) { // in a quarter
-      return date.with(s_dayOfMonth);
+      return temporal.with(date.with(s_dayOfMonth));
     } else {
-      return date.with(s_nextMonthAdjuster).with(s_dayOfMonth);
+      return temporal.with(date.with(s_nextMonthAdjuster).with(s_dayOfMonth));
     }
   }
 

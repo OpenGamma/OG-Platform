@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedS
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -176,14 +176,14 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double rDomesticBar = (priceDerivatives[2] + priceDerivatives[3]) * Math.abs(foreignAmount) * sign * priceBar;
     final double rForeignBar = -1 * rCostOfCarryBar;
     // Sensitivity object
-    final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listForeign = new ArrayList<>();
     listForeign.add(new DoublesPair(payTime, rForeignBar));
-    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<>();
     resultForeignMap.put(foreignCurveName, listForeign);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
-    final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDomestic = new ArrayList<>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar));
-    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));
     return MultipleCurrencyInterestRateCurveSensitivity.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), result);
@@ -278,8 +278,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
         vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);
       }
     }
-    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(), 
-        optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(volatilityModel.getTimeToExpiration()), 
+    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency1(),
+        optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(volatilityModel.getTimeToExpiration()),
         new DoubleMatrix1D(volatilityModel.getDeltaFull()), new DoubleMatrix2D(vega));
   }
 
@@ -289,12 +289,12 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param optionForex A single barrier Forex option.
    * @param smile The volatility and curves description.
    * @param relShift The shift to the black volatility expressed relative to the input vol level
-   * @return Gamma 
+   * @return Gamma
    */
   public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    // repackage for calls to BARRIER_FUNCTION 
+    // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
@@ -359,7 +359,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
   public CurrencyAmount vommaFd(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    // repackage for calls to BARRIER_FUNCTION 
+    // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
@@ -458,7 +458,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
   public CurrencyAmount dVegaDSpotFD(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    // repackage for calls to BARRIER_FUNCTION 
+    // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
@@ -498,7 +498,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
   public CurrencyAmount dDeltaDVolFD(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    // repackage for calls to BARRIER_FUNCTION 
+    // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
@@ -538,7 +538,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
   public CurrencyAmount d2PriceDSpotDVolFD(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    // repackage for calls to BARRIER_FUNCTION 
+    // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
@@ -581,7 +581,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
   public CurrencyAmount d2PriceDSpotDVolFdAlt(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
-    // repackage for calls to BARRIER_FUNCTION 
+    // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();

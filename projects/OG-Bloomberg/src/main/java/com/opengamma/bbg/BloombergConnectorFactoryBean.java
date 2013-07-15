@@ -109,7 +109,6 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
    * The meta-bean for {@code BloombergConnectorFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static BloombergConnectorFactoryBean.Meta meta() {
     return BloombergConnectorFactoryBean.Meta.INSTANCE;
   }
@@ -371,7 +370,7 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "name",
         "host",
         "port",

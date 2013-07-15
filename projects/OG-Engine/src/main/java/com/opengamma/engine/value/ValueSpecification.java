@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.value;
 
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -12,7 +13,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -20,14 +22,11 @@ import com.opengamma.util.PublicAPI;
 /**
  * An immutable representation of the metadata that describes an actual value.
  * <p>
- * This may be a value a function is capable of producing, or describe a resolved value passed
- * into a function to satisfy a {@link ValueRequirement}.
+ * This may be a value a function is capable of producing, or describe a resolved value passed into a function to satisfy a {@link ValueRequirement}.
  * <p>
- * For example the {@code ValueRequirement} for a currency converting function may state a constraint such as
- * "any currency" on its input values. After the graph has been built, the actual value will be specified
- * including the specific currency. Similarly a constraint on a {@link ValueRequirement} might restrict
- * the function to be used (or the default of omission allows any) whereas the {@link ValueSpecification}
- * will indicate which function was used to compute that value.
+ * For example the {@code ValueRequirement} for a currency converting function may state a constraint such as "any currency" on its input values. After the graph has been built, the actual value will
+ * be specified including the specific currency. Similarly a constraint on a {@link ValueRequirement} might restrict the function to be used (or the default of omission allows any) whereas the
+ * {@link ValueSpecification} will indicate which function was used to compute that value.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -35,112 +34,56 @@ import com.opengamma.util.PublicAPI;
 public class ValueSpecification implements Serializable {
 
   private static final long serialVersionUID = 1L;
-  
+
   /**
-   * The name of the value being requested.
-   * This matches that of a {@link ValueRequirement} satisfied by this specification.
+   * The name of the value being requested. This matches that of a {@link ValueRequirement} satisfied by this specification.
    */
-  private final String _valueName;
+  private String _valueName;
   /**
-   * The specification of the object that the value refers to.
-   * This matches that of a {@link ValueRequirement} satisfied by this specification.
+   * The specification of the object that the value refers to. This matches that of a {@link ValueRequirement} satisfied by this specification.
    */
   private final ComputationTargetSpecification _targetSpecification;
   /**
-   * The properties of the value described.
-   * This property set will satisfy the constraints of all {@link ValueRequirement}s satisfied by this specification.
+   * The properties of the value described. This property set will satisfy the constraints of all {@link ValueRequirement}s satisfied by this specification.
    */
   private final ValueProperties _properties;
-  
+
   /**
    * The cached hash code.
    */
   private transient volatile int _hashCode;
 
   /**
-   * Obtains a {@code ValueSpecification} from a target, building the target specification
-   * according to the type of object the target refers to.
-   * The properties must include the function identifier.
+   * Obtains a {@code ValueSpecification} from a target, building the target specification according to the type of object the target refers to. The properties must include the function identifier.
    * 
-   * @param valueName  the name of the value created, not null
-   * @param target  the target, not null
-   * @param properties  the value properties, not null and must include the function identifier
+   * @param valueName the name of the value created, not null
+   * @param targetType the ComputationTargetType, not null
+   * @param targetId the unique id of the target, not null
+   * @param properties the value properties, not null and must include the function identifier
    * @return the created specification, not null
    */
-  public static ValueSpecification of(final String valueName, final Object target, final ValueProperties properties) {
-    return new ValueSpecification(valueName, new ComputationTargetSpecification(target), properties);
-  }
-
-  /**
-   * Obtains a {@code ValueSpecification} from a target, building the target specification
-   * according to the type of object the target refers to.
-   * The properties must include the function identifier.
-   * 
-   * @param valueName  the name of the value created, not null
-   * @param targetType  the ComputationTargetType, not null
-   * @param targetId  the unique id of the target, not null
-   * @param properties  the value properties, not null and must include the function identifier
-   * @return the created specification, not null
-   */
-  public static ValueSpecification of(final String valueName, final ComputationTargetType targetType, final UniqueId targetId,  final ValueProperties properties) {
-    ArgumentChecker.notNull(targetType, "targetType");    
+  public static ValueSpecification of(final String valueName, final ComputationTargetType targetType, final UniqueId targetId, final ValueProperties properties) {
+    ArgumentChecker.notNull(targetType, "targetType");
     ArgumentChecker.notNull(properties, "uid");
     return new ValueSpecification(valueName, new ComputationTargetSpecification(targetType, targetId), properties);
   }
 
   /**
-   * Obtains a {@code ValueSpecification} from a target, building the target specification
-   * according to the type of object the target refers to.
-   * The properties must include the function identifier unless it is provided separately in
-   * which case it will be added to the properties if any others are provided.
+   * Obtains a {@code ValueSpecification} from a target, building the target specification according to the type of object the target refers to. The properties must include the function identifier
+   * unless it's provided separately in which case it will be added to the properties if any others are provided.
    * 
-   * @param valueName  the name of the value created, not null
-   * @param target  the target, not null
-   * @param functionIdentifier  the function identifier, null if included in properties
-   * @param currencyISO  the currency constraint, null if none to be included
-   * @param properties  the value properties, null if the function identifier provided separately
-   * @return the created specification, not null
-   */
-  public static ValueSpecification of(final String valueName, final Object target, final String functionIdentifier, final String currencyISO, final ValueProperties properties) {
-    ValueProperties props;
-    if ((functionIdentifier == null) && (currencyISO == null)) {
-      props = properties;
-    } else {
-      ValueProperties.Builder builder;
-      if (properties == null) {
-        builder = ValueProperties.builder();
-      } else {
-        builder = properties.copy();
-      }
-      if (currencyISO != null) {
-        builder = builder.with(ValuePropertyNames.CURRENCY, currencyISO);
-      }
-      if (functionIdentifier != null) {
-        builder = builder.with(ValuePropertyNames.FUNCTION, functionIdentifier);
-      }
-      props = builder.get();
-    }
-    return new ValueSpecification(valueName, new ComputationTargetSpecification(target), props);
-  }
-
-  /**
-   * Obtains a {@code ValueSpecification} from a target, building the target specification
-   * according to the type of object the target refers to.
-   * The properties must include the function identifier unless it's provided separately in
-   * which case it will be added to the properties if any others are provided.
-   * 
-   * @param valueName  the name of the value created, not null
-   * @param targetType  the ComputationTargetType, not null
-   * @param targetId  the unique id of the target, not null
-   * @param functionIdentifier  the function identifier, may be null
-   * @param currencyISO  the currency ISO code, may be null
-   * @param properties  the value properties, or can be null if the function identifier provided separately
+   * @param valueName the name of the value created, not null
+   * @param targetType the ComputationTargetType, not null
+   * @param targetId the unique id of the target, not null
+   * @param functionIdentifier the function identifier, may be null
+   * @param currencyISO the currency ISO code, may be null
+   * @param properties the value properties, or can be null if the function identifier provided separately
    * @return the created specification, not null
    */
   public static ValueSpecification of(
       final String valueName, final ComputationTargetType targetType, final UniqueId targetId, final String functionIdentifier,
       final String currencyISO, final ValueProperties properties) {
-    ArgumentChecker.notNull(targetType, "targetType");    
+    ArgumentChecker.notNull(targetType, "targetType");
     ArgumentChecker.notNull(properties, "uid");
     ValueProperties props;
     if ((functionIdentifier == null) && (currencyISO == null)) {
@@ -163,53 +106,14 @@ public class ValueSpecification implements Serializable {
     return new ValueSpecification(valueName, new ComputationTargetSpecification(targetType, targetId), props);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Creates a new specification to satisfy the the given requirement.
-   * <p>
-   * The properties of the new specification are the constraints from the requirement
-   * with the function identifier added.
-   * 
-   * @param requirementSpecification  a value requirement, not null
-   * @param functionIdentifier  the unique identifier of the function producing this value, not null
-   */
-  public ValueSpecification(final ValueRequirement requirementSpecification, final String functionIdentifier) {
-    ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
-    ArgumentChecker.notNull(functionIdentifier, "functionIdentifier");
-    // requirement specification interns its valueName
-    _valueName = requirementSpecification.getValueName();
-    _targetSpecification = requirementSpecification.getTargetSpecification();
-    _properties = requirementSpecification.getConstraints().copy().with(ValuePropertyNames.FUNCTION, functionIdentifier).get();
-  }
-
-  /**
-   * Creates a new specification to satisfy the given requirement.
-   * <p>
-   * The properties must include the function identifier and be able to satisfy the
-   * constraints of the original requirement.
-   * 
-   * @param requirementSpecification  a requirement, not null
-   * @param properties  the value properties, not null and must include the function identifier
-   */
-  public ValueSpecification(final ValueRequirement requirementSpecification, final ValueProperties properties) {
-    ArgumentChecker.notNull(requirementSpecification, "requirementSpecification");
-    ArgumentChecker.notNull(properties, "properties");
-    ArgumentChecker.notNull(properties.getValues(ValuePropertyNames.FUNCTION), "properties.FUNCTION");
-    assert requirementSpecification.getConstraints().isSatisfiedBy(properties);
-    // requirement specification interns its valueName
-    _valueName = requirementSpecification.getValueName();
-    _targetSpecification = requirementSpecification.getTargetSpecification();
-    _properties = properties;
-  }
-
   /**
    * Creates a new specification from a target specification.
    * <p>
    * The properties must include the function identifier.
    * 
-   * @param valueName  the name of the value created, not null
-   * @param targetSpecification  the target specification, not null
-   * @param properties  the value properties, not null and must include the function identifier
+   * @param valueName the name of the value created, not null
+   * @param targetSpecification the target specification, not null
+   * @param properties the value properties, not null and must include the function identifier
    */
   public ValueSpecification(final String valueName, final ComputationTargetSpecification targetSpecification, final ValueProperties properties) {
     ArgumentChecker.notNull(valueName, "valueName");
@@ -257,7 +161,7 @@ public class ValueSpecification implements Serializable {
    * <p>
    * If multiple values are set for a property then an arbitrary choice is made.
    * 
-   * @param propertyName  name of the property to search for, not null
+   * @param propertyName name of the property to search for, not null
    * @return the matched property value, null if not found
    * @throws IllegalArgumentException if the property has a wild-card definition
    */
@@ -276,7 +180,9 @@ public class ValueSpecification implements Serializable {
    * Creates a maximal {@link ValueRequirement} that would be satisfied by this value specification.
    * 
    * @return the value requirement, not null
+   * @deprecated Conversion to a value requirement should not be needed - locations where this is called from should probably be using value requirements in the first place
    */
+  @Deprecated
   public ValueRequirement toRequirementSpecification() {
     return new ValueRequirement(_valueName, _targetSpecification, _properties);
   }
@@ -292,15 +198,13 @@ public class ValueSpecification implements Serializable {
 
   /**
    * Respecifies the properties to match a tighter requirement.
-   * <p>
-   * This adds a new requirement to the specification.
-   * It requires {@code requirement.isSatisfiedBy(this) == true}.
    * 
-   * @param requirement  additional requirement to reduce properties against
+   * @param requirement additional requirement to reduce properties against
    * @return the value specification based on this with the additional requirement added, not null
    */
   public ValueSpecification compose(final ValueRequirement requirement) {
-    assert requirement.isSatisfiedBy(this);
+    assert requirement.getValueName() == getValueName();
+    assert requirement.getConstraints().isSatisfiedBy(getProperties());
     final ValueProperties oldProperties = getProperties();
     final ValueProperties newProperties = oldProperties.compose(requirement.getConstraints());
     if (newProperties == oldProperties) {
@@ -312,7 +216,7 @@ public class ValueSpecification implements Serializable {
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -320,12 +224,12 @@ public class ValueSpecification implements Serializable {
       final ValueSpecification other = (ValueSpecification) obj;
       // valueName is interned
       return (_valueName == other._valueName) &&
-        ObjectUtils.equals(_targetSpecification, other._targetSpecification) &&
-        ObjectUtils.equals(_properties, other._properties);
+          ObjectUtils.equals(_targetSpecification, other._targetSpecification) &&
+          ObjectUtils.equals(_properties, other._properties);
     }
     return false;
   }
-  
+
   @Override
   public int hashCode() {
     if (_hashCode == 0) {
@@ -342,14 +246,24 @@ public class ValueSpecification implements Serializable {
   @Override
   public String toString() {
     return new StrBuilder()
-      .append("VSpec[")
-      .append(getValueName())
-      .append(", ")
-      .append(getTargetSpecification())
-      .append(", ")
-      .append(getProperties())
-      .append(']')
-      .toString();
+        .append("VSpec[")
+        .append(getValueName())
+        .append(", ")
+        .append(getTargetSpecification())
+        .append(", ")
+        .append(getProperties())
+        .append(']')
+        .toString();
+  }
+
+  private void readObject(final ObjectInputStream in) throws Exception {
+    in.defaultReadObject();
+    // Serialization loses the "intern" nature of the string
+    _valueName = ValueRequirement.getInterned(_valueName);
+  }
+
+  private Object readResolve() throws Exception {
+    return MemoryUtils.instance(this);
   }
 
 }

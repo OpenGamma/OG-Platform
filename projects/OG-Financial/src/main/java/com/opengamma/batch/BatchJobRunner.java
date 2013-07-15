@@ -13,12 +13,6 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,6 +22,10 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
@@ -39,6 +37,7 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.StartupUtils;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
@@ -49,11 +48,15 @@ public class BatchJobRunner {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BatchJobRunner.class);
+  
+  static {
+    StartupUtils.init();
+  }
 
   /**
    * Date-time format: yyyyMMdd
    */
-  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatters.pattern("yyyyMMdd");
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   static LocalDate parseDate(String date) {
     return LocalDate.parse(date, DATE_FORMATTER);

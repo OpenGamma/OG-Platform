@@ -1,0 +1,44 @@
+<section class="og-blocks-fungible-details">
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 33%">              
+    <col style="width: 67%">              
+  </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <span><em>Details</em></span>
+      </th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each detail}}
+      <tr>
+        <td>
+          <label>
+            <span>{{key}}</span>
+          </label>
+        </td>
+        <td>
+          <span>{{value}}</span>
+        </td>
+      </tr>
+    {{/each}}
+    {{#if basket}}
+      <tr>
+        <td>
+          <label>
+            <span>Basket</span>
+          </label>
+        </td>
+        <td>
+          {{#each basket}}
+            <span>{{identifiers}} - {{conversionFactor}}</span><br/>
+          {{/each}}
+        </td>
+      </tr>
+    {{/if}}
+  </tbody>
+</table>
+</section>

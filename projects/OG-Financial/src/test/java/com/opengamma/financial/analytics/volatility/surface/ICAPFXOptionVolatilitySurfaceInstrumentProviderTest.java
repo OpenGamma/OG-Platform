@@ -8,9 +8,14 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ICAPFXOptionVolatilitySurfaceInstrumentProviderTest extends FinancialTestBase {
 
   @Test
@@ -36,4 +41,5 @@ public class ICAPFXOptionVolatilitySurfaceInstrumentProviderTest extends Financi
     assertEquals(ExternalId.of(ExternalSchemes.ICAP, "IEURUSDRR10_1M"), provider.getInstrument(Tenor.ofMonths(1), Pair.of((Number)10, FXVolQuoteType.RISK_REVERSAL)));
     assertEquals(ExternalId.of(ExternalSchemes.ICAP, "IEURUSDRR10_1YR"), provider.getInstrument(Tenor.ofYears(1), Pair.of((Number)10, FXVolQuoteType.RISK_REVERSAL)));
   }
+
 }

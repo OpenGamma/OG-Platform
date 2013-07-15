@@ -7,17 +7,16 @@ package com.opengamma.analytics.financial.timeseries.filter;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.colt.Arrays;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -26,7 +25,7 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final ZeroValueDoubleTimeSeriesFilter SMALL_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter();
   private static final ZeroValueDoubleTimeSeriesFilter LARGE_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter(1e-3);
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
@@ -69,26 +68,26 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
     for (int i = 0; i < 100; i++) {
       d = RANDOM.nextDouble();
       h = i + 1;
-      dates[i] = LocalDate.ofEpochDays(h);
+      dates[i] = LocalDate.ofEpochDay(h);
       if (d < 0.3) {
         if (d > 0.25) {
           data[i] = smallValue;
-          largeZeroRejectedDates[j] = LocalDate.ofEpochDays(h);
+          largeZeroRejectedDates[j] = LocalDate.ofEpochDay(h);
           largeZeroRejectedData[j++] = smallValue;
-          smallZeroFilteredDates[k] = LocalDate.ofEpochDays(h);
+          smallZeroFilteredDates[k] = LocalDate.ofEpochDay(h);
           smallZeroFilteredData[k++] = smallValue;
         } else {
           data[i] = 0;
-          largeZeroRejectedDates[j] = LocalDate.ofEpochDays(h);
+          largeZeroRejectedDates[j] = LocalDate.ofEpochDay(h);
           largeZeroRejectedData[j++] = 0;
-          smallZeroRejectedDates[l] = LocalDate.ofEpochDays(h);
+          smallZeroRejectedDates[l] = LocalDate.ofEpochDay(h);
           smallZeroRejectedData[l++] = 0;
         }
       } else {
         data[i] = d;
-        smallZeroFilteredDates[k] = LocalDate.ofEpochDays(h);
+        smallZeroFilteredDates[k] = LocalDate.ofEpochDay(h);
         smallZeroFilteredData[k++] = d;
-        largeZeroFilteredDates[m] = LocalDate.ofEpochDays(h);
+        largeZeroFilteredDates[m] = LocalDate.ofEpochDay(h);
         largeZeroFilteredData[m++] = d;
       }
     }
@@ -100,13 +99,13 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
     largeZeroFilteredData = Arrays.trimToCapacity(largeZeroFilteredData, m);
     largeZeroRejectedDates = trimToCapacity(largeZeroRejectedDates, j);
     largeZeroRejectedData = Arrays.trimToCapacity(largeZeroRejectedData, j);
-    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(dates, data);
+    final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(dates, data);
     FilteredTimeSeries result = SMALL_ZERO_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(smallZeroFilteredDates, smallZeroFilteredData),
-        new ArrayLocalDateDoubleTimeSeries(smallZeroRejectedDates, smallZeroRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(ImmutableLocalDateDoubleTimeSeries.of(smallZeroFilteredDates, smallZeroFilteredData),
+        ImmutableLocalDateDoubleTimeSeries.of(smallZeroRejectedDates, smallZeroRejectedData)));
     result = LARGE_ZERO_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(largeZeroFilteredDates, largeZeroFilteredData),
-        new ArrayLocalDateDoubleTimeSeries(largeZeroRejectedDates, largeZeroRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(ImmutableLocalDateDoubleTimeSeries.of(largeZeroFilteredDates, largeZeroFilteredData),
+        ImmutableLocalDateDoubleTimeSeries.of(largeZeroRejectedDates, largeZeroRejectedData)));
   }
 
   private LocalDate[] trimToCapacity(final LocalDate[] source, final int k) {

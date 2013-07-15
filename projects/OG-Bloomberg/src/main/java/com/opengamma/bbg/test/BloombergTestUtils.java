@@ -19,9 +19,13 @@ import org.fudgemsg.MutableFudgeMsg;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.cache.MongoDBValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.mongo.MongoConnector;
+import com.opengamma.util.mongo.MongoConnectorFactoryBean;
 import com.opengamma.util.test.TestProperties;
 
 /**
@@ -42,7 +46,20 @@ public class BloombergTestUtils {
    * @return the connector, not null
    */
   public static BloombergConnector getBloombergConnector() {
-    return new BloombergConnector("Test", getSessionOptions());
+    return new BloombergConnector("BloombergTestUtils", getSessionOptions());
+  }
+
+  /**
+   * Creates a Bloomberg reference data provider for testing.
+   * This must be started before use by the caller.
+   * This must be closed after use by the caller.
+   * It is typically also wrapped in a caching provider.
+   * 
+   * @return the provider, not null
+   */
+  public static BloombergReferenceDataProvider getBloombergReferenceDataProvider() {
+    BloombergConnector bbgConnector = BloombergTestUtils.getBloombergConnector();
+    return new BloombergReferenceDataProvider(bbgConnector);
   }
 
   /**
@@ -53,19 +70,46 @@ public class BloombergTestUtils {
   private static SessionOptions getSessionOptions() {
     SessionOptions options = new SessionOptions();
     Properties properties = TestProperties.getTestProperties();
-    String serverHost = properties.getProperty("bloomberg.host");
-    String serverPort = properties.getProperty("bloomberg.port");
-    
+    String serverHost = properties.getProperty("bbgServer.host");
     if (StringUtils.isBlank(serverHost)) {
       throw new OpenGammaRuntimeException("bloomberg.host is missing in tests.properties");
     }
+    String serverPort = properties.getProperty("bbgServer.port");
     if (StringUtils.isBlank(serverPort)) {
       throw new OpenGammaRuntimeException("bloomberg.port is missing in tests.properties");
     }
-    
     options.setServerHost(serverHost);
     options.setServerPort(Integer.parseInt(serverPort));
     return options;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a Mongo connector for testing.
+   * 
+   * @return the connector, not null
+   */
+  public static MongoConnector getMongoConnector() {
+    Properties testProperties = TestProperties.getTestProperties();
+    String mongoHost = testProperties.getProperty("mongoServer.host");
+    int mongoPort = Integer.parseInt(testProperties.getProperty("mongoServer.port"));
+    MongoConnectorFactoryBean mongoFactory = new MongoConnectorFactoryBean();
+    mongoFactory.setName("BloombergTestUtils");
+    mongoFactory.setHost(mongoHost);
+    mongoFactory.setPort(mongoPort);
+    mongoFactory.setDatabaseName("testReferenceData");
+    mongoFactory.setCollectionSuffix("bloomberg-security-loader-test-context");
+    return mongoFactory.getObjectCreating();
+  }
+
+  /**
+   * Creates a Mongo caching reference data provider for testing.
+   * 
+   * @return the provider, not null
+   */
+  public static ReferenceDataProvider getMongoCachingReferenceDataProvider(BloombergReferenceDataProvider bbgProvider) {
+    MongoConnector mongoConnector = BloombergTestUtils.getMongoConnector();
+    return new MongoDBValueCachingReferenceDataProvider(bbgProvider, mongoConnector);
   }
 
   //-------------------------------------------------------------------------

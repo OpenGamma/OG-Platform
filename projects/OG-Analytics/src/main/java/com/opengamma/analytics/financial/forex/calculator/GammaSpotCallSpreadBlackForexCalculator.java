@@ -7,14 +7,14 @@ package com.opengamma.analytics.financial.forex.calculator;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalCallSpreadBlackMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives using a call spread approach.
  */
-public class GammaSpotCallSpreadBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, CurrencyAmount> {
+public class GammaSpotCallSpreadBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**
    * The methods used by the different instruments.

@@ -2,10 +2,9 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -50,7 +49,7 @@ public class CapFloorCMSSpreadG2ppMethodTest {
   private static final double STRIKE = 0.0010; // 10 bps
   private static final boolean IS_CAP = true;
   private static final CapFloorCMSSpreadDefinition CMS_SPREAD_DEFINITION = CapFloorCMSSpreadDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, PAYMENT_ACCRUAL_FACTOR, NOTIONAL,
-      SWAP_USD10Y, SWAP_USD2Y, STRIKE, IS_CAP);
+      SWAP_USD10Y, SWAP_USD2Y, STRIKE, IS_CAP, NYC, NYC);
 
   // Curves and parameters
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
@@ -71,11 +70,11 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   @Test
   /**
-   * Tests the present value against a previous run. 
+   * Tests the present value against a previous run.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD_NI.presentValue(CMS_SPREAD, BUNDLE_G2PP);
-    double pvPreviousRun = 73582.631; // 5Y - 6M - strike 10bp
+    final CurrencyAmount pv = METHOD_NI.presentValue(CMS_SPREAD, BUNDLE_G2PP);
+    final double pvPreviousRun = 73582.631; // 5Y - 6M - strike 10bp
     assertEquals("CMS spread: G2++ - present value", pvPreviousRun, pv.getAmount(), TOLERANCE_PV);
   }
 
@@ -85,7 +84,7 @@ public class CapFloorCMSSpreadG2ppMethodTest {
    */
   public void presentValueNIntegrationVsApproximation() {
 
-    // TODO 
+    // TODO
     //    double[] forward = new double[] {PRC.visit(CMS_SPREAD.getUnderlyingSwap1(), CURVES), PRC.visit(CMS_SPREAD.getUnderlyingSwap2(), CURVES)};
     //    double atm = forward[0] - forward[1];
     //    double[] shift = new double[] {-0.0100, -0.0050, 0.0, 0.0050, 0.0100};

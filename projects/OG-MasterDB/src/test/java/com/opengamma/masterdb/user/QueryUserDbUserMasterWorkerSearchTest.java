@@ -24,10 +24,12 @@ import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryUserDbUserMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -609,7 +611,6 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     UserSearchResult test = _usrMaster.search(request);
     
-    System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
   }

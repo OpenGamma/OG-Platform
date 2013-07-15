@@ -11,12 +11,15 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
+import com.opengamma.util.tuple.Pair;
 import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Triple.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class TripleTest {
 
   public void testOf_Object_Object() {

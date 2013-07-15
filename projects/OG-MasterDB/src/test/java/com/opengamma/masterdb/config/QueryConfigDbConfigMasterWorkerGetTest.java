@@ -19,10 +19,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryConfigDbConfigMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -88,7 +90,6 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     assert202(test);
   }
   
-  @SuppressWarnings("unchecked")
   @Test
   public void test_get_noType() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");

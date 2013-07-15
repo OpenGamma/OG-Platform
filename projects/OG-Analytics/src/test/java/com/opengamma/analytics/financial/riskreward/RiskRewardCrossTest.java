@@ -11,9 +11,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -47,10 +46,10 @@ public class RiskRewardCrossTest {
   });
   private static final double PERIODS_PER_YEAR = 1;
   private static final long[] T = new long[] {1};
-  private static final DoubleTimeSeries<?> RISK_FREE_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.03});
-  private static final DoubleTimeSeries<?> ASSET_RETURN_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.174});
-  private static final DoubleTimeSeries<?> MARKET_RETURN_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.11});
-  private static final DoubleTimeSeries<?> RISK_FREE_RETURN_TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, T, new double[] {0.03});
+  private static final DoubleTimeSeries<?> RISK_FREE_TS = ImmutableInstantDoubleTimeSeries.of(T, new double[] {0.03});
+  private static final DoubleTimeSeries<?> ASSET_RETURN_TS = ImmutableInstantDoubleTimeSeries.of(T, new double[] {0.174});
+  private static final DoubleTimeSeries<?> MARKET_RETURN_TS = ImmutableInstantDoubleTimeSeries.of(T, new double[] {0.11});
+  private static final DoubleTimeSeries<?> RISK_FREE_RETURN_TS = ImmutableInstantDoubleTimeSeries.of(T, new double[] {0.03});
   private static final double RISK_FREE_RETURN = 0.03;
   private static final double ASSET_RETURN = 0.174;
   private static final double MARKET_RETURN = 0.11;

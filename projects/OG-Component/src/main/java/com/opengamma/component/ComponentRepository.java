@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.export.MBeanExporter;
-import org.springframework.jmx.support.JmxUtils;
 import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -86,7 +86,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * The status.
    */
-  private AtomicReference<Status> _status = new AtomicReference<Status>(Status.CREATING);
+  private final AtomicReference<Status> _status = new AtomicReference<Status>(Status.CREATING);
 
 //  /**
 //   * Creates an instance with no logging.
@@ -97,17 +97,17 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param logger  the logger, null means no logging
    */
-  public ComponentRepository(ComponentLogger logger) {
+  public ComponentRepository(final ComponentLogger logger) {
     _logger = (logger != null ? logger : ComponentLogger.Sink.INSTANCE);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the logger.
-   * 
+   *
    * @return the logger, not null
    */
   public ComponentLogger getLogger() {
@@ -118,7 +118,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Gets all the instances.
    * <p>
    * This method will return all registered instances.
-   * 
+   *
    * @return the instance map, not null
    */
   public Map<ComponentKey, Object> getInstanceMap() {
@@ -129,15 +129,15 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Gets all the instances for the specified type.
    * <p>
    * This method will return all registered instances of the specified type.
-   * 
+   *
    * @param <T>  the type
    * @param type  the type to get, not null
    * @return the modifiable instances, not null
    */
-  public <T> Collection<T> getInstances(Class<T> type) {
+  public <T> Collection<T> getInstances(final Class<T> type) {
     ArgumentChecker.notNull(type, "type");
-    List<T> result = new ArrayList<T>();
-    for (ComponentInfo info : getInfos(type)) {
+    final List<T> result = new ArrayList<T>();
+    for (final ComponentInfo info : getInfos(type)) {
       result.add(type.cast(getInstance(info)));
     }
     return result;
@@ -147,14 +147,14 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Gets all the component information objects for the specified type.
    * <p>
    * This method will return all registered information objects for the specified type.
-   * 
+   *
    * @param type  the type to get, not null
    * @return the component informations, not null
    */
-  public Collection<ComponentInfo> getInfos(Class<?> type) {
+  public Collection<ComponentInfo> getInfos(final Class<?> type) {
     ArgumentChecker.notNull(type, "type");
-    ComponentTypeInfo info = findTypeInfo(type);
-    ArrayList<ComponentInfo> result = new ArrayList<ComponentInfo>();
+    final ComponentTypeInfo info = findTypeInfo(type);
+    final ArrayList<ComponentInfo> result = new ArrayList<ComponentInfo>();
     if (info != null) {
       result.addAll(info.getInfoMap().values());
     }
@@ -166,17 +166,17 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Gets an instance of a component.
    * <p>
    * This finds an instance that matches the specified type.
-   * 
+   *
    * @param <T>  the type
    * @param type  the type to get, not null
    * @param classifier  the classifier that distinguishes the component, not null
    * @return the component instance, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public <T> T getInstance(Class<T> type, String classifier) {
+  public <T> T getInstance(final Class<T> type, final String classifier) {
     ArgumentChecker.notNull(type, "type");
-    ComponentKey key = ComponentKey.of(type, classifier);
-    Object result = _instanceMap.get(key);
+    final ComponentKey key = ComponentKey.of(type, classifier);
+    final Object result = _instanceMap.get(key);
     if (result == null) {
       throw new IllegalArgumentException("No component available: " + key);
     }
@@ -187,15 +187,15 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Gets an instance of a component.
    * <p>
    * This finds an instance that matches the specified information.
-   * 
+   *
    * @param info  the component info, not null
    * @return the component instance, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public Object getInstance(ComponentInfo info) {
+  public Object getInstance(final ComponentInfo info) {
     ArgumentChecker.notNull(info, "info");
-    ComponentKey key = info.toComponentKey();
-    Object result = _instanceMap.get(key);
+    final ComponentKey key = info.toComponentKey();
+    final Object result = _instanceMap.get(key);
     if (result == null) {
       throw new IllegalArgumentException("No component available: " + key);
     }
@@ -205,7 +205,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   //-------------------------------------------------------------------------
   /**
    * Gets all the available type information.
-   * 
+   *
    * @return the component type information, not null
    * @throws IllegalArgumentException if no component is available
    */
@@ -215,13 +215,13 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Gets type information by type.
-   * 
+   *
    * @param type  the type to get, not null
    * @return the component type information, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public ComponentTypeInfo getTypeInfo(Class<?> type) {
-    ComponentTypeInfo typeInfo = _infoMap.get(type);
+  public ComponentTypeInfo getTypeInfo(final Class<?> type) {
+    final ComponentTypeInfo typeInfo = _infoMap.get(type);
     if (typeInfo == null) {
       throw new IllegalArgumentException("Unknown component: " + type);
     }
@@ -231,27 +231,27 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   //-------------------------------------------------------------------------
   /**
    * Gets component information by type and classifier.
-   * 
+   *
    * @param type  the type to get, not null
    * @param classifier  the classifier that distinguishes the component, not null
    * @return the component information, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public ComponentInfo getInfo(Class<?> type, String classifier) {
+  public ComponentInfo getInfo(final Class<?> type, final String classifier) {
     ArgumentChecker.notNull(type, "type");
-    ComponentTypeInfo typeInfo = getTypeInfo(type);
+    final ComponentTypeInfo typeInfo = getTypeInfo(type);
     return typeInfo.getInfo(classifier);
   }
 
   /**
    * Gets component information for an instance.
-   * 
+   *
    * @param instance  the instance to find info for, not null
    * @return the component information, not null
    * @throws IllegalArgumentException if no component is available
    */
-  public ComponentInfo getInfo(Object instance) {
-    for (Entry<ComponentKey, Object> entry : _instanceMap.entrySet()) {
+  public ComponentInfo getInfo(final Object instance) {
+    for (final Entry<ComponentKey, Object> entry : _instanceMap.entrySet()) {
       if (entry.getValue() == instance) {
         return getInfo(entry.getKey().getType(), entry.getKey().getClassifier());
       }
@@ -264,13 +264,13 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Finds the type information for the component.
    * <p>
    * This method is lenient, ignoring case and matching simple type names.
-   * 
+   *
    * @param typeName  the name of the type to get, case insensitive, not null
    * @return the component type information, null if not found
    */
-  public ComponentTypeInfo findTypeInfo(String typeName) {
+  public ComponentTypeInfo findTypeInfo(final String typeName) {
     ArgumentChecker.notNull(typeName, "type");
-    for (Class<?> realType : _infoMap.keySet()) {
+    for (final Class<?> realType : _infoMap.keySet()) {
       if (realType.getName().equalsIgnoreCase(typeName) || realType.getSimpleName().equalsIgnoreCase(typeName)) {
         return getTypeInfo(realType);
       }
@@ -282,11 +282,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Finds the type information for the component.
    * <p>
    * This method is lenient, returning null if not found.
-   * 
+   *
    * @param type  the type to get, not null
    * @return the component information, null if not found
    */
-  public ComponentTypeInfo findTypeInfo(Class<?> type) {
+  public ComponentTypeInfo findTypeInfo(final Class<?> type) {
     ArgumentChecker.notNull(type, "type");
     return _infoMap.get(type);
   }
@@ -296,16 +296,16 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Finds the component information.
    * <p>
    * This method is lenient, ignoring case and matching simple type names.
-   * 
+   *
    * @param typeName  the simple name of the type to get, case insensitive, not null
    * @param classifier  the classifier that distinguishes the component, case insensitive, not null
    * @return the component information, null if not found
    */
-  public ComponentInfo findInfo(String typeName, String classifier) {
+  public ComponentInfo findInfo(final String typeName, final String classifier) {
     ArgumentChecker.notNull(typeName, "type");
-    ComponentTypeInfo typeInfo = findTypeInfo(typeName);
+    final ComponentTypeInfo typeInfo = findTypeInfo(typeName);
     if (typeInfo != null) {
-      for (String realClassifier : typeInfo.getInfoMap().keySet()) {
+      for (final String realClassifier : typeInfo.getInfoMap().keySet()) {
         if (realClassifier.equalsIgnoreCase(classifier)) {
           return typeInfo.getInfo(realClassifier);
         }
@@ -318,16 +318,16 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Finds the component information.
    * <p>
    * This method is lenient, ignoring case and matching simple type names.
-   * 
+   *
    * @param type  the type to get, not null
    * @param classifier  the classifier that distinguishes the component, case insensitive, not null
    * @return the component information, null if not found
    */
-  public ComponentInfo findInfo(Class<?> type, String classifier) {
+  public ComponentInfo findInfo(final Class<?> type, final String classifier) {
     ArgumentChecker.notNull(type, "type");
-    ComponentTypeInfo typeInfo = findTypeInfo(type);
+    final ComponentTypeInfo typeInfo = findTypeInfo(type);
     if (typeInfo != null) {
-      for (String realClassifier : typeInfo.getInfoMap().keySet()) {
+      for (final String realClassifier : typeInfo.getInfoMap().keySet()) {
         if (realClassifier.equalsIgnoreCase(classifier)) {
           return typeInfo.getInfo(realClassifier);
         }
@@ -342,30 +342,43 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * <p>
    * This method searches for a single instance of the specified type.
    * If there are no instances or multiple instances, then null is returned.
-   * 
+   *
    * @param <T>  the type
    * @param type  the type to get, not null
    * @return the component information, null if not found
    */
-  public <T> T findInstance(Class<T> type) {
+  public <T> T findInstance(final Class<T> type) {
     ArgumentChecker.notNull(type, "type");
-    ComponentTypeInfo typeInfo = findTypeInfo(type);
+    final ComponentTypeInfo typeInfo = findTypeInfo(type);
     if (typeInfo == null) {
       return null;
     }
     if (typeInfo.getInfoMap().size() != 1) {
       return null;
     }
-    Object result = getInstance(typeInfo.getInfoMap().values().iterator().next());
+    final Object result = getInstance(typeInfo.getInfoMap().values().iterator().next());
     return type.cast(result);
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Gets an instance of a component.
+   * <p>
+   * This finds an instance that matches the specified type.
+   * 
+   * @param <T> the type
+   * @param type the type to get, not null
+   * @param classifier the classifier that distinguishes the component, not null
+   * @return the component instance, null if not found
+   */
+  public <T> T findInstance(final Class<T> type, final String classifier) {
+    return type.cast(_instanceMap.get(ComponentKey.of(type, classifier)));
+  }
+
   /**
    * Gets the RESTful components.
    * <p>
    * To publish a component over REST, use the methods on this class.
-   * 
+   *
    * @return the published components, not null
    */
   public RestComponents getRestComponents() {
@@ -382,15 +395,15 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * useful for objects that need initialization but are not components.
    * <p>
    * The object is retained to ensure that it is not initialized twice.
-   * 
+   *
    * @param object  the object to initialize, not null
    * @throws OpenGammaRuntimeException if an error is thrown during initialization
    */
-  public void initialize(InitializingBean object) {
+  public void initialize(final InitializingBean object) {
     if (isInitialized(object) == false) {
       try {
         object.afterPropertiesSet();
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         throw new OpenGammaRuntimeException(ex.getMessage(), ex);
       }
       _initialized.add(object);
@@ -399,11 +412,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Checks if the object has been initialized.
-   * 
+   *
    * @return true if initialized
    */
-  private boolean isInitialized(InitializingBean object) {
-    for (InitializingBean initialized : _initialized) {
+  private boolean isInitialized(final InitializingBean object) {
+    for (final InitializingBean initialized : _initialized) {
       if (initialized == object) {
         return true;
       }
@@ -413,10 +426,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Initializes an {@code InitializingBean} instance.
-   * 
+   *
    * @param object  the object to check, not null
    */
-  private void initialize0(Object object) {
+  private void initialize0(final Object object) {
     if (object instanceof InitializingBean) {
       initialize((InitializingBean) object);
     }
@@ -438,44 +451,44 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * automatically detected interfaces before the factory is evaluated.
    * The evaluated factory will then be registered, and the resulting object
    * will again be checked for automatically detected interfaces.
-   * 
+   *
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
    * @throws IllegalArgumentException if unable to register
    */
-  public void registerComponent(ComponentInfo info, Object instance) {
+  public void registerComponent(final ComponentInfo info, Object instance) {
     ArgumentChecker.notNull(info, "info");
     ArgumentChecker.notNull(instance, "instance");
     checkStatus(Status.CREATING);
-    
-    ComponentKey key = info.toComponentKey();
+
+    final ComponentKey key = info.toComponentKey();
     try {
       // initialize
       initialize0(instance);
       registerInstanceInterfaces0(instance);
-      
+
       // handle factories
       if (instance instanceof FactoryBean<?>) {
         try {
           instance = ((FactoryBean<?>) instance).getObject();
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
           throw new OpenGammaRuntimeException("FactoryBean threw exception", ex);
         }
         initialize0(instance);
         registerInstanceInterfaces0(instance);
       }
-      
+
       // register into data structures
-      Object current = _instanceMap.putIfAbsent(key, instance);
+      final Object current = _instanceMap.putIfAbsent(key, instance);
       if (current != null) {
         throw new IllegalArgumentException("Component already registered for specified information: " + key);
       }
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
-      ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
+      final ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
       typeInfo.getInfoMap().put(info.getClassifier(), info);
       registeredComponent(info, instance);
-      
-    } catch (RuntimeException ex) {
+
+    } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registration: " + key, ex);
     }
@@ -491,28 +504,28 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * as though using {@link #registerServletContextAware(ServletContextAware)}.
    * If it implements {@code InitializingBean}, then it will be initialized
    * as though using {@link #initialize(InitializingBean)}.
-   * 
+   *
    * @param <T>  the type
    * @param type  the type to register under, not null
    * @param classifier  the classifier that distinguishes the component, empty for default, not null
    * @param instance  the component instance to register, not null
    * @throws IllegalArgumentException if unable to register
    */
-  public <T> void registerComponent(Class<T> type, String classifier, T instance) {
+  public <T> void registerComponent(final Class<T> type, final String classifier, final T instance) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(classifier, "classifier");
     ArgumentChecker.notNull(instance, "instance");
-    ComponentInfo info = new ComponentInfo(type, classifier);
+    final ComponentInfo info = new ComponentInfo(type, classifier);
     registerComponent(info, instance);
   }
 
   /**
    * Called whenever an instance is registered.
-   * 
+   *
    * @param info  the key or info of the instance that was registered, null if not a component
    * @param registeredObject  the instance that was registered, may be null
    */
-  protected void registeredComponent(ComponentInfo info, Object registeredObject) {
+  protected void registeredComponent(final ComponentInfo info, final Object registeredObject) {
     if (info.getAttributes().isEmpty()) {
       _logger.logDebug(" Registered component: " + info.toComponentKey());
     } else {
@@ -523,10 +536,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Registers the {@code Lifecycle} and {@code ServletContextAware} aspects
    * of the specified instance.
-   * 
+   *
    * @param instance  the object to examine, not null
    */
-  private void registerInstanceInterfaces0(Object instance) {
+  private void registerInstanceInterfaces0(final Object instance) {
     if (instance instanceof Lifecycle) {
       registerLifecycle0((Lifecycle) instance);
     } else {
@@ -539,7 +552,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Examines an object and sets up a {@code Lifecycle} instance if it can be closed.
-   * 
+   *
    * @param instance  the object to examine, not null
    */
   private void findAndRegisterLifeCycle(final Object instance) {
@@ -572,7 +585,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Certain interfaces are automatically detected.
    * If it implements {@code InitializingBean}, then it will be initialized
    * as though using {@link #initialize(InitializingBean)}.
-   * 
+   *
    * @param obj  the object to close/shutdown, not null
    * @param methodName  the method name to call, not null
    */
@@ -580,7 +593,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     ArgumentChecker.notNull(obj, "object");
     ArgumentChecker.notNull(methodName, "methodName");
     checkStatus(Status.CREATING);
-    
+
     initialize0(obj);
     registerLifecycle0(new Lifecycle() {
       @Override
@@ -608,19 +621,19 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Certain interfaces are automatically detected.
    * If it implements {@code InitializingBean}, then it will be initialized
    * as though using {@link #initialize(InitializingBean)}.
-   * 
+   *
    * @param lifecycleObject  the object that has a lifecycle, not null
    */
-  public void registerLifecycle(Lifecycle lifecycleObject) {
+  public void registerLifecycle(final Lifecycle lifecycleObject) {
     ArgumentChecker.notNull(lifecycleObject, "lifecycleObject");
     checkStatus(Status.CREATING);
-    
+
     try {
       initialize0(lifecycleObject);
       registerLifecycle0(lifecycleObject);
       _logger.logDebug(" Registered lifecycle: " + lifecycleObject);
-      
-    } catch (RuntimeException ex) {
+
+    } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registering Lifecycle: " + lifecycleObject, ex);
     }
@@ -628,10 +641,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Registers a {@code Lifecycle} instance.
-   * 
+   *
    * @param lifecycleObject  the object that has a lifecycle, not null
    */
-  private void registerLifecycle0(Lifecycle lifecycleObject) {
+  private void registerLifecycle0(final Lifecycle lifecycleObject) {
     _lifecycles.add(lifecycleObject);
   }
 
@@ -642,19 +655,19 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Certain interfaces are automatically detected.
    * If it implements {@code InitializingBean}, then it will be initialized
    * as though using {@link #initialize(InitializingBean)}.
-   * 
+   *
    * @param servletContextAware  the object that requires a servlet context, not null
    */
-  public void registerServletContextAware(ServletContextAware servletContextAware) {
+  public void registerServletContextAware(final ServletContextAware servletContextAware) {
     ArgumentChecker.notNull(servletContextAware, "servletContextAware");
     checkStatus(Status.CREATING);
-    
+
     try {
       initialize0(servletContextAware);
       registerServletContextAware0(servletContextAware);
       _logger.logDebug(" Registered lifecycle-stop: " + servletContextAware);
-      
-    } catch (RuntimeException ex) {
+
+    } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registering ServletContextAware: " + servletContextAware, ex);
     }
@@ -662,20 +675,20 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Registers a {@code ServletContextAware} instance.
-   * 
+   *
    * @param servletContextAware  the object that requires a servlet context, not null
    */
-  private void registerServletContextAware0(ServletContextAware servletContextAware) {
+  private void registerServletContextAware0(final ServletContextAware servletContextAware) {
     _servletContextAware.add(servletContextAware);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Registers an instance that should be treated as a JMX Managed Resource.
-   * 
+   *
    * @param managedResource  the object that should be treated as an MBean, not null
    */
-  public void registerMBean(Object managedResource) {
+  public void registerMBean(final Object managedResource) {
     ArgumentChecker.notNull(managedResource, "managedResource");
     checkStatus(Status.CREATING);
     registerMBean(managedResource, generateObjectName(managedResource));
@@ -683,21 +696,21 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Registers an instance that should be treated as a JMX Managed Resource.
-   * 
+   *
    * @param managedResource the object that should be treated as an MBean
    * @param name The fully qualified JMX ObjectName
    */
-  public void registerMBean(Object managedResource, ObjectName name) {
+  public void registerMBean(final Object managedResource, final ObjectName name) {
     ArgumentChecker.notNull(managedResource, "managedResource");
     ArgumentChecker.notNull(name, "name");
     checkStatus(Status.CREATING);
-    
+
     try {
       initialize0(managedResource);
       registerMBean0(managedResource, name);
       _logger.logDebug(" Registered mbean: " + managedResource);
-      
-    } catch (RuntimeException ex) {
+
+    } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registering ManagedResource: " + managedResource, ex);
     }
@@ -705,24 +718,24 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Registers an instance that should be treated as a JMX Managed Resource.
-   * 
+   *
    * @param managedResource  the object that should be treated as an MBean, not null
    */
-  private void registerMBean0(Object managedResource, ObjectName name) {
+  private void registerMBean0(final Object managedResource, final ObjectName name) {
     _managedResources.put(name, managedResource);
   }
 
   /**
    * Creates an object name for the MBean.
-   * 
+   *
    * @param managedResource  the object that should be treated as an MBean, not null
    * @return the object name, not null
    */
-  private ObjectName generateObjectName(Object managedResource) {
+  private ObjectName generateObjectName(final Object managedResource) {
     ObjectName objectName;
     try {
       objectName = new ObjectName("com.opengamma:name=" + managedResource.getClass().getSimpleName());
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       throw new OpenGammaRuntimeException("Could not generate object name for " + managedResource, ex);
     }
     return objectName;
@@ -734,7 +747,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public void start() {
-    Status status = _status.get();
+    final Status status = _status.get();
     if (status == Status.STARTING) {
       return;  // already starting
     }
@@ -744,20 +757,23 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     }
     try {
       // Spring interfaces
-      for (Lifecycle obj : _lifecycles) {
+      for (final Lifecycle obj : _lifecycles) {
         obj.start();
       }
-      
+
       // JMX managed resources
-      MBeanExporter exporter = new MBeanExporter();
-      exporter.setServer(JmxUtils.locateMBeanServer());
-      for (Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
-        exporter.registerManagedResource(resourceEntry.getValue(), resourceEntry.getKey());
+      final MBeanServer jmxServer = findInstance(MBeanServer.class);
+      if (jmxServer != null) {
+        final MBeanExporter exporter = new MBeanExporter();
+        exporter.setServer(jmxServer);
+        for (final Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
+          exporter.registerManagedResource(resourceEntry.getValue(), resourceEntry.getKey());
+        }
       }
-      
+
       _status.set(Status.RUNNING);
-      
-    } catch (RuntimeException ex) {
+
+    } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
       throw ex;
     } finally {
@@ -772,17 +788,17 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public void stop() {
-    Status status = _status.get();
+    final Status status = _status.get();
     if (status == Status.STOPPING || status == Status.STOPPED) {
       return;  // nothing to stop in this thread
     }
     if (_status.compareAndSet(status, Status.STOPPING) == false) {
       return;  // another thread just beat this one
     }
-    for (Lifecycle obj : _lifecycles) {
+    for (final Lifecycle obj : _lifecycles) {
       try {
         obj.stop();
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         // ignore
       }
     }
@@ -791,7 +807,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Checks if this repository is running (started).
-   * 
+   *
    * @return true if running
    */
   @Override
@@ -802,13 +818,13 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   //-------------------------------------------------------------------------
   /**
    * Sets the {@code ServletContext}.
-   * 
+   *
    * @param servletContext  the servlet context, not null
    */
   @Override
-  public void setServletContext(ServletContext servletContext) {
+  public void setServletContext(final ServletContext servletContext) {
     servletContext.setAttribute(SERVLET_CONTEXT_KEY, this);
-    for (ServletContextAware obj : _servletContextAware) {
+    for (final ServletContextAware obj : _servletContextAware) {
       obj.setServletContext(servletContext);
     }
   }
@@ -823,11 +839,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   /**
    * Gets the thread-local instance.
-   * 
+   *
    * @return the thread-local instance, not null
    */
   public static ComponentRepository getThreadLocal() {
-    ComponentRepository repo = s_threadRepo.get();
+    final ComponentRepository repo = s_threadRepo.get();
     if (repo == null) {
       throw new IllegalStateException("ComponentRepository thread-local not set");
     }
@@ -838,23 +854,23 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Gets the repository instance stored in the {@code ServletContext}.
    * <p>
    * This method should be used in preference to relying on the thread-local.
-   * 
+   *
    * @param servletContext  the servlet context, not null
    * @return the instance stored in the servlet context, not null
    */
-  public static ComponentRepository getFromServletContext(ServletContext servletContext) {
+  public static ComponentRepository getFromServletContext(final ServletContext servletContext) {
     ArgumentChecker.notNull(servletContext, "servletContext");
-    ComponentRepository repo = (ComponentRepository) servletContext.getAttribute(SERVLET_CONTEXT_KEY);
+    final ComponentRepository repo = (ComponentRepository) servletContext.getAttribute(SERVLET_CONTEXT_KEY);
     ArgumentChecker.notNull(repo, "ComponentRepository");
     return repo;
   }
 
   //-------------------------------------------------------------------------
-  private void checkStatus(Status required) {
+  private void checkStatus(final Status required) {
     checkStatus(_status.get(), required);
   }
 
-  private void checkStatus(Status current, Status required) {
+  private void checkStatus(final Status current, final Status required) {
     if (current != required) {
       throw new IllegalStateException("Invalid repository status, expected " + required + " but was " + current);
     }
@@ -867,7 +883,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(1024);
+    final StringBuilder buf = new StringBuilder(1024);
     buf.append(getClass().getSimpleName()).append(_instanceMap.keySet());
     return buf.toString();
   }

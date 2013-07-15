@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.covariance;
 
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 

@@ -30,13 +30,17 @@ public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
   
   private ManageableSecurity writeSecurity(ManageableSecurity security) {
     
-    ArgumentChecker.notNull(security, "security");
-    if (_prettyPrint) {
+    if (_prettyPrint && security != null) {
       System.out.println("Security: " + security.toString());
     }
     return security;
   }
 
+  @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
+  }
+  
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
     

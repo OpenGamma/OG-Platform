@@ -12,18 +12,16 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
  */
 public abstract class IIDHypothesisTestCase {
-  protected static final DoubleTimeSeries<Long> RANDOM;
-  protected static final DoubleTimeSeries<Long> SIGNAL;
-  protected static final DoubleTimeSeries<Long> INCREASING;
-  protected static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
+  protected static final ImmutableInstantDoubleTimeSeries RANDOM;
+  protected static final ImmutableInstantDoubleTimeSeries SIGNAL;
+  protected static final ImmutableInstantDoubleTimeSeries INCREASING;
   static {
     final int n = 5000;
     final long[] dates = new long[n];
@@ -37,9 +35,9 @@ public abstract class IIDHypothesisTestCase {
       signal[i] = Math.cos(i / 10.) + normal.nextRandom();
       increasing[i] = i == 0 ? 1 : increasing[i - 1] * 1.0001;
     }
-    RANDOM = new FastArrayLongDoubleTimeSeries(ENCODING, dates, random);
-    SIGNAL = new FastArrayLongDoubleTimeSeries(ENCODING, dates, signal);
-    INCREASING = new FastArrayLongDoubleTimeSeries(ENCODING, dates, increasing);
+    RANDOM = ImmutableInstantDoubleTimeSeries.of(dates, random);
+    SIGNAL = ImmutableInstantDoubleTimeSeries.of(dates, signal);
+    INCREASING = ImmutableInstantDoubleTimeSeries.of(dates, increasing);
   }
 
   public void assertNullTS(final IIDHypothesis h) {
@@ -53,7 +51,7 @@ public abstract class IIDHypothesisTestCase {
 
   public void assertEmptyTS(final IIDHypothesis h) {
     try {
-      h.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+      h.evaluate(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES);
       Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected

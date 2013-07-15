@@ -5,11 +5,10 @@
  */
 package com.opengamma.financial.generator;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -27,6 +26,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -65,7 +65,7 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
     }
     final ExternalId swapSecurity;
     final Tenor tenor;
-    final int months = (int) maturityTenor.getPeriod().totalMonths() + (int) forwardTenor.getPeriod().totalMonths();
+    final int months = (int) maturityTenor.getPeriod().toTotalMonths() + (int) forwardTenor.getPeriod().toTotalMonths();
     if (months < 12) {
       tenor = Tenor.ofMonths(months);
     } else {
@@ -93,14 +93,14 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
     final ZonedDateTime tradeDate = previousWorkingDay(now.minusDays(getRandom(getDaysTrading())), ccy);
     final Tenor forward = getRandom(FORWARDS);
     final ZonedDateTime forwardDate = nextWorkingDay(now.plus(forward.getPeriod()), ccy);
-    ConventionBundle swapConvention = getConventionSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
+    ConventionBundle swapConvention = getConventionBundleSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {
       s_logger.error("Couldn't get swap convention for {}", ccy.getCode());
       return null;
     }
     final Tenor maturity = getRandom(TENORS);
     // get the convention of the identifier of the initial rate
-    ConventionBundle liborConvention = getConventionSource().getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
+    ConventionBundle liborConvention = getConventionBundleSource().getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     if (liborConvention == null) {
       s_logger.error("Couldn't get libor convention for {}", swapConvention.getSwapFloatingLegInitialRate());
       return null;
@@ -174,7 +174,7 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
   public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
     final ForwardSwapSecurity swap = createSecurity();
     if (swap != null) {
-      return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetTime(), 
+      return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetDateTime().toOffsetTime(), 
           ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     } else {
       return null;

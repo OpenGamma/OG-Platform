@@ -8,14 +8,13 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.StaticDefaultPropertyFunction;
-import com.opengamma.util.money.Currency;
 
 /**
  * Function to inject default yield curve shifts into the dependency graph.
@@ -36,15 +35,7 @@ public class DefaultYieldCurveShiftFunction extends StaticDefaultPropertyFunctio
   protected static final String YIELD_CURVE_SHIFT = "YIELD_CURVE_" + YieldCurveShiftFunction.SHIFT;
 
   public DefaultYieldCurveShiftFunction() {
-    super(ComputationTargetType.PRIMITIVE, YieldCurveShiftFunction.SHIFT, false, ValueRequirementNames.YIELD_CURVE);
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    super(ComputationTargetType.CURRENCY, YieldCurveShiftFunction.SHIFT, false, ValueRequirementNames.YIELD_CURVE);
   }
 
   @Override

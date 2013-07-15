@@ -8,10 +8,9 @@ package com.opengamma.financial.convention.businessday;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarFactory;
@@ -23,15 +22,15 @@ public class BusinessDayTest {
 
   private final Calendar _calendar_UK = CalendarFactory.INSTANCE.getCalendar("UK Bank Holidays");
 
-  private void assertDate(final DateAdjuster adjuster, final LocalDate testDate, final LocalDate expectedDate) {
-    assertEquals(expectedDate, adjuster.adjustDate(testDate));
+  private void assertDate(final TemporalAdjuster adjuster, final LocalDate testDate, final LocalDate expectedDate) {
+    assertEquals(expectedDate, testDate.with(adjuster));
   }
 
   @Test
   public void testPrecedingDay() {
     final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
     assertNotNull(convention);
-    final DateAdjuster adjuster = convention.getDateAdjuster(_calendar_UK);
+    final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);
     assertDate(adjuster, LocalDate.of(2009, 12, 31), LocalDate.of(2009, 12, 31));
     assertDate(adjuster, LocalDate.of(2010, 1, 1), LocalDate.of(2009, 12, 31)); // Fri 1 Jan -> Thu 31 Dec
@@ -49,7 +48,7 @@ public class BusinessDayTest {
   public void testFollowingDay() {
     final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     assertNotNull(convention);
-    final DateAdjuster adjuster = convention.getDateAdjuster(_calendar_UK);
+    final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);
     assertDate(adjuster, LocalDate.of(2009, 12, 31), LocalDate.of(2009, 12, 31));
     assertDate(adjuster, LocalDate.of(2010, 1, 1), LocalDate.of(2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan
@@ -67,7 +66,7 @@ public class BusinessDayTest {
   public void testModifiedFollowingDay() {
     final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     assertNotNull(convention);
-    final DateAdjuster adjuster = convention.getDateAdjuster(_calendar_UK);
+    final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);
     assertDate(adjuster, LocalDate.of(2009, 12, 31), LocalDate.of(2009, 12, 31));
     assertDate(adjuster, LocalDate.of(2010, 1, 1), LocalDate.of(2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan
@@ -85,7 +84,7 @@ public class BusinessDayTest {
   public void testModifiedPrecedingDay() {
     final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Preceding");
     assertNotNull(convention);
-    final DateAdjuster adjuster = convention.getDateAdjuster(_calendar_UK);
+    final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);
     assertDate(adjuster, LocalDate.of(2009, 12, 31), LocalDate.of(2009, 12, 31));
     assertDate(adjuster, LocalDate.of(2010, 1, 1), LocalDate.of(2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan

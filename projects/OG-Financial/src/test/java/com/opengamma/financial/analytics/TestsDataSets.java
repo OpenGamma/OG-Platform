@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -18,10 +20,12 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Sets of market data used in tests.
  */
+@Test(groups = TestGroup.UNIT)
 public class TestsDataSets {
 
   /**

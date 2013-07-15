@@ -13,10 +13,12 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class StandardRuleResolverTest {
 
   @Test

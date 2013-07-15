@@ -15,12 +15,12 @@ import static org.testng.AssertJUnit.assertSame;
 import java.net.URI;
 import java.util.ArrayList;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
@@ -28,11 +28,13 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataHolidayResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataHolidayResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");

@@ -51,13 +51,13 @@ public final class FederalFundsFutureSecurityDiscountingMethod extends FederalFu
    * @return The present value.
    */
   public CurrencyAmount presentValue(final FederalFundsFutureSecurity future, final YieldCurveBundle curves) {
-    double price = price(future, curves);
-    double pv = price * future.getPaymentAccrualFactor() * future.getNotional();
+    final double price = price(future, curves);
+    final double pv = price * future.getPaymentAccrualFactor() * future.getNotional();
     return CurrencyAmount.of(future.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof FederalFundsFutureSecurity, "Federal Funds future security");
     return presentValue((FederalFundsFutureSecurity) instrument, curves);
   }
@@ -72,9 +72,9 @@ public final class FederalFundsFutureSecurityDiscountingMethod extends FederalFu
   public double price(final FederalFundsFutureSecurity future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
-    int nbFixing = future.getFixingPeriodAccrualFactor().length;
-    YieldAndDiscountCurve ois = curves.getCurve(future.getOISCurveName());
-    double[] df = new double[nbFixing + 1];
+    final int nbFixing = future.getFixingPeriodAccrualFactor().length;
+    final YieldAndDiscountCurve ois = curves.getCurve(future.getOISCurveName());
+    final double[] df = new double[nbFixing + 1];
     for (int loopfix = 0; loopfix < nbFixing + 1; loopfix++) {
       df[loopfix] = ois.getDiscountFactor(future.getFixingPeriodTime()[loopfix]);
     }
@@ -95,27 +95,27 @@ public final class FederalFundsFutureSecurityDiscountingMethod extends FederalFu
   public InterestRateCurveSensitivity priceCurveSensitivity(final FederalFundsFutureSecurity future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
-    int nbFixing = future.getFixingPeriodAccrualFactor().length;
-    YieldAndDiscountCurve ois = curves.getCurve(future.getOISCurveName());
-    double[] df = new double[nbFixing + 1];
+    final int nbFixing = future.getFixingPeriodAccrualFactor().length;
+    final YieldAndDiscountCurve ois = curves.getCurve(future.getOISCurveName());
+    final double[] df = new double[nbFixing + 1];
     for (int loopfix = 0; loopfix < nbFixing + 1; loopfix++) {
       df[loopfix] = ois.getDiscountFactor(future.getFixingPeriodTime()[loopfix]);
     }
     // Backward sweep
-    double priceBar = 1.0;
-    double interestBar = -1.0 / future.getFixingTotalAccrualFactor() * priceBar;
-    double[] dfBar = new double[nbFixing + 1];
+    final double priceBar = 1.0;
+    final double interestBar = -1.0 / future.getFixingTotalAccrualFactor() * priceBar;
+    final double[] dfBar = new double[nbFixing + 1];
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
       dfBar[loopfix] += 1.0 / df[loopfix + 1] * interestBar;
       dfBar[loopfix + 1] += -df[loopfix] / (df[loopfix + 1] * df[loopfix + 1]) * interestBar;
     }
-    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> listOIS = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listOIS = new ArrayList<>();
     for (int loopfix = 0; loopfix < nbFixing + 1; loopfix++) {
       listOIS.add(new DoublesPair(future.getFixingPeriodTime()[loopfix], -future.getFixingPeriodTime()[loopfix] * df[loopfix] * dfBar[loopfix]));
     }
     resultMap.put(future.getOISCurveName(), listOIS);
-    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 

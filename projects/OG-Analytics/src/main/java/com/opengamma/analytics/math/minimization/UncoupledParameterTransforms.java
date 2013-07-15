@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -25,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 public class UncoupledParameterTransforms implements NonLinearParameterTransforms {
   private final DoubleMatrix1D _startValues;
   private final ParameterLimitsTransform[] _transforms;
-  private final BitSet _fixed;
+  private final boolean[] _freeParameters;
   private final int _nMP;
   private final int _nFP;
 
@@ -37,17 +36,24 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
    * @param fixed BitSet with an element set to <b>true</b> if that parameter is fixed
    */
   public UncoupledParameterTransforms(final DoubleMatrix1D startValues, final ParameterLimitsTransform[] transforms, final BitSet fixed) {
-    Validate.notNull(startValues, "null start values");
-    Validate.notEmpty(transforms, "must specify transforms");
-    Validate.notNull(fixed, "must specify what is fixed (even if none)");
+    ArgumentChecker.notNull(startValues, "null start values");
+    ArgumentChecker.notEmpty(transforms, "must specify transforms");
+    ArgumentChecker.notNull(fixed, "must specify what is fixed (even if none)");
     _nMP = startValues.getNumberOfElements();
     ArgumentChecker.isTrue(_nMP == transforms.length, "Have {}-dimensional start value but {} transforms", _nMP, transforms.length);
+    _freeParameters = new boolean[_nMP];
+    for (int i = 0; i < _nMP; i++) {
+      if (i < fixed.size()) {
+        _freeParameters[i] = !fixed.get(i);
+      } else {
+        _freeParameters[i] = true;
+      }
+    }
     final int count = fixed.cardinality();
-    Validate.isTrue(count < _nMP, "all parameters are fixed");
+    ArgumentChecker.isTrue(count < _nMP, "all parameters are fixed");
     _nFP = _nMP - count;
     _startValues = startValues;
     _transforms = transforms;
-    _fixed = fixed;
   }
 
   /**
@@ -76,11 +82,11 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
    */
   @Override
   public DoubleMatrix1D transform(final DoubleMatrix1D functionParameters) {
-    Validate.notNull(functionParameters, "function parameters");
-    Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
+    ArgumentChecker.notNull(functionParameters, "function parameters");
+    ArgumentChecker.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
     final double[] fittingParameter = new double[_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
-      if (!_fixed.get(i)) {
+      if (_freeParameters[i]) {
         fittingParameter[j] = _transforms[i].transform(functionParameters.getEntry(i));
         j++;
       }
@@ -95,15 +101,15 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
    */
   @Override
   public DoubleMatrix1D inverseTransform(final DoubleMatrix1D fittingParameters) {
-    Validate.notNull(fittingParameters, "fitting parameters");
-    Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fittingParameter wrong dimension");
+    ArgumentChecker.notNull(fittingParameters, "fitting parameters");
+    ArgumentChecker.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fittingParameter wrong dimension");
     final double[] modelParameter = new double[_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
-      if (_fixed.get(i)) {
-        modelParameter[i] = _startValues.getEntry(i);
-      } else {
+      if (_freeParameters[i]) {
         modelParameter[i] = _transforms[i].inverseTransform(fittingParameters.getEntry(j));
         j++;
+      } else {
+        modelParameter[i] = _startValues.getEntry(i);
       }
     }
     return new DoubleMatrix1D(modelParameter);
@@ -118,11 +124,11 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   // TODO not tested
   @Override
   public DoubleMatrix2D jacobian(final DoubleMatrix1D functionParameters) {
-    Validate.notNull(functionParameters, "function parameters");
-    Validate.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
+    ArgumentChecker.notNull(functionParameters, "function parameters");
+    ArgumentChecker.isTrue(functionParameters.getNumberOfElements() == _nMP, "functionParameters wrong dimension");
     final double[][] jac = new double[_nFP][_nMP];
     for (int i = 0, j = 0; i < _nMP; i++) {
-      if (!_fixed.get(i)) {
+      if (_freeParameters[i]) {
         jac[j][i] = _transforms[i].transformGradient(functionParameters.getEntry(i));
         j++;
       }
@@ -131,31 +137,56 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Calculated the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect
+   * Calculates the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect
    * to the j^th  fitting parameter
    * @param fittingParameters  The fitting parameters
    * @return  matrix of partial derivative of function parameter with respect to fitting parameters
    */
   // TODO not tested
+  //  @Override
+  //  public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
+  //    ArgumentChecker.notNull(fittingParameters, "fitting parameters");
+  //    ArgumentChecker.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fitting parameters wrong dimension");
+  //    final double[][] jac = new double[_nMP][_nFP];
+  //    for (int i = 0, j = 0; i < _nMP; i++) {
+  //      if (_fixed[i]) {
+  //        jac[i][j] = _transforms[i].inverseTransformGradient(fittingParameters.getEntry(j));
+  //        j++;
+  //      }
+  //    }
+  //    return DoubleMatrix2D.noCopy(jac);
+  //  }
+
+  @SuppressWarnings("deprecation")
   @Override
   public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
-    Validate.notNull(fittingParameters, "fitting parameters");
-    Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
+    ArgumentChecker.notNull(fittingParameters, "fitting parameters");
+    ArgumentChecker.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fitting parameters wrong dimension");
     final double[][] jac = new double[_nMP][_nFP];
-    for (int i = 0, j = 0; i < _nMP; i++) {
-      if (!_fixed.get(i)) {
-        jac[i][j] = _transforms[i].inverseTransformGradient(fittingParameters.getEntry(j));
-        j++;
+    final int[] p = new int[_nMP];
+    final int[] q = new int[_nMP];
+    int t = 0;
+    for (int i = 0; i < _nMP; i++) {
+      if (_freeParameters[i]) {
+        p[t] = i;
+        q[t] = t;
+        t++;
       }
     }
-    return new DoubleMatrix2D(jac);
+    int pderef, qderef;
+    for (int i = 0; i < t; i++) {
+      pderef = p[i];
+      qderef = q[i];
+      jac[pderef][qderef] = _transforms[pderef].inverseTransformGradient(fittingParameters.getEntry(qderef));
+    }
+    return DoubleMatrix2D.noCopy(jac);
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _fixed.hashCode();
+    result = prime * result + Arrays.hashCode(_freeParameters);
     result = prime * result + _startValues.hashCode();
     result = prime * result + Arrays.hashCode(_transforms);
     return result;
@@ -173,7 +204,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
       return false;
     }
     final UncoupledParameterTransforms other = (UncoupledParameterTransforms) obj;
-    if (!ObjectUtils.equals(_fixed, other._fixed)) {
+    if (!Arrays.equals(_freeParameters, other._freeParameters)) {
       return false;
     }
     if (!ObjectUtils.equals(_startValues, other._startValues)) {

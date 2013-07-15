@@ -21,11 +21,12 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchSortOrder;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ConfigSearchIterator}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ConfigMasterIteratorTest {
 
   private ConfigDocument _doc1;

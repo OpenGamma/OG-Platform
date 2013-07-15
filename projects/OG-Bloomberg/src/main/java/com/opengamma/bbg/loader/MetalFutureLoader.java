@@ -25,6 +25,8 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_SPOT_TICKER;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
@@ -74,6 +76,12 @@ public class MetalFutureLoader extends SecurityLoader {
   public static final Set<String> VALID_FUTURE_CATEGORIES = Collections.unmodifiableSet(Sets.newHashSet(
       BBG_PRECIOUS_METAL_TYPE,
       BBG_BASE_METAL_TYPE));
+  
+  private static final Map<String, ExternalId> SPOT_MAP = new HashMap<String, ExternalId>();
+  
+  static {
+    SPOT_MAP.put("GOLD", ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "GOLDS Comdty")); // or GOLDS Comdty?
+  }
 
   /**
    * Creates an instance.
@@ -133,6 +141,13 @@ public class MetalFutureLoader extends SecurityLoader {
     ExternalId underlying = null;
     if (underlyingTicker != null) {
       underlying = ExternalSchemes.bloombergTickerSecurityId(underlyingTicker);
+    } else {
+      for (Map.Entry<String, ExternalId> entry : SPOT_MAP.entrySet()) {
+        if (name.contains(entry.getKey())) {
+          underlying = entry.getValue();
+          break;
+        }
+      }
     }
     Expiry expiry = decodeExpiry(expiryDate, futureTradingHours);
     if (expiry == null) {

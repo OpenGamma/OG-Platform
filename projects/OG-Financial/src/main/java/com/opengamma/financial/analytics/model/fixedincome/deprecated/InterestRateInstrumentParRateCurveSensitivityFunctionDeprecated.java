@@ -36,7 +36,7 @@ public class InterestRateInstrumentParRateCurveSensitivityFunctionDeprecated ext
   @Override
   public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final YieldCurveBundle curves, final ValueSpecification resultSpec) {
-    final Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, curves);
+    final Map<String, List<DoublesPair>> sensitivities = derivative.accept(CALCULATOR, curves);
     if (!sensitivities.containsKey(curveName)) {
       throw new OpenGammaRuntimeException("Could not get par rate curve sensitivities for curve named " + curveName + "; should never happen");
     }

@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -54,7 +53,7 @@ public class CouponCMSHullWhiteMethodsTest {
       GENERATOR_EUR1YEURIBOR6M.isEndOfMonth());
   private static final double NOTIONAL = 100000000; //100m
   private static final double ACCRUAL_FACTOR = ACT360.getDayCountFraction(START_DATE, PAYMENT_DATE);
-  private static final CouponCMSDefinition CPN_CMS_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y);
+  private static final CouponCMSDefinition CPN_CMS_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y, TARGET);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVE_NAMES = TestsDataSetsSABR.curves2Names();
@@ -71,18 +70,18 @@ public class CouponCMSHullWhiteMethodsTest {
 
   @Test
   public void presentValueNumericalIntegration() {
-    CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CPN_CMS, BUNDLE_HW);
-    double pvPrevious = 1124760.482; // From previous run
+    final CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CPN_CMS, BUNDLE_HW);
+    final double pvPrevious = 1124760.482; // From previous run
     assertEquals("Coupon CMS - Hull-White - present value - numerical integration", pvPrevious, pvNumericalIntegration.getAmount(), TOLERANCE_PRICE);
     // Comparison with non-adjusted figures: to have the right order of magnitude
-    CurrencyAmount pvDiscounting = METHOD_DSC.presentValue(CPN_CMS, BUNDLE_HW);
+    final CurrencyAmount pvDiscounting = METHOD_DSC.presentValue(CPN_CMS, BUNDLE_HW);
     assertEquals("Coupon CMS - Hull-White - present value - numerical integration", 1.0, pvDiscounting.getAmount() / pvNumericalIntegration.getAmount(), 0.20);
   }
 
   @Test
   public void presentValueApproximation() {
-    CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CPN_CMS, BUNDLE_HW);
-    CurrencyAmount pvApproximation = METHOD_APP.presentValue(CPN_CMS, BUNDLE_HW);
+    final CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CPN_CMS, BUNDLE_HW);
+    final CurrencyAmount pvApproximation = METHOD_APP.presentValue(CPN_CMS, BUNDLE_HW);
     assertEquals("Coupon CMS - Hull-White - present value - approximation", pvApproximation.getAmount(), pvNumericalIntegration.getAmount(), TOLERANCE_PRICE_APP);
   }
 

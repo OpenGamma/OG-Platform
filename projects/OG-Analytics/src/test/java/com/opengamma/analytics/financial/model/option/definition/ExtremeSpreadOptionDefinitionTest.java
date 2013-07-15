@@ -8,18 +8,17 @@ package com.opengamma.analytics.financial.model.option.definition;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * 
@@ -32,7 +31,7 @@ public class ExtremeSpreadOptionDefinitionTest {
   private static final ExtremeSpreadOptionDefinition PUT_REVERSE = new ExtremeSpreadOptionDefinition(EXPIRY, false, PERIOD_END, true);
   private static final ExtremeSpreadOptionDefinition CALL = new ExtremeSpreadOptionDefinition(EXPIRY, true, PERIOD_END, false);
   private static final ExtremeSpreadOptionDefinition CALL_REVERSE = new ExtremeSpreadOptionDefinition(EXPIRY, true, PERIOD_END, true);
-  private static final DoubleTimeSeries<?> SPOT_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1),
+  private static final DoubleTimeSeries<?> SPOT_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1),
       DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1),
       DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)}, new double[] {1, 2, 0, 1,
       4, 15, 4, 4, 0, 4, 4, 4});

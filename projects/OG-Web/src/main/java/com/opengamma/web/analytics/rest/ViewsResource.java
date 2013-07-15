@@ -9,7 +9,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.Instant;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -17,6 +16,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -58,7 +59,7 @@ public class ViewsResource {
    */
   @Path("{viewId}")
   public ViewResource getView(@PathParam("viewId") String viewId) {
-    return new ViewResource(_viewManager.getView(viewId), _viewManager, viewId);
+    return new ViewResource(_viewManager.getViewCient(viewId), _viewManager.getView(viewId), _viewManager, viewId);
   }
 
   @POST
@@ -70,17 +71,19 @@ public class ViewsResource {
                              @FormParam("valuationTime") String valuationTime,
                              @FormParam("portfolioVersionTime") String portfolioVersionTime,
                              @FormParam("portfolioCorrectionTime") String portfolioCorrectionTime,
-                             @FormParam("clientId") String clientId) {
+                             @FormParam("clientId") String clientId,
+                             @FormParam("blotter") Boolean blotter) {
     ArgumentChecker.notEmpty(requestId, "requestId");
     ArgumentChecker.notEmpty(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(aggregators, "aggregators");
     ArgumentChecker.notEmpty(marketDataProviders, "marketDataProviders");
     ArgumentChecker.notEmpty(clientId, "clientId");
+    boolean blotterColumns = blotter == null ? false : blotter;
     List<MarketDataSpecification> marketDataSpecs = MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
     VersionCorrection versionCorrection = VersionCorrection.of(parseInstant(portfolioVersionTime),
                                                                parseInstant(portfolioCorrectionTime));
     ViewRequest viewRequest = new ViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
-                                              parseInstant(valuationTime), versionCorrection);
+                                              parseInstant(valuationTime), versionCorrection, blotterColumns);
     String viewId = Long.toString(s_nextViewId.getAndIncrement());
     URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)

@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.equity">
   <union-subclass name="EquitySecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_equity">
     <property name="shortName" column="shortName" type="string" />
@@ -9,6 +7,7 @@
     <property name="companyName" type="string" not-null="true"/>
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true"/>
     <many-to-one name="gicsCode" column="gicscode_id" class="GICSCodeBean" not-null="false"/>
+    <property name="preferred" column="preferred" type="boolean" />
   </union-subclass>
 
   <query name="EquitySecurityBean.one.bySecurityId"><![CDATA[

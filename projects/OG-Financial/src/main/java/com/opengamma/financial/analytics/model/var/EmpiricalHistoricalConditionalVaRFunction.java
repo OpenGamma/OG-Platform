@@ -21,19 +21,19 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
-public abstract class EmpiricalHistoricalConditionalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+public class EmpiricalHistoricalConditionalVaRFunction extends AbstractFunction.NonCompiledInvoker {
   private static final EmpiricalDistributionConditionalVaRCalculator CALCULATOR = new EmpiricalDistributionConditionalVaRCalculator(StatisticsCalculatorFactory.MEAN_CALCULATOR);
 
   @Override
@@ -102,7 +102,7 @@ public abstract class EmpiricalHistoricalConditionalVaRFunction extends Abstract
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
     final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
@@ -177,6 +177,11 @@ public abstract class EmpiricalHistoricalConditionalVaRFunction extends Abstract
     }
     return new EmpiricalDistributionVaRParameters(Double.valueOf(horizonNames.iterator().next()),
         VaRFunctionUtils.getBusinessDaysPerPeriod(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION);
   }
 
 }

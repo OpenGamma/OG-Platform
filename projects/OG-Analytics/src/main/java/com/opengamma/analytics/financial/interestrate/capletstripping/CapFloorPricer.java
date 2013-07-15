@@ -5,50 +5,39 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
+import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 
 /**
  * 
  */
 public class CapFloorPricer {
-  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
-  private final double[] _fwds;
-  private final double[] _t;
-  private final double[] _df;
-  private final double _k;
+  private final SimpleOptionData[] _caplets;
   private final int _n;
 
   /**
    * Decomposes a cap (floor) down to relevant information about its caplets (floorlets), i.e. the forward (ibor) values, the fixing times and
    * the discount factors. Each caplet (floorlet), and hence the whole cap (floor) can then be priced by suppling a VolatilityModel1D 
-   * (which gives a Black vol for a particular forward/strike/expiry) to the method price 
+   * (which gives a Black vol for a particular forward/strike/expiry) or a  VolatilityTermStructure (which gives the vol simply as a function of expiry)
    * @param cap a cap or floor 
    * @param ycb The relevant yield curves 
    */
   public CapFloorPricer(final CapFloor cap, final YieldCurveBundle ycb) {
-    Validate.notNull(cap, "null cap");
-    Validate.notNull(ycb, "null yield curves");
-    _k = cap.getStrike();
-    CapFloorIbor[] caplets = cap.getPayments();
-    _n = caplets.length;
-    _fwds = new double[_n];
-    _t = new double[_n];
-    _df = new double[_n];
-    YieldAndDiscountCurve discountCurve = ycb.getCurve(cap.getDiscountCurve());
+    _caplets = CapFloorDecomposer.toOptions(cap, ycb);
+    _n = _caplets.length;
+  }
+
+  public double price(final double vol) {
+    double sum = 0;
     for (int i = 0; i < _n; i++) {
-      _fwds[i] = PRC.visit(caplets[i], ycb);
-      _t[i] = caplets[i].getFixingPeriodStartTime();
-      _df[i] = discountCurve.getDiscountFactor(caplets[i].getPaymentTime()); //Vol is at fixing time, discounting from payment
+      sum += BlackFormulaRepository.price(_caplets[i], vol);
     }
+    return sum;
   }
 
   /**
@@ -57,32 +46,54 @@ public class CapFloorPricer {
    * @param volModel VolatilityModel1D  which gives a Black vol for a particular forward/strike/expiry
    * @return The cap (floor) price 
    */
-  public double price(VolatilityModel1D volModel) {
+  public double price(final VolatilityModel1D volModel) {
     double sum = 0;
     for (int i = 0; i < _n; i++) {
-      double vol = volModel.getVolatility(_fwds[i], _k, _t[i]);
-      sum += _df[i] * BlackFormulaRepository.price(_fwds[i], _k, _t[i], vol, true); //TODO assuming cap, payment year fraction?????
+      final double vol = volModel.getVolatility(_caplets[i]);
+      sum += BlackFormulaRepository.price(_caplets[i], vol);
     }
     return sum;
   }
 
- 
-  public double vega(VolatilityModel1D volModel) {
+  public double price(final VolatilityTermStructure volCurve) {
     double sum = 0;
-    double vol = impliedVol(volModel);
     for (int i = 0; i < _n; i++) {
-      sum += _df[i] * BlackFormulaRepository.vega(_fwds[i], _k, _t[i], vol); //TODO assuming cap, payment year fraction?????
+      final double vol = volCurve.getVolatility(_caplets[i].getTimeToExpiry());
+      sum += BlackFormulaRepository.price(_caplets[i], vol);
     }
     return sum;
   }
 
-  public double impliedVol(VolatilityModel1D volModel) {
-    final double price = price(volModel);
-    SimpleOptionData[] data = new SimpleOptionData[_n];
+  public double impliedVol(final double capPrice) {
+    return BlackFormulaRepository.impliedVolatility(_caplets, capPrice);
+  }
+
+  public double impliedVol(final VolatilityModel1D capletVolModel) {
+    final double price = price(capletVolModel);
+    return impliedVol(price);
+  }
+
+  public double impliedVol(final VolatilityTermStructure volCurve) {
+    final double price = price(volCurve);
+    return impliedVol(price);
+  }
+
+  public double vega(final double capVolatility) {
+    double sum = 0;
     for (int i = 0; i < _n; i++) {
-      data[i] = new SimpleOptionData(_fwds[i], _k, _t[i], _df[i], true); //TODO this should be in the constructor 
+      sum += BlackFormulaRepository.vega(_caplets[i], capVolatility);
     }
-    return BlackFormulaRepository.impliedVolatility(data, price);
+    return sum;
+  }
+
+  public double vega(final VolatilityModel1D capletVolModel) {
+    final double vol = impliedVol(capletVolModel);
+    return vega(vol);
+  }
+
+  public double vega(final VolatilityTermStructure volCurve) {
+    final double vol = impliedVol(volCurve);
+    return vega(vol);
   }
 
   /**
@@ -90,7 +101,23 @@ public class CapFloorPricer {
    * @return the fwds
    */
   protected double[] getForwards() {
-    return _fwds;
+    double[] fwds = new double[_n];
+    for (int i = 0; i < _n; i++) {
+      fwds[i] = _caplets[i].getForward();
+    }
+    return fwds;
+  }
+
+  protected double getCapForward() {
+    double sum1 = 0;
+    double sum2 = 0;
+    double[] df = getDiscountFactors();
+    double[] fwds = getForwards();
+    for (int i = 0; i < _n; i++) {
+      sum1 += df[i] * fwds[i];
+      sum2 += df[i];
+    }
+    return sum1 / sum2;
   }
 
   /**
@@ -98,7 +125,11 @@ public class CapFloorPricer {
    * @return the t
    */
   protected double[] getExpiries() {
-    return _t;
+    double[] t = new double[_n];
+    for (int i = 0; i < _n; i++) {
+      t[i] = _caplets[i].getTimeToExpiry();
+    }
+    return t;
   }
 
   /**
@@ -106,7 +137,11 @@ public class CapFloorPricer {
    * @return the df
    */
   protected double[] getDiscountFactors() {
-    return _df;
+    double[] df = new double[_n];
+    for (int i = 0; i < _n; i++) {
+      df[i] = _caplets[i].getDiscountFactor();
+    }
+    return df;
   }
 
   /**
@@ -114,7 +149,7 @@ public class CapFloorPricer {
    * @return the k
    */
   protected double getStrike() {
-    return _k;
+    return _caplets[0].getStrike();
   }
 
   /**
@@ -124,7 +159,5 @@ public class CapFloorPricer {
   protected int getNumberCaplets() {
     return _n;
   }
-  
-  
 
 }

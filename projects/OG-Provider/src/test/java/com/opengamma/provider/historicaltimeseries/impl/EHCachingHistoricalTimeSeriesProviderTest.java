@@ -10,30 +10,28 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups="unit")
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHistoricalTimeSeriesProviderTest {
-
-  private HistoricalTimeSeriesProvider _underlyingProvider;
-  private EHCachingHistoricalTimeSeriesProvider _cachingProvider;
 
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
   private static final LocalDateDoubleTimeSeries BIG_HTS;
@@ -41,19 +39,32 @@ public class EHCachingHistoricalTimeSeriesProviderTest {
   static {
     LocalDate[] dates1 = {LocalDate.of(2011, 6, 30), LocalDate.of(2011, 7, 1), LocalDate.of(2011, 7, 3)};
     double[] values1 = {12.34d, 12.45d, 12.79d};
-    BIG_HTS = new ArrayLocalDateDoubleTimeSeries(dates1, values1);
+    BIG_HTS = ImmutableLocalDateDoubleTimeSeries.of(dates1, values1);
     
     LocalDate[] dates2 = {LocalDate.of(2011, 7, 3)};
     double[] values2 = {12.79d};
-    SMALL_HTS = new ArrayLocalDateDoubleTimeSeries(dates2, values2);
+    SMALL_HTS = ImmutableLocalDateDoubleTimeSeries.of(dates2, values2);
+  }
+
+  private HistoricalTimeSeriesProvider _underlyingProvider;
+  private EHCachingHistoricalTimeSeriesProvider _cachingProvider;
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
   }
 
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
+    EHCacheUtils.clear(_cacheManager);
     _underlyingProvider = mock(HistoricalTimeSeriesProvider.class);
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.clearAll();
-    _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, cm);
+    _cachingProvider = new EHCachingHistoricalTimeSeriesProvider(_underlyingProvider, _cacheManager);
   }
 
   //-------------------------------------------------------------------------

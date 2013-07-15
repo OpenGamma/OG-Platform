@@ -5,108 +5,100 @@
  */
 package com.opengamma.engine;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ComputationTargetSpecification.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ComputationTargetSpecificationTest {
 
-  private static final ExternalId ID = ExternalId.of("Test", "0");
   private static final UniqueId UID = UniqueId.of("Test", "1");
   private static final UniqueId UID2 = UniqueId.of("Test", "2");
-  private static final ExternalIdentifiable IDENTIFIABLE = new ExternalIdentifiable() {
-    @Override
-    public ExternalId getExternalId() {
-      return ExternalId.of("Test", "3");
-    }
-  };
-  private static final UniqueIdentifiable UNIQUE_IDENTIFIABLE = new UniqueIdentifiable() {
-    @Override
-    public UniqueId getUniqueId() {
-      return UniqueId.of("Test", "4");
-    }
-  };
-  private static final Portfolio PORTFOLIO = new SimplePortfolio(UID, "Name");
   private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UID, "Name");
-  private static final Position POSITION = new SimplePosition(UID, new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final Security SECURITY = new SimpleSecurity(UID, ExternalIdBundle.EMPTY, "", "");
+  private static final Position POSITION = new SimplePosition(UID, new BigDecimal(1), SECURITY);
+  private static final Trade TRADE = createTrade();
 
-  public void test_constructor_Object_Portfolio() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(PORTFOLIO);
-    assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
-    assertEquals(PORTFOLIO.getUniqueId(), test.getUniqueId());
+  private static Trade createTrade() {
+    final SimpleTrade trade = new SimpleTrade(SECURITY, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "Foo")), LocalDate.now(), null);
+    trade.setUniqueId(UID);
+    return trade;
   }
 
   public void test_constructor_Object_Node() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(NODE);
+    ComputationTargetSpecification test = ComputationTargetSpecification.of(NODE);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(NODE.getUniqueId(), test.getUniqueId());
   }
 
   public void test_constructor_Object_Position() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(POSITION);
+    ComputationTargetSpecification test = ComputationTargetSpecification.of(POSITION);
     assertEquals(ComputationTargetType.POSITION, test.getType());
     assertEquals(POSITION.getUniqueId(), test.getUniqueId());
   }
 
   public void test_constructor_Object_Security() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(SECURITY);
+    ComputationTargetSpecification test = ComputationTargetSpecification.of(SECURITY);
     assertEquals(ComputationTargetType.SECURITY, test.getType());
     assertEquals(SECURITY.getUniqueId(), test.getUniqueId());
   }
 
-  public void test_constructor_Object_null() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(null);
-    assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(null, test.getUniqueId());
-  }
-  
-  public void test_constructor_Object_ID() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(ID);
-    assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(UniqueId.of("Test", "0"), test.getUniqueId());
+  public void test_constructor_Object_Trade() {
+    ComputationTargetSpecification test = ComputationTargetSpecification.of(TRADE);
+    assertEquals(ComputationTargetType.TRADE, test.getType());
+    assertEquals(TRADE.getUniqueId(), test.getUniqueId());
   }
 
-  public void test_constructor_Object_Identifiable() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(IDENTIFIABLE);
-    assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(UniqueId.of("Test", "3"), test.getUniqueId());
+  public void test_constructor_Object_Currency() {
+    ComputationTargetSpecification test = ComputationTargetSpecification.of(Currency.USD);
+    assertEquals(ComputationTargetType.CURRENCY, test.getType());
+    assertEquals(Currency.USD.getUniqueId(), test.getUniqueId());
   }
 
-  public void test_constructor_Object_UniqueIdentifiable() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(UNIQUE_IDENTIFIABLE);
+  public void test_constructor_Object_UniqueId() {
+    ComputationTargetSpecification test = ComputationTargetSpecification.of(UID);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(UNIQUE_IDENTIFIABLE.getUniqueId(), test.getUniqueId());
+    assertEquals(UID, test.getUniqueId());
   }
 
-  //-------------------------------------------------------------------------
   public void test_constructor_Type_UniqueId_ok() {
     new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UID);
     new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     new ComputationTargetSpecification(ComputationTargetType.SECURITY, UID);
-    new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueId) null);
+    new ComputationTargetSpecification(ComputationTargetType.NULL, null);
   }
 
-  @Test(expectedExceptions=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_constructor_Type_UniqueId_nullType_validId() {
+    new ComputationTargetSpecification(ComputationTargetType.NULL, UniqueId.of("Foo", "Bar"));
+  }
+
+  @Test(expectedExceptions = AssertionError.class)
   public void test_constructor_Type_UniqueId_nullType() {
     new ComputationTargetSpecification(null, UID);
   }
@@ -120,8 +112,8 @@ public class ComputationTargetSpecificationTest {
   public void test_getters_PortfolioNode() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UID);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
-    assertEquals(UID.getScheme(), test.getIdentifier().getScheme().getName());
-    assertEquals(UID.getValue(), test.getIdentifier().getValue());
+    assertEquals(UID.getScheme(), test.getUniqueId().getScheme());
+    assertEquals(UID.getValue(), test.getUniqueId().getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -171,6 +163,38 @@ public class ComputationTargetSpecificationTest {
     ComputationTargetSpecification a = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     ComputationTargetSpecification b = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     assertEquals(true, a.equals(b));
+  }
+
+  public void test_isCompatible() {
+    ComputationTargetSpecification a = new ComputationTargetSpecification(ComputationTargetType.of(SimpleSecurity.class), UID);
+    ComputationTargetSpecification b = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UID);
+    assertFalse(a.isCompatible(b));
+    assertTrue(b.isCompatible(a));
+  }
+
+  @Test(expectedExceptions = {IllegalStateException.class })
+  public void test_getRequirement() {
+    final ComputationTargetReference a = ComputationTargetSpecification.of(SECURITY);
+    a.getRequirement();
+  }
+
+  public void test_getSpecification() {
+    final ComputationTargetReference a = ComputationTargetSpecification.of(SECURITY);
+    assertEquals(a.getSpecification(), a);
+  }
+
+  public void testContaining_id() {
+    final ComputationTargetReference ref = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Bar"));
+    final ComputationTargetReference underlying = ref.containing(ComputationTargetType.SECURITY, ExternalId.of("Foo", "Underlying"));
+    assertEquals(underlying.getParent(), ref);
+    assertEquals(underlying.getType(), ComputationTargetType.SECURITY.containing(ComputationTargetType.SECURITY));
+  }
+
+  public void testContaining_uid() {
+    final ComputationTargetReference ref = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Bar"));
+    final ComputationTargetReference underlying = ref.containing(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Underlying"));
+    assertEquals(underlying.getParent(), ref);
+    assertEquals(underlying.getType(), ComputationTargetType.SECURITY.containing(ComputationTargetType.SECURITY));
   }
 
 }

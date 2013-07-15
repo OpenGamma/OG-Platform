@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.payments.derivative;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -52,6 +53,7 @@ public class PaymentFixed extends Payment {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFixedPayment(this, data);
   }
 
@@ -77,7 +79,7 @@ public class PaymentFixed extends Payment {
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -87,7 +89,7 @@ public class PaymentFixed extends Payment {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PaymentFixed other = (PaymentFixed) obj;
+    final PaymentFixed other = (PaymentFixed) obj;
     if (Double.doubleToLongBits(_amount) != Double.doubleToLongBits(other._amount)) {
       return false;
     }
@@ -96,6 +98,7 @@ public class PaymentFixed extends Payment {
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFixedPayment(this);
   }
 

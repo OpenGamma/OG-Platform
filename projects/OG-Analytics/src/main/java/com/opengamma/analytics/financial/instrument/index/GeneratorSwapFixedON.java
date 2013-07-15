@@ -5,22 +5,21 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorSwapFixedON extends GeneratorInstrument {
+public class GeneratorSwapFixedON extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The ON index of the floating leg.
@@ -58,6 +57,10 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
    * The dates in the schedule can be computed from the end date (true) or from the start date (false).
    */
   private final boolean _fromEnd;
+  /**
+   * The holiday calendar associated with the overnight index.
+   */
+  private final Calendar _calendar;
 
   /**
    * Constructor from all details. The stub is short and date constructed from the end.
@@ -68,23 +71,25 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
    * @param businessDayConvention The business day convention for the payments (used for both legs).
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
+   * @param calendar The calendar associated with the overnight index.
    */
   public GeneratorSwapFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth, final int spotLag) {
+      final boolean endOfMonth, final int spotLag, final Calendar calendar) {
     super(name);
-    Validate.notNull(legsPeriod, "Period");
-    Validate.notNull(fixedLegDayCount, "Fixed leg day count");
-    Validate.notNull(businessDayConvention, "Business day convention");
-    Validate.notNull(index, "Index ON");
+    ArgumentChecker.notNull(legsPeriod, "Period");
+    ArgumentChecker.notNull(fixedLegDayCount, "Fixed leg day count");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(index, "Index ON");
     _index = index;
-    this._legsPeriod = legsPeriod;
-    this._fixedLegDayCount = fixedLegDayCount;
-    this._businessDayConvention = businessDayConvention;
-    this._endOfMonth = endOfMonth;
+    _legsPeriod = legsPeriod;
+    _fixedLegDayCount = fixedLegDayCount;
+    _businessDayConvention = businessDayConvention;
+    _endOfMonth = endOfMonth;
     _spotLag = spotLag;
     _paymentLag = spotLag;
     _stubShort = true;
     _fromEnd = true;
+    _calendar = calendar;
   }
 
   /**
@@ -97,23 +102,25 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    * @param paymentLag The lag in days between the last ON fixing date and the coupon payment.
+   * @param calendar The calendar associated with the overnight index.
    */
   public GeneratorSwapFixedON(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth, final int spotLag, final int paymentLag) {
+      final boolean endOfMonth, final int spotLag, final int paymentLag, final Calendar calendar) {
     super(name);
-    Validate.notNull(legsPeriod, "Period");
-    Validate.notNull(fixedLegDayCount, "Fixed leg day count");
-    Validate.notNull(businessDayConvention, "Business day convention");
-    Validate.notNull(index, "Index ON");
+    ArgumentChecker.notNull(legsPeriod, "Period");
+    ArgumentChecker.notNull(fixedLegDayCount, "Fixed leg day count");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(index, "Index ON");
     _index = index;
-    this._legsPeriod = legsPeriod;
-    this._fixedLegDayCount = fixedLegDayCount;
-    this._businessDayConvention = businessDayConvention;
-    this._endOfMonth = endOfMonth;
+    _legsPeriod = legsPeriod;
+    _fixedLegDayCount = fixedLegDayCount;
+    _businessDayConvention = businessDayConvention;
+    _endOfMonth = endOfMonth;
     _spotLag = spotLag;
     _paymentLag = paymentLag;
     _stubShort = true;
     _fromEnd = true;
+    _calendar = calendar;
   }
 
   /**
@@ -192,27 +199,20 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
    * Gets the calendar associated to the OIS index.
    * @return The calendar.
    */
-  public Calendar getCalendar() {
-    return _index.getCalendar();
+  public Calendar getOvernightCalendar() {
+    return _calendar;
   }
 
   @Override
   /**
    * The effective date is date+_spotLag. The end of fixing period is effective date+tenor.
    */
-  public SwapFixedONDefinition generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _index.getCalendar());
-    return SwapFixedONDefinition.from(startDate, tenor, notional, this, fixedRate, true);
-  }
-
-  @Override
-  /**
-   * The effective date is spot+startTenor. The end of fixing period is effective date+endTenor.
-   */
-  public SwapFixedONDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double fixedRate, double notional, Object... objects) {
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _index.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _businessDayConvention, _index.getCalendar(), _endOfMonth);
-    return SwapFixedONDefinition.from(startDate, endTenor, notional, this, fixedRate, true);
+  public SwapFixedONDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
+    ArgumentChecker.notNull(date, "Reference date");
+    ArgumentChecker.notNull(attribute, "Attributes");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _businessDayConvention, _calendar, _endOfMonth);
+    return SwapFixedONDefinition.from(startDate, attribute.getEndPeriod(), notional, this, rate, true);
   }
 
   @Override
@@ -228,11 +228,12 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
     result = prime * result + _paymentLag;
     result = prime * result + _spotLag;
     result = prime * result + (_stubShort ? 1231 : 1237);
+    result = prime * result + _calendar.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -242,7 +243,7 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapFixedON other = (GeneratorSwapFixedON) obj;
+    final GeneratorSwapFixedON other = (GeneratorSwapFixedON) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }
@@ -272,6 +273,9 @@ public class GeneratorSwapFixedON extends GeneratorInstrument {
       return false;
     }
     if (_stubShort != other._stubShort) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

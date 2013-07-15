@@ -12,11 +12,12 @@ import com.opengamma.engine.function.resolver.ApplyToAllTargets;
 import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.function.resolver.SimpleResolutionRuleTransform;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the {@link SimpleResolutionRuleTransformFudgeBuilder} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SimpleResolutionRuleTransformBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmpty() {

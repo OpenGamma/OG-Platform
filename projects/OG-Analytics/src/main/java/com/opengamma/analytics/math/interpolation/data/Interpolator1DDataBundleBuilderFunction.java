@@ -9,11 +9,10 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -25,12 +24,12 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
   private final int _nNodes;
 
   public Interpolator1DDataBundleBuilderFunction(final LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
-    Validate.notNull(knotPoints, "null knot points");
-    Validate.notNull(interpolators, "null interpolators");
+    ArgumentChecker.notNull(knotPoints, "null knot points");
+    ArgumentChecker.notNull(interpolators, "null interpolators");
     int count = 0;
     for (final Map.Entry<String, double[]> entry : knotPoints.entrySet()) {
       final int size = entry.getValue().length;
-      Validate.isTrue(size > 0, "no knot points for " + entry.getKey());
+      ArgumentChecker.isTrue(size > 0, "no knot points for " + entry.getKey());
       count += size;
     }
     _knotPoints = knotPoints;
@@ -40,10 +39,10 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
 
   @Override
   public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleMatrix1D x) {
-    Validate.notNull(x, "null data x");
-    Validate.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
+    ArgumentChecker.notNull(x, "null data x");
+    ArgumentChecker.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
 
-    final LinkedHashMap<String, Interpolator1DDataBundle> res = new LinkedHashMap<String, Interpolator1DDataBundle>();
+    final LinkedHashMap<String, Interpolator1DDataBundle> res = new LinkedHashMap<>();
     int index = 0;
 
     for (final String name : _interpolators.keySet()) {

@@ -1,0 +1,67 @@
+<section>
+  <table class="OG-table">
+    <colgroup>
+      <col style="width: 33%">
+      <col style="width: 67%">
+    </colgroup>
+      <thead>
+        <tr>
+          <th>
+            <span><em>Option Details</em></span>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+        </td>
+        <td class="og-double-cell">
+          <div><span><label><span>Pay</span><input type="radio" name="security.payer" value="true">
+          </label></span><span><label><span>Receive</span><input type="radio" name="security.payer" value="false">
+          </label></span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+        </td>
+        <td class="og-double-cell">
+          <div><span><label><span>Knockout</span><input type="radio" name="security.knockOut" value="true">
+          </label></span><span><label><span>Non-Knockout
+          </span><input type="radio" name="security.knockOut" value="false"></label>
+          </span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Strike</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.strike" type="text" value='{{strike}}' />
+        </td>
+      </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Start Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.startDate" type="text" value="{{startDate}}"/>
+      </td>
+    </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Excercise Type</span>
+          </label>
+        </td>
+        <td>
+          {{{item_0}}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

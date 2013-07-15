@@ -17,10 +17,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -30,16 +29,13 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -63,7 +59,7 @@ public class PresentValueSensitivityCalculatorTest {
   private static final String FIVE_PC_CURVE_NAME = "5%";
   private static final String ZERO_PC_CURVE_NAME = "0%";
   private static final YieldCurveBundle CURVES;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   // to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
@@ -86,7 +82,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double df = curve.getDiscountFactor(t);
     double r = 1 / t * (1 / df - 1);
     Cash cash = new Cash(CUR, 0, t, 1, r, t, FIVE_PC_CURVE_NAME);
-    Map<String, List<DoublesPair>> sense = PVSC.visit(cash, CURVES);
+    Map<String, List<DoublesPair>> sense = cash.accept(PVSC, CURVES);
 
     assertTrue(sense.containsKey(FIVE_PC_CURVE_NAME));
     assertFalse(sense.containsKey(ZERO_PC_CURVE_NAME));
@@ -95,7 +91,7 @@ public class PresentValueSensitivityCalculatorTest {
     for (final DoublesPair pair : temp) {
       if (pair.getFirst() == 0.0) {
         assertEquals(0.0, pair.getSecond(), 1e-12);
-      } else if (pair.getFirst() == t) {
+      } else if (Double.compare(pair.getFirst(), t) == 0) {
         assertEquals(-t * df * (1 + r * t), pair.getSecond(), 1e-12);
       } else {
         assertFalse(true);
@@ -107,12 +103,12 @@ public class PresentValueSensitivityCalculatorTest {
     final double dfa = curve.getDiscountFactor(tradeTime);
     r = 1 / yearFrac * (dfa / df - 1);
     cash = new Cash(CUR, tradeTime, t, 1, r, yearFrac, FIVE_PC_CURVE_NAME);
-    sense = PVSC.visit(cash, CURVES);
+    sense = cash.accept(PVSC, CURVES);
     temp = sense.get(FIVE_PC_CURVE_NAME);
     for (final DoublesPair pair : temp) {
-      if (pair.getFirst() == tradeTime) {
+      if (Double.compare(pair.getFirst(), tradeTime) == 0) {
         assertEquals(dfa * tradeTime, pair.getSecond(), 1e-12);
-      } else if (pair.getFirst() == t) {
+      } else if (Double.compare(pair.getFirst(), t) == 0) {
         assertEquals(-t * df * (1 + r * yearFrac), pair.getSecond(), 1e-12);
       } else {
         assertFalse(true);
@@ -124,7 +120,7 @@ public class PresentValueSensitivityCalculatorTest {
   public void testFRA() {
     final double eps = 1e-9;
 
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
 
     final double paymentTime = 0.5;
@@ -140,35 +136,35 @@ public class PresentValueSensitivityCalculatorTest {
     final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, ZERO_PC_CURVE_NAME, paymentYearFraction, 1, index, fixingTime, fixingPeriodStart, fixingPeriodEnd, fixingYearFraction,
         rate, FIVE_PC_CURVE_NAME);
 
-    final Map<String, List<DoublesPair>> sense = PVSC.visit(fra, CURVES);
+    final Map<String, List<DoublesPair>> sense = fra.accept(PVSC, CURVES);
     final List<DoublesPair> senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
     final List<DoublesPair> senseFD = curveSensitvityFDCalculator(fra, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
     assertSensitivityEquals(senseFD, senseAnal, eps);
   }
 
-  @Test
-  public void testFutures() {
-    final double eps = 1e-7;
-    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-    final double lastTradingTime = 1.473;
-    final double fixingPeriodStartTime = 1.467;
-    final double fixingPeriodEndTime = 1.75;
-    final double fixingPeriodAccrualFactor = 0.267;
-    final double paymentAccrualFactor = 0.25;
-    final int quantity = 123;
-    final double[] nodeTimes = new double[] {fixingPeriodStartTime, fixingPeriodEndTime};
-
-    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 0.0, 1.0, paymentAccrualFactor, quantity,
-        "K", ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-
-    final Map<String, List<DoublesPair>> sense = PVSC.visit(ir, CURVES);
-
-    final List<DoublesPair> senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
-    final List<DoublesPair> senseFD = curveSensitvityFDCalculator(ir, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
-
-    assertSensitivityEquals(senseFD, senseAnal, eps);
-  }
+  //  @Test
+  //  public void testFutures() {
+  //    final double eps = 1e-7;
+  //    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+  //        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+  //    final double lastTradingTime = 1.473;
+  //    final double fixingPeriodStartTime = 1.467;
+  //    final double fixingPeriodEndTime = 1.75;
+  //    final double fixingPeriodAccrualFactor = 0.267;
+  //    final double paymentAccrualFactor = 0.25;
+  //    final int quantity = 123;
+  //    final double[] nodeTimes = new double[] {fixingPeriodStartTime, fixingPeriodEndTime };
+  //
+  //    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 0.0, 1.0, paymentAccrualFactor, quantity,
+  //        "K", ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+  //
+  //    final Map<String, List<DoublesPair>> sense = ir.accept(PVSC, CURVES);
+  //
+  //    final List<DoublesPair> senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
+  //    final List<DoublesPair> senseFD = curveSensitvityFDCalculator(ir, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
+  //
+  //    assertSensitivityEquals(senseFD, senseAnal, eps);
+  //  }
 
   @Test
   public void testFixedCouponAnnuity() {
@@ -186,7 +182,7 @@ public class PresentValueSensitivityCalculatorTest {
     }
 
     final AnnuityCouponFixed annuity = new AnnuityCouponFixed(CUR, paymentTimes, Math.PI, coupon, yearFracs, FIVE_PC_CURVE_NAME, isPayer);
-    final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
+    final Map<String, List<DoublesPair>> sense = annuity.accept(PVSC, CURVES);
 
     final List<DoublesPair> senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
     final List<DoublesPair> senseFD = curveSensitvityFDCalculator(annuity, PVC, CURVES, FIVE_PC_CURVE_NAME, paymentTimes, eps);
@@ -207,36 +203,36 @@ public class PresentValueSensitivityCalculatorTest {
     final ZonedDateTime settleDate = DateUtils.getUTCDate(2014, 3, 20);
     final Period indexTenor = Period.ofMonths(3);
     final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final IborIndex INDEX = new IborIndex(CUR, indexTenor, settlementDays, CALENDAR, dayCount, businessDayConvention, isEOM);
-    final AnnuityCouponIborDefinition iborAnnuityDefinition = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(5), notional, INDEX, !isPayer);
+    final IborIndex INDEX = new IborIndex(CUR, indexTenor, settlementDays, dayCount, businessDayConvention, isEOM);
+    final AnnuityCouponIborDefinition iborAnnuityDefinition = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(5), notional, INDEX, !isPayer, CALENDAR);
 
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final Annuity<? extends Payment> iborAnnuity1Curve = iborAnnuityDefinition.toDerivative(REFERENCE_DATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
     final Annuity<? extends Payment> iborAnnuity = iborAnnuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
     //produce a array of strictly ascending times
-    final Set<Double> times = new TreeSet<Double>();
+    final Set<Double> times = new TreeSet<>();
     for (int i = 0; i < iborAnnuity.getNumberOfPayments(); i++) {
       final CouponIbor coupon = (CouponIbor) iborAnnuity.getNthPayment(i);
       times.add(coupon.getPaymentTime());
       times.add(coupon.getFixingPeriodStartTime());
       times.add(coupon.getFixingPeriodEndTime());
     }
-    final Double[] tArray = times.toArray(new Double[] {});
+    final Double[] tArray = times.toArray(new Double[times.size()]);
     final double[] t = new double[times.size()];
     for (int i = 0; i < times.size(); i++) {
       t[i] = tArray[i];
     }
 
     //single curve
-    Map<String, List<DoublesPair>> sense = PVSC.visit(iborAnnuity1Curve, curves);
+    Map<String, List<DoublesPair>> sense = iborAnnuity1Curve.accept(PVSC, curves);
     assertTrue(!sense.containsKey(FORWARD_CURVE_NAME));
     List<DoublesPair> senseAnal = clean(sense.get(FUNDING_CURVE_NAME), relTol, absTol);
     List<DoublesPair> senseFD = curveSensitvityFDCalculator(iborAnnuity1Curve, PVC, curves, FUNDING_CURVE_NAME, t, absTol);
     assertSensitivityEquals(senseFD, senseAnal, absTol);
 
     //2 curves
-    sense = PVSC.visit(iborAnnuity, curves);
+    sense = iborAnnuity.accept(PVSC, curves);
     senseAnal = clean(sense.get(FUNDING_CURVE_NAME), relTol, absTol);
     senseFD = curveSensitvityFDCalculator(iborAnnuity, PVC, curves, FUNDING_CURVE_NAME, t, absTol);
     assertSensitivityEquals(senseFD, senseAnal, absTol);
@@ -245,59 +241,6 @@ public class PresentValueSensitivityCalculatorTest {
     senseFD = curveSensitvityFDCalculator(iborAnnuity, PVC, curves, FORWARD_CURVE_NAME, t, absTol);
     assertSensitivityEquals(senseFD, senseAnal, absTol);
   }
-
-  //  @Test
-  //  public void testForwardLiborAnnuity() {
-  //    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-  //    final double yield = curve.getInterestRate(0.0);
-  //    final double eps = 1e-9;
-  //
-  //    final int n = 15;
-  //    final double alpha = 0.245;
-  //    final double yearFrac = 0.25;
-  //    final double[] paymentTimes = new double[n];
-  //    final double[] indexFixing = new double[n];
-  //    final double[] indexMaturity = new double[n];
-  //    final double[] yearFracs = new double[n];
-  //    final double[] spreads = new double[n];
-  //    final double[] nodeTimes = new double[n + 1];
-  //    final double[] yields = new double[n + 1];
-  //
-  //    nodeTimes[0] = 0.0;
-  //
-  //    for (int i = 0; i < n; i++) {
-  //      paymentTimes[i] = (i + 1) * alpha;
-  //      indexFixing[i] = i * alpha;
-  //      indexMaturity[i] = paymentTimes[i];
-  //      yearFracs[i] = yearFrac;
-  //      nodeTimes[i + 1] = paymentTimes[i];
-  //      yields[i + 1] = yield;
-  //    }
-  //
-  //    final boolean isPayer = true;
-  //    final AnnuityCouponIbor annuitySingleCurve = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, IBOR_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E,
-  //        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, isPayer);
-  //    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, IBOR_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME,
-  //        FIVE_PC_CURVE_NAME, isPayer);
-  //
-  //    final Map<String, List<DoublesPair>> senseSingleCurve = PVSC.visit(annuitySingleCurve, CURVES);
-  //    final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
-  //
-  //    //1. single curve sense
-  //    List<DoublesPair> senseAnal = clean(senseSingleCurve.get(FIVE_PC_CURVE_NAME), eps, eps);
-  //    List<DoublesPair> senseFD = curveSensitvityFDCalculator(annuitySingleCurve, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
-  //    assertSensitivityEquals(senseFD, senseAnal, eps);
-  //
-  //    // 2. Forward curve sensitivity
-  //    senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
-  //    senseFD = curveSensitvityFDCalculator(annuity, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
-  //    assertSensitivityEquals(senseFD, senseAnal, eps);
-  //
-  //    // 3. Funding curve sensitivity
-  //    senseAnal = clean(sense.get(ZERO_PC_CURVE_NAME), eps, eps);
-  //    senseFD = curveSensitvityFDCalculator(annuity, PVC, CURVES, ZERO_PC_CURVE_NAME, nodeTimes, eps);
-  //    assertSensitivityEquals(senseFD, senseAnal, eps);
-  //  }
 
   @Test
   public void testGenericAnnuity() {
@@ -312,8 +255,8 @@ public class PresentValueSensitivityCalculatorTest {
       payments[i] = new PaymentFixed(CUR, times[i], amounts[i], curveNames[i]);
     }
 
-    final Annuity<Payment> annuity = new Annuity<Payment>(payments);
-    final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
+    final Annuity<Payment> annuity = new Annuity<>(payments);
+    final Map<String, List<DoublesPair>> sense = annuity.accept(PVSC, CURVES);
     final List<DoublesPair> sense0FD = curveSensitvityFDCalculator(annuity, PVC, CURVES, ZERO_PC_CURVE_NAME, times, eps);
     final List<DoublesPair> sense5FD = curveSensitvityFDCalculator(annuity, PVC, CURVES, FIVE_PC_CURVE_NAME, times, eps);
     assertSensitivityEquals(sense0FD, sense.get(ZERO_PC_CURVE_NAME), eps);
@@ -327,7 +270,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double amount = 4345.3;
     final PaymentFixed payment = new PaymentFixed(CUR, time, amount, FIVE_PC_CURVE_NAME);
 
-    final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = payment.accept(PVSC, CURVES);
     assertFalse(sense.containsKey(ZERO_PC_CURVE_NAME));
     final double senseFD = curveSensitvityFDCalculator(payment, PVC, CURVES, FIVE_PC_CURVE_NAME, time);
     assertEquals(senseFD, sense.get(FIVE_PC_CURVE_NAME).get(0).second, eps * amount);
@@ -343,7 +286,7 @@ public class PresentValueSensitivityCalculatorTest {
 
     final CouponFixed payment = new CouponFixed(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, coupon);
 
-    final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
+    final Map<String, List<DoublesPair>> sense = payment.accept(PVSC, CURVES);
 
     assertFalse(sense.containsKey(FIVE_PC_CURVE_NAME));
 
@@ -370,66 +313,16 @@ public class PresentValueSensitivityCalculatorTest {
     final double[] nodeTimes = new double[] {resetTime, paymentTime, maturity};
 
     //single curve
-    Map<String, List<DoublesPair>> sense = clean(PVSC.visit(payment1Curve, CURVES), eps, eps * notional);
+    Map<String, List<DoublesPair>> sense = clean(payment1Curve.accept(PVSC, CURVES), eps, eps * notional);
     List<DoublesPair> sense5FD = curveSensitvityFDCalculator(payment1Curve, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
     assertSensitivityEquals(sense5FD, sense.get(FIVE_PC_CURVE_NAME), eps * notional);
 
     //2 curves
-    sense = clean(PVSC.visit(payment, CURVES), eps, eps * notional);
+    sense = clean(payment.accept(PVSC, CURVES), eps, eps * notional);
     final List<DoublesPair> sense0FD = curveSensitvityFDCalculator(payment, PVC, CURVES, ZERO_PC_CURVE_NAME, nodeTimes, eps);
     sense5FD = curveSensitvityFDCalculator(payment, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps);
     assertSensitivityEquals(sense0FD, sense.get(ZERO_PC_CURVE_NAME), eps * notional);
     assertSensitivityEquals(sense5FD, sense.get(FIVE_PC_CURVE_NAME), eps * notional);
-  }
-
-  @Test
-  public void testFixedFloatSwap() {
-    final double eps = 1e-9;
-    final int n = 20;
-    final double[] fixedPaymentTimes = new double[n];
-    final double[] floatPaymentTimes = new double[2 * n];
-
-    for (int i = 0; i < n * 2; i++) {
-      if (i % 2 == 0) {
-        fixedPaymentTimes[i / 2] = (i + 2) * 0.25;
-      }
-      floatPaymentTimes[i] = (i + 1) * 0.25;
-    }
-    final double swapRate = 0.04;
-    final boolean isPayer = true;
-
-    final Swap<?, ?> swapSingleCurve = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, IBOR_INDEX, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, isPayer);
-    final Swap<?, ?> swapPayer = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, IBOR_INDEX, swapRate, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, isPayer);
-    final Swap<?, ?> swapReceiver = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, IBOR_INDEX, swapRate, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, !isPayer);
-    final Map<String, List<DoublesPair>> sensiPayer = PVSC.visit(swapPayer, CURVES);
-    final Map<String, List<DoublesPair>> sensiReceiver = PVSC.visit(swapReceiver, CURVES);
-    final Map<String, List<DoublesPair>> sensiSwapSingleCurve = PVSC.visit(swapSingleCurve, CURVES);
-
-    //1. Single curve sensitivity
-    final List<DoublesPair> senSwapSingleCurve = clean(sensiSwapSingleCurve.get(FIVE_PC_CURVE_NAME), eps, eps);
-    final List<DoublesPair> fdsenSwapSingleCurve = curveSensitvityFDCalculator(swapSingleCurve, PVC, CURVES, FIVE_PC_CURVE_NAME, floatPaymentTimes, eps);
-    assertSensitivityEquals(senSwapSingleCurve, fdsenSwapSingleCurve, eps);
-
-    // 2. Forward curve sensitivity
-    List<DoublesPair> senPayerFwd = clean(sensiPayer.get(FIVE_PC_CURVE_NAME), eps, eps);
-    List<DoublesPair> senReceiverFwd = clean(sensiReceiver.get(FIVE_PC_CURVE_NAME), eps, eps);
-
-    List<DoublesPair> fdSenPayerFwd = curveSensitvityFDCalculator(swapPayer, PVC, CURVES, FIVE_PC_CURVE_NAME, floatPaymentTimes, eps);
-    List<DoublesPair> fdSenReceiverFwd = curveSensitvityFDCalculator(swapReceiver, PVC, CURVES, FIVE_PC_CURVE_NAME, floatPaymentTimes, eps);
-
-    assertSensitivityEquals(fdSenPayerFwd, senPayerFwd, eps);
-    assertSensitivityEquals(fdSenReceiverFwd, senReceiverFwd, eps);
-
-    // 3. Funding curve sensitivity
-    senPayerFwd = clean(sensiPayer.get(ZERO_PC_CURVE_NAME), eps, eps);
-    senReceiverFwd = clean(sensiReceiver.get(ZERO_PC_CURVE_NAME), eps, eps);
-
-    fdSenPayerFwd = curveSensitvityFDCalculator(swapPayer, PVC, CURVES, ZERO_PC_CURVE_NAME, floatPaymentTimes, eps);
-    fdSenReceiverFwd = curveSensitvityFDCalculator(swapReceiver, PVC, CURVES, ZERO_PC_CURVE_NAME, floatPaymentTimes, eps);
-
-    assertSensitivityEquals(fdSenPayerFwd, senPayerFwd, eps);
-    assertSensitivityEquals(fdSenReceiverFwd, senReceiverFwd, eps);
-
   }
 
   // Swaption description
@@ -451,10 +344,10 @@ public class PresentValueSensitivityCalculatorTest {
   //  Ibor leg: quarterly money
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("Swap Generator", FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("Swap Generator", FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CALENDAR);
   private static final IndexSwap CMS_INDEX = new IndexSwap(SWAP_GENERATOR, ANNUITY_TENOR);
-  private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   @Test
@@ -466,7 +359,7 @@ public class PresentValueSensitivityCalculatorTest {
     final Annuity<Coupon> floatLeg = SWAP_PAYER.getSecondLeg();
 
     //produce a array of strictly ascending times
-    final Set<Double> times = new TreeSet<Double>();
+    final Set<Double> times = new TreeSet<>();
     for (int i = 0; i < fixedLeg.getNumberOfPayments(); i++) {
       final CouponFixed coupon = fixedLeg.getNthPayment(i);
       times.add(coupon.getPaymentTime());
@@ -477,12 +370,12 @@ public class PresentValueSensitivityCalculatorTest {
       times.add(coupon.getFixingPeriodStartTime());
       times.add(coupon.getFixingPeriodEndTime());
     }
-    final Double[] tArray = times.toArray(new Double[] {});
+    final Double[] tArray = times.toArray(new Double[times.size()]);
     final double[] t = new double[times.size()];
     for (int i = 0; i < times.size(); i++) {
       t[i] = tArray[i];
     }
-    final Map<String, List<DoublesPair>> sense = clean(PVSC.visit(SWAP_PAYER, curves), eps, eps * NOTIONAL);
+    final Map<String, List<DoublesPair>> sense = clean(SWAP_PAYER.accept(PVSC, curves), eps, eps * NOTIONAL);
 
     final List<DoublesPair> fdFundSense = curveSensitvityFDCalculator(SWAP_PAYER, PVC, curves, FUNDING_CURVE_NAME, t, eps * NOTIONAL);
     final List<DoublesPair> fdFwdSense = curveSensitvityFDCalculator(SWAP_PAYER, PVC, curves, FORWARD_CURVE_NAME, t, eps * NOTIONAL);

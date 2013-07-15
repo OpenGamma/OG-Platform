@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -30,7 +30,7 @@ public final class HolidayDateRemovalFunction {
   public LocalDate[] getStrippedSchedule(final LocalDate[] dates, final Calendar holidays) {
     ArgumentChecker.notNull(dates, "date");
     ArgumentChecker.notNull(holidays, "holidays");
-    final List<LocalDate> stripped = new ArrayList<LocalDate>();
+    final List<LocalDate> stripped = new ArrayList<>();
     for (final LocalDate date : dates) {
       if (holidays.isWorkingDay(date)) {
         stripped.add(date);

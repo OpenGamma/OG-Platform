@@ -18,6 +18,7 @@ import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorF
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -37,9 +38,9 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesIntersector;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesIntersector;
 
 /**
  * 
@@ -54,17 +55,22 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+    return true;
+  }
+
+  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final Object positionOrNode = getTarget(target);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
     final HistoricalTimeSeries benchmarkTSObject = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
+    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L series was null");
     }
-    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
     if (assetFairValueObject == null) {
       throw new OpenGammaRuntimeException("Asset fair value was null");
     }
@@ -79,7 +85,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
         constraints.getValues(ValuePropertyNames.STD_DEV_CALCULATOR));
     final double ratio = calculator.evaluate(assetReturnTS, benchmarkReturnTS);
     final ValueProperties resultProperties = getResultProperties(desiredValues.iterator().next());
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode, resultProperties), getUniqueId()), ratio));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.SHARPE_RATIO, targetSpec, resultProperties), ratio));
   }
 
   @Override
@@ -102,15 +108,15 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     if (returnCalculatorNames == null || returnCalculatorNames.size() != 1) {
       return null;
     }
-    final Object positionOrNode = getTarget(target);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, ValueProperties.builder()
+    requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, ValueProperties.builder()
         .withAny(ValuePropertyNames.CURRENCY)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorNames.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionNames.iterator().next())
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorNames.iterator().next()).get()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
@@ -126,13 +132,10 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode, getResultProperties()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.SHARPE_RATIO, target.toSpecification(), getResultProperties()));
     }
     return null;
   }
-
-  public abstract Object getTarget(ComputationTarget target);
 
   private ValueProperties getResultProperties() {
     return createValueProperties()

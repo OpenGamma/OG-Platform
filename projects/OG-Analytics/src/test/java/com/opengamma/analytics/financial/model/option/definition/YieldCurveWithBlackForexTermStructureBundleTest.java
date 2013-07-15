@@ -31,11 +31,11 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final double[] NODES = new double[] {0.01, 0.50, 1.00, 2.01, 5.00};
-  private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20};
+  private static final double[] NODES = new double[] {0.01, 0.50, 1.00, 2.01, 5.00 };
+  private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20 };
   private static final InterpolatedDoublesCurve TERM_STRUCTURE_VOL = InterpolatedDoublesCurve.fromSorted(NODES, VOL, LINEAR_FLAT);
   private static final BlackForexTermStructureParameters VOLS = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL);
-  private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.USD, Currency.EUR);
+  private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.EUR, Currency.EUR);
   private static final YieldCurveWithBlackForexTermStructureBundle FX_DATA = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, CCYS);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -52,7 +52,6 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
   public void testNullCurrencies() {
     new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, null);
   }
-
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCurrencyPair() {
@@ -77,7 +76,7 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
     assertFalse(FX_DATA.equals(other));
     other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, new BlackForexTermStructureParameters(InterpolatedDoublesCurve.fromSorted(NODES, VOL, LINEAR_FLAT)), CCYS);
     assertFalse(FX_DATA.equals(other));
-    other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, Pair.of(Currency.USD, Currency.GBP));
+    other = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, Pair.of(Currency.EUR, Currency.GBP));
     assertFalse(FX_DATA.equals(other));
   }
 
@@ -91,7 +90,7 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
   public void testBuilders() {
     final YieldCurveWithBlackForexTermStructureBundle fxData = new YieldCurveWithBlackForexTermStructureBundle(CURVES, VOLS, CCYS);
     assertEquals(FX_DATA, fxData);
-    YieldCurveWithBlackForexTermStructureBundle other = fxData.with(TestsDataSetsForex.createCurvesForex());
+    YieldCurveWithBlackForexTermStructureBundle other = fxData.with(TestsDataSetsForex.createCurvesForex2());
     assertEquals(FX_DATA, fxData);
     assertFalse(other.equals(fxData));
     other = FX_DATA.with(new BlackForexTermStructureParameters(InterpolatedDoublesCurve.fromSorted(NODES, VOL, LINEAR_FLAT)));

@@ -6,16 +6,14 @@
 package com.opengamma.livedata.cogda.server;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -24,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.opengamma.core.user.AuthenticationUtils;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.core.user.UserSource;
@@ -41,6 +41,7 @@ import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.metric.MetricProducer;
 
 /**
  * The base server process for any Cogda Live Data Server.
@@ -57,7 +58,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * Because the {@link UserSource} will be hit for every authorization question, it is <strong>critical</strong>
  * that the source caches requests in some form.
  */
-public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionReceiver, Lifecycle {
+public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionReceiver, Lifecycle, MetricProducer {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CogdaLiveDataServer.class);
@@ -72,12 +73,14 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
   private final ConcurrentMap<LiveDataSpecification, LastKnownValueStore> _lastKnownValueStores =
       new ConcurrentHashMap<LiveDataSpecification, LastKnownValueStore>();
   
-  private final Set<CogdaClientConnection> _clients = Collections.synchronizedSet(new HashSet<CogdaClientConnection>());
+  private final Set<CogdaClientConnection> _clients = new CopyOnWriteArraySet<CogdaClientConnection>();
   // TODO kirk 2012-07-23 -- This is absolutely the wrong executor here.
   private final Executor _valueUpdateSendingExecutor = Executors.newFixedThreadPool(5);
-  private final AtomicLong _ticksReceived = new AtomicLong(0L);
   private UserSource _userSource;
   private boolean _checkPassword = true;
+  
+  // Metrics:
+  private Meter _tickMeter = new Meter();
   
   public CogdaLiveDataServer(LastKnownValueStoreProvider lkvStoreProvider) {
     this(lkvStoreProvider, OpenGammaFudgeContext.getInstance());
@@ -89,6 +92,11 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
     _lastKnownValueStoreProvider = lkvStoreProvider;
     _connectionReceiver = new ServerSocketFudgeConnectionReceiver(fudgeContext, this);
     _connectionReceiver.setLazyFudgeMsgReads(false);
+  }
+
+  @Override
+  public synchronized void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    _tickMeter = summaryRegistry.meter(namePrefix + ".ticks");
   }
 
   /**
@@ -178,11 +186,15 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
   }
   
   public void liveDataReceived(LiveDataValueUpdate valueUpdate) {
-    _ticksReceived.incrementAndGet();
+    _tickMeter.mark();
+    
+    // REVIEW kirk 2013-03-27 -- Does this loop need to be done in an executor
+    // task or something? If nothing else, connection.liveDataReceived() can
+    // block.
+    
     // This could probably be much much faster, but we're designed initially for low-frequency
     // updates. Someone smarter should optimize the data structures here.
-    List<CogdaClientConnection> connections = new LinkedList<CogdaClientConnection>(_clients);
-    for (CogdaClientConnection connection : connections) {
+    for (CogdaClientConnection connection : _clients) {
       boolean needsPump = connection.liveDataReceived(valueUpdate);
       if (needsPump) {
         final CogdaClientConnection finalConnection = connection;
@@ -268,10 +280,6 @@ public class CogdaLiveDataServer implements LiveDataServer, FudgeConnectionRecei
 
   public int getNumClients() {
     return _clients.size();
-  }
-  
-  public long getNumTicksReceived() {
-    return _ticksReceived.get();
   }
   
   public Set<String> getActiveUsers() {

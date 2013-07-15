@@ -5,16 +5,17 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
+import java.util.HashMap;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.opengamma.OpenGammaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,15 +23,24 @@ import com.opengamma.util.ArgumentChecker;
  * Provides ExternalIds for equity future options used to build a volatility surface
  */
 public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
-  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("MM/dd/yy");
-
-  private static final BiMap<String, FutureOptionExpiries> EXPIRY_RULES;
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider.class);
+  /** The date-time formatter */
+  private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("MM/dd/yy");
+  /** The expiry rules */
+  private static final HashMap<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
   static {
-    EXPIRY_RULES = HashBiMap.create();
+    EXPIRY_RULES = new HashMap<>();
     EXPIRY_RULES.put("NKY", FutureOptionExpiries.of(new NextExpiryAdjuster(2, DayOfWeek.FRIDAY)));
+    EXPIRY_RULES.put("NDX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1))); //TODO
+    EXPIRY_RULES.put("RUT", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1))); //TODO
     EXPIRY_RULES.put("DJX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
     EXPIRY_RULES.put("SPX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
+    EXPIRY_RULES.put("VIX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, -30)));
+    EXPIRY_RULES.put("AAPL US", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
     EXPIRY_RULES.put("UKX", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY)));
+    EXPIRY_RULES.put("FB US", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
+    EXPIRY_RULES.put("DEFAULT", FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.FRIDAY, 1)));
     //TODO DAX, EUROSTOXX 50 (SX5E)
   }
 
@@ -80,12 +90,9 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
     final StringBuffer ticker = new StringBuffer();
     ticker.append(prefix);
     ticker.append(" ");
-    final FutureOptionExpiries expiryRule = EXPIRY_RULES.get(prefix);
-    if (expiryRule == null) {
-      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + prefix + ". Determine week and day pattern and add to EXPIRY_RULES.");
-    }
-    final LocalDate expiry = expiryRule.getFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
-    ticker.append(FORMAT.print(expiry));
+    ExchangeTradedInstrumentExpiryCalculator expiryRule = getExpiryRuleCalculator();
+    final LocalDate expiry = expiryRule.getExpiryMonth(futureOptionNumber.intValue(), surfaceDate);
+    ticker.append(FORMAT.format(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
     ticker.append(strike);
@@ -94,4 +101,22 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
     return ExternalId.of(getScheme(), ticker.toString());
   }
 
+  /**
+   * Gets the expiryRules.
+   * @return the expiryRules
+   */
+  public static HashMap<String, ExchangeTradedInstrumentExpiryCalculator> getExpiryRules() {
+    return EXPIRY_RULES;
+  }
+
+  @Override
+  public ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator() {
+    final String prefix = getFutureOptionPrefix();
+    ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(prefix);
+    if (expiryRule == null) {
+      s_logger.info("No expiry rule has been setup for " + prefix + ". Using Default of 3rd Friday.");
+      expiryRule = EXPIRY_RULES.get("DEFAULT");
+    }
+    return expiryRule;
+  }
 }

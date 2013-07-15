@@ -1,24 +1,28 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -42,12 +46,12 @@ public final class HistoricalTimeSeriesFunctionUtils {
    * Property describing the maximum age of a time-series point.
    */
   public static final String AGE_LIMIT_PROPERTY = "AgeLimit";
-  
+
   /**
    * Value for {@link #AGE_LIMIT_PROPERTY}.
    */
   public static final String UNLIMITED_AGE_LIMIT_VALUE = "Unlimited";
-  
+
   /**
    * Property describing the "resolution key" used to resolve the time series for each instrument.
    */
@@ -86,23 +90,79 @@ public final class HistoricalTimeSeriesFunctionUtils {
   private HistoricalTimeSeriesFunctionUtils() {
   }
 
+  public static ValueProperties.Builder htsConstraints(final ValueProperties.Builder properties, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate,
+      final boolean includeEnd) {
+    if (startDate != null) {
+      properties.with(START_DATE_PROPERTY, startDate.toString()).with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE);
+    }
+    if (endDate != null) {
+      properties.with(END_DATE_PROPERTY, endDate.toString()).with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE);
+    }
+    return properties;
+  }
+
+  public static ValueRequirement createHTSRequirement(final HistoricalTimeSeriesResolutionResult timeSeries, final String dataField, final ValueProperties constraints) {
+    final HistoricalTimeSeriesAdjuster adjuster = timeSeries.getAdjuster();
+    final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(timeSeries.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
+    final Builder properties = constraints.copy()
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(ADJUST_PROPERTY, adjustment);
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
+        properties.get());
+  }
+
   public static ValueRequirement createHTSRequirement(final HistoricalTimeSeriesResolutionResult timeSeries, final String dataField, final DateConstraint startDate, final boolean includeStart,
       final DateConstraint endDate, final boolean includeEnd) {
     final HistoricalTimeSeriesAdjuster adjuster = timeSeries.getAdjuster();
     final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(timeSeries.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
-        ValueProperties.builder()
+    final Builder properties = htsConstraints(ValueProperties.builder(), startDate, includeStart, endDate, includeEnd)
         .with(DATA_FIELD_PROPERTY, dataField)
-        .with(ADJUST_PROPERTY, adjustment)
+        .with(ADJUST_PROPERTY, adjustment);
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
+        properties.get());
+  }
+
+  /** Creates a ValueRequirement for {@link ValueRequirementNames#HISTORICAL_TIME_SERIES_LATEST}.
+   *  See {@link HistoricalTimeSeriesLatestSecurityValueFunction} which does the heavy lifting
+   *  @param security {@link Security} for which value is required
+   *  @param dataField Name of time series value. Example "Close"
+   *  @param constraints {@link ValueProperties}
+   *  @return The {@link ValueRequirement} "Historical Time Series (latest value)"
+   */
+  public static ValueRequirement createHTSLatestRequirement(final Security security, final String dataField, final ValueProperties constraints) {
+    final Builder properties = (constraints == null ? ValueProperties.none() : constraints).copy().with(DATA_FIELD_PROPERTY, dataField);
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetSpecification.of(security), properties.get());
+  }
+
+  public static ValueRequirement createYCHTSRequirement(final Currency currency, final String curveName, final String dataField, final String resolutionKey, final DateConstraint startDate,
+      final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, ComputationTargetType.CURRENCY.specification(currency),
+        ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
         .with(START_DATE_PROPERTY, startDate.toString())
         .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
         .with(END_DATE_PROPERTY, endDate.toString())
         .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
-  public static ValueRequirement createYCHTSRequirement(final Currency currency, final String curveName, final String dataField, final String resolutionKey, final DateConstraint startDate,
-      final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, currency,
+  public static ValueRequirement createCreditSpreadCurveHTSRequirement(final Security security, final String curveName, final String dataField, final String resolutionKey,
+      final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
+    return new ValueRequirement(ValueRequirementNames.CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.of(security),
+        ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(DATA_FIELD_PROPERTY, dataField)
+        .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+        .with(START_DATE_PROPERTY, startDate.toString())
+        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+        .with(END_DATE_PROPERTY, endDate.toString())
+        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+  }
+
+  public static ValueRequirement createFXForwardCurveHTSRequirement(final UnorderedCurrencyPair currencyPair, final String curveName, final String dataField, final String resolutionKey,
+      final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
+    return new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair),
         ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(DATA_FIELD_PROPERTY, dataField)
@@ -115,7 +175,7 @@ public final class HistoricalTimeSeriesFunctionUtils {
 
   public static ValueRequirement createVolatilitySurfaceHTSRequirement(final UnorderedCurrencyPair currencies, final String surfaceName, final String instrumentType, final String dataField,
       final String resolutionKey, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, currencies,
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencies),
         ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
@@ -127,10 +187,9 @@ public final class HistoricalTimeSeriesFunctionUtils {
         .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
-
   /**
    * Reduces any parameters of value name {@link ValueRequirementNames#HISTORICAL_TIME_SERIES} to a single {@link HistoricalTimeSeriesBundle}.
-   * 
+   *
    * @param executionContext the execution context, must contain a {@link HistoricalTimeSeriesSource}
    * @param inputs the function inputs
    * @return the time series bundle, not null

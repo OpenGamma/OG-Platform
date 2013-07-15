@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 
 import java.util.BitSet;
 
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.MixedLogNormalModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
@@ -25,12 +27,21 @@ public class SmileInterpolatorMixedLogNormal extends SmileInterpolator<MixedLogN
     super(MODEL);
   }
 
+  public SmileInterpolatorMixedLogNormal(final int seed) {
+    super(seed, MODEL);
+  }
+
   public SmileInterpolatorMixedLogNormal(final WeightingFunction weightingFunction) {
     super(MODEL, weightingFunction);
   }
 
+  public SmileInterpolatorMixedLogNormal(final int seed, final WeightingFunction weightingFunction) {
+    super(seed, MODEL, weightingFunction);
+  }
+
   @Override
   protected DoubleMatrix1D getGlobalStart(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    final RandomEngine random = getRandom();
     final DoubleMatrix1D fitP = getPolynomialFit(forward, strikes, impliedVols);
 
     final double a = fitP.getEntry(0);
@@ -41,8 +52,8 @@ public class SmileInterpolatorMixedLogNormal extends SmileInterpolator<MixedLogN
       final double theta = Math.PI / 2 - 0.01;
       return new DoubleMatrix1D(a, 0.01, theta, theta);
     }
-    final double theta = Math.PI / 2 * RANDOM.nextDouble();
-    return new DoubleMatrix1D(a * (0.8 + 0.4 * RANDOM.nextDouble()), a * 0.5 * RANDOM.nextDouble(), theta, theta);
+    final double theta = Math.PI / 2 * random.nextDouble();
+    return new DoubleMatrix1D(a * (0.8 + 0.4 * random.nextDouble()), a * 0.5 * random.nextDouble(), theta, theta);
   }
 
   @Override

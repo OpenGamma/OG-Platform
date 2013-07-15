@@ -104,7 +104,6 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
    * The meta-bean for {@code ExchangeSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static ExchangeSearchResult.Meta meta() {
     return ExchangeSearchResult.Meta.INSTANCE;
   }
@@ -158,7 +157,7 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

@@ -11,59 +11,50 @@ $.register_module({
     obj: function () {
         var module = this, Form = og.common.util.ui.Form, api = og.api.rest, constructor;
         constructor = function (config) {
-            var load_handler = config.handler || $.noop, selector = config.selector,
-                master = config.data.template_data.configJSON.data, config_type = config.type,
+            var load_handler = config.handler || $.noop, selector = config.selector, editor,
+                master = config.data.template_data.configXML, config_type = config.type,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
-                orig_name = config.data.template_data.name,
-                resource_id = config.data.template_data.object_id, type_map = config.type_map || {},
-                save_new_handler = config.save_new_handler, save_handler = config.save_handler,
-                new_name = '',
-                form = new Form({
-                    module: 'og.views.forms.config_default',
-                    data: {name: null},
-                    type_map: type_map,
-                    selector: selector,
-                    extras: {name: orig_name, raw: is_new ? '{}' : JSON.stringify(master, null, 2)},
+                orig_name = config.data.template_data.name, resource_id = config.data.template_data.object_id,
+                save_new_handler = config.save_new_handler, save_handler = config.save_handler, new_name = '',
+                form = new Form({module: 'og.views.forms.config_default_tash', data: {name: null}, selector: selector,
+                    extras: {name: orig_name, raw: is_new ? '<xml />' : master},
                     processor: function (data) {
-                        var key, parsed = JSON.parse(data.raw);
-                        delete data.raw;
-                        // turn data into parsed object so meta mapping can happen
-                        for (key in parsed) data[key] = parsed[key];
                         new_name = data.name;
-                        if (!type_map.name) delete data.name;
                     }
-                }),
-                form_id = '#' + form.id,
-                save_resource = function (result) {
-                    var data = result.data, meta = result.meta, as_new = result.extras.as_new;
-                    if (!deleted && !is_new && as_new && (orig_name === new_name))
-                        return window.alert('Please select a new name.');
-                    api.configs.put({
-                        id: as_new ? void 0 : resource_id,
-                        name: new_name,
-                        json: JSON.stringify({data: data, meta: meta}),
-                        type: config_type,
-                        loading: loading,
-                        handler: as_new ? save_new_handler : save_handler
-                    });
-                };
+                }), form_id = '#' + form.id;
+            var save_resource = function (result) {
+                var as_new = result.extras.as_new;
+                if (!deleted && !is_new && as_new && (orig_name === new_name))
+                    return window.alert('Please select a new name.');
+                api.configs.put({
+                    id: as_new ? void 0 : resource_id,
+                    name: new_name, xml: editor.getSession().getValue(), type: config_type, loading: loading
+                }).pipe(as_new ? save_new_handler : save_handler);
+            };
             og.dev.warn('using default config template for config type:\n' + config_type);
-            form.attach([
-                {type: 'form:load', handler: function () {
-                    var header = '\
-                        <header class="OG-header-generic">\
-                          <div class="OG-tools"></div>\
-                          <h1 class="og-js-name">' + orig_name + '</h1>\
-                        </header>';
-                    $('.OG-layout-admin-details-center .ui-layout-header').html(header);
-                    setTimeout(load_handler.partial(form));
-                }},
-                {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
-                    $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());
-                }},
-                {type: 'form:submit', handler: save_resource}
-            ]);
-            form.dom();
+            form.on('form:load', function () {
+                var textarea, id = og.common.id(), header = '\
+                    <header class="OG-header-generic">\
+                      <div class="OG-tools"></div><h1 class="og-js-name">' + orig_name + '</h1>\
+                    </header>';
+                $('.OG-layout-admin-details-center .ui-layout-header').html(header);
+                setTimeout(load_handler.partial(form));
+                $(selector).css({'overflow': 'hidden'}).find('.OG-config').addClass('og-expand');
+                textarea = $('textarea[name=raw]').addClass(id).hide();
+                editor = ace.edit('og-js-editor');
+                editor.getSession().setMode('ace/mode/xml');
+                editor.getSession().setValue(textarea.val());
+                og.common.gadgets.manager.register({
+                    alive: function () {
+                        return !!$('.' + id).length;
+                    },
+                    resize: function () {
+                        editor.resize();
+                    }
+                });
+            }).on('keyup', form_id + ' [name=name]', function (event) {
+                $('.OG-layout-admin-details-center .og-js-name').text($(event.target).val());
+            }).on('form:submit', save_resource).dom();
         };
         constructor.is_default = true;
         return constructor;

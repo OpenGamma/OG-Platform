@@ -14,10 +14,12 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests query by get.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryUserDbUserMasterWorkerGetTest extends AbstractDbUserMasterWorkerTest {
   // superclass sets up dummy database
 

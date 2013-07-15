@@ -4,10 +4,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -55,7 +54,7 @@ public class SwaptionPhysicalFixedIborTest {
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2011, 3, 28);
   private static final boolean IS_LONG = true;
   // Swap 2Y description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -75,11 +74,11 @@ public class SwaptionPhysicalFixedIborTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, FIXED_IS_PAYER);
+  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER, CALENDAR);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, FIXED_IS_PAYER, CALENDAR);
   // Swaption construction: All combinations
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR, CALENDAR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = new SwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new SwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEFINITION_LONG_PAYER = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, IS_LONG);
@@ -90,7 +89,7 @@ public class SwaptionPhysicalFixedIborTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_DEFINITION_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -117,11 +116,11 @@ public class SwaptionPhysicalFixedIborTest {
    */
   public void equalHash() {
     assertTrue(SWAPTION_LONG_PAYER.equals(SWAPTION_LONG_PAYER));
-    SwaptionPhysicalFixedIbor other = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final SwaptionPhysicalFixedIbor other = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
     assertTrue(SWAPTION_LONG_PAYER.equals(other));
     assertTrue(SWAPTION_LONG_PAYER.hashCode() == other.hashCode());
     assertEquals(SWAPTION_LONG_PAYER.toString(), other.toString());
-    SwaptionPhysicalFixedIbor otherS = SWAPTION_DEFINITION_SHORT_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final SwaptionPhysicalFixedIbor otherS = SWAPTION_DEFINITION_SHORT_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
     assertTrue(SWAPTION_SHORT_RECEIVER.equals(otherS));
     assertTrue(SWAPTION_SHORT_RECEIVER.hashCode() == otherS.hashCode());
     SwaptionPhysicalFixedIbor modifiedSwaption;
@@ -131,8 +130,8 @@ public class SwaptionPhysicalFixedIborTest {
     assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
     modifiedSwaption = SwaptionPhysicalFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), !IS_LONG);
     assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
-    SwapFixedIborDefinition otherSwapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, 2 * NOTIONAL, RATE, FIXED_IS_PAYER);
-    SwapFixedCoupon<Coupon> otherSwap = otherSwapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final SwapFixedIborDefinition otherSwapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, 2 * NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
+    final SwapFixedCoupon<Coupon> otherSwap = otherSwapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     modifiedSwaption = SwaptionPhysicalFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), otherSwap, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
     assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
     assertFalse(SWAPTION_LONG_PAYER.equals(EXPIRY_DATE));
@@ -146,7 +145,7 @@ public class SwaptionPhysicalFixedIborTest {
     CURVES.setCurve(FUNDING_CURVE_NAME, CURVE_5);
     CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     final double sigmaBlack = 0.20;
-    final double forward = PRC.visit(SWAP_PAYER, CURVES);
+    final double forward = SWAP_PAYER.accept(PRC, CURVES);
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
     final BlackFunctionData data = new BlackFunctionData(forward, pvbp, sigmaBlack);
 
@@ -161,8 +160,8 @@ public class SwaptionPhysicalFixedIborTest {
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     // Payer/Receiver parity
-    final double priceSwapPayer = PVC.visit(SWAP_PAYER, CURVES);
-    final double priceSwapReceiver = PVC.visit(SWAP_RECEIVER, CURVES);
+    final double priceSwapPayer = SWAP_PAYER.accept(PVC, CURVES);
+    final double priceSwapReceiver = SWAP_RECEIVER.accept(PVC, CURVES);
     assertEquals(priceSwapPayer, priceLongPayer + priceShortReceiver, 1E-2);
     assertEquals(priceSwapReceiver, priceLongReceiver + priceShortPayer, 1E-2);
   }
@@ -178,7 +177,7 @@ public class SwaptionPhysicalFixedIborTest {
     final double nu = 0.50;
     final double rho = -0.25;
 
-    final double forward = PRC.visit(SWAP_PAYER, CURVES);
+    final double forward = SWAP_PAYER.accept(PRC, CURVES);
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
 
     final SABRFormulaData data = new SABRFormulaData(alpha, beta, rho, nu);
@@ -209,8 +208,8 @@ public class SwaptionPhysicalFixedIborTest {
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     // Payer/Receiver parity
-    final double priceSwapPayer = PVC.visit(SWAP_PAYER, CURVES);
-    final double priceSwapReceiver = PVC.visit(SWAP_RECEIVER, CURVES);
+    final double priceSwapPayer = SWAP_PAYER.accept(PVC, CURVES);
+    final double priceSwapReceiver = SWAP_RECEIVER.accept(PVC, CURVES);
     assertEquals(priceSwapPayer, priceLongPayer + priceShortReceiver, 1E-2);
     assertEquals(priceSwapReceiver, priceLongReceiver + priceShortPayer, 1E-2);
   }
@@ -222,25 +221,27 @@ public class SwaptionPhysicalFixedIborTest {
     CURVES.setCurve(FUNDING_CURVE_NAME, CURVE_5);
     CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     // Parameter surfaces are expiry - maturity - parameter
-    final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {
-        0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(LINEAR, LINEAR));
+    final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5 }, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5 }, new double[] {
+        0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06 }, new GridInterpolator2D(LINEAR, LINEAR));
     //    final VolatilitySurface alphaVolatility = new VolatilitySurface(alphaSurface);
-    final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {0.5,
-        0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5}, new GridInterpolator2D(LINEAR, LINEAR));
+    final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5 }, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5 }, new double[] {
+        0.5,
+        0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5 }, new GridInterpolator2D(LINEAR, LINEAR));
     //    final VolatilitySurface betaVolatility = new VolatilitySurface(betaSurface);
-    final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {
-        -0.25, -0.25, -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00, 0.00}, new GridInterpolator2D(LINEAR, LINEAR));
+    final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5 }, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5 }, new double[] {
+        -0.25, -0.25, -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00, 0.00 }, new GridInterpolator2D(LINEAR, LINEAR));
     //    final VolatilitySurface rhoVolatility = new VolatilitySurface(rhoSurface);
-    final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {0.50,
-        0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR, LINEAR));
+    final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5 }, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5 }, new double[] {
+        0.50,
+        0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30 }, new GridInterpolator2D(LINEAR, LINEAR));
     //    final VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
     final SABRInterestRateParameters sabrParameter = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, DAY_COUNT_STANDARD);
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     // Swaption pricing.
-    final double priceLongPayer = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    final double priceShortPayer = PVC.visit(SWAPTION_SHORT_PAYER, sabrBundle);
-    final double priceLongReceiver = PVC.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
-    final double priceShortReceiver = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
+    final double priceLongPayer = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
+    final double priceShortPayer = SWAPTION_SHORT_PAYER.accept(PVC, sabrBundle);
+    final double priceLongReceiver = SWAPTION_LONG_RECEIVER.accept(PVC, sabrBundle);
+    final double priceShortReceiver = SWAPTION_SHORT_RECEIVER.accept(PVC, sabrBundle);
     // From previous run
     final double expectedPriceLongPayer = 1918849.475;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
@@ -248,8 +249,8 @@ public class SwaptionPhysicalFixedIborTest {
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     assertEquals(priceLongReceiver, -priceShortReceiver, 1E-2);
     // Payer/Receiver parity
-    final double priceSwapPayer = PVC.visit(SWAP_PAYER, CURVES);
-    final double priceSwapReceiver = PVC.visit(SWAP_RECEIVER, CURVES);
+    final double priceSwapPayer = SWAP_PAYER.accept(PVC, CURVES);
+    final double priceSwapReceiver = SWAP_RECEIVER.accept(PVC, CURVES);
     assertEquals(priceSwapPayer, priceLongPayer + priceShortReceiver, 1E-2);
     assertEquals(priceSwapReceiver, priceLongReceiver + priceShortPayer, 1E-2);
     // Non-constant fixed rate/strike
@@ -263,7 +264,7 @@ public class SwaptionPhysicalFixedIborTest {
     final AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
     final SwapFixedCoupon<Coupon> swapStepup = new SwapFixedCoupon<Coupon>(annuityStepUp, SWAP_PAYER.getSecondLeg());
     final SwaptionPhysicalFixedIbor swaptionStepUp = SwaptionPhysicalFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), swapStepup, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
-    final double priceLongPayerStepUp = PVC.visit(swaptionStepUp, sabrBundle);
+    final double priceLongPayerStepUp = swaptionStepUp.accept(PVC, sabrBundle);
     final double expectedPriceLongPayerSteUp = 1757950.752;
     assertEquals(expectedPriceLongPayerSteUp, priceLongPayerStepUp, 1E-2);
 
@@ -275,28 +276,28 @@ public class SwaptionPhysicalFixedIborTest {
     // SABR Hagan volatility function
     final SABRInterestRateParameters sabrParameterHagan = TestsDataSetsSABR.createSABR1(new SABRHaganVolatilityFunction());
     final SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
-    final double priceHagan = PVC.visit(SWAPTION_LONG_PAYER, sabrHaganBundle);
+    final double priceHagan = SWAPTION_LONG_PAYER.accept(PVC, sabrHaganBundle);
     // From previous run
     assertEquals(1905857.579, priceHagan, 1E-2);
     // SABR Hagan alternative volatility function
     final SABRInterestRateParameters sabrParameterHaganAlt = TestsDataSetsSABR.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     final SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);
-    final double priceHaganAlt = PVC.visit(SWAPTION_LONG_PAYER, sabrHaganAltBundle);
+    final double priceHaganAlt = SWAPTION_LONG_PAYER.accept(PVC, sabrHaganAltBundle);
     assertEquals(priceHagan, priceHaganAlt, 5E+2);
     // SABR Berestycki volatility function
     final SABRInterestRateParameters sabrParameterBerestycki = TestsDataSetsSABR.createSABR1(new SABRBerestyckiVolatilityFunction());
     final SABRInterestRateDataBundle sabrBerestyckiBundle = new SABRInterestRateDataBundle(sabrParameterBerestycki, curves);
-    final double priceBerestycki = PVC.visit(SWAPTION_LONG_PAYER, sabrBerestyckiBundle);
+    final double priceBerestycki = SWAPTION_LONG_PAYER.accept(PVC, sabrBerestyckiBundle);
     assertEquals(priceHagan, priceBerestycki, 5E+2);
     // SABR Johnson volatility function
     final SABRInterestRateParameters sabrParameterJohnson = TestsDataSetsSABR.createSABR1(new SABRJohnsonVolatilityFunction());
     final SABRInterestRateDataBundle sabrJohnsonBundle = new SABRInterestRateDataBundle(sabrParameterJohnson, curves);
-    final double priceJohnson = PVC.visit(SWAPTION_LONG_PAYER, sabrJohnsonBundle);
+    final double priceJohnson = SWAPTION_LONG_PAYER.accept(PVC, sabrJohnsonBundle);
     assertEquals(priceHagan, priceJohnson, 1E+3);
     // SABR Paulot volatility function ! Does not work well !
     final SABRInterestRateParameters sabrParameterPaulot = TestsDataSetsSABR.createSABR1(new SABRPaulotVolatilityFunction());
     final SABRInterestRateDataBundle sabrPaulotBundle = new SABRInterestRateDataBundle(sabrParameterPaulot, curves);
-    final double pricePaulot = PVC.visit(SWAPTION_LONG_PAYER, sabrPaulotBundle);
+    final double pricePaulot = SWAPTION_LONG_PAYER.accept(PVC, sabrPaulotBundle);
     assertEquals(priceHagan, pricePaulot, 1E+4);
 
   }

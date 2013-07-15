@@ -8,10 +8,10 @@ package com.opengamma.engine.view;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -19,12 +19,14 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.resolver.ComputationTargetFilter;
 import com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform;
 import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
@@ -46,6 +48,7 @@ public class ViewCalculationConfiguration implements Serializable {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   private final ViewDefinition _viewDefinition;
+
   private final String _name;
 
   /**
@@ -54,25 +57,29 @@ public class ViewCalculationConfiguration implements Serializable {
    * strings is really just for user convenience; ValueRequirements are eventually still needed for each of these for
    * every position and aggregate position in the reference portfolio.
    */
-  private final Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType = new TreeMap<String, Set<Pair<String, ValueProperties>>>();
-
-  /**
-   * Contains the required trade outputs for each security type. These are the outputs produced at the trade level, 
-   * with respect to the reference portfolio. 
-   */
-  private final Map<String, Set<Pair<String, ValueProperties>>> _tradeRequirementsBySecurityType = new TreeMap<String, Set<Pair<String, ValueProperties>>>();
+  private final Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType = new TreeMap<>();
 
   /**
    * Contains any specific outputs required, where each entry really corresponds to a single output at computation
    * time.
    */
-  private final Set<ValueRequirement> _specificRequirements = new HashSet<ValueRequirement>();
+  private final Set<ValueRequirement> _specificRequirements = new HashSet<>();
 
   /**
    * Start with an empty delta definition which will perform simple equality comparisons. This should be customized as
    * required for the view configuration.
    */
   private DeltaDefinition _deltaDefinition = new DeltaDefinition();
+
+  /**
+   * The scenarioId to be used for this configuration
+   * */
+  private UniqueId _scenarioId;
+
+  /**
+   * The scenarioParametersId to be used for this configuration
+   * */
+  private UniqueId _scenarioParametersId;
 
   /**
    * A set of default properties for functions to configure themselves from. Note that these are intended to represent generic
@@ -91,6 +98,13 @@ public class ViewCalculationConfiguration implements Serializable {
    * subset of the graph.
    */
   private ResolutionRuleTransform _resolutionRuleTransform = IdentityResolutionRuleTransform.INSTANCE;
+
+  /**
+   * Defines the labels and order of the columns used for displaying the data in the UI. This doesn't have to contain
+   * columns for every value name / properties combination in the configuration. Any columns that aren't defined
+   * will use the default label and will appear at the end in the order their requirements are defined.
+   */
+  private List<Column> _columns = Collections.emptyList();
 
   /**
    * Constructs an instance.
@@ -117,11 +131,10 @@ public class ViewCalculationConfiguration implements Serializable {
     newOwner.addViewCalculationConfiguration(copy);
     copy.setDefaultProperties(getDefaultProperties());
     copy.addSpecificRequirements(getSpecificRequirements());
+    copy.setScenarioId(getScenarioId());
+    copy.setScenarioParametersId(getScenarioParametersId());
     for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getPortfolioRequirementsBySecurityType().entrySet()) {
       copy.addPortfolioRequirements(requirementEntry.getKey(), requirementEntry.getValue()); 
-    }
-    for (Map.Entry<String, Set<Pair<String, ValueProperties>>> requirementEntry : getTradeRequirementsBySecurityType().entrySet()) {
-      copy.addTradeRequirements(requirementEntry.getKey(), requirementEntry.getValue()); 
     }
     
     // REVIEW jonathan 2011-11-13 -- should really do deep copies of these to avoid references to same objects
@@ -167,6 +180,47 @@ public class ViewCalculationConfiguration implements Serializable {
   }
 
   /**
+   * Returns the scenarioId to be used for this configuration - if set, this will refer to a scenario defined in
+   * the config master.
+   *
+   * @return the scenarioId for this configuration, may be null
+   */
+  public UniqueId getScenarioId() {
+    return _scenarioId;
+  }
+
+  /**
+   * Sets the scenarioId to be used for this configuration - if set, this will refer to a scenario defined in
+   * the config master.
+   *
+   * @param scenarioId the scenarioId for this configuration, may be null
+   */
+  public void setScenarioId(UniqueId scenarioId) {
+    _scenarioId = scenarioId;
+  }
+
+  /**
+  /**
+   * Returns the scenarioParametersId to be used for this configuration - if set, this will refer to a scenario
+   * parameters defined in the config master.
+   *
+   * @return the scenarioParametersId for this configuration, may be null
+   */
+  public UniqueId getScenarioParametersId() {
+    return _scenarioParametersId;
+  }
+
+  /**
+   * Sets the scenarioParametersId to be used for this configuration - if set, this will refer to a scenario parameters
+   * defined in the config master.
+   *
+   * @param scenarioParametersId the scenarioParametersId for this configuration, may be null
+   */
+  public void setScenarioParametersId(UniqueId scenarioParametersId) {
+    _scenarioParametersId = scenarioParametersId;
+  }
+
+  /**
    * Sets the default value properties for the view. Functions that expect a property constraint on values
    * they are asked to produce should refer to the defaults if the constraint is absent, or use the default
    * to construct the input requirements.
@@ -204,16 +258,6 @@ public class ViewCalculationConfiguration implements Serializable {
   }
 
   /**
-   * Gets the required trade outputs by security type. These are the outputs produced at the trade level, 
-   * with respect to the reference portfolio.
-   * 
-   * @return  a map of security type to the names of the required outputs for that type, not null
-   */
-  public Map<String, Set<Pair<String, ValueProperties>>> getTradeRequirementsBySecurityType() {
-    return Collections.unmodifiableMap(_tradeRequirementsBySecurityType);
-  }
-
-  /**
    * Gets a set containing every portfolio output that is required, regardless of the security type(s) on which the
    * output is required. These are outputs produced at the position and aggregate position level, with respect to the
    * reference portfolio. 
@@ -221,23 +265,8 @@ public class ViewCalculationConfiguration implements Serializable {
    * @return  a set of every required portfolio output, not null
    */
   public Set<Pair<String, ValueProperties>> getAllPortfolioRequirements() {
-    Set<Pair<String, ValueProperties>> requirements = new TreeSet<Pair<String, ValueProperties>>();
+    Set<Pair<String, ValueProperties>> requirements = Sets.newLinkedHashSet();
     for (Set<Pair<String, ValueProperties>> secTypeDefinitions : _portfolioRequirementsBySecurityType.values()) {
-      requirements.addAll(secTypeDefinitions);
-    }
-    return requirements;
-  }
-
-  /**
-   * Gets a set containing every trade output that is required, regardless of the security type(s) on which the
-   * output is required. These are outputs produced at the trade level, with respect to the
-   * reference portfolio. 
-   * 
-   * @return  a set of every required trade output, not null
-   */
-  public Set<Pair<String, ValueProperties>> getAllTradeRequirements() {
-    Set<Pair<String, ValueProperties>> requirements = new TreeSet<Pair<String, ValueProperties>>();
-    for (Set<Pair<String, ValueProperties>> secTypeDefinitions : _tradeRequirementsBySecurityType.values()) {
       requirements.addAll(secTypeDefinitions);
     }
     return requirements;
@@ -255,26 +284,8 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(requiredOutputs, "requiredOutputs");
     Set<Pair<String, ValueProperties>> secTypeRequirements = _portfolioRequirementsBySecurityType.get(securityType);
     if (secTypeRequirements == null) {
-      secTypeRequirements = new TreeSet<Pair<String, ValueProperties>>();
+      secTypeRequirements = Sets.newLinkedHashSet();
       _portfolioRequirementsBySecurityType.put(securityType, secTypeRequirements);
-    }
-    secTypeRequirements.addAll(requiredOutputs);
-  }
-
-  /**
-   * Adds a set of required trade outputs for the given security type. These are outputs produced at the trade level, 
-   * with respect to the reference portfolio.
-   * 
-   * @param securityType  the type of security for which the outputs should be produced, not null
-   * @param requiredOutputs  a set of output names and value constraints, not null
-   */
-  public void addTradeRequirements(String securityType, Set<Pair<String, ValueProperties>> requiredOutputs) {
-    ArgumentChecker.notNull(securityType, "securityType");
-    ArgumentChecker.notNull(requiredOutputs, "requiredOutputs");
-    Set<Pair<String, ValueProperties>> secTypeRequirements = _tradeRequirementsBySecurityType.get(securityType);
-    if (secTypeRequirements == null) {
-      secTypeRequirements = new TreeSet<Pair<String, ValueProperties>>();
-      _tradeRequirementsBySecurityType.put(securityType, secTypeRequirements);
     }
     secTypeRequirements.addAll(requiredOutputs);
   }
@@ -296,22 +307,6 @@ public class ViewCalculationConfiguration implements Serializable {
   }
 
   /**
-   * Adds a set of required trade outputs for the given security type with no value constraints. This is
-   * equivilant to calling {@link #addTradeRequirements (String, Set)} with
-   * {@code ValueProperties.none ()} against each output name.
-   * 
-   * @param securityType the type of security for which the outputs should be produced, not null
-   * @param requiredOutputs a set of output names, not null
-   */
-  public void addTradeRequirementNames(final String securityType, final Set<String> requiredOutputs) {
-    ArgumentChecker.notNull(securityType, "securityType");
-    ArgumentChecker.notNull(requiredOutputs, "requiredOutput");
-    for (String requiredOutput : requiredOutputs) {
-      addTradeRequirementName(securityType, requiredOutput);
-    }
-  }
-
-  /**
    * Adds a required portfolio output for the given security type. This is an output produced at the position and
    * aggregate position level, with respect to the reference portfolio.
    * 
@@ -323,22 +318,9 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(requiredOutput, "requiredOutput");
     ArgumentChecker.notNull(constraints, "constraints");
-    addPortfolioRequirements(securityType, Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput, constraints)));
-  }
-
-  /**
-   * Adds a required trade output for the given security type. This is an output produced at the trade level, 
-   * with respect to the reference portfolio.
-   * 
-   * @param securityType  the type of security for which the output should be produced, not null
-   * @param requiredOutput  an output name, not null
-   * @param constraints constraints on the requirement, not null
-   */
-  public void addTradeRequirement(String securityType, String requiredOutput, ValueProperties constraints) {
-    ArgumentChecker.notNull(securityType, "securityType");
-    ArgumentChecker.notNull(requiredOutput, "requiredOutput");
-    ArgumentChecker.notNull(constraints, "constraints");
-    addTradeRequirements(securityType, Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput, constraints)));
+    addPortfolioRequirements(securityType,
+                             Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput,
+                                                                                           constraints)));
   }
 
   /**
@@ -350,17 +332,6 @@ public class ViewCalculationConfiguration implements Serializable {
    */
   public void addPortfolioRequirementName(final String securityType, final String requiredOutput) {
     addPortfolioRequirement(securityType, requiredOutput, ValueProperties.none());
-  }
-
-  /**
-   * Adds a required trade output for the given security type with no value constraints. This is equivilant
-   * to calling {@link #addTradeRequirement (String, String, ValueProperties)} with {@code ValueProperties.none ()}.
-   * 
-   * @param securityType the type of security for which the output should be produced, not null
-   * @param requiredOutput an output name, not null
-   */
-  public void addTradeRequirementName(final String securityType, final String requiredOutput) {
-    addTradeRequirement(securityType, requiredOutput, ValueProperties.none());
   }
 
   /**
@@ -400,15 +371,31 @@ public class ViewCalculationConfiguration implements Serializable {
     addSpecificRequirements(Collections.singleton(requirement));
   }
 
+  /**
+   * @return The column definitions, not null
+   */
+  public List<Column> getColumns() {
+    return _columns;
+  }
+
+  /**
+   * @param columns The column definitions, not null
+   */
+  public void setColumns(List<Column> columns) {
+    ArgumentChecker.notNull(columns, "columns");
+    _columns = columns;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ObjectUtils.hashCode(getName());
     result = prime * result + ObjectUtils.hashCode(getAllPortfolioRequirements());
-    result = prime * result + ObjectUtils.hashCode(getAllTradeRequirements());
     result = prime * result + ObjectUtils.hashCode(getSpecificRequirements());
     result = prime * result + ObjectUtils.hashCode(getDefaultProperties());
+    result = prime * result + ObjectUtils.hashCode(getScenarioId());
+    result = prime * result + ObjectUtils.hashCode(getScenarioParametersId());
     result = prime * result + ObjectUtils.hashCode(getResolutionRuleTransform());
     return result;
   }
@@ -425,8 +412,7 @@ public class ViewCalculationConfiguration implements Serializable {
     ViewCalculationConfiguration other = (ViewCalculationConfiguration) obj;
     if (!(ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getDeltaDefinition(), other.getDeltaDefinition()) && ObjectUtils.equals(getSpecificRequirements(), other
         .getSpecificRequirements()))
-        && ObjectUtils.equals(_portfolioRequirementsBySecurityType.keySet(), other._portfolioRequirementsBySecurityType.keySet())
-        && ObjectUtils.equals(_tradeRequirementsBySecurityType.keySet(), other._tradeRequirementsBySecurityType.keySet())) {
+        && ObjectUtils.equals(_portfolioRequirementsBySecurityType.keySet(), other._portfolioRequirementsBySecurityType.keySet())) {
       return false;
     }
     Map<String, Set<Pair<String, ValueProperties>>> otherPortfolioRequirementsBySecurityType = other.getPortfolioRequirementsBySecurityType();
@@ -436,17 +422,16 @@ public class ViewCalculationConfiguration implements Serializable {
         return false;
       }
     }
-    Map<String, Set<Pair<String, ValueProperties>>> otherTradeRequirementsBySecurityType = other.getTradeRequirementsBySecurityType();
-    for (Map.Entry<String, Set<Pair<String, ValueProperties>>> securityTypeRequirements : getTradeRequirementsBySecurityType().entrySet()) {
-      Set<Pair<String, ValueProperties>> otherRequirements = otherTradeRequirementsBySecurityType.get(securityTypeRequirements.getKey());
-      if (!ObjectUtils.equals(securityTypeRequirements.getValue(), otherRequirements)) {
-        return false;
-      }
-    }
     if (!ObjectUtils.equals(getDefaultProperties(), other.getDefaultProperties())) {
       return false;
     }
     if (!ObjectUtils.equals(getResolutionRuleTransform(), other.getResolutionRuleTransform())) {
+      return false;
+    }
+    if (!ObjectUtils.equals(getScenarioId(), other.getScenarioId())) {
+      return false;
+    }
+    if (!ObjectUtils.equals(getScenarioParametersId(), other.getScenarioParametersId())) {
       return false;
     }
     return true;
@@ -460,5 +445,32 @@ public class ViewCalculationConfiguration implements Serializable {
       return "ViewCalculationConfiguration[" + getName() + "]";
     }
   }
-  
+
+  public static final class Column {
+
+    private final String _header;
+    private final String _valueName;
+    private final ValueProperties _properties;
+
+    public Column(String header, String valueName, ValueProperties properties) {
+      ArgumentChecker.notNull(header, "label");
+      ArgumentChecker.notNull(valueName, "valueName");
+      ArgumentChecker.notNull(properties, "properties");
+      _header = header;
+      _valueName = valueName;
+      _properties = properties;
+    }
+
+    public String getHeader() {
+      return _header;
+    }
+
+    public String getValueName() {
+      return _valueName;
+    }
+
+    public ValueProperties getProperties() {
+      return _properties;
+    }
+  }
 }

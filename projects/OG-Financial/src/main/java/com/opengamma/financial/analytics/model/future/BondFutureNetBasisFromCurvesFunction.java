@@ -36,7 +36,7 @@ public class BondFutureNetBasisFromCurvesFunction extends BondFutureFromCurvesFu
       final ComputationTarget target) {
     final List<BondFutureDeliverable> deliverables = security.getBasket();
     final int n = deliverables.size();
-    final double[] netBasis = CALCULATOR.visit(bondFuture, data);
+    final double[] netBasis = bondFuture.accept(CALCULATOR, data);
     if (netBasis.length != n) {
       throw new OpenGammaRuntimeException("Do not have a net basis for every deliverable: should never happen");
     }

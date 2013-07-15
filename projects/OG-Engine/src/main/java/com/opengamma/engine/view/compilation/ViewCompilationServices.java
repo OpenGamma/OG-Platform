@@ -5,14 +5,12 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import java.util.concurrent.ExecutorService;
-
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PoolExecutor;
 
 // REVIEW kirk 2010-05-22 -- I don't like this name but couldn't come up with a better
 // one on the fly.
@@ -24,9 +22,8 @@ public class ViewCompilationServices {
 
   private final MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private final FunctionResolver _functionResolver;
-  private final ExecutorService _executorService;
+  private final PoolExecutor _executorService;
   private final FunctionCompilationContext _compilationContext;
-  private final ComputationTargetResolver _computationTargetResolver;
   private final DependencyGraphBuilderFactory _dependencyGraphBuilder;
 
   /**
@@ -35,7 +32,6 @@ public class ViewCompilationServices {
    * @param marketDataAvailabilityProvider the market data availability provider
    * @param functionResolver the function resolver
    * @param compilationContext the function compilation context
-   * @param computationTargetResolver the computation target resolver
    * @param executorService the executor service
    * @param dependencyGraphBuilder the graph building implementation
    */
@@ -43,20 +39,17 @@ public class ViewCompilationServices {
       MarketDataAvailabilityProvider marketDataAvailabilityProvider,
       FunctionResolver functionResolver,
       FunctionCompilationContext compilationContext,
-      ComputationTargetResolver computationTargetResolver,
-      ExecutorService executorService,
+      PoolExecutor executorService,
       DependencyGraphBuilderFactory dependencyGraphBuilder) {
     ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
     ArgumentChecker.notNull(compilationContext, "compilationContext");
-    ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphBuilder, "dependencyGraphBuilder");
     _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
     _functionResolver = functionResolver;
     _compilationContext = compilationContext;
     _executorService = executorService;
-    _computationTargetResolver = computationTargetResolver;
     _dependencyGraphBuilder = dependencyGraphBuilder;
   }
 
@@ -84,7 +77,7 @@ public class ViewCompilationServices {
    * 
    * @return the executor service, not null
    */
-  public ExecutorService getExecutorService() {
+  public PoolExecutor getExecutorService() {
     return _executorService;
   }
 
@@ -95,15 +88,6 @@ public class ViewCompilationServices {
    */
   public FunctionCompilationContext getFunctionCompilationContext() {
     return _compilationContext;
-  }
-
-  /**
-   * Gets the computation target resolver.
-   * 
-   * @return the computation target resolver, not null
-   */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return _computationTargetResolver;
   }
 
   /**

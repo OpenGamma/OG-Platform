@@ -8,11 +8,13 @@ package com.opengamma.analytics.financial.instrument;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.VolatilityIndexFutureDefinition;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Returns the netted results of pay and receive cash-flows, where a negative value implies a net liability.

@@ -118,7 +118,7 @@ public class NamedDimensionDbTable {
    * @return the next database id
    */
   protected long nextId() {
-    return getDbConnector().getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(_sequenceName));
+    return getDbConnector().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(_sequenceName), Long.class);
   }
 
   //-------------------------------------------------------------------------

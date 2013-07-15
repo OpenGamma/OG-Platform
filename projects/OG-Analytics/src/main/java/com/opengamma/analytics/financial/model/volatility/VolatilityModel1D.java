@@ -14,4 +14,6 @@ package com.opengamma.analytics.financial.model.volatility;
 public interface VolatilityModel1D extends VolatilityModel<double[]> {
 
   double getVolatility(final double forward, final double strike, final double timeToExpiry);
+  
+  double getVolatility(final SimpleOptionData option);
 }

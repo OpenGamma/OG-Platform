@@ -9,10 +9,10 @@
 }
 
 .OG-analytics-form .og-view,
-.OG-analytics-form .og-aggregation,
 .OG-analytics-form .og-datasources,
+.OG-analytics-form .og-optional,
 .OG-analytics-form .og-load {
-    position: absolute;
+    position: relative;
     display: inline-block;
     float: left;
 }
@@ -47,40 +47,72 @@
     left: 4px;
 }
 
+
+/**
+ * Portfolio
+ */
+.OG-analytics-form div.og-portfolios{
+    margin-right: 31px;
+    width: 20%;
+    top: 5px;
+    left: 2px;
+}
+
+.OG-analytics-form .og-portfolios div:first-child {
+    /*position: relative;
+    top: 4px;
+    left: 2px;
+    right: 21px;*/
+}
+
+.OG-analytics-form .og-portfolios input {
+    font-family: 'Open Sans', arial, serif;
+    font-size: 26px;
+    height: 32px;
+    width: 100%;
+}
+
+.OG-analytics-form .og-portfolios .og-icon-down {
+    height: 32px;
+    top: 1px;
+    right: -21px;
+}
+
 /**
  * View
  */
 .OG-analytics-form .og-view {
-    width: 20%;
-    left: 0;
+    width: 30%;
 }
 
 .OG-analytics-form .og-view:hover input {
     background: #fffee5;
 }
 
-.OG-analytics-form .og-view div:first-child {
+.OG-analytics-form .og-view .autocomplete-cntr{
+    left: 0;
     position: absolute;
-    top: 4px;
-    left: 2px;
-    right: 21px;
+    right: 28px;
+    top: 15px;
 }
 
 .OG-analytics-form .og-view input {
-    width: 100%;
-    height: 32px;
-    font-size: 26px;
-    color: #475562;
+    border: 1px solid #e3e9ef;
+    border-top: 1px solid #abadb3;
     font-family: 'Open Sans', arial, serif;
+    font-size: 18px;
+    height: 22px;
+    width: 100%;
+    padding-left: 5px;
+    outline: none;
 }
 
 .OG-analytics-form .og-view .og-icon-down {
-    height: 32px;
+    height: 22px;
+    right: 2px;
+    top: 16px;
 }
 
-/**
- * Title (for aggregation and datasource)
- */
 
 .OG-analytics-form .og-option-title {
     cursor: default;
@@ -101,6 +133,7 @@
     top: -5px;
     text-transform: uppercase;
     vertical-align: bottom;
+    white-space: nowrap;
 }
 
 .OG-analytics-form .og-option-title ul {
@@ -126,12 +159,11 @@
     text-transform: capitalize;
 }
 
-.OG-analytics-form .og-option-title span {
+.OG-analytics-form .og-option-title li span {
     color: #999;
     text-transform: uppercase;
     font-size: 12px;
     padding-left: 5px;
-    font-family: arial, helvetica, sans-serif;
 }
 
 .OG-analytics-form .og-option-title .og-icon-down {
@@ -150,26 +182,88 @@
 }
 
 /**
- * Aggregation
- */
-.OG-analytics-form .og-aggregation {
-    width: 20%;
-    left: 21%;
-}
-
-/**
  * Datasources
  */
 .OG-analytics-form .og-datasources {
     width: 30%;
-    left: 42%;
+}
+
+
+/**
+ * Optional
+ */
+.OG-analytics-form .og-optional {
+    margin-left: 10px;
+    min-width: 400px;
+    white-space: nowrap;
+    width: 20%;
+}
+
+.OG-analytics-form .og-optional .og-icon-down {
+    position: relative;
+    top:0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: none;
+    background: none;
+    outline: none;
+    margin: 0;
+}
+
+.OG-analytics-form .og-optional .og-menu-toggle{
+    cursor: pointer;
+}
+
+.OG-analytics-form .og-optional .og-menu-toggle > span{
+    color:#000;
+    text-transform: uppercase;
+    font-size: 11px;
+}
+
+.OG-analytics-form .og-optional .og-icon-down{
+    height: 11px;
+}
+
+.OG-analytics-form .og-optional .og-temporal,
+.OG-analytics-form .og-optional .og-aggregation,
+.OG-analytics-form .og-optional .og-filters {
+    display: inline-block;
+    position: relative;
+}
+
+.OG-analytics-form .og-optional .og-icon-Temporal,
+.OG-analytics-form .og-optional .og-icon-Aggregation,
+.OG-analytics-form .og-optional .og-icon-Filter{
+    top:2px;
+    margin:0 3px 0 0
+}
+
+/**
+ * Temporal
+ */
+.OG-analytics-form .og-temporal{
+    margin:0 0 0 2%;
+}
+
+/**
+ * Aggregation
+ */
+.OG-analytics-form .og-aggregation {
+    margin: 0 10%;
+}
+
+/**
+ * Filters
+ */
+.OG-analytics-form .og-filters {
+    margin: 0 30% 0 0;
 }
 
 /**
  * Load
  */
 .OG-analytics-form .og-load {
-    left: 73%;
     top: 7px;
 }
 
@@ -195,12 +289,12 @@
     margin-left: 4px;
 }
 
-.OG-analytics-form .og-status .og-icon-pause:after {
+.OG-analytics-form .og-status .og-icon-play:after {
     top: 2px;
     left: 7px;
 }
 
-.OG-analytics-form .og-status .og-icon-play:after {
+.OG-analytics-form .og-status .og-icon-pause:after {
     top: 2px;
     left: 6px;
 }
@@ -211,7 +305,7 @@
     display: inline-block;
     text-transform: uppercase;
     height: 13px;
-    line-height: 13px;
+    line-height: 12px;
     padding: 0 2px;
     font-style: normal;
     margin-left: 4px;
@@ -228,4 +322,34 @@
 
 .OG-analytics-form .og-status .live {
     background-color: #0c9605;
+}
+
+.OG-analytics-form .og-status .disconnected {
+    background-color: #a10000;
+}
+
+.OG-analytics-form .og-portfolios,
+.OG-analytics-form .og-view,
+.OG-analytics-form .og-datasources,
+.OG-analytics-form .og-optional,
+.OG-analytics-form .og-load,
+.OG-analytics-form .og-status{
+    margin-right: 10px;
+}
+
+/** TEMP **/
+
+.OG-analytics-form .og-portfolios,
+.OG-analytics-form .og-optional .og-temporal,
+.OG-analytics-form .og-optional .og-filters{
+    display: none;
+}
+
+.OG-analytics-form .og-optional {
+    min-width: 100px;
+    width:10%;
+}
+
+.OG-analytics-form .og-aggregation{
+    margin:0;
 }

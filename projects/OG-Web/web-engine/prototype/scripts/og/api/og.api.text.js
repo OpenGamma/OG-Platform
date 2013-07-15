@@ -8,15 +8,15 @@ $.register_module({
     name: 'og.api.text',
     dependencies: ['og.api.common'],
     obj: function () {
-        var html_cache = {}, module = this, api,
-            loading_start = og.api.common.loading_start, loading_end = og.api.common.loading_end,
+        var html_cache = {}, module = this, api, common = og.api.common,
+            loading_start = common.loading_start, loading_end = og.api.common.loading_end,
             path = function (root, extension, page) {
                 return !page ? null : root + [page.split('.').slice(1, -1).join('/'), page.toLowerCase() + extension]
                     .join('/').replace(/\s/g, '_');
             },
             html_path = path.partial(module.html_root, '.html'),
             data_path = path.partial(module.data_root, '.json'),
-            STALL = 500 /* 500ms */, INSTANT = 0 /* 0ms */,
+            STALL = common.STALL, INSTANT = common.INSTANT,
             Promise = function () {
                 var deferred = new $.Deferred, promise = deferred.promise();
                 promise.deferred = deferred;

@@ -10,18 +10,15 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * <p>
  * The excess return of an asset at time <i>t</i> is the difference between the
  * return of that asset and the return of a reference asset. This class
  * calculates the excess simple net return.
- * 
  */
-
 public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
   private final Function<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> _returnCalculator;
 

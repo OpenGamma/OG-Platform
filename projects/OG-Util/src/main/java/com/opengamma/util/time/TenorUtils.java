@@ -5,7 +5,7 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * Utilities for working with tenors.
@@ -25,11 +25,12 @@ public class TenorUtils {
   /**
    * Gets the number of days in the tenor.
    * This method assumes 24-hour days.
+   * Minutes are ignored.
    * @param tenor  the tenor, not null
    * @return the number of days
    */
   public static double getDaysInTenor(final Tenor tenor) {
-    return tenor.getPeriod().totalHoursWith24HourDays() / 24d;
+    return tenor.getPeriod().getDays();
   }
 
   /**

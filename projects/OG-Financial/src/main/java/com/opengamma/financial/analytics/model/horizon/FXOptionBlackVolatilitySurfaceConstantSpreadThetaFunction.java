@@ -15,10 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.NotImplementedException;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -31,7 +30,6 @@ import com.opengamma.analytics.financial.model.option.definition.ForexOptionData
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -67,7 +65,7 @@ public class FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction extends F
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
@@ -95,7 +93,7 @@ public class FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction extends F
     final YieldAndDiscountCurve putFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, putCurrency, putCurveName, putCurveConfig);
     final YieldAndDiscountCurve callFundingCurve = FXOptionFunctionUtils.getCurveForCurrency(inputs, callCurrency, callCurveName, callCurveConfig);
     final YieldAndDiscountCurve[] curves;
-    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
+    final Map<String, Currency> curveCurrency = new HashMap<>();
     curveCurrency.put(fullPutCurveName, putCurrency);
     curveCurrency.put(fullCallCurveName, callCurrency);
     final String[] allCurveNames;
@@ -137,9 +135,6 @@ public class FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction extends F
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     return target.getSecurity() instanceof FXOptionSecurity;
   }
 
@@ -160,18 +155,18 @@ public class FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction extends F
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_VOLATILITY_SURFACE)
-              .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    final ValueProperties.Builder properties = super.getResultProperties(target)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_VOLATILITY_SURFACE)
+        .withAny(PROPERTY_DAYS_TO_MOVE_FORWARD);
     return properties;
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
-    properties.with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_VOLATILITY_SURFACE)
-              .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair)
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD_VOLATILITY_SURFACE)
+        .with(PROPERTY_DAYS_TO_MOVE_FORWARD, daysForward);
     return properties;
   }
 }

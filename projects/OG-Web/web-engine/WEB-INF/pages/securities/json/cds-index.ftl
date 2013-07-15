@@ -1,0 +1,25 @@
+<#escape x as x?html>
+<#include "security-header.ftl">
+"buy": <#if security.buy> "Buy" <#else> "Sell" </#if>,
+"protectionBuyer":"${security.protectionBuyer.scheme} - ${security.protectionBuyer.value}",
+"protectionSeller":"${security.protectionSeller.scheme} - ${security.protectionSeller.value}",
+"referenceEntity":"${security.referenceEntity.scheme} - ${security.referenceEntity.value}",
+"startDate": "${security.startDate.toLocalDate()}",
+"effectiveDate": "${security.effectiveDate.toLocalDate()}",
+"maturityDate": "${security.maturityDate.toLocalDate()}",
+"stubType":"${security.stubType}",
+"couponFrequency":"${security.couponFrequency.conventionName}",
+"dayCount":"${security.dayCount.conventionName}",
+"businessDayConvention":"${security.businessDayConvention.conventionName}",
+"immAdjustMaturityDate":"${security.immAdjustMaturityDate?string}",
+"adjustEffectiveDate":"${security.adjustEffectiveDate?string}",
+"adjustMaturityDate":"${security.adjustMaturityDate?string}",
+"notional":"${security.notional.currency} ${security.notional.amount}",
+"upfrontPayment":"${security.upfrontPayment.currency} ${security.upfrontPayment.amount}",
+"includeAccruedPremium":"${security.includeAccruedPremium?string}",
+"protectionStart":"${security.protectionStart?string}",
+"indexCoupon":"${security.indexCoupon}",
+"settlementDate":"${security.settlementDate.toLocalDate()}",
+"adjustSettlementDate":"${security.adjustSettlementDate?string}",
+<#include "security-footer.ftl">
+</#escape>

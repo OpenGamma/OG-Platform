@@ -14,11 +14,11 @@ import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -26,7 +26,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.money.Currency;
 
 /**
  * Build an ISDA-style discount curve for use with the ISDA CDS price functions.
@@ -43,57 +42,38 @@ public class ISDAApproxDiscountCurveFunction extends AbstractFunction.NonCompile
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE || target.getUniqueId() == null) {
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {    
-    if (canApplyTo(context, target)) {
-    
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      
-      requirements.add(new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, target.getUniqueId(),
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+
+    requirements.add(new ValueRequirement(
+        ValueRequirementNames.YIELD_CURVE, target.toSpecification(),
         ValueProperties
-          .with("Curve", "SECONDARY")
-          .with("FundingCurve", "SECONDARY")
-          .with("ForwardCurve", "SECONDARY")
-          .with("CurveCalculationMethod", "ParRate")
-          .get()));
-      
-      return requirements;
-    }
-    return null;
+            .with("Curve", "SECONDARY")
+            .with("FundingCurve", "SECONDARY")
+            .with("ForwardCurve", "SECONDARY")
+            .with("CurveCalculationMethod", "ParRate")
+            .get()));
+    
+    return requirements;
+  }
+
+  protected ValueProperties.Builder createValueProperties() {
+    return super.createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME);
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-
-    Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-
-    results.add(new ValueSpecification(
-      new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, target.getUniqueId(),
-        ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get()),
-      getUniqueId()));
-    
-    return results;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
-    final YieldCurve sourceCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, target.getUniqueId(),
-      ValueProperties.withAny(ValuePropertyNames.CURVE).get()));
+    final YieldCurve sourceCurve = (YieldCurve) inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     
     if (sourceCurve == null) {
       throw new OpenGammaRuntimeException("Could not get source discount curve to translate for ISDA");
@@ -102,12 +82,7 @@ public class ISDAApproxDiscountCurveFunction extends AbstractFunction.NonCompile
     final Curve<Double, Double> curveData = sourceCurve.getCurve();
     final ISDACurve isdaCurve = ISDACurve.fromBoxed(sourceCurve.getName(), curveData.getXData(), curveData.getYData(), 0.0);
     
-    ComputedValue result = new ComputedValue(
-      new ValueSpecification(new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, target.getUniqueId(),
-        ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get()),
-        getUniqueId()),
-      isdaCurve);
+    ComputedValue result = new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), createValueProperties().get()), isdaCurve);
     
     return Collections.singleton(result);
   }

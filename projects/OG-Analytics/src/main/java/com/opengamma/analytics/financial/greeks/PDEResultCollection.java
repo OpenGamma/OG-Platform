@@ -178,7 +178,7 @@ public class PDEResultCollection implements Iterable<Pair<Greek, double[]>> {
     }
   };
 
-  private final Map<Greek, double[]> _gridDataMap = new TreeMap<Greek, double[]>();
+  private final Map<Greek, double[]> _gridDataMap = new TreeMap<>();
   private final double[] _strikes;
   private final int _n;
 

@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.greeks.Underlying;
 import com.opengamma.analytics.financial.sensitivity.Sensitivity;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

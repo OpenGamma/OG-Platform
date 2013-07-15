@@ -16,14 +16,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(double[][].class);
     addFormatter(new Formatter<double[][]>(Format.EXPANDED) {
       @Override
-      Object format(double[][] value, ValueSpecification valueSpec) {
+      Object format(double[][] value, ValueSpecification valueSpec, Object inlineKey) {
         return value;
       }
     });
   }
 
   @Override
-  public Object formatCell(double[][] value, ValueSpecification valueSpec) {
+  public Object formatCell(double[][] value, ValueSpecification valueSpec, Object inlineKey) {
     int rowCount;
     int colCount;
     rowCount = value.length;
@@ -37,6 +37,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public DataType getDataType() {
-    return DataType.LABELLED_MATRIX_2D;
+    return DataType.MATRIX_2D;
   }
 }

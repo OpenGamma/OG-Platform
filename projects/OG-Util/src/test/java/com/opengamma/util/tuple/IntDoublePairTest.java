@@ -5,15 +5,20 @@
  */
 package com.opengamma.util.tuple;
 
+import static com.opengamma.util.tuple.TuplesUtil.pairToEntry;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.tuple.IntDoublePair;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test IntDoublePair.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class IntDoublePairTest {
 
   public void test_IntDoublePair_of() {
@@ -27,29 +32,29 @@ public class IntDoublePairTest {
     assertEquals(Double.valueOf(2.0d), test.getSecond());
     assertEquals(1, test.getFirstInt());
     assertEquals(2.0d, test.getSecondDouble(), 1E-10);
-    assertEquals(Integer.valueOf(1), test.getKey());
-    assertEquals(Double.valueOf(2.0d), test.getValue());
-    assertEquals(1, test.getIntKey());
-    assertEquals(2.0d, test.getDoubleValue(), 1E-10);
+    assertEquals(Integer.valueOf(1), test.getFirst());
+    assertEquals(Double.valueOf(2.0d), test.getSecond());
+    assertEquals(1, test.getFirstInt());
+    assertEquals(2.0d, test.getSecondDouble(), 1E-10);
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue() {
     IntDoublePair pair = new IntDoublePair(2, -0.3d);
-    pair.setValue(Double.valueOf(1.2d));
+    pairToEntry(pair).setValue(Double.valueOf(1.2d));
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue_null() {
     IntDoublePair pair = new IntDoublePair(2, -0.3d);
-    pair.setValue(null);
+    pairToEntry(pair).setValue(null);
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue_primitives() {
     IntDoublePair pair = new IntDoublePair(2, -0.3d);
-    pair.setValue(1.2d);
+    pairToEntry(pair).setValue(1.2d);
   }
 
   //-------------------------------------------------------------------------
@@ -57,18 +62,19 @@ public class IntDoublePairTest {
     IntDoublePair ab = Pair.of(1, 1.7d);
     IntDoublePair ac = Pair.of(1, 1.9d);
     IntDoublePair ba = Pair.of(2, 1.5d);
-    
-    assertTrue(ab.compareTo(ab) == 0);
-    assertTrue(ab.compareTo(ac) < 0);
-    assertTrue(ab.compareTo(ba) < 0);
-    
-    assertTrue(ac.compareTo(ab) > 0);
-    assertTrue(ac.compareTo(ac) == 0);
-    assertTrue(ac.compareTo(ba) < 0);
-    
-    assertTrue(ba.compareTo(ab) > 0);
-    assertTrue(ba.compareTo(ac) > 0);
-    assertTrue(ba.compareTo(ba) == 0);
+
+    FirstThenSecondPairComparator<Integer, Double> comparator = new FirstThenSecondPairComparator<Integer, Double>();
+    assertTrue(comparator.compare(ab, ab) == 0);
+    assertTrue(comparator.compare(ac, ab) > 0);
+    assertTrue(comparator.compare(ba, ab) > 0);
+
+    assertTrue(comparator.compare(ab, ac) < 0);
+    assertTrue(comparator.compare(ac, ac) == 0);
+    assertTrue(comparator.compare(ba, ac) > 0);
+
+    assertTrue(comparator.compare(ab, ba) < 0);
+    assertTrue(comparator.compare(ac, ba) < 0);
+    assertTrue(comparator.compare(ba, ba) == 0);
   }
 
   public void testEquals() {
@@ -80,17 +86,17 @@ public class IntDoublePairTest {
     assertEquals(false, a.equals(b));
     assertEquals(false, a.equals(c));
     assertEquals(false, a.equals(d));
-    
+
     assertEquals(false, b.equals(a));
     assertEquals(true, b.equals(b));
     assertEquals(false, b.equals(c));
     assertEquals(false, b.equals(d));
-    
+
     assertEquals(false, c.equals(a));
     assertEquals(false, c.equals(b));
     assertEquals(true, c.equals(c));
     assertEquals(false, c.equals(d));
-    
+
     assertEquals(false, d.equals(a));
     assertEquals(false, d.equals(b));
     assertEquals(false, d.equals(c));

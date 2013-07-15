@@ -22,10 +22,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.fudgemsg.FudgeContext;
@@ -36,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -43,11 +41,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.replay.BloombergTicksReplayer.Mode;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = {"unit", "slow"})
+@Test(groups = TestGroup.UNIT_SLOW)
 public class BloombergTickWriterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTickWriterTest.class);
@@ -93,7 +92,7 @@ public class BloombergTickWriterTest {
   //-------------------------------------------------------------------------
   @Test
   public void ticksWriting() throws Exception {
-    ZonedDateTime startTime = Clock.system(TimeZone.UTC).zonedDateTime();
+    ZonedDateTime startTime = ZonedDateTime.now(Clock.systemUTC());
     
     //run test for 5secs
     long runTime = 5000;
@@ -121,7 +120,7 @@ public class BloombergTickWriterTest {
     writerExecutor.shutdown();
     writerExecutor.awaitTermination(1, TimeUnit.SECONDS);
     
-    ZonedDateTime endTime = Clock.system(TimeZone.UTC).zonedDateTime();
+    ZonedDateTime endTime = ZonedDateTime.now(Clock.systemUTC());
     
     //now lets replay generated allTicks.dat
     Set<String> buids = Sets.newHashSet(_ticker2buid.values());

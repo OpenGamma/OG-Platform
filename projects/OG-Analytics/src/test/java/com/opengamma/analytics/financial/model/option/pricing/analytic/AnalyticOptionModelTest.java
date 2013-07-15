@@ -10,10 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
@@ -69,6 +68,8 @@ public abstract class AnalyticOptionModelTest {
     greekTypes.remove(Greek.DRIFTLESS_THETA);
     greekTypes.remove(Greek.STRIKE_DELTA);
     greekTypes.remove(Greek.STRIKE_GAMMA);
+    greekTypes.remove(Greek.DUAL_DELTA);
+    greekTypes.remove(Greek.DUAL_GAMMA);
     greekTypes.remove(Greek.ZETA);
     greekTypes.remove(Greek.ZETA_BLEED);
     GreekResultCollection bsm = BSM.getGreeks(PUT, DATA, greekTypes);
@@ -82,11 +83,11 @@ public abstract class AnalyticOptionModelTest {
   protected void assertResults(final GreekResultCollection results, final GreekResultCollection expected) {
     assertEquals(results.size(), expected.size());
     for (final Pair<Greek, Double> entry : results) {
-      final Double result2 = expected.get(entry.getKey());
-      if (!(entry.getKey().equals(Greek.VARIANCE_ULTIMA))) {
-        assertEquals(entry.getValue(), result2, EPS);
+      final Double result2 = expected.get(entry.getFirst());
+      if (!(entry.getFirst().equals(Greek.VARIANCE_ULTIMA))) {
+        assertEquals(entry.getSecond(), result2, EPS);
       } else {
-        assertEquals(entry.getValue(), result2, 1000 * EPS);
+        assertEquals(entry.getSecond(), result2, 1000 * EPS);
       }
     }
   }

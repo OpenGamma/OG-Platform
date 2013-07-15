@@ -11,6 +11,9 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.
@@ -26,15 +29,14 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * \end{equation*}
    * $$
    * <p>
-   * Reference: Henrard, M. The Irony in the derivatives discounting Part II:
-   * the crisis. Wilmott Journal, 2010, 2, 301-316
+   * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316
    * @param data The Hull-White model parameters.
    * @param t0 The expiry time.
    * @param t1 The first reference time.
    * @param t2 The second reference time.
    * @return The factor.
    */
-  public double futureConvexityFactor(final HullWhiteOneFactorPiecewiseConstantParameters data, double t0, double t1, double t2) {
+  public double futuresConvexityFactor(final HullWhiteOneFactorPiecewiseConstantParameters data, double t0, double t1, double t2) {
     double factor1 = Math.exp(-data.getMeanReversion() * t1) - Math.exp(-data.getMeanReversion() * t2);
     double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
     int indexT0 = 1; // Period in which the time t0 is; _volatilityTime[i-1] <= t0 < _volatilityTime[i];
@@ -276,13 +278,16 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * @return The swap rate.
    */
   public double swapRate(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
+    ArgumentChecker.isTrue(discountedCashFlowFixed.length == alphaFixed.length, "Length shouyld be equal");
     double numerator = 0.0;
     for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
-      numerator += discountedCashFlowIbor[loopcf] * Math.exp(-(x + alphaIbor[loopcf]) * (x + alphaIbor[loopcf]) / 2.0);
+      numerator += discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]);
+      //      numerator += discountedCashFlowIbor[loopcf] * Math.exp(-(x + alphaIbor[loopcf]) * (x + alphaIbor[loopcf]) / 2.0);
     }
     double denominator = 0.0;
     for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
-      denominator += discountedCashFlowFixed[loopcf] * Math.exp(-(x + alphaFixed[loopcf]) * (x + alphaFixed[loopcf]) / 2.0);
+      denominator += discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - 0.5 * alphaFixed[loopcf] * alphaFixed[loopcf]);
+      //      denominator += discountedCashFlowFixed[loopcf] * Math.exp(-(x + alphaFixed[loopcf]) * (x + alphaFixed[loopcf]) / 2.0);
     }
     return -numerator / denominator;
   }
@@ -296,19 +301,19 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * @param alphaIbor The zero-coupon bond volatilities for the swap Ibor leg.
    * @return The swap rate.
    */
-  public double swapRateD1(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
+  public double swapRateDx1(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
     double f = 0.0;
     double df = 0.0;
     double term;
     for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
-      term = discountedCashFlowIbor[loopcf] * Math.exp(-(x + alphaIbor[loopcf]) * (x + alphaIbor[loopcf]) / 2.0);
+      term = discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]);
       f += term;
       df += -alphaIbor[loopcf] * term;
     }
     double g = 0.0;
     double dg = 0.0;
     for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
-      term = discountedCashFlowFixed[loopcf] * Math.exp(-(x + alphaFixed[loopcf]) * (x + alphaFixed[loopcf]) / 2.0);
+      term = discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - 0.5 * alphaFixed[loopcf] * alphaFixed[loopcf]);
       g += term;
       dg += -alphaFixed[loopcf] * term;
     }
@@ -324,13 +329,13 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * @param alphaIbor The zero-coupon bond volatilities for the swap Ibor leg.
    * @return The swap rate.
    */
-  public double swapRateD2(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
+  public double swapRateDx2(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
     double f = 0.0;
     double df = 0.0;
     double df2 = 0.0;
     double term;
     for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
-      term = discountedCashFlowIbor[loopcf] * Math.exp(-(x + alphaIbor[loopcf]) * (x + alphaIbor[loopcf]) / 2.0);
+      term = discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]);
       f += term;
       df += -alphaIbor[loopcf] * term;
       df2 += alphaIbor[loopcf] * alphaIbor[loopcf] * term;
@@ -339,12 +344,134 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     double dg = 0.0;
     double dg2 = 0.0;
     for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
-      term = discountedCashFlowFixed[loopcf] * Math.exp(-(x + alphaFixed[loopcf]) * (x + alphaFixed[loopcf]) / 2.0);
+      term = discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - 0.5 * alphaFixed[loopcf] * alphaFixed[loopcf]);
       g += term;
       dg += -alphaFixed[loopcf] * term;
       dg2 += alphaFixed[loopcf] * alphaFixed[loopcf] * term;
     }
-    return -((df2 * g - f * dg2) / (g * g) - (df * g - f * dg) * 2 * dg / (g * g * g));
+    double g2 = g * g;
+    double g3 = g * g2;
+
+    return -df2 / g + (2 * df * dg + f * dg2) / g2 - 2 * f * dg * dg / g3;
+    //-((df2 * g - f * dg2) / (g * g) - (df * g - f * dg) * 2 * dg / (g * g * g));
+  }
+
+  /**
+   * Compute the first order derivative of the swap rate with respect to the discountedCashFlowIbor in the $P(.,\theta)$ numeraire.
+   * @param x The random variable value.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for the swap fixed leg.
+   * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for the swap Ibor leg.
+   * @return The swap rate derivative.
+   */
+  public double[] swapRateDdcfi1(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
+    final int nbDcfi = discountedCashFlowIbor.length;
+    final int nbDcff = discountedCashFlowFixed.length;
+    final double[] swapRateDdcfi1 = new double[nbDcfi];
+    double denominator = 0.0;
+    for (int loopcf = 0; loopcf < nbDcff; loopcf++) {
+      denominator += discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[loopcf] * x - 0.5 * alphaFixed[loopcf] * alphaFixed[loopcf]);
+    }
+    for (int loopcf = 0; loopcf < nbDcfi; loopcf++) {
+      swapRateDdcfi1[loopcf] = -Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]) / denominator;
+    }
+    return swapRateDdcfi1;
+  }
+
+  /**
+   * Compute the first order derivative of the swap rate with respect to the discountedCashFlowFixed in the $P(.,\theta)$ numeraire.
+   * @param x The random variable value.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for the swap fixed leg.
+   * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for the swap Ibor leg.
+   * @return The swap rate derivative.
+   */
+  public double[] swapRateDdcff1(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
+    final int nbDcff = discountedCashFlowFixed.length;
+    final int nbDcfi = discountedCashFlowIbor.length;
+    final double[] expD = new double[nbDcfi];
+    double numerator = 0.0;
+    for (int loopcf = 0; loopcf < nbDcfi; loopcf++) {
+      numerator += discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]);
+    }
+    double denominator = 0.0;
+    for (int loopcf = 0; loopcf < nbDcff; loopcf++) {
+      expD[loopcf] = Math.exp(-alphaFixed[loopcf] * x - 0.5 * alphaFixed[loopcf] * alphaFixed[loopcf]);
+      denominator += discountedCashFlowFixed[loopcf] * expD[loopcf];
+    }
+    final double ratio = numerator / (denominator * denominator);
+    final double[] swapRateDdcff1 = new double[nbDcff];
+    for (int loopcf = 0; loopcf < nbDcff; loopcf++) {
+      swapRateDdcff1[loopcf] = ratio * expD[loopcf];
+    }
+    return swapRateDdcff1;
+  }
+
+  /**
+   * Compute the first order derivative with respect to the discountedCashFlowFixed and to the discountedCashFlowIbor of the of swap rate second derivative with respect 
+   * to the random variable x in the $P(.,\theta)$ numeraire.
+   * @param x The random variable value.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for the swap fixed leg.
+   * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for the swap Ibor leg.
+   * @return The swap rate derivative. Made of a pair of arrays. The first one is the derivative wrt discountedCashFlowFixed and the second one wrt discountedCashFlowIbor.
+   */
+  public Pair<double[], double[]> swapRateDx2Ddcf1(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor) {
+    final int nbDcff = discountedCashFlowFixed.length;
+    final int nbDcfi = discountedCashFlowIbor.length;
+    double f = 0.0;
+    double df = 0.0;
+    double df2 = 0.0;
+    double[] termIbor = new double[nbDcfi];
+    double[] expIbor = new double[nbDcfi];
+    for (int loopcf = 0; loopcf < nbDcfi; loopcf++) {
+      expIbor[loopcf] = Math.exp(-alphaIbor[loopcf] * x - 0.5 * alphaIbor[loopcf] * alphaIbor[loopcf]);
+      termIbor[loopcf] = discountedCashFlowIbor[loopcf] * expIbor[loopcf];
+      f += termIbor[loopcf];
+      df += -alphaIbor[loopcf] * termIbor[loopcf];
+      df2 += alphaIbor[loopcf] * alphaIbor[loopcf] * termIbor[loopcf];
+    }
+    double g = 0.0;
+    double dg = 0.0;
+    double dg2 = 0.0;
+    double[] termFixed = new double[nbDcff];
+    double[] expFixed = new double[nbDcff];
+    for (int loopcf = 0; loopcf < nbDcff; loopcf++) {
+      expFixed[loopcf] = Math.exp(-alphaFixed[loopcf] * x - 0.5 * alphaFixed[loopcf] * alphaFixed[loopcf]);
+      termFixed[loopcf] = discountedCashFlowFixed[loopcf] * expFixed[loopcf];
+      g += termFixed[loopcf];
+      dg += -alphaFixed[loopcf] * termFixed[loopcf];
+      dg2 += alphaFixed[loopcf] * alphaFixed[loopcf] * termFixed[loopcf];
+    }
+    double g2 = g * g;
+    double g3 = g * g2;
+    double g4 = g * g3;
+    //    double dx2 = -((df2 * g - f * dg2) / g2 - (df * g - f * dg) * 2 * dg / g3);
+    // Backward sweep
+    double dx2Bar = 1.0;
+    double gBar = (df2 / g2 - 2 * f * dg2 / g3 - 4 * df * dg / g3 + 6 * dg * dg * f / g4) * dx2Bar;
+    double dgBar = (2 * df / g2 - 4 * f * dg / g3) * dx2Bar;
+    double dg2Bar = f / g2 * dx2Bar;
+    double fBar = (dg2 / g2 - 2 * dg * dg / g3) * dx2Bar;
+    double dfBar = 2 * dg / g2 * dx2Bar;
+    double df2Bar = -1.0 / g * dx2Bar;
+
+    final double[] discountedCashFlowFixedBar = new double[nbDcff];
+    final double[] termFixedBar = new double[nbDcff];
+    for (int loopcf = 0; loopcf < nbDcff; loopcf++) {
+      termFixedBar[loopcf] = gBar - alphaFixed[loopcf] * dgBar + alphaFixed[loopcf] * alphaFixed[loopcf] * dg2Bar;
+      discountedCashFlowFixedBar[loopcf] = expFixed[loopcf] * termFixedBar[loopcf];
+    }
+    final double[] discountedCashFlowIborBar = new double[nbDcfi];
+    final double[] termIborBar = new double[nbDcfi];
+    for (int loopcf = 0; loopcf < nbDcfi; loopcf++) {
+      termIborBar[loopcf] = fBar - alphaIbor[loopcf] * dfBar + alphaIbor[loopcf] * alphaIbor[loopcf] * df2Bar;
+      discountedCashFlowIborBar[loopcf] = expIbor[loopcf] * termIborBar[loopcf];
+    }
+    return ObjectsPair.of(discountedCashFlowFixedBar, discountedCashFlowIborBar);
   }
 
 }

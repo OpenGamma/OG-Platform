@@ -24,11 +24,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataHistoricalTimeSeriesMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");

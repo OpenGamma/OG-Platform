@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -156,9 +156,9 @@ public class SimpleRegion extends DirectBean
    * for municipalities.
    * @return the value of the property
    */
-  public TimeZone getTimeZone() {
+  public ZoneId getTimeZone() {
     String id = _externalIdBundle.getValue(ExternalSchemes.TZDB_TIME_ZONE);
-    return (id != null ? TimeZone.of(id) : null);
+    return (id != null ? ZoneId.of(id) : null);
   }
 
   /**
@@ -166,7 +166,7 @@ public class SimpleRegion extends DirectBean
    * 
    * @param timeZone  the time-zone to set, null to remove any time-zone
    */
-  public void setTimeZone(TimeZone timeZone) {
+  public void setTimeZone(ZoneId timeZone) {
     setExternalIdBundle(getExternalIdBundle().withoutScheme(ExternalSchemes.TZDB_TIME_ZONE));
     if (timeZone != null) {
       addExternalId(ExternalSchemes.timeZoneRegionId(timeZone));

@@ -24,14 +24,14 @@ public class LogEventFudgeBuilder implements FudgeBuilder<LogEvent> {
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, LogEvent object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(LEVEL_FIELD, object.getLevel());
+    msg.add(LEVEL_FIELD, object.getLevel().name());
     msg.add(MESSAGE_FIELD, object.getMessage());
     return msg;
   }
 
   @Override
   public LogEvent buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    LogLevel level = msg.getFieldValue(LogLevel.class, msg.getByName(LEVEL_FIELD));
+    LogLevel level = LogLevel.valueOf(msg.getString(LEVEL_FIELD));
     String message = msg.getString(MESSAGE_FIELD);
     return new SimpleLogEvent(level, message);
   }

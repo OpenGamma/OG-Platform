@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.batch">
 
   <typedef class="com.opengamma.util.db.hibernate.types.PersistentInstant" name="instant"/>
@@ -12,9 +10,10 @@
   </typedef>
 
 
-  <class name="com.opengamma.batch.domain.RiskRun" table="rsk_run">
+  <class name="com.opengamma.batch.domain.RiskRun" table="rsk_run" lazy="false">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">rsk_hibernate_sequence</param>
         <param name="optimizer">hilo</param>
         <param name="increment_size">100</param>
       </generator>
@@ -39,12 +38,12 @@
 
     <!--<property name="snapshotMode" column="snapshot_mode" type="snapshotModeEnumType"/>-->
     
-    <set name="properties" inverse="true">
+    <set name="properties" inverse="true" lazy="false">
       <key column="run_id"/>
       <one-to-many class="com.opengamma.batch.domain.RiskRunProperty"/>
     </set>
 
-    <set name="calculationConfigurations" inverse="true">
+    <set name="calculationConfigurations" inverse="true" lazy="false">
       <key column="run_id"/>
       <one-to-many class="com.opengamma.batch.domain.CalculationConfiguration"/>
     </set>

@@ -41,6 +41,7 @@ public interface SecurityResolver extends LinkResolver<Security> {
    * @throws DataNotFoundException if the target could not be resolved
    * @throws RuntimeException if an error occurs
    */
+  @Override
   Security resolve(Link<Security> link);
 
   /**

@@ -9,15 +9,14 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.elsql.ElSqlBundle;
@@ -29,10 +28,12 @@ import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHolidayMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -87,7 +88,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
 
   @Test
   public void test_update_getUpdateGet() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
     HolidayDocument base = _holMaster.get(uniqueId);

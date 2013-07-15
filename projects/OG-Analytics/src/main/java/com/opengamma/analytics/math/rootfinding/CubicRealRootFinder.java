@@ -8,10 +8,9 @@ package com.opengamma.analytics.math.rootfinding;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -24,19 +23,19 @@ public class CubicRealRootFinder implements Polynomial1DRootFinder<Double> {
 
   @Override
   public Double[] getRoots(final RealPolynomialFunction1D function) {
-    Validate.notNull(function, "function");
+    ArgumentChecker.notNull(function, "function");
     final double[] coefficients = function.getCoefficients();
     if (coefficients.length != 4) {
       throw new IllegalArgumentException("Function is not a cubic");
     }
     final ComplexNumber[] result = ROOT_FINDER.getRoots(function);
-    final List<Double> reals = new ArrayList<Double>();
+    final List<Double> reals = new ArrayList<>();
     for (final ComplexNumber c : result) {
       if (CompareUtils.closeEquals(c.getImaginary(), 0, 1e-16)) {
         reals.add(c.getReal());
       }
     }
-    Validate.isTrue(reals.size() > 0, "Could not find any real roots");
+    ArgumentChecker.isTrue(reals.size() > 0, "Could not find any real roots");
     return reals.toArray(EMPTY_ARRAY);
   }
 }

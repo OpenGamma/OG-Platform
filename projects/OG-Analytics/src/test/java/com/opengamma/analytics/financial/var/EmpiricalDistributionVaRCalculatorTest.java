@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  *
@@ -30,19 +29,19 @@ public class EmpiricalDistributionVaRCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParameters() {
-    CALCULATOR.evaluate(null, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2}, new double[] {0.06, 0.07}));
+    CALCULATOR.evaluate(null, ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2}, new double[] {0.06, 0.07}));
   }
   
   @Test
   public void test() {
     final int n = 10;
-    final Long[] t = new Long[n];
-    final Double[] pnl = new Double[n];
+    final long[] t = new long[n];
+    final double[] pnl = new double[n];
     for (int i = 0; i < 10; i++) {
-      t[i] = Long.valueOf(i);
+      t[i] = i;
       pnl[i] = i / 10. - 0.5;
     }
-    final DoubleTimeSeries<?> ts = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, pnl);
+    final DoubleTimeSeries<?> ts = ImmutableInstantDoubleTimeSeries.of(t, pnl);
     assertEquals(CALCULATOR.evaluate(PARAMETERS, ts).getVaRValue(), 0.082, 1e-7);
   }
 }

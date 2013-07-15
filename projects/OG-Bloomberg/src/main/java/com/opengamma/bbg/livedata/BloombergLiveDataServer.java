@@ -7,26 +7,40 @@ package com.opengamma.bbg.livedata;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import net.sf.ehcache.CacheManager;
-
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.bloomberglp.blpapi.Session;
+import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.Message;
+import com.bloomberglp.blpapi.MessageIterator;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.SessionProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.engine.marketdata.live.MarketDataAvailabilityNotification;
+import com.opengamma.livedata.server.AbstractEventDispatcher;
+import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * A Bloomberg Live Data Server. 
@@ -35,31 +49,49 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergLiveDataServer.class);
+  /** Interval between attempts to reconnect to Bloomberg. */
+  private static final long RECONNECT_PERIOD = 30000;
 
   // Injected Inputs:
   private final BloombergConnector _bloombergConnector;
   private final ReferenceDataProvider _referenceDataProvider;
 
+  /** Creates and manages the Bloomberg session and service. */
+  private final SessionProvider _sessionProvider;
+  /** Timer for managing reconnection tasks. */
+  private final Timer _timer = new Timer();
+
   // Runtime State:
-  private Session _session;
   private BloombergEventDispatcher _eventDispatcher;
   private Thread _eventDispatcherThread;
 
   private long _subscriptionLimit = Long.MAX_VALUE;
   private volatile RejectedDueToSubscriptionLimitEvent _lastLimitRejection; // = null
+  /** Task for (re)connecting to Bloomberg. */
+  private BloombergLiveDataServer.ConnectTask _connectTask;
+  /** For sending a notification message that Bloomberg data is available. */
+  private final FudgeMessageSender _availabilityNotificationSender;
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param bloombergConnector  the connector, not null
    * @param referenceDataProvider  the reference data provider, not null
+   * @param cacheManager  the cache manager, not null
+   * @param availabilityNotificationSender For sending notifications when Bloomberg data becomes available
    */
-  public BloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+  public BloombergLiveDataServer(BloombergConnector bloombergConnector,
+                                 ReferenceDataProvider referenceDataProvider,
+                                 CacheManager cacheManager,
+                                 FudgeMessageSender availabilityNotificationSender) {
     super(cacheManager);
     ArgumentChecker.notNull(bloombergConnector, "bloombergConnector");
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
+    ArgumentChecker.notNull(availabilityNotificationSender, "availabilityNotificationSender");
+    _availabilityNotificationSender = availabilityNotificationSender;
     _bloombergConnector = bloombergConnector;
     _referenceDataProvider = referenceDataProvider;
+    _sessionProvider = new SessionProvider(_bloombergConnector, BloombergConstants.MKT_DATA_SVC_NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -72,109 +104,33 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     return _bloombergConnector;
   }
 
-  /**
-   * @return the session
-   */
-  private Session getSession() {
-    return _session;
-  }
-
-  /**
-   * @param session the session to set
-   */
-  private void setSession(Session session) {
-    _session = session;
-  }
-
-  /**
-   * @return the eventDispatcher
-   */
-  public BloombergEventDispatcher getEventDispatcher() {
-    return _eventDispatcher;
-  }
-
-  /**
-   * @return the eventDispatcherThread
-   */
-  public Thread getEventDispatcherThread() {
-    return _eventDispatcherThread;
-  }
-
-  /**
-   * @param eventDispatcherThread the eventDispatcherThread to set
-   */
-  public void setEventDispatcherThread(Thread eventDispatcherThread) {
-    _eventDispatcherThread = eventDispatcherThread;
-  }
-
-  /**
-   * @param eventDispatcher the eventDispatcher to set
-   */
-  public void setEventDispatcher(BloombergEventDispatcher eventDispatcher) {
-    _eventDispatcher = eventDispatcher;
-  }
-
   @Override
   protected void doDisconnect() {
-    getEventDispatcher().terminate();
+    _eventDispatcher.terminate();
     try {
-      getEventDispatcherThread().join(10000L);
+      _eventDispatcherThread.join(10000L);
     } catch (InterruptedException e) {
       Thread.interrupted();
       s_logger.warn("Interrupted while waiting for event dispatcher thread to terminate", e);
-    }    
-    setEventDispatcher(null);
-    setEventDispatcherThread(null);
-    
-    s_logger.info("Disconnecting from existing session...");
-    try {
-      getSession().stop();
-    } catch (InterruptedException e) {
-      Thread.interrupted();
-      s_logger.warn("Interrupted while waiting for session to stop", e);        
-    } catch (Exception e) {
-      s_logger.warn("Could not stop session", e);
     }
-    setSession(null);
+    _eventDispatcher = null;
+    _eventDispatcherThread = null;
+    _sessionProvider.invalidateSession();
   }
 
   @Override
   protected void doConnect() {
-    s_logger.info("Making Bloomberg service connection...");
-    Session session = new Session(getBloombergConnector().getSessionOptions());
-    try {
-      if (!session.start()) {
-        throw new OpenGammaRuntimeException("Unable to start session with options " + getBloombergConnector());
-      }
-    } catch (InterruptedException ex) {
-      Thread.interrupted();
-      throw new OpenGammaRuntimeException("Unable to start session with options " + getBloombergConnector(), ex);
-    } catch (Exception ex) {
-      throw new OpenGammaRuntimeException("Unable to start session with options " + getBloombergConnector(), ex);
-    }
-    // TODO kirk 2009-10-12 -- Should stop session if we fail here. Not doing so
-    // due to the interrupted exception crap.
-    s_logger.info("Connected. Opening service.");
-    try {
-      if (!session.openService("//blp/mktdata")) {
-        throw new OpenGammaRuntimeException("Unable to open MarketData service");
-      }
-    } catch (InterruptedException e) {
-      Thread.interrupted();
-      throw new OpenGammaRuntimeException("Unable to open MarketData service", e);
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Unable to open MarketData service", e);
-    }
-    BloombergEventDispatcher eventDispatcher = new BloombergEventDispatcher(this, session);
+    // getting the session throws an exception if BBG isn't available which is the behaviour we want
+    _sessionProvider.getSession();
+    BloombergEventDispatcher eventDispatcher = new BloombergEventDispatcher(this);
     Thread eventDispatcherThread = new Thread(eventDispatcher, "Bloomberg LiveData Dispatcher");
     eventDispatcherThread.setDaemon(true);
     eventDispatcherThread.start();
-    
+
     // If we got this far, we're ready, and we can call all the setters.
-    setSession(session);
-    setEventDispatcher(eventDispatcher);
-    setEventDispatcherThread(eventDispatcherThread);
-    
+    _eventDispatcher = eventDispatcher;
+    _eventDispatcherThread = eventDispatcherThread;
+
     // make sure the reference data provider also reconnects
     if (_referenceDataProvider instanceof Lifecycle) {
       ((Lifecycle) _referenceDataProvider).start();
@@ -194,8 +150,8 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     if (bbgUniqueIds.isEmpty()) {
       return Collections.emptyMap();
     }
-    
-    Map<String, Object> returnValue = new HashMap<String, Object>();
+
+    Map<String, Object> returnValue = Maps.newHashMap();
     
     SubscriptionList sl = new SubscriptionList();
     for (String bbgUniqueId : bbgUniqueIds) {
@@ -206,7 +162,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     }
     
     try {
-      getSession().subscribe(sl);
+      _sessionProvider.getSession().subscribe(sl);
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Could not subscribe to " + bbgUniqueIds, e);
     }
@@ -247,7 +203,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     }
     
     try {
-      getSession().unsubscribe(sl);
+      _sessionProvider.getSession().unsubscribe(sl);
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Could not unsubscribe from " + subscriptionHandles, e);
     }
@@ -265,6 +221,58 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   public RejectedDueToSubscriptionLimitEvent getLastLimitRejection() {
     return _lastLimitRejection;
   }
+
+  @Override
+  public synchronized void start() {
+    if (getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
+      _connectTask = new ConnectTask();
+      _timer.schedule(_connectTask, 0, RECONNECT_PERIOD);
+    }
+  }
+
+  @Override
+  public synchronized void stop() {
+    if (getConnectionStatus() == ConnectionStatus.CONNECTED) {
+      stopExpirationManager();
+      if (_connectTask != null) {
+        _connectTask.cancel();
+      }
+      disconnect();
+    }
+  }
+
+  /**
+   * Task that connects to Bloomberg and periodically tries to reconnect if the connection is down.
+   */
+  private class ConnectTask extends TimerTask {
+
+    @Override
+    public void run() {
+      synchronized (BloombergLiveDataServer.this) {
+        if (getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
+          try {
+            s_logger.info("Connecting to Bloomberg");
+            connect();
+            startExpirationManager();
+            reestablishSubscriptions();
+            MarketDataAvailabilityNotification notification = new MarketDataAvailabilityNotification(
+                ImmutableSet.of(
+                    ExternalSchemes.BLOOMBERG_BUID,
+                    ExternalSchemes.BLOOMBERG_BUID_WEAK,
+                    ExternalSchemes.BLOOMBERG_TCM,
+                    ExternalSchemes.BLOOMBERG_TICKER,
+                    ExternalSchemes.BLOOMBERG_TICKER_WEAK));
+            FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+            s_logger.info("Sending notification that Bloomberg is available: {}", notification);
+            _availabilityNotificationSender.send(notification.toFudgeMsg(serializer));
+          } catch (Exception e) {
+            s_logger.warn("Failed to connect to Bloomberg", e);
+          }
+        }
+      }
+    }
+  }
+
   /**
    * Starts the Bloomberg Server.
    * 
@@ -274,5 +282,55 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/livedata/bbg-livedata-context.xml");
     context.start();
   }
+  /**
+   * This is the job which actually will dispatch messages from Bloomberg to the various
+   * internal consumers.
+   *
+   * @author kirk
+   */
+  private final class BloombergEventDispatcher extends AbstractEventDispatcher {
 
+    private BloombergEventDispatcher(BloombergLiveDataServer server) {
+      super(server);
+    }
+
+    @Override
+    protected void preStart() {
+      super.preStart();
+    }
+
+    @Override
+    protected void dispatch(long maxWaitMilliseconds) {
+      Event event = null;
+      try {
+        event = _sessionProvider.getSession().nextEvent(1000L);
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+      }
+      if (event == null) {
+        return;
+      }
+      MessageIterator msgIter = event.messageIterator();
+      while (msgIter.hasNext()) {
+        Message msg = msgIter.next();
+        String bbgUniqueId = msg.topicName();
+
+        if (event.eventType() == Event.EventType.SUBSCRIPTION_DATA) {
+          FudgeMsg eventAsFudgeMsg = BloombergDataUtils.parseElement(msg.asElement());
+          liveDataReceived(bbgUniqueId, eventAsFudgeMsg);
+          // REVIEW 2012-09-19 Andrew -- Why return? Might the event contain multiple messages?
+          return;
+        }
+        s_logger.info("Got event {} {} {}", event.eventType(), bbgUniqueId, msg.asElement());
+
+        if (event.eventType() == Event.EventType.SESSION_STATUS) {
+          s_logger.info("SESSION_STATUS event received: {}", msg.messageType());
+          if (msg.messageType().toString().equals("SessionTerminated")) {
+            disconnect();
+            terminate();
+          }
+        }
+      }
+    }
+  }
 }

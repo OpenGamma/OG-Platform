@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a fixed coupon bond issue.
@@ -49,8 +50,8 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
    * @param repoCurveName The name of the curve used for settlement amount discounting.
    * @param issuer The bond issuer name.
    */
-  public BondFixedSecurity(AnnuityPaymentFixed nominal, AnnuityCouponFixed coupon, double settlementTime, double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, int couponPerYear, String repoCurveName, String issuer) {
+  public BondFixedSecurity(final AnnuityPaymentFixed nominal, final AnnuityCouponFixed coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
+      final YieldConvention yieldConvention, final int couponPerYear, final String repoCurveName, final String issuer) {
     super(nominal, coupon, settlementTime, repoCurveName, issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
@@ -92,12 +93,14 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFixedSecurity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFixedSecurity(this);
   }
 
@@ -123,7 +126,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -133,7 +136,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFixedSecurity other = (BondFixedSecurity) obj;
+    final BondFixedSecurity other = (BondFixedSecurity) obj;
     if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
       return false;
     }

@@ -17,7 +17,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Returns the change in present value of an instrument due to a parallel move of the yield curve, scaled so that the move is 1bp.
  *  
  */
-public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
+public final class PV01Calculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, Map<String, Double>> {
 
   /**
   * The unique instance of the sensitivity calculator.
@@ -43,7 +43,7 @@ public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<Yi
    * Constructor with a specific present value curve sensitivity calculator.
    * @param presentValueCurveSensitivityCalculator The calculator.
    */
-  public PV01Calculator(InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueCurveSensitivityCalculator) {
+  public PV01Calculator(final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueCurveSensitivityCalculator) {
     _presentValueCurveSensitivityCalculator = presentValueCurveSensitivityCalculator;
   }
 
@@ -64,7 +64,7 @@ public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<Yi
    */
   @Override
   public Map<String, Double> visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, List<DoublesPair>> sense = _presentValueCurveSensitivityCalculator.visit(ird, curves);
+    final Map<String, List<DoublesPair>> sense = ird.accept(_presentValueCurveSensitivityCalculator, curves);
     final Map<String, Double> res = new HashMap<String, Double>();
     final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();
     while (iterator.hasNext()) {
@@ -82,6 +82,11 @@ public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<Yi
       sum += pair.getSecond();
     }
     return sum;
+  }
+
+  @Override
+  public Map<String, Double> visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException("Need curve data");
   }
 
 }

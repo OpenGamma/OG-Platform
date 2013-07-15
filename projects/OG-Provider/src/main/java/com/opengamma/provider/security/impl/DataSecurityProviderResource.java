@@ -17,8 +17,8 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.provider.security.SecurityProvider;
-import com.opengamma.provider.security.SecurityProviderGetRequest;
-import com.opengamma.provider.security.SecurityProviderGetResult;
+import com.opengamma.provider.security.SecurityProviderRequest;
+import com.opengamma.provider.security.SecurityProviderResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -70,8 +70,8 @@ public class DataSecurityProviderResource extends AbstractDataResource {
 
   @POST  // should be a get, but query is too large
   @Path("securityGet")
-  public Response getSecurity(SecurityProviderGetRequest request) {
-    SecurityProviderGetResult result = getSecurityProvider().getSecurities(request);
+  public Response getSecurity(SecurityProviderRequest request) {
+    SecurityProviderResult result = getSecurityProvider().getSecurities(request);
     return responseOkFudge(result);
   }
 

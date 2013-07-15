@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.schedule;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -111,11 +110,11 @@ public class EndOfMonthScheduleCalculatorTest extends ScheduleCalculatorTestCase
     for (int i = 1; i < months; i++) {
       d1 = forward[i];
       if (d1.getYear() == forward[i - 1].getYear()) {
-        assertEquals(d1.getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 1);
+        assertEquals(d1.getMonthValue() - forward[i - 1].getMonthValue(), 1);
       } else {
-        assertEquals(d1.getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -11);
+        assertEquals(d1.getMonthValue() - forward[i - 1].getMonthValue(), -11);
       }
-      assertEquals(d1.getDayOfMonth(), d1.getMonthOfYear().lengthInDays(d1.toLocalDate().isLeapYear()));
+      assertEquals(d1.getDayOfMonth(), d1.lengthOfMonth());
     }
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, false), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, true), forward);
@@ -139,11 +138,11 @@ public class EndOfMonthScheduleCalculatorTest extends ScheduleCalculatorTestCase
     for (int i = 1; i < months; i++) {
       d1 = forward[i];
       if (d1.getYear() == forward[i - 1].getYear()) {
-        assertEquals(d1.getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 1);
+        assertEquals(d1.getMonthValue() - forward[i - 1].getMonthValue(), 1);
       } else {
-        assertEquals(d1.getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -11);
+        assertEquals(d1.getMonthValue() - forward[i - 1].getMonthValue(), -11);
       }
-      assertEquals(d1.getDayOfMonth(), d1.getMonthOfYear().lengthInDays(d1.toLocalDate().isLeapYear()));
+      assertEquals(d1.getDayOfMonth(), d1.toLocalDate().lengthOfMonth());
     }
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, false), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, true), forward);

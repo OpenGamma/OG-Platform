@@ -27,7 +27,7 @@ public class LogOptionDefinition extends OptionDefinition {
       return Math.max(0, Math.log(spot / getStrike()));
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
 
   public LogOptionDefinition(final double strike, final Expiry expiry) {
     super(strike, expiry, null);

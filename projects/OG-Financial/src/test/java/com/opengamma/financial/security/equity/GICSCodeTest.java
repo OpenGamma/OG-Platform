@@ -12,9 +12,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * Test GICSCode.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GICSCodeTest {
 
   @DataProvider(name = "invalidInt")

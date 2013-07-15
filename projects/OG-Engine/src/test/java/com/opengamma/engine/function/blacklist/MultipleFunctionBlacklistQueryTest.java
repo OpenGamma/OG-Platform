@@ -17,24 +17,26 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link MultipleFunctionBlacklistQuery} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MultipleFunctionBlacklistQueryTest {
 
   private final String _functionIdentifier = "Func";
-  private final ComputationTarget _target = new ComputationTarget(UniqueId.of("Test", "Test"));
+  private final ComputationTarget _target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Test"));
   private final CompiledFunctionDefinition _function = new MockFunction(_functionIdentifier, _target);
   private final FunctionParameters _functionParameters = new EmptyFunctionParameters();
   private final ParameterizedFunction _parameterizedFunction = new ParameterizedFunction(_function, _functionParameters);

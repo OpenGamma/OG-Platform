@@ -5,14 +5,20 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -20,6 +26,9 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -65,14 +74,25 @@ import com.opengamma.util.tuple.Pair;
 
   // Operations
 
+  public void submit(final ContextRunnable runnable) {
+    getBuilder().addToRunQueue(runnable);
+  }
+
   /**
    * Schedule the task for execution.
    * 
    * @param runnable task to execute, not null
    */
   public void run(final ResolveTask runnable) {
-    runnable.addRef();
-    getBuilder().addToRunQueue(runnable);
+    // Run inline unless the stack is full, or the task attempts to defer execution. Only run if the task hasn't been discarded (ie
+    // no-one is going to consume its results)
+    if (runnable.addRef()) {
+      // Added a reference for the run-queue (which will be removed by tryRun)
+      if ((++_stackDepth > MAX_CALLBACK_DEPTH) || !runnable.tryRun(this)) {
+        submit(runnable);
+      }
+      _stackDepth--;
+    }
   }
 
   /**
@@ -83,7 +103,7 @@ import com.opengamma.util.tuple.Pair;
   public void pump(final ResolutionPump pump) {
     s_logger.debug("Pumping {}", pump);
     if (++_stackDepth > MAX_CALLBACK_DEPTH) {
-      getBuilder().addToRunQueue(new ResolutionPump.Pump(pump));
+      submit(new ResolutionPump.Pump(pump));
     } else {
       pump.pump(this);
     }
@@ -98,7 +118,7 @@ import com.opengamma.util.tuple.Pair;
   public void close(final ResolutionPump pump) {
     s_logger.debug("Closing {}", pump);
     if (++_stackDepth > MAX_CALLBACK_DEPTH) {
-      getBuilder().addToRunQueue(new ResolutionPump.Close(pump));
+      submit(new ResolutionPump.Close(pump));
     } else {
       pump.close(this);
     }
@@ -116,7 +136,7 @@ import com.opengamma.util.tuple.Pair;
   public void resolved(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     s_logger.debug("Resolved {} to {}", valueRequirement, resolvedValue);
     _stackDepth++;
-    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline 
+    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline
     callback.resolved(this, valueRequirement, resolvedValue, pump);
     _stackDepth--;
   }
@@ -131,7 +151,7 @@ import com.opengamma.util.tuple.Pair;
   public void failed(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolutionFailure failure) {
     s_logger.debug("Couldn't resolve {}", valueRequirement);
     _stackDepth++;
-    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline 
+    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline
     callback.failed(this, valueRequirement, failure);
     _stackDepth--;
   }
@@ -149,25 +169,51 @@ import com.opengamma.util.tuple.Pair;
     ExceptionWrapper.createAndPut(t, _exceptions);
   }
 
-  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent, final Set<FunctionExclusionGroup> functionExclusion) {
-    final ValueRequirement requirement = MemoryUtils.instance(rawRequirement);
+  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent,
+      final Collection<FunctionExclusionGroup> functionExclusion) {
+    final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
-      dependent.setRecursionDetected();
       s_logger.debug("Can't introduce a ValueRequirement loop");
-      return new NullResolvedValueProducer(requirement, recursiveRequirement(requirement));
+      return null;
     }
     RequirementResolver resolver = null;
     final ResolveTask[] tasks = getTasksResolving(requirement);
     if (tasks != null) {
-      for (ResolveTask task : tasks) {
+      int i = 0;
+      int l = tasks.length;
+      while (i < l) {
+        final ResolveTask task = tasks[i];
         if ((dependent == null) || !dependent.hasParent(task)) {
-          if (resolver == null) {
-            resolver = new RequirementResolver(requirement, dependent, functionExclusion);
+          if ((task.isFinished() && !task.wasRecursionDetected()) || (ObjectUtils.equals(functionExclusion, task.getFunctionExclusion()) && task.hasParentValueRequirements(dependent))) {
+            // The task we've found has either already completed, without hitting a recursion constraint. Or
+            // the task is identical to the fallback task we'd create naturally. In either case, release everything
+            // else and use it.
+            for (int j = 0; j < i; j++) {
+              tasks[j].release(this);
+            }
+            for (int j = i + 1; j < l; j++) {
+              tasks[j].release(this);
+            }
+            return task;
           }
-          resolver.addTask(this, task);
+          i++;
+        } else {
+          task.release(this);
+          tasks[i] = tasks[--l];
         }
-        task.release(this);
+      }
+      // Anything left in the array is suitable for use in a RequirementResolver
+      if (l > 0) {
+        resolver = new RequirementResolver(requirement, dependent, functionExclusion);
+        if (l != tasks.length) {
+          resolver.setTasks(this, Arrays.copyOf(tasks, l));
+        } else {
+          resolver.setTasks(this, tasks);
+        }
+        for (i = 0; i < l; i++) {
+          tasks[i].release(this);
+        }
       }
     }
     if (resolver != null) {
@@ -179,7 +225,8 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Set<FunctionExclusionGroup> functionExclusion) {
+  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask,
+      final Collection<FunctionExclusionGroup> functionExclusion) {
     final ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
     do {
       ResolveTask task;
@@ -191,19 +238,21 @@ import com.opengamma.util.tuple.Pair;
         }
         task = tasks.get(newTask);
         if (task == null) {
-          newTask.addRef();
+          newTask.addRef(); // Already got a reference, increment for the collection
           tasks.put(newTask, newTask);
         } else {
-          task.addRef();
+          task.addRef(); // Got the task lock, increment so we can return it
         }
       }
       if (task != null) {
         s_logger.debug("Using existing task {}", task);
-        newTask.release(this);
+        newTask.release(this); // Discard local allocation
         return task;
       } else {
-        run(newTask);
         getBuilder().incrementActiveResolveTasks();
+        // Don't call run; we want to fork this out to a new worker thread, never call inline
+        newTask.addRef(); // Reference held by the run queue
+        submit(newTask);
         return newTask;
       }
     } while (true);
@@ -223,9 +272,9 @@ import com.opengamma.util.tuple.Pair;
         }
         result = new ResolveTask[tasks.size()];
         int i = 0;
-        for (ResolveTask task : tasks.keySet()) {
+        for (final ResolveTask task : tasks.keySet()) {
           result[i++] = task;
-          task.addRef();
+          task.addRef(); // Got the task lock
         }
       }
       return result;
@@ -249,11 +298,11 @@ import com.opengamma.util.tuple.Pair;
           resultTasks = new ResolveTask[tasks.size()];
           resultProducers = new ResolvedValueProducer[tasks.size()];
           int i = 0;
-          for (Map.Entry<ResolveTask, ResolvedValueProducer> task : (Set<Map.Entry<ResolveTask, ResolvedValueProducer>>) tasks.entrySet()) {
+          for (final Map.Entry<ResolveTask, ResolvedValueProducer> task : (Set<Map.Entry<ResolveTask, ResolvedValueProducer>>) tasks.entrySet()) {
             // Don't ref-count the tasks; they're just used for parent comparisons
             resultTasks[i] = task.getKey();
             resultProducers[i++] = task.getValue();
-            task.getValue().addRef();
+            task.getValue().addRef(); // We're holding the task lock
           }
         }
         return Pair.of(resultTasks, resultProducers);
@@ -267,7 +316,63 @@ import com.opengamma.util.tuple.Pair;
     return getBuilder().getResolvedValue(valueSpecification);
   }
 
+  public static final class ResolutionIterator {
+
+    private final Object _properties;
+    private final Object _functions;
+    private final int _length;
+    private int _index;
+
+    private ResolutionIterator(final Pair<?, ?> values) {
+      _properties = values.getFirst();
+      _functions = values.getSecond();
+      if (_properties instanceof ValueProperties) {
+        _length = 1;
+      } else {
+        _length = ((ValueProperties[]) _properties).length;
+      }
+      _index = 0;
+    }
+
+    public boolean hasNext() {
+      return ++_index < _length;
+    }
+
+    public ValueProperties getValueProperties() {
+      if (_length == 1) {
+        return (ValueProperties) _properties;
+      } else {
+        return ((ValueProperties[]) _properties)[_index];
+      }
+    }
+
+    public ParameterizedFunction getFunction() {
+      if (_length == 1) {
+        return (ParameterizedFunction) _functions;
+      } else {
+        return ((ParameterizedFunction[]) _functions)[_index];
+      }
+    }
+
+  }
+
+  /**
+   * Returns an iterator over previous resolutions (that are present in the dependency graph) on the same target digest for the same value name.
+   * 
+   * @param targetDigest the target's digest, not null
+   * @param desiredValue the value requirement name, not null
+   * @return any existing resolutions, null if there are none
+   */
+  public ResolutionIterator getResolutions(final ComputationTargetSpecification targetSpec, final String desiredValue) {
+    Pair<?, ?> properties = getBuilder().getResolutions(targetSpec, desiredValue);
+    if (properties == null) {
+      return null;
+    }
+    return new ResolutionIterator(properties);
+  }
+
   public void discardTask(final ResolveTask task) {
+    // TODO: Could we post "discardTask" tasks to a queue and have them done in batches by a ContextRunnable?
     do {
       final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
       if (tasks == null) {
@@ -277,7 +382,25 @@ import com.opengamma.util.tuple.Pair;
         if (tasks.containsKey(null)) {
           continue;
         }
-        if (tasks.remove(task) == null) {
+        final int rc = task.getRefCount();
+        if (rc == 0) {
+          // Not referenced by us by definition
+          return;
+        }
+        if (rc != 1) {
+          if (!task.isFinished()) {
+            // Can't discard this -- something might be waiting on a result from it??
+            return;
+          }
+        }
+        final ResolveTask removed = tasks.remove(task);
+        if (removed == null) {
+          // Task has already been discarded
+          return;
+        }
+        if (removed != task) {
+          // Task has already been discarded and replaced by an equivalent; don't discard that
+          tasks.put(removed, removed);
           return;
         }
       }
@@ -302,14 +425,14 @@ import com.opengamma.util.tuple.Pair;
               if (resolveTask.getKey() == task) {
                 // Replace an earlier attempt from this task with the new producer
                 discard = resolveTask.getValue();
-                producer.addRef();
+                producer.addRef(); // The caller already holds an open reference
                 resolveTask.setValue(producer);
                 result = producer;
               } else {
                 // An equivalent task is doing the work
                 result = resolveTask.getValue();
               }
-              result.addRef();
+              result.addRef(); // Either the caller holds an open reference on the producer, or we've got the task lock
             }
           }
           if (result == null) {
@@ -320,10 +443,10 @@ import com.opengamma.util.tuple.Pair;
           }
           if (result == null) {
             // No matching tasks
-            producer.addRef();
+            producer.addRef(); // Caller already holds open reference
             tasks.put(task, producer);
             result = producer;
-            result.addRef();
+            result.addRef(); // Caller already holds open reference (this is the producer)
           }
         }
         if (discard != null) {
@@ -362,6 +485,70 @@ import com.opengamma.util.tuple.Pair;
 
   public void declareProduction(final ResolvedValue resolvedValue) {
     getBuilder().addResolvedValue(resolvedValue);
+  }
+
+  public ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
+    final ComputationTargetSpecification specification = getBuilder().resolveTargetReference(reference);
+    if (specification == null) {
+      s_logger.warn("Couldn't resolve {}", reference);
+    }
+    return specification;
+  }
+
+  /**
+   * Simplifies the type based on the associated {@link ComputationTargetResolver}.
+   * 
+   * @param valueSpec the specification to process, not null
+   * @return the possibly simplified specification, not null
+   */
+  public ValueSpecification simplifyType(final ValueSpecification valueSpec) {
+    final ComputationTargetSpecification oldTargetSpec = valueSpec.getTargetSpecification();
+    final ComputationTargetSpecification newTargetSpec = ComputationTargetResolverUtils.simplifyType(oldTargetSpec, getCompilationContext().getComputationTargetResolver());
+    if (newTargetSpec == oldTargetSpec) {
+      return MemoryUtils.instance(valueSpec);
+    } else {
+      return MemoryUtils.instance(new ValueSpecification(valueSpec.getValueName(), newTargetSpec, valueSpec.getProperties()));
+    }
+  }
+
+  /**
+   * Bulk form of {@link #simplifyType(ValueSpecification)}. If the values are already in their simplified form then the original collection is returned.
+   * 
+   * @param specifications the specifications to process, not null
+   * @return the possibly simplified specifications, not null
+   */
+  public Collection<ValueSpecification> simplifyTypes(final Collection<ValueSpecification> specifications) {
+    if (specifications.size() == 1) {
+      final ValueSpecification specification = specifications.iterator().next();
+      final ValueSpecification reducedSpecification = simplifyType(specification);
+      if (specification == reducedSpecification) {
+        return specifications;
+      } else {
+        return Collections.singleton(reducedSpecification);
+      }
+    } else {
+      final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(specifications.size());
+      for (ValueSpecification specification : specifications) {
+        result.add(simplifyType(specification));
+      }
+      return result;
+    }
+  }
+
+  /**
+   * Simplifies the type based on the associated {@link ComputationTargetResolver}.
+   * 
+   * @param valueReq the requirement to process, not null
+   * @return the possibly simplified requirement, not null
+   */
+  public ValueRequirement simplifyType(final ValueRequirement valueReq) {
+    final ComputationTargetReference oldTargetRef = valueReq.getTargetReference();
+    final ComputationTargetReference newTargetRef = ComputationTargetResolverUtils.simplifyType(oldTargetRef, getCompilationContext().getComputationTargetResolver());
+    if (newTargetRef == oldTargetRef) {
+      return valueReq;
+    } else {
+      return MemoryUtils.instance(new ValueRequirement(valueReq.getValueName(), newTargetRef, valueReq.getConstraints()));
+    }
   }
 
   // Failure reporting
@@ -414,14 +601,6 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  public ResolutionFailure suppressed(final ValueRequirement valueRequirement) {
-    if (getBuilder().isDisableFailureReporting()) {
-      return NullResolutionFailure.INSTANCE;
-    } else {
-      return ResolutionFailureImpl.suppressed(valueRequirement);
-    }
-  }
-
   // Collation
 
   /**
@@ -434,7 +613,7 @@ import com.opengamma.util.tuple.Pair;
       _exceptions = new HashMap<ExceptionWrapper, ExceptionWrapper>();
     }
     if (context._exceptions != null) {
-      for (ExceptionWrapper exception : context._exceptions.keySet()) {
+      for (final ExceptionWrapper exception : context._exceptions.keySet()) {
         final ExceptionWrapper existing = _exceptions.get(exception);
         if (existing != null) {
           existing.incrementCount(exception.getCount());
@@ -450,7 +629,7 @@ import com.opengamma.util.tuple.Pair;
       return Collections.emptyMap();
     }
     final Map<Throwable, Integer> result = new HashMap<Throwable, Integer>();
-    for (ExceptionWrapper exception : _exceptions.keySet()) {
+    for (final ExceptionWrapper exception : _exceptions.keySet()) {
       result.put(exception.getException(), exception.getCount());
     }
     return result;

@@ -23,11 +23,13 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataMarketDataSnapshotSourceResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataMarketDataSnapshotSourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");

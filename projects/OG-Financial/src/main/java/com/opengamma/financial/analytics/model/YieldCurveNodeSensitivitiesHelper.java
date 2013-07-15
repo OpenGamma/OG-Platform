@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model;
@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.ArrayUtils;
+import org.threeten.bp.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -27,6 +28,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -40,7 +42,7 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class YieldCurveNodeSensitivitiesHelper {
   private static final DecimalFormat s_formatter = new DecimalFormat("##.######");
@@ -76,28 +78,14 @@ public class YieldCurveNodeSensitivitiesHelper {
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
     return getHybridLabelledSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurve, curveSpec, resultSpec);
-//    final int nSensitivities = curveSpec.getStrips().size();
-//    int startIndex = 0;
-//    for (final String name : bundle.getAllNames()) {
-//      if (curveName.equals(name)) {
-//        break;
-//      }
-//      if (!(bundle.getCurve(name) instanceof YieldCurve)) { //TODO: make it more generic
-//        throw new IllegalArgumentException("Can only handle YieldCurve");
-//      }
-//      startIndex += ((YieldCurve) bundle.getCurve(name)).getCurve().size();
-//    }
-//    final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-//    final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
-//    final double[] values = new double[nSensitivities];
-//    final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
-//    for (int i = 0; i < nSensitivities; i++) {
-//      values[i] = sensitivitiesForCurve.getEntry(i + startIndex);
-//    }
-//    final DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
-//    return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
   }
-  
+
+  public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
+      final DoubleMatrix1D sensitivitiesForCurve, final CurveSpecification curveSpec,
+      final ValueSpecification resultSpec) {
+    return getHybridLabelledSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurve, curveSpec, resultSpec);
+  }
+
   public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
@@ -114,6 +102,37 @@ public class YieldCurveNodeSensitivitiesHelper {
     }
     final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
     final Double[] keys = ((YieldCurve) curve).getCurve().getXData();
+    final double[] values = new double[nSensitivities];
+    final Object[] labels = YieldCurveLabelGenerator.getHybridLabels(curveSpec);
+    for (int i = 0; i < nSensitivities; i++) {
+      values[i] = sensitivitiesForCurve.getEntry(i + startIndex);
+    }
+    final DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
+    return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
+  }
+
+  public static Set<ComputedValue> getHybridLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
+      final DoubleMatrix1D sensitivitiesForCurve, final CurveSpecification curveSpec, final ValueSpecification resultSpec) {
+    final int nSensitivities = curveSpec.getNodes().size();
+    int startIndex = 0;
+    for (final String name : bundle.getAllNames()) {
+      if (curveName.equals(name)) {
+        break;
+      }
+      if (!(bundle.getCurve(name) instanceof YieldCurve)) { //TODO: make it more generic
+        throw new IllegalArgumentException("Can only handle YieldCurve");
+      }
+      startIndex += ((YieldCurve) bundle.getCurve(name)).getCurve().size();
+    }
+    final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
+    final Double[] keys;
+    if (curve instanceof YieldCurve) {
+      keys = ((YieldCurve) curve).getCurve().getXData();
+    } else if (curve instanceof DiscountCurve) {
+      keys = ((DiscountCurve) curve).getCurve().getXData();
+    } else {
+      throw new OpenGammaRuntimeException("Cant get underlying curve from: " + curve);
+    }
     final double[] values = new double[nSensitivities];
     final Object[] labels = YieldCurveLabelGenerator.getHybridLabels(curveSpec);
     for (int i = 0; i < nSensitivities; i++) {
@@ -184,10 +203,10 @@ public class YieldCurveNodeSensitivitiesHelper {
     }
     final int nForward = ((YieldCurve) bundle.getCurve(forwardCurveName)).getCurve().size();
     final int nFunding = ((YieldCurve) bundle.getCurve(fundingCurveName)).getCurve().size();
-    final Map<String, DoubleMatrix1D> sensitivities = new HashMap<String, DoubleMatrix1D>();
+    final Map<String, DoubleMatrix1D> sensitivities = new HashMap<>();
     sensitivities.put(fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
     sensitivities.put(forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));
-    final Set<ComputedValue> results = new HashSet<ComputedValue>();
+    final Set<ComputedValue> results = new HashSet<>();
     results.addAll(getSensitivitiesForCurve(bundle.getCurve(fundingCurveName), sensitivities.get(fundingCurveName),
         curveSpecs.get(fundingCurveName), fundingResultSpecification));
     results.addAll(getSensitivitiesForCurve(bundle.getCurve(forwardCurveName), sensitivities.get(forwardCurveName),

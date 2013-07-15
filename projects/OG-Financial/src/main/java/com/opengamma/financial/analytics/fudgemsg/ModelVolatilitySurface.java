@@ -43,13 +43,14 @@ import com.opengamma.analytics.math.surface.Surface;
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final VolatilitySurface object) {
-      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
+      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, substituteObject(object.getSurface()));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public VolatilitySurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Surface<Double, Double, Double> surface = deserializer.fieldValueToObject(Surface.class, message.getByName(SURFACE_FIELD_NAME));
-      return new VolatilitySurface(surface);
+      final Object surface = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
+      return new VolatilitySurface((Surface<Double, Double, Double>) surface);
     }
   }
 
@@ -60,21 +61,19 @@ import com.opengamma.analytics.math.surface.Surface;
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final BlackVolatilitySurfaceMoneyness object) {
-      serializer.addToMessage(message, SURFACE_FIELD_NAME, null, object.getSurface());
-      serializer.addToMessage(message, FORWARD_CURVE_FIELD_NAME, null, object.getForwardCurve());
+      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, substituteObject(object.getSurface()));
+      serializer.addToMessageWithClassHeaders(message, FORWARD_CURVE_FIELD_NAME, null, substituteObject(object.getForwardCurve()));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public BlackVolatilitySurfaceMoneyness buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Object object = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
-      if (object instanceof Surface) {
-        final ForwardCurve forwardCurve = deserializer.fieldValueToObject(ForwardCurve.class, message.getByName(FORWARD_CURVE_FIELD_NAME));
-        return new BlackVolatilitySurfaceMoneyness((Surface<Double, Double, Double>) object, forwardCurve);
-      } else if (object instanceof BlackVolatilitySurfaceMoneyness) {
-        return new BlackVolatilitySurfaceMoneyness((BlackVolatilitySurfaceMoneyness) object);
+      final Object surface = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
+      final Object forwardCurve = deserializer.fieldValueToObject(message.getByName(FORWARD_CURVE_FIELD_NAME));
+      if (surface instanceof Surface) {
+        return new BlackVolatilitySurfaceMoneyness((Surface<Double, Double, Double>) surface, (ForwardCurve) forwardCurve);
       }
-      throw new OpenGammaRuntimeException("Could not deserialize object " + object);
+      throw new OpenGammaRuntimeException("Expected Surface, got " + surface);
     }
   }
 
@@ -87,26 +86,24 @@ import com.opengamma.analytics.math.surface.Surface;
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final BlackVolatilitySurfaceMoneynessFcnBackedByGrid object) {
-      serializer.addToMessage(message, SURFACE_FIELD_NAME, null, object.getSurface());
-      serializer.addToMessage(message, FORWARD_CURVE_FIELD_NAME, null, object.getForwardCurve());
-      serializer.addToMessage(message, GRID_FIELD_NAME, null, object.getGridData());
-      serializer.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, substituteObject(object.getSurface()));
+      serializer.addToMessageWithClassHeaders(message, FORWARD_CURVE_FIELD_NAME, null, substituteObject(object.getForwardCurve()));
+      serializer.addToMessageWithClassHeaders(message, GRID_FIELD_NAME, null, object.getGridData(), SmileSurfaceDataBundle.class);
+      serializer.addToMessageWithClassHeaders(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator(), VolatilitySurfaceInterpolator.class);
 
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public BlackVolatilitySurfaceMoneynessFcnBackedByGrid buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Object object = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
-      if (object instanceof Surface) {
-        final ForwardCurve forwardCurve = deserializer.fieldValueToObject(ForwardCurve.class, message.getByName(FORWARD_CURVE_FIELD_NAME));
-        final SmileSurfaceDataBundle grid = deserializer.fieldValueToObject(SmileSurfaceDataBundle.class, message.getByName(GRID_FIELD_NAME));
-        final VolatilitySurfaceInterpolator interpolator = deserializer.fieldValueToObject(VolatilitySurfaceInterpolator.class, message.getByName(INTERPOLATOR_FIELD_NAME));
-        return new BlackVolatilitySurfaceMoneynessFcnBackedByGrid((Surface<Double, Double, Double>) object, forwardCurve, grid, interpolator);
-      } else if (object instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid) {
-        return new BlackVolatilitySurfaceMoneynessFcnBackedByGrid((BlackVolatilitySurfaceMoneynessFcnBackedByGrid) object);
+      final Object surface = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
+      final Object forwardCurve = deserializer.fieldValueToObject(message.getByName(FORWARD_CURVE_FIELD_NAME));
+      final SmileSurfaceDataBundle grid = deserializer.fieldValueToObject(SmileSurfaceDataBundle.class, message.getByName(GRID_FIELD_NAME));
+      final VolatilitySurfaceInterpolator interpolator = deserializer.fieldValueToObject(VolatilitySurfaceInterpolator.class, message.getByName(INTERPOLATOR_FIELD_NAME));
+      if (surface instanceof Surface) {
+        return new BlackVolatilitySurfaceMoneynessFcnBackedByGrid((Surface<Double, Double, Double>) surface, (ForwardCurve) forwardCurve, grid, interpolator);
       }
-      throw new OpenGammaRuntimeException("Could not deserialize object " + object);
+      throw new OpenGammaRuntimeException("Expected Surface, got " + surface);
     }
 
   }
@@ -118,21 +115,19 @@ import com.opengamma.analytics.math.surface.Surface;
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final LocalVolatilitySurfaceMoneyness object) {
-      serializer.addToMessage(message, SURFACE_FIELD_NAME, null, object.getSurface());
-      serializer.addToMessage(message, FORWARD_CURVE_FIELD_NAME, null, object.getForwardCurve());
+      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, substituteObject(object.getSurface()));
+      serializer.addToMessageWithClassHeaders(message, FORWARD_CURVE_FIELD_NAME, null, object.getForwardCurve(), ForwardCurve.class);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public LocalVolatilitySurfaceMoneyness buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Object object = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
-      if (object instanceof Surface) {
-        final ForwardCurve forwardCurve = deserializer.fieldValueToObject(ForwardCurve.class, message.getByName(FORWARD_CURVE_FIELD_NAME));
-        return new LocalVolatilitySurfaceMoneyness((Surface<Double, Double, Double>) object, forwardCurve);
-      } else if (object instanceof LocalVolatilitySurfaceMoneyness) {
-        return new LocalVolatilitySurfaceMoneyness((LocalVolatilitySurfaceMoneyness) object);
+      final Object surface = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
+      final ForwardCurve forwardCurve = deserializer.fieldValueToObject(ForwardCurve.class, message.getByName(FORWARD_CURVE_FIELD_NAME));
+      if (surface instanceof Surface) {
+        return new LocalVolatilitySurfaceMoneyness((Surface<Double, Double, Double>) surface, forwardCurve);
       }
-      throw new OpenGammaRuntimeException("Could not deserialize object " + object);
+      throw new OpenGammaRuntimeException("Expected Surface, got " + surface);
     }
 
   }
@@ -146,13 +141,14 @@ import com.opengamma.analytics.math.surface.Surface;
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PureImpliedVolatilitySurface object) {
-      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
+      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, substituteObject(object.getSurface()));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public PureImpliedVolatilitySurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Surface<Double, Double, Double> surface = deserializer.fieldValueToObject(Surface.class, message.getByName(SURFACE_FIELD_NAME));
-      return new PureImpliedVolatilitySurface(surface);
+      final Object surface = deserializer.fieldValueToObject(message.getByName(SURFACE_FIELD_NAME));
+      return new PureImpliedVolatilitySurface((Surface<Double, Double, Double>) surface);
     }
   }
 }

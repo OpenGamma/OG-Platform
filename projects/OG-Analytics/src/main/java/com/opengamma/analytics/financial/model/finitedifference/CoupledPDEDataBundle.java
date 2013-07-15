@@ -6,31 +6,20 @@
 package com.opengamma.analytics.financial.model.finitedifference;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * 
+ * Represents one half of a coupled 1D PDE system, with a coupling strength lambda of this system to the other  
  */
-@SuppressWarnings("deprecation")
-public class CoupledPDEDataBundle extends ZZConvectionDiffusionPDEDataBundle {
+public class CoupledPDEDataBundle extends PDE1DDataBundle<ConvectionDiffusionPDE1DCoupledCoefficients> {
 
-  private final double _lambda;
-
-  /**
-   * @param a a
-   * @param b b
-   * @param c c
-   * @param lambda lambda
-   * @param initialCondition initial condition
-   */
-  public CoupledPDEDataBundle(final Surface<Double, Double, Double> a, final Surface<Double, Double, Double> b, final Surface<Double, Double, Double> c, final double lambda,
-      final Function1D<Double, Double> initialCondition) {
-    super(a, b, c, initialCondition);
-    _lambda = lambda;
-  }
-
-  public double getCoupling() {
-    return _lambda;
+  //TODO this is not an ideal solution - each instance has a copy of the grid, even though they must be identical 
+  //TODO add variable lambda 
+  public CoupledPDEDataBundle(final ConvectionDiffusionPDE1DCoupledCoefficients coefficients,
+      final Function1D<Double, Double> initialCondition,
+      final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary,
+      final PDEGrid1D grid) {
+    super(coefficients, initialCondition, lowerBoundary, upperBoundary, grid);
   }
 
 }

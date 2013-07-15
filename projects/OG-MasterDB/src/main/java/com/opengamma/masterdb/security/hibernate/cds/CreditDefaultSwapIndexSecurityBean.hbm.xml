@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.cds">
+
+
+  <union-subclass name="CreditDefaultSwapIndexSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_credit_default_swap_index">
+<!--  <class name="CreditDefaultSwapIndexSecurityBean" table="sec_credit_default_swap_index">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param>
+      </generator>
+    </id>
+
+    <property name="securityId" type="long" column="security_id" />
+-->
+    <property name="buy" column="buy" type="boolean" not-null="true" />
+
+    <component name="protectionBuyer"
+      class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="buyer_scheme" type="string"
+        not-null="true" />
+      <property name="identifier" column="buyer_identifier"
+        type="string" not-null="true" />
+    </component>
+
+    <component name="protectionSeller"
+      class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="seller_scheme" type="string"
+        not-null="true" />
+      <property name="identifier" column="seller_identifier"
+        type="string" not-null="true" />
+    </component>
+
+    <component name="index"
+      class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="index_scheme" type="string"
+        not-null="true" />
+      <property name="identifier" column="index_identifier"
+        type="string" not-null="true" />
+    </component>
+
+    <component name="startDate"
+      class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="start_date" type="timestamp"
+        not-null="true" />
+      <property name="zone" column="start_date_zone" type="string"
+        not-null="true" />
+    </component>
+
+    <component name="effectiveDate"
+      class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="effective_date" type="timestamp"
+        not-null="true" />
+      <property name="zone" column="effective_date_zone" type="string"
+        not-null="true" />
+    </component>
+
+    <component name="maturityDate"
+      class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="maturity_date" type="timestamp"
+        not-null="true" />
+      <property name="zone" column="maturity_date_zone" type="string"
+        not-null="true" />
+    </component>
+
+    <component name="settlementDate"
+      class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="settlement_date" type="timestamp"
+      not-null="true" />
+      <property name="zone" column="settlement_date_zone" type="string"
+      not-null="true" />
+    </component>
+
+    <many-to-one name="stubType" column="stub_type_id"
+      class="com.opengamma.masterdb.security.hibernate.StubTypeBean"
+      not-null="true" />
+
+    <many-to-one name="couponFrequency" column="frequency_id"
+      class="com.opengamma.masterdb.security.hibernate.FrequencyBean"
+      not-null="true" />
+
+    <many-to-one name="dayCount" column="daycount_convention_id"
+      class="com.opengamma.masterdb.security.hibernate.DayCountBean"
+      not-null="true" />
+
+    <many-to-one name="businessDayConvention"
+      class="com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean"
+      column="businessday_convention_id" not-null="true" />
+
+    <property name="immAdjustMaturityDate" column="imm_adjust_maturity_date"
+      type="boolean" not-null="true" />
+
+    <property name="adjustEffectiveDate" column="adjust_effective_date"
+      type="boolean" not-null="true" />
+
+    <property name="adjustMaturityDate" column="adjust_maturity_date"
+      type="boolean" not-null="true" />
+
+    <property name="adjustSettlementDate" column="adjust_settlement_date"
+              type="boolean" not-null="true" />
+
+    <component name="notional"
+      class="com.opengamma.masterdb.security.hibernate.swap.NotionalBean">
+      <property name="notionalType"
+        type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType"
+        column="notional_type" not-null="true" />
+      <many-to-one name="currency"
+        class="com.opengamma.masterdb.security.hibernate.CurrencyBean"
+        column="notional_currency_id" not-null="true" />
+      <property name="amount" type="double" column="notional_amount" />
+      <component name="identifier"
+        class="com.opengamma.masterdb.security.hibernate.UniqueIdBean">
+        <property name="scheme" type="string" column="notional_scheme" />
+        <property name="identifier" type="string" column="notional_id" />
+      </component>
+    </component>
+
+    <property name="includeAccruedPremium" column="include_accrued_premium"
+      type="boolean" not-null="true" />
+
+    <property name="protectionStart" column="protection_start"
+      type="boolean" not-null="true" />
+
+    <component name="upfrontPayment"
+               class="com.opengamma.masterdb.security.hibernate.swap.NotionalBean">
+      <property name="notionalType"
+                type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType"
+                column="upfrontamt_notional_type" not-null="true" />
+      <many-to-one name="currency"
+                   class="com.opengamma.masterdb.security.hibernate.CurrencyBean"
+                   column="upfrontamt_notional_currency_id" not-null="true" />
+      <property name="amount" type="double" column="upfrontamt_notional_amount" />
+      <component name="identifier"
+                 class="com.opengamma.masterdb.security.hibernate.UniqueIdBean">
+        <property name="scheme" type="string" column="upfrontamt_notional_scheme" />
+        <property name="identifier" type="string" column="upfrontamt_notional_id" />
+      </component>
+    </component>
+
+    <property name="indexCoupon" type="double" column="index_coupon" />
+  </union-subclass>
+
+  <query name="CreditDefaultSwapIndexSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      CreditDefaultSwapIndexSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="CreditDefaultSwapIndexSecurityBean.all">
+    from CreditDefaultSwapIndexSecurityBean
+  </query>
+
+</hibernate-mapping>

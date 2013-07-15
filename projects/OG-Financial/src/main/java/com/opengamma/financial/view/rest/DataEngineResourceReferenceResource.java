@@ -5,14 +5,15 @@
  */
 package com.opengamma.financial.view.rest;
 
-import javax.time.Instant;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
-import com.opengamma.engine.view.calc.EngineResourceReference;
+import org.threeten.bp.Instant;
+
+import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.rest.AbstractDataResource;
 

@@ -7,14 +7,14 @@ package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 
 /**
  * Provides the reference margin price,
  * for futures, options and other exchange traded securities that are margined
  */
-public class MarginPriceVisitor extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class MarginPriceVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /** The method unique instance. */
   private static final MarginPriceVisitor INSTANCE = new MarginPriceVisitor();
@@ -34,7 +34,7 @@ public class MarginPriceVisitor extends AbstractInstrumentDerivativeVisitor<Yiel
   }
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     return future.getReferencePrice();
   }
 

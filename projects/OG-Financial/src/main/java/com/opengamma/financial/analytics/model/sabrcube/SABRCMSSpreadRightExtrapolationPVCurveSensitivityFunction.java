@@ -26,7 +26,7 @@ public class SABRCMSSpreadRightExtrapolationPVCurveSensitivityFunction extends S
     final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE));
     final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER));
     final PresentValueCurveSensitivitySABRExtrapolationCalculator calculator = new PresentValueCurveSensitivitySABRExtrapolationCalculator(cutoff, mu);
-    return calculator.visit(derivative, data);
+    return derivative.accept(calculator, data);
   }
 
 }

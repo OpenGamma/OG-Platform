@@ -8,17 +8,17 @@ package com.opengamma.core.change;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
-import javax.time.Instant;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BasicChangeManagerTest {
 
   private static final Instant NOW = Instant.now();

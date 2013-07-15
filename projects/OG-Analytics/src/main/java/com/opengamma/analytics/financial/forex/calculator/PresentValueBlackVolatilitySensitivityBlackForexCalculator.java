@@ -12,13 +12,13 @@ import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMet
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the volatility sensitivity for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class PresentValueBlackVolatilitySensitivityBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueForexBlackVolatilitySensitivity> {
+public class PresentValueBlackVolatilitySensitivityBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, PresentValueForexBlackVolatilitySensitivity> {
 
   /**
    * The unique instance of the calculator.

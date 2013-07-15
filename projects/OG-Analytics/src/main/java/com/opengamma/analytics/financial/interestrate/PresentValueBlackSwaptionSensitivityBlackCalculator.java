@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using the Black formula.
  */
-public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
+public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
 
   /**
    * The method unique instance.
@@ -41,13 +41,6 @@ public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends A
    */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
-
-  @Override
-  public PresentValueBlackSwaptionSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    ArgumentChecker.notNull(curves, "curves");
-    ArgumentChecker.notNull(derivative, "derivative");
-    return derivative.accept(this, curves);
-  }
 
   @Override
   public PresentValueBlackSwaptionSensitivity visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {

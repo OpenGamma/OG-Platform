@@ -25,11 +25,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.resolver.JmsTopicNameResolveRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergJmsTopicNameResolverTest {
 
   private BloombergLiveDataServer _server;

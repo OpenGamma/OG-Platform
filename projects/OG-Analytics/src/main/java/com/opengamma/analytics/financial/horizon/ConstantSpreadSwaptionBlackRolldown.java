@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.horizon;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
@@ -30,7 +30,7 @@ public final class ConstantSpreadSwaptionBlackRolldown implements RolldownFuncti
     final YieldCurveBundle shiftedCurves = CURVES_ROLLDOWN.rollDown(data, time);
     final Surface<Double, Double, Double> surface = data.getBlackParameters().getVolatilitySurface();
     final Surface<Double, Double, Double> shiftedVolatilitySurface = SURFACE_ROLLDOWN.rollDown(surface, time);
-    final BlackSwaptionParameters shiftedParameters = new BlackSwaptionParameters(shiftedVolatilitySurface, data.getBlackParameters().getGeneratorSwap());
+    final BlackFlatSwaptionParameters shiftedParameters = new BlackFlatSwaptionParameters(shiftedVolatilitySurface, data.getBlackParameters().getGeneratorSwap());
     return new YieldCurveWithBlackSwaptionBundle(shiftedParameters, shiftedCurves);
   }
 }

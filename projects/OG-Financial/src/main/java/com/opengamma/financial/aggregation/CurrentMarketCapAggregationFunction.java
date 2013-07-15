@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
@@ -94,9 +94,9 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
       }
       ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
       Pair<LocalDate, Double> latest = _htsSource.getLatestDataPoint(FIELD, externalIdBundle, RESOLUTION_KEY);
-      if (latest != null && latest.getValue() != null) {
-        _currMktCapCache.put(security.getUniqueId(), latest.getValue());
-        return latest.getValue();
+      if (latest != null && latest.getSecond() != null) {
+        _currMktCapCache.put(security.getUniqueId(), latest.getSecond());
+        return latest.getSecond();
       } else {
         _currMktCapCache.put(security.getUniqueId(), null);
         return null;

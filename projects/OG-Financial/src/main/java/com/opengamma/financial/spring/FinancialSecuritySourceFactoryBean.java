@@ -65,7 +65,6 @@ public class FinancialSecuritySourceFactoryBean extends SpringFactoryBean<Financ
    * The meta-bean for {@code FinancialSecuritySourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static FinancialSecuritySourceFactoryBean.Meta meta() {
     return FinancialSecuritySourceFactoryBean.Meta.INSTANCE;
   }
@@ -198,7 +197,7 @@ public class FinancialSecuritySourceFactoryBean extends SpringFactoryBean<Financ
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "securityMaster",
         "cacheManager");
 

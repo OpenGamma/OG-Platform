@@ -13,32 +13,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.resource.EngineResourceReference;
+import com.opengamma.engine.resource.EngineResourceRetainer;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.EngineResourceRetainer;
-import com.opengamma.engine.view.calc.ViewCycle;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation of {@link ViewClient}.
@@ -77,16 +76,16 @@ public class ViewClientImpl implements ViewClient {
   private final RateLimitingMergingViewProcessListener _mergingViewProcessListener;
 
   private final AtomicReference<ViewResultListener> _userResultListener = new AtomicReference<ViewResultListener>();
-  
-  private final Set<ValueSpecification> _elevatedLogSpecs = new HashSet<ValueSpecification>();
+
+  private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<Pair<String, ValueSpecification>>();
 
   /**
    * Constructs an instance.
-   *
-   * @param id  the unique identifier assigned to this view client
-   * @param viewProcessor  the parent view processor to which this client belongs
-   * @param user  the user who owns this client
-   * @param timer  the timer to use for scheduled tasks
+   * 
+   * @param id the unique identifier assigned to this view client
+   * @param viewProcessor the parent view processor to which this client belongs
+   * @param user the user who owns this client
+   * @param timer the timer to use for scheduled tasks
    */
   public ViewClientImpl(UniqueId id, ViewProcessorImpl viewProcessor, UserPrincipal user, Timer timer) {
     ArgumentChecker.notNull(id, "id");
@@ -423,13 +422,6 @@ public class ViewClientImpl implements ViewClient {
   }
 
   @Override
-  public VersionCorrection getProcessVersionCorrection() {
-    checkAttached();
-    return getViewProcessor().getProcessVersionCorrection(getUniqueId());
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public boolean isViewCycleAccessSupported() {
     return _isViewCycleAccessSupported.get();
   }
@@ -467,14 +459,14 @@ public class ViewClientImpl implements ViewClient {
     }
     return _viewProcessor.getViewCycleManager().createReference(cycleId);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
-  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> resultSpecifications) {
     _clientLock.lock();
     try {
       checkAttached();
-      Set<ValueSpecification> affected = new HashSet<ValueSpecification>(resultSpecifications);
+      Set<Pair<String, ValueSpecification>> affected = new HashSet<Pair<String, ValueSpecification>>(resultSpecifications);
       switch (minimumLogMode) {
         case INDICATORS:
           affected.retainAll(_elevatedLogSpecs);
@@ -486,7 +478,7 @@ public class ViewClientImpl implements ViewClient {
           break;
       }
       if (!affected.isEmpty()) {
-        getViewProcessor().getViewProcessForClient(getUniqueId()).setMinimumLogMode(minimumLogMode, affected);
+        getViewProcessor().getViewProcessForClient(getUniqueId()).getExecutionLogModeSource().setMinimumLogMode(minimumLogMode, affected);
       }
     } finally {
       _clientLock.unlock();
@@ -543,8 +535,8 @@ public class ViewClientImpl implements ViewClient {
 
   /**
    * Updates the latest result.
-   *
-   * @param result  the new result
+   * 
+   * @param result the new result
    * @return true if the new result was the first
    */
   private boolean updateLatestResult(ViewComputationResultModel result) {

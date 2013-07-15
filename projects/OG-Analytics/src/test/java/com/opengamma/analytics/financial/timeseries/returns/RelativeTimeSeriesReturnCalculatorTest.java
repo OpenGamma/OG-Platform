@@ -5,20 +5,19 @@
  */
 package com.opengamma.analytics.financial.timeseries.returns;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class RelativeTimeSeriesReturnCalculatorTest {
-  private static final LocalDateDoubleTimeSeries TS = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)}, new double[] {3, 4});
+  private static final LocalDateDoubleTimeSeries TS = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)}, new double[] {3, 4});
   private static final RelativeTimeSeriesReturnCalculator STRICT = new RelativeTimeSeriesReturnCalculator(CalculationMode.STRICT) {
 
     @Override
@@ -58,21 +57,21 @@ public class RelativeTimeSeriesReturnCalculatorTest {
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentLengthsStrict() {
-    STRICT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
+    STRICT.evaluate(TS, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
   }
 
   @Test
   public void testDifferentLengthsLenient() {
-    LENIENT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
+    LENIENT.evaluate(TS, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
   }
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentDatesStrict() {
-    STRICT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
+    STRICT.evaluate(TS, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
   }
 
   @Test
   public void testDifferentDatessLenient() {
-    LENIENT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 3)}, new double[] {1, 2}));
+    LENIENT.evaluate(TS, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 3)}, new double[] {1, 2}));
   }
 }

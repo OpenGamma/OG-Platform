@@ -144,8 +144,12 @@ public class MasterPortfolioReader implements PortfolioReader {
   public void close() {
     // Nothing to close
   }
-  
-  
+
+  @Override
+  public String getPortfolioName() {
+    return null;
+  }
+
   /**
    * Walks the tree, depth-first, and returns the next position's id. Uses _positionIdIterator, 
    * _nodeIterator and _nodeIteratorStack to maintain location state across calls.

@@ -8,8 +8,8 @@ package com.opengamma.bbg.util;
 
 import java.util.regex.Matcher;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatters;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.option.OptionType;
@@ -97,7 +97,7 @@ public abstract class BloombergTickerParserEQOption extends BloombergTickerParse
   protected void parse(Matcher matcher) {  
     _symbol = matcher.group(1);
     _exchangeCode = matcher.group(2);
-    _expiry = LocalDate.parse(matcher.group(3), DateTimeFormatters.pattern("MM/dd/yy"));
+    _expiry = LocalDate.parse(matcher.group(3), DateTimeFormatter.ofPattern("MM/dd/yy"));
     _optionType = determineOptionType(matcher.group(4));
     _strike = Double.parseDouble(matcher.group(5));
   }

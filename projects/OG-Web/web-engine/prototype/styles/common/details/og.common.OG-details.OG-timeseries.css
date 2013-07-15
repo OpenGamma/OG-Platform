@@ -3,11 +3,7 @@
  * Please see distribution for license.
  */
 
-/**
- * Plot Header
- */
-
-.OG-timeseries-gadget .og-plot-header {
+.OG-gadget-timeseries .og-menu {
     position: absolute;
     top: -1px;
     font-size: 12px;
@@ -21,19 +17,19 @@
     left: 0;
 }
 
-.OG-timeseries-gadget .og-plot-header .og-field {
+.OG-gadget-timeseries .og-menu .og-field {
     display: inline-block;
     z-index: 2;
     position: relative;
     margin-right: 5px;
 }
 
-.OG-timeseries-gadget .og-plot-header select {
+.OG-gadget-timeseries .og-menu select {
     margin: 0;
     min-width: 100px;
 }
 
-.OG-timeseries-gadget .og-plot-header .og-observation {
+.OG-gadget-timeseries .og-menu .og-observation {
     height: 17px;
     position: relative;
     z-index: 2;
@@ -42,36 +38,36 @@
     text-shadow: none;
 }
 
-.OG-timeseries-gadget .og-plot-header .og-observation label {
-    -webkit-border-radius: 2px;
-    -moz-border-radius: 2px;
-    border-radius: 2px;
-    padding: 0 5px 2px 0;
-    margin: 0 4px 0 0;
-    height: 17px;
+.OG-gadget-timeseries .og-menu .og-observation label {
+    height: 19px;
     position: relative;
+    display: inline-block;
+    line-height: 18px;
+    padding-right: 4px;
+    margin-right: 4px;
 }
 
-.OG-timeseries-gadget .og-plot-header .og-observation input {
+.OG-gadget-timeseries .og-menu .og-observation input {
     left: -1px;
     position: absolute;
-    top: -1px;
 }
 
-.OG-timeseries-gadget .og-plot-header .og-observation span {
+.OG-gadget-timeseries .og-menu .og-observation span {
     font-size: 10px;
     padding-left: 19px;
     position: relative;
 }
 
-.OG-timeseries-gadget .og-flot-top {
+/* Timeseries (og.views.gadgets.timeseries.plot_tash) */
+
+.OG-timeseries .og-flot-top {
     height: 27px;
     position: relative;
     right: 0;
     margin-bottom: 2px;
 }
 
-.OG-timeseries-gadget .og-tenor {
+.OG-timeseries .og-tenor {
     position: absolute;
     top: -28px;
     right: 0;
@@ -85,11 +81,11 @@
     z-index: 3;
 }
 
-.OG-timeseries-gadget .og-tenor .OG-link-active {
+.OG-timeseries .og-tenor .OG-link-active {
     color: #555;
 }
 
-.OG-timeseries-gadget .og-tenor:after {
+.OG-timeseries .og-tenor:after {
     content: '';
     position: absolute;
     left: 0;
@@ -99,27 +95,25 @@
     background: #fff;
 }
 
-.OG-timeseries-gadget .og-tenor span {
+.OG-timeseries .og-tenor span {
     z-index: 2;
     position: relative;
 }
 
-/*
- * Plots
- */
+/* Plots */
 
-.OG-timeseries-gadget .og-plots {
+.OG-timeseries .og-plots {
     top: 0;
     background-color: #fff;
     visibility: hidden;
     border: 1px solid #6f839e;
 }
 
-.OG-timeseries-gadget .og-timeseries-plot {
+.OG-timeseries .og-timeseries-plot {
     position: relative;
 }
 
-.OG-timeseries-gadget .og-js-p1 {
+.OG-timeseries .og-js-p1 {
     left: 0;
     position: relative;
     overflow: hidden;
@@ -129,25 +123,23 @@
     top: 0;
 }
 
-.OG-timeseries-gadget .og-js-p2 {
+.OG-timeseries .og-js-p2 {
     position: relative;
     height: 50px;
     width: 882px;
     position: relative;
 }
 
-/**
- * Plot furniture
- */
+/* Plot furniture */
 
-.OG-timeseries-gadget .og-flot-xaxis {
+.OG-timeseries .og-flot-xaxis {
     height: 1px;
     width: 798px;
     position: relative;
     background: #6d7d91;
 }
 
-.OG-timeseries-gadget .og-flot-xaxis:after {
+.OG-timeseries .og-flot-xaxis:after {
     position: absolute;
     content: '';
     top: 0;
@@ -165,7 +157,7 @@
   * 0001
   * 0=8395ac, 1=7689a3
   */
-.OG-timeseries-gadget .og-js-p2-background {
+.OG-timeseries .og-js-p2-background {
     height: 50px;
     position: absolute;
     width: 100%;
@@ -174,66 +166,60 @@
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAJ0lEQVQIW2Ms61z8n5eHkwEGGJunrvn/+ct3BpggWAAkCxOEC8AEAY3UE+/WxCiTAAAAAElFTkSuQmCC);
 }
 
-/**
- * Data points
- */
+/* Data points */
 
-.OG-timeseries-gadget .og-data-points {
+.OG-timeseries .og-data {
     overflow: hidden;
     overflow-x: auto;
     display: block;
     position: relative;
-    margin-top: 55px;
+    margin-top: 0;
 }
 
-.OG-timeseries-gadget .og-data-points time {
+.OG-timeseries .og-data time {
     color: #555;
 }
 
-.OG-timeseries-gadget .og-data-points time span {
+.OG-timeseries .og-data time span {
     color: #999;
 }
 
-.OG-timeseries-gadget .og-container {
+.OG-timeseries .og-container {
     white-space: nowrap;
     display: block;
-    height: 360px;
     overflow: hidden;
     overflow-x: auto;
     background-color: #fff;
 }
 
-.OG-timeseries-gadget .og-container > div {
+.OG-timeseries .og-container > div {
     display: inline-block;
 }
 
-.OG-timeseries-gadget .og-data-series {
+.OG-timeseries .og-data-series {
     width: 399px;
     display: inline-block;
-    border-left: 1px solid #f6f6f6;
     float: left;
 }
 
-.OG-timeseries-gadget .og-data-series:last-child {
+.OG-timeseries .og-data-series:last-child {
     border-right: none;
 }
 
-.OG-timeseries-gadget .og-data-series header {
-    height: 29px;
+.OG-timeseries .og-data-series header {
+    height: 0;
     display: block;
     position: relative;
     border-top: 1px solid #fff;
 }
 
-.OG-timeseries-gadget .og-data-series footer {
+.OG-timeseries .og-data-series footer {
     position: relative;
-    color: #999;
     display: block;
-    padding: 5px;
-    background-color: #f6f6f6;
+    padding: 5px 5px 5px 0;
 }
 
-.OG-timeseries-gadget .og-data-series header h3 {
+.OG-timeseries .og-data-series header h3 {
     display: inline-block;
     top: -1px;
     left: 0;
@@ -248,7 +234,7 @@
     border-radius: 1px;
 }
 
-.OG-timeseries-gadget .og-data-series header h3:after {
+.OG-timeseries .og-data-series header h3:after {
     content: '';
     position: absolute;
     left: 0;
@@ -258,18 +244,18 @@
     background: #fafafa;
 }
 
-.OG-timeseries-gadget .og-data-series header h3 span {
+.OG-timeseries .og-data-series header h3 span {
     position: relative;
     z-index: 2;
     top: 0;
 }
 
-.OG-timeseries-gadget .og-data-series header span {
+.OG-timeseries .og-data-series header span {
     position: relative;
     top: 7px;
 }
 
-.OG-timeseries-gadget .og-data-points button {
+.OG-timeseries .og-data button {
     position: absolute;
     right: 0;
     bottom: 0;
@@ -277,74 +263,30 @@
     text-shadow: 0 1px 0 #fff;
 }
 
-/**
- * Slick grid
- */
-
-.og-data-points .og-slick {
+.og-data .og-data-item {
     border-top:  1px solid #fff;
     height: 281px;
 }
 
-.og-data-points .og-slick .og-loading {
+.og-data .og-data-item .og-loading {
     display: inline-block;
     padding: 5px;
     color: #999;
+    margin-top: 0;
 }
 
-.og-data-points .slick-viewport {
-    overflow-x: hidden!important;
-    height: 254px!important;
-}
-
-.og-data-points .slick-viewport .slick-row:hover {
-    background: none;
-}
-
-.OG-timeseries-gadget .og-checking-related {
+.OG-timeseries .og-checking-related {
     display: inline-block;
     position: relative;
     top: 5px;
     color: #ccc;
 }
 
-.og-data-points .og-slick .slick-header {
-    height: 23px;
-}
-
-.og-data-points .og-slick .slick-header-column.ui-state-default {
-    line-height: 12px;
-}
-
-.og-data-points .og-slick .slick-header {
-    background: #ecf5fa;
-    font-weight: bold;
-}
-
-.og-data-points .og-slick .slick-header-columns:before {
-    content: none;
-}
-
-.og-data-points .og-slick .slick-column-name {
-    font-weight: bold;
-    color: #555;
-    line-height: 12px;
-}
-
-.og-data-points .og-slick .slick-resizable-handle {
-    border-right-color: #ccc;
-    top: 0;
-}
-
-.og-data-points .og-slick .slick-resizable-handle:before {
-    border-left-color: transparent;
-}
-
 /**
  * Legend
  */
-.OG-timeseries-gadget .legend {
-    opacity: 0.5;
+.OG-timeseries .legend {
+    opacity: 0.7;
     position: absolute;
     top: 13px;
     width: 155px;
@@ -355,16 +297,23 @@
     font-size: 12px;
 }
 
-.OG-timeseries-gadget .legend div,
-.OG-timeseries-gadget .legend table {
+.OG-timeseries .legend div,
+.OG-timeseries .legend table {
     color: #fff!important;
     font-size: 12px!important;
 }
 
-.OG-timeseries-gadget .legend .og-date {
+.OG-timeseries .legend .og-date {
     top: 2px!important;
 }
 
-.OG-timeseries-gadget .legend table {
+.OG-timeseries .legend table {
     top: 20px!important;
+}
+
+.og-timeseries-refresh {
+    display: none;
+    margin: 10px 0 0 15px;
+    position: absolute;
+    top: 0;
 }

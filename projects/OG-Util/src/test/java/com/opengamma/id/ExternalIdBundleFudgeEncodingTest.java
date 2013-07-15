@@ -8,11 +8,12 @@ package com.opengamma.id;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdBundleFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test() {

@@ -7,12 +7,15 @@ package com.opengamma.util.money;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test UnorderedCurrencyPair.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class UnorderedCurrencyPairTest {
 
   //-----------------------------------------------------------------------
@@ -40,6 +43,32 @@ public class UnorderedCurrencyPairTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_Currency_nullCurrency2() {
     UnorderedCurrencyPair.of(Currency.USD, (Currency) null);
+  }
+
+  //-------------------------------------------------------------------------
+  // parse(String)
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parse_String() {
+    assertEquals(UnorderedCurrencyPair.of(Currency.AUD, Currency.EUR), UnorderedCurrencyPair.parse("AUDEUR"));
+    UnorderedCurrencyPair pair1 = UnorderedCurrencyPair.of(Currency.EUR, Currency.USD);
+    assertEquals(pair1, UnorderedCurrencyPair.parse(pair1.toString()));
+    UnorderedCurrencyPair pair2 = UnorderedCurrencyPair.of(Currency.USD, Currency.EUR);
+    assertEquals(pair2, UnorderedCurrencyPair.parse(pair2.toString()));
+  }
+
+  @DataProvider(name = "badParse")
+  Object[][] data_badParse() {
+    return new Object[][] {
+      {"AUD"},
+      {"AUDEURX"},
+      {"123456"},
+      {null},
+    };
+  }
+  @Test(dataProvider = "badParse", expectedExceptions = IllegalArgumentException.class)
+  public void test_parse_String_bad(String input) {
+    UnorderedCurrencyPair.parse(input);
   }
 
   //-----------------------------------------------------------------------

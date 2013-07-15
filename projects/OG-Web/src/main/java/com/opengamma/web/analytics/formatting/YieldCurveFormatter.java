@@ -29,14 +29,14 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
     super(YieldCurve.class);
     addFormatter(new Formatter<YieldCurve>(Format.EXPANDED) {
       @Override
-      Object format(YieldCurve value, ValueSpecification valueSpec) {
+      Object format(YieldCurve value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public List<Double[]> formatCell(YieldCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatCell(YieldCurve value, ValueSpecification valueSpec, Object inlineKey) {
     if (value.getCurve() instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getCurve();
       List<Double[]> data = new ArrayList<Double[]>();

@@ -12,8 +12,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
@@ -85,21 +83,13 @@ final class MathSurface {
     private static final String SURFACE_FUNCTION_FIELD_NAME = "function";
     private static final String SURFACE_NAME_FIELD_NAME = "name";
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     @Override
     public FunctionalDoublesSurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = deserializer.fieldValueToObject(String.class, message.getByName(SURFACE_NAME_FIELD_NAME));
       final Object function = deserializer.fieldValueToObject(message.getByName(SURFACE_FUNCTION_FIELD_NAME));
       if (function instanceof Function) {
         return FunctionalDoublesSurface.from((Function) function, name);
-      } else if (function instanceof BlackVolatilitySurfaceMoneyness) { //TODO this is wrong
-        final BlackVolatilitySurfaceMoneyness moneyness = (BlackVolatilitySurfaceMoneyness) function;
-        return (FunctionalDoublesSurface) moneyness.getSurface();
-      } else if (function instanceof LocalVolatilitySurfaceMoneyness) { //TODO this is wrong
-        final LocalVolatilitySurfaceMoneyness moneyness = (LocalVolatilitySurfaceMoneyness) function;
-        return (FunctionalDoublesSurface) moneyness.getSurface();
-      } else if (function instanceof FunctionalDoublesSurface) {
-        return (FunctionalDoublesSurface) function;
       }
       throw new OpenGammaRuntimeException("Expected serialized Function, got " + function);
     }

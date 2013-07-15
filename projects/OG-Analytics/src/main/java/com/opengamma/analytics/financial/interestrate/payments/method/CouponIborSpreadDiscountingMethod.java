@@ -54,7 +54,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingYearFraction();
+    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingAccrualFactor();
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
     final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * df;
     return CurrencyAmount.of(coupon.getCurrency(), value);
@@ -77,7 +77,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingYearFraction();
+    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingAccrualFactor();
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
     final double value = (Math.abs(coupon.getNotional()) * coupon.getPaymentYearFraction() * forward) * df;
     return CurrencyAmount.of(coupon.getCurrency(), value);
@@ -97,13 +97,13 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
     final double dfForwardStart = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
-    final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingYearFraction();
+    final double forward = (dfForwardStart / dfForwardEnd - 1.0) / coupon.getFixingAccrualFactor();
     // final double pv = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * df;
     // Backward sweep
     final double pvBar = 1.0;
     final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * df * pvBar;
-    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingYearFraction() * forwardBar;
-    final double dfForwardStartBar = 1.0 / (coupon.getFixingYearFraction() * dfForwardEnd) * forwardBar;
+    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingAccrualFactor() * forwardBar;
+    final double dfForwardStartBar = 1.0 / (coupon.getFixingAccrualFactor() * dfForwardEnd) * forwardBar;
     final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * pvBar;
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
@@ -126,7 +126,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve curve = curves.getCurve(coupon.getForwardCurveName());
-    return (curve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / curve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1.0) / coupon.getFixingYearFraction();
+    return (curve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / curve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1.0) / coupon.getFixingAccrualFactor();
   }
 
   /**
@@ -143,8 +143,8 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
     final double dfForwardEnd = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime());
     // Backward sweep
     final double parRateBar = 1.0;
-    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingYearFraction() * parRateBar;
-    final double dfForwardStartBar = 1.0 / (coupon.getFixingYearFraction() * dfForwardEnd) * parRateBar;
+    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingAccrualFactor() * parRateBar;
+    final double dfForwardStartBar = 1.0 / (coupon.getFixingAccrualFactor() * dfForwardEnd) * parRateBar;
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));

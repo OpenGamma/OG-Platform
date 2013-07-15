@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swap.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -40,21 +39,21 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
   private static final IborIndex EURIBOR3M = EUR1YEURIBOR3M.getIborIndex();
   private static final Currency EUR = EURIBOR3M.getCurrency();
-  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
+  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M, TARGET);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 31);
   private static final Period START_TENOR = Period.ofMonths(6);
   private static final Period SWAP_TENOR = Period.ofYears(5);
-  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
+  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M, TARGET);
   private static final double NOTIONAL = 123000000;
   private static final double SPREAD = 0.0010;
   private static final double FIXED_RATE = 0.0150;
   private static final boolean IS_PAYER = false;
 
   private static final SwapFixedIborSpreadDefinition SWAP_SPREAD_EUR1Y3M_DEFINITION = SwapFixedIborSpreadDefinition
-      .from(START_DATE, SWAP_TENOR, EUR1YEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER);
+      .from(START_DATE, SWAP_TENOR, EUR1YEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final SwapFixedIborSpreadDefinition SWAP_SPREAD_EUR3M3M_DEFINITION = SwapFixedIborSpreadDefinition
-      .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER);
+      .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final AnnuityCouponFixedDefinition ANNUITY_SPREAD_DEFINITION = AnnuityCouponFixedDefinition.from(EUR, START_DATE, SWAP_TENOR, EURIBOR3M.getTenor(), TARGET, EURIBOR3M.getDayCount(),
       EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), NOTIONAL, SPREAD, !IS_PAYER);
 
@@ -73,38 +72,38 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
 
   @Test
   public void couponEquivalentSpreadModified() {
-    double pvbp3MMod = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, EURIBOR3M.getDayCount(), CURVES);
-    double pvbp3M = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
+    final double pvbp3MMod = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, EURIBOR3M.getDayCount(), CURVES);
+    final double pvbp3M = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
     assertEquals("SwapFixedIborSpreadDiscountingMethod: presentValueBasisPoint - modification", pvbp3M, pvbp3MMod, TOLERANCE_PV);
-    double cesm3M = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR3M3M, pvbp3M, CURVES);
-    double cesmExpected = FIXED_RATE - SPREAD; // The convention is the same on both legs.
+    final double cesm3M = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR3M3M, pvbp3M, CURVES);
+    final double cesmExpected = FIXED_RATE - SPREAD; // The convention is the same on both legs.
     assertEquals("SwapFixedIborSpreadDiscountingMethod: couponEquivalentSpreadModified", cesmExpected, cesm3M, TOLERANCE_RATE);
-    double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
-    double cesm1Y = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
-    double pvFixed = PVC.visit(SWAP_SPREAD_EUR1Y3M.getFixedLeg(), CURVES).getAmount(EUR);
-    double pvAnnuitySpread = PVC.visit(ANNUITY_SPREAD, CURVES).getAmount(EUR);
-    CurrencyAmount pvIborNoSpread = METHOD_SWAP_SPREAD.presentValueIborNoSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
-    double cesm1YExpected = (pvFixed + pvAnnuitySpread) / pvbp1Y;
+    final double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
+    final double cesm1Y = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
+    final double pvFixed = SWAP_SPREAD_EUR1Y3M.getFixedLeg().accept(PVC, CURVES).getAmount(EUR);
+    final double pvAnnuitySpread = ANNUITY_SPREAD.accept(PVC, CURVES).getAmount(EUR);
+    final CurrencyAmount pvIborNoSpread = METHOD_SWAP_SPREAD.presentValueIborNoSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
+    final double cesm1YExpected = (pvFixed + pvAnnuitySpread) / pvbp1Y;
     assertEquals("SwapFixedIborSpreadDiscountingMethod: couponEquivalentSpreadModified", cesm1YExpected, cesm1Y, TOLERANCE_RATE);
-    double pvIbor = PVC.visit(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES).getAmount(EUR);
-    double pvIborNoSpreadExpected = -(pvIbor - pvAnnuitySpread);
+    final double pvIbor = SWAP_SPREAD_EUR1Y3M.getSecondLeg().accept(PVC, CURVES).getAmount(EUR);
+    final double pvIborNoSpreadExpected = -(pvIbor - pvAnnuitySpread);
     assertEquals("SwapFixedIborSpreadDiscountingMethod: presentValueIborNoSpreadPositiveNotional", pvIborNoSpreadExpected, pvIborNoSpread.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueIborNoSpreadPositiveNotional() {
-    CurrencyAmount pvs = METHOD_SWAP_SPREAD.presentValueSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
-    MultipleCurrencyAmount pvAnnuitySpread = PVC.visit(ANNUITY_SPREAD, CURVES); // Should be negative: pay float
+    final CurrencyAmount pvs = METHOD_SWAP_SPREAD.presentValueSpreadPositiveNotional(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES);
+    final MultipleCurrencyAmount pvAnnuitySpread = ANNUITY_SPREAD.accept(PVC, CURVES); // Should be negative: pay float
     assertEquals("SwapFixedIborSpreadDiscountingMethod: presentValueIborNoSpreadPositiveNotional", -pvAnnuitySpread.getAmount(EUR), pvs.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void forwardSwapSpreadModified() {
-    double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
-    double forwardComputed = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
-    double pvAnnuitySpread = PVC.visit(ANNUITY_SPREAD, CURVES).getAmount(EUR);
-    double pvAnnuityIbor = PVC.visit(SWAP_SPREAD_EUR1Y3M.getSecondLeg(), CURVES).getAmount(EUR);
-    double forwardExpected = -(pvAnnuityIbor - pvAnnuitySpread) / pvbp1Y;
+    final double pvbp1Y = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR3M3M, CURVES);
+    final double forwardComputed = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp1Y, CURVES);
+    final double pvAnnuitySpread = ANNUITY_SPREAD.accept(PVC, CURVES).getAmount(EUR);
+    final double pvAnnuityIbor = SWAP_SPREAD_EUR1Y3M.getSecondLeg().accept(PVC, CURVES).getAmount(EUR);
+    final double forwardExpected = -(pvAnnuityIbor - pvAnnuitySpread) / pvbp1Y;
     assertEquals("SwapFixedIborSpreadDiscountingMethod: forwardSwapSpreadModified", forwardExpected, forwardComputed, TOLERANCE_RATE);
   }
 

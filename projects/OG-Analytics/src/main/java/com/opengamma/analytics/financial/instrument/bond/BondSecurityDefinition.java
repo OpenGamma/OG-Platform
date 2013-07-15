@@ -61,9 +61,10 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * @param exCouponDays Number of days before the payment of the coupon is detached from the bond (and paid to the then owner).
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The calendar used to compute the standard settlement date.
+   * @param issuer The issuer name.
    */
   public BondSecurityDefinition(final AnnuityDefinition<N> nominal, final AnnuityDefinition<C> coupon, final int exCouponDays, final int settlementDays,
-      final Calendar calendar) {
+      final Calendar calendar, final String issuer) {
     ArgumentChecker.notNull(nominal, "Nominal");
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.isTrue(nominal.getCurrency().equals(coupon.getCurrency()), "Currency of nominal and coupons should be the same");
@@ -75,7 +76,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
     _exCouponDays = exCouponDays;
     _settlementDays = settlementDays;
     _calendar = calendar;
-    _issuer = "";
+    _issuer = issuer;
     _repoType = "";
   }
 

@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -16,6 +17,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
+@Config
 public class FXForwardCurveDefinition {
   private final String _name;
   private final UnorderedCurrencyPair _target;

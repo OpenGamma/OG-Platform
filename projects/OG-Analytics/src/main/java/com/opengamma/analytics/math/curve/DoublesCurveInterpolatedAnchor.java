@@ -8,14 +8,14 @@ package com.opengamma.analytics.math.curve;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.ParallelArrayBinarySort;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator to return values of <i>y</i> for values 
  * of <i>x</i> that do not lie on nodal <i>x</i> values. 
- * One extra node point with value 0 is added (called anchor point). 
+ * One extra node point with a set value is added (called anchor point). The value is often 0.0 (rate anchor) or 1.0 (discount factor anchor).
  * This is used in particular for spread curves; without anchor points, each curve in the spread could be shifted in opposite directions for the same total result.
  * To anchor is used to remove the translation indetermination.
  */
@@ -58,6 +58,32 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     System.arraycopy(xData, 0, xExtended, 0, xLength);
     xExtended[xLength] = anchor;
     System.arraycopy(yData, 0, yExtended, 0, xLength);
+    ParallelArrayBinarySort.parallelBinarySort(xExtended, yExtended);
+    int anchorIndex = ArrayUtils.indexOf(xExtended, anchor);
+    return new DoublesCurveInterpolatedAnchor(xExtended, yExtended, anchorIndex, interpolator, name);
+  }
+
+  /**
+   * Constructor.
+   * @param xData The x data without the anchor.
+   * @param yData The y data.
+   * @param anchor The anchor point. Should not be in xData.
+   * @param anchorValue The anchor point value.
+   * @param interpolator The interpolator.
+   * @param name The curve name.
+   * @return The curve.
+   */
+  public static DoublesCurveInterpolatedAnchor from(double[] xData, double[] yData, double anchor, double anchorValue, Interpolator1D interpolator, String name) {
+    ArgumentChecker.notNull(xData, "X data");
+    int xLength = xData.length;
+    ArgumentChecker.notNull(yData, "Y data");
+    ArgumentChecker.isTrue(xLength == yData.length, "Data of incorrect length.");
+    double[] xExtended = new double[xLength + 1];
+    double[] yExtended = new double[xLength + 1];
+    System.arraycopy(xData, 0, xExtended, 0, xLength);
+    xExtended[xLength] = anchor;
+    System.arraycopy(yData, 0, yExtended, 0, xLength);
+    yExtended[xLength] = anchorValue;
     ParallelArrayBinarySort.parallelBinarySort(xExtended, yExtended);
     int anchorIndex = ArrayUtils.indexOf(xExtended, anchor);
     return new DoublesCurveInterpolatedAnchor(xExtended, yExtended, anchorIndex, interpolator, name);

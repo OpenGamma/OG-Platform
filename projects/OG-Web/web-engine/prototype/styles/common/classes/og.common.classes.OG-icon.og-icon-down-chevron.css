@@ -3,13 +3,15 @@
  * Please see distribution for license.
  */
 .OG-icon.og-icon-down-chevron:after {
-    background-position: -37px -9px;
+    background-position: -56px -185px;
     display: inline-block;
-    height: 6px;
+    height: 5px;
     position: relative;
     width: 10px;
     z-index: 2;
 }
-.OG-icon.og-icon-down-chevron:hover:after {
-    background-position: -48px -9px;
+
+.OG-icon.og-complex:after {
+    background-position: -34px -179px;
+    height: 16px;
 }

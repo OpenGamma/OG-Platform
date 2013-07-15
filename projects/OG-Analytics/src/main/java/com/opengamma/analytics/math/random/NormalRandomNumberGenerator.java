@@ -51,7 +51,7 @@ public class NormalRandomNumberGenerator implements RandomNumberGenerator {
     if (n < 0) {
       throw new IllegalArgumentException("Number of values must be greater than zero");
     }
-    final List<double[]> result = new ArrayList<double[]>(n);
+    final List<double[]> result = new ArrayList<>(n);
     double[] x;
     for (int i = 0; i < n; i++) {
       x = new double[dimension];

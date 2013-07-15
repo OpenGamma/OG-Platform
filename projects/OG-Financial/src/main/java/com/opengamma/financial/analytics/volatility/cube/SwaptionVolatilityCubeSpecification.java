@@ -7,12 +7,14 @@ package com.opengamma.financial.analytics.volatility.cube;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
+@Config
 public class SwaptionVolatilityCubeSpecification {
   private final CubeInstrumentProvider<?, ?, ?> _cubeInstrumentProvider;
   private final String _name;

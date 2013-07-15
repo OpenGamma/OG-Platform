@@ -8,11 +8,8 @@ package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -23,6 +20,7 @@ import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorF
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -34,7 +32,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -43,8 +40,8 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesIntersector;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesIntersector;
 
 /**
  * 
@@ -59,27 +56,26 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+    return true;
+  }
+
+  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final Object positionOrNode = getTarget(target);
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Period samplingPeriod = getSamplingPeriod(constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD));
-    final LocalDate startDate = now.minus(samplingPeriod);
     final HistoricalTimeSeries riskFreeRateTSObject = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
+    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L was null");
     }
-    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
     if (assetFairValueObject == null) {
       throw new OpenGammaRuntimeException("Asset fair value was null");
     }
-    final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode));
+    final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, targetSpec));
     if (betaObject == null) {
       throw new OpenGammaRuntimeException("Beta was null");
     }
@@ -93,12 +89,11 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final TreynorRatioCalculator calculator = getCalculator(constraints.getValues(ValuePropertyNames.EXCESS_RETURN_CALCULATOR));
     final double ratio = calculator.evaluate(assetReturnTS, riskFreeReturnTS, beta);
     final ValueProperties resultProperties = getResultProperties(desiredValues.iterator().next());
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode, resultProperties), getUniqueId()), ratio));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.TREYNOR_RATIO, targetSpec, resultProperties), ratio));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Object positionOrNode = getTarget(target);
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> samplingPeriodNames = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
@@ -146,9 +141,10 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName)
         .with(ValuePropertyNames.COVARIANCE_CALCULATOR, covarianceCalculatorNames.iterator().next())
         .with(ValuePropertyNames.VARIANCE_CALCULATOR, varianceCalculatorNames.iterator().next()).get();
-    result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, pnlSeriesProperties));
-    result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
-    result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode, betaProperties));
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, pnlSeriesProperties));
+    result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
+    result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, targetSpec, betaProperties));
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
@@ -164,13 +160,10 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode, getResultProperties()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.TREYNOR_RATIO, target.toSpecification(), getResultProperties()));
     }
     return null;
   }
-
-  public abstract Object getTarget(ComputationTarget target);
 
   private ValueProperties getResultProperties() {
     return createValueProperties()

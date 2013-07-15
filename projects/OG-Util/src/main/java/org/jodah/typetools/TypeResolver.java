@@ -1,3 +1,4 @@
+// CSOFF
 /**
  * Copyright 2002-2011 the original author or authors.
  *
@@ -197,7 +198,7 @@ public final class TypeResolver {
     Map<TypeVariable<?>, Type> map = ref != null ? ref.get() : null;
 
     if (map == null) {
-      map = new HashMap<TypeVariable<?>, Type>();
+      map = new HashMap<>();
 
       // Populate interfaces
       buildTypeVariableMap(targetType.getGenericInterfaces(), map);
@@ -206,8 +207,9 @@ public final class TypeResolver {
       Type genericType = targetType.getGenericSuperclass();
       Class<?> type = targetType.getSuperclass();
       while (type != null && !Object.class.equals(type)) {
-        if (genericType instanceof ParameterizedType)
+        if (genericType instanceof ParameterizedType) {
           buildTypeVariableMap((ParameterizedType) genericType, map);
+        }
         buildTypeVariableMap(type.getGenericInterfaces(), map);
 
         genericType = type.getGenericSuperclass();
@@ -218,16 +220,16 @@ public final class TypeResolver {
       type = targetType;
       while (type.isMemberClass()) {
         genericType = type.getGenericSuperclass();
-        if (genericType instanceof ParameterizedType)
+        if (genericType instanceof ParameterizedType) {
           buildTypeVariableMap((ParameterizedType) genericType, map);
-
+        }
         type = type.getEnclosingClass();
       }
 
-      if (cacheEnabled)
+      if (cacheEnabled) {
         typeVariableCache.put(targetType, new WeakReference<Map<TypeVariable<?>, Type>>(map));
+      }
     }
-
     return map;
   }
 

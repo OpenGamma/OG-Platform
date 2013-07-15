@@ -9,16 +9,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class EndOfMonthSemiAnnualScheduleCalculator extends Schedule {
-  private static final EndOfMonthScheduleCalculator EOM_CALCULATOR = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR;
 
   @Override
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final boolean generateRecursive) {
@@ -26,10 +25,10 @@ public class EndOfMonthSemiAnnualScheduleCalculator extends Schedule {
   }
 
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    final LocalDate[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
-    final List<LocalDate> result = new ArrayList<LocalDate>();
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    final LocalDate[] monthly = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate);
+    final List<LocalDate> result = new ArrayList<>();
     if (fromEnd) {
       for (int i = monthly.length - 1; i >= 0; i -= 6) {
         result.add(monthly[i]);
@@ -49,10 +48,10 @@ public class EndOfMonthSemiAnnualScheduleCalculator extends Schedule {
   }
 
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final boolean fromEnd) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    final ZonedDateTime[] monthly = EOM_CALCULATOR.getSchedule(startDate, endDate);
-    final List<ZonedDateTime> result = new ArrayList<ZonedDateTime>();
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    final ZonedDateTime[] monthly = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate);
+    final List<ZonedDateTime> result = new ArrayList<>();
     if (fromEnd) {
       for (int i = monthly.length - 1; i >= 0; i -= 6) {
         result.add(monthly[i]);

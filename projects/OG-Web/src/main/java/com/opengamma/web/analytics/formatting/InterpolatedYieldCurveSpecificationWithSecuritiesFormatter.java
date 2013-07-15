@@ -8,7 +8,7 @@ package com.opengamma.web.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 
-public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
+/* package */ class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
     extends AbstractFormatter<InterpolatedYieldCurveSpecificationWithSecurities> {
 
   /* package */ InterpolatedYieldCurveSpecificationWithSecuritiesFormatter() {
@@ -17,7 +17,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
 
   @Override
   public Object formatCell(InterpolatedYieldCurveSpecificationWithSecurities value,
-                           ValueSpecification valueSpec) {
+                           ValueSpecification valueSpec, Object inlineKey) {
     String name;
     if (value.getName() == null) {
       name = value.getCurrency().getCode();
@@ -29,6 +29,6 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFormatter<T>
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

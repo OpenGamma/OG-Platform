@@ -5,11 +5,6 @@
  */
 package com.opengamma.master.region.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Collection;
-import java.util.Map;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -17,16 +12,11 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.AbstractEHCachingSourceWithExternalBundle;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.region.RegionSearchRequest;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -34,158 +24,29 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingRegionSource implements RegionSource {
-  
-  
+public class EHCachingRegionSource extends AbstractEHCachingSourceWithExternalBundle<Region, RegionSource> implements RegionSource {
+
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingRegionSource.class);
   /**
    * The cache name.
    */
   private static final String CACHE_NAME = "RegionCache";
-  /**
-   * The cache manager.
-   */
-  private final CacheManager _cacheManager;
 
-  /**
-   * The underlying source.
-   */
-  private final RegionSource _underlying;
   /**
    * The cache.
    */
   private final Cache _cache;
-  
-  /**
-   * The time to live.
-   */
-  private Integer _ttl;
 
   /**
    * Creates an instance.
    * 
-   * @param underlying  the underlying source, not null
-   * @param cacheManager  the cache manager, not null
+   * @param underlying the underlying source, not null
+   * @param cacheManager the cache manager, not null
    */
   public EHCachingRegionSource(RegionSource underlying, CacheManager cacheManager) {
-    ArgumentChecker.notNull(underlying, "underlying");
-    ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _underlying = underlying;
+    super(underlying, cacheManager);
     EHCacheUtils.addCache(cacheManager, CACHE_NAME);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
-    _cacheManager = cacheManager;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the underlying source.
-   * 
-   * @return the underlying source, not null
-   */
-  public RegionSource getUnderlying() {
-    return _underlying;
-  }
-
-  /**
-   * Gets the cache manager.
-   * 
-   * @return the cache manager, not null
-   */
-  public CacheManager getCacheManager() {
-    return _cache.getCacheManager();
-  }
-  
-  /**
-   * Gets the ttl.
-   * @return the ttl
-   */
-  public Integer getTtl() {
-    return _ttl;
-  }
-
-  /**
-   * Sets the ttl.
-   * @param ttl  the ttl
-   */
-  public void setTtl(Integer ttl) {
-    _ttl = ttl;
-  }
-
-  @Override
-  public Region get(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    Region result = null;
-    if (uniqueId.isLatest()) {
-      result = _underlying.get(uniqueId);
-      s_logger.debug("Caching region {}", result);
-      _cache.put(new Element(uniqueId, result));
-    } else {
-      Element element = _cache.get(uniqueId); 
-      if (element != null) {
-        s_logger.debug("Cache hit on {}", uniqueId);
-        if (element.getObjectValue() instanceof Region) {
-          result = (Region) element.getObjectValue();
-        }
-      } else {
-        s_logger.debug("Cache miss on {}", uniqueId);
-        result = _underlying.get(uniqueId);
-        s_logger.debug("Caching region {}", result);
-        _cache.put(new Element(uniqueId, result));
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public Region get(ObjectId objectId, VersionCorrection versionCorrection) {
-    RegionSearchRequest request = new RegionSearchRequest();
-    request.setVersionCorrection(versionCorrection);
-    request.addObjectId(objectId);
-    
-    Region result = null;
-    Element element = _cache.get(request);
-    if (element != null) {
-      s_logger.debug("Cache hit on {}", request);
-      result = (Region) element.getObjectValue();
-    } else {
-      s_logger.debug("Cache miss on {}", request);
-      result = _underlying.get(objectId, versionCorrection);
-      s_logger.debug("Caching regions {}", result);
-      _cache.put(new Element(request, result));
-      if (result != null) {
-        _cache.put(new Element(result.getUniqueId(), result));
-      }
-    }
-    return result;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Collection<? extends Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-    RegionSearchRequest request = new RegionSearchRequest(bundle);
-    request.setVersionCorrection(versionCorrection);
-    
-    Element element = _cache.get(request);
-    Collection<? extends Region> result = null;
-    if (element != null) {
-      s_logger.debug("Cache hit on {}", request);
-      result = (Collection<? extends Region>) element.getObjectValue();
-    } else {
-      s_logger.debug("Cache miss on {}", request);
-      result = _underlying.get(bundle, versionCorrection);
-      s_logger.debug("Caching regions {}", result);
-      element = new Element(request, result);
-      if (_ttl != null) {
-        element.setTimeToLive(_ttl);
-      }
-      _cache.put(element);
-      if (result != null) {
-        for (Region region : result) {
-          _cache.put(new Element(region.getUniqueId(), region));
-        }
-      }
-    }
-    return result;
   }
 
   @Override
@@ -202,12 +63,9 @@ public class EHCachingRegionSource implements RegionSource {
       result = (Region) element.getObjectValue();
     } else {
       s_logger.debug("Cache miss on {}", bundle);
-      result = _underlying.getHighestLevelRegion(bundle);
+      result = getUnderlying().getHighestLevelRegion(bundle);
       s_logger.debug("Caching regions {}", result);
       element = new Element(bundle, result);
-      if (_ttl != null) {
-        element.setTimeToLive(_ttl);
-      }
       _cache.put(element);
       if (result != null) {
         _cache.put(new Element(result.getUniqueId(), result));
@@ -216,32 +74,13 @@ public class EHCachingRegionSource implements RegionSource {
     return result;
   }
 
-  @Override
-  public Map<UniqueId, Region> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, Region> result = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      try {
-        Region object = get(uniqueId);
-        result.put(uniqueId, object);
-      } catch (DataNotFoundException ex) {
-        // do nothing
-      }
-    }
-    return result;
-  }
-
   /**
-   * Call this at the end of a unit test run to clear the state of EHCache.
-   * It should not be part of a generic lifecycle method.
+   * Call this at the end of a unit test run to clear the state of EHCache. It should not be part of a generic lifecycle method.
    */
-  protected void shutdown() {
-    _cacheManager.removeCache(CACHE_NAME);
-  }
-
-  //-------------------------------------------------------------------------
   @Override
-  public String toString() {
-    return getClass().getSimpleName() + "[" + getUnderlying() + "]";
+  public void shutdown() {
+    super.shutdown();
+    _cache.getCacheManager().removeCache(CACHE_NAME);
   }
 
 }

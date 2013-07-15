@@ -11,10 +11,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test WebHomeUris.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class WebHomeUrisTest {
 
   public void test_constructable() {

@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata;
 
+import java.util.Collection;
+
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.util.PublicAPI;
 
@@ -22,6 +24,8 @@ public interface LiveDataListener {
    * @param subscriptionResult  the subscription result received from the server, not null
    */
   void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult);
+
+  void subscriptionResultsReceived(Collection<LiveDataSubscriptionResponse> subscriptionResults);
 
   /**
    * Used to indicate that a subscription will stop providing updates to this listener.

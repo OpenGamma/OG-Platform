@@ -7,8 +7,6 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -21,6 +19,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
@@ -142,15 +141,15 @@ public class DataAvailablePortfolioOutputsResource extends AbstractDataResource 
    * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param instantProvider  the instant, may be null
+   * @param instant  the instant, may be null
    * @param maxNodes  the maximum nodes, may be null
    * @param maxPositions  the maximum positions, may be null
    * @param portfolioId  the portfolio identifier, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions, UniqueId portfolioId) {
+  public static URI uri(URI baseUri, Instant instant, Integer maxNodes, Integer maxPositions, UniqueId portfolioId) {
     UriBuilder bld = UriBuilder.fromUri(DataAvailableOutputsProviderResource.uriPortfolio(baseUri));
-    bld.path(instantProvider != null ? Instant.of(instantProvider).toString() : "now");
+    bld.path(instant != null ? instant.toString() : "now");
     if (maxNodes != null && maxNodes > 0) {
       bld.path("nodes").path(Integer.toString(maxNodes));
     }

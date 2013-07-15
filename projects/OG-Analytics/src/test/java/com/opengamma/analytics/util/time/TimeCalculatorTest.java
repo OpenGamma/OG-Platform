@@ -9,12 +9,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -37,8 +38,8 @@ public class TimeCalculatorTest {
   /** No time between instants on same date */
   public void sameDay() {
 
-    final ZonedDateTime midday = ZonedDateTime.of(LocalDate.now(), LocalTime.MIDDAY, TimeZone.UTC);
-    final ZonedDateTime midnight = ZonedDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime midday = LocalDate.now().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);
+    final ZonedDateTime midnight = LocalDate.now().atTime(LocalTime.MIDNIGHT).atZone(ZoneOffset.UTC);
     final double yearFraction = TimeCalculator.getTimeBetween(midday, midnight);
     assertEquals(0.0, yearFraction, TOLERANCE);
   }
@@ -47,8 +48,8 @@ public class TimeCalculatorTest {
   /** No time between instants on same date */
   public void sameDay2() {
 
-    final ZonedDateTime midday = ZonedDateTime.of(LocalDate.now(), LocalTime.MIDDAY, TimeZone.UTC);
-    final ZonedDateTime midnight = ZonedDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime midday = LocalDate.now().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);
+    final ZonedDateTime midnight = LocalDate.now().atTime(LocalTime.MIDNIGHT).atZone(ZoneOffset.UTC);
     final double yearFraction = TimeCalculator.getTimeBetween(midnight, midday);
     assertEquals(0.0, yearFraction, TOLERANCE);
   }
@@ -58,9 +59,9 @@ public class TimeCalculatorTest {
       This is trapped as daycount computation first converts each ZonedDateTime to LocalDate. */
   public void sameTimeDifferentLocalDates() {
 
-    final ZonedDateTime midnightLondon = ZonedDateTime.of(LocalDate.of(2012, 03, 12), LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime sevenNewYork = ZonedDateTime.of(LocalDate.of(2012, 03, 11), LocalTime.of(19, 0), TimeZone.of("EST"));
-    assertTrue(midnightLondon.equalInstant(sevenNewYork));
+    final ZonedDateTime midnightLondon = LocalDateTime.of(2012, 03, 12, 0, 0).atZone(ZoneOffset.UTC);
+    final ZonedDateTime sevenNewYork = LocalDateTime.of(2012, 03, 11, 19, 0).atZone(ZoneId.of("EST"));
+    assertTrue(midnightLondon.isEqual(sevenNewYork));
     final double yearFraction = TimeCalculator.getTimeBetween(sevenNewYork, midnightLondon);
     assertEquals(0.0, yearFraction, TOLERANCE);
   }

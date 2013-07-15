@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
     if (x.size() < _h) {
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
     }
-    final double[] autocorrelations = _calculator.evaluate(x.toFastLongDoubleTimeSeries());
+    final double[] autocorrelations = _calculator.evaluate(x);
     final double upper = _criticalValue / Math.sqrt(x.size());
     final double lower = -upper;
     double violations = 0;

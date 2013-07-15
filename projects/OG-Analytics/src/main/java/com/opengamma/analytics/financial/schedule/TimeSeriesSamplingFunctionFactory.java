@@ -25,7 +25,7 @@ public class TimeSeriesSamplingFunctionFactory {
   /** Pad with previous value, pad with first value in series if there is insufficient data */
   public static final PreviousAndFirstValuePaddingTimeSeriesSamplingFunction PREVIOUS_AND_FIRST_VALUE_FUNCTION = new PreviousAndFirstValuePaddingTimeSeriesSamplingFunction();
 
-  private static Map<String, TimeSeriesSamplingFunction> s_instances = new HashMap<String, TimeSeriesSamplingFunction>();
+  private static Map<String, TimeSeriesSamplingFunction> s_instances = new HashMap<>();
 
   static {
     s_instances.put(NO_PADDING, NO_PADDING_FUNCTION);

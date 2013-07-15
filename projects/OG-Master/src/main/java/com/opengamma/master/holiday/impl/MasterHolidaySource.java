@@ -7,8 +7,8 @@ package com.opengamma.master.holiday.impl;
 
 import java.util.Collections;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;

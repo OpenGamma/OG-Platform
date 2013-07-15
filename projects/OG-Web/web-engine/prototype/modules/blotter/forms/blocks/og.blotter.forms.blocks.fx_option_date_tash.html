@@ -1,0 +1,59 @@
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 33%">
+    <col style="width: 67%">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          <span>Expiry Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.expiry" type="text" value="{{expiry}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Exercise Type</span>
+        </label>
+      </td>
+      <td>
+        {{{item_0}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Settlement Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.settlementDate" type="text" value="{{settlement}}"/>
+      </td>
+    </tr>
+    {{#if nondev}}
+      <tr>
+        <td>
+        </td>
+        <td>
+          <div><input name="security.deliveryInCallCurrency" type="checkbox" /><span>Deliver In Call Currency</span>
+          </div>
+        </td>
+      </tr>
+    {{else}}
+      <tr>
+        <td>
+          <label>
+            <span>Premium</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_1}}}</span><span><input name="trade.premium" type="text" value="{{premium}}" /></span></div>
+        </td>
+      </tr>
+    {{/if}}
+  </tbody>
+</table>

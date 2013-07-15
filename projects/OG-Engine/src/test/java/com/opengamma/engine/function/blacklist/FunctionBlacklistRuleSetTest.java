@@ -17,12 +17,12 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.Timeout;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link FunctionBlacklistRuleSet} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionBlacklistRuleSetTest {
 
   public void testEmpty() throws Exception {
@@ -103,29 +103,6 @@ public class FunctionBlacklistRuleSetTest {
       assertEquals(bl.size(), 11);
       assertTrue(bl.removeAll(Collections.singleton(new FunctionBlacklistRule())));
       assertEquals(bl.size(), 10);
-    } finally {
-      executor.shutdown();
-    }
-  }
-
-  public void testExpiry() throws Exception {
-    final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    try {
-      final int timeout = (int) Timeout.standardTimeoutSeconds();
-      final FunctionBlacklistRuleSet bl = new FunctionBlacklistRuleSet(executor, timeout);
-      for (int i = 0; i < 10; i++) {
-        final FunctionBlacklistRule rule = new FunctionBlacklistRule();
-        rule.setFunctionIdentifier("F" + i);
-        bl.add(rule, timeout * (i + 1));
-      }
-      assertEquals(bl.size(), 10);
-      Thread.sleep(timeout * 3000);
-      final int size = bl.size();
-      assertTrue(size < 10);
-      assertTrue(size > 5);
-      Thread.sleep(timeout * 2000);
-      assertTrue(bl.size() < size);
-      assertTrue(bl.size() > 0);
     } finally {
       executor.shutdown();
     }

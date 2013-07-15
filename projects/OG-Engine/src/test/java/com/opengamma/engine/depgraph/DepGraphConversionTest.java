@@ -28,6 +28,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.resolver.FunctionPriority;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -35,11 +36,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the dependency graph building with functions that implement conversion strategies (e.g. for currency)
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DepGraphConversionTest.class);
@@ -51,14 +53,15 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Bar(), getUniqueId()));
+        final ValueRequirement req2bar = helper.getRequirement2Bar();
+        return Collections.singleton(new ValueSpecification(req2bar.getValueName(), target.toSpecification(), req2bar.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
     };
     fnConv.addRequirement(helper.getRequirement2Foo());
     helper.getFunctionRepository().addFunction(fnConv);
     final MockFunction fn2 = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement2Foo());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -80,7 +83,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -93,7 +97,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv) {
@@ -118,7 +122,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -126,8 +131,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
         s_logger.debug("fnConv1 late resolving with inputs {}", inputs);
         assertEquals(1, inputs.size());
         final ValueSpecification input = inputs.keySet().iterator().next();
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetSpecification(), ValueProperties.with(
-            ValuePropertyNames.FUNCTION, getUniqueId()).with("TEST", input.getProperties().getValues("TEST")).get()));
+        return Collections.singleton(new ValueSpecification(helper.getRequirement2().getValueName(), target.toSpecification(),
+            ValueProperties.with(ValuePropertyNames.FUNCTION, getUniqueId()).with("TEST", input.getProperties().getValues("TEST")).get()));
       }
 
     };
@@ -139,7 +144,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -152,7 +158,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     };
     fnConv2.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv2);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv2) {
@@ -190,7 +196,8 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(helper.getRequirement2Any(), getUniqueId()));
+        final ValueRequirement req = helper.getRequirement2Any();
+        return Collections.singleton(new ValueSpecification(req.getValueName(), target.toSpecification(), req.getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get()));
       }
 
       @Override
@@ -204,7 +211,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     };
     fnConv.addRequirement(helper.getRequirement1Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement2Foo());
     builder.addTarget(helper.getRequirement2Bar());
     DependencyGraph graph = builder.getDependencyGraph();
@@ -218,9 +225,9 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
   public void twoLevelConversion() {
     final DepGraphTestHelper helper = helper();
-    final ComputationTarget target1 = new ComputationTarget(UniqueId.of("Target", "1"));
-    final ComputationTarget target2 = new ComputationTarget(UniqueId.of("Target", "2"));
-    final ComputationTarget target3 = new ComputationTarget(UniqueId.of("Target", "3"));
+    final ComputationTarget target1 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Target", "1"));
+    final ComputationTarget target2 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Target", "2"));
+    final ComputationTarget target3 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Target", "3"));
     final String property = "Constraint";
     MockFunction source = new MockFunction("source1", target1);
     source.addResult(new ComputedValue(new ValueSpecification("A", target1.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "1").with(property, "Foo").get()), 1.0));
@@ -332,7 +339,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(new ValueRequirement("C", target.toSpecification()), createValueProperties().withAny(property).get()));
+        return Collections.singleton(new ValueSpecification("C", target.toSpecification(), createValueProperties().withAny(property).get()));
       }
 
       @Override
@@ -394,7 +401,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
       }
 
     });
-    final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    final DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function instanceof TestFunction) {
@@ -403,9 +410,9 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
         return 0;
       }
     });
-    ((MapComputationTargetResolver) builder.getCompilationContext().getComputationTargetResolver()).addTarget(target1);
-    ((MapComputationTargetResolver) builder.getCompilationContext().getComputationTargetResolver()).addTarget(target2);
-    ((MapComputationTargetResolver) builder.getCompilationContext().getComputationTargetResolver()).addTarget(target3);
+    ((MapComputationTargetResolver) builder.getCompilationContext().getRawComputationTargetResolver()).addTarget(target1);
+    ((MapComputationTargetResolver) builder.getCompilationContext().getRawComputationTargetResolver()).addTarget(target2);
+    ((MapComputationTargetResolver) builder.getCompilationContext().getRawComputationTargetResolver()).addTarget(target3);
     builder.addTarget(new ValueRequirement("C", target3.toSpecification()));
     builder.addTarget(new ValueRequirement("C", target2.toSpecification()));
     builder.addTarget(new ValueRequirement("C", target1.toSpecification()));

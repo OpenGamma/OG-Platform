@@ -19,6 +19,14 @@ import com.opengamma.web.WebHomeUris;
  * Abstract base class for RESTful exchange resources.
  */
 public abstract class AbstractWebExchangeResource extends AbstractPerRequestWebResource {
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "exchanges/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "exchanges/json/";
 
   /**
    * The backing bean.

@@ -6,32 +6,47 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.0.0</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-integration</artifactId>
   <packaging>jar</packaging>
   <name>OG-Integration</name>
-  <description>OpenGamma platform project integration</description>
+  <description>OpenGamma Platform project integration</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Integration</url>
   </scm>
 
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <testResource>
+        <directory>config</directory>
+      </testResource>
+    </testResources>
+  </build>
+
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-bloomberg</artifactId>
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
@@ -40,7 +55,7 @@
           <groupId>junit</groupId>
           <artifactId>junit</artifactId>
         </exclusion>
-      </exclusions>    
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jdesktop</groupId>
@@ -49,17 +64,29 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.swinglabs</groupId>
-      <artifactId>swingx</artifactId>
-      <version>1.0</version>
+      <groupId>org.swinglabs.swingx</groupId>
+      <artifactId>swingx-core</artifactId>
+      <version>1.6.5</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-      <version>10.6.1.0</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+    </dependency>
   </dependencies>
+
+  <properties>
+  </properties>
 
 </project>

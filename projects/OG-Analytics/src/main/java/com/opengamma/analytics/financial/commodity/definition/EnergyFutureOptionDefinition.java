@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
@@ -35,24 +35,25 @@ public class EnergyFutureOptionDefinition extends CommodityFutureOptionDefinitio
   /**
    * Get the derivative at a given fix time from the definition
    * @param date fixing time
-   * @param yieldCurveNames  
+   * @param yieldCurveNames not used
    * @return the fixed derivative
    */
   @Override
   public EnergyFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
-    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    //timetoSettlement
-    return new EnergyFutureOption(timeToFixing, getUnderlying(), getStrike(), getExerciseType(), isCall());
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    return new EnergyFutureOption(timeToFixing, getUnderlying().toDerivative(date, yieldCurveNames), getStrike(), getExerciseType(), isCall());
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEnergyFutureOptionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEnergyFutureOptionDefinition(this);
   }
 
@@ -62,7 +63,7 @@ public class EnergyFutureOptionDefinition extends CommodityFutureOptionDefinitio
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

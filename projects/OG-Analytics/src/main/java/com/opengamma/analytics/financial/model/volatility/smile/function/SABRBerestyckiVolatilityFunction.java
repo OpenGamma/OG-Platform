@@ -8,12 +8,12 @@ package com.opengamma.analytics.financial.model.volatility.smile.function;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -28,7 +28,7 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
-    Validate.notNull(option, "option");
+    ArgumentChecker.notNull(option, "option");
     final double strike = option.getStrike();
 
     final double cutoff = forward * CUTOFF_MONEYNESS;
@@ -45,7 +45,7 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
 
       @Override
       public final Double evaluate(final SABRFormulaData data) {
-        Validate.notNull(data, "data");
+        ArgumentChecker.notNull(data, "data");
         final double alpha = data.getAlpha();
         final double beta = data.getBeta();
         final double rho = data.getRho();
@@ -91,7 +91,7 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
   public Function1D<SABRFormulaData, double[]> getVolatilityFunction(final double forward, final double[] strikes, final double timeToExpiry) {
 
     final int n = strikes.length;
-    final List<Function1D<SABRFormulaData, Double>> funcs = new ArrayList<Function1D<SABRFormulaData, Double>>(n);
+    final List<Function1D<SABRFormulaData, Double>> funcs = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       funcs.add(getVolatilityFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, true), forward));
     }

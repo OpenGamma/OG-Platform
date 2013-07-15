@@ -6,15 +6,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.0.0</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-maths</artifactId>
   <packaging>jar</packaging>
   <name>OG-Maths</name>
-  <description>OpenGamma platform maths</description>
+  <description>OpenGamma Platform maths</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Maths</url>
@@ -22,7 +22,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-analytics</artifactId>
       <version>${project.version}</version>
     </dependency>

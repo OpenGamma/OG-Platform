@@ -7,8 +7,6 @@ package com.opengamma.financial.security.bond;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -17,6 +15,7 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -162,6 +161,7 @@ public abstract class BondSecurity extends FinancialSecurity {
    * The security details should be set before use.
    */
   protected BondSecurity() {
+    super(SECURITY_TYPE);
   }
 
   protected BondSecurity(String issuerName, String issuerType, String issuerDomicile, String market, Currency currency,
@@ -1131,7 +1131,7 @@ public abstract class BondSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "issuerName",
         "issuerType",
         "issuerDomicile",

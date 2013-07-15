@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.positions',
     dependencies: [],
     obj: function () {
-        var prefix = 'og_data_gadget_', counter = 1, dependencies = ['id', 'node', 'version'],
+        var dependencies = ['id', 'node', 'version'],
             common = og.common, views = og.views, routes = common.routes, api = og.api,
             format_trades = og.common.gadgets.trades.format;
         /**
@@ -30,10 +30,11 @@ $.register_module({
             var url = routes.prefix() + routes.hash(og.views.positions.rules.load_item, {
                 id: result.data.template_data.object_id
             });
-            return '<a href="' + url + '">' + $(this).text() + '</a>'
+            return '<a href="' + url + '">' + $(this).text() + '</a>';
         };
         return function (config) {
-            var gadget = this, alive = prefix + counter++, current_page = routes.current().page.substring(1);
+            var gadget = this, alive = og.common.id('gadget_position'),
+                current_page = routes.current().page.substring(1);
             gadget.alive = function () {return $('.' + alive).length ? true : false;};
             gadget.resize = function () {gadget.load();};
             gadget.load = function () {
@@ -83,7 +84,8 @@ $.register_module({
                     }),
                     api.text({module: 'og.views.gadgets.positions'}))
                 .then(function (result, template) {
-                    if (result.error) return view ? view.error(result.message) : alert(result.message);
+                    if (result.error) return view ? view.error(result.message)
+                        : $(selector).addClass(alive).html(result.message);
                     var $html = $.tmpl(template, $.extend(result.data, template_options));
                     if (current_page !==  'positions') $html.find('thead span').html(link(external_links, result));
                     $(selector).addClass(alive).html($html);
@@ -100,6 +102,6 @@ $.register_module({
                 });
             };
             gadget.load();
-        }
+        };
     }
 });

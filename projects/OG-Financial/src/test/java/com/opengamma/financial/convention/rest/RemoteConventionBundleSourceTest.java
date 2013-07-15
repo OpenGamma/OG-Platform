@@ -28,13 +28,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
 /**
  * Tests the {@link RemoteConventionBundleSource} and {@link DataConventionBundleSourceResource} classes
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RemoteConventionBundleSourceTest {
 
   private ConventionBundle createBundle() {

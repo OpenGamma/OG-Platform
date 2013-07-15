@@ -11,11 +11,10 @@ import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.id.ExternalId;

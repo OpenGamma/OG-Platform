@@ -8,11 +8,11 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -25,17 +25,17 @@ public class FirstOfMonthScheduleCalculator extends Schedule {
   }
 
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       if (startDate.getDayOfMonth() == 1) {
         return new LocalDate[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the first day of the month");
     }
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
-    LocalDate date = startDate.with(DateAdjusters.firstDayOfMonth());
+    final List<LocalDate> dates = new ArrayList<>();
+    LocalDate date = startDate.with(TemporalAdjusters.firstDayOfMonth());
     if (date.isBefore(startDate)) {
       date = date.plusMonths(1);
     }
@@ -52,17 +52,17 @@ public class FirstOfMonthScheduleCalculator extends Schedule {
   }
 
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       if (startDate.getDayOfMonth() == 1) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the first day of the month");
     }
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    ZonedDateTime date = startDate.with(DateAdjusters.firstDayOfMonth());
+    final List<ZonedDateTime> dates = new ArrayList<>();
+    ZonedDateTime date = startDate.with(TemporalAdjusters.firstDayOfMonth());
     if (date.isBefore(startDate)) {
       date = date.plusMonths(1);
     }

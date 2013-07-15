@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.util.ArgumentChecker;

@@ -13,11 +13,11 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -45,10 +45,8 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
    * @return A mock function with one input and one output
    */
   public static MockFunction getMockFunction(String uniqueId, ComputationTarget target, Object output) {
-    ValueRequirement outputReq = getOutputRequirement(target);
-
     MockFunction fn = new MockFunction(uniqueId, target);
-    fn.addResult(outputReq, output);
+    fn.addResult(new ValueSpecification("OUTPUT", target.toSpecification(), fn.createValueProperties().get()), output);
     return fn;
   }
 
@@ -62,21 +60,14 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     return fn;
   }
 
-  public static ValueRequirement getOutputRequirement(ComputationTarget target) {
-    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
-    return outputReq;
-  }
-
   public static MockFunction getMockFunction(String uniqueId, ComputationTarget target, Object output, ValueRequirement input) {
     MockFunction fn = getMockFunction(uniqueId, target, output);
-
     fn.addRequirement(input);
     return fn;
   }
 
   public static MockFunction getMockFunction(String uniqueId, ComputationTarget target, Object output, MockFunction inputFunction) {
     MockFunction fn = getMockFunction(uniqueId, target, output);
-
     for (ValueSpecification resultSpec : inputFunction.getResultSpecs()) {
       fn.addRequirement(resultSpec.toRequirementSpecification());
     }
@@ -100,22 +91,12 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     _requirements.addAll(requirements);
   }
 
-  public Set<ValueSpecification> getRequirements() {
-    final HashSet<ValueSpecification> specs = new HashSet<ValueSpecification>();
-    for (ValueRequirement requirement : _requirements) {
-      specs.add(toValueSpecification(requirement));
-    }
-    return Collections.unmodifiableSet(specs);
+  public Set<ValueRequirement> getRequirements() {
+    return Collections.unmodifiableSet(_requirements);
   }
 
-  public ValueSpecification toValueSpecification(ValueRequirement requirement) {
-    return new ValueSpecification(requirement, getUniqueId());
-  }
-
-  public void addResult(ValueRequirement value, Object result) {
-    ValueSpecification resultSpec = toValueSpecification(value);
-    ComputedValue computedValue = new ComputedValue(resultSpec, result);
-    addResult(computedValue);
+  public void addResult(ValueSpecification valueSpec, Object result) {
+    addResult(new ComputedValue(valueSpec, result));
   }
 
   public void addResult(ComputedValue result) {
@@ -131,7 +112,7 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return ObjectUtils.equals(target.toSpecification(), _target.toSpecification());
+    return ObjectUtils.equals(target.getUniqueId(), _target.getUniqueId());
   }
 
   @Override
@@ -185,7 +166,10 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     Set<ComputedValue> results = new HashSet<ComputedValue>();
     for (ValueRequirement desiredValue : desiredValues) {
       for (ComputedValue result : _results) {
-        if (desiredValue.isSatisfiedBy(result.getSpecification())) {
+        // PLAT-2290; desiredValue is really a ValueSpecification so can do an equality test 
+        if ((desiredValue.getValueName() == result.getSpecification().getValueName())
+            && desiredValue.getTargetReference().equals(result.getSpecification().getTargetSpecification())
+            && desiredValue.getConstraints().equals(result.getSpecification().getProperties())) {
           results.add(result);
         }
       }

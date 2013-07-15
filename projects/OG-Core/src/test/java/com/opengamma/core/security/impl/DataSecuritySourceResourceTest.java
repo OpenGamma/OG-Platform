@@ -14,12 +14,12 @@ import static org.testng.AssertJUnit.assertSame;
 import java.net.URI;
 import java.util.Collection;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.security.Security;
@@ -29,11 +29,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataSecuritySourceResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataSecuritySourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");

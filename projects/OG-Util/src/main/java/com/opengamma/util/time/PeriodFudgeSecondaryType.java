@@ -5,11 +5,10 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.Period;
-
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.threeten.bp.Period;
 
 /**
  * Converts Period instances to/from a Fudge string type.

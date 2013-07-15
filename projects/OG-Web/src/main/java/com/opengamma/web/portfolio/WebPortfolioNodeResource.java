@@ -52,7 +52,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createPortfolioNodeData();
-    return getFreemarker().build("portfolios/portfolionode.ftl", out);
+    return getFreemarker().build(HTML_DIR + "portfolionode.ftl", out);
   }
 
   @GET
@@ -64,7 +64,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       return Response.status(Status.NOT_FOUND).build();
     }
     
-    String s = getFreemarker().build("portfolios/jsonportfolionode.ftl", out);
+    String s = getFreemarker().build(JSON_DIR + "portfolionode.ftl", out);
     return Response.ok(s).build();
   }
 
@@ -90,7 +90,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     if (name == null) {
       FlexiBean out = createRootData();
       out.put("err_nameMissing", true);
-      String html = getFreemarker().build("portfolios/portfolionode-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "portfolionode-add.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = createPortfolioNode(name);
@@ -130,7 +130,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     if (name == null) {
       FlexiBean out = createRootData();
       out.put("err_nameMissing", true);
-      String html = getFreemarker().build("portfolios/portfolionode-update.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "portfolionode-update.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = updatePortfolioNode(name, doc);

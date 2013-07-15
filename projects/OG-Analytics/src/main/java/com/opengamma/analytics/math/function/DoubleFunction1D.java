@@ -26,7 +26,6 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   public DoubleFunction1D derivative() {
     return derivative(FiniteDifferenceType.CENTRAL, EPS);
   }
-  
 
   /**
    * Returns a function that calculates the first derivative. The method used
@@ -70,7 +69,6 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
         throw new IllegalArgumentException("Unhandled FiniteDifferenceType " + differenceType);
     }
   }
-  
 
   /**
    * For a DoubleFunction1D $g(x)$, adding a function $f(x)$ returns the
@@ -89,7 +87,6 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
 
     };
   }
-  
 
   /**
    * For a DoubleFunction1D $g(x)$, adding a constant $a$ returns the function
@@ -107,7 +104,7 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
 
     };
   }
-  
+
   /**
    * For a DoubleFunction1D $g(x)$, dividing by a function $f(x)$ returns the
    * function $h(x) = \frac{g(x)}{f(x)}$.
@@ -230,4 +227,5 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
 
     };
   }
+
 }

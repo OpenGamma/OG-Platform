@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -61,7 +60,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   //Swap 5Y
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -78,10 +77,10 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, IBOR_INDEX, !FIXED_IS_PAYER);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, IBOR_INDEX, !FIXED_IS_PAYER, CALENDAR);
   // CMS coupon construction
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime ACCRUAL_START_DATE = SETTLEMENT_DATE; // pre-fixed
@@ -104,7 +103,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
@@ -133,9 +132,9 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   /**
    * Tests the price of CMS coupon and cap/floor using replication in the SABR framework.  Comparison with hard-coded value.
    */
-  public void presentValueHardcoded() {
-    double pvComputed = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, SABR_BUNDLE).getAmount();
-    double pvComparison = 6627.971;
+  public void presentValueHardCoded() {
+    final double pvComputed = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, SABR_BUNDLE).getAmount();
+    final double pvComparison = 6627.971;
     assertEquals("Extrapolation: CMS Cap present value", pvComparison, pvComputed, TOLERANCE_PRICE);
   }
 
@@ -151,7 +150,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final double priceCouponExtra = METHOD_EXTRAPOLATION_CPN.presentValue(CMS_COUPON, SABR_BUNDLE).getAmount();
     final double rateCouponExtra = priceCouponExtra
         / (CMS_COUPON.getPaymentYearFraction() * CMS_COUPON.getNotional() * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON.getPaymentTime()));
-    final double priceCouponNoAdj = PVC.visit(CMS_COUPON, CURVES);
+    final double priceCouponNoAdj = CMS_COUPON.accept(PVC, CURVES);
     final double rateCouponNoAdj = priceCouponNoAdj
         / (CMS_COUPON.getPaymentYearFraction() * CMS_COUPON.getNotional() * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON.getPaymentTime()));
     assertEquals("Extrapolation: comparison with standard method", rateCouponStd > rateCouponExtra, true);
@@ -177,8 +176,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests the price of CMS coupon and cap/floor using replication in the SABR framework.  Method v Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    double pvMethod = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, SABR_BUNDLE).getAmount();
-    double pvCalculator = PVC_SABR.visit(CMS_CAP_LONG, SABR_BUNDLE);
+    final double pvMethod = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, SABR_BUNDLE).getAmount();
+    final double pvCalculator = CMS_CAP_LONG.accept(PVC_SABR, SABR_BUNDLE);
     assertEquals("CMS cap/floor SABR: Present value : method vs calculator", pvMethod, pvCalculator, TOLERANCE_PRICE);
   }
 
@@ -226,17 +225,17 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final double pv = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, sabrBundle).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
     final CapFloorCMS capBumpedForward = (CapFloorCMS) CMS_CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
-    final Set<Double> timeForwardSet = new TreeSet<Double>();
+    final Set<Double> timeForwardSet = new TreeSet<>();
     for (final Payment pay : CMS_CAP_LONG.getUnderlyingSwap().getSecondLeg().getPayments()) {
       final CouponIbor coupon = (CouponIbor) pay;
       timeForwardSet.add(coupon.getFixingPeriodStartTime());
       timeForwardSet.add(coupon.getFixingPeriodEndTime());
     }
     final int nbForwardDate = timeForwardSet.size();
-    final List<Double> timeForwardList = new ArrayList<Double>(timeForwardSet);
+    final List<Double> timeForwardList = new ArrayList<>(timeForwardSet);
     Double[] timeForwardArray = new Double[nbForwardDate];
     timeForwardArray = timeForwardList.toArray(timeForwardArray);
     final double[] yieldsForward = new double[nbForwardDate + 1];
@@ -262,7 +261,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
       assertEquals("Sensitivity to forward curve: Node " + i, resFwd[i], pair.getSecond(), deltaTolerance);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME };
     final CapFloorCMS capBumpedFunding = (CapFloorCMS) CMS_CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final int nbPayDate = CMS_CAP_LONG_DEFINITION.getUnderlyingSwap().getIborLeg().getPayments().length;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
@@ -295,8 +294,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Test the present value rate sensitivity for a CMS cap with pricing by replication in the SABR with extrapolation framework. Method v Calculator.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity pvcsMethod = METHOD_EXTRAPOLATION_CAP.presentValueCurveSensitivity(CMS_CAP_LONG, SABR_BUNDLE);
-    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_EXTRA_SABR.visit(CMS_CAP_LONG, SABR_BUNDLE));
+    final InterestRateCurveSensitivity pvcsMethod = METHOD_EXTRAPOLATION_CAP.presentValueCurveSensitivity(CMS_CAP_LONG, SABR_BUNDLE);
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(CMS_CAP_LONG.accept(PVCSC_EXTRA_SABR, SABR_BUNDLE));
     AssertSensivityObjects.assertEquals("CMS cap/floor SABR: Present value : method vs calculator", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
@@ -305,14 +304,14 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests the cap present value SABR parameters sensitivity vs finite difference.
    */
   public void presentValueSABRSensitivity() {
-    SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     final double pv = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, sabrBundle).getAmount();
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD_EXTRAPOLATION_CAP.presentValueSABRSensitivity(CMS_CAP_LONG, sabrBundle);
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    double maturity = CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
+    final double maturity = CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_CAP_LONG.getSettlementTime();
     final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_CAP_LONG.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
@@ -346,14 +345,14 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests the coupon present value SABR parameters sensitivity vs finite difference.
    */
   public void presentValueSABRSensitivityCoupon() {
-    SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     final double pv = METHOD_EXTRAPOLATION_CPN.presentValue(CMS_COUPON, sabrBundle).getAmount();
     final PresentValueSABRSensitivityDataBundle pvsCpn = METHOD_EXTRAPOLATION_CPN.presentValueSABRSensitivity(CMS_COUPON, sabrBundle);
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    double maturity = CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
+    final double maturity = CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_COUPON.getSettlementTime();
     final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_COUPON.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
@@ -388,7 +387,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    */
   public void presentValueSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD_EXTRAPOLATION_CAP.presentValueSABRSensitivity(CMS_CAP_LONG, SABR_BUNDLE);
-    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(CMS_CAP_LONG, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = CMS_CAP_LONG.accept(PVSSC_SABR, SABR_BUNDLE);
     assertEquals("CMS cap/floor SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 
@@ -397,21 +396,21 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests the present value strike sensitivity: Cap.
    */
   public void presentValueStrikeSensitivityCap() {
-    double[] strikes = new double[] {0.0001, 0.0010, 0.0050, 0.0100, 0.0200, 0.0400, 0.0500};
-    int nbStrikes = strikes.length;
-    double shift = 1.0E-5;
-    double[] errorRelative = new double[nbStrikes];
+    final double[] strikes = new double[] {0.0001, 0.0010, 0.0050, 0.0100, 0.0200, 0.0400, 0.0500 };
+    final int nbStrikes = strikes.length;
+    final double shift = 1.0E-5;
+    final double[] errorRelative = new double[nbStrikes];
     for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
-      CapFloorCMSDefinition cmsCapDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike], IS_CAP);
-      CapFloorCMSDefinition cmsCapShiftUpDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike] + shift, IS_CAP);
-      CapFloorCMSDefinition cmsCapShiftDoDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike] - shift, IS_CAP);
-      CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-      CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-      CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-      double pvShiftUp = METHOD_EXTRAPOLATION_CAP.presentValue(cmsCapShiftUp, SABR_BUNDLE).getAmount();
-      double pvShiftDo = METHOD_EXTRAPOLATION_CAP.presentValue(cmsCapShiftDo, SABR_BUNDLE).getAmount();
-      double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
-      double sensiComputed = METHOD_EXTRAPOLATION_CAP.presentValueStrikeSensitivity(cmsCap, SABR_BUNDLE);
+      final CapFloorCMSDefinition cmsCapDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike], IS_CAP);
+      final CapFloorCMSDefinition cmsCapShiftUpDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike] + shift, IS_CAP);
+      final CapFloorCMSDefinition cmsCapShiftDoDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike] - shift, IS_CAP);
+      final CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      final CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      final CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      final double pvShiftUp = METHOD_EXTRAPOLATION_CAP.presentValue(cmsCapShiftUp, SABR_BUNDLE).getAmount();
+      final double pvShiftDo = METHOD_EXTRAPOLATION_CAP.presentValue(cmsCapShiftDo, SABR_BUNDLE).getAmount();
+      final double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
+      final double sensiComputed = METHOD_EXTRAPOLATION_CAP.presentValueStrikeSensitivity(cmsCap, SABR_BUNDLE);
       errorRelative[loopstrike] = (sensiExpected - sensiComputed) / sensiExpected;
       assertEquals("CMS cap/floor SABR: Present value strike sensitivity " + loopstrike, 0, errorRelative[loopstrike], 5.0E-3);
     }
@@ -425,7 +424,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final double[] mu = new double[] {1.10, 1.30, 1.55, 2.25, 3.50, 6.00, 15.0};
+    final double[] mu = new double[] {1.10, 1.30, 1.55, 2.25, 3.50, 6.00, 15.0 };
     final int nbMu = mu.length;
     final double priceCouponStd = METHOD_STANDARD_CPN.presentValue(CMS_COUPON, sabrBundle).getAmount();
     final double rateCouponStd = priceCouponStd / (CMS_COUPON.getPaymentYearFraction() * CMS_COUPON.getNotional() * curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON.getPaymentTime()));
@@ -437,7 +436,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
       rateCouponExtra[loopmu] = priceCouponExtra[loopmu]
           / (CMS_COUPON.getPaymentYearFraction() * CMS_COUPON.getNotional() * curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON.getPaymentTime()));
     }
-    final double priceCouponNoAdj = PVC.visit(CMS_COUPON, curves);
+    final double priceCouponNoAdj = CMS_COUPON.accept(PVC, curves);
     final double rateCouponNoAdj = priceCouponNoAdj
         / (CMS_COUPON.getPaymentYearFraction() * CMS_COUPON.getNotional() * curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON.getPaymentTime()));
     assertEquals("Extrapolation: comparison with standard method", rateCouponStd > rateCouponExtra[0], true);

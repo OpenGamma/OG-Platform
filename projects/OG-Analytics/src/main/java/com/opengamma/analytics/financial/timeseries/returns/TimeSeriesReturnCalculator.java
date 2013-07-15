@@ -8,21 +8,16 @@ package com.opengamma.analytics.financial.timeseries.returns;
 import cern.colt.Arrays;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * 
- * <p>
  * A single-period time series return calculator.
- * 
  */
-
 public abstract class TimeSeriesReturnCalculator implements Function<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> {
   private final CalculationMode _mode;
 
@@ -49,17 +44,10 @@ public abstract class TimeSeriesReturnCalculator implements Function<LocalDateDo
   }
 
   protected LocalDateDoubleTimeSeries getSeries(final LocalDateDoubleTimeSeries x, final int[] filteredDates, final double[] filteredData, final int i) {
-    return new ArrayLocalDateDoubleTimeSeries(new FastArrayIntDoubleTimeSeries(x.getFastSeries().getEncoding(), Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i)));
+    return ImmutableLocalDateDoubleTimeSeries.of(Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i));
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((_mode == null) ? 0 : _mode.hashCode());
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -77,4 +65,13 @@ public abstract class TimeSeriesReturnCalculator implements Function<LocalDateDo
     }
     return true;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_mode == null) ? 0 : _mode.hashCode());
+    return result;
+  }
+
 }

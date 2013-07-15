@@ -7,13 +7,13 @@ package com.opengamma.core.config.impl;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.PassthroughChangeManager;
@@ -25,8 +25,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A source of positions that uses the scheme of the unique identifier to determine which
- * underlying source should handle the request.
+ * A source of positions that uses the scheme of the unique identifier to determine which underlying source should handle the request.
  * <p>
  * If no scheme-specific handler has been registered, a default is used.
  * <p>
@@ -38,8 +37,8 @@ public class DelegatingConfigSource
 
   /**
    * Creates an instance specifying the default delegate.
-   *
-   * @param defaultSource  the source to use when no scheme matches, not null
+   * 
+   * @param defaultSource the source to use when no scheme matches, not null
    */
   public DelegatingConfigSource(final ConfigSource defaultSource) {
     super(defaultSource);
@@ -47,9 +46,9 @@ public class DelegatingConfigSource
 
   /**
    * Creates an instance specifying the default delegate.
-   *
-   * @param defaultSource  the source to use when no scheme matches, not null
-   * @param schemePrefixToSourceMap  the map of sources by scheme to switch on, not null
+   * 
+   * @param defaultSource the source to use when no scheme matches, not null
+   * @param schemePrefixToSourceMap the map of sources by scheme to switch on, not null
    */
   public DelegatingConfigSource(final ConfigSource defaultSource, final Map<String, ConfigSource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
@@ -93,7 +92,7 @@ public class DelegatingConfigSource
         } else if (alloc) {
           results.addAll(configs);
         } else {
-          final Collection<ConfigItem<R>> newResults = new ArrayList<ConfigItem<R>>(results.size() + configs.size());
+          final Collection<ConfigItem<R>> newResults = Lists.newArrayListWithCapacity(results.size() + configs.size());
           newResults.addAll(results);
           newResults.addAll(configs);
           results = newResults;
@@ -115,7 +114,7 @@ public class DelegatingConfigSource
         results.addAll(configs);
         return results;
       } else {
-        final Collection<ConfigItem<R>> newResults = new ArrayList<ConfigItem<R>>(results.size() + configs.size());
+        final Collection<ConfigItem<R>> newResults = Lists.newArrayListWithCapacity(results.size() + configs.size());
         newResults.addAll(results);
         newResults.addAll(configs);
         return newResults;
@@ -184,12 +183,12 @@ public class DelegatingConfigSource
 
   @Override
   public Map<UniqueId, ConfigItem<?>> get(final Collection<UniqueId> uniqueIds) {
-    ArgumentChecker.notNull(uniqueIds, "uniqueIds");
-    final Map<UniqueId, ConfigItem<?>> map = new HashMap<UniqueId, ConfigItem<?>>();
-    for (final UniqueId uniqueId : uniqueIds) {
-      map.put(uniqueId, get(uniqueId));
-    }
-    return map;
+    return AbstractSource.get(this, uniqueIds);
+  }
+
+  @Override
+  public Map<ObjectId, ConfigItem<?>> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
+    return AbstractSource.get(this, objectIds, versionCorrection);
   }
 
 }

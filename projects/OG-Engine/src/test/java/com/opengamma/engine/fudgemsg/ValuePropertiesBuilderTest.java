@@ -9,11 +9,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the {@link ValuePropertiesFudgeBuilder} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ValuePropertiesBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmptyProperties() {

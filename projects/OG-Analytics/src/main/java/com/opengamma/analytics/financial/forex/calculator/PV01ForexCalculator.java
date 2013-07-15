@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * This calculator is Forex instrument-specific, and assumes that the list of sensitivities are in the currency appropriate for
  * the yield curve.
  */
-public final class PV01ForexCalculator extends AbstractInstrumentDerivativeVisitor<Map<String, List<DoublesPair>>, Map<String, Double>> {
+public final class PV01ForexCalculator extends InstrumentDerivativeVisitorAdapter<Map<String, List<DoublesPair>>, Map<String, Double>> {
   private static final PV01ForexCalculator INSTANCE = new PV01ForexCalculator();
   private static final double ONE_BASIS_POINT = 1.0E-4;
 

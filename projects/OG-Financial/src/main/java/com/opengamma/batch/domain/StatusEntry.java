@@ -10,7 +10,9 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-
+/**
+ * 
+ */
 public class StatusEntry {
   
   /**
@@ -18,16 +20,13 @@ public class StatusEntry {
    */
   public enum Status {
     /**
-     * The computation has succeeded completely
-     * - all risk for this computation target
-     * is in the database.
+     * The computation for this target has succeeded so far, or completely if the run has finished.
      */
     SUCCESS, 
     
     /**
-     * The computation has failed, wholly or partially
-     * - in either case, no risk for this computation
-     * target is in the database.
+     * The computation has failed, wholly or partially. Successfully-calculated results for this target are still
+     * present in the database.
      */
     FAILURE, 
     

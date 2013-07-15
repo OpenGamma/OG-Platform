@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.copier;
 
 import static org.mockito.Matchers.any;
@@ -9,7 +14,6 @@ import static org.testng.Assert.fail;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
 
@@ -39,7 +43,9 @@ import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class PortfolioCopierTest {
 
 // TODO Improve portfolio copier test coverage:
@@ -52,7 +58,7 @@ public class PortfolioCopierTest {
   private static final String SECURITY_TYPE = "Equity";
   
   @Test
-  public void testCsvToMastersToCsv() {
+  public void testCsvToMastersToCsv() throws Exception {
     
     PortfolioCopier portfolioCopier = new SimplePortfolioCopier();
 
@@ -77,7 +83,7 @@ public class PortfolioCopierTest {
     PortfolioReader portfolioReader = 
         new SingleSheetSimplePortfolioReader(PORTFOLIO_FILE, SECURITY_TYPE);
     PortfolioWriter portfolioWriter = new MasterPortfolioWriter(PORTFOLIO_NAME, portfolioMaster, positionMaster,
-        securityMaster, false, false, false);
+        securityMaster, false, false, false, false);
     portfolioCopier.copy(portfolioReader, portfolioWriter);
     portfolioReader.close();
     portfolioWriter.close();
@@ -93,47 +99,34 @@ public class PortfolioCopierTest {
     portfolioWriter.close();
 
     // Compare source and destination
-    CSVReader sourceReader;
-    CSVReader destReader;
-    try {
-      sourceReader = new CSVReader(new InputStreamReader(new FileInputStream(PORTFOLIO_FILE)));
-      destReader = new CSVReader(new InputStreamReader(new ByteArrayInputStream(outputStream.toByteArray())));
-    } catch (Throwable e) {
-      fail("Could not open files for comparing: " + e);
-      return;
+    try (CSVReader sourceReader = new CSVReader(new InputStreamReader(new FileInputStream(PORTFOLIO_FILE)))) {
+      try (CSVReader destReader = new CSVReader(new InputStreamReader(new ByteArrayInputStream(outputStream.toByteArray())))) {
+        int j = 1;
+        do {
+          String[] sourceRow;
+          String[] destRow;
+          try {
+            sourceRow = sourceReader.readNext();
+            destRow = destReader.readNext();
+          } catch (Throwable e) {
+            fail("Error reading the next rows: " + e);
+            return;
+          }
+          if (sourceRow == null && destRow == null) {
+            break;
+          }
+          assert(sourceRow != null && destRow != null);
+          assertEquals(sourceRow.length, destRow.length, 
+                  "Row lengths do not match (source has " + 
+                  sourceRow.length + " columns while destination has " + 
+                  destRow.length + " columns)");
+          for (int i = 0; i < sourceRow.length; i++) {
+            assertEquals(sourceRow[i], destRow[i], "Differing contents in line " + j + ", column " + i);
+          }
+          j++;
+        } while (true);
+      }
     }
-    int j = 1;
-    do {
-      String[] sourceRow;
-      String[] destRow;
-      try {
-        sourceRow = sourceReader.readNext();
-        destRow = destReader.readNext();
-      } catch (Throwable e) {
-        fail("Error reading the next rows: " + e);
-        return;
-      }
-      if (sourceRow == null && destRow == null) {
-        break;
-      }
-      assert(sourceRow != null && destRow != null);
-      assertEquals(sourceRow.length, destRow.length, 
-              "Row lengths do not match (source has " + 
-              sourceRow.length + " columns while destination has " + 
-              destRow.length + " columns)");
-      for (int i = 0; i < sourceRow.length; i++) {
-        assertEquals(sourceRow[i], destRow[i], "Differing contents in line " + j + ", column " + i);
-      }
-      j++;
-    } while (true);
-
-    try {
-      sourceReader.close();
-      destReader.close();
-    } catch (IOException ex) {
-      fail("Could not close files after comparing: " + ex);
-    }
-    
   }
   
 }

@@ -7,16 +7,17 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
-import javax.time.Duration;
 import javax.ws.rs.core.UriBuilder;
 
+import org.threeten.bp.Duration;
+
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
-import com.opengamma.engine.view.calc.ComputationCacheResponse;
-import com.opengamma.engine.view.calc.ComputationResultsResponse;
-import com.opengamma.engine.view.calc.ViewCycle;
-import com.opengamma.engine.view.calc.ViewCycleState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.engine.view.cycle.ComputationCacheResponse;
+import com.opengamma.engine.view.cycle.ComputationCycleQuery;
+import com.opengamma.engine.view.cycle.ComputationResultsResponse;
+import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.engine.view.cycle.ViewCycleState;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
@@ -28,12 +29,12 @@ public class RemoteViewCycle implements ViewCycle {
 
   private final URI _baseUri;
   private final FudgeRestClient _client;
-  
+
   public RemoteViewCycle(URI baseUri) {
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
   }
-  
+
   @Override
   public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_UNIQUE_ID).build();

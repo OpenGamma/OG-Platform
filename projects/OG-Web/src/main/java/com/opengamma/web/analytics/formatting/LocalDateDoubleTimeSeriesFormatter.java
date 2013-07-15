@@ -8,24 +8,27 @@ package com.opengamma.web.analytics.formatting;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  *
  */
 /* package */ class LocalDateDoubleTimeSeriesFormatter extends AbstractFormatter<LocalDateDoubleTimeSeries> {
 
+  /** The number of milliseconds per day. */
+  private static final long MILLIS_PER_DAY = 86400L * 1000;
+
   /* package */ LocalDateDoubleTimeSeriesFormatter() {
     super(LocalDateDoubleTimeSeries.class);
     addFormatter(new Formatter<LocalDateDoubleTimeSeries>(Format.EXPANDED) {
       @Override
-      Object format(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec) {
+      Object format(LocalDateDoubleTimeSeries value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
@@ -33,17 +36,18 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
   }
 
   @Override
-  public String formatCell(LocalDateDoubleTimeSeries timeSeries, ValueSpecification valueSpec) {
-    return "Time-series (" + timeSeries.getEarliestTime().toLocalDate() + " to " + timeSeries.getLatestTime().toLocalDate() + ")";
+  public String formatCell(LocalDateDoubleTimeSeries timeSeries, ValueSpecification valueSpec, Object inlineKey) {
+    String text = "Time-series ";
+    text += timeSeries.isEmpty() ? "(empty)" : "(" + timeSeries.getEarliestTime() + " to " + timeSeries.getLatestTime() + ")";
+    return text;
   }
 
-  private Map<String, Object> formatExpanded(LocalDateDoubleTimeSeries value) {
-    ZonedDateTimeDoubleTimeSeries series = value.toZonedDateTimeDoubleTimeSeries();
-    List<Object[]> data = Lists.newArrayListWithCapacity(series.size());
-    for (Map.Entry<ZonedDateTime, Double> entry : series) {
-      long timeMillis = entry.getKey().toInstant().toEpochMillisLong();
-      Double vol = entry.getValue();
-      data.add(new Object[]{timeMillis, vol});
+  public Map<String, Object> formatExpanded(LocalDateDoubleTimeSeries value) {
+    List<Object[]> data = Lists.newArrayListWithCapacity(value.size());
+    for (LocalDateDoubleEntryIterator it = value.iterator(); it.hasNext(); ) {
+      LocalDate date = it.nextTime();
+      long epochMillis = date.toEpochDay() * MILLIS_PER_DAY;
+      data.add(new Object[]{epochMillis, it.currentValue()});
     }
     Map<String, String> templateData = ImmutableMap.of("data_field", "Historical Time Series",
                                                        "observation_time", "Historical Time Series");

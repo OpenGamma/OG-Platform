@@ -12,7 +12,7 @@ import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
+import com.opengamma.analytics.financial.curve.interestrate.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 public class ParSpreadRateParameterSensitivityTest extends ParameterSensitivityCalculatorTest {

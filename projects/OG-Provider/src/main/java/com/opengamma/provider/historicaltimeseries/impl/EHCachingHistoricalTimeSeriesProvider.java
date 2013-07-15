@@ -21,11 +21,11 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * A cache decorating a time-series provider.
@@ -44,7 +44,7 @@ public class EHCachingHistoricalTimeSeriesProvider extends AbstractHistoricalTim
   /**
    * The object representing a cache miss.
    */
-  private static final LocalDateDoubleTimeSeries NO_HTS = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries NO_HTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
 
   /**
    * The underlying provider.
@@ -153,7 +153,7 @@ public class EHCachingHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     Element cacheElement = _cache.get(requestKey);
     if (cacheElement != null) {
       s_logger.debug("Found time-series in cache: {}", requestKey);
-      return (LocalDateDoubleTimeSeries) cacheElement.getValue();
+      return (LocalDateDoubleTimeSeries) cacheElement.getObjectValue();
     }
     
     // find whole time-series in cache
@@ -161,10 +161,10 @@ public class EHCachingHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       HistoricalTimeSeriesProviderGetRequest wholeHtsKey = createCacheKey(requestKey, null, true);
       cacheElement = _cache.get(wholeHtsKey);
       if (cacheElement != null) {
-        if (cacheElement.getValue() == NO_HTS) {
+        if (cacheElement.getObjectValue() == NO_HTS) {
           return NO_HTS;
         }
-        LocalDateDoubleTimeSeries wholeHts = (LocalDateDoubleTimeSeries) cacheElement.getValue();
+        LocalDateDoubleTimeSeries wholeHts = (LocalDateDoubleTimeSeries) cacheElement.getObjectValue();
         LocalDateDoubleTimeSeries filteredHts = filterResult(wholeHts, requestKey.getDateRange(), requestKey.getMaxPoints());
         _cache.put(new Element(requestKey, filteredHts));  // re-cache under filtered values
         s_logger.debug("Derived time-series from cache: {}", requestKey);

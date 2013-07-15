@@ -23,6 +23,7 @@ import com.opengamma.bbg.util.ReferenceDataProviderUtils;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.security.AbstractSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
@@ -37,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A security source based on the Bloomberg data source.
  */
-public final class BloombergSecuritySource implements SecuritySource {
+public final class BloombergSecuritySource extends AbstractSecuritySource implements SecuritySource {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecuritySource.class);
@@ -58,7 +59,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   /**
    * Creates a unique identifier.
    * 
-   * @param value  the value, not null
+   * @param value the value, not null
    * @return a Bloomberg unique identifier, not null
    */
   public static UniqueId createUniqueId(String value) {
@@ -67,8 +68,9 @@ public final class BloombergSecuritySource implements SecuritySource {
 
   /**
    * Creates the security master.
-   * @param refDataProvider  the reference data provider, not null
-   * @param exchangeDataProvider  the data provider, not null
+   * 
+   * @param refDataProvider the reference data provider, not null
+   * @param exchangeDataProvider the data provider, not null
    */
   public BloombergSecuritySource(ReferenceDataProvider refDataProvider, ExchangeDataProvider exchangeDataProvider) {
     ArgumentChecker.notNull(refDataProvider, "Reference Data Provider");
@@ -113,7 +115,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   public ManageableSecurity getSingle(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Validate.isTrue(bundle.size() > 0, "Cannot load security for empty identifiers");
-    
+
     Map<ExternalIdBundle, ManageableSecurity> securities = _bloombergBulkSecurityLoader.loadSecurity(Collections.singleton(bundle));
     if (securities.size() == 1) {
       return securities.get(bundle);
@@ -138,13 +140,13 @@ public final class BloombergSecuritySource implements SecuritySource {
   /**
    * Gets the security type by id.
    * 
-   * @param securityID  the security id, null returns null
+   * @param securityID the security id, null returns null
    * @return the security type, null if not found
    */
-  /* package for testing */ String getSecurityType(final String securityID) {
+  /* package for testing */String getSecurityType(final String securityID) {
     return ReferenceDataProviderUtils.singleFieldSearch(securityID, FIELD_SECURITY_TYPE, _refDataProvider);
   }
-  
+
   private Security getSecurity(String bbgIdValue) {
     ExternalId bbgId = ExternalSchemes.bloombergBuidSecurityId(bbgIdValue);
     ExternalIdBundle bundle = ExternalIdBundle.of(bbgId);

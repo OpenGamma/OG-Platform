@@ -6,7 +6,7 @@
 package com.opengamma.master;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.util.functional.Functional.functional;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;

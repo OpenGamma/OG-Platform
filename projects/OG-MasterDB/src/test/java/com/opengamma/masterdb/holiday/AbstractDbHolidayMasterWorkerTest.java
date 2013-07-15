@@ -13,32 +13,28 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbHolidayMasterWorker via DbHolidayMaster.
  */
-public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public abstract class AbstractDbHolidayMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbHolidayMasterWorkerTest.class);
 
@@ -46,32 +42,31 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalHolidays;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbHolidayMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _holMaster = null;
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _holMaster = (DbHolidayMaster) context.getBean(getDatabaseType() + "DbHolidayMaster");
+  @Override
+  protected void doTearDownClass() {
+    _holMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
+  private void init() {
+    _holMaster = new DbHolidayMaster(getDbConnector());
     
 //    id bigint not null,
 //    oid bigint not null,
@@ -87,12 +82,12 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
 //    exchange_value varchar(255),
 //    currency_iso varchar(255),
     Instant now = Instant.now();
-    _holMaster.setTimeSource(TimeSource.fixed(now));
+    _holMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _holMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _holMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestHoliday101", "COPP_CLARK", "1", "CURRENCY", null, null, null, null, "GBP");
@@ -118,27 +113,6 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
         201, toSqlDate(LocalDate.of(2010, 2, 1)));
     template.update("INSERT INTO hol_date VALUES (?,?)",
         202, toSqlDate(LocalDate.of(2010, 2, 1)));
-  }
-
-  @AfterMethod
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _holMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _holMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

@@ -173,3 +173,7 @@
       display: block;
     }
 
+    .ui-datepicker-title {
+        position: inherit;
+    }
+

@@ -9,22 +9,23 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExchangeMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -52,7 +53,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
 
   @Test
   public void test_add() {
-    Instant now = Instant.now(_exgMaster.getTimeSource());
+    Instant now = Instant.now(_exgMaster.getClock());
     
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
@@ -85,6 +86,22 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     
     ExchangeDocument test = _exgMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingNameProperty() {
+    ManageableExchange exchange = new ManageableExchange();
+    ExchangeDocument doc = new ExchangeDocument(exchange);
+    _exgMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageableExchange exchange = new ManageableExchange();
+    exchange.setName("Test");
+    ExchangeDocument doc = new ExchangeDocument(exchange);
+    _exgMaster.add(doc);
   }
 
 }

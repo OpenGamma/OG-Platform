@@ -1,0 +1,82 @@
+{{id}} {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+{{id}} .OG-g-b-scroll {width: {{viewport_width}}px; left: {{scroll_left}}px; height: {{height}}px;}
+{{id}} .OG-g-h-scroll {width: {{viewport_width}}px; height: {{header_height}}px; left: {{scroll_left}}px}
+{{id}} .OG-g-b-scroll .OG-g-rows {width: {{scroll_width}}px; height: {{scroll_height}}px}
+{{id}} .OG-g-b-fixed .OG-g-rows {height: {{fixed_height}}px}
+{{#if scroll_bg}}
+    {{id}} .OG-g-cell {border: 0px;}
+    {{id}} .OG-g-b-scroll .OG-g-rows {background: url({{scroll_bg}}); background-repeat: repeat-y;}
+    {{id}} .OG-g-b-fixed .OG-g-rows {background: url({{fixed_bg}}); background-repeat: repeat-y;}
+{{/if}}
+{{id}} .OG-g-b-scroll .OG-g-row {width: {{scroll_width}}px}
+{{id}} .OG-g-b-fixed {width: {{fixed_width}}px; height: {{height}}px; overflow-y: scroll;}
+{{id}} .OG-g-h-fixed {width: {{fixed_width}}px}
+{{id}} .OG-g-b {top: {{header_height}}px;}
+{{id}} .OG-g-h-cols {top: {{set_height}}px}
+{{id}} .OG-g-row, .OG-g-cell {height: {{row_height}}px; line-height: {{row_height}}px;}
+{{id}} .OG-g-cell.og-cell-cellhighlight {height: {{row_height_min_one}}px;}
+{{id}} .OG-g-rest {
+    position: absolute;
+    background: #fff;
+    top: {{rest_top}}px;
+    bottom: 0;
+    opacity: 0.55;
+    filter: alpha(opacity=55);
+}
+{{id}} .OG-g-b-fixed .OG-g-rest {width: {{fixed_width}}px;}
+{{id}} .OG-g-b-scroll .OG-g-rest {width: {{scroll_width}}px;}
+{{#each sets}}
+    {{prefix}} .OG-g .s{{index}} {left: {{left}}px; right: {{right}}px;}
+{{/each}}
+{{#each columns}}
+    {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
+    {{prefix}} .OG-g .c{{index}}.OG-g-cell.og-cell-cellhighlight {left: {{left_min_one}}px;}
+{{/each}}
+{{id}} .OG-g .OG-g-b-scroll .OG-g-rows .OG-g-row .OG-g-cell.og-cell-cellhighlight,
+{{id}} .OG-g .OG-g-b-fixed .OG-g-rows .OG-g-row .OG-g-cell.og-cell-cellhighlight {border: 1px solid #000;}
+{{id}} .OG-g .OG-g-b-scroll .OG-g-rows .OG-g-row .OG-g-cell.og-cell-cellhighlight:first-child {left: 0;}
+{{id}} .OG-g .OG-g-b-scroll .OG-g-rows .OG-g-row .OG-g-cell.og-cell-cellhighlightinplace,
+{{id}} .OG-g .OG-g-b-fixed .OG-g-rows .OG-g-row .OG-g-cell.og-cell-cellhighlightinplace {background-color: #eee;}
+{{id}} .OG-g .node {width: 8px; height: 8px; display: inline-block;}
+{{id}} .OG-g .node.collapse:before {
+    background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll 0 -25px transparent;
+    content: "";
+    cursor: pointer;
+    height: 9px;
+    position: absolute;
+    top: 6px;
+    width: 9px;
+}
+{{id}} .OG-g .node.expand:before {
+    background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll -30px -25px transparent;
+    content: "";
+    cursor: pointer;
+    height: 9px;
+    position: absolute;
+    top: 6px;
+    width: 9px;
+}
+{{id}} .OG-g .node.loading:before {
+    background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll -40px -25px transparent;
+    content: "";
+    cursor: pointer;
+    height: 9px;
+    position: absolute;
+    top: 6px;
+    width: 9px;
+}
+/* type formatting */
+{{id}} .OG-g-b-scroll .OG-g-DOUBLE {
+    text-align: right;
+    padding-right: {{#if sparklines}}65{{else}}18{{/if}}px;
+}
+.OG-g-b-fixed .OG-g-DOUBLE {
+    text-align: right;
+    padding-right: 4px;
+}

@@ -5,11 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -22,7 +20,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapFixedIbor extends GeneratorInstrument {
+public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The fixed leg period of payments.
@@ -48,32 +46,48 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
    * The index spot lag in days between trade and settlement date (usually 2 or 0).
    */
   private final int _spotLag;
-
-  // REVIEW: Do we need stubShort and stubFirst flags?
+  /**
+   * The holiday calendar associated with the floating ibor index.
+   */
+  private final Calendar _calendar;
+  /**
+   * In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+   */
+  private final boolean _stubShort;
+  /**
+   * The dates in the schedule can be computed from the end date (true) or from the start date (false).
+   */
+  private final boolean _fromEnd;
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
+   * The default for stubShort is true and for fromEnd is false.
    * @param name The generator name. Not null.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param iborIndex The Ibor index of the floating leg.
+   * @param calendar The holiday calendar for the ibor leg.
    */
-  public GeneratorSwapFixedIbor(String name, Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex) {
+  public GeneratorSwapFixedIbor(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IborIndex iborIndex, final Calendar calendar) {
     super(name);
-    Validate.notNull(fixedLegPeriod, "fixed leg period");
-    Validate.notNull(fixedLegDayCount, "fixed leg day count");
-    Validate.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(fixedLegPeriod, "fixed leg period");
+    ArgumentChecker.notNull(fixedLegDayCount, "fixed leg day count");
+    ArgumentChecker.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(calendar, "calendar");
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _iborIndex = iborIndex;
-    //    _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
     _businessDayConvention = iborIndex.getBusinessDayConvention();
     _endOfMonth = iborIndex.isEndOfMonth();
     _spotLag = iborIndex.getSpotLag();
+    _calendar = calendar;
+    _stubShort = true;
+    _fromEnd = false;
   }
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
+   * The default for stubShort is true and for fromEnd is false.
    * @param name The generator name. Not null.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
@@ -81,19 +95,24 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
+   * @param calendar The holiday calendar for the ibor leg.
    */
-  public GeneratorSwapFixedIbor(String name, Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
-      final int spotLag) {
+  public GeneratorSwapFixedIbor(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IborIndex iborIndex,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag, final Calendar calendar) {
     super(name);
-    Validate.notNull(fixedLegPeriod, "fixed leg period");
-    Validate.notNull(fixedLegDayCount, "fixed leg day count");
-    Validate.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(fixedLegPeriod, "fixed leg period");
+    ArgumentChecker.notNull(fixedLegDayCount, "fixed leg day count");
+    ArgumentChecker.notNull(iborIndex, "ibor index");
+    ArgumentChecker.notNull(calendar, "calendar");
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _iborIndex = iborIndex;
     _businessDayConvention = businessDayConvention;
     _endOfMonth = endOfMonth;
     _spotLag = spotLag;
+    _calendar = calendar;
+    _stubShort = true;
+    _fromEnd = false;
   }
 
   /**
@@ -133,7 +152,7 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
    * @return The calendar.
    */
   public Calendar getCalendar() {
-    return _iborIndex.getCalendar();
+    return _calendar;
   }
 
   /**
@@ -160,25 +179,32 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
     return _endOfMonth;
   }
 
-  @Override
   /**
-   * The effective date is date+_spotLag. The maturity date is effective date+tenor.
+   * Returns the stubShort flag.
+   * @return The flag
    */
-  public SwapFixedIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double fixedRate, double notional, Object... objects) {
-    ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
-    return SwapFixedIborDefinition.from(startDate, tenor, this, notional, fixedRate, true);
+  public boolean isStubShort() {
+    return _stubShort;
+  }
+
+  /**
+   * Returns the fromEnd flag.
+   * @return The flag
+   */
+  public boolean isFromEnd() {
+    return _fromEnd;
   }
 
   @Override
   /**
    * The effective date is spot+startTenor. The maturity date is effective date + endTenor
    */
-  public SwapFixedIborDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double fixedRate, double notional, Object... objects) {
+  public SwapFixedIborDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _iborIndex.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _iborIndex);
-    return SwapFixedIborDefinition.from(startDate, endTenor, this, notional, fixedRate, true);
+    ArgumentChecker.notNull(attribute, "Attributes");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _iborIndex, _calendar);
+    return SwapFixedIborDefinition.from(startDate, attribute.getEndPeriod(), this, notional, rate, true);
   }
 
   @Override
@@ -197,11 +223,12 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
     result = prime * result + _iborIndex.hashCode();
     result = prime * result + getName().hashCode();
     result = prime * result + _spotLag;
+    result = prime * result + _calendar.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -211,7 +238,7 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapFixedIbor other = (GeneratorSwapFixedIbor) obj;
+    final GeneratorSwapFixedIbor other = (GeneratorSwapFixedIbor) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }
@@ -228,6 +255,9 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument {
       return false;
     }
     if (_spotLag != other._spotLag) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

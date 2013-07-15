@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -41,7 +40,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   // General
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -57,10 +56,10 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR, CALENDAR);
   private static final double RATE = 0.0400;
-  private static final SwapFixedIborDefinition TOTAL_SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
+  private static final SwapFixedIborDefinition TOTAL_SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
   // Semi-annual expiry
   private static final boolean IS_LONG = true;
   private static final int NB_EXPIRY = TOTAL_SWAP_DEFINITION.getFixedLeg().getNumberOfPayments();
@@ -92,13 +91,13 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
    * Test the present value against European swaptions.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, BUNDLE_HW);
-    double pvPrevious = 3596267.552; // Hard-coded - previous run
+    final CurrencyAmount pv = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, BUNDLE_HW);
+    final double pvPrevious = 3596267.552; // Hard-coded - previous run
     assertEquals("Bermuda swaption vs European", pvPrevious, pv.getAmount(), TOLERANCE_PRICE);
-    // European swaptions 
-    SwaptionPhysicalFixedIborDefinition[] swaptionEuropeanDefinition = new SwaptionPhysicalFixedIborDefinition[NB_EXPIRY];
-    SwaptionPhysicalFixedIbor[] swaptionEuropean = new SwaptionPhysicalFixedIbor[NB_EXPIRY];
-    CurrencyAmount[] pvEuropean = new CurrencyAmount[NB_EXPIRY];
+    // European swaptions
+    final SwaptionPhysicalFixedIborDefinition[] swaptionEuropeanDefinition = new SwaptionPhysicalFixedIborDefinition[NB_EXPIRY];
+    final SwaptionPhysicalFixedIbor[] swaptionEuropean = new SwaptionPhysicalFixedIbor[NB_EXPIRY];
+    final CurrencyAmount[] pvEuropean = new CurrencyAmount[NB_EXPIRY];
     for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
       swaptionEuropeanDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], EXPIRY_SWAP_DEFINITION[loopexp], IS_LONG);
       swaptionEuropean[loopexp] = swaptionEuropeanDefinition[loopexp].toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -114,10 +113,10 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
    * Test the present value long/short parity.
    */
   public void longShortParity() {
-    CurrencyAmount pvLong = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, BUNDLE_HW);
+    final CurrencyAmount pvLong = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, BUNDLE_HW);
     final SwaptionBermudaFixedIborDefinition bermudaShortDefinition = new SwaptionBermudaFixedIborDefinition(EXPIRY_SWAP_DEFINITION, !IS_LONG, EXPIRY_DATE);
     final SwaptionBermudaFixedIbor bermudShort = bermudaShortDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    CurrencyAmount pvShort = METHOD_BERMUDA.presentValue(bermudShort, BUNDLE_HW);
+    final CurrencyAmount pvShort = METHOD_BERMUDA.presentValue(bermudShort, BUNDLE_HW);
     assertEquals("Bermuda swaption pv: short/long parity", pvLong.getAmount(), -pvShort.getAmount(), 1.0E-2);
   }
 
@@ -134,7 +133,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     final SwaptionBermudaFixedIborDefinition[] swaptionBermudaDefinition = new SwaptionBermudaFixedIborDefinition[nbTest];
     final SwaptionBermudaFixedIbor[] swaptionBermuda = new SwaptionBermudaFixedIbor[nbTest];
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      swapDefinition[looptest] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE + looptest * 0.0010 / nbTest, FIXED_IS_PAYER);
+      swapDefinition[looptest] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE + looptest * 0.0010 / nbTest, FIXED_IS_PAYER, CALENDAR);
       for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
         swapExpiryDefinition[looptest][loopexp] = swapDefinition[looptest].trimStart(EXPIRY_DATE[loopexp]);
       }
@@ -142,7 +141,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
       swaptionBermuda[looptest] = swaptionBermudaDefinition[looptest].toDerivative(REFERENCE_DATE, CURVES_NAME);
     }
     // Loop for pricing
-    CurrencyAmount[] pv = new CurrencyAmount[nbTest];
+    final CurrencyAmount[] pv = new CurrencyAmount[nbTest];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pv[looptest] = METHOD_BERMUDA.presentValue(swaptionBermuda[looptest], BUNDLE_HW);

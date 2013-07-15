@@ -11,11 +11,12 @@ import static org.testng.AssertJUnit.assertSame;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link SimplePortfolio}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SimplePortfolioTest {
 
   public void test_construction_String() {

@@ -1,0 +1,31 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.calcnode {
+
+  extern message CalculationJobResult;
+  
+  namespace msg {
+  
+    message Result extends RemoteCalcNodeMessage {
+      required CalculationJobResult result;
+      
+      /**
+       * If a node's capabilities have changed or it wants to explicitly set its capacity for additional
+       * jobs, it can attach a ready message to the result. This may be more efficient than sending an
+       * arbitrary ready message.
+       */
+      optional Ready ready;
+    
+      binding Java {
+        body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitResultMessage (this); }";
+      }
+    
+    }
+    
+  }
+  
+}

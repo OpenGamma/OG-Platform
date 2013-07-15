@@ -6,9 +6,9 @@ $.register_module({
     name: 'og.common.gadgets.ExpandedPositions',
     dependencies: [],
     obj: function () {
-        var prefix = 'og_expanded_positions_gadget_', counter = 1, loading_template;
+        var loading_template;
         return function (config) {
-            var gadget = this, alive = prefix + counter++;
+            var gadget = this, alive = og.common.id('gadget_expanded_positions');
             gadget.alive = function () {return $('.' + alive).length ? true : false;};
             gadget.resize = function () {gadget.load();};
             gadget.load = function () {
@@ -17,12 +17,14 @@ $.register_module({
                 $(config.selector).addClass(alive).html(loading_template({text: 'loading...'}));
                 $.when(og.api.text({module: 'og.views.gadgets.expanded_positions'})).pipe(function (template) {
                     $(config.selector).html(template);
-                    og.common.gadgets.positions($.extend({}, config, {selector: selector_position}));
-                    og.common.gadgets.trades($.extend({}, config, {selector: selector_trades}));
+                    og.common.gadgets
+                        .positions($.extend({id: config.value.positionId}, config, {selector: selector_position}));
+                    og.common.gadgets
+                        .trades($.extend({id: config.value.positionId}, config, {selector: selector_trades}));
                 });
             };
             if (!config.child) og.common.gadgets.manager.register(gadget);
-            if (loading_template) gadget.load(); else og.api.text({module: 'og.analytics.loading_tash'})
+            if (loading_template) gadget.load(); else og.api.text({module: 'og.views.gadgets.loading_tash'})
                 .pipe(function (template) {loading_template = Handlebars.compile(template); gadget.load();});
         }
     }

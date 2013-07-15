@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;

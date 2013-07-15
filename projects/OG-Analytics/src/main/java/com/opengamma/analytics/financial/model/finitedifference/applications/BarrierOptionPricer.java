@@ -40,7 +40,6 @@ public class BarrierOptionPricer {
   private static final double DEFAULT_LAMBDA = 0.0;
   private static final double DEFAULT_BUNCHING = 1.0;
   private static final double DEFAULT_Z = 2.0;
-  private static final double ZETA = 0.58259716;
 
   private final int _nTNodes;
   private final int _nXNodes;
@@ -85,27 +84,24 @@ public class BarrierOptionPricer {
     if (isDown && spot <= barrier.getBarrierLevel() || !isDown && spot >= barrier.getBarrierLevel()) {
       if (isKnockIn) {
         return blackPrice(spot, option.getStrike(), option.getTimeToExpiry(), rate, costOfCarry, sigma, option.isCall());
-      } else {
-        return rebate;
       }
-    } else {
-      if (isKnockIn) {
-        return inBarrier(spot, barrier.getBarrierLevel(), option.getStrike(), option.getTimeToExpiry(), rate, costOfCarry, sigma, option.isCall(), rebate);
-      } else {
-        return outBarrier(spot, barrier.getBarrierLevel(), option.getStrike(), option.getTimeToExpiry(), rate, costOfCarry, sigma, option.isCall(), rebate);
-      }
+      return rebate;
     }
+    if (isKnockIn) {
+      return inBarrier(spot, barrier.getBarrierLevel(), option.getStrike(), option.getTimeToExpiry(), rate, costOfCarry, sigma, option.isCall(), rebate);
+    }
+    return outBarrier(spot, barrier.getBarrierLevel(), option.getStrike(), option.getTimeToExpiry(), rate, costOfCarry, sigma, option.isCall(), rebate);
   }
 
   /**
    * Computes the price of a one-touch out barrier option in the Black-Scholes world by solving the BS PDE on a finite difference grid. If a barrier is hit at any time before expiry,
    * the option is cancelled (knocked-out) and a rebate (which is often zero) is paid <b>immediately</b>. If the barrier is not hit, then a normal European option payment is made. <p>
    * If the barrier is above the spot it is assumed to be an up-and-out barrier (otherwise it would expire immediately) otherwise it is a down-and-out barrier
-   * As there are exact formulae for this case (see {@link BlackBarrierPriceFunction}), this is purely for testing purposes. 
-   * @param spot The current (i.e. option price time) of the underlying 
-   * @param barrierLevel The barrier level 
+   * As there are exact formulae for this case (see {@link BlackBarrierPriceFunction}), this is purely for testing purposes.
+   * @param spot The current (i.e. option price time) of the underlying
+   * @param barrierLevel The barrier level
    * @param strike The strike of the European option
-   * @param expiry The expiry of the option 
+   * @param expiry The expiry of the option
    * @param rate The interest rate.
    * @param carry The cost-of-carry (i.e. the forward = spot*exp(costOfCarry*T) )
    * @param vol The Black volatility.
@@ -121,7 +117,6 @@ public class BarrierOptionPricer {
     final boolean isUp = barrierLevel > spot;
 
     final double adj = 0.0; // _lambda == 0 ? ZETA * vol * Math.sqrt(expiry / (_nTNodes - 1)) : 0.0;
-    //System.out.println("adjustment: " + adj);
 
     double sMin;
     double sMax;
@@ -129,13 +124,13 @@ public class BarrierOptionPricer {
     BoundaryCondition upper;
     if (isUp) {
       sMin = 0.0;
-      sMax = barrierLevel * Math.exp(-adj); //bring the barrier DOWN slightly to adjust for discrete monitoring 
+      sMax = barrierLevel * Math.exp(-adj); //bring the barrier DOWN slightly to adjust for discrete monitoring
       if (isCall) {
         lower = new DirichletBoundaryCondition(0.0, sMin);
       } else {
-        Function1D<Double, Double> lowerValue = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> lowerValue = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double tau) {
+          public Double evaluate(final Double tau) {
             return Math.exp(-rate * tau) * strike;
           }
         };
@@ -143,14 +138,14 @@ public class BarrierOptionPricer {
       }
       upper = new DirichletBoundaryCondition(rebate, sMax);
     } else {
-      sMin = barrierLevel * Math.exp(adj); //bring the barrier UP slightly to adjust for discrete monitoring 
+      sMin = barrierLevel * Math.exp(adj); //bring the barrier UP slightly to adjust for discrete monitoring
       sMax = spot * Math.exp(_z * Math.sqrt(expiry));
       lower = new DirichletBoundaryCondition(rebate, sMin);
 
       if (isCall) {
-        Function1D<Double, Double> upperValue = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> upperValue = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double tau) {
+          public Double evaluate(final Double tau) {
             return Math.exp(-rate * tau) * (spot * Math.exp(carry * tau) - strike);
           }
         };
@@ -163,11 +158,12 @@ public class BarrierOptionPricer {
     final MeshingFunction tMesh = new ExponentialMeshing(0, expiry, _nTNodes, _lambda);
     final MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, spot, _nXNodes, _bunching);
     final PDEGrid1D grid = new PDEGrid1D(tMesh, xMesh);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
 
-    PDEResults1D res = SOLVER.solve(pdeData);
-    //for now just do linear interpolation on price. TODO replace this with something more robust 
+    final PDEResults1D res = SOLVER.solve(pdeData);
+    //for now just do linear interpolation on price. TODO replace this with something more robust
     final double[] xNodes = grid.getSpaceNodes();
+
     final int index = SurfaceArrayUtils.getLowerBoundIndex(xNodes, spot);
     final double w = (xNodes[index + 1] - spot) / (xNodes[index + 1] - xNodes[index]);
     return w * res.getFunctionValue(index) + (1 - w) * res.getFunctionValue(index + 1);
@@ -177,11 +173,11 @@ public class BarrierOptionPricer {
    * Computes the price of a one-touch in barrier option in the Black-Scholes world by solving the BS PDE on a finite difference grid. If a barrier is hit at any time before expiry,
    * the option becomes a simple European (call or put). If the barrier is not hit a rebate is paid at the option expiry<p>
    * If the barrier is above the spot it is assumed to be an up-and-in barrier  otherwise it is a down-and-in barrier
-   * As there are exact formulae for this case (see {@link BlackBarrierPriceFunction}), this is purely for testing purposes. 
-   * @param spot The current (i.e. option price time) of the underlying 
-   * @param barrierLevel The barrier level 
+   * As there are exact formulae for this case (see {@link BlackBarrierPriceFunction}), this is purely for testing purposes.
+   * @param spot The current (i.e. option price time) of the underlying
+   * @param barrierLevel The barrier level
    * @param strike The strike of the European option
-   * @param expiry The expiry of the option 
+   * @param expiry The expiry of the option
    * @param rate The interest rate.
    * @param carry The cost-of-carry (i.e. the forward = spot*exp(costOfCarry*T) )
    * @param vol The Black volatility.
@@ -199,10 +195,10 @@ public class BarrierOptionPricer {
   /**
    * Computes the price of a one-touch out barrier option in the Black-Scholes world assuming the rebate is paid at the option expiry. This is NOT the case for a out barrier,
    * but is for an in, and as we must price an in barrier and a European option plus a bond (the rebate) minus an out, we need this special case.
-   * @param spot The current (i.e. option price time) of the underlying 
-   * @param barrierLevel The barrier level 
+   * @param spot The current (i.e. option price time) of the underlying
+   * @param barrierLevel The barrier level
    * @param strike The strike of the European option
-   * @param expiry The expiry of the option 
+   * @param expiry The expiry of the option
    * @param rate The interest rate.
    * @param carry The cost-of-carry (i.e. the forward = spot*exp(costOfCarry*T) )
    * @param vol The Black volatility.
@@ -219,7 +215,7 @@ public class BarrierOptionPricer {
 
     final Function1D<Double, Double> rebateValue = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double tau) {
+      public Double evaluate(final Double tau) {
         return rebate * Math.exp(-rate * tau);
       }
     };
@@ -234,9 +230,9 @@ public class BarrierOptionPricer {
       if (isCall) {
         lower = new DirichletBoundaryCondition(0.0, sMin);
       } else {
-        Function1D<Double, Double> lowerValue = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> lowerValue = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double tau) {
+          public Double evaluate(final Double tau) {
             return Math.exp(-rate * tau) * strike;
           }
         };
@@ -248,9 +244,9 @@ public class BarrierOptionPricer {
       sMax = spot * Math.exp(_z * Math.sqrt(expiry));
       lower = new DirichletBoundaryCondition(rebateValue, sMin);
       if (isCall) {
-        Function1D<Double, Double> upperValue = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> upperValue = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double tau) {
+          public Double evaluate(final Double tau) {
             return Math.exp(-rate * tau) * (spot * Math.exp(carry * tau) - strike);
           }
         };
@@ -263,10 +259,10 @@ public class BarrierOptionPricer {
     final MeshingFunction tMesh = new ExponentialMeshing(0, expiry, _nTNodes, _lambda);
     final MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, spot, _nXNodes, _bunching);
     final PDEGrid1D grid = new PDEGrid1D(tMesh, xMesh);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
 
-    PDEResults1D res = SOLVER.solve(pdeData);
-    //for now just do linear interpolation on price. TODO replace this with something more robust 
+    final PDEResults1D res = SOLVER.solve(pdeData);
+    //for now just do linear interpolation on price. TODO replace this with something more robust
     final double[] xNodes = grid.getSpaceNodes();
     final int index = SurfaceArrayUtils.getLowerBoundIndex(xNodes, spot);
     final double w = (xNodes[index + 1] - spot) / (xNodes[index + 1] - xNodes[index]);
@@ -279,23 +275,23 @@ public class BarrierOptionPricer {
     final Function1D<Double, Double> intCon = ICP.getEuropeanPayoff(strike, isCall);
     final ConvectionDiffusionPDE1DStandardCoefficients pde = PDE.getBlackScholes(rate, rate - carry, vol);
 
-    double sMin = 0.0;
-    double sMax = spot * Math.exp(_z * Math.sqrt(expiry));
+    final double sMin = 0.0;
+    final double sMax = spot * Math.exp(_z * Math.sqrt(expiry));
     BoundaryCondition lower;
     BoundaryCondition upper;
     if (isCall) {
       lower = new DirichletBoundaryCondition(0.0, sMin);
-      Function1D<Double, Double> upperValue = new Function1D<Double, Double>() {
+      final Function1D<Double, Double> upperValue = new Function1D<Double, Double>() {
         @Override
-        public Double evaluate(Double tau) {
+        public Double evaluate(final Double tau) {
           return Math.exp(-rate * tau) * (spot * Math.exp(carry * tau) - strike);
         }
       };
       upper = new DirichletBoundaryCondition(upperValue, sMax);
     } else {
-      Function1D<Double, Double> lowerValue = new Function1D<Double, Double>() {
+      final Function1D<Double, Double> lowerValue = new Function1D<Double, Double>() {
         @Override
-        public Double evaluate(Double tau) {
+        public Double evaluate(final Double tau) {
           return Math.exp(-rate * tau) * strike;
         }
       };
@@ -306,10 +302,10 @@ public class BarrierOptionPricer {
     final MeshingFunction tMesh = new ExponentialMeshing(0, expiry, _nTNodes, _lambda);
     final MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, spot, _nXNodes, _bunching);
     final PDEGrid1D grid = new PDEGrid1D(tMesh, xMesh);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
 
-    PDEResults1D res = SOLVER.solve(pdeData);
-    //for now just do linear interpolation on price. TODO replace this with something more robust 
+    final PDEResults1D res = SOLVER.solve(pdeData);
+    //for now just do linear interpolation on price. TODO replace this with something more robust
     final double[] xNodes = grid.getSpaceNodes();
     final int index = SurfaceArrayUtils.getLowerBoundIndex(xNodes, spot);
     final double w = (xNodes[index + 1] - spot) / (xNodes[index + 1] - xNodes[index]);

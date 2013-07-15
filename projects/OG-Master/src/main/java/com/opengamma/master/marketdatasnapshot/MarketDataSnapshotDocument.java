@@ -238,7 +238,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "snapshot",
         "uniqueId");
 

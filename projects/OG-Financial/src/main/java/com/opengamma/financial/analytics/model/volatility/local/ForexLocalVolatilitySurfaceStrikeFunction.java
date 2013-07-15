@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
@@ -16,8 +15,8 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public abstract class ForexLocalVolatilitySurfaceStrikeFunction extends LocalVolatilitySurfaceStrikeFunction {
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
   }
 
   @Override

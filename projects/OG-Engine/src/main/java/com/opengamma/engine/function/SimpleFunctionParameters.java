@@ -16,12 +16,12 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
- * An implementation of {@link FunctionParameters} that is a trivial map of strings to values.
- * The values must be Fudge serializable. The Fudge encoding of simple parameters is a message
- * with one field per parameter, with the field name equal to the parameter name and the value
- * equal to the value. There is thus a limit of 255 characters on a parameter name.
+ * An implementation of {@link FunctionParameters} that is a trivial map of strings to values. The values must be Fudge serializable. The Fudge encoding of simple parameters is a message with one
+ * field per parameter, with the field name equal to the parameter name and the value equal to the value. There is thus a limit of 255 characters on a parameter name.
  */
 public class SimpleFunctionParameters implements FunctionParameters {
+
+  private static final long serialVersionUID = 1L;
 
   private final ConcurrentMap<String, Object> _parameters;
 
@@ -63,14 +63,14 @@ public class SimpleFunctionParameters implements FunctionParameters {
   }
 
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
-    for (Map.Entry<String, Object> parameter : _parameters.entrySet()) {
+    for (final Map.Entry<String, Object> parameter : _parameters.entrySet()) {
       serializer.addToMessageWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());
     }
   }
 
   public static SimpleFunctionParameters fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final SimpleFunctionParameters parameters = new SimpleFunctionParameters();
-    for (FudgeField field : message) {
+    for (final FudgeField field : message) {
       if (field.getName() != null) {
         parameters.setValue(field.getName(), deserializer.fieldValueToObject(field));
       }
@@ -78,4 +78,10 @@ public class SimpleFunctionParameters implements FunctionParameters {
     return parameters;
   }
 
+  @Override
+  public String toString() {
+    return "SimpleFunctionParameters [" +
+        "_parameters=" + _parameters +
+        "]";
+  }
 }

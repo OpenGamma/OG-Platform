@@ -104,7 +104,7 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
   private double _barrierLevel;
   
   EquityBarrierOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityBarrierOptionSecurity(OptionType optionType, double strike, Currency currency, ExternalId underlyingId,
@@ -704,7 +704,7 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "optionType",
         "strike",
         "currency",

@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.NotImplementedException;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -38,7 +37,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
@@ -105,8 +104,11 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     }
     final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
     final Period paymentPeriod = getTenor(security.getCouponFrequency());
-    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
-        yieldConvention, isEOM);
+    final ZonedDateTime firstCouponDate = security.getFirstCouponDate();
+    return BondFixedSecurityDefinition.from(currency, firstAccrualDate, firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
+        yieldConvention, isEOM, security.getIssuerName());
+    //    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
+    //        yieldConvention, isEOM, security.getIssuerName()); // TODO: use first coupon date and long/short first coupon.
   }
 
   @Override

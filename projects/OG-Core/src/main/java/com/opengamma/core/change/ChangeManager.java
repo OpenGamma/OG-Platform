@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.change;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.PublicSPI;

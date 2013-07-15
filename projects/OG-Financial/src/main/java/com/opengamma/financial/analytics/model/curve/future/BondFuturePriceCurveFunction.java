@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.curve.future;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;

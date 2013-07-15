@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definit
 /**
  * Enumerate the exercise types of Credit Default Swap Options
  */
+//TODO rename me - can be applied to many underlyings
 public enum CDSOptionExerciseType {
   /**
    * European exercise

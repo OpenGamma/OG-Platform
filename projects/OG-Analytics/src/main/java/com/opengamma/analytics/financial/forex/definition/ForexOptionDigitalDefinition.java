@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.forex.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
@@ -17,9 +15,10 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class describing a digital foreign exchange European option. 
+ * Class describing a digital foreign exchange European option.
  * The implied strike is the absolute value of ratio of the domestic currency (currency 2) amount and the foreign currency amount (currency1).
  * When the option is a call, it pays the absolute value of the payment currency amount when the spot rate is above the strike and nothing otherwise.
  * When the option is a put, it pays the absolute value of the payment currency amount when the spot rate is below the strike and nothing otherwise.
@@ -56,10 +55,10 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    * @param isCall The call (true) / put (false) flag.
    * @param isLong The long (true) / short (false) flag.
    */
-  public ForexOptionDigitalDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, boolean isLong) {
-    Validate.notNull(forex, "Underlying forex");
-    Validate.notNull(expirationDate, "Expiration date");
-    Validate.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
+  public ForexOptionDigitalDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, final boolean isLong) {
+    ArgumentChecker.notNull(forex, "Underlying forex");
+    ArgumentChecker.notNull(expirationDate, "Expiration date");
+    ArgumentChecker.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
     _underlyingForex = forex;
     _expirationDate = expirationDate;
     _isCall = isCall;
@@ -75,10 +74,10 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    * @param isLong The long (true) / short (false) flag.
    * @param payDomestic The flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
    */
-  public ForexOptionDigitalDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, boolean isLong, boolean payDomestic) {
-    Validate.notNull(forex, "Underlying forex");
-    Validate.notNull(expirationDate, "Expiration date");
-    Validate.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
+  public ForexOptionDigitalDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, final boolean isLong, final boolean payDomestic) {
+    ArgumentChecker.notNull(forex, "Underlying forex");
+    ArgumentChecker.notNull(expirationDate, "Expiration date");
+    ArgumentChecker.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
     _underlyingForex = forex;
     _expirationDate = expirationDate;
     _isCall = isCall;
@@ -131,8 +130,8 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    */
   @Override
   public ForexOptionDigital toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yieldCurveNames");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yieldCurveNames");
     final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
@@ -144,6 +143,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    */
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionDigitalDefinition(this, data);
   }
 
@@ -152,6 +152,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    */
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionDigitalDefinition(this);
   }
 
@@ -168,7 +169,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -178,7 +179,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexOptionDigitalDefinition other = (ForexOptionDigitalDefinition) obj;
+    final ForexOptionDigitalDefinition other = (ForexOptionDigitalDefinition) obj;
     if (!ObjectUtils.equals(_expirationDate, other._expirationDate)) {
       return false;
     }

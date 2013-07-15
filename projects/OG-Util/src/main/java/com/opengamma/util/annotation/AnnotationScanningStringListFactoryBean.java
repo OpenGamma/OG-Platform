@@ -10,13 +10,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.fudgemsg.types.ClasspathUtilities;
+import org.fudgemsg.AnnotationReflector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -72,7 +71,7 @@ public class AnnotationScanningStringListFactoryBean extends SingletonFactoryBea
         }
       }
       s_logger.debug("Scanning for classes containing annotation {}", getAnnotationClassName());
-      return getByScanning(getAnnotationClassName());
+      return new ArrayList<>(getByScanning(getAnnotationClassName()));
     } catch (Exception e) {
       s_logger.warn("Unable to retrieve classes containing annotation " + getAnnotationClassName(), e);
       return Collections.emptyList();
@@ -106,11 +105,10 @@ public class AnnotationScanningStringListFactoryBean extends SingletonFactoryBea
     return stringList;
   }
   
-  private List<String> getByScanning(String annotationClassName) {
-    URL[] classpathElements = ClasspathUtilities.getClassPathElements();
-    Set<String> annotationClasses = ClassNameAnnotationScanner.scan(classpathElements, annotationClassName);
-    s_logger.debug("Found {} classes containing annotation: {}", annotationClasses.size(), annotationClasses);
-    return new ArrayList<String>(annotationClasses);
+  private Set<String> getByScanning(String annotationClassName) {
+    Set<String> annotated = AnnotationReflector.getDefaultReflector().getReflector().getStore().getTypesAnnotatedWith(annotationClassName);
+    s_logger.debug("Found {} classes containing annotation: {}", annotated.size(), annotated);
+    return annotated;
   }
   
 }

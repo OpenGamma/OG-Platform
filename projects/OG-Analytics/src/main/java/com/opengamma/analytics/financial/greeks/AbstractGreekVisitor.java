@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.greeks;
 import org.apache.commons.lang.NotImplementedException;
 
 /**
- * @param <T> Return type of visitor 
+ * @param <T> Return type of visitor
  */
 public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
 
@@ -100,6 +100,16 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
   @Override
   public T visitStrikeGamma() {
     throw new NotImplementedException();
+  }
+
+  @Override
+  public T visitDualDelta() {
+    return visitStrikeDelta();
+  }
+
+  @Override
+  public T visitDualGamma() {
+    return visitStrikeGamma();
   }
 
   @Override

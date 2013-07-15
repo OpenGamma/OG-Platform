@@ -7,9 +7,8 @@ package com.opengamma.financial.convention.daycount;
 
 import static org.testng.Assert.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 /**
  * 

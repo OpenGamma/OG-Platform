@@ -23,11 +23,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the dependency graph building with optional inputs to functions.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DepGraphOptionalInputsTest extends AbstractDependencyGraphBuilderTest {
 
   private static class OptionalInputsFunction extends TestFunction {
@@ -88,14 +89,14 @@ public class DepGraphOptionalInputsTest extends AbstractDependencyGraphBuilderTe
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing1and2();
     helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, true));
-    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    final DependencyGraphBuilder builder = helper.createBuilder(null);
     expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
   }
 
   public void optionalInputsBothMissing() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, false, false));
-    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    final DependencyGraphBuilder builder = helper.createBuilder(null);
     expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
   }
 
@@ -103,7 +104,7 @@ public class DepGraphOptionalInputsTest extends AbstractDependencyGraphBuilderTe
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
     helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, false));
-    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    final DependencyGraphBuilder builder = helper.createBuilder(null);
     expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
   }
 

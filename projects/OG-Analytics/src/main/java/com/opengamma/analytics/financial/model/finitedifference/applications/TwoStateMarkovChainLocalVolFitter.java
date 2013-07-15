@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
@@ -198,12 +197,11 @@ public class TwoStateMarkovChainLocalVolFitter {
     final Map<DoublesPair, Double> modelVols = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK, true);
     final Map<Double, Interpolator1DDataBundle> volData = GRID_INTERPOLATOR2D.getDataBundle(modelVols);
 
-    final Iterator<Entry<DoublesPair, Double>> iter = marketVolsMap.entrySet().iterator();
-    while (iter.hasNext()) {
-      final Entry<DoublesPair, Double> entry = iter.next();
-      final double vol = GRID_INTERPOLATOR2D.interpolate(volData, entry.getKey());
-      System.out.println(entry.getKey().first + "\t" + entry.getKey().second + "\t" + entry.getValue() + "\t" + vol);
-    }
+    //    final Iterator<Entry<DoublesPair, Double>> iter = marketVolsMap.entrySet().iterator();
+    //    while (iter.hasNext()) {
+    //      final Entry<DoublesPair, Double> entry = iter.next();
+    //      final double vol = GRID_INTERPOLATOR2D.interpolate(volData, entry.getKey());
+    //    }
 
   }
 
@@ -215,7 +213,6 @@ public class TwoStateMarkovChainLocalVolFitter {
       final double temp = mrkLV.getVolatility(point) - modLV.getVolatility(point);
       error += temp * temp;
     }
-    System.out.println("error " + error);
     return error < 1e-5; //TODO arbitrary error
   }
 
@@ -366,7 +363,7 @@ public class TwoStateMarkovChainLocalVolFitter {
   }
 
   private Map<DoublesPair, Double> convertFormatt(final List<Pair<double[], Double>> from) {
-    final Map<DoublesPair, Double> res = new HashMap<DoublesPair, Double>(from.size());
+    final Map<DoublesPair, Double> res = new HashMap<>(from.size());
     final Iterator<Pair<double[], Double>> iter = from.iterator();
     while (iter.hasNext()) {
       final Pair<double[], Double> temp = iter.next();

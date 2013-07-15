@@ -8,7 +8,7 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.util.ArgumentChecker;
 
 /**

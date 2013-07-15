@@ -65,9 +65,8 @@ import org.slf4j.LoggerFactory;
       } else {
         s_logger.warn("Low memory detected, but no intermediate state to flush");
       }
-    } else {
-      builder.reportStateSize();
     }
+    builder.reportStateSize();
     return true;
   }
 

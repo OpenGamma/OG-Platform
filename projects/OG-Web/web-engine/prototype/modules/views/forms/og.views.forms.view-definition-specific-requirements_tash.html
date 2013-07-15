@@ -1,0 +1,33 @@
+<li class="og-js-spec og-js-collapse-container">
+  <div class="og-delete og-js-rem-spec"></div>
+  <label class="og-open og-js-collapse-handle">
+    <span>{{{name}}}</span>
+  </label>
+  <div class="og-js-collapse-element og-add-value-fields">
+    <label class="OG-clearFix">
+      <span class="og-c1">Value</span>
+      <span class="og-c2"><input name="{{value}}" type="text" /></span>
+    </label>
+    <label class="OG-clearFix">
+      <span class="og-c1">Computation Target Type</span>
+      <span class="og-c2">
+        <select name="{{type}}">
+          <option>Select...</option>
+          <option value="CURRENCY">CURRENCY</option>
+          <option value="UNORDERED_CURRENCY_PAIR">UNORDERED_CURRENCY_PAIR</option>
+          <option value="PRIMITIVE">PRIMITIVE</option>
+          <option value="SECURITY">SECURITY</option>
+          <option value="TRADE">TRADE</option>
+          <option value="POSITION">POSITION</option>
+          <option value="PORTFOLIO_NODE">PORTFOLIO_NODE</option>
+        </select>
+      </span>
+    </label>
+    <label class="OG-clearFix">
+      <span class="og-c1">Computation Target Identifier</span>
+      <span class="og-c2"><input name="{{identifier}}" type="text" /></span>
+    </label>
+  </div>
+  <!-- constraints -->
+  {{{item_0}}}
+</li>

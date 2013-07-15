@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,20 +27,15 @@ public class StandardCurrencyPairs {
 
   private static final Logger s_logger = LoggerFactory.getLogger(StandardCurrencyPairs.class);
   private static Set<Pair<Currency, Currency>> s_currencyPairs = new HashSet<Pair<Currency, Currency>>();
-  
+
   static {
     InputStream is = StandardCurrencyPairs.class.getClassLoader().getResourceAsStream("com/opengamma/util/money/standard-currency-pairs.csv");
-    try {
-      parseCSV("standard-currency-pairs.csv", is);
-    } finally {
-      IOUtils.closeQuietly(is);
-    }
+    parseCSV("standard-currency-pairs.csv", is);
   }
-  
+
   private static void parseCSV(String filename, InputStream is) {
-    CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(is)));
     List<String[]> rows;
-    try {
+    try (CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(is)))) {
       rows = reader.readAll();
       int line = 1;
       for (String[] row : rows) {
@@ -58,12 +52,13 @@ public class StandardCurrencyPairs {
       s_logger.warn("Couldn't read " + filename);
     }    
   }
-  
+
   public static boolean isStandardPair(Currency numerator, Currency denominator) {
     return s_currencyPairs.contains(Pair.of(numerator, denominator));
   }
-  
+
   public static boolean isSingleCurrencyNumerator(Currency ccy) {
     return s_currencyPairs.contains(Pair.of(ccy, Currency.USD));
   }
+
 }

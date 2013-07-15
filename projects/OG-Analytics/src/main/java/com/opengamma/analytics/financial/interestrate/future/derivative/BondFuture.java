@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -71,8 +72,9 @@ public class BondFuture implements InstrumentDerivative {
    * @param conversionFactor The conversion factor of each bond in the basket.
    * @param referencePrice The price used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward. 
    */
-  public BondFuture(double tradingLastTime, double noticeFirstTime, double noticeLastTime, double deliveryFirstTime, double deliveryLastTime, double notional, BondFixedSecurity[] deliveryBasket,
-      double[] conversionFactor, double referencePrice) {
+  public BondFuture(final double tradingLastTime, final double noticeFirstTime, final double noticeLastTime, final double deliveryFirstTime, final double deliveryLastTime, final double notional,
+      final BondFixedSecurity[] deliveryBasket,
+      final double[] conversionFactor, final double referencePrice) {
     Validate.notNull(deliveryBasket, "Delivery basket");
     Validate.notNull(conversionFactor, "Conversion factors");
     Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
@@ -177,12 +179,14 @@ public class BondFuture implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFuture(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFuture(this);
   }
 
@@ -209,7 +213,7 @@ public class BondFuture implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -219,7 +223,7 @@ public class BondFuture implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFuture other = (BondFuture) obj;
+    final BondFuture other = (BondFuture) obj;
     if (!Arrays.equals(_conversionFactor, other._conversionFactor)) {
       return false;
     }

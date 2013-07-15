@@ -41,7 +41,7 @@ import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeries
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Component factory for the historical time-series source.
+ * Component factory providing the {@code HistoricalTimeSeriesSource}.
  */
 @BeanDefinition
 public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponentFactory {
@@ -73,19 +73,28 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   private ConfigSource _configSource;
 
   //-------------------------------------------------------------------------
+  /**
+   * Initializes the HTS source, setting up component information and REST. Override using {@link #createResolver(ComponentRepository)} and
+   * {@link #createSource(ComponentRepository, HistoricalTimeSeriesResolver)}.
+   * 
+   * @param repo the component repository, not null
+   * @param configuration the remaining configuration, not null
+   */
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    final HistoricalTimeSeriesResolver resolver = initResolver();
-    final ComponentInfo infoResolver = new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier());
+    HistoricalTimeSeriesResolver resolver = createResolver(repo);
+    if (getCacheManager() != null) {
+      resolver = createCachedResolver(resolver);
+    }
+
+    ComponentInfo infoResolver = new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier());
     infoResolver.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     infoResolver.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesResolver.class);
     repo.registerComponent(infoResolver, resolver);
-    HistoricalTimeSeriesSource source = initSource(resolver);
-    if (getCacheManager() != null) {
-      source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
-    }
-    
-    final ComponentInfo infoSource = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
+
+    HistoricalTimeSeriesSource source = createSource(repo, resolver);
+
+    ComponentInfo infoSource = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
     infoSource.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     infoSource.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesSource.class);
     repo.registerComponent(infoSource, source);
@@ -95,19 +104,47 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
     }
   }
 
-  protected HistoricalTimeSeriesSource initSource(HistoricalTimeSeriesResolver resolver) {
-    return new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), resolver);
+  /**
+   * Creates the HTS provider without registering it.
+   * 
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @return the provider, not null
+   */
+  protected HistoricalTimeSeriesResolver createResolver(ComponentRepository repo) {
+    HistoricalTimeSeriesSelector selector = new DefaultHistoricalTimeSeriesSelector(getConfigSource());
+    return new DefaultHistoricalTimeSeriesResolver(selector, getHistoricalTimeSeriesMaster());
   }
 
-  protected HistoricalTimeSeriesResolver initResolver() {
-    HistoricalTimeSeriesSelector selector = new DefaultHistoricalTimeSeriesSelector(getConfigSource());
+  protected HistoricalTimeSeriesResolver createCachedResolver(HistoricalTimeSeriesResolver resolver) {
+    return new EHCachingHistoricalTimeSeriesResolver(resolver, getCacheManager());
+  }
+
+  /**
+   * Creates the HTS source without registering it.
+   * <p>
+   * This calls {@link #createSourcePreCaching(ComponentRepository, HistoricalTimeSeriesResolver)}.
+   * 
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param resolver the resolver, not null
+   * @return the source, not null
+   */
+  protected HistoricalTimeSeriesSource createSource(ComponentRepository repo, HistoricalTimeSeriesResolver resolver) {
+    HistoricalTimeSeriesSource source = createSourcePreCaching(repo, resolver);
     if (getCacheManager() != null) {
-      return new EHCachingHistoricalTimeSeriesResolver(
-          new DefaultHistoricalTimeSeriesResolver(selector, getHistoricalTimeSeriesMaster()),
-          getCacheManager());
-    } else {
-      return new DefaultHistoricalTimeSeriesResolver(selector, getHistoricalTimeSeriesMaster());
+      source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
     }
+    return source;
+  }
+
+  /**
+   * Creates the HTS source without registering it before caching.
+   * 
+   * @param repo the component repository, only used to register secondary items like lifecycle, not null
+   * @param resolver the resolver, not null
+   * @return the source, not null
+   */
+  protected HistoricalTimeSeriesSource createSourcePreCaching(ComponentRepository repo, HistoricalTimeSeriesResolver resolver) {
+    return new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), resolver);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -370,7 +407,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "cacheManager",

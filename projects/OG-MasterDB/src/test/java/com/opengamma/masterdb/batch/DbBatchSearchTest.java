@@ -9,13 +9,12 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
-import javax.time.Duration;
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
@@ -23,12 +22,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Tests DbBatchGetTest.
+ * Test.
  */
-public class DbBatchSearchTest extends AbstractDbBatchMasterTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbBatchSearchTest extends AbstractDbBatchMasterWorkerTest {
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchSearchTest.class);
@@ -69,7 +70,7 @@ public class DbBatchSearchTest extends AbstractDbBatchMasterTest {
   @Test
   public void testSearchBatchByVersionCorrectionNoResults() {
     BatchRunSearchRequest batchRunSearchRequest = new BatchRunSearchRequest();
-    batchRunSearchRequest.setVersionCorrection(VersionCorrection.of(Instant.now().minus(Duration.ofStandardHours(3)), Instant.now()));
+    batchRunSearchRequest.setVersionCorrection(VersionCorrection.of(Instant.now().minus(Duration.ofHours(3)), Instant.now()));
     Pair<List<RiskRun>, Paging> searchResult = _batchMaster.searchRiskRun(batchRunSearchRequest);
     assertTrue(searchResult.getFirst().size() == 0);
   }

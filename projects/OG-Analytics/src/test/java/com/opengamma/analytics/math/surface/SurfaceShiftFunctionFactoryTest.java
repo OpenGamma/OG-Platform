@@ -9,6 +9,7 @@ import static com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory.g
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.curve.Curve;
@@ -34,17 +35,17 @@ public class SurfaceShiftFunctionFactoryTest {
 
     @Override
     public Double[] getXData() {
-      return null;
+      return ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
     }
 
     @Override
     public Double[] getYData() {
-      return null;
+      return ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
     }
 
     @Override
     public Double[] getZData() {
-      return null;
+      return ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
     }
 
     @Override
@@ -54,12 +55,12 @@ public class SurfaceShiftFunctionFactoryTest {
 
     @Override
     public Double getZValue(final Double x, final Double y) {
-      return null;
+      return 0.;
     }
 
     @Override
     public Double getZValue(final Pair<Double, Double> xy) {
-      return null;
+      return 0.;
     }
 
   };

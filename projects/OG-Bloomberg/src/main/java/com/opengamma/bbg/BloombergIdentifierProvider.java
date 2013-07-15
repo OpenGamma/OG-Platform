@@ -23,12 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.CalendricalParseException;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -301,7 +300,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
     }
     try {
       return LocalDate.parse(dateStr);
-    } catch (CalendricalParseException ex) {
+    } catch (DateTimeParseException ex) {
       s_logger.warn("valid from date not in yyyy-mm-dd format - {}", dateStr);
       return null;
     }

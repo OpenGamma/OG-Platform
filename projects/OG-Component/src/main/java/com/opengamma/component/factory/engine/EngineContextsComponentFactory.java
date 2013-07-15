@@ -25,6 +25,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -35,16 +36,22 @@ import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.function.blacklist.DefaultFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklist;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.model.pnl.DefaultPnLRequirementsGatherer;
 import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
+import com.opengamma.financial.analytics.riskfactors.DefaultRiskFactorsConfigurationProvider;
+import com.opengamma.financial.analytics.riskfactors.DefaultRiskFactorsGatherer;
+import com.opengamma.financial.analytics.riskfactors.RiskFactorsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.marketdata.MarketDataELCompiler;
+import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
@@ -60,9 +67,21 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   private String _classifier;
   /**
    * The config source.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    */
   @PropertyDefinition(validate = "notNull")
   private ConfigSource _configSource;
+  /**
+   * The config master. This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   */
+  @PropertyDefinition
+  private ConfigMaster _configMaster;
   /**
    * The security source.
    */
@@ -84,6 +103,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private RegionSource _regionSource;
   /**
+   * The organization source.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private OrganizationSource _organizationSource;
+  /**
    * The convention bundle source.
    */
   @PropertyDefinition(validate = "notNull")
@@ -91,23 +115,18 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   /**
    * The yield curve definition source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   /**
    * The yield curve specification source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
   /**
    * The volitility cube source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
-  /**
-   * The currency matrix source.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private CurrencyMatrixSource _currencyMatrixSource;
   /**
    * The holiday source.
    */
@@ -129,6 +148,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
   /**
+   * The convention source. 
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ConventionSource _conventionSource;
+  /**
    * The execution blacklist. View processors will not submit nodes matched by this blacklist for execution.
    */
   @PropertyDefinition
@@ -139,15 +163,31 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private FunctionBlacklist _compilationBlacklist;
   /**
+   * The temporary target repository.
+   */
+  @PropertyDefinition
+  private TempTargetRepository _tempTargetRepository;
+
+  /**
+   * The slave view processor executing functions can make requests to. This might be the view processor that owns the context, but might be a different but compatible one.
+   */
+  @PropertyDefinition
+  private ViewProcessor _viewProcessor;
+  /**
    * The permissive behavior flag.
    */
   @PropertyDefinition
-  private boolean _permissive;
+  private Boolean _permissive = Boolean.FALSE;
   /**
    * The PnL requirements gatherer.
    */
   @PropertyDefinition
   private PnLRequirementsGatherer _pnlRequirementsGatherer = new DefaultPnLRequirementsGatherer();
+  /**
+   * The risk factors requirements gatherer.
+   */
+  @PropertyDefinition
+  private RiskFactorsGatherer _riskFactorsGatherer;
 
   //-------------------------------------------------------------------------
   @Override
@@ -162,32 +202,43 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaCompilationContext.setConventionSource(context, getConventionSource());
     OpenGammaCompilationContext.setInterpolatedYieldCurveDefinitionSource(context, getInterpolatedYieldCurveDefinitionSource());
     OpenGammaCompilationContext.setInterpolatedYieldCurveSpecificationBuilder(context, getInterpolatedYieldCurveSpecificationBuilder());
     OpenGammaCompilationContext.setVolatilityCubeDefinitionSource(context, getVolatilityCubeDefinitionSource());
-    OpenGammaCompilationContext.setCurrencyMatrixSource(context, getCurrencyMatrixSource());
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setExchangeSource(context, getExchangeSource());
     OpenGammaCompilationContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
+    if (getTempTargetRepository() != null) {
+      OpenGammaCompilationContext.setTempTargets(context, getTempTargetRepository());
+    }
     context.setSecuritySource(getSecuritySource());
+    context.setOrganizationSource(getOrganizationSource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
-    context.setComputationTargetResolver(getTargetResolver());
+    context.setRawComputationTargetResolver(getTargetResolver());
     if (getCompilationBlacklist() != null) {
       context.setGraphBuildingBlacklist(new DefaultFunctionBlacklistQuery(getCompilationBlacklist()));
     }
     if (getExecutionBlacklist() != null) {
       context.setGraphExecutionBlacklist(new DefaultFunctionBlacklistQuery(getExecutionBlacklist()));
     }
-    OpenGammaCompilationContext.setPermissive(context, isPermissive());
+    OpenGammaCompilationContext.setPermissive(context, Boolean.TRUE.equals(getPermissive()));
     OpenGammaCompilationContext.setPnLRequirementsGatherer(context, getPnlRequirementsGatherer());
+    if (getRiskFactorsGatherer() == null) {
+      if (getSecuritySource() != null) {
+        setRiskFactorsGatherer(new DefaultRiskFactorsGatherer(getSecuritySource(), new DefaultRiskFactorsConfigurationProvider()));
+      }
+    }
+    if (getRiskFactorsGatherer() != null) {
+      OpenGammaCompilationContext.setRiskFactorsGatherer(context, getRiskFactorsGatherer());
+    }
     final ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
 
   protected OverrideOperationCompiler initOverrideOperationCompiler(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final OverrideOperationCompiler ooc = new MarketDataELCompiler(getSecuritySource());
-
+    final OverrideOperationCompiler ooc = new MarketDataELCompiler();
     final ComponentInfo info = new ComponentInfo(OverrideOperationCompiler.class, getClassifier());
     repo.registerComponent(info, ooc);
     return ooc;
@@ -199,11 +250,20 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
     OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
+    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
     OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaExecutionContext.setConventionSource(context, getConventionSource());
+    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    if (getConfigMaster() != null) {
+      OpenGammaExecutionContext.setConfigMaster(context, getConfigMaster());
+    }
     OpenGammaExecutionContext.setOverrideOperationCompiler(context, ooc);
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
+    if (getViewProcessor() != null) {
+      OpenGammaExecutionContext.setViewProcessor(context, getViewProcessor());
+    }
     final ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
@@ -227,12 +287,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
       case 195157501:  // configSource
         return getConfigSource();
+      case 10395716:  // configMaster
+        return getConfigMaster();
       case -702456965:  // securitySource
         return getSecuritySource();
       case -1655657820:  // positionSource
@@ -241,6 +303,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getTargetResolver();
       case -1636207569:  // regionSource
         return getRegionSource();
+      case -973975762:  // organizationSource
+        return getOrganizationSource();
       case -1281578674:  // conventionBundleSource
         return getConventionBundleSource();
       case -582658381:  // interpolatedYieldCurveDefinitionSource
@@ -249,8 +313,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getInterpolatedYieldCurveSpecificationBuilder();
       case 1540542824:  // volatilityCubeDefinitionSource
         return getVolatilityCubeDefinitionSource();
-      case 615188973:  // currencyMatrixSource
-        return getCurrencyMatrixSource();
       case 431020691:  // holidaySource
         return getHolidaySource();
       case -467239906:  // exchangeSource
@@ -259,26 +321,37 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getHistoricalTimeSeriesSource();
       case -946313676:  // historicalTimeSeriesResolver
         return getHistoricalTimeSeriesResolver();
+      case 225875692:  // conventionSource
+        return getConventionSource();
       case -557041435:  // executionBlacklist
         return getExecutionBlacklist();
       case 1210914458:  // compilationBlacklist
         return getCompilationBlacklist();
+      case 491227055:  // tempTargetRepository
+        return getTempTargetRepository();
+      case -1697555603:  // viewProcessor
+        return getViewProcessor();
       case -517618017:  // permissive
-        return isPermissive();
+        return getPermissive();
       case -1266263066:  // pnlRequirementsGatherer
         return getPnlRequirementsGatherer();
+      case 861249085:  // riskFactorsGatherer
+        return getRiskFactorsGatherer();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
       case 195157501:  // configSource
         setConfigSource((ConfigSource) newValue);
+        return;
+      case 10395716:  // configMaster
+        setConfigMaster((ConfigMaster) newValue);
         return;
       case -702456965:  // securitySource
         setSecuritySource((SecuritySource) newValue);
@@ -292,6 +365,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       case -1636207569:  // regionSource
         setRegionSource((RegionSource) newValue);
         return;
+      case -973975762:  // organizationSource
+        setOrganizationSource((OrganizationSource) newValue);
+        return;
       case -1281578674:  // conventionBundleSource
         setConventionBundleSource((ConventionBundleSource) newValue);
         return;
@@ -303,9 +379,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return;
       case 1540542824:  // volatilityCubeDefinitionSource
         setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
-        return;
-      case 615188973:  // currencyMatrixSource
-        setCurrencyMatrixSource((CurrencyMatrixSource) newValue);
         return;
       case 431020691:  // holidaySource
         setHolidaySource((HolidaySource) newValue);
@@ -319,17 +392,29 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
       case -946313676:  // historicalTimeSeriesResolver
         setHistoricalTimeSeriesResolver((HistoricalTimeSeriesResolver) newValue);
         return;
+      case 225875692:  // conventionSource
+        setConventionSource((ConventionSource) newValue);
+        return;
       case -557041435:  // executionBlacklist
         setExecutionBlacklist((FunctionBlacklist) newValue);
         return;
       case 1210914458:  // compilationBlacklist
         setCompilationBlacklist((FunctionBlacklist) newValue);
         return;
+      case 491227055:  // tempTargetRepository
+        setTempTargetRepository((TempTargetRepository) newValue);
+        return;
+      case -1697555603:  // viewProcessor
+        setViewProcessor((ViewProcessor) newValue);
+        return;
       case -517618017:  // permissive
         setPermissive((Boolean) newValue);
         return;
       case -1266263066:  // pnlRequirementsGatherer
         setPnlRequirementsGatherer((PnLRequirementsGatherer) newValue);
+        return;
+      case 861249085:  // riskFactorsGatherer
+        setRiskFactorsGatherer((RiskFactorsGatherer) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -343,44 +428,47 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_positionSource, "positionSource");
     JodaBeanUtils.notNull(_targetResolver, "targetResolver");
     JodaBeanUtils.notNull(_regionSource, "regionSource");
+    JodaBeanUtils.notNull(_organizationSource, "organizationSource");
     JodaBeanUtils.notNull(_conventionBundleSource, "conventionBundleSource");
-    JodaBeanUtils.notNull(_interpolatedYieldCurveDefinitionSource, "interpolatedYieldCurveDefinitionSource");
-    JodaBeanUtils.notNull(_interpolatedYieldCurveSpecificationBuilder, "interpolatedYieldCurveSpecificationBuilder");
-    JodaBeanUtils.notNull(_volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
-    JodaBeanUtils.notNull(_currencyMatrixSource, "currencyMatrixSource");
     JodaBeanUtils.notNull(_holidaySource, "holidaySource");
     JodaBeanUtils.notNull(_exchangeSource, "exchangeSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
+    JodaBeanUtils.notNull(_conventionSource, "conventionSource");
     super.validate();
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final EngineContextsComponentFactory other = (EngineContextsComponentFactory) obj;
+      EngineContextsComponentFactory other = (EngineContextsComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
           JodaBeanUtils.equal(getTargetResolver(), other.getTargetResolver()) &&
           JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
+          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
           JodaBeanUtils.equal(getInterpolatedYieldCurveDefinitionSource(), other.getInterpolatedYieldCurveDefinitionSource()) &&
           JodaBeanUtils.equal(getInterpolatedYieldCurveSpecificationBuilder(), other.getInterpolatedYieldCurveSpecificationBuilder()) &&
           JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
-          JodaBeanUtils.equal(getCurrencyMatrixSource(), other.getCurrencyMatrixSource()) &&
           JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
           JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
+          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
           JodaBeanUtils.equal(getExecutionBlacklist(), other.getExecutionBlacklist()) &&
           JodaBeanUtils.equal(getCompilationBlacklist(), other.getCompilationBlacklist()) &&
-          JodaBeanUtils.equal(isPermissive(), other.isPermissive()) &&
+          JodaBeanUtils.equal(getTempTargetRepository(), other.getTempTargetRepository()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getPermissive(), other.getPermissive()) &&
           JodaBeanUtils.equal(getPnlRequirementsGatherer(), other.getPnlRequirementsGatherer()) &&
+          JodaBeanUtils.equal(getRiskFactorsGatherer(), other.getRiskFactorsGatherer()) &&
           super.equals(obj);
     }
     return false;
@@ -391,23 +479,28 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveSpecificationBuilder());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPermissive());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissive());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPnlRequirementsGatherer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskFactorsGatherer());
     return hash ^ super.hashCode();
   }
 
@@ -424,7 +517,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -440,6 +533,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the config source.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    * @return the value of the property, not null
    */
   public ConfigSource getConfigSource() {
@@ -448,19 +544,62 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the config source.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    * @param configSource  the new value of the property, not null
    */
-  public void setConfigSource(final ConfigSource configSource) {
+  public void setConfigSource(ConfigSource configSource) {
     JodaBeanUtils.notNull(configSource, "configSource");
     this._configSource = configSource;
   }
 
   /**
    * Gets the the {@code configSource} property.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
    * @return the property, not null
    */
   public final Property<ConfigSource> configSource() {
     return metaBean().configSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the config master. This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   * @return the value of the property
+   */
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+
+  /**
+   * Sets the config master. This might only be a temporary addition; most services should be written to back onto this if necessary rather than data be accessed directly from the config master. This
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   * @param configMaster  the new value of the property
+   */
+  public void setConfigMaster(ConfigMaster configMaster) {
+    this._configMaster = configMaster;
+  }
+
+  /**
+   * Gets the the {@code configMaster} property.
+   * allows the flexibility to have data stored in another system or more efficient storage specific to that type.
+   * <p>
+   * This is currently required to replace the functionality previously offered by ViewDefinitionRepository which exposed both user maintained views from the persistent config master and
+   * temporary/short-lived views created programatically.
+   * @return the property, not null
+   */
+  public final Property<ConfigMaster> configMaster() {
+    return metaBean().configMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -476,7 +615,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the security source.
    * @param securitySource  the new value of the property, not null
    */
-  public void setSecuritySource(final SecuritySource securitySource) {
+  public void setSecuritySource(SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
     this._securitySource = securitySource;
   }
@@ -502,7 +641,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the position source.
    * @param positionSource  the new value of the property, not null
    */
-  public void setPositionSource(final PositionSource positionSource) {
+  public void setPositionSource(PositionSource positionSource) {
     JodaBeanUtils.notNull(positionSource, "positionSource");
     this._positionSource = positionSource;
   }
@@ -528,7 +667,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the target resolver.
    * @param targetResolver  the new value of the property, not null
    */
-  public void setTargetResolver(final ComputationTargetResolver targetResolver) {
+  public void setTargetResolver(ComputationTargetResolver targetResolver) {
     JodaBeanUtils.notNull(targetResolver, "targetResolver");
     this._targetResolver = targetResolver;
   }
@@ -554,7 +693,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the region source.
    * @param regionSource  the new value of the property, not null
    */
-  public void setRegionSource(final RegionSource regionSource) {
+  public void setRegionSource(RegionSource regionSource) {
     JodaBeanUtils.notNull(regionSource, "regionSource");
     this._regionSource = regionSource;
   }
@@ -565,6 +704,32 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<RegionSource> regionSource() {
     return metaBean().regionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the organization source.
+   * @return the value of the property, not null
+   */
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  /**
+   * Sets the organization source.
+   * @param organizationSource  the new value of the property, not null
+   */
+  public void setOrganizationSource(OrganizationSource organizationSource) {
+    JodaBeanUtils.notNull(organizationSource, "organizationSource");
+    this._organizationSource = organizationSource;
+  }
+
+  /**
+   * Gets the the {@code organizationSource} property.
+   * @return the property, not null
+   */
+  public final Property<OrganizationSource> organizationSource() {
+    return metaBean().organizationSource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -580,7 +745,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the convention bundle source.
    * @param conventionBundleSource  the new value of the property, not null
    */
-  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
+  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
     JodaBeanUtils.notNull(conventionBundleSource, "conventionBundleSource");
     this._conventionBundleSource = conventionBundleSource;
   }
@@ -596,7 +761,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the yield curve definition source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource() {
     return _interpolatedYieldCurveDefinitionSource;
@@ -604,10 +769,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the yield curve definition source.
-   * @param interpolatedYieldCurveDefinitionSource  the new value of the property, not null
+   * @param interpolatedYieldCurveDefinitionSource  the new value of the property
    */
-  public void setInterpolatedYieldCurveDefinitionSource(final InterpolatedYieldCurveDefinitionSource interpolatedYieldCurveDefinitionSource) {
-    JodaBeanUtils.notNull(interpolatedYieldCurveDefinitionSource, "interpolatedYieldCurveDefinitionSource");
+  public void setInterpolatedYieldCurveDefinitionSource(InterpolatedYieldCurveDefinitionSource interpolatedYieldCurveDefinitionSource) {
     this._interpolatedYieldCurveDefinitionSource = interpolatedYieldCurveDefinitionSource;
   }
 
@@ -622,7 +786,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the yield curve specification source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder() {
     return _interpolatedYieldCurveSpecificationBuilder;
@@ -630,10 +794,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the yield curve specification source.
-   * @param interpolatedYieldCurveSpecificationBuilder  the new value of the property, not null
+   * @param interpolatedYieldCurveSpecificationBuilder  the new value of the property
    */
-  public void setInterpolatedYieldCurveSpecificationBuilder(final InterpolatedYieldCurveSpecificationBuilder interpolatedYieldCurveSpecificationBuilder) {
-    JodaBeanUtils.notNull(interpolatedYieldCurveSpecificationBuilder, "interpolatedYieldCurveSpecificationBuilder");
+  public void setInterpolatedYieldCurveSpecificationBuilder(InterpolatedYieldCurveSpecificationBuilder interpolatedYieldCurveSpecificationBuilder) {
     this._interpolatedYieldCurveSpecificationBuilder = interpolatedYieldCurveSpecificationBuilder;
   }
 
@@ -648,7 +811,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the volitility cube source.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
     return _volatilityCubeDefinitionSource;
@@ -656,10 +819,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the volitility cube source.
-   * @param volatilityCubeDefinitionSource  the new value of the property, not null
+   * @param volatilityCubeDefinitionSource  the new value of the property
    */
-  public void setVolatilityCubeDefinitionSource(final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
-    JodaBeanUtils.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
+  public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
     this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
 
@@ -669,32 +831,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
     return metaBean().volatilityCubeDefinitionSource().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the currency matrix source.
-   * @return the value of the property, not null
-   */
-  public CurrencyMatrixSource getCurrencyMatrixSource() {
-    return _currencyMatrixSource;
-  }
-
-  /**
-   * Sets the currency matrix source.
-   * @param currencyMatrixSource  the new value of the property, not null
-   */
-  public void setCurrencyMatrixSource(final CurrencyMatrixSource currencyMatrixSource) {
-    JodaBeanUtils.notNull(currencyMatrixSource, "currencyMatrixSource");
-    this._currencyMatrixSource = currencyMatrixSource;
-  }
-
-  /**
-   * Gets the the {@code currencyMatrixSource} property.
-   * @return the property, not null
-   */
-  public final Property<CurrencyMatrixSource> currencyMatrixSource() {
-    return metaBean().currencyMatrixSource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -710,7 +846,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the holiday source.
    * @param holidaySource  the new value of the property, not null
    */
-  public void setHolidaySource(final HolidaySource holidaySource) {
+  public void setHolidaySource(HolidaySource holidaySource) {
     JodaBeanUtils.notNull(holidaySource, "holidaySource");
     this._holidaySource = holidaySource;
   }
@@ -736,7 +872,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the exchange source.
    * @param exchangeSource  the new value of the property, not null
    */
-  public void setExchangeSource(final ExchangeSource exchangeSource) {
+  public void setExchangeSource(ExchangeSource exchangeSource) {
     JodaBeanUtils.notNull(exchangeSource, "exchangeSource");
     this._exchangeSource = exchangeSource;
   }
@@ -762,7 +898,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the time-series source.
    * @param historicalTimeSeriesSource  the new value of the property, not null
    */
-  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     JodaBeanUtils.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     this._historicalTimeSeriesSource = historicalTimeSeriesSource;
   }
@@ -788,7 +924,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the time-series resolver.
    * @param historicalTimeSeriesResolver  the new value of the property, not null
    */
-  public void setHistoricalTimeSeriesResolver(final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+  public void setHistoricalTimeSeriesResolver(HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
     JodaBeanUtils.notNull(historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
     this._historicalTimeSeriesResolver = historicalTimeSeriesResolver;
   }
@@ -799,6 +935,32 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<HistoricalTimeSeriesResolver> historicalTimeSeriesResolver() {
     return metaBean().historicalTimeSeriesResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the convention source.
+   * @return the value of the property, not null
+   */
+  public ConventionSource getConventionSource() {
+    return _conventionSource;
+  }
+
+  /**
+   * Sets the convention source.
+   * @param conventionSource  the new value of the property, not null
+   */
+  public void setConventionSource(ConventionSource conventionSource) {
+    JodaBeanUtils.notNull(conventionSource, "conventionSource");
+    this._conventionSource = conventionSource;
+  }
+
+  /**
+   * Gets the the {@code conventionSource} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionSource> conventionSource() {
+    return metaBean().conventionSource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -814,7 +976,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the execution blacklist. View processors will not submit nodes matched by this blacklist for execution.
    * @param executionBlacklist  the new value of the property
    */
-  public void setExecutionBlacklist(final FunctionBlacklist executionBlacklist) {
+  public void setExecutionBlacklist(FunctionBlacklist executionBlacklist) {
     this._executionBlacklist = executionBlacklist;
   }
 
@@ -839,7 +1001,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the compilation blacklist. Dependency graph builders will not produce graphs which contain nodes matched by this blacklist.
    * @param compilationBlacklist  the new value of the property
    */
-  public void setCompilationBlacklist(final FunctionBlacklist compilationBlacklist) {
+  public void setCompilationBlacklist(FunctionBlacklist compilationBlacklist) {
     this._compilationBlacklist = compilationBlacklist;
   }
 
@@ -853,10 +1015,60 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the temporary target repository.
+   * @return the value of the property
+   */
+  public TempTargetRepository getTempTargetRepository() {
+    return _tempTargetRepository;
+  }
+
+  /**
+   * Sets the temporary target repository.
+   * @param tempTargetRepository  the new value of the property
+   */
+  public void setTempTargetRepository(TempTargetRepository tempTargetRepository) {
+    this._tempTargetRepository = tempTargetRepository;
+  }
+
+  /**
+   * Gets the the {@code tempTargetRepository} property.
+   * @return the property, not null
+   */
+  public final Property<TempTargetRepository> tempTargetRepository() {
+    return metaBean().tempTargetRepository().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the slave view processor executing functions can make requests to. This might be the view processor that owns the context, but might be a different but compatible one.
+   * @return the value of the property
+   */
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
+  }
+
+  /**
+   * Sets the slave view processor executing functions can make requests to. This might be the view processor that owns the context, but might be a different but compatible one.
+   * @param viewProcessor  the new value of the property
+   */
+  public void setViewProcessor(ViewProcessor viewProcessor) {
+    this._viewProcessor = viewProcessor;
+  }
+
+  /**
+   * Gets the the {@code viewProcessor} property.
+   * @return the property, not null
+   */
+  public final Property<ViewProcessor> viewProcessor() {
+    return metaBean().viewProcessor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the permissive behavior flag.
    * @return the value of the property
    */
-  public boolean isPermissive() {
+  public Boolean getPermissive() {
     return _permissive;
   }
 
@@ -864,7 +1076,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the permissive behavior flag.
    * @param permissive  the new value of the property
    */
-  public void setPermissive(final boolean permissive) {
+  public void setPermissive(Boolean permissive) {
     this._permissive = permissive;
   }
 
@@ -889,7 +1101,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * Sets the PnL requirements gatherer.
    * @param pnlRequirementsGatherer  the new value of the property
    */
-  public void setPnlRequirementsGatherer(final PnLRequirementsGatherer pnlRequirementsGatherer) {
+  public void setPnlRequirementsGatherer(PnLRequirementsGatherer pnlRequirementsGatherer) {
     this._pnlRequirementsGatherer = pnlRequirementsGatherer;
   }
 
@@ -899,6 +1111,31 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<PnLRequirementsGatherer> pnlRequirementsGatherer() {
     return metaBean().pnlRequirementsGatherer().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the risk factors requirements gatherer.
+   * @return the value of the property
+   */
+  public RiskFactorsGatherer getRiskFactorsGatherer() {
+    return _riskFactorsGatherer;
+  }
+
+  /**
+   * Sets the risk factors requirements gatherer.
+   * @param riskFactorsGatherer  the new value of the property
+   */
+  public void setRiskFactorsGatherer(RiskFactorsGatherer riskFactorsGatherer) {
+    this._riskFactorsGatherer = riskFactorsGatherer;
+  }
+
+  /**
+   * Gets the the {@code riskFactorsGatherer} property.
+   * @return the property, not null
+   */
+  public final Property<RiskFactorsGatherer> riskFactorsGatherer() {
+    return metaBean().riskFactorsGatherer().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -922,6 +1159,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", EngineContextsComponentFactory.class, ConfigSource.class);
     /**
+     * The meta-property for the {@code configMaster} property.
+     */
+    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
+        this, "configMaster", EngineContextsComponentFactory.class, ConfigMaster.class);
+    /**
      * The meta-property for the {@code securitySource} property.
      */
     private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
@@ -941,6 +1183,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<RegionSource> _regionSource = DirectMetaProperty.ofReadWrite(
         this, "regionSource", EngineContextsComponentFactory.class, RegionSource.class);
+    /**
+     * The meta-property for the {@code organizationSource} property.
+     */
+    private final MetaProperty<OrganizationSource> _organizationSource = DirectMetaProperty.ofReadWrite(
+        this, "organizationSource", EngineContextsComponentFactory.class, OrganizationSource.class);
     /**
      * The meta-property for the {@code conventionBundleSource} property.
      */
@@ -962,11 +1209,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<VolatilityCubeDefinitionSource> _volatilityCubeDefinitionSource = DirectMetaProperty.ofReadWrite(
         this, "volatilityCubeDefinitionSource", EngineContextsComponentFactory.class, VolatilityCubeDefinitionSource.class);
     /**
-     * The meta-property for the {@code currencyMatrixSource} property.
-     */
-    private final MetaProperty<CurrencyMatrixSource> _currencyMatrixSource = DirectMetaProperty.ofReadWrite(
-        this, "currencyMatrixSource", EngineContextsComponentFactory.class, CurrencyMatrixSource.class);
-    /**
      * The meta-property for the {@code holidaySource} property.
      */
     private final MetaProperty<HolidaySource> _holidaySource = DirectMetaProperty.ofReadWrite(
@@ -987,6 +1229,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<HistoricalTimeSeriesResolver> _historicalTimeSeriesResolver = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesResolver", EngineContextsComponentFactory.class, HistoricalTimeSeriesResolver.class);
     /**
+     * The meta-property for the {@code conventionSource} property.
+     */
+    private final MetaProperty<ConventionSource> _conventionSource = DirectMetaProperty.ofReadWrite(
+        this, "conventionSource", EngineContextsComponentFactory.class, ConventionSource.class);
+    /**
      * The meta-property for the {@code executionBlacklist} property.
      */
     private final MetaProperty<FunctionBlacklist> _executionBlacklist = DirectMetaProperty.ofReadWrite(
@@ -997,39 +1244,59 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<FunctionBlacklist> _compilationBlacklist = DirectMetaProperty.ofReadWrite(
         this, "compilationBlacklist", EngineContextsComponentFactory.class, FunctionBlacklist.class);
     /**
+     * The meta-property for the {@code tempTargetRepository} property.
+     */
+    private final MetaProperty<TempTargetRepository> _tempTargetRepository = DirectMetaProperty.ofReadWrite(
+        this, "tempTargetRepository", EngineContextsComponentFactory.class, TempTargetRepository.class);
+    /**
+     * The meta-property for the {@code viewProcessor} property.
+     */
+    private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(
+        this, "viewProcessor", EngineContextsComponentFactory.class, ViewProcessor.class);
+    /**
      * The meta-property for the {@code permissive} property.
      */
     private final MetaProperty<Boolean> _permissive = DirectMetaProperty.ofReadWrite(
-        this, "permissive", EngineContextsComponentFactory.class, Boolean.TYPE);
+        this, "permissive", EngineContextsComponentFactory.class, Boolean.class);
     /**
      * The meta-property for the {@code pnlRequirementsGatherer} property.
      */
     private final MetaProperty<PnLRequirementsGatherer> _pnlRequirementsGatherer = DirectMetaProperty.ofReadWrite(
         this, "pnlRequirementsGatherer", EngineContextsComponentFactory.class, PnLRequirementsGatherer.class);
     /**
+     * The meta-property for the {@code riskFactorsGatherer} property.
+     */
+    private final MetaProperty<RiskFactorsGatherer> _riskFactorsGatherer = DirectMetaProperty.ofReadWrite(
+        this, "riskFactorsGatherer", EngineContextsComponentFactory.class, RiskFactorsGatherer.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "configSource",
+        "configMaster",
         "securitySource",
         "positionSource",
         "targetResolver",
         "regionSource",
+        "organizationSource",
         "conventionBundleSource",
         "interpolatedYieldCurveDefinitionSource",
         "interpolatedYieldCurveSpecificationBuilder",
         "volatilityCubeDefinitionSource",
-        "currencyMatrixSource",
         "holidaySource",
         "exchangeSource",
         "historicalTimeSeriesSource",
         "historicalTimeSeriesResolver",
+        "conventionSource",
         "executionBlacklist",
         "compilationBlacklist",
+        "tempTargetRepository",
+        "viewProcessor",
         "permissive",
-        "pnlRequirementsGatherer");
+        "pnlRequirementsGatherer",
+        "riskFactorsGatherer");
 
     /**
      * Restricted constructor.
@@ -1038,12 +1305,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
         case 195157501:  // configSource
           return _configSource;
+        case 10395716:  // configMaster
+          return _configMaster;
         case -702456965:  // securitySource
           return _securitySource;
         case -1655657820:  // positionSource
@@ -1052,6 +1321,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _targetResolver;
         case -1636207569:  // regionSource
           return _regionSource;
+        case -973975762:  // organizationSource
+          return _organizationSource;
         case -1281578674:  // conventionBundleSource
           return _conventionBundleSource;
         case -582658381:  // interpolatedYieldCurveDefinitionSource
@@ -1060,8 +1331,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _interpolatedYieldCurveSpecificationBuilder;
         case 1540542824:  // volatilityCubeDefinitionSource
           return _volatilityCubeDefinitionSource;
-        case 615188973:  // currencyMatrixSource
-          return _currencyMatrixSource;
         case 431020691:  // holidaySource
           return _holidaySource;
         case -467239906:  // exchangeSource
@@ -1070,14 +1339,22 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _historicalTimeSeriesSource;
         case -946313676:  // historicalTimeSeriesResolver
           return _historicalTimeSeriesResolver;
+        case 225875692:  // conventionSource
+          return _conventionSource;
         case -557041435:  // executionBlacklist
           return _executionBlacklist;
         case 1210914458:  // compilationBlacklist
           return _compilationBlacklist;
+        case 491227055:  // tempTargetRepository
+          return _tempTargetRepository;
+        case -1697555603:  // viewProcessor
+          return _viewProcessor;
         case -517618017:  // permissive
           return _permissive;
         case -1266263066:  // pnlRequirementsGatherer
           return _pnlRequirementsGatherer;
+        case 861249085:  // riskFactorsGatherer
+          return _riskFactorsGatherer;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1115,6 +1392,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code configMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigMaster> configMaster() {
+      return _configMaster;
+    }
+
+    /**
      * The meta-property for the {@code securitySource} property.
      * @return the meta-property, not null
      */
@@ -1144,6 +1429,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<RegionSource> regionSource() {
       return _regionSource;
+    }
+
+    /**
+     * The meta-property for the {@code organizationSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganizationSource> organizationSource() {
+      return _organizationSource;
     }
 
     /**
@@ -1179,14 +1472,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code currencyMatrixSource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<CurrencyMatrixSource> currencyMatrixSource() {
-      return _currencyMatrixSource;
-    }
-
-    /**
      * The meta-property for the {@code holidaySource} property.
      * @return the meta-property, not null
      */
@@ -1219,6 +1504,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code conventionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionSource> conventionSource() {
+      return _conventionSource;
+    }
+
+    /**
      * The meta-property for the {@code executionBlacklist} property.
      * @return the meta-property, not null
      */
@@ -1235,6 +1528,22 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code tempTargetRepository} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<TempTargetRepository> tempTargetRepository() {
+      return _tempTargetRepository;
+    }
+
+    /**
+     * The meta-property for the {@code viewProcessor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ViewProcessor> viewProcessor() {
+      return _viewProcessor;
+    }
+
+    /**
      * The meta-property for the {@code permissive} property.
      * @return the meta-property, not null
      */
@@ -1248,6 +1557,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<PnLRequirementsGatherer> pnlRequirementsGatherer() {
       return _pnlRequirementsGatherer;
+    }
+
+    /**
+     * The meta-property for the {@code riskFactorsGatherer} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<RiskFactorsGatherer> riskFactorsGatherer() {
+      return _riskFactorsGatherer;
     }
 
   }

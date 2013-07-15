@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata;
@@ -15,11 +15,13 @@ public interface OverrideOperation {
 
   /**
    * Apply the override operation on the original object.
-   * 
-   * @param requirement the value requirement; so that the type of the value might be inferred
+   *
+   * @param requirement the value descriptor; so that information about the type of the value might be inferred
    * @param original the original market data value
    * @return the new market data value
    */
   Object apply(ValueRequirement requirement, Object original);
+
+  // TODO: The requirement parameter is bad; this should really be a computation target
 
 }

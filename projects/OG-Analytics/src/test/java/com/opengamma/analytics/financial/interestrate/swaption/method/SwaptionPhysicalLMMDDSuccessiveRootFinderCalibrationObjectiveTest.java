@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -43,7 +42,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjectiveTest {
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
   // Swap 5Y description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -56,7 +55,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjectiveTest {
   //  Ibor leg: quarterly money
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int[] SWAP_TENOR_YEAR = {1, 2, 3, 4, 5};
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int EXPIRY_TENOR = 5;
@@ -67,8 +66,8 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjectiveTest {
   private static final IndexSwap[] CMS_INDEX = new IndexSwap[SWAP_TENOR_YEAR.length];
   static {
     for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
-      CMS_INDEX[loopexp] = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, Period.ofYears(SWAP_TENOR_YEAR[loopexp]));
-      SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX[loopexp], NOTIONAL, RATE, FIXED_IS_PAYER);
+      CMS_INDEX[loopexp] = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, Period.ofYears(SWAP_TENOR_YEAR[loopexp]), CALENDAR);
+      SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX[loopexp], NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
       SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION[loopexp], IS_LONG);
     }
   }
@@ -93,19 +92,19 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjectiveTest {
    * Tests the correctness of Hull-White one factor calibration to swaptions with SABR price.
    */
   public void calibration() {
-    LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
+    final LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
         SWAP_PAYER_DEFINITION[SWAP_TENOR_YEAR.length - 1].getIborLeg());
-    SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
-    SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
+    final SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
+    final SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
       calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], METHOD_SABR);
     }
     calibrationEngine.calibrate(SABR_BUNDLE);
-    CurrencyAmount[] pvSabr = new CurrencyAmount[SWAP_TENOR_YEAR.length];
-    CurrencyAmount[] pvLmm = new CurrencyAmount[SWAP_TENOR_YEAR.length];
+    final CurrencyAmount[] pvSabr = new CurrencyAmount[SWAP_TENOR_YEAR.length];
+    final CurrencyAmount[] pvLmm = new CurrencyAmount[SWAP_TENOR_YEAR.length];
     for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
       pvSabr[loopexp] = METHOD_SABR.presentValue(SWAPTION_LONG_PAYER[loopexp], SABR_BUNDLE);
-      pvLmm[loopexp] = METHOD_LMM.presentValue(SWAPTION_LONG_PAYER[loopexp], objective.getLmmBundle());
+      pvLmm[loopexp] = METHOD_LMM.presentValue(SWAPTION_LONG_PAYER[loopexp], objective.getLMMBundle());
       assertEquals("Hull-White calibration: swaption " + loopexp, pvSabr[loopexp].getAmount(), pvLmm[loopexp].getAmount(), 1E-2);
     }
   }
@@ -119,10 +118,10 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjectiveTest {
     final int nbTest = 100;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
+      final LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
           SWAP_PAYER_DEFINITION[SWAP_TENOR_YEAR.length - 1].getIborLeg());
-      SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
-      SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
+      final SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(lmmParameters);
+      final SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
       for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
         calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], METHOD_SABR);
       }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFuture;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -34,8 +34,9 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
    * @param currency currency
    * @param settlementDate settlement date
    */
-  public EnergyFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate, double amount, String unitName,
-      SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+  public EnergyFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate,
+      final ZonedDateTime lastDeliveryDate, final double amount, final String unitName,
+      final SettlementType settlementType, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
     super(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, settlementType, referencePrice, currency, settlementDate);
   }
 
@@ -51,7 +52,7 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
    * @param currency currency
    * @param settlementDate settlement date
    */
-  public EnergyFutureDefinition(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName, final double referencePrice,
+  public EnergyFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final double amount, final String unitName, final double referencePrice,
       final Currency currency, final ZonedDateTime settlementDate) {
     this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
@@ -69,42 +70,43 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
    * @param settlementDate settlement date
    * @return the future
    */
-  public static EnergyFutureDefinition withCashSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, double amount, String unitName,
+  public static EnergyFutureDefinition withCashSettlement(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final double amount, final String unitName,
       final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
     return new EnergyFutureDefinition(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
   /**
-  * Static constructor method for physical settlement futures
-  * 
-  * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
-  * @param underlying  identifier of the underlying commodity
-  * @param unitAmount  size of a unit
-  * @param firstDeliveryDate  date of first delivery - PHYSICAL settlement
-  * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
-  * @param amount  number of units
-  * @param unitName  description of unit size
-  * @param referencePrice Number of units
-  * @param currency Currency
-  * @param settlementDate Settlement date
-  * @return the future
-  */
-  public static EnergyFutureDefinition withPhysicalSettlement(ZonedDateTime expiryDate, ExternalId underlying, double unitAmount, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate,
-      double amount, String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+   * Static constructor method for physical settlement futures
+   * 
+   * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
+   * @param underlying  identifier of the underlying commodity
+   * @param unitAmount  size of a unit
+   * @param firstDeliveryDate  date of first delivery - PHYSICAL settlement
+   * @param lastDeliveryDate  date of last delivery - PHYSICAL settlement
+   * @param amount  number of units
+   * @param unitName  description of unit size
+   * @param referencePrice Number of units
+   * @param currency Currency
+   * @param settlementDate Settlement date
+   * @return the future
+   */
+  public static EnergyFutureDefinition withPhysicalSettlement(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount,
+      final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate, final double amount, final String unitName, final double referencePrice,
+      final Currency currency, final ZonedDateTime settlementDate) {
     return new EnergyFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
   /**
    * Get the derivative at a given fix time from the definition
    * @param date fixing time
-   * @param yieldCurveNames  
+   * @param yieldCurveNames not used
    * @return the fixed derivative
    */
   @Override
   public EnergyFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
-    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new EnergyFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
         getReferencePrice(), getCurrency());
   }
@@ -114,23 +116,27 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
    *
    * @param date  fixing time
    * @param referencePrice reference price
+   * @param yieldCurveNames not used
    * @return the fixed derivative
    */
-  public EnergyFuture toDerivative(final ZonedDateTime date, final double referencePrice) {
+  @Override
+  public EnergyFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
-    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new EnergyFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
-        referencePrice, getCurrency());
+        referencePrice.doubleValue(), getCurrency());
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEnergyFutureDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEnergyFutureDefinition(this);
   }
 
@@ -140,7 +146,7 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

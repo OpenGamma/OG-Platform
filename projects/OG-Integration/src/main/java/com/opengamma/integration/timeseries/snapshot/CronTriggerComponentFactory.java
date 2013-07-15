@@ -89,7 +89,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
     
     ComponentInfo info = new ComponentInfo(Trigger.class, getClassifier());
     
-    final Map<Object, Object> jobDataAsMap = Maps.newHashMap();
+    final Map<String, Object> jobDataAsMap = Maps.newHashMap();
     jobDataAsMap.put("observationTime", getObservationTime());
     if (getDataSource() != null) {
       jobDataAsMap.put("dataSource", getDataSource());
@@ -776,7 +776,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "jobName",
         "jobGroup",

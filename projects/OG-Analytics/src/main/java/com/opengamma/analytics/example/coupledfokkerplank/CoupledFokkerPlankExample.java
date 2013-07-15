@@ -30,7 +30,13 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 
+/**
+ * Example for coupled fokker.
+ */
+@SuppressWarnings({"deprecation", "unused", "unchecked" })
 public class CoupledFokkerPlankExample {
+//CSOFF
+  
   public static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();
   public static final BoundaryCondition LOWER;
   public static final BoundaryCondition UPPER;

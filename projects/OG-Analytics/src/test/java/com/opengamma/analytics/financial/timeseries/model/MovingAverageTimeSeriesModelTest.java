@@ -8,9 +8,8 @@ package com.opengamma.analytics.financial.timeseries.model;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -20,7 +19,7 @@ import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesSta
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -39,7 +38,7 @@ public class MovingAverageTimeSeriesModelTest {
     final int n = 20000;
     final LocalDate[] dates = new LocalDate[n];
     for (int i = 0; i < n; i++) {
-      dates[i] = LocalDate.ofEpochDays(i);
+      dates[i] = LocalDate.ofEpochDay(i);
     }
     THETA = new double[ORDER + 1];
     THETA[0] = 0.;
@@ -57,22 +56,22 @@ public class MovingAverageTimeSeriesModelTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullThetas() {
-    MODEL.getSeries(null, 2, new LocalDate[] {LocalDate.ofEpochDays(1)});
+    MODEL.getSeries(null, 2, new LocalDate[] {LocalDate.ofEpochDay(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyThetas() {
-    MODEL.getSeries(new double[0], 2, new LocalDate[] {LocalDate.ofEpochDays(1)});
+    MODEL.getSeries(new double[0], 2, new LocalDate[] {LocalDate.ofEpochDay(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder() {
-    MODEL.getSeries(new double[] {0.2}, -3, new LocalDate[] {LocalDate.ofEpochDays(1)});
+    MODEL.getSeries(new double[] {0.2}, -3, new LocalDate[] {LocalDate.ofEpochDay(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientThetas() {
-    MODEL.getSeries(new double[] {0.2}, 4, new LocalDate[] {LocalDate.ofEpochDays(1)});
+    MODEL.getSeries(new double[] {0.2}, 4, new LocalDate[] {LocalDate.ofEpochDay(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

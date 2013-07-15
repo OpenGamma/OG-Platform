@@ -14,6 +14,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -137,6 +139,7 @@ public final class UniqueId
    * @return the unique identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
+  @FromString
   public static UniqueId parse(String str) {
     ArgumentChecker.notEmpty(str, "str");
     if (str.contains("~") == false) {
@@ -375,6 +378,7 @@ public final class UniqueId
    * @return a parsable representation of the identifier, not null
    */
   @Override
+  @ToString
   public String toString() {
     StrBuilder buf = new StrBuilder()
         .append(_scheme).append('~').append(_value);

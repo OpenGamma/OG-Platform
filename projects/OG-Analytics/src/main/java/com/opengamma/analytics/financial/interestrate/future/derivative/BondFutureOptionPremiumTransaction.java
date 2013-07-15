@@ -11,6 +11,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of transaction on an bond future option with up-front margin security.
@@ -37,7 +39,7 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
   * @param quantity The quantity of the transaction. Can be positive or negative.
   * @param premium The transaction premium.
   */
-  public BondFutureOptionPremiumTransaction(BondFutureOptionPremiumSecurity underlyingOption, int quantity, PaymentFixed premium) {
+  public BondFutureOptionPremiumTransaction(final BondFutureOptionPremiumSecurity underlyingOption, final int quantity, final PaymentFixed premium) {
     Validate.notNull(underlyingOption, "Underlying option");
     Validate.notNull(premium, "Premium");
     this._underlyingOption = underlyingOption;
@@ -69,6 +71,14 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
     return _premium;
   }
 
+  /**
+   * Returns the transaction currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _underlyingOption.getCurrency();
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -80,7 +90,7 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -90,7 +100,7 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFutureOptionPremiumTransaction other = (BondFutureOptionPremiumTransaction) obj;
+    final BondFutureOptionPremiumTransaction other = (BondFutureOptionPremiumTransaction) obj;
     if (!ObjectUtils.equals(_premium, other._premium)) {
       return false;
     }
@@ -104,12 +114,14 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumTransaction(this);
   }
 

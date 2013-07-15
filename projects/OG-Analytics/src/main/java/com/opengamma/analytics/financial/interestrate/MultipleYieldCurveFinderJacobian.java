@@ -36,7 +36,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
   @Override
   public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
 
-    YieldCurveBundle curves = _curveBuilderFunction.evaluate(x);
+    final YieldCurveBundle curves = _curveBuilderFunction.evaluate(x);
 
     final YieldCurveBundle knownCurves = _data.getKnownCurves();
     // set any known (i.e. fixed) curves
@@ -49,8 +49,8 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
 
     final double[][] res = new double[_data.getNumInstruments()][totalNodes];
     for (int i = 0; i < _data.getNumInstruments(); i++) { // loop over all instruments
-      InstrumentDerivative deriv = _data.getDerivative(i);
-      final Map<String, List<DoublesPair>> senseMap = _calculator.visit(deriv, curves);
+      final InstrumentDerivative deriv = _data.getDerivative(i);
+      final Map<String, List<DoublesPair>> senseMap = deriv.accept(_calculator, curves);
       int offset = 0;
       for (final String name : curveNames) { // loop over all curves (by name)
         if (senseMap.containsKey(name)) {
@@ -72,7 +72,7 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
             }
           }
         }
-        offset += _data.getCurveNodePointsForCurve(name).length;
+        offset += _data.getNumberOfPointsForCurve(name); //_data.getCurveNodePointsForCurve(name).length;
       }
     }
     return new DoubleMatrix2D(res);

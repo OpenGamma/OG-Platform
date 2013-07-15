@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.greeks.Underlying;
 import com.opengamma.analytics.financial.riskfactor.TaylorExpansionMultiplierCalculator;
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  *

@@ -15,7 +15,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.WebApplicationException;
 
 import org.fudgemsg.FudgeMsg;
@@ -23,24 +22,26 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterface;
 
 /**
  * Tests the {@link RemoteHistoricalTimeSeriesResolver} and {@link DataHistoricalTimeSeriesResolverResource} classes.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RemoteHistoricalTimeSeriesResolverTest {
 
   private static class MockResolver implements HistoricalTimeSeriesResolver {

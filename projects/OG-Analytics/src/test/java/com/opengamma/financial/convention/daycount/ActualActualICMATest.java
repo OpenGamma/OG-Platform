@@ -7,10 +7,9 @@ package com.opengamma.financial.convention.daycount;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.util.time.DateUtils;

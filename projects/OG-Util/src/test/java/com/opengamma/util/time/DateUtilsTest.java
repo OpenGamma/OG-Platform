@@ -7,62 +7,63 @@ package com.opengamma.util.time;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
-
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.Month.MARCH;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DateUtils.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DateUtilsTest {
   private static final double EPS = 1e-9;
 
   public void testDifferenceInYears() {
-    final ZonedDateTime startDate = ZonedDateTime.of(LocalDate.of(2000, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime endDate = ZonedDateTime.of(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime startDate = ZonedDateTime.of(LocalDateTime.of(2000, 1, 1, 0, 0), ZoneOffset.UTC);
+    final ZonedDateTime endDate = ZonedDateTime.of(LocalDateTime.of(2001, 1, 1, 0, 0), ZoneOffset.UTC);
     try {
-      DateUtils.getDifferenceInYears((InstantProvider)null, endDate);
+      DateUtils.getDifferenceInYears((Instant) null, endDate.toInstant());
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      DateUtils.getDifferenceInYears(startDate, (InstantProvider)null);
+      DateUtils.getDifferenceInYears(startDate.toInstant(), (Instant) null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     final double leapYearDays = 366;
-    assertEquals(DateUtils.getDifferenceInYears((InstantProvider)startDate, endDate) * DateUtils.DAYS_PER_YEAR / leapYearDays, 1, EPS);
+    assertEquals(DateUtils.getDifferenceInYears(startDate.toInstant(), endDate.toInstant()) * DateUtils.DAYS_PER_YEAR / leapYearDays, 1, EPS);
     try {
-      DateUtils.getDifferenceInYears(null, endDate, leapYearDays);
+      DateUtils.getDifferenceInYears(null, endDate.toInstant(), leapYearDays);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      DateUtils.getDifferenceInYears(startDate, null, leapYearDays);
+      DateUtils.getDifferenceInYears(startDate.toInstant(), null, leapYearDays);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    assertEquals(DateUtils.getDifferenceInYears(startDate, endDate, leapYearDays), 1, EPS);
+    assertEquals(DateUtils.getDifferenceInYears(startDate.toInstant(), endDate.toInstant(), leapYearDays), 1, EPS);
   }
 
   public void testDateOffsetWithYearFraction() {
-    final ZonedDateTime startDate = ZonedDateTime.of(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime offsetDateWithFinancialYearDefinition = ZonedDateTime.of(LocalDate.of(2002, 1, 1), LocalTime.of(6, 0), TimeZone.UTC);
-    final ZonedDateTime endDate = ZonedDateTime.of(LocalDate.of(2002, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime startDate = ZonedDateTime.of(LocalDateTime.of(2001, 1, 1, 0, 0), ZoneOffset.UTC);
+    final ZonedDateTime offsetDateWithFinancialYearDefinition = ZonedDateTime.of(LocalDateTime.of(2002, 1, 1, 6, 0), ZoneOffset.UTC);
+    final ZonedDateTime endDate = ZonedDateTime.of(LocalDateTime.of(2002, 1, 1, 0, 0), ZoneOffset.UTC);
     final double daysPerYear = 365;
     try {
-      DateUtils.getDateOffsetWithYearFraction((InstantProvider) null, 1);
+      DateUtils.getDateOffsetWithYearFraction((Instant) null, 1);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -74,7 +75,7 @@ public class DateUtilsTest {
       // Expected
     }
     try {
-      DateUtils.getDateOffsetWithYearFraction((InstantProvider) null, 1, daysPerYear);
+      DateUtils.getDateOffsetWithYearFraction((Instant) null, 1, daysPerYear);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -97,20 +98,20 @@ public class DateUtilsTest {
     final int day = 1;
     ZonedDateTime date = DateUtils.getUTCDate(year, month, day);
     assertEquals(date.getYear(), year);
-    assertEquals(date.getMonthOfYear().getValue(), month);
+    assertEquals(date.getMonthValue(), month);
     assertEquals(date.getDayOfMonth(), day);
-    assertEquals(date.getHourOfDay(), 0);
-    assertEquals(date.getMinuteOfHour(), 0);
-    assertEquals(date.getZone(), TimeZone.UTC);
+    assertEquals(date.getHour(), 0);
+    assertEquals(date.getMinute(), 0);
+    assertEquals(date.getZone(), ZoneOffset.UTC);
     final int hour = 6;
     final int minutes = 31;
     date = DateUtils.getUTCDate(year, month, day, hour, minutes);
     assertEquals(date.getYear(), year);
-    assertEquals(date.getMonthOfYear().getValue(), month);
+    assertEquals(date.getMonthValue(), month);
     assertEquals(date.getDayOfMonth(), day);
-    assertEquals(date.getHourOfDay(), hour);
-    assertEquals(date.getMinuteOfHour(), minutes);
-    assertEquals(date.getZone(), TimeZone.UTC);
+    assertEquals(date.getHour(), hour);
+    assertEquals(date.getMinute(), minutes);
+    assertEquals(date.getZone(), ZoneOffset.UTC);
   }
 
   public void testDateInTimeZone() {
@@ -212,7 +213,7 @@ public class DateUtilsTest {
   }
 
   public void testToLocalDate() {
-    LocalDate D20100328 = LocalDate.of(2010, MonthOfYear.MARCH, 28);
+    LocalDate D20100328 = LocalDate.of(2010, MARCH, 28);
     LocalDate localDate = DateUtils.toLocalDate(20100328);
     assertEquals(D20100328, localDate);
   }

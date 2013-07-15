@@ -10,10 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -21,7 +20,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesMasterUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
-import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.redis.RedisConnector;
 
 /**

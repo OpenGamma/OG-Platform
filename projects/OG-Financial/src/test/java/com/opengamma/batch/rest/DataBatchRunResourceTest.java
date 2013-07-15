@@ -17,11 +17,11 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.util.List;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.CalculationConfiguration;
@@ -35,12 +35,14 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests BatchRunResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataBatchRunResourceTest {
 
   private RiskRun _riskRun;

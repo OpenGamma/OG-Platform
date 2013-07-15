@@ -14,11 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class RequiredFieldFilterTest {
 
   public void noRequiredFields() {

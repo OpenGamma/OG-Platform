@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
@@ -19,12 +20,14 @@ import com.opengamma.util.money.Currency;
  * @param <X> Type of the x-data
  * @param <Y> Type of the y-data
  */
+@Config
 public class VolatilitySurfaceDefinition<X, Y> {
   private final String _name;
   private final UniqueIdentifiable _target;
   private final X[] _xs;
   private final Y[] _ys;
 
+  // TODO: can we hold a target specification here instead of the UID so that we can preserve any type information
   public VolatilitySurfaceDefinition(final String name, final UniqueIdentifiable target, final X[] xs, final Y[] ys) {
     Validate.notNull(name, "Name");
     Validate.notNull(target, "Target");

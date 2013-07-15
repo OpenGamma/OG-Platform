@@ -28,11 +28,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test BundleManager.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class BundleManagerTest {
 
   private static List<Fragment> EXPECTED_JS_BUNDLE_COMMON = Lists.newArrayList(CORE_JS, INIT_JS, JQUERY_JS);

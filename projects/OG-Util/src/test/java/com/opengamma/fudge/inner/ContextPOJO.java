@@ -5,17 +5,22 @@
  */
 package com.opengamma.fudge.inner;
 
+/**
+ * Mock class.
+ */
 public class ContextPOJO {
-  double value = 0;
+
+  private double _value;
 
   public ContextPOJO() {
   }
 
   public double getValue() {
-    return value;
+    return _value;
   }
 
   public void setValue(double value) {
-    this.value = value;
+    this._value = value;
   }
+
 }

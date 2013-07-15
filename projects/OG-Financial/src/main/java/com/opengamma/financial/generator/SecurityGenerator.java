@@ -6,40 +6,47 @@
 package com.opengamma.financial.generator;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import javax.time.calendar.DateProvider;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.DummyFunctionReinitializer;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
+import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -51,16 +58,25 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
-import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
+import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
+import com.opengamma.financial.currency.CurrencyMatrixResolver;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsResolver;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -73,7 +89,6 @@ import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
-import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.DateUtils;
@@ -81,7 +96,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Utility class for constructing parameters to random (but reasonable) securities.
- *
+ * 
  * @param <T> the security type, or a common super type if multiple types are being produced
  */
 public abstract class SecurityGenerator<T extends ManageableSecurity> {
@@ -109,18 +124,21 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   protected static final double YEAR_LENGTH = 365.25;
 
   private Random _random = new Random();
-  private ConventionBundleSource _conventionSource;
+  private ConventionBundleSource _conventionBundleSource;
   private ConfigSource _configSource;
   private ConfigMaster _configMaster;
   private HolidaySource _holidaySource;
   private HistoricalTimeSeriesSource _historicalSource;
   private HistoricalTimeSeriesMaster _htsMaster;
   private RegionSource _regionSource;
+  private OrganizationSource _organizationSource;
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
   private String _currencyCurveName;
+  private final Map<Currency, String> _curveCalculationConfig = new HashMap<Currency, String>();
   private ExternalScheme _preferredScheme;
   private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
+  private ConventionSource _conventionSource;
 
   private Currency[] _currencies;
 
@@ -156,11 +174,19 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return xs[getRandom(xs.length)];
   }
 
-  public ConventionBundleSource getConventionSource() {
+  public ConventionBundleSource getConventionBundleSource() {
+    return _conventionBundleSource;
+  }
+
+  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
+    _conventionBundleSource = conventionBundleSource;
+  }
+
+  public ConventionSource getConventionSource() {
     return _conventionSource;
   }
 
-  public void setConventionSource(final ConventionBundleSource conventionSource) {
+  public void setConventionSource(final ConventionSource conventionSource) {
     _conventionSource = conventionSource;
   }
 
@@ -220,6 +246,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     _regionSource = regionSource;
   }
 
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  public void setOrganizationSource(final OrganizationSource organizationSource) {
+    _organizationSource = organizationSource;
+  }
+
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
@@ -234,6 +268,19 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   public void setCurrencyCurveName(final String currencyCurveName) {
     _currencyCurveName = currencyCurveName;
+  }
+
+  public String getCurveCalculationConfig(final Currency currency) {
+    return _curveCalculationConfig.get(currency);
+  }
+
+  public void setCurveCalculationConfigs(final Map<Currency, String> curveCalculationConfigs) {
+    _curveCalculationConfig.clear();
+    _curveCalculationConfig.putAll(curveCalculationConfigs);
+  }
+
+  public void setCurveCalculationConfig(final Currency currency, final String curveCalculationConfig) {
+    _curveCalculationConfig.put(currency, curveCalculationConfig);
   }
 
   protected CurveSpecificationBuilderConfiguration getCurrencyCurveConfig(final Currency currency) {
@@ -251,14 +298,18 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   private FunctionExecutionContext createFunctionExecutionContext(final LocalDate valuationTime) {
     final FunctionExecutionContext context = new FunctionExecutionContext();
-    context.setValuationTime(ZonedDateTime.of(valuationTime, LocalTime.MIDDAY, TimeZone.UTC).toInstant());
+    context.setValuationTime(valuationTime.atTime(LocalTime.NOON).toInstant(ZoneOffset.UTC));
     context.setValuationClock(DateUtils.fixedClockUTC(context.getValuationTime()));
+    context.setComputationTargetResolver(
+        new DefaultComputationTargetResolver(context.getSecuritySource()).atVersionCorrection(VersionCorrection.LATEST));
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
-    OpenGammaExecutionContext.setConventionBundleSource(context, getConventionSource());
+    OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaExecutionContext.setConventionSource(context, getConventionSource());
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
     return context;
   }
 
@@ -269,10 +320,17 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     context.setFunctionReinitializer(new DummyFunctionReinitializer());
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
-    OpenGammaCompilationContext.setConventionBundleSource(context, getConventionSource());
+    OpenGammaCompilationContext.setOrganizationSource(context, getOrganizationSource());
+    OpenGammaCompilationContext.setConventionBundleSource(context, getConventionBundleSource());
+    OpenGammaCompilationContext.setConventionSource(context, getConventionSource());
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()),
         getHistoricalTimeSeriesMaster()));
+    final DefaultComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(context.getSecuritySource());
+    targetResolver.addResolver(CurrencyPairs.TYPE, new CurrencyPairsResolver(new ConfigDBCurrencyPairsSource(getConfigSource())));
+    targetResolver.addResolver(CurrencyMatrixResolver.TYPE, new CurrencyMatrixResolver(new ConfigDBCurrencyMatrixSource(getConfigSource())));
+    context.setRawComputationTargetResolver(targetResolver);
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
     OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     return context;
   }
@@ -285,33 +343,39 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   private ComputedValue execute(final FunctionExecutionContext context, final CompiledFunctionDefinition function, final ComputationTarget target, final ValueRequirement output,
       final ComputedValue... inputs) {
-    final FunctionInputsImpl functionInputs = new FunctionInputsImpl();
-    for (final ComputedValue input : inputs) {
-      functionInputs.addValue(input);
-    }
-    Set<ComputedValue> result;
+    final FunctionInputsImpl functionInputs = new FunctionInputsImpl(context.getComputationTargetResolver().getSpecificationResolver(), Arrays.asList(inputs));
+    Set<ComputedValue> results;
     try {
-      result = function.getFunctionInvoker().execute(context, functionInputs, target, Collections.singleton(output));
+      results = function.getFunctionInvoker().execute(context, functionInputs, target, Collections.singleton(output));
     } catch (final AsynchronousExecution ex) {
-      result = AsynchronousOperation.getResult(ex);
+      results = AsynchronousOperation.getResult(ex);
     }
-    return result.iterator().next();
+    for (final ComputedValue result : results) {
+      if (output.getValueName().equals(result.getSpecification().getValueName())) {
+        return result;
+      }
+    }
+    throw new OpenGammaRuntimeException("Function " + function + " didn't produce " + output + " from " + functionInputs);
   }
 
-  private ComputedValue findMarketData(final ValueRequirement requirement) {
-    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, requirement.getTargetSpecification().getIdentifier().toBundle(), null);
+  private ComputedValue findMarketData(final ExternalIdBundleResolver resolver, final ValueRequirement requirement) {
+    final ComputationTargetSpecification targetSpec = resolver.getTargetSpecification(requirement.getTargetReference());
+    // TODO: What to do if the targetSpec can't be resolved. We can still get an identifier bundle, but the spec for the CV will be wrong
+    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, resolver.getExternalIdBundle(targetSpec), null);
     if (value == null) {
       return null;
     }
-    return new ComputedValue(new ValueSpecification(requirement, "MARKET DATA"), value.getSecond());
+    return new ComputedValue(new ValueSpecification(requirement.getValueName(), targetSpec,
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "MARKET_DATA").get()), value.getSecond());
   }
 
-  private ComputedValue[] findMarketData(final Collection<ValueRequirement> requirements) {
+  private ComputedValue[] findMarketData(final FunctionCompilationContext compilationContext, final Collection<ValueRequirement> requirements) {
     s_logger.debug("Resolving {}", requirements);
+    final ExternalIdBundleResolver lookup = new ExternalIdBundleResolver(compilationContext.getComputationTargetResolver());
     final ComputedValue[] values = new ComputedValue[requirements.size()];
     int i = 0;
     for (final ValueRequirement requirement : requirements) {
-      final ComputedValue value = findMarketData(requirement);
+      final ComputedValue value = findMarketData(lookup, requirement);
       if (value == null) {
         s_logger.debug("Couldn't resolve {}", requirement);
         return null;
@@ -345,44 +409,65 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     final CompiledFunctionDefinition payYieldCurveMarketDataFunction = createFunction(compContext, execContext, new YieldCurveMarketDataFunction(payCurrency, getCurrencyCurveName()));
     final CompiledFunctionDefinition receiveYieldCurveSpecificationFunction = createFunction(compContext, execContext, new YieldCurveSpecificationFunction(receiveCurrency, getCurrencyCurveName()));
     final CompiledFunctionDefinition receiveYieldCurveMarketDataFunction = createFunction(compContext, execContext, new YieldCurveMarketDataFunction(receiveCurrency, getCurrencyCurveName()));
-    final CompiledFunctionDefinition marketInstrumentImpliedYieldCurveFunction = createFunction(compContext, execContext, new MarketInstrumentImpliedYieldCurveFunction(
-        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    final CompiledFunctionDefinition fxForwardCurveFromYieldCurveFunction = createFunction(compContext, execContext, new FXForwardCurveFromYieldCurveFunction());
+    final CompiledFunctionDefinition yieldCurveFunction = createFunction(compContext, execContext, new MultiYieldCurvePresentValueMethodFunction());
+    final CompiledFunctionDefinition fxForwardCurveFromYieldCurveFunction = createFunction(compContext, execContext, new FXForwardCurveFromYieldCurvesFunction());
     ComputationTarget target;
     // PAY
-    target = new ComputationTarget(payCurrency);
+    target = new ComputationTarget(ComputationTargetType.CURRENCY, payCurrency);
     // PAY - YieldCurveMarketDataFunction
-    final ComputedValue[] payCurveDataRequirements = findMarketData(payYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
+    final ComputedValue[] payCurveDataRequirements = findMarketData(compContext, payYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
     if (payCurveDataRequirements == null) {
       s_logger.debug("Missing market data for curve on {}", payCurrency);
       return null;
     }
-    final ComputedValue payCurveMarketData = execute(execContext, payYieldCurveMarketDataFunction, target, null, payCurveDataRequirements);
+    final ComputedValue payCurveMarketData = execute(execContext, payYieldCurveMarketDataFunction, target,
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, target.toSpecification()), payCurveDataRequirements);
     // PAY - YieldCurveSpecificationFunction
     final ComputedValue payCurveSpec = execute(execContext, payYieldCurveSpecificationFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(),
         ValueProperties.none()), payCurveMarketData);
-    // PAY - MarketInstrumentImpliedYieldCurveFunction
-    final ComputedValue payCurve = execute(execContext, marketInstrumentImpliedYieldCurveFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target.toSpecification(),
-            ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getCurrencyCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getCurrencyCurveName())
-                .with(ValuePropertyNames.CURVE, getCurrencyCurveName()).get()), payCurveSpec, payCurveMarketData);
+    // PAY - MultiYieldCurvePresentValueMethodFunction
+    final ComputedValue payHtsConversion = new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(),
+        ValueProperties.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(payCurrency)).with(ValuePropertyNames.FUNCTION, "").get()), new HistoricalTimeSeriesBundle());
+    final ComputedValue payCurve = execute(execContext, yieldCurveFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target.toSpecification(),
+        ValueProperties
+        .with(ValuePropertyNames.CURVE, getCurrencyCurveName())
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(payCurrency))
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, DecompositionFactory.SV_COLT_NAME)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, "false")
+        .get()), payCurveSpec,
+        payCurveMarketData, payHtsConversion);
     // RECEIVE
-    target = new ComputationTarget(receiveCurrency);
+    target = new ComputationTarget(ComputationTargetType.CURRENCY, receiveCurrency);
     // RECEIVE - YieldCurveMarketDataFunction
-    final ComputedValue[] receiveCurveDataRequirements = findMarketData(receiveYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
+    final ComputedValue[] receiveCurveDataRequirements = findMarketData(compContext, receiveYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
     if (receiveCurveDataRequirements == null) {
       s_logger.debug("Missing market data for curve on {}", receiveCurrency);
       return null;
     }
-    final ComputedValue receiveCurveMarketData = execute(execContext, receiveYieldCurveMarketDataFunction, target, null, receiveCurveDataRequirements);
+    final ComputedValue receiveCurveMarketData = execute(execContext, receiveYieldCurveMarketDataFunction, target,
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, target.toSpecification()), receiveCurveDataRequirements);
     // RECEIVE - YieldCurveSpecificationFunction
     final ComputedValue receiveCurveSpec = execute(execContext, receiveYieldCurveSpecificationFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(),
         ValueProperties.none()), receiveCurveMarketData);
-    // RECEIVE - MarketInstrumentImpliedYieldCurveFunction
-    final ComputedValue receiveCurve = execute(execContext, marketInstrumentImpliedYieldCurveFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target.toSpecification(),
-        ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getCurrencyCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getCurrencyCurveName())
-            .with(ValuePropertyNames.CURVE, getCurrencyCurveName()).get()), receiveCurveSpec, receiveCurveMarketData);
+    // RECEIVE - MultiYieldCurvePresentValueMethodFunction
+    final ComputedValue receiveHtsConversion = new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(),
+        ValueProperties.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(receiveCurrency)).with(ValuePropertyNames.FUNCTION, "").get()), new HistoricalTimeSeriesBundle());
+    final ComputedValue receiveCurve = execute(execContext, yieldCurveFunction, target, new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target.toSpecification(),
+        ValueProperties
+        .with(ValuePropertyNames.CURVE, getCurrencyCurveName())
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, getCurveCalculationConfig(receiveCurrency))
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, DecompositionFactory.SV_COLT_NAME)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, "false")
+        .get()), receiveCurveSpec,
+        receiveCurveMarketData, receiveHtsConversion);
     // FXForwardCurveFromYieldCurveFunction
-    target = new ComputationTarget(UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
+    target = new ComputationTarget(ComputationTargetType.UNORDERED_CURRENCY_PAIR, UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
     final ForwardCurve fxForwardCurve = (ForwardCurve) execute(
         execContext,
         fxForwardCurveFromYieldCurveFunction,
@@ -434,20 +519,20 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return dow.getValue() < 6;
   }
 
-  private boolean isHoliday(final DateProvider ldp, final Currency currency) {
-    return getHolidaySource().isHoliday(ldp.toLocalDate(), currency);
+  private boolean isHoliday(final LocalDate ldp, final Currency currency) {
+    return getHolidaySource().isHoliday(ldp, currency);
   }
 
   /**
    * Returns the date unchanged if this is a working day, otherwise advances the date.
-   *
+   * 
    * @param zdt the date to consider
    * @param currency the currency identifying the holiday zone
    * @return the original or adjusted date
    */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime nextWorkingDay(ZonedDateTime zdt, final Currency currency) {
-    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
       zdt = zdt.plusDays(1);
     }
     return zdt;
@@ -457,7 +542,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (final Currency currency : currencies) {
-        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
           zdt = zdt.plusDays(1);
           continue;
         }
@@ -468,14 +553,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   /**
    * Returns the date unchanged if this is a working day, otherwise retreats the date.
-   *
+   * 
    * @param zdt the date to consider
    * @param currency the currency identifying the holiday zone
    * @return the original or adjusted date
    */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime previousWorkingDay(ZonedDateTime zdt, final Currency currency) {
-    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
       zdt = zdt.minusDays(1);
     }
     return zdt;
@@ -485,7 +570,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (final Currency currency : currencies) {
-        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+        if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt.toLocalDate(), currency)) {
           zdt = zdt.minusDays(1);
           continue;
         }
@@ -496,14 +581,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   /**
    * Creates a new random, but reasonable, security.
-   *
+   * 
    * @return the new security, or null if no security can be generated
    */
   public abstract T createSecurity();
 
   /**
    * Creates a new random, but reasonable, trade.
-   *
+   * 
    * @param quantityGenerator the supplied quantity generator
    * @param securityPersister the supplied security persister
    * @param counterPartyGenerator the supplied counter party generator
@@ -514,7 +599,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     final T security = createSecurity();
     if (security != null) {
       final ZonedDateTime tradeDate = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(30)), getRandomCurrency());
-      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetTime(),
+      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetDateTime().toOffsetTime(),
           ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     }
     return trade;

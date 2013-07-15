@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Computes the sensitivity to the node in the curves.
  */
 public class PresentValueNodeSensitivityCalculator extends NodeYieldSensitivityCalculator {
 
@@ -25,18 +25,18 @@ public class PresentValueNodeSensitivityCalculator extends NodeYieldSensitivityC
     return DEFAULT_INSTANCE;
   }
 
-  public static PresentValueNodeSensitivityCalculator using(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
+  public static PresentValueNodeSensitivityCalculator using(final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
     Validate.notNull(presentValueSensitivityCalculator, "present value sensitivity calculator");
     return new PresentValueNodeSensitivityCalculator(presentValueSensitivityCalculator);
   }
 
-  private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueSensitivityCalculator;
+  private final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueSensitivityCalculator;
 
   public PresentValueNodeSensitivityCalculator() {
     _presentValueSensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
   }
 
-  public PresentValueNodeSensitivityCalculator(final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
+  public PresentValueNodeSensitivityCalculator(final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueSensitivityCalculator) {
     Validate.notNull(presentValueSensitivityCalculator, "present value sensitivity calculator");
     _presentValueSensitivityCalculator = presentValueSensitivityCalculator;
   }

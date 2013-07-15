@@ -16,11 +16,13 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests DbBatchGetTest.
+ * Test.
  */
-public class DbBatchGetTest extends AbstractDbBatchMasterTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbBatchGetTest extends AbstractDbBatchMasterWorkerTest {
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchGetTest.class);

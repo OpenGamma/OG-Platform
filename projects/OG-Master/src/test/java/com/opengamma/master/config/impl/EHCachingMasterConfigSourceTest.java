@@ -12,12 +12,14 @@ import static org.testng.AssertJUnit.assertSame;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.Instant;
-
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -29,20 +31,17 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test {@link EHCachingMasterConfigSource}.
+ * Test.
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingMasterConfigSourceTest {
 
   private static final VersionCorrection VC = VersionCorrection.LATEST;
   private static final ExternalId CONFIG = ExternalId.of("Test", "sec1");
   private static final String CONFIG_NAME = "Test";
-
-  private UnitTestConfigMaster _underlyingConfigMaster;
-  private EHCachingMasterConfigSource _cachingSource;
-
   private static final ConfigItem<ExternalId> ITEM;
   static {
     final ConfigItem<ExternalId> item = ConfigItem.of(CONFIG);
@@ -51,14 +50,32 @@ public class EHCachingMasterConfigSourceTest {
     ITEM = item;
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    _underlyingConfigMaster = new UnitTestConfigMaster();
-    final CacheManager cm = EHCacheUtils.createCacheManager();
-    EHCacheUtils.clear(cm, EHCachingMasterConfigSource.CONFIG_CACHE);
-    _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, cm);
+  private UnitTestConfigMaster _underlyingConfigMaster;
+  private EHCachingMasterConfigSource _cachingSource;
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingMasterConfigSourceTest.class);
   }
 
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  @BeforeMethod
+  public void setUp() {
+    _underlyingConfigMaster = new UnitTestConfigMaster();
+    _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, _cacheManager);
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    EHCacheUtils.clear(_cacheManager, EHCachingMasterConfigSource.CONFIG_CACHE);
+  }
+
+  //-------------------------------------------------------------------------
   public void getConfig_uniqueId() {
     final UniqueId uniqueId = _underlyingConfigMaster.add(new ConfigDocument(ITEM)).getUniqueId();
     assertSame(_cachingSource.getConfig(ExternalId.class, uniqueId), CONFIG);

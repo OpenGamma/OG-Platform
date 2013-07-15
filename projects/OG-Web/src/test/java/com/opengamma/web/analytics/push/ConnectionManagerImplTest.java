@@ -15,9 +15,14 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.web.analytics.rest.MasterType;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.INTEGRATION)
 public class ConnectionManagerImplTest {
 
   @Test(expectedExceptions = DataNotFoundException.class)

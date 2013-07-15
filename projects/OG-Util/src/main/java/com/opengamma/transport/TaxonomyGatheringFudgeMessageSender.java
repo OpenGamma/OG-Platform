@@ -98,22 +98,12 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
       return;
     }
     s_logger.info("Bootstrapping taxonomy from {}", _outputFile);
-    FileInputStream fileInputStream = null;
     Properties propsFromFile = null;
-    try {
-      InputStream underlyingInputStream = new BufferedInputStream(new FileInputStream(_outputFile));
+    try (InputStream underlyingInputStream = new BufferedInputStream(new FileInputStream(_outputFile))) {
       propsFromFile = new Properties();
       propsFromFile.load(underlyingInputStream);
     } catch (IOException ioe) {
       s_logger.warn("Unable to load existing properties from {}", ioe, new Object[]{_outputFile});
-    } finally {
-      if (fileInputStream != null) {
-        try {
-          fileInputStream.close();
-        } catch (IOException ioe) {
-          s_logger.warn("Exception while attempting to close {}", ioe, new Object[]{_outputFile});
-        }
-      }
     }
     
     int maxOrdinal = 0; 

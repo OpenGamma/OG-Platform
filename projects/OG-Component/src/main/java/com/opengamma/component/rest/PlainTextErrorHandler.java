@@ -15,7 +15,6 @@ import org.eclipse.jetty.http.HttpHeaders;
 import org.eclipse.jetty.http.HttpMethods;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.server.HttpConnection;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.util.ByteArrayISO8859Writer;
@@ -27,8 +26,7 @@ public class PlainTextErrorHandler extends ErrorHandler {
 
   @Override
   public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-    HttpConnection connection = HttpConnection.getCurrentConnection();
-    connection.getRequest().setHandled(true);
+    baseRequest.setHandled(true);
     String method = request.getMethod();
     if (!method.equals(HttpMethods.GET) && !method.equals(HttpMethods.POST) && !method.equals(HttpMethods.HEAD)) {
       return;
@@ -36,7 +34,7 @@ public class PlainTextErrorHandler extends ErrorHandler {
     response.setContentType(MimeTypes.TEXT_PLAIN_8859_1);
     response.setHeader(HttpHeaders.CACHE_CONTROL, "must-revalidate,no-cache,no-store");
     ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(4096);
-    handleErrorPage(request, writer, connection.getResponse().getStatus(), connection.getResponse().getReason());
+    handleErrorPage(request, writer, baseRequest.getResponse().getStatus(), baseRequest.getResponse().getReason());
     writer.flush();
     response.setContentLength(writer.size());
     writer.writeTo(response.getOutputStream());
@@ -49,5 +47,5 @@ public class PlainTextErrorHandler extends ErrorHandler {
     writer.write("\nReason: ");
     writer.write(message != null ? message : HttpStatus.getMessage(code));
   }
-  
+
 }

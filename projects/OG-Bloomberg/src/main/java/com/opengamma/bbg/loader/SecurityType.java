@@ -60,6 +60,14 @@ public enum SecurityType {
   /**
    *
    */
+  EQUITY_INDEX_DIVIDEND_FUTURE_OPTION,
+  /**
+   *
+   */
+  EQUITY_INDEX_FUTURE_OPTION,
+  /**
+  *
+  */
   EQUITY_INDEX_OPTION,
   /**
    * 
@@ -133,6 +141,10 @@ public enum SecurityType {
    * Commodity Future Option
    */
   COMMODITY_FUTURE_OPTION,
+  /**
+   * FX Future Option
+   */
+  FX_FUTURE_OPTION,
   /**
    * Bond Future Option
    */

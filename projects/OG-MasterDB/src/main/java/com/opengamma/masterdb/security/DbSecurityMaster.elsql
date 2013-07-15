@@ -81,7 +81,8 @@
     LEFT JOIN sec_idkey i ON (si.idkey_id = i.id)
     LEFT JOIN sec_security_attribute sa ON (sa.security_id = main.id)
   ORDER BY
-    main.@INCLUDE(:sort_order)
+    main.@INCLUDE(:sort_order),
+    main.id
 
 
 -- ==========================================================================
@@ -95,7 +96,8 @@
         LEFT JOIN sec_bond ON (sec_bond.security_id = sec_security.id)
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order)
+      @INCLUDE(:sort_order),
+      sec_security.id
 
 
 -- ==========================================================================

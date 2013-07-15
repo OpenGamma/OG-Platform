@@ -5,10 +5,6 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -22,6 +18,8 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.FudgeTime;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
@@ -67,12 +65,11 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
       case HOUR_DAY_MONTH_YEAR:
         return new FudgeDateTime(DateTimeAccuracy.HOUR, object.getExpiry().toOffsetDateTime());
       case DAY_MONTH_YEAR:
-        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue(), object.getExpiry().getDayOfMonth()), new FudgeTime(DateTimeAccuracy.DAY,
-            0, 0, 0));
+        return new FudgeDateTime(FudgeDate.from(object.getExpiry()), new FudgeTime(DateTimeAccuracy.DAY, 0, 0, 0));
       case MONTH_YEAR:
-        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear(), object.getExpiry().getMonthOfYear().getValue()), new FudgeTime(DateTimeAccuracy.MONTH, 0, 0, 0));
+        return new FudgeDateTime(FudgeDate.ofYearMonth(object.getExpiry().getYear(), object.getExpiry().getMonthValue()), new FudgeTime(DateTimeAccuracy.MONTH, 0, 0, 0));
       case YEAR:
-        return new FudgeDateTime(new FudgeDate(object.getExpiry().getYear()), new FudgeTime(DateTimeAccuracy.YEAR, 0, 0, 0));
+        return new FudgeDateTime(FudgeDate.ofYear(object.getExpiry().getYear()), new FudgeTime(DateTimeAccuracy.YEAR, 0, 0, 0));
       default:
         throw new IllegalArgumentException("Invalid accuracy value on " + object);
     }
@@ -81,15 +78,15 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
   protected static Expiry dateTimeToExpiry(final FudgeDateTime datetime, final String timezone) {
     switch (datetime.getAccuracy()) {
       case MINUTE:
-        return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), TimeZone.of(timezone)), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
+        return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), ZoneId.of(timezone)), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
       case HOUR:
-        return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), TimeZone.of(timezone)), ExpiryAccuracy.HOUR_DAY_MONTH_YEAR);
+        return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), ZoneId.of(timezone)), ExpiryAccuracy.HOUR_DAY_MONTH_YEAR);
       case DAY:
-        return new Expiry(ZonedDateTime.of(datetime.getDate(), LocalTime.MIDNIGHT, TimeZone.of(timezone)), ExpiryAccuracy.DAY_MONTH_YEAR);
+        return new Expiry(datetime.getDate().toLocalDate().atStartOfDay(ZoneId.of(timezone)), ExpiryAccuracy.DAY_MONTH_YEAR);
       case MONTH:
-        return new Expiry(ZonedDateTime.of(datetime.getDate(), LocalTime.MIDNIGHT, TimeZone.of(timezone)), ExpiryAccuracy.MONTH_YEAR);
+        return new Expiry(datetime.getDate().toLocalDate().atStartOfDay(ZoneId.of(timezone)), ExpiryAccuracy.MONTH_YEAR);
       case YEAR:
-        return new Expiry(ZonedDateTime.of(datetime.getDate(), LocalTime.MIDNIGHT, TimeZone.of(timezone)), ExpiryAccuracy.YEAR);
+        return new Expiry(datetime.getDate().toLocalDate().atStartOfDay(ZoneId.of(timezone)), ExpiryAccuracy.YEAR);
       default:
         throw new IllegalArgumentException("Invalid accuracy value on " + datetime);
     }
@@ -114,7 +111,7 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
 
   public static void toFudgeMsg(final FudgeSerializer serializer, final Expiry object, final MutableFudgeMsg msg) {
     addToMessage(msg, DATETIME_FIELD_NAME, expiryToDateTime(object));
-    addToMessage(msg, TIMEZONE_FIELD_NAME, object.getExpiry().getZone().getID());
+    addToMessage(msg, TIMEZONE_FIELD_NAME, object.getExpiry().getZone().getId());
   }
 
   //-------------------------------------------------------------------------

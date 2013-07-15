@@ -1,0 +1,18 @@
+{{#each folders}}
+  <div class="holder">
+    <div class="row">
+    {{prefix}}
+    <span class="folder{{state}}" data-portfolio="{{portfolio}}" data-node="{{node}}" data-indent="{{indent}}"></span>
+    &nbsp;&nbsp;&nbsp;&nbsp;{{name}}
+    </div>
+    <div class="children">{{{children}}}</div>
+  </div>
+{{/each}}
+{{#each files}}
+  <div class="holder">
+    <div class="row">
+      {{prefix}}<span class="file" data-portfolio="{{portfolio}}" data-node="{{node}}" data-indent="{{indent}}"></span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{name}}
+    </div>
+  </div>
+{{/each}}

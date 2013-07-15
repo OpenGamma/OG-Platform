@@ -90,11 +90,20 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code SpringFactoryBean}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static SpringFactoryBean.Meta meta() {
+    return SpringFactoryBean.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code SpringFactoryBean}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> SpringFactoryBean.Meta<R> meta() {
+  public static <R> SpringFactoryBean.Meta<R> metaSpringFactoryBean(Class<R> cls) {
     return SpringFactoryBean.Meta.INSTANCE;
   }
   static {

@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -18,13 +18,11 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -34,6 +32,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
@@ -44,7 +43,7 @@ public abstract class BondPV01Function extends AbstractFunction.NonCompiledInvok
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final BondSecurity security = (BondSecurity) target.getSecurity();    
+    final BondSecurity security = target.getValue(FinancialSecurityTypes.BOND_SECURITY);
     final Object curveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     String curveName = null;
     for (ValueRequirement desiredValue : desiredValues) {
@@ -58,7 +57,7 @@ public abstract class BondPV01Function extends AbstractFunction.NonCompiledInvok
     }
 
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext
         .getConventionBundleSource(executionContext);
@@ -75,17 +74,8 @@ public abstract class BondPV01Function extends AbstractFunction.NonCompiledInvok
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY) {
-      final Security security = target.getSecurity();
-      return security instanceof BondSecurity;
-    }
-    return false;
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.BOND_SECURITY;
   }
 
 }

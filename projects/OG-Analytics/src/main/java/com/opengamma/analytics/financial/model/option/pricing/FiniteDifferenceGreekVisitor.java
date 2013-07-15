@@ -5,11 +5,10 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.greeks.GreekVisitor;
+import com.opengamma.analytics.financial.greeks.AbstractGreekVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
@@ -24,7 +23,7 @@ import com.opengamma.util.time.DateUtils;
  * @param <S> Type of the option data bundle
  * @param <T> Type of the option definition
  */
-public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> implements GreekVisitor<Double> {
+public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> extends AbstractGreekVisitor<Double> {
   private static final double EPS = 1e-4; // TODO make this so it can be set
   private final Function1D<S, Double> _pricingFunction;
   private final S _data;

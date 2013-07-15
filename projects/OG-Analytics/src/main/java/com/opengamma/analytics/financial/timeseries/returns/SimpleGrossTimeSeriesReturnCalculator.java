@@ -5,19 +5,13 @@
  */
 package com.opengamma.analytics.financial.timeseries.returns;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * <p>
  * This class contains a function that calculates the gross one-period simple
  * return of an asset that pays dividends periodically. This is defined at time
  * <i>t</i> as:<br>
@@ -27,7 +21,6 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  * 
  */
-
 public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
   public SimpleGrossTimeSeriesReturnCalculator(final CalculationMode mode) {
@@ -56,42 +49,46 @@ public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalcu
    */
   @Override
   public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
-    Validate.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
-    Validate.notNull(x[0], "first time series");
-    final FastIntDoubleTimeSeries ts = x[0].toFastIntDoubleTimeSeries();
+    ArgumentChecker.notNull(x[0], "first time series");
+    final LocalDateDoubleTimeSeries ts = x[0];
     if (ts.size() < 2) {
       throw new TimeSeriesException("Need at least two data points to calculate return series");
     }
-    FastIntDoubleTimeSeries d = null;
+    LocalDateDoubleTimeSeries d = null;
     if (x.length > 1) {
       if (x[1] != null) {
-        d = x[1].toFastIntDoubleTimeSeries();
+        d = x[1];
       }
     }
-    final int n = ts.size();
-    final int[] times = new int[n];
-    final double[] data = new double[n];
-    final Iterator<Map.Entry<Integer, Double>> iter = ts.iterator();
-    Map.Entry<Integer, Double> previousEntry = iter.next();
-    Map.Entry<Integer, Double> entry;
+    
+    final int[] resultDates = new int[ts.size() - 1];
+    final double[] resultValues = new double[ts.size() - 1];
+    int resultIndex = 0;
+    
+    final LocalDateDoubleEntryIterator it = ts.iterator();
+    it.nextTimeFast();
+    double previousValue = it.currentValue();
+    
     double dividend;
     Double dividendTSData;
-    int i = 0;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
-        times[i] = entry.getKey();
+    while (it.hasNext()) {
+      int date = it.nextTimeFast();
+      double value = it.currentValue();
+      
+      if (isValueNonZero(previousValue) && isValueNonZero(value)) {
+        resultDates[resultIndex] = date;
         if (d == null) {
           dividend = 0;
         } else {
-          dividendTSData = d.getValue(entry.getKey());
+          dividendTSData = d.getValue(date);
           dividend = dividendTSData == null ? 0 : dividendTSData;
         }
-        data[i++] = (entry.getValue() + dividend) / previousEntry.getValue();
+        resultValues[resultIndex++] = (value + dividend) / previousValue;
       }
-      previousEntry = entry;
+      previousValue = value;
     }
-    return getSeries(x[0], times, data, i);
+    return getSeries(x[0], resultDates, resultValues, resultIndex);
   }
+
 }

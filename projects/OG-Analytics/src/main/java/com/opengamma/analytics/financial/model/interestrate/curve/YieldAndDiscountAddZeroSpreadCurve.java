@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,7 +28,7 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
   private final double _sign;
 
   /**
-   * Constructor from an array of curves. 
+   * Constructor from an array of curves.
    * The new curve interest rate (zero-coupon continuously compounded) will be the sum (or the difference) of the different underlying curves.
    * @param name The curve name.
    * @param substract If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
@@ -42,7 +42,7 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
   }
 
   @Override
-  public double getInterestRate(Double t) {
+  public double getInterestRate(final Double t) {
     double rate = _curves[0].getInterestRate(t);
     for (int loopcurve = 1; loopcurve < _curves.length; loopcurve++) {
       rate += _sign * _curves[loopcurve].getInterestRate(t);
@@ -51,36 +51,36 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
   }
 
   @Override
-  public double[] getInterestRateParameterSensitivity(double time) {
-    final List<Double> result = new ArrayList<Double>();
+  public double[] getInterestRateParameterSensitivity(final double time) {
+    final DoubleArrayList result = new DoubleArrayList();
     double[] temp;
     temp = _curves[0].getInterestRateParameterSensitivity(time);
-    for (int loops = 0; loops < temp.length; loops++) {
-      result.add(temp[loops]);
+    for (final double element : temp) {
+      result.add(element);
     }
     for (int loopcurve = 1; loopcurve < _curves.length; loopcurve++) {
       temp = _curves[loopcurve].getInterestRateParameterSensitivity(time);
-      for (int loops = 0; loops < temp.length; loops++) {
-        result.add(temp[loops]);
+      for (final double element : temp) {
+        result.add(element);
       }
     }
-    return ArrayUtils.toPrimitive(result.toArray(new Double[0]));
+    return result.toDoubleArray();
   }
 
   @Override
   public int getNumberOfParameters() {
     int result = 0;
-    for (int loopcurve = 0; loopcurve < _curves.length; loopcurve++) {
-      result += _curves[loopcurve].getNumberOfParameters();
+    for (final YieldAndDiscountCurve curve : _curves) {
+      result += curve.getNumberOfParameters();
     }
     return result;
   }
 
   @Override
   public List<String> getUnderlyingCurvesNames() {
-    List<String> names = new ArrayList<String>();
-    for (int loopcurve = 0; loopcurve < _curves.length; loopcurve++) {
-      names.add(_curves[loopcurve].getName());
+    final List<String> names = new ArrayList<>();
+    for (final YieldAndDiscountCurve curve : _curves) {
+      names.add(curve.getName());
     }
     return names;
   }
@@ -101,7 +101,7 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -111,7 +111,7 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    YieldAndDiscountAddZeroSpreadCurve other = (YieldAndDiscountAddZeroSpreadCurve) obj;
+    final YieldAndDiscountAddZeroSpreadCurve other = (YieldAndDiscountAddZeroSpreadCurve) obj;
     if (!Arrays.equals(_curves, other._curves)) {
       return false;
     }

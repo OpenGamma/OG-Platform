@@ -12,7 +12,7 @@ import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBea
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.ExternalId;

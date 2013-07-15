@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- *  Describes a partial differential for a option price V in the form 
+ *  Describes a partial differential for a option price V in the form
  *  $\frac{\partial V}{\partial t} + a(S,t) \frac{\partial^2 V}{\partial S^2}$ + b(S,t) \frac{\partial V}{\partial S} + (S,t)V = 0$
  */
 public class PDEOptionDataBundle extends StandardOptionDataBundle {
@@ -46,6 +46,40 @@ public class PDEOptionDataBundle extends StandardOptionDataBundle {
   @Override
   public PDEOptionDataBundle withSpot(final double spot) {
     return new PDEOptionDataBundle(_a, _b, _c, spot, getDate());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _a.hashCode();
+    result = prime * result + _b.hashCode();
+    result = prime * result + _c.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof PDEOptionDataBundle)) {
+      return false;
+    }
+    final PDEOptionDataBundle other = (PDEOptionDataBundle) obj;
+    if (!ObjectUtils.equals(_a, other._a)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_b, other._b)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_c, other._c)) {
+      return false;
+    }
+    return true;
   }
 
 }

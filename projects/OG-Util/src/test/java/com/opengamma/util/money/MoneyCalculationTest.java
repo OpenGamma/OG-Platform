@@ -11,10 +11,12 @@ import java.math.BigDecimal;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MoneyCalculationTest {
 
   public void test_add() {

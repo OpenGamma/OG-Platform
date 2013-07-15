@@ -5,21 +5,20 @@
  */
 package com.opengamma.analytics.financial.forex.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a non-deliverable foreign exchange European option. The option exercise date is the underlying NDF fixing date.
- * When the option is a call, the option holder has the right to enter into the Forex NDF; when the option is a put, the option holder has the right to enter into a NDF 
+ * When the option is a call, the option holder has the right to enter into the Forex NDF; when the option is a put, the option holder has the right to enter into a NDF
  * transaction equal to the underlying but with opposite signs. The settlement is done in the second currency of the NDF.
- * A Call on a Forex on KRW / USD at strike 1124.00 is thus the right to receive 1.00 USD and pay 1124.00 KRW and cash settle the difference in USD. 
+ * A Call on a Forex on KRW / USD at strike 1124.00 is thus the right to receive 1.00 USD and pay 1124.00 KRW and cash settle the difference in USD.
  * A put on a Forex on KRW / USD at strike 1124.00 is thus the right to pay 1.00 USD and receive 1124.00 KRW and cash settle the difference in USD.
  * There is not a full put/call parity in NDO as the two currencies do not have a fully symmetric role.
  */
@@ -42,12 +41,12 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
   /**
    * Constructor from the details.
    * @param forex The underlying Forex transaction.
-   * @param isCall The call (true) / put (false) flag. When the option is a call, the option holder has the right to enter into the Forex NDF; when the option is a put, 
+   * @param isCall The call (true) / put (false) flag. When the option is a call, the option holder has the right to enter into the Forex NDF; when the option is a put,
    * the option holder has the right to enter into a NDF transaction equal to the underlying but with opposite signs.
    * @param isLong The long (true) / short (false) flag.
    */
-  public ForexNonDeliverableOptionDefinition(final ForexNonDeliverableForwardDefinition forex, final boolean isCall, boolean isLong) {
-    Validate.notNull(forex, "Underlying forex");
+  public ForexNonDeliverableOptionDefinition(final ForexNonDeliverableForwardDefinition forex, final boolean isCall, final boolean isLong) {
+    ArgumentChecker.notNull(forex, "Underlying forex");
     _underlyingNDF = forex;
     _isCall = isCall;
     _isLong = isLong;
@@ -90,6 +89,7 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
    */
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableOptionDefinition(this, data);
   }
 
@@ -98,6 +98,7 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
    */
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableOptionDefinition(this);
   }
 
@@ -112,7 +113,7 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -122,7 +123,7 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexNonDeliverableOptionDefinition other = (ForexNonDeliverableOptionDefinition) obj;
+    final ForexNonDeliverableOptionDefinition other = (ForexNonDeliverableOptionDefinition) obj;
     if (_isCall != other._isCall) {
       return false;
     }

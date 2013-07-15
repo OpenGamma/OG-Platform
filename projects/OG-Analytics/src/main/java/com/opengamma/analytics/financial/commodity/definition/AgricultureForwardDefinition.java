@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -117,24 +117,27 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    *
    * @param date  fixing time
    * @param referencePrice reference price
+   * @param yieldCurveNames not used
    * @return the fixed derivative
    */
   @Override
-  public AgricultureForward toDerivative(final ZonedDateTime date, final double referencePrice) {
+  public AgricultureForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new AgricultureForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
-        referencePrice, getCurrency());
+        referencePrice.doubleValue(), getCurrency());
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAgricultureForwardDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAgricultureForwardDefinition(this);
   }
 

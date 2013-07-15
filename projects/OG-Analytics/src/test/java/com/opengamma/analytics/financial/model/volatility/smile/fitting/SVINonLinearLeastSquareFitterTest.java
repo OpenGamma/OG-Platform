@@ -26,7 +26,7 @@ public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTes
   private static final SVIVolatilityFunction SVI_VOL_FUNCTION = new SVIVolatilityFunction();
   private static final SVIFormulaData SVI_DATA = new SVIFormulaData(0.1, 0.3, -0.5, 0.3, 0.2);
   private static final SVINonLinearLeastSquareFitter FITTER = new SVINonLinearLeastSquareFitter(new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-9));
-  protected static final double[] INITIAL_VALUES;
+  static final double[] INITIAL_VALUES;
 
   static {
     final int n = 10;

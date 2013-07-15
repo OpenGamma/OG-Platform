@@ -26,11 +26,12 @@ import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.resolver.FixedDistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergEntitlementCheckerTest {
 
   static final String AAPL_BB_ID_UNIQUE = "EQ0010169500001000";
@@ -39,7 +40,7 @@ public class BloombergEntitlementCheckerTest {
 
   private LiveDataEntitlementChecker _entitlementChecker;
 
-  @BeforeClass
+  @BeforeClass(enabled = false)
   public void setUpClass() {
     BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
     BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(connector);

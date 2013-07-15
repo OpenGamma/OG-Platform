@@ -12,7 +12,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -96,9 +95,8 @@ public class DataBatchMasterResource extends AbstractDataResource {
     return responseOkFudge(result);
   }  
 
-  @GET
   @Path("run/{id}")
-  public DataBatchRunResource batchRuns(@QueryParam("id") final String runId) {
+  public DataBatchRunResource batchRuns(@PathParam("id") final String runId) {
     ObjectId id = ObjectId.parse(runId);
     return new DataBatchRunResource(id, getMaster());
   }

@@ -7,19 +7,18 @@ package com.opengamma.analytics.financial.timeseries.util;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
  */
 public class TimeSeriesDataTestUtilsTest {
-  private static final DoubleTimeSeries<?> TS1 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5}, new double[] {1, 2, 3, 4, 5});
-  private static final DoubleTimeSeries<?> TS2 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {10, 20, 30, 40, 50}, new double[] {1, 2, 3, 4, 5});
-  private static final DoubleTimeSeries<?> TS3 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4});
-  private static final DoubleTimeSeries<?> TS4 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5}, new double[] {10, 20, 30, 40, 50});
+  private static final DoubleTimeSeries<?> TS1 = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4, 5}, new double[] {1, 2, 3, 4, 5});
+  private static final DoubleTimeSeries<?> TS2 = ImmutableInstantDoubleTimeSeries.of(new long[] {10, 20, 30, 40, 50}, new double[] {1, 2, 3, 4, 5});
+  private static final DoubleTimeSeries<?> TS3 = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4});
+  private static final DoubleTimeSeries<?> TS4 = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4, 5}, new double[] {10, 20, 30, 40, 50});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOrEmptyWithNull() {
@@ -28,7 +27,7 @@ public class TimeSeriesDataTestUtilsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOrEmptyWithEmpty() {
-    TimeSeriesDataTestUtils.testNotNullOrEmpty(FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
+    TimeSeriesDataTestUtils.testNotNullOrEmpty(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test
@@ -43,7 +42,7 @@ public class TimeSeriesDataTestUtilsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesSizeWithEmpty() {
-    TimeSeriesDataTestUtils.testTimeSeriesSize(FastArrayIntDoubleTimeSeries.EMPTY_SERIES, 2);
+    TimeSeriesDataTestUtils.testTimeSeriesSize(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES, 2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -73,12 +72,12 @@ public class TimeSeriesDataTestUtilsTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithEmpty1() {
-    TimeSeriesDataTestUtils.testTimeSeriesDates(FastArrayIntDoubleTimeSeries.EMPTY_SERIES, TS2);
+    TimeSeriesDataTestUtils.testTimeSeriesDates(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, TS2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithEmpty2() {
-    TimeSeriesDataTestUtils.testTimeSeriesDates(TS1, FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
+    TimeSeriesDataTestUtils.testTimeSeriesDates(TS1, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

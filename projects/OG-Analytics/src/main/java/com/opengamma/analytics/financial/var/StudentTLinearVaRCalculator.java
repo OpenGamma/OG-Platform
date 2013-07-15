@@ -6,9 +6,9 @@
 package com.opengamma.analytics.financial.var;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -19,17 +19,17 @@ public class StudentTLinearVaRCalculator<T> implements VaRCalculator<StudentTVaR
   private final Function<T, Double> _stdCalculator;
 
   public StudentTLinearVaRCalculator(final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator) {
-    Validate.notNull(meanCalculator, "mean calculator");
-    Validate.notNull(stdCalculator, "standard deviation calculator");
+    ArgumentChecker.notNull(meanCalculator, "mean calculator");
+    ArgumentChecker.notNull(stdCalculator, "standard deviation calculator");
     _meanCalculator = meanCalculator;
     _stdCalculator = stdCalculator;
   }
 
   @Override
   public VaRCalculationResult evaluate(final StudentTVaRParameters parameters, final T... data) {
-    Validate.notNull(parameters, "parameters");
-    Validate.notNull(data, "data");
-    Double value = parameters.getMult() * _stdCalculator.evaluate(data) - parameters.getScale() * _meanCalculator.evaluate(data);
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(data, "data");
+    final Double value = parameters.getMult() * _stdCalculator.evaluate(data) - parameters.getScale() * _meanCalculator.evaluate(data);
     // REVIEW kirk 2012-06-22 -- Is the "stdCalculator" a standard deviation calculator
     // that we can use for the result?
     return new VaRCalculationResult(value, null);

@@ -70,7 +70,6 @@ public class DbSecurityMasterFactoryBean extends AbstractDbMasterFactoryBean<DbS
    * The meta-bean for {@code DbSecurityMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbSecurityMasterFactoryBean.Meta meta() {
     return DbSecurityMasterFactoryBean.Meta.INSTANCE;
   }
@@ -166,7 +165,7 @@ public class DbSecurityMasterFactoryBean extends AbstractDbMasterFactoryBean<DbS
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "cacheManager");
 
     /**

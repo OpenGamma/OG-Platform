@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -16,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefiniti
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of transaction on an interest rate future option security with premium paid up-front (CME type).
@@ -46,13 +45,14 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
    * @param premiumDate The transaction date.
    * @param tradePrice The transaction price.
    */
-  public InterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumSecurityDefinition underlyingOption, int quantity, ZonedDateTime premiumDate, double tradePrice) {
-    Validate.notNull(underlyingOption, "underlying option");
-    Validate.notNull(premiumDate, "premium date");
+  public InterestRateFutureOptionPremiumTransactionDefinition(final InterestRateFutureOptionPremiumSecurityDefinition underlyingOption, final int quantity,
+      final ZonedDateTime premiumDate, final double tradePrice) {
+    ArgumentChecker.notNull(underlyingOption, "underlying option");
+    ArgumentChecker.notNull(premiumDate, "premium date");
     this._underlyingOption = underlyingOption;
     this._quantity = quantity;
     this._tradePrice = tradePrice;
-    double premiumAmount = _tradePrice * _underlyingOption.getUnderlyingFuture().getNotional() * _underlyingOption.getUnderlyingFuture().getPaymentAccrualFactor();
+    final double premiumAmount = _tradePrice * _underlyingOption.getUnderlyingFuture().getNotional() * _underlyingOption.getUnderlyingFuture().getPaymentAccrualFactor();
     _premium = new PaymentFixedDefinition(underlyingOption.getCurrency(), premiumDate, premiumAmount);
   }
 
@@ -66,7 +66,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
 
   /**
    * Gets the quantity of the transaction. Can be positive or negative.
-   * @return The quantity of the transaction. 
+   * @return The quantity of the transaction.
    */
   public int getQuantity() {
     return _quantity;
@@ -89,7 +89,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
   }
 
   @Override
-  public InterestRateFutureOptionPremiumTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public InterestRateFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final InterestRateFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date, yieldCurveNames);
     //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
@@ -101,12 +101,14 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumTransactionDefinition(this);
   }
 
@@ -124,7 +126,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -134,7 +136,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionPremiumTransactionDefinition other = (InterestRateFutureOptionPremiumTransactionDefinition) obj;
+    final InterestRateFutureOptionPremiumTransactionDefinition other = (InterestRateFutureOptionPremiumTransactionDefinition) obj;
     if (!ObjectUtils.equals(_premium, other._premium)) {
       return false;
     }

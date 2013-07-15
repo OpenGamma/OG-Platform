@@ -11,13 +11,12 @@ import static org.testng.AssertJUnit.assertNotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
@@ -32,10 +31,12 @@ import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests QueryPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -533,7 +534,6 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     PositionSearchResult test = _posMaster.search(request);
     
-    System.out.println(test.getDocuments());
     assertEquals(1, test.getDocuments().size());
     assert121(test.getDocuments().get(0));
   }

@@ -8,6 +8,8 @@ package com.opengamma.id;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.Month.DECEMBER;
+import static org.threeten.bp.Month.JANUARY;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,27 +19,26 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ExternalIdBundleWithDates}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdBundleWithDatesTest {
 
   private final ExternalId _id11 = ExternalId.of("D1", "V1");
-  private final ExternalIdWithDates _idwd11 = ExternalIdWithDates.of(_id11, LocalDate.of(2000, MonthOfYear.JANUARY, 1), LocalDate.of(2001, MonthOfYear.JANUARY, 1));
+  private final ExternalIdWithDates _idwd11 = ExternalIdWithDates.of(_id11, LocalDate.of(2000, JANUARY, 1), LocalDate.of(2001, JANUARY, 1));
   private final ExternalId _id21 = ExternalId.of("D2", "V1");
   private final ExternalIdWithDates _idwd21 = ExternalIdWithDates.of(_id21, null, null);
   private final ExternalId _id12 = ExternalId.of("D1", "V2");
-  private final ExternalIdWithDates _idwd12 = ExternalIdWithDates.of(_id12, LocalDate.of(2001, MonthOfYear.JANUARY, 2), null);
+  private final ExternalIdWithDates _idwd12 = ExternalIdWithDates.of(_id12, LocalDate.of(2001, JANUARY, 2), null);
   private final ExternalId _id22 = ExternalId.of("D2", "V2");
-  private final ExternalIdWithDates _idwd22 = ExternalIdWithDates.of(_id22, null, LocalDate.of(2010, MonthOfYear.DECEMBER, 30));
+  private final ExternalIdWithDates _idwd22 = ExternalIdWithDates.of(_id22, null, LocalDate.of(2010, DECEMBER, 30));
   
   public void singleton_empty() {
     assertEquals(0, ExternalIdBundleWithDates.EMPTY.size());

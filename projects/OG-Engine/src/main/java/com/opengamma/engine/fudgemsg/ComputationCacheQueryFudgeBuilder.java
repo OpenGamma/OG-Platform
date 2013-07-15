@@ -17,17 +17,17 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
+import com.opengamma.engine.view.cycle.ComputationCycleQuery;
 
 /**
  * Fudge message builder for {@code ComputationCacheQuery}.
  */
 @FudgeBuilderFor(ComputationCycleQuery.class)
-public class ComputationCacheQueryFudgeBuilder implements FudgeBuilder<ComputationCycleQuery>  {
+public class ComputationCacheQueryFudgeBuilder implements FudgeBuilder<ComputationCycleQuery> {
 
   private static final String CALCULATION_CONFIGURATION_FIELD_NAME = "calculationConfigurationName";
   private static final String VALUE_SPECIFICATIONS_FIELD_NAME = "valueSpecifications";
-  
+
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputationCycleQuery object) {
     MutableFudgeMsg msg = serializer.newMessage();
@@ -46,15 +46,15 @@ public class ComputationCacheQueryFudgeBuilder implements FudgeBuilder<Computati
   public ComputationCycleQuery buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     ComputationCycleQuery computationCacheQuery = new ComputationCycleQuery();
     computationCacheQuery.setCalculationConfigurationName(message.getString(CALCULATION_CONFIGURATION_FIELD_NAME));
-    
+
     Collection<ValueSpecification> specs = Lists.newArrayList();
-    
+
     FudgeMsg valueSpecificationMessage = message.getMessage(VALUE_SPECIFICATIONS_FIELD_NAME);
     for (FudgeField fudgeField : valueSpecificationMessage) {
       specs.add(deserializer.fieldValueToObject(ValueSpecification.class, fudgeField));
     }
     computationCacheQuery.setValueSpecifications(specs);
-    
+
     return computationCacheQuery;
   }
 

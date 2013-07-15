@@ -19,11 +19,12 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -40,9 +41,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.money.Currency;
 
 /**
  * Function to source time series data from a {@link HistoricalTimeSeriesSource} attached to the execution context needed to convert each of the instruments in a curve to their OG-Analytics derivative
@@ -81,13 +80,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    return (uid != null) && uid.getScheme().equals(Currency.OBJECT_SCHEME);
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -103,7 +96,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
     if ((curveCalculationConfigs == null) || (curveCalculationConfigs.size() != 1)) {
       return null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(Iterables.getOnlyElement(curveCalculationConfigs));
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
@@ -116,17 +109,15 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(curveCalculationConfigName);
-    final Set<ValueRequirement> timeSeriesRequirements = new HashSet<ValueRequirement>();
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final Set<ValueRequirement> timeSeriesRequirements = new HashSet<>();
     final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle();
-    for (final String curveName : curveNames) {
-      final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
-      final ValueRequirement specRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), properties);
-      final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(specRequirement);
-      if (curve == null) {
-        throw new OpenGammaRuntimeException("Could not get yield curve specification for curve named " + curveName + " with target " + target);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    for (final ComputedValue input : inputs.getAllValues()) {
+      if (!input.getSpecification().getValueName().equals(ValueRequirementNames.YIELD_CURVE_SPEC)) {
+        continue;
       }
+      final String curveName = input.getSpecification().getProperty(ValuePropertyNames.CURVE);
+      final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) input.getValue();
       for (final FixedIncomeStripWithSecurity strip : curve.getStrips()) {
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(strip.getSecurity());
         final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(strip.getSecurity(), definition);
@@ -137,7 +128,8 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
       }
       final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
       for (final ValueRequirement timeSeriesRequirement : timeSeriesRequirements) {
-        final HistoricalTimeSeries hts = HistoricalTimeSeriesFunction.executeImpl(executionContext, timeSeriesSource, timeSeriesRequirement);
+        final HistoricalTimeSeries hts = HistoricalTimeSeriesFunction.executeImpl(executionContext, timeSeriesSource, timeSeriesRequirement.getTargetReference().getSpecification(),
+            timeSeriesRequirement);
         if (hts == null) {
           throw new OpenGammaRuntimeException("Can't get time series for " + timeSeriesRequirement);
         }
@@ -145,8 +137,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
       }
     }
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES,
-        target.toSpecification(), properties), timeSeries));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties), timeSeries));
   }
 
 }

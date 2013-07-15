@@ -44,6 +44,11 @@ public class MetalFutureSecurity extends CommodityFutureSecurity {
   public MetalFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category) {
     super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
   }
+  
+  public MetalFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category, ExternalId underlyingId) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
+    setUnderlyingId(underlyingId);
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -152,7 +157,7 @@ public class MetalFutureSecurity extends CommodityFutureSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "underlyingId");
 
     /**

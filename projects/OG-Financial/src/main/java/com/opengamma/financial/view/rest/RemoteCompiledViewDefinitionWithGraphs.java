@@ -5,27 +5,35 @@
  */
 package com.opengamma.financial.view.rest;
 
-import static com.opengamma.util.functional.Functional.merge;
+import static com.opengamma.lambdava.streams.Lambdava.merge;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
 import javax.ws.rs.core.UriBuilder;
+
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**
@@ -35,75 +43,128 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
 
   private final URI _baseUri;
   private final FudgeRestClient _client;
-  
-  public RemoteCompiledViewDefinitionWithGraphs(URI baseUri) {
+
+  public RemoteCompiledViewDefinitionWithGraphs(final URI baseUri) {
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
   }
 
+  private RemoteCompiledViewDefinitionWithGraphs(final URI baseUri, final FudgeRestClient client) {
+    _baseUri = baseUri;
+    _client = client;
+  }
+
+  @Override
+  public VersionCorrection getResolverVersionCorrection() {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
+  @Override
+  public String getCompilationIdentifier() {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
+  @Override
+  public CompiledViewDefinitionWithGraphs withResolverVersionCorrection(final VersionCorrection versionCorrection) {
+    return new RemoteCompiledViewDefinitionWithGraphs(_baseUri, _client) {
+      @Override
+      public VersionCorrection getResolverVersionCorrection() {
+        return versionCorrection;
+      }
+    };
+  }
+
+  @Override
+  public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+                                                                               Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
   @Override
   public ViewDefinition getViewDefinition() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VIEW_DEFINITION).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VIEW_DEFINITION).build();
     return _client.accessFudge(uri).get(ViewDefinition.class);
   }
 
   @Override
   public Portfolio getPortfolio() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_PORTFOLIO).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_PORTFOLIO).build();
     return _client.accessFudge(uri).get(Portfolio.class);
   }
-  
+
   @Override
-  public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration) {
-    URI baseUri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
-    URI uri = DataCompiledViewDefinitionResource.uriCompiledCalculationConfiguration(baseUri, viewCalculationConfiguration);
+  public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(final String viewCalculationConfiguration) {
+    final URI baseUri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
+    final URI uri = DataCompiledViewDefinitionResource.uriCompiledCalculationConfiguration(baseUri, viewCalculationConfiguration);
     return _client.accessFudge(uri).get(CompiledViewCalculationConfiguration.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();
     return _client.accessFudge(uri).get(List.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_MARKET_DATA_REQUIREMENTS).build();
+  public Map<String, CompiledViewCalculationConfiguration> getCompiledCalculationConfigurationsMap() {
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS_MAP).build();
     return _client.accessFudge(uri).get(Map.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
+  public Set<ValueSpecification> getMarketDataRequirements() {
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_MARKET_DATA_REQUIREMENTS).build();
+    return _client.accessFudge(uri).get(Set.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
   public Set<ComputationTargetSpecification> getComputationTargets() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPUTATION_TARGETS).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPUTATION_TARGETS).build();
     return _client.accessFudge(uri).get(Set.class);
   }
 
   @Override
   public Instant getValidFrom() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_FROM).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_FROM).build();
     return _client.accessFudge(uri).get(Instant.class);
   }
 
   @Override
   public Instant getValidTo() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_TO).build();
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_TO).build();
     return _client.accessFudge(uri).get(Instant.class);
   }
 
   @Override
-  public DependencyGraphExplorer getDependencyGraphExplorer(String calcConfig) {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_GRAPHS).path(calcConfig).build();
+  public Collection<DependencyGraphExplorer> getDependencyGraphExplorers() {
+    final Collection<CompiledViewCalculationConfiguration> configurations = getCompiledCalculationConfigurations();
+    final List<DependencyGraphExplorer> explorers = new ArrayList<DependencyGraphExplorer>(configurations.size());
+    for (CompiledViewCalculationConfiguration configuration : configurations) {
+      explorers.add(getDependencyGraphExplorer(configuration.getName()));
+    }
+    return explorers;
+  }
+
+  @Override
+  public DependencyGraphExplorer getDependencyGraphExplorer(final String calcConfig) {
+    final URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_GRAPHS).path(calcConfig).build();
     return new RemoteDependencyGraphExplorer(uri);
   }
 
   @Override
+  public Map<ComputationTargetReference, UniqueId> getResolvedIdentifiers() {
+    throw new UnsupportedOperationException("TODO: Implement this method over REST");
+  }
+
+  @Override
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
-    Map<ValueSpecification, Set<ValueRequirement>> terminalValuesRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
-    Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations =  getCompiledCalculationConfigurations();
-    for (CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
+    final Map<ValueSpecification, Set<ValueRequirement>> terminalValuesRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+    final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations = getCompiledCalculationConfigurations();
+    for (final CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
       merge(terminalValuesRequirements, compiledCalculationConfiguration.getTerminalOutputSpecifications());
     }
     return terminalValuesRequirements;

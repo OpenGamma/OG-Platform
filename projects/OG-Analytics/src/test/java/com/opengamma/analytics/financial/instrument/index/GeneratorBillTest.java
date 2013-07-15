@@ -7,10 +7,8 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
@@ -36,7 +34,8 @@ public class GeneratorBillTest {
   private final static String ISSUER_BEL = "BELGIUM GOVT";
   private final static ZonedDateTime END_DATE = DateUtils.getUTCDate(2012, 9, 20);
   private final static double NOTIONAL = 1000;
-  private final static BillSecurityDefinition BILL_BEL_SEC_DEFINITION = new BillSecurityDefinition(EUR, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_CONVENTION, ACT360, ISSUER_BEL);
+  private final static BillSecurityDefinition BILL_BEL_SEC_DEFINITION = new BillSecurityDefinition(EUR, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_CONVENTION,
+      ACT360, ISSUER_BEL);
 
   private final static String GENERATOR_BILL_NAME = "BE0312683528";
   private final static GeneratorBill GENERATOR_BILL = new GeneratorBill(GENERATOR_BILL_NAME, BILL_BEL_SEC_DEFINITION);
@@ -55,12 +54,13 @@ public class GeneratorBillTest {
 
   @Test
   public void generateInstrument() {
-    double marketQuote = -0.0001;
-    double notional = 123000;
-    double quantity = 123;
-    BillTransactionDefinition billGenerated = GENERATOR_BILL.generateInstrument(REFERENCE_DATE, Period.ofMonths(1), marketQuote, notional, marketQuote);
-    ZonedDateTime dettleDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
-    BillTransactionDefinition billExpected = BillTransactionDefinition.fromYield(BILL_BEL_SEC_DEFINITION, quantity, dettleDate, marketQuote);
+    final double marketQuote = -0.0001;
+    final double notional = 123000;
+    final double quantity = 123;
+    final GeneratorAttribute attribute = new GeneratorAttribute();
+    final BillTransactionDefinition billGenerated = GENERATOR_BILL.generateInstrument(REFERENCE_DATE, marketQuote, notional, attribute);
+    final ZonedDateTime dettleDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
+    final BillTransactionDefinition billExpected = BillTransactionDefinition.fromYield(BILL_BEL_SEC_DEFINITION, quantity, dettleDate, marketQuote);
     assertEquals("Bill Generator: generate instrument", billExpected, billGenerated);
   }
 

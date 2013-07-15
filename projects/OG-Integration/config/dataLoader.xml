@@ -19,7 +19,7 @@
     <constructor-arg ref="bbgBulkSecLoader" />
   </bean>
   
-  <bean id="htsLoader" class="com.opengamma.bbg.loader.BloombergHistoricalLoader">
+  <bean id="htsLoader" class="com.opengamma.bbg.loader.hts.BloombergHTSMasterUpdater">
     <constructor-arg ref="dbHtsMaster" />
     <constructor-arg ref="bbgHistoricalTimeSeriesSource" />
     <constructor-arg>

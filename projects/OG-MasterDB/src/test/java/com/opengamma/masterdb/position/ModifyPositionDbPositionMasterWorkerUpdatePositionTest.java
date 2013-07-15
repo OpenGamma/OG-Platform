@@ -12,16 +12,15 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.elsql.ElSqlBundle;
@@ -36,10 +35,12 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -90,7 +91,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test
   public void test_update_getUpdateGet() {
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     
     PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
@@ -129,7 +130,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   
   @Test
   public void test_updateWithTrades_getUpdateGet() {
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     
     PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
@@ -203,7 +204,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     //reload version1
     version1 = _posMaster.get(version1.getUniqueId());
     
-    PositionHistoryResult historyResult = _posMaster.history(new PositionHistoryRequest(version1.getUniqueId(), null, Instant.now(_posMaster.getTimeSource())));
+    PositionHistoryResult historyResult = _posMaster.history(new PositionHistoryRequest(version1.getUniqueId(), null, Instant.now(_posMaster.getClock())));
     assertEquals(2, historyResult.getDocuments().size());
     assertTrue(historyResult.getDocuments().contains(version1));
     assertTrue(historyResult.getDocuments().contains(version2));
@@ -255,7 +256,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     //reload version1
     version1 = _posMaster.get(version1.getUniqueId());
 
-    PositionHistoryResult historyResult = _posMaster.history(new PositionHistoryRequest(version1.getUniqueId(), null, Instant.now(_posMaster.getTimeSource())));
+    PositionHistoryResult historyResult = _posMaster.history(new PositionHistoryRequest(version1.getUniqueId(), null, Instant.now(_posMaster.getClock())));
     assertEquals(2, historyResult.getDocuments().size());
     assertTrue(historyResult.getDocuments().contains(version1));
     assertTrue(historyResult.getDocuments().contains(version2));

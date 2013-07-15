@@ -8,6 +8,7 @@ package com.opengamma.analytics.math.curve;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
@@ -33,12 +34,12 @@ public class CurveShiftFunctionFactoryTest {
 
     @Override
     public Double[] getXData() {
-      return null;
+      return ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
     }
 
     @Override
     public Double[] getYData() {
-      return null;
+      return ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
     }
 
     @Override
@@ -48,12 +49,12 @@ public class CurveShiftFunctionFactoryTest {
 
     @Override
     public Double getYValue(final Double x) {
-      return null;
+      return 0.;
     }
 
     @Override
-    public Double[] getYValueParameterSensitivity(Double x) {
-      return null;
+    public Double[] getYValueParameterSensitivity(final Double x) {
+      return ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
     }
 
   };

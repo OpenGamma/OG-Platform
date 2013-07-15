@@ -95,7 +95,6 @@ public class UserHistoryResult extends AbstractHistoryResult<UserDocument> {
    * The meta-bean for {@code UserHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static UserHistoryResult.Meta meta() {
     return UserHistoryResult.Meta.INSTANCE;
   }
@@ -149,7 +148,7 @@ public class UserHistoryResult extends AbstractHistoryResult<UserDocument> {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

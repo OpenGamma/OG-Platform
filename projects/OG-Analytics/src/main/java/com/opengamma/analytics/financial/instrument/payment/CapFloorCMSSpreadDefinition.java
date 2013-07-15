@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -20,12 +19,14 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a caplet/floorlet on CMS spread. The notional is positive for long the option and negative for short the option.
- * The pay-off of the instrument is a cap/floor on the difference between the first CMS rate and the second CMS rate. 
+ * The pay-off of the instrument is a cap/floor on the difference between the first CMS rate and the second CMS rate.
  * Both swaps underlying the CMS need to have the same settlement date.
  */
 public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implements CapFloor {
@@ -54,6 +55,14 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * The cap (true) / floor (false) flag.
    */
   private final boolean _isCap;
+  /**
+   * The calendar associated with the first leg.
+   */
+  private final Calendar _calendar1;
+  /**
+   * The calendar associated with the second leg.
+   */
+  private final Calendar _calendar2;
 
   /**
    * Cap/floor CMS spread constructor from all the details.
@@ -70,26 +79,30 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @param cmsIndex2 The index associated to the second CMS.
    * @param strike The strike
    * @param isCap The cap (true) /floor (false) flag.
+   * @param calendar1 The holiday calendar for the first leg.
+   * @param calendar2 The holiday calendar for the second leg.
    */
   public CapFloorCMSSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedIborDefinition underlyingSwap2,
-      final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
+      final IndexSwap cmsIndex2, final double strike, final boolean isCap, final Calendar calendar1, final Calendar calendar2) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
-    Validate.notNull(underlyingSwap1, "underlying swap");
-    Validate.notNull(cmsIndex1, "CMS index");
-    Validate.notNull(underlyingSwap2, "underlying swap");
-    Validate.notNull(cmsIndex2, "CMS index");
-    Validate.isTrue(underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate() == underlyingSwap2.getFixedLeg().getNthPayment(0).getAccrualStartDate(), "Identic settlement date");
+    ArgumentChecker.notNull(underlyingSwap1, "underlying swap");
+    ArgumentChecker.notNull(cmsIndex1, "CMS index");
+    ArgumentChecker.notNull(underlyingSwap2, "underlying swap");
+    ArgumentChecker.notNull(cmsIndex2, "CMS index");
+    ArgumentChecker.isTrue(underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate() == underlyingSwap2.getFixedLeg().getNthPayment(0).getAccrualStartDate(), "Identic settlement date");
     _underlyingSwap1 = underlyingSwap1;
     _cmsIndex1 = cmsIndex1;
     _underlyingSwap2 = underlyingSwap2;
     _cmsIndex2 = cmsIndex2;
     _strike = strike;
     _isCap = isCap;
+    _calendar1 = calendar1;
+    _calendar2 = calendar2;
   }
 
   /**
-   * Builder of a CMS spread cap/floor. The fixing date is computed from the start accrual date with the Ibor index spot lag (fixing in advance). 
+   * Builder of a CMS spread cap/floor. The fixing date is computed from the start accrual date with the Ibor index spot lag (fixing in advance).
    * The underlying swaps are computed from that date and the CMS indexes.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -100,19 +113,21 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @param cmsIndex2 The index associated to the second CMS.
    * @param strike The strike
    * @param isCap The cap (true) /floor (false) flag.
+   * @param calendar1 The holiday calendar of the first leg.
+   * @param calendar2 The holiday calendar of the second leg.
    * @return The CMS spread cap/floor.
    */
   public static CapFloorCMSSpreadDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final IndexSwap cmsIndex1, final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
-    Validate.notNull(accrualStartDate, "Accrual start date.");
-    Validate.notNull(cmsIndex1, "CMS index");
-    Validate.notNull(cmsIndex2, "CMS index");
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex1.getIborIndex().getSpotLag(), cmsIndex1.getIborIndex().getCalendar());
+      final double notional, final IndexSwap cmsIndex1, final IndexSwap cmsIndex2, final double strike, final boolean isCap, final Calendar calendar1, final Calendar calendar2) {
+    ArgumentChecker.notNull(accrualStartDate, "Accrual start date.");
+    ArgumentChecker.notNull(cmsIndex1, "CMS index");
+    ArgumentChecker.notNull(cmsIndex2, "CMS index");
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex1.getIborIndex().getSpotLag(), calendar1);
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
-    final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true);
-    final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true);
+    final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true, calendar1);
+    final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true, calendar2);
     return new CapFloorCMSSpreadDefinition(cmsIndex1.getIborIndex().getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap1, cmsIndex1,
-        underlyingSwap2, cmsIndex2, strike, isCap);
+        underlyingSwap2, cmsIndex2, strike, isCap, calendar1, calendar2);
   }
 
   /**
@@ -167,12 +182,14 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorCMSSpreadDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorCMSSpreadDefinition(this);
   }
 
@@ -226,12 +243,12 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
 
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    // First curve used for discounting. If two curves, the same forward is used for both swaps; 
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    // First curve used for discounting. If two curves, the same forward is used for both swaps;
     // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
@@ -252,11 +269,11 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
 
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    // First curve used for discounting. If two curves, the same forward is used for both swaps; 
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    // First curve used for discounting. If two curves, the same forward is used for both swaps;
     // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
@@ -264,16 +281,16 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
       Double fixedRate = data.getValue(getFixingDate());
       //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
       if (fixedRate == null) {
-        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
+        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().with(LocalTime.of(11, 0));
         fixedRate = data.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCmsIndex1().getIborIndex().getCalendar(),
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(_calendar1,
             getFixingDate().minusDays(1));
         fixedRate = data.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {
-          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
+          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.with(LocalTime.of(11, 0));
           fixedRate = data.getValue(previousBusinessDayAtLiborFixingTime);
         }
         if (fixedRate == null) {

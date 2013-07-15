@@ -7,15 +7,16 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 
 /**
  * Calculate present value for futures from the quoted price.
  */
-public final class PresentValueFromFuturePriceCalculator extends AbstractInstrumentDerivativeVisitor<Double, Double> {
+public final class PresentValueFromFuturePriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**
    * The calculator instance.
@@ -25,12 +26,11 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInstrum
    * The method to compute bond future prices.
    */
   private static final BondFutureDiscountingMethod METHOD_BOND_FUTURE = BondFutureDiscountingMethod.getInstance();
+
   /**
    * The method to compute interest rate future prices.
    */
-  @SuppressWarnings("unused")
-  private static final InterestRateFutureDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureDiscountingMethod.getInstance();
-
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
   /**
    * Return the calculator instance.
    * @return The instance.
@@ -45,11 +45,11 @@ public final class PresentValueFromFuturePriceCalculator extends AbstractInstrum
   private PresentValueFromFuturePriceCalculator() {
   }
 
-//  @Override
-//  public Double visitInterestRateFuture(final InterestRateFuture future, final Double futurePrice) {
-//    Validate.notNull(future);
-//    return METHOD_RATE_FUTURE.
-//  }
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final Double futurePrice) {
+    Validate.notNull(future);
+    return METHOD_RATE_FUTURE.presentValueFromPrice(future, futurePrice);
+  }
 
   @Override
   public Double visitBondFuture(final BondFuture future, final Double futurePrice) {

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform</artifactId>
+    <version>2.0.0</version>
+    <relativePath>..</relativePath>
+  </parent>  
+  <artifactId>og-platform-public</artifactId>
+  <packaging>pom</packaging>
+  <name>OG-Platform public</name>
+  <description>OpenGamma Platform public project</description>
+
+  <!-- ==================================================================== -->
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
+  <modules>
+    <module>OG-Analytics</module>
+    <module>OG-Bloomberg</module>
+    <module>OG-Client</module>
+    <module>OG-Component</module>
+    <module>OG-Core</module>
+    <module>OG-Engine</module>
+    <module>OG-Financial</module>
+    <module>OG-Integration</module>
+    <module>OG-LiveData</module>
+    <module>OG-Master</module>
+    <module>OG-MasterDB</module>
+    <module>OG-Maths</module>
+    <module>OG-Provider</module>
+    <module>OG-Security</module>
+    <module>OG-Server</module>
+    <module>OG-TimeSeries</module>
+    <module>OG-Util</module>
+    <module>OG-UtilDB</module>
+    <module>OG-Web</module>
+  </modules>
+
+  <!-- ==================================================================== -->
+  <!-- build aggregate website -->
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>${maven-project-info-reports-plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>index</report>
+              <report>dependency-info</report>
+              <report>scm</report>
+              <report>summary</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${maven-checkstyle-plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <reports>
+              <report>checkstyle-aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>${maven-surefire-report-plugin.version}</version>
+        <configuration>
+          <aggregate>true</aggregate>
+          <alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
+          <showSuccess>true</showSuccess>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>${maven-jxr-plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <!-- ==================================================================== -->
+  <distributionManagement>
+    <site>
+      <id>og-public-site</id>
+      <name>OpenGamma public site</name>
+      <url>http://developers.opengamma.com/og-platform/platform</url>
+    </site>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
+  <profiles>
+    <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
+    <profile>
+      <id>javadoc-jar</id>
+      <activation>
+        <property>
+          <name>javadoc-jar</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>aggregate-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
+    <excludePackageNames>javax.time.i18n;org.jodah.typetools</excludePackageNames>
+    <!-- Other properties -->
+    <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java</fudge.proto.searchDir>
+  </properties>
+
+</project>

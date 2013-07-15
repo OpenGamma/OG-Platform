@@ -59,7 +59,7 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
   }
   
   protected DbManagement initDbManagement(ComponentRepository repo) {
-    // REVIEW jonathan 2012-10-12 -- workaround for PLAT-2745
+    // REVIEW jonathan 2012-10-12 -- should not be doing this (PLAT-2745)
     int lastSlashIdx = getJdbcUrl().lastIndexOf("/");
     if (lastSlashIdx == -1) {
       throw new OpenGammaRuntimeException("JDBC URL must contain '/' before the database name");
@@ -298,7 +298,7 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "jdbcUrl",
         "username",

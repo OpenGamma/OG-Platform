@@ -7,6 +7,7 @@ package com.opengamma.transport.jaxrs;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -60,7 +61,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
   public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
     final MutableFudgeMsg msg = fudgeContext.newMessage();
     msg.add(TYPE_KEY, TYPE_VALUE);
-    for (String url : _uris) {
+    for (final String url : _uris) {
       msg.add(URI_KEY, url);
     }
     return msg;
@@ -77,8 +78,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
   }
 
   /**
-   * Validation service to extract a URI that can be contacted. E.g. if the remote description publishes a
-   * number of alternative ones for failover/redundancy purposes.
+   * Validation service to extract a URI that can be contacted. E.g. if the remote description publishes a number of alternative ones for failover/redundancy purposes.
    */
   public static final class Validater {
 
@@ -93,7 +93,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
     }
 
     private boolean validateType(final FudgeMsg endPoint) {
-      for (FudgeField typeField : endPoint.getAllByName(TYPE_KEY)) {
+      for (final FudgeField typeField : endPoint.getAllByName(TYPE_KEY)) {
         if (TYPE_VALUE.equals(typeField.getValue())) {
           return true;
         }
@@ -122,7 +122,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
                   result.add(uri);
                   return;
               }
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
               s_logger.warn("URI {} not accessible", uriField);
               s_logger.debug("Exception caught", ex);
             }
@@ -132,7 +132,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
       final URI uri;
       try {
         uri = result.poll(10000, TimeUnit.MILLISECONDS);
-      } catch (InterruptedException ex) {
+      } catch (final InterruptedException ex) {
         throw new OpenGammaRuntimeException("Interrupted", ex);
       }
       if (uri == null) {
@@ -141,6 +141,22 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
         s_logger.info("Using {}", uri);
       }
       return uri;
+    }
+
+    public Collection<String> getAllURIStrings(final FudgeMsg endPoint) {
+      ArgumentChecker.notNull(endPoint, "endPoint");
+      if (!validateType(endPoint)) {
+        return Collections.emptySet();
+      }
+      final Collection<FudgeField> uriFields = endPoint.getAllByName(URI_KEY);
+      final List<String> results = new ArrayList<String>(uriFields.size());
+      for (final FudgeField uriField : uriFields) {
+        final String str = endPoint.getFieldValue(String.class, uriField);
+        if (str != null) {
+          results.add(str);
+        }
+      }
+      return results;
     }
 
     public URI getAccessibleURI(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {

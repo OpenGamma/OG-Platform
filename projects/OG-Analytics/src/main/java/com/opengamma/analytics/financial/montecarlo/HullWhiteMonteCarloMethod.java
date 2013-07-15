@@ -61,31 +61,31 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param numberGenerator The random number generator.
    * @param nbPath The number of paths.
    */
-  public HullWhiteMonteCarloMethod(RandomNumberGenerator numberGenerator, int nbPath) {
+  public HullWhiteMonteCarloMethod(final RandomNumberGenerator numberGenerator, final int nbPath) {
     super(numberGenerator, nbPath);
   }
 
   /**
    * Computes the present value in the Hull-White one factor model by Monte-Carlo.
    * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
-   * block price is the total price. 
+   * block price is the total price.
    * @param instrument The swaption.
    * @param ccy The currency
    * @param dscName The discounting curve name.
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, Currency ccy, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     // TODO: remove currency and dsc curve name (should be available from the instrument)
-    YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
-    DecisionSchedule decision = DC.visit(instrument, hwData);
-    double[] decisionTime = decision.getDecisionTime();
-    double[][] impactTime = decision.getImpactTime();
-    int nbJump = decisionTime.length;
-    double numeraireTime = decisionTime[nbJump - 1];
-    double pDN = dsc.getDiscountFactor(numeraireTime);
+    final YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
+    final DecisionSchedule decision = instrument.accept(DC, hwData);
+    final double[] decisionTime = decision.getDecisionTime();
+    final double[][] impactTime = decision.getImpactTime();
+    final int nbJump = decisionTime.length;
+    final double numeraireTime = decisionTime[nbJump - 1];
+    final double pDN = dsc.getDiscountFactor(numeraireTime);
     // Discount factor to numeraire date for rebasing.
-    double[][] pDI = new double[nbJump][];
+    final double[][] pDI = new double[nbJump][];
     // Initial discount factors to each impact date.
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       pDI[loopjump] = new double[impactTime[loopjump].length];
@@ -93,8 +93,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         pDI[loopjump][i] = dsc.getDiscountFactor(impactTime[loopjump][i]) / pDN;
       }
     }
-    double[] gamma = new double[nbJump];
-    double[][] cov = new double[nbJump][nbJump];
+    final double[] gamma = new double[nbJump];
+    final double[][] cov = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       gamma[loopjump] = MODEL.beta(hwData.getHullWhiteParameter(), 0.0, decisionTime[loopjump]);
       gamma[loopjump] = gamma[loopjump] * gamma[loopjump];
@@ -104,8 +104,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         cov[loopjump][j] = gamma[loopjump];
       }
     }
-    double[][] h = MODEL.volatilityMaturityPart(hwData.getHullWhiteParameter(), numeraireTime, impactTime); // jump/cf
-    double[][] h2 = new double[nbJump][];
+    final double[][] h = MODEL.volatilityMaturityPart(hwData.getHullWhiteParameter(), numeraireTime, impactTime); // jump/cf
+    final double[][] h2 = new double[nbJump][];
     for (int i = 0; i < nbJump; i++) {
       h2[i] = new double[h[i].length];
       for (int j = 0; j < h[i].length; j++) {
@@ -117,32 +117,32 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     while (cov[nbZero][nbZero] < 1.0E-12) {
       nbZero++;
     }
-    double[][] cov2 = new double[nbJump - nbZero][nbJump - nbZero];
+    final double[][] cov2 = new double[nbJump - nbZero][nbJump - nbZero];
     for (int loopjump = 0; loopjump < nbJump - nbZero; loopjump++) {
       for (int loopjump2 = 0; loopjump2 < nbJump - nbZero; loopjump2++) {
         cov2[loopjump][loopjump2] = cov[loopjump + nbZero][loopjump2 + nbZero];
       }
     }
-    CholeskyDecompositionCommons cd = new CholeskyDecompositionCommons();
-    CholeskyDecompositionResult cdr2 = cd.evaluate(new DoubleMatrix2D(cov2));
-    double[][] covCD2 = cdr2.getL().toArray();
-    double[][] covCD = new double[nbJump][nbJump];
+    final CholeskyDecompositionCommons cd = new CholeskyDecompositionCommons();
+    final CholeskyDecompositionResult cdr2 = cd.evaluate(new DoubleMatrix2D(cov2));
+    final double[][] covCD2 = cdr2.getL().toArray();
+    final double[][] covCD = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump - nbZero; loopjump++) {
       for (int loopjump2 = 0; loopjump2 < nbJump - nbZero; loopjump2++) {
         covCD[loopjump + nbZero][loopjump2 + nbZero] = covCD2[loopjump][loopjump2];
       }
     }
-    int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
-    int[] nbPath2 = new int[nbBlock];
+    final int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
+    final int[] nbPath2 = new int[nbBlock];
     for (int i = 0; i < nbBlock - 1; i++) {
       nbPath2[i] = BLOCK_SIZE;
     }
     nbPath2[nbBlock - 1] = getNbPath() - (nbBlock - 1) * BLOCK_SIZE;
-    double[][] impactAmount = decision.getImpactAmount();
+    final double[][] impactAmount = decision.getImpactAmount();
     double pv = 0;
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
-      double[][] x = getNormalArray(nbJump, nbPath2[loopblock]);
-      double[][] y = new double[nbJump][nbPath2[loopblock]]; // jump/path
+      final double[][] x = getNormalArray(nbJump, nbPath2[loopblock]);
+      final double[][] y = new double[nbJump][nbPath2[loopblock]]; // jump/path
       for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
         for (int i = 0; i < nbJump; i++) {
           for (int j = 0; j < nbJump; j++) {
@@ -150,34 +150,34 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
           }
         }
       }
-      Double[][][] pD = pathGeneratorDiscount(pDI, y, h, h2, gamma);
-      pv += MCC.visit(instrument, new MonteCarloDiscountFactorDataBundle(pD, impactAmount)) * nbPath2[loopblock];
+      final Double[][][] pD = pathGeneratorDiscount(pDI, y, h, h2, gamma);
+      pv += instrument.accept(MCC, new MonteCarloDiscountFactorDataBundle(pD, impactAmount)) * nbPath2[loopblock];
     }
     pv *= pDN / getNbPath(); // Multiply by the numeraire.
     return CurrencyAmount.of(ccy, pv);
   }
 
   /**
-   * Computes the present value curve sensitivity in the Hull-White one factor model by Monte-Carlo. The sensitivity is computed by Adjoint Algorithmic Differentiation. 
+   * Computes the present value curve sensitivity in the Hull-White one factor model by Monte-Carlo. The sensitivity is computed by Adjoint Algorithmic Differentiation.
    * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
-   * block price is the total price. 
+   * block price is the total price.
    * @param instrument The swaption.
    * @param dscName The discounting curve name.
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
+    final YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
     // TODO: remove dsc curve name
     // Forward sweep
-    DecisionScheduleDerivative decision = DDC.visit(instrument, hwData);
-    double[] decisionTime = decision.getDecisionTime();
-    double[][] impactTime = decision.getImpactTime();
-    int nbJump = decisionTime.length;
-    double numeraireTime = decisionTime[nbJump - 1];
-    double pDN = dsc.getDiscountFactor(numeraireTime);
+    final DecisionScheduleDerivative decision = instrument.accept(DDC, hwData);
+    final double[] decisionTime = decision.getDecisionTime();
+    final double[][] impactTime = decision.getImpactTime();
+    final int nbJump = decisionTime.length;
+    final double numeraireTime = decisionTime[nbJump - 1];
+    final double pDN = dsc.getDiscountFactor(numeraireTime);
     // Discount factor to numeraire date for rebasing.
-    double[][] pDI = new double[nbJump][];
+    final double[][] pDI = new double[nbJump][];
     // Initial discount factors to each impact date.
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       pDI[loopjump] = new double[impactTime[loopjump].length];
@@ -185,8 +185,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         pDI[loopjump][i] = dsc.getDiscountFactor(impactTime[loopjump][i]) / pDN;
       }
     }
-    double[] gamma = new double[nbJump];
-    double[][] cov = new double[nbJump][nbJump];
+    final double[] gamma = new double[nbJump];
+    final double[][] cov = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       gamma[loopjump] = MODEL.beta(hwData.getHullWhiteParameter(), 0.0, decisionTime[loopjump]);
       gamma[loopjump] = gamma[loopjump] * gamma[loopjump];
@@ -196,8 +196,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         cov[loopjump][j] = gamma[loopjump];
       }
     }
-    double[][] h = MODEL.volatilityMaturityPart(hwData.getHullWhiteParameter(), numeraireTime, impactTime); // jump/cf
-    double[][] h2 = new double[nbJump][];
+    final double[][] h = MODEL.volatilityMaturityPart(hwData.getHullWhiteParameter(), numeraireTime, impactTime); // jump/cf
+    final double[][] h2 = new double[nbJump][];
     for (int i = 0; i < nbJump; i++) {
       h2[i] = new double[h[i].length];
       for (int j = 0; j < h[i].length; j++) {
@@ -209,48 +209,48 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     while (cov[nbZero][nbZero] < 1.0E-12) {
       nbZero++;
     }
-    double[][] cov2 = new double[nbJump - nbZero][nbJump - nbZero];
+    final double[][] cov2 = new double[nbJump - nbZero][nbJump - nbZero];
     for (int loopjump = 0; loopjump < nbJump - nbZero; loopjump++) {
       for (int loopjump2 = 0; loopjump2 < nbJump - nbZero; loopjump2++) {
         cov2[loopjump][loopjump2] = cov[loopjump + nbZero][loopjump2 + nbZero];
       }
     }
-    CholeskyDecompositionCommons cd = new CholeskyDecompositionCommons();
-    CholeskyDecompositionResult cdr2 = cd.evaluate(new DoubleMatrix2D(cov2));
-    double[][] covCD2 = cdr2.getL().toArray();
-    double[][] covCD = new double[nbJump][nbJump];
+    final CholeskyDecompositionCommons cd = new CholeskyDecompositionCommons();
+    final CholeskyDecompositionResult cdr2 = cd.evaluate(new DoubleMatrix2D(cov2));
+    final double[][] covCD2 = cdr2.getL().toArray();
+    final double[][] covCD = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump - nbZero; loopjump++) {
       for (int loopjump2 = 0; loopjump2 < nbJump - nbZero; loopjump2++) {
         covCD[loopjump + nbZero][loopjump2 + nbZero] = covCD2[loopjump][loopjump2];
       }
     }
-    int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
-    int[] nbPath2 = new int[nbBlock];
+    final int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
+    final int[] nbPath2 = new int[nbBlock];
     for (int i = 0; i < nbBlock - 1; i++) {
       nbPath2[i] = BLOCK_SIZE;
     }
     nbPath2[nbBlock - 1] = getNbPath() - (nbBlock - 1) * BLOCK_SIZE;
-    double[][] impactAmount = decision.getImpactAmount();
+    final double[][] impactAmount = decision.getImpactAmount();
     double pv = 0;
-    double[] pvBlock = new double[nbBlock];
+    final double[] pvBlock = new double[nbBlock];
     // Backward sweep (init)
-    double pvBar = 1.0;
-    double[] pvBlockBar = new double[nbBlock];
+    final double pvBar = 1.0;
+    final double[] pvBlockBar = new double[nbBlock];
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
       pvBlockBar[loopblock] = pDN / getNbPath() * pvBar;
     }
-    double[][] impactAmountBar = new double[nbJump][];
+    final double[][] impactAmountBar = new double[nbJump][];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       impactAmountBar[loopjump] = new double[impactAmount[loopjump].length];
     }
     // Forward sweep (end) and backward sweep (main)
-    double[][] pDIBar = new double[nbJump][];
+    final double[][] pDIBar = new double[nbJump][];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       pDIBar[loopjump] = new double[impactAmount[loopjump].length];
     }
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
-      double[][] x = getNormalArray(nbJump, nbPath2[loopblock]);
-      double[][] y = new double[nbJump][nbPath2[loopblock]]; // jump/path
+      final double[][] x = getNormalArray(nbJump, nbPath2[loopblock]);
+      final double[][] y = new double[nbJump][nbPath2[loopblock]]; // jump/path
       for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
         for (int i = 0; i < nbJump; i++) {
           for (int j = 0; j < nbJump; j++) {
@@ -258,9 +258,9 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
           }
         }
       }
-      Double[][][] pD = pathGeneratorDiscount(pDI, y, h, h2, gamma);
-      MonteCarloDiscountFactorDerivativeDataBundle mcdDB = new MonteCarloDiscountFactorDerivativeDataBundle(pD, impactAmount);
-      pvBlock[loopblock] = MCDC.visit(instrument, mcdDB) * nbPath2[loopblock];
+      final Double[][][] pD = pathGeneratorDiscount(pDI, y, h, h2, gamma);
+      final MonteCarloDiscountFactorDerivativeDataBundle mcdDB = new MonteCarloDiscountFactorDerivativeDataBundle(pD, impactAmount);
+      pvBlock[loopblock] = instrument.accept(MCDC, mcdDB) * nbPath2[loopblock];
       pv += pvBlock[loopblock];
       // Backward sweep (in block loop)
       for (int loopjump = 0; loopjump < nbJump; loopjump++) {
@@ -268,7 +268,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
           impactAmountBar[loopjump][loopimp] += mcdDB.getImpactAmountDerivative()[loopjump][loopimp] * nbPath2[loopblock] * pvBlockBar[loopblock];
         }
       }
-      Double[][][] pDBar = new Double[nbPath2[loopblock]][nbJump][];
+      final Double[][][] pDBar = new Double[nbPath2[loopblock]][nbJump][];
       for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
         for (int loopjump = 0; loopjump < nbJump; loopjump++) {
           pDBar[looppath][loopjump] = new Double[impactAmount[loopjump].length];
@@ -277,7 +277,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
           }
         }
       }
-      double[][] pDIBarTemp = pathGeneratorDiscountAdjointIDF(pDI, y, h, h2, gamma, pDBar);
+      final double[][] pDIBarTemp = pathGeneratorDiscountAdjointIDF(pDI, y, h, h2, gamma, pDBar);
       for (int loopjump = 0; loopjump < nbJump; loopjump++) {
         for (int loopimp = 0; loopimp < impactAmount[loopjump].length; loopimp++) {
           pDIBar[loopjump][loopimp] += pDIBarTemp[loopjump][loopimp];
@@ -292,8 +292,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         pDNBar += -dsc.getDiscountFactor(impactTime[loopjump][loopimp]) / (pDN * pDN) * pDIBar[loopjump][loopimp];
       }
     }
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(numeraireTime, -numeraireTime * pDN * pDNBar));
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {
@@ -304,9 +304,9 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     // Adding sensitivity due to cash flow equivalent sensitivity to curves.
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      Map<Double, InterestRateCurveSensitivity> impactAmountDerivative = decision.getImpactAmountDerivative().get(loopjump);
+      final Map<Double, InterestRateCurveSensitivity> impactAmountDerivative = decision.getImpactAmountDerivative().get(loopjump);
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {
-        InterestRateCurveSensitivity sensiCfe = impactAmountDerivative.get(impactTime[loopjump][loopimp]);
+        final InterestRateCurveSensitivity sensiCfe = impactAmountDerivative.get(impactTime[loopjump][loopimp]);
         if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
           result = result.plus(sensiCfe.multipliedBy(impactAmountBar[loopjump][loopimp]));
         }
@@ -322,8 +322,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param nbPath The number of paths.
    * @return The array of variables.
    */
-  private double[][] getNormalArray(int nbJump, int nbPath) {
-    double[][] result = new double[nbJump][nbPath];
+  private double[][] getNormalArray(final int nbJump, final int nbPath) {
+    final double[][] result = new double[nbJump][nbPath];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       result[loopjump] = getNumberGenerator().getVector(nbPath);
     }
@@ -339,13 +339,13 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param gamma The gamma parameters.
    * @return The discount factor paths (path/jump/cf).
    */
-  private Double[][][] pathGeneratorDiscount(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma) {
-    int nbJump = y.length;
-    int nbPath = y[0].length;
-    Double[][][] pD = new Double[nbPath][nbJump][];
+  private Double[][][] pathGeneratorDiscount(final double[][] initDiscountFactor, final double[][] y, final double[][] h, final double[][] h2, final double[] gamma) {
+    final int nbJump = y.length;
+    final int nbPath = y[0].length;
+    final Double[][][] pD = new Double[nbPath][nbJump][];
     double[] h2gamma;
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      int nbCF = h[loopjump].length;
+      final int nbCF = h[loopjump].length;
       h2gamma = new double[nbCF];
       for (int loopcf = 0; loopcf < nbCF; loopcf++) {
         h2gamma[loopcf] = h2[loopjump][loopcf] * gamma[loopjump];
@@ -370,13 +370,13 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param pDBar The simulated discount factor adjoints (path/jump/cf).
    * @return The initial discount factor adjoints (jump/cf).
    */
-  private double[][] pathGeneratorDiscountAdjointIDF(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma, Double[][][] pDBar) {
-    int nbJump = y.length;
-    int nbPath = y[0].length;
+  private double[][] pathGeneratorDiscountAdjointIDF(final double[][] initDiscountFactor, final double[][] y, final double[][] h, final double[][] h2, final double[] gamma, final Double[][][] pDBar) {
+    final int nbJump = y.length;
+    final int nbPath = y[0].length;
     double[] h2gamma;
-    double[][] initDiscountFactorBar = new double[nbJump][];
+    final double[][] initDiscountFactorBar = new double[nbJump][];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      int nbCF = h[loopjump].length;
+      final int nbCF = h[loopjump].length;
       h2gamma = new double[nbCF];
       for (int loopcf = 0; loopcf < nbCF; loopcf++) {
         h2gamma[loopcf] = h2[loopjump][loopcf] * gamma[loopjump];
@@ -461,7 +461,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   //  }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     // TODO: Remove currency and dsc curve name (should be available from the instrument)
     return null;

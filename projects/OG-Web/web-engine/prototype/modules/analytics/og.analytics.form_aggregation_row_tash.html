@@ -1,0 +1,17 @@
+<tr class="OG-dropmenu-options">
+  <td class="number"><span>{{idx}}</span></td>
+  <td>
+    <select class="type">
+      <option>select aggregation...</option>
+      {{#each aggregators}}
+        <option {{#if this.selected}}selected="selected"{{/if}}>{{this.text}}</option>
+      {{/each}}
+    </select>
+  </td>
+  <!-- <td>
+    <label class="og-option"><input type="checkbox" disabled="true" /><span>Include required fields</span></label>
+  </td> -->
+  <td>
+    <div class="OG-icon og-icon-delete"></div>
+  </td>
+</tr>

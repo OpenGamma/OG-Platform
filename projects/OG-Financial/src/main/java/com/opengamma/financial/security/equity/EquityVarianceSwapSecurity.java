@@ -7,8 +7,6 @@ package com.opengamma.financial.security.equity;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -97,7 +96,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   private Frequency _observationFrequency;
 
   EquityVarianceSwapSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityVarianceSwapSecurity(ExternalId spotUnderlyingId, Currency currency, double strike, double notional,
@@ -616,7 +615,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "spotUnderlyingId",
         "currency",
         "strike",

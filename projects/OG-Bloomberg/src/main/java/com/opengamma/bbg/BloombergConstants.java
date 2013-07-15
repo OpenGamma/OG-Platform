@@ -7,6 +7,9 @@ package com.opengamma.bbg;
 
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+
 import com.bloomberglp.blpapi.Name;
 import com.google.common.collect.ImmutableSet;
 
@@ -34,9 +37,21 @@ public final class BloombergConstants {
    */
   public static final String DATA_PROVIDER_UNKNOWN = "UNKNOWN";
   /**
+   * Name for default data provider.
+   */
+  public static final String DEFAULT_DATA_PROVIDER = "DEFAULT";
+  /**
    * OPTION CHAIN FIELD
    */
   public static final String FIELD_OPT_CHAIN = "OPT_CHAIN";
+  /**
+   * Future chain
+   */
+  public static final String FIELD_FUT_CHAIN = "FUT_CHAIN";
+  /**
+   * Default start date for timeseries and securities
+   */
+  public static final LocalDate DEFAULT_START_DATE = LocalDate.of(1900, Month.JANUARY, 1);
 
   // CSOFF: TODO: actually write the docs
   public static final String MARKET_SECTOR_GOVT = "Govt";
@@ -140,6 +155,7 @@ public final class BloombergConstants {
   public static final String BLOOMBERG_SECURITIES_REQUEST = "securities";
   public static final String REF_DATA_SVC_NAME = "//blp/refdata";
   public static final String AUTH_SVC_NAME = "//blp/apiauth";
+  public static final String MKT_DATA_SVC_NAME = "//blp/mktdata";
   public static final String BLOOMBERG_REFERENCE_DATA_REQUEST = "ReferenceDataRequest";
   public static final String BLOOMBERG_HISTORICAL_DATA_REQUEST = "HistoricalDataRequest";
   public static final String BLOOMBERG_INVALID_SECURITY = "INVALID_SECURITY";
@@ -177,12 +193,20 @@ public final class BloombergConstants {
   public static final String BBG_ELECTRICITY = "Electricity";
   public static final String BBG_COAL = "Coal";
   public static final String BBG_CRUDE_OIL = "Crude Oil";
+  public static final String BBG_NATURAL_GAS = "Natural Gas";
 
   //Bloomberg agriculture future types
   public static final String BBG_WHEAT = "Wheat";
+  public static final String BBG_SOY = "Soy";
+  public static final String BBG_LIVESTOCK = "Livestock";
+  public static final String BBG_FOODSTUFF = "Foodstuff";
+  public static final String BBG_CORN = "Corn";
 
   //Bloomberg index future type
   public static final String BLOOMBERG_EQUITY_INDEX_TYPE = "Equity Index";
+  public static final String BBG_NON_EQUITY_INDEX_TYPE = "Non-Equity Index";
+  public static final String BBG_WEEKLY_INDEX_OPTIONS_TYPE = "Weekly Index Options";
+
   public static final String BLOOMBERG_INTEREST_RATE_TYPE = "Interest Rate";
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE = "Financial commodity option.";
   public static final String BLOOMBERG_CURRENCY_TYPE = "Currency";
@@ -207,6 +231,13 @@ public final class BloombergConstants {
   public static final String BLOOMBERG_SINGLE_STOCK_FUTURE_SECURITY_TYPE = "SINGLE STOCK FUTURE";
   public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_TYPE = "Physical commodity future.";
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_FUTURE_TYPE = "Financial commodity future.";
+  public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_OPTION_TYPE = "Physical commodity option.";
+  public static final String BLOOMBERG_PHYSICAL_INDEX_FUTURE_TYPE = "Physical index future.";
+
+  /**
+   * Rates
+   */
+  public static final String BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE = "NON-DELIVERABLE IRS SWAP";
 
   public static final Name RESPONSE_ERROR = new Name("responseError");
   public static final Name SECURITY_DATA = new Name("securityData");

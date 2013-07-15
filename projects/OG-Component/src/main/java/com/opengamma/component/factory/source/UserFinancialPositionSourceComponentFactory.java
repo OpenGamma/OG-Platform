@@ -91,20 +91,22 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     PositionSource source = initUnderlying(repo, configuration);
-    
+
     // add user level if requested
-    PositionSource userSource = initUser(repo, configuration);
-    Map<String, PositionSource> map = new HashMap<String, PositionSource>();
+    final PositionSource userSource = initUser(repo, configuration);
+    final Map<String, PositionSource> map = new HashMap<String, PositionSource>();
     if (userSource != null) {
       String scheme = repo.getInfo(getUserPortfolioMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
       map.put(scheme, userSource);
+      scheme = repo.getInfo(getUserPositionMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
+      map.put(scheme, userSource);
       source = new DelegatingPositionSource(source, map);
     }
-    
+
     // register
-    ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
     repo.registerComponent(info, source);
@@ -113,13 +115,13 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     }
   }
 
-  protected PositionSource initUnderlying(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  protected PositionSource initUnderlying(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     PositionSource source = new MasterPositionSource(getUnderlyingPortfolioMaster(), getUnderlyingPositionMaster());
     if (getCacheManager() != null) {
       source = new EHCachingPositionSource(source, getCacheManager());
     }
     if (getUnderlyingClassifier() != null) {
-      ComponentInfo info = new ComponentInfo(PositionSource.class, getUnderlyingClassifier());
+      final ComponentInfo info = new ComponentInfo(PositionSource.class, getUnderlyingClassifier());
       info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
       info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
       repo.registerComponent(info, source);
@@ -130,13 +132,13 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     return source;
   }
 
-  protected PositionSource initUser(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  protected PositionSource initUser(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     if (getUserPortfolioMaster() == null || getUserPositionMaster() == null) {
       return null;
     }
-    PositionSource source = new MasterPositionSource(getUserPortfolioMaster(), getUserPositionMaster());
+    final PositionSource source = new MasterPositionSource(getUserPortfolioMaster(), getUserPositionMaster());
     if (getUserClassifier() != null) {
-      ComponentInfo info = new ComponentInfo(PositionSource.class, getUserClassifier());
+      final ComponentInfo info = new ComponentInfo(PositionSource.class, getUserClassifier());
       info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
       info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
       repo.registerComponent(info, source);
@@ -555,7 +557,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "cacheManager",

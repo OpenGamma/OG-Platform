@@ -1,0 +1,24 @@
+<!-- If you want to make things much more quiet, use this file like -Dlogback.configurationFile=com/opengamma/util/warn-logback.xml -->
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+      <layout class="ch.qos.logback.classic.PatternLayout">
+        <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
+      </layout>
+    </encoder>
+  </appender>
+
+  <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
+
+  <logger name="org.eclipse.jetty.util.log" level="ERROR" />
+  <logger name="com.opengamma.web.analytics" level="ERROR" />
+  <logger name="com.opengamma.master.historicaltimeseries.impl" level="ERROR" />
+  <logger name="com.opengamma.financial.security.equity.GICSCodeDescription" level="ERROR" />
+
+  <root level="warn">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="BRIDGE" />
+  </root>
+
+</configuration>

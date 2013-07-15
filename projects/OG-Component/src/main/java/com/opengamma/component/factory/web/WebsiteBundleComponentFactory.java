@@ -8,6 +8,8 @@ package com.opengamma.component.factory.web;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import net.sf.ehcache.CacheManager;
 
 import org.joda.beans.BeanBuilder;
@@ -19,7 +21,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.springframework.core.io.Resource;
+import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -41,8 +43,8 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   /**
    * The bundle configuration file.
    */
-  @PropertyDefinition(validate = "notNull")
-  private Resource _configFile;
+  @PropertyDefinition
+  private String _configXmlPath;
   /**
    * The base directory for the files to be served.
    */
@@ -87,26 +89,49 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    BundleManagerFactory managerFactory = buildBundleManager();
-    YUICompressorOptions compressorOptions = buildCompressorOptions();
+    final WebResourceBundleInitializer webResourceInitializer = new WebResourceBundleInitializer(buildCompressorOptions(), 
+        buildBundleManager(), getCacheManager(), getDeployMode(), repo);
+    repo.registerServletContextAware(webResourceInitializer);
+  }
+  
+  //-------------------------------------------------------------------------
+  static final class WebResourceBundleInitializer implements ServletContextAware {
+    private YUICompressorOptions _compressorOptions;
+    private BundleManagerFactory _bundleManagerFactory;
+    private CacheManager _cacheManager;
+    private DeployMode _deployMode;
+    private ComponentRepository _repo;
     
-    BundleCompressor compressor = new YUIBundleCompressor(compressorOptions);
-    if (getCacheManager() != null) {
-      compressor = new EHCachingBundleCompressor(compressor, getCacheManager());
-    } else {
-      if (getDeployMode() == DeployMode.PROD) {
-        throw new IllegalArgumentException("CacheManager required for production deployment");
-      }
+    public WebResourceBundleInitializer(YUICompressorOptions compressorOptions, BundleManagerFactory bundleManagerFactory, 
+        CacheManager cacheManager, DeployMode deployMode, ComponentRepository repo) {
+      _compressorOptions = compressorOptions;
+      _bundleManagerFactory = bundleManagerFactory;
+      _cacheManager = cacheManager;
+      _deployMode = deployMode;
+      _repo = repo;
     }
     
-    JerseyRestResourceFactory resource = new JerseyRestResourceFactory(WebBundlesResource.class, managerFactory, compressor, getDeployMode());
-    repo.getRestComponents().publishResource(resource);
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+      BundleCompressor compressor = new YUIBundleCompressor(_compressorOptions);
+      if (_cacheManager != null) {
+        compressor = new EHCachingBundleCompressor(compressor, _cacheManager);
+      } else {
+        if (_deployMode == DeployMode.PROD) {
+          throw new IllegalArgumentException("CacheManager required for production deployment");
+        }
+      }
+      
+      JerseyRestResourceFactory resource = new JerseyRestResourceFactory(WebBundlesResource.class, _bundleManagerFactory, compressor, _deployMode);
+      _repo.getRestComponents().publishResource(resource);
+    }
+ 
   }
 
   protected BundleManagerFactory buildBundleManager() {
     BundleManagerFactory managerFactory = new BundleManagerFactory();
     managerFactory.setBaseDir(getBaseDir());
-    managerFactory.setConfigResource(getConfigFile());
+    managerFactory.setConfigXmlPath(getConfigXmlPath());
     return managerFactory;
   }
 
@@ -141,8 +166,8 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 831093726:  // configFile
-        return getConfigFile();
+      case 1830882106:  // configXmlPath
+        return getConfigXmlPath();
       case -332642308:  // baseDir
         return getBaseDir();
       case 1938576170:  // deployMode
@@ -166,8 +191,8 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 831093726:  // configFile
-        setConfigFile((Resource) newValue);
+      case 1830882106:  // configXmlPath
+        setConfigXmlPath((String) newValue);
         return;
       case -332642308:  // baseDir
         setBaseDir((String) newValue);
@@ -199,7 +224,6 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_configFile, "configFile");
     JodaBeanUtils.notNull(_baseDir, "baseDir");
     JodaBeanUtils.notNull(_deployMode, "deployMode");
     super.validate();
@@ -212,7 +236,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       WebsiteBundleComponentFactory other = (WebsiteBundleComponentFactory) obj;
-      return JodaBeanUtils.equal(getConfigFile(), other.getConfigFile()) &&
+      return JodaBeanUtils.equal(getConfigXmlPath(), other.getConfigXmlPath()) &&
           JodaBeanUtils.equal(getBaseDir(), other.getBaseDir()) &&
           JodaBeanUtils.equal(getDeployMode(), other.getDeployMode()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
@@ -229,7 +253,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigFile());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigXmlPath());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBaseDir());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDeployMode());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
@@ -244,27 +268,26 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the bundle configuration file.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
-  public Resource getConfigFile() {
-    return _configFile;
+  public String getConfigXmlPath() {
+    return _configXmlPath;
   }
 
   /**
    * Sets the bundle configuration file.
-   * @param configFile  the new value of the property, not null
+   * @param configXmlPath  the new value of the property
    */
-  public void setConfigFile(Resource configFile) {
-    JodaBeanUtils.notNull(configFile, "configFile");
-    this._configFile = configFile;
+  public void setConfigXmlPath(String configXmlPath) {
+    this._configXmlPath = configXmlPath;
   }
 
   /**
-   * Gets the the {@code configFile} property.
+   * Gets the the {@code configXmlPath} property.
    * @return the property, not null
    */
-  public final Property<Resource> configFile() {
-    return metaBean().configFile().createProperty(this);
+  public final Property<String> configXmlPath() {
+    return metaBean().configXmlPath().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -480,10 +503,10 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code configFile} property.
+     * The meta-property for the {@code configXmlPath} property.
      */
-    private final MetaProperty<Resource> _configFile = DirectMetaProperty.ofReadWrite(
-        this, "configFile", WebsiteBundleComponentFactory.class, Resource.class);
+    private final MetaProperty<String> _configXmlPath = DirectMetaProperty.ofReadWrite(
+        this, "configXmlPath", WebsiteBundleComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code baseDir} property.
      */
@@ -528,8 +551,8 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "configFile",
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "configXmlPath",
         "baseDir",
         "deployMode",
         "cacheManager",
@@ -548,8 +571,8 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 831093726:  // configFile
-          return _configFile;
+        case 1830882106:  // configXmlPath
+          return _configXmlPath;
         case -332642308:  // baseDir
           return _baseDir;
         case 1938576170:  // deployMode
@@ -587,11 +610,11 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code configFile} property.
+     * The meta-property for the {@code configXmlPath} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Resource> configFile() {
-      return _configFile;
+    public final MetaProperty<String> configXmlPath() {
+      return _configXmlPath;
     }
 
     /**

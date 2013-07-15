@@ -10,8 +10,8 @@ import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
 
-import com.opengamma.engine.view.ViewProcessInternal;
 import com.opengamma.engine.view.ViewProcessState;
+import com.opengamma.engine.view.impl.ViewProcessInternal;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -60,13 +60,18 @@ public class ViewProcess implements ViewProcessMBean {
   }
   
   @Override
-  public String getPortfolioIdentifier() {
+  public String getPortfolioId() {
     return _viewProcess.getLatestViewDefinition().getPortfolioId().toString();
   }
 
   @Override
   public UniqueId getDefinitionId() {
     return _viewProcess.getDefinitionId();
+  }
+  
+  @Override
+  public boolean isPersistent() {
+    return _viewProcess.getLatestViewDefinition().isPersistent();
   }
 
   @Override

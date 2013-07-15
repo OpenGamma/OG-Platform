@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.generator;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
@@ -47,7 +47,7 @@ public class CashSecurityGenerator extends SecurityGenerator<CashSecurity> {
     final ZonedDateTime start = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(60) + 7), currency);
     final int length = getRandom(6) + 3;
     final ZonedDateTime maturity = nextWorkingDay(start.plusMonths(length), currency);
-    final ConventionBundle convention = getConventionSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_GENERIC_CASH"));
+    final ConventionBundle convention = getConventionBundleSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_GENERIC_CASH"));
     if (convention == null) {
       return null;
     }

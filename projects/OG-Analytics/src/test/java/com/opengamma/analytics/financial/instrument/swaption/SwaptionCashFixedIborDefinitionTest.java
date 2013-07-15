@@ -9,12 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -37,7 +37,7 @@ public class SwaptionCashFixedIborDefinitionTest {
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2011, 3, 28);
   private static final boolean IS_LONG = true;
   // Swap 2Y: description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -55,8 +55,8 @@ public class SwaptionCashFixedIborDefinitionTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER);
+  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER, CALENDAR);
   // Swaption construction
   private static final SwapFixedIborDefinition SWAP = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
   private static final SwaptionCashFixedIborDefinition SWAPTION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
@@ -84,7 +84,7 @@ public class SwaptionCashFixedIborDefinitionTest {
   @Test
   public void testToDerivative() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double expiryTime = actAct.getDayCountFraction(zonedDate, EXPIRY_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
@@ -100,7 +100,7 @@ public class SwaptionCashFixedIborDefinitionTest {
    */
   public void equalHash() {
     assertTrue(SWAPTION.equals(SWAPTION));
-    SwaptionCashFixedIborDefinition other = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
+    final SwaptionCashFixedIborDefinition other = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
     assertTrue(SWAPTION.equals(other));
     assertTrue(SWAPTION.hashCode() == other.hashCode());
     assertEquals(SWAPTION.toString(), other.toString());
@@ -110,8 +110,8 @@ public class SwaptionCashFixedIborDefinitionTest {
     assertFalse(SWAPTION.hashCode() == modifiedSwaption.hashCode());
     modifiedSwaption = SwaptionCashFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
-    IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR);
-    SwapFixedIborDefinition otherSwap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, 2 * NOTIONAL, RATE, FIXED_IS_PAYER);
+    final IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR, CALENDAR);
+    final SwapFixedIborDefinition otherSwap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, 2 * NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
     modifiedSwaption = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, otherSwap, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
     assertFalse(SWAPTION.equals(EXPIRY_DATE));

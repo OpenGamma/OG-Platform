@@ -16,10 +16,12 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteT
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Fudge serialization test for VolatilitySurfaceSpecification
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilitySurfaceSpecificationFudgeEncodingTest extends FinancialTestBase {
 
   @Test

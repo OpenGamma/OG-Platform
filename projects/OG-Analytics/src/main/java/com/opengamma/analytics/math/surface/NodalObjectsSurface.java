@@ -7,12 +7,11 @@ package com.opengamma.analytics.math.surface;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A surface that is defined by a set of nodal points (i.e. <i>(x, y, z)</i> data). Any attempt to find a <i>z</i> value 
+ * A surface that is defined by a set of nodal points (i.e. <i>(x, y, z)</i> data). Any attempt to find a <i>z</i> value
  * for which there is no <i>(x, y)</i> nodal point will result in failure.
  * @param <T> The type of the x-axis data
  * @param <U> The type of the y-axis data
@@ -21,7 +20,7 @@ import com.opengamma.util.tuple.Pair;
 public class NodalObjectsSurface<T, U, V> extends ObjectsSurface<T, U, V> {
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param <T> The type of the x-axis data
@@ -30,11 +29,11 @@ public class NodalObjectsSurface<T, U, V> extends ObjectsSurface<T, U, V> {
    * @return A nodal surface with automatically-generated name
    */
   public static <T, U, V> NodalObjectsSurface<T, U, V> from(final T[] xData, final U[] yData, final V[] zData) {
-    return new NodalObjectsSurface<T, U, V>(xData, yData, zData);
+    return new NodalObjectsSurface<>(xData, yData, zData);
   }
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param <T> The type of the x-axis data
@@ -44,11 +43,11 @@ public class NodalObjectsSurface<T, U, V> extends ObjectsSurface<T, U, V> {
    * @return A nodal surface with automatically-generated name
    */
   public static <T, U, V> NodalObjectsSurface<T, U, V> from(final T[] xData, final U[] yData, final V[] zData, final String name) {
-    return new NodalObjectsSurface<T, U, V>(xData, yData, zData, name);
+    return new NodalObjectsSurface<>(xData, yData, zData, name);
   }
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    */
@@ -57,7 +56,7 @@ public class NodalObjectsSurface<T, U, V> extends ObjectsSurface<T, U, V> {
   }
 
   /**
-   * @param xData An array of <i>x</i> data points, not null 
+   * @param xData An array of <i>x</i> data points, not null
    * @param yData An array of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param name The name of the surface
@@ -68,12 +67,12 @@ public class NodalObjectsSurface<T, U, V> extends ObjectsSurface<T, U, V> {
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If the <i>(x, y)</i> value is not a nodal point 
+   * @throws IllegalArgumentException If the <i>(x, y)</i> value is not a nodal point
    */
   @Override
   public V getZValue(final T x, final U y) {
-    Validate.notNull(x, "x");
-    Validate.notNull(y, "y");
+    ArgumentChecker.notNull(x, "x");
+    ArgumentChecker.notNull(y, "y");
     final T[] xArray = getXData();
     final int index = Arrays.binarySearch(xArray, x);
     if (index < 0) {
@@ -89,11 +88,11 @@ public class NodalObjectsSurface<T, U, V> extends ObjectsSurface<T, U, V> {
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If the <i>(x, y)</i> value is not a nodal point 
+   * @throws IllegalArgumentException If the <i>(x, y)</i> value is not a nodal point
    */
   @Override
   public V getZValue(final Pair<T, U> xy) {
-    Validate.notNull(xy, "x-y pair");
+    ArgumentChecker.notNull(xy, "x-y pair");
     return getZValue(xy.getFirst(), xy.getSecond());
   }
 

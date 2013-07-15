@@ -1,6 +1,6 @@
 package com.opengamma.analytics.financial.credit.cds;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Represents a single test (one row) in the ISDA test grids

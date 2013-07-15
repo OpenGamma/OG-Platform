@@ -9,9 +9,11 @@ import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -21,6 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 
 /**
  * The function calculating the Black volatility sensitivity to the matrix with volatility data.
@@ -34,10 +37,12 @@ public class FXDigitalCallSpreadBlackVegaMatrixFunction extends FXDigitalCallSpr
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    final String spreadName = Iterables.getOnlyElement(desiredValues).getConstraint(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
+    final double spread = Double.parseDouble(spreadName);
     final PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator(spread);
-    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = calculator.visit(fxDigital, data);
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = fxDigital.accept(calculator, (SmileDeltaTermStructureDataBundle) data.getVolatilityModel());
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
     final double[][] vega = result.getVega().getData();

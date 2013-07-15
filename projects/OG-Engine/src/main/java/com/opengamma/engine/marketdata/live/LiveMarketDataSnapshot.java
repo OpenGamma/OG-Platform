@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata.live;
@@ -13,17 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -35,8 +33,8 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private final InMemoryLKVMarketDataSnapshot _underlyingSnapshot;
   private final LiveMarketDataProvider _liveMarketDataProvider;
 
-  public LiveMarketDataSnapshot(InMemoryLKVMarketDataSnapshot underlyingSnapshot,
-                                LiveMarketDataProvider liveMarketDataProvider) {
+  public LiveMarketDataSnapshot(final InMemoryLKVMarketDataSnapshot underlyingSnapshot,
+      final LiveMarketDataProvider liveMarketDataProvider) {
     _underlyingSnapshot = underlyingSnapshot;
     _liveMarketDataProvider = liveMarketDataProvider;
   }
@@ -57,30 +55,30 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
-    if (valuesRequired != null && !valuesRequired.isEmpty()) {     
-      final Set<ValueRequirement> unavailableRequirements = Collections
-          .newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
-      unavailableRequirements.addAll(valuesRequired);
+  public void init(final Set<ValueSpecification> values, final long timeout, final TimeUnit unit) {
+    if (values != null && !values.isEmpty()) {
+      final Set<ValueSpecification> unavailable = Collections
+          .newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
+      unavailable.addAll(values);
       final CountDownLatch awaitingValuesLatch = new CountDownLatch(1);
-      MarketDataListener listener = new MarketDataListener() {
+      final MarketDataListener listener = new MarketDataListener() {
 
         @Override
-        public void subscriptionSucceeded(ValueRequirement requirement) {
+        public void subscriptionsSucceeded(final Collection<ValueSpecification> valueSpecifications) {
         }
 
         @Override
-        public void subscriptionFailed(ValueRequirement requirement, String msg) {
+        public void subscriptionFailed(final ValueSpecification valueSpecification, final String msg) {
         }
 
         @Override
-        public void subscriptionStopped(ValueRequirement requirement) {
+        public void subscriptionStopped(final ValueSpecification valueSpecification) {
         }
 
         @Override
-        public void valuesChanged(Collection<ValueRequirement> requirements) {
-          unavailableRequirements.removeAll(requirements);
-          if (unavailableRequirements.isEmpty()) {
+        public void valuesChanged(final Collection<ValueSpecification> valueSpecifications) {
+          unavailable.removeAll(valueSpecifications);
+          if (unavailable.isEmpty()) {
             awaitingValuesLatch.countDown();
           }
         }
@@ -88,30 +86,41 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
       _liveMarketDataProvider.addListener(listener);
       try {
         _underlyingSnapshot.init(); // TODO We need something to query, but snapshotting twice is a bit overkill
-        for (ValueRequirement requirement : valuesRequired) {
-          if (_underlyingSnapshot.query(requirement) != null) {
-            unavailableRequirements.remove(requirement);
-          } else if (_liveMarketDataProvider.isFailed(requirement)) { //PLAT-1429
-            unavailableRequirements.remove(requirement);
+        for (final ValueSpecification value : values) {
+          if (_underlyingSnapshot.query(value) != null) {
+            unavailable.remove(value);
+          } else if (_liveMarketDataProvider.isFailed(value)) { //PLAT-1429
+            unavailable.remove(value);
           }
         }
-        if (!unavailableRequirements.isEmpty()) {
+        if (!unavailable.isEmpty()) {
           try {
             if (!awaitingValuesLatch.await(timeout, unit)) {
               s_logger.warn(MessageFormat.format(
                   "Timed out while waiting {0} {1} for required values to become available: {2}", timeout, unit,
-                  unavailableRequirements));
+                  unavailable));
             }
-          } catch (InterruptedException e) {
+          } catch (final InterruptedException e) {
             s_logger.warn(MessageFormat.format(
-                "Interrupted while waiting for required values to become available: {0}", unavailableRequirements), e);
+                "Interrupted while waiting for required values to become available: {0}", unavailable), e);
           }
         }
       } finally {
         _liveMarketDataProvider.removeListener(listener);
       }
     }
-    _underlyingSnapshot.init(valuesRequired, timeout, unit);
+    _underlyingSnapshot.init(values, timeout, unit);
+  }
+
+  @Override
+  public boolean isInitialized() {
+    return _underlyingSnapshot.isInitialized();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    assertInitialized();
+    return _underlyingSnapshot.isEmpty();
   }
 
   @Override
@@ -120,8 +129,9 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public ComputedValue query(ValueRequirement requirement) {
+  public Object query(final ValueSpecification value) {
     //TODO: return useful error message if failed
-    return _underlyingSnapshot.query(requirement);
+    return _underlyingSnapshot.query(value);
   }
+
 }

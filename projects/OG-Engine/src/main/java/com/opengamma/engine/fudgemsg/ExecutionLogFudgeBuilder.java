@@ -6,6 +6,7 @@
 package com.opengamma.engine.fudgemsg;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
@@ -20,6 +21,7 @@ import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.util.log.LogEvent;
+import com.opengamma.util.log.LogLevel;
 
 /**
  * Fudge message builder for {@link ExecutionLog}.
@@ -27,10 +29,9 @@ import com.opengamma.util.log.LogEvent;
 @GenericFudgeBuilderFor(ExecutionLog.class)
 public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
 
-  private static final String ERROR_INDICATOR_FIELD_NAME = "error";
-  private static final String WARN_INDICATOR_FIELD_NAME = "warn";
-  private static final String INFO_INDICATOR_FIELD_NAME = "info";
+  private static final String LOG_EVENTS_COLLECTED_FIELD_NAME = "logEventsCollected";
   private static final String LOG_EVENT_FIELD_NAME = "logEvent";
+  private static final String LOG_LEVEL_FIELD_NAME = "logLevel";
   private static final String EXCEPTION_CLASS_FIELD_NAME = "exceptionClass";
   private static final String EXCEPTION_MESSAGE_FIELD_NAME = "exceptionMessage";
   private static final String EXCEPTION_STACK_TRACE_FIELD_NAME = "exceptionStackTrace";
@@ -38,18 +39,15 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExecutionLog object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    if (object.hasError()) {
-      msg.add(ERROR_INDICATOR_FIELD_NAME, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
-    }
-    if (object.hasWarn()) {
-      msg.add(WARN_INDICATOR_FIELD_NAME, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
-    }
-    if (object.hasInfo()) {
-      msg.add(INFO_INDICATOR_FIELD_NAME, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
-    }
     if (object.getEvents() != null) {
+      msg.add(LOG_EVENTS_COLLECTED_FIELD_NAME, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       for (LogEvent event : object.getEvents()) {
         serializer.addToMessage(msg, LOG_EVENT_FIELD_NAME, null, event);
+      }
+    }
+    if (!object.getLogLevels().isEmpty()) {
+      for (LogLevel logLevel : object.getLogLevels()) {
+        serializer.addToMessage(msg, LOG_LEVEL_FIELD_NAME, null, logLevel.name());
       }
     }
     if (object.getExceptionClass() != null) {
@@ -66,12 +64,19 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
 
   @Override
   public ExecutionLog buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    final boolean hasError = message.hasField(ERROR_INDICATOR_FIELD_NAME);
-    final boolean hasWarn = message.hasField(WARN_INDICATOR_FIELD_NAME);
-    final boolean hasInfo = message.hasField(INFO_INDICATOR_FIELD_NAME);
-    final List<LogEvent> events = new ArrayList<LogEvent>();
-    for (FudgeField eventField : message.getAllByName(LOG_EVENT_FIELD_NAME)) {
-      events.add(deserializer.fieldValueToObject(LogEvent.class, eventField));
+    final boolean logEventsCollected = message.hasField(LOG_EVENTS_COLLECTED_FIELD_NAME);
+    final List<LogEvent> events;
+    if (logEventsCollected) {
+      events = new ArrayList<LogEvent>();
+      for (FudgeField eventField : message.getAllByName(LOG_EVENT_FIELD_NAME)) {
+        events.add(deserializer.fieldValueToObject(LogEvent.class, eventField));
+      }
+    } else {
+      events = null;
+    }
+    final EnumSet<LogLevel> logLevels = EnumSet.noneOf(LogLevel.class);
+    for (FudgeField levelField : message.getAllByName(LOG_LEVEL_FIELD_NAME)) {
+      logLevels.add(LogLevel.valueOf((String) levelField.getValue()));
     }
     final String exceptionClass = message.getString(EXCEPTION_CLASS_FIELD_NAME);
     final String exceptionMessage = message.getString(EXCEPTION_MESSAGE_FIELD_NAME);
@@ -80,18 +85,8 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
     return new ExecutionLog() {
 
       @Override
-      public boolean hasError() {
-        return hasError;
-      }
-
-      @Override
-      public boolean hasWarn() {
-        return hasWarn;
-      }
-
-      @Override
-      public boolean hasInfo() {
-        return hasInfo;
+      public EnumSet<LogLevel> getLogLevels() {
+        return logLevels;
       }
 
       @Override
@@ -117,6 +112,11 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
       @Override
       public String getExceptionStackTrace() {
         return exceptionStackTrace;
+      }
+
+      @Override
+      public boolean isEmpty() {
+        return getLogLevels().isEmpty() && !hasException();
       }
       
     };

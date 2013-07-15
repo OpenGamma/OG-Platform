@@ -25,11 +25,13 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataPortfolioMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");

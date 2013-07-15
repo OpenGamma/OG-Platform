@@ -1,3 +1,4 @@
+// CSOFF
 /*
  *  Copyright 2006 Stephen Colebourne
  *
@@ -21,15 +22,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
-//CSOFF
 /**
  * Provides time data for a specific territory, typically a country.
  * <p>
  * Many pieces of data used in dates and times varies by territory.
  * This class provides access to that data.
  */
+@SuppressWarnings({"unchecked", "rawtypes" })
 public abstract class Territory {
 
 //    /** An empty chronology array. */
@@ -81,7 +82,7 @@ public abstract class Territory {
      *
      * @return the array of zones, not null
      */
-    public abstract TimeZone[] getZones();
+    public abstract ZoneId[] getZones();
 
     /**
      * Gets the time zone for the territory, selecting the zone of the most
@@ -89,8 +90,8 @@ public abstract class Territory {
      *
      * @return the zone that best represents the territory, null if unknown
      */
-    public TimeZone getZone() {
-        TimeZone[] zones = getZones();
+    public ZoneId getZone() {
+        ZoneId[] zones = getZones();
         if (zones.length == 0) {
             return null;
         }

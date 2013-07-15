@@ -7,14 +7,13 @@ package com.opengamma.masterdb.exchange;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.elsql.ElSqlBundle;
@@ -26,10 +25,12 @@ import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbExchangeMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -86,7 +87,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
 
   @Test
   public void test_update_getUpdateGet() {
-    Instant now = Instant.now(_exgMaster.getTimeSource());
+    Instant now = Instant.now(_exgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
     ExchangeDocument base = _exgMaster.get(uniqueId);

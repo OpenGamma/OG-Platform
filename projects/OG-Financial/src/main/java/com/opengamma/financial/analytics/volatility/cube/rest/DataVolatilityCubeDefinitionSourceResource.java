@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.volatility.cube.rest;
 
 import java.net.URI;
 
-import javax.time.InstantProvider;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -15,6 +14,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+
+import org.threeten.bp.Instant;
 
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -88,12 +89,12 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
    * @param versionAsOf  the version to fetch, null means latest
    * @return the URI, not null
    */
-  public static URI uriSearchSingle(URI baseUri, Currency currency, String name, InstantProvider versionAsOf) {
+  public static URI uriSearchSingle(URI baseUri, Currency currency, String name, Instant versionAsOf) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/definitions/searchSingle");
     bld.queryParam("currency", currency.toString());
     bld.queryParam("name", name);
     if (versionAsOf != null) {
-      bld.queryParam("versionAsOf", versionAsOf.toInstant().toString());
+      bld.queryParam("versionAsOf", versionAsOf.toString());
     }
     return bld.build();
   }

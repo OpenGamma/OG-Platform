@@ -7,8 +7,6 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -86,7 +85,7 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
   private boolean _deliveryInCallCurrency;
   
   NonDeliverableFXOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public NonDeliverableFXOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,
@@ -550,7 +549,7 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "putCurrency",
         "callCurrency",
         "putAmount",

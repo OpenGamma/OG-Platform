@@ -1,0 +1,1287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.opengamma.com/portfolios"
+           xmlns="http://www.opengamma.com/portfolios"
+           elementFormDefault="qualified">
+
+  <xs:element name="og-portfolio" type="ogPortfolio">
+    <xs:annotation>
+      <xs:documentation>The root element of the document</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="fxOptionTrade" type="fxOptionTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing an FX option trade</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="position" type="position">
+    <xs:annotation>
+      <xs:documentation>Element representing a position</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="swapTrade" type="swapTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing a swap trade</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="fraTrade" type="fraTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing a fra trade</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="equityVarianceSwapTrade" type="equityVarianceSwapTrade">
+    <xs:annotation>
+      <xs:documentation>Element representing an equity variance swap trade</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="trade" type="trade">
+    <xs:annotation>
+      <xs:documentation>Element representing a trade - generally a more specific trade element will be used
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="fxDigitalOptionTrade" type="fxDigitalOptionTrade"/>
+
+  <xs:element name="fxForwardTrade" type="fxForwardTrade"/>
+
+  <xs:element name="fxExpiry" type="fxExpiry"/>
+  <xs:element name="swaptionTrade" type="swaptionTrade"/>
+
+  <xs:element name="otcEquityIndexOptionTrade" type="otcEquityIndexOptionTrade"/>
+
+  <xs:element name="listedSecurityTrade" type="listedSecurityTrade"/>
+
+  <xs:element name="securityDefinition" type="listedSecurityDefinition"/>
+  <xs:element name="optionSecurity" type="optionSecurityDefinition"/>
+  <xs:element name="futureSecurity" type="futureSecurityDefinition"/>
+  <xs:element name="futureOptionSecurity" type="futureOptionSecurityDefinition"/>
+  <xs:element name="fixedLeg" type="fixedLeg"/>
+  <xs:element name="floatingLeg" type="floatingLeg"/>
+  
+
+  <xs:complexType name="ogPortfolio">
+    <xs:all>
+
+      <xs:element name="portfolios" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The collection of portfolios (extracted / to be loaded). This element may be empty or
+            missing (in which case, the load process will create a single portfolio containing
+            all trades and positions).
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="portfolio" type="portfolio" maxOccurs="unbounded" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  An individual portfolio which can contain other nested portfolios, positions,
+                  trades or any combination of all.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="positions" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The collection of positions (extracted / to be loaded). This element may be empty or
+            missing. The load process will create additional positions as necessary if there are
+            trades with no positions specified.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="position" maxOccurs="unbounded" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  An individual position within the positions collection.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="trades" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The collection of trades (extracted / to be loaded). This element may be empty or
+            missing (if for instance, only position-level data is held).
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+
+              <xs:element ref="fxOptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual FX option trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="fxDigitalOptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual FX digital option trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="swapTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual swap trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="fraTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual fra trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="equityVarianceSwapTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual equity variance swap trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="fxForwardTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual fx forward trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="swaptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual swaption trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="otcEquityIndexOptionTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual OTC equity index option trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+              <xs:element ref="listedSecurityTrade">
+                <xs:annotation>
+                  <xs:documentation>
+                    An individual listed index option trade within the trades collection.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+
+            </xs:choice>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+    </xs:all>
+
+    <xs:attribute name="schemaVersion" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          The schema version the xml file has been built against. When the file is loaded, it will
+          be validated against the same schema version.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+  </xs:complexType>
+
+  <xs:complexType name="portfolio">
+    <xs:sequence>
+
+      <xs:element minOccurs="0" name="positions">
+        <xs:annotation>
+          <xs:documentation>
+            The collection of positions within a specific portfolio. This element may be empty or
+            missing. The load process will create additional positions as necessary if there are
+            trades with no positions specified.
+          </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="position" type="positionRef" maxOccurs="unbounded" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  A reference to an individual position using an id reference. The position itself
+                  will have been defined in the top-level positions element.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="trades">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="trade" type="tradeRef" maxOccurs="unbounded" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  A reference to an individual trade using an id reference. The trade itself
+                  will have been defined in the top-level trades element.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="portfolio" type="portfolio" maxOccurs="unbounded" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            A portfolio nested within a parent portfolio.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:sequence>
+
+    <xs:attribute name="name" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>
+          The name of this portfolio.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+  </xs:complexType>
+
+  <xs:complexType name="positionRef">
+    <xs:sequence>
+      <xs:element ref="position" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The reference to the position.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="ref" type="xs:IDREF"/>
+  </xs:complexType>
+
+  <xs:complexType name="position">
+    <xs:sequence>
+
+      <xs:element name="externalSystemId" type="idWrapper" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            An external reference for the position
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="quantity" minOccurs="0" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>
+            The number of units in the position
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="trades" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The collection of trades contributing to the position
+          </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="trade" type="tradeRef" maxOccurs="unbounded" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  The reference to the trade.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="security" minOccurs="0" type="idWrapper">
+        <xs:annotation>
+          <xs:documentation>
+            The security the position is for
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:choice minOccurs="0">
+        <xs:element ref="optionSecurity"/>
+        <xs:element ref="futureSecurity"/>
+        <xs:element ref="futureOptionSecurity"/>
+      </xs:choice>
+
+      <xs:element name="additionalAttributes" type="additionalAttributes" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Additional attributes for this position
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="id" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>
+          The unique id for the position in this file, following standard XML
+          conventions (i.e. cannot start with a digit). This id can be used to
+          reference the position in a portfolio.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+  </xs:complexType>
+
+  <xs:complexType name="tradeRef">
+    <xs:sequence>
+
+      <xs:element minOccurs="0" ref="trade">
+        <xs:annotation>
+          <xs:documentation>
+            The reference to the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:sequence>
+
+    <xs:attribute name="ref" type="xs:IDREF"/>
+
+  </xs:complexType>
+
+  <xs:complexType name="trade">
+    <xs:sequence>
+
+      <xs:element name="externalSystemId" type="idWrapper">
+        <xs:annotation>
+          <xs:documentation>
+            The external id for this trade. Mandatory.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="tradeDate" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The trade date of the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="maturityDate" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The maturity date of the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="counterparty" type="idWrapper">
+        <xs:annotation>
+          <xs:documentation>
+            The external id of the counterparty for the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="premium" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>
+            The premium for the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="premiumCurrency" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The currency of the premium for the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="premiumSettlementDate" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The settlement date of the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="additionalCashflows" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="additionalCashflow" type="additionalCashflow" maxOccurs="unbounded" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="additionalAttributes" type="additionalAttributes" minOccurs="0"/>
+    </xs:sequence>
+
+    <xs:attribute name="id" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>
+          The unique id for the trade in this file, following standard XML
+          conventions (i.e. cannot start with a digit). This id can be used to
+          reference the trade in a portfolio or a position.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+  </xs:complexType>
+
+
+  <xs:complexType name="additionalAttributes">
+    <xs:sequence>
+      <xs:element name="attribute" type="attribute" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="attribute">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="abstractFxOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+
+          <xs:element name="optionType" type="optionType">
+            <xs:annotation>
+              <xs:documentation>
+                Is this option a call or a put.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="buySell" type="buySell">
+            <xs:annotation>
+              <xs:documentation>
+                Is this a buy or a sell.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="currencyPair" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                The currency pair for the FX option. Of the form: "USD/GBP", "EUR/JPY" etc.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="optionCurrency" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                The base currency for the option. Must be one of the currencies from the currency pair.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="strike" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>
+                The strike of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element minOccurs="0" ref="fxExpiry"/>
+
+          <xs:element minOccurs="0" name="paymentCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="fxOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="abstractFxOptionTrade">
+        <xs:sequence>
+
+          <xs:element name="notional" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>
+                The notional of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="notionalCurrency" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                The currency of the notional of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="settlementType" type="settlementType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The settlement type of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="settlementCurrency" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The settlement currency of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="exerciseType" type="exerciseType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The exercise type of the trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="swapTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+
+          <xs:element name="effectiveDate" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                The effective date of the swap trade.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="legs">
+              <xs:complexType>
+                  <xs:sequence>
+                    <xs:choice maxOccurs="unbounded" minOccurs="2">
+                      <xs:element ref="fixedLeg"/>
+                      <xs:element ref="floatingLeg"/>
+                    </xs:choice>
+                  </xs:sequence>
+              </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType abstract="true" name="swapLeg">
+    <xs:sequence>
+
+      <xs:element name="payReceive" type="direction" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Is this trade leg Pay or Receive?
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="currency" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The currency of the leg.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="notional" type="xs:decimal" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The notional of the leg.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="frequency" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The freqency for the leg. E.g. 1w, 2m, 1y
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="dayCount" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The day count convention for the leg. E.g. Actual/365
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="interestCalculation" type="interestCalculation" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The interest calculation method for the leg.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="businessDayConvention" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The business day convention for the leg. E.g. Modified Following
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="scheduleGenerationDirection" type="scheduleGenerationDirection" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The direction of the schedule generation
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="endOfMonth" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>
+            Is this swap leg end of month
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="isIMM" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>
+            IMM for the swap leg
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="paymentCalendars" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The collection of payment calendars for the swap leg
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  A payment calendar for the swap leg
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="stubPeriodType" type="stubPeriodType" minOccurs="0"/>
+
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="fixedLeg">
+    <xs:complexContent>
+      <xs:extension base="swapLeg">
+        <xs:sequence>
+
+          <xs:element minOccurs="0" name="rate" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>
+                The percentage rate for the fixed leg. E.g. 5.25 indicates a rate of 5.25%
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="floatingLeg">
+    <xs:complexContent>
+      <xs:extension base="swapLeg">
+        <xs:sequence>
+
+          <xs:element name="resetFrequency" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The reset frequency for the floating leg. E.g. 2w, 3m etc.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="compoundingMethod" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The compounding method for the floating leg. Not yet supported.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="resetLag" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The reset lag for the floating leg. Not yet supported.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="resetType" type="resetType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The reset type for the floating leg.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="stubPeriodCouponAdjustment" type="stubPeriodCouponAdjustment" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The stub period coupon adjustment for the floating leg.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element name="fixingCalendars" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0">
+                  <xs:annotation>
+                    <xs:documentation>
+                      A fixing calendar for the floating leg
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element minOccurs="0" name="fixingIndex" type="fixingIndex">
+            <xs:annotation>
+              <xs:documentation>
+                The fixing index for the floating leg.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element minOccurs="0" name="spread" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>
+                The spread for the floating leg.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+          <xs:element minOccurs="0" name="gearing" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>
+                The gearing for the floating leg.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="fxExpiry">
+    <xs:sequence>
+
+      <xs:element name="expiryDate" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The expiry date of the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="expiryCutoff" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            The expiry cutoff of the trade.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element minOccurs="0" name="expiryCalendars">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="fixingIndex">
+    <xs:sequence>
+
+      <xs:element name="id" type="extId" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The external id of the fixing index
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="rateType" type="rateType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The rate type for the fixing index
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="equityVarianceSwapTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="currency" type="xs:string"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="underlying" type="idWrapper"/>
+          <xs:element name="vegaAmount" type="xs:decimal"/>
+          <xs:element name="observationStartDate" type="xs:string"/>
+          <xs:element name="observationEndDate" type="xs:string"/>
+          <xs:element name="observationfrequency" type="xs:string" minOccurs="0"/>
+          <xs:element name="annualizationFactor" type="xs:double"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="fxForwardTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="payAmount" type="xs:decimal"/>
+          <xs:element name="payCurrency" type="xs:string"/>
+          <xs:element name="receiveAmount" type="xs:decimal"/>
+          <xs:element name="receiveCurrency" type="xs:string"/>
+          <xs:element name="settlementCurrency" type="xs:string" minOccurs="0"/>
+          <xs:element ref="fxExpiry" minOccurs="0"/>
+          <xs:element name="paymentCalendars" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="fxDigitalOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="abstractFxOptionTrade">
+        <xs:sequence>
+          <xs:element name="payout" type="xs:decimal"/>
+          <xs:element name="payoutCurrency" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="swaptionTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="paymentCalendars" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="exerciseCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element  name="calendar" type="calendar" maxOccurs="unbounded" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="expirationDate" type="xs:string"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+          <xs:element name="stubPeriodType" type="stubPeriodType" minOccurs="0"/>
+          <xs:element name="settlementType" type="settlementType" minOccurs="0"/>
+          <xs:element name="cashSettlementCalculationMethod" type="cashSettlementCalculationMethod" minOccurs="0"/>
+          <xs:element name="cashSettlementPaymentDate" type="xs:string" minOccurs="0"/>
+          <xs:element name="cashSettlementCurrency" type="xs:string" minOccurs="0"/>
+          <xs:element name="underlyingSwapTrade" type="swapTrade" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="otcEquityIndexOptionTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="optionType" type="xs:string"/>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="underlyingId" type="idWrapper"/>
+          <xs:element name="notional" type="xs:decimal"/>
+          <xs:element name="notionalCurrency" type="xs:string"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+          <xs:element name="expiryDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="expiryCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded"
+                            minOccurs="0" name="calendar" type="calendar"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="settlementCalendars">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded"
+                            minOccurs="0" name="calendar" type="calendar"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="listedSecurityTrade">
+    <xs:complexContent>
+      <xs:extension base="trade">
+        <xs:sequence>
+          <xs:element name="buySell" type="buySell"/>
+          <xs:element name="numContracts" type="xs:int"/>
+          <xs:element name="brokers" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="broker" type="broker" minOccurs="0" maxOccurs="unbounded"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:choice>
+            <xs:element ref="optionSecurity"/>
+            <xs:element ref="futureSecurity"/>
+            <xs:element ref="futureOptionSecurity"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="listedSecurityDefinition">
+    <xs:sequence>
+      <xs:element name="underlyingId" type="idWrapper"/>
+      <xs:element name="pointValue" type="xs:int"/>
+      <xs:element name="currency" type="xs:string"/>
+      <xs:element name="exchange" type="xs:string"/>
+      <xs:element name="additionalAttributes" type="additionalAttributes" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="optionSecurityDefinition">
+    <xs:complexContent>
+      <xs:extension base="listedSecurityDefinition">
+        <xs:sequence>
+          <xs:element name="optionType" type="optionType"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="optionExpiry" type="xs:string"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="listedOptionType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="futureOptionSecurityDefinition">
+    <xs:complexContent>
+      <xs:extension base="listedSecurityDefinition">
+        <xs:sequence>
+          <xs:element name="optionType" type="optionType"/>
+          <xs:element name="strike" type="xs:decimal"/>
+          <xs:element name="futureExpiry" type="xs:string"/>
+          <xs:element name="optionExpiry" type="xs:string" minOccurs="0"/>
+          <xs:element name="exerciseType" type="exerciseType"/>
+          <xs:element name="margined" type="xs:boolean"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="listedFutureOptionType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="futureSecurityDefinition">
+    <xs:complexContent>
+      <xs:extension base="listedSecurityDefinition">
+        <xs:sequence>
+          <xs:element name="price" type="xs:decimal"/>
+          <xs:element name="futureExpiry" type="xs:string"/>
+          <xs:element name="settlementExchange" type="xs:string" />
+          <xs:element name="settlementDate" type="xs:string" />
+          <xs:element name="futureCategory" type="xs:string" />
+        </xs:sequence>
+        <xs:attribute name="type" type="listedFutureType" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="fraTrade">
+      <xs:complexContent>
+          <xs:extension base="trade">
+              <xs:sequence>
+                  <xs:element name="payFixed" type="xs:boolean"/>
+                  <xs:element name="regionId" type="idWrapper"/>
+                  <xs:element name="effectiveDate" type="xs:string"/>
+                  <xs:element minOccurs="0" name="paymentDate" type="xs:string"/>
+                  <xs:element name="fixingDate" type="xs:string"/>
+                  <xs:element name="terminationDate" type="xs:string"/>
+                  <xs:element name="currency" type="xs:string"/>
+                  <xs:element name="notional" type="xs:decimal"/>
+                  <xs:element name="rate" type="xs:decimal"/>
+                  <xs:element minOccurs="0" name="businessDayConvention" type="xs:string"/>
+                  <xs:element minOccurs="0" name="dayCount" type="xs:string"/>
+                  <xs:element name="fixingIndex" type="fixingIndex"/>
+              </xs:sequence>
+          </xs:extension>
+      </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="broker">
+    <xs:sequence>
+      <xs:element name="id" type="extId"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="brokerType"/>
+  </xs:complexType>
+
+  <xs:complexType final="extension restriction" name="externalId">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:simpleType name="cashflowType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="premium"/>
+      <xs:enumeration value="clearingFee"/>
+      <xs:enumeration value="other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="brokerType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="clearingBroker"/>
+      <xs:enumeration value="executingBroker"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="optionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Call"/>
+      <xs:enumeration value="Put"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="buySell">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Buy"/>
+      <xs:enumeration value="Sell"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="settlementType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Physical"/>
+      <xs:enumeration value="CashSettled"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="exerciseType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="European"/>
+      <xs:enumeration value="American"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bank"/>
+      <xs:enumeration value="currency"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="direction">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pay"/>
+      <xs:enumeration value="Receive"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="interestCalculation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Adjusted"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="scheduleGenerationDirection">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Backward"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="stubPeriodType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LongCoupon"/>
+      <xs:enumeration value="ShortCoupon"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="stubPeriodCouponAdjustment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LegIndex"/>
+      <xs:enumeration value="AverageOfNearestIndices"/>
+      <xs:enumeration value="ClosestButNotLongerThanLegIndex"/>
+      <xs:enumeration value="ClosestButNotShorterThanLegIndex"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="resetType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InAdvance"/>
+      <xs:enumeration value="InArrears"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="rateType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OIS"/>
+      <xs:enumeration value="CMS"/>
+      <xs:enumeration value="IBOR"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="cashSettlementCalculationMethod">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CashPrice"/>
+      <xs:enumeration value="CashPriceAlternateMethod"/>
+      <xs:enumeration value="ParYieldCurveAdjusted"/>
+      <xs:enumeration value="ParYieldCurveUnadjusted"/>
+      <xs:enumeration value="ZeroCouponYieldUnadjusted"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="idWrapper">
+    <xs:sequence>
+      <xs:element name="id" type="extId">
+        <xs:annotation>
+          <xs:documentation>
+            The external id being used for this element
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="additionalCashflow">
+    <xs:sequence>
+      <xs:element name="counterparty" type="idWrapper" minOccurs="0"/>
+      <xs:element name="monetaryAmount" type="monetaryAmount"/>
+      <xs:element name="cashflowDate" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="cashflowType"/>
+  </xs:complexType>
+
+  <xs:complexType name="monetaryAmount">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currency" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="extId">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="scheme" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>
+              The scheme being used for this external id.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="calendar">
+    <xs:sequence>
+      <xs:element name="id" type="extId" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="type" type="type"/>
+  </xs:complexType>
+
+  <xs:simpleType name="listedOptionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="equityIndexOption"/>
+      <xs:enumeration value="equityDividendOption"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="listedFutureType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="equityIndexFuture"/>
+      <xs:enumeration value="equityDividendFuture"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="listedFutureOptionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="equityIndexFutureOption"/>
+      <xs:enumeration value="equityDividendFutureOption"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

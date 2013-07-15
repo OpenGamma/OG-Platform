@@ -8,7 +8,7 @@ package com.opengamma.financial.convention.frequency;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.ArgumentChecker;
@@ -97,24 +97,24 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /** A map containing all of the frequency */
   public static final Map<PeriodFrequency, PeriodFrequency> s_cache =
       ImmutableMap.<PeriodFrequency, PeriodFrequency>builder()
-          .put(ANNUAL, ANNUAL)
-          .put(SEMI_ANNUAL, SEMI_ANNUAL)
-          .put(QUARTERLY, QUARTERLY)
-          .put(BIMONTHLY, BIMONTHLY)
-          .put(MONTHLY, MONTHLY)
-          .put(BIWEEKLY, BIWEEKLY)
-          .put(WEEKLY, WEEKLY)
-          .put(DAILY, DAILY)
-          .put(CONTINUOUS, CONTINUOUS)
-          .put(FOUR_MONTHS, FOUR_MONTHS)
-          .put(FIVE_MONTHS, FIVE_MONTHS)
-          .put(SEVEN_MONTHS, SEVEN_MONTHS)
-          .put(EIGHT_MONTHS, EIGHT_MONTHS)
-          .put(NINE_MONTHS, NINE_MONTHS)
-          .put(TEN_MONTHS, TEN_MONTHS)
-          .put(ELEVEN_MONTHS, ELEVEN_MONTHS)
-          .put(EIGHTEEN_MONTHS, EIGHTEEN_MONTHS)
-          .build();
+      .put(ANNUAL, ANNUAL)
+      .put(SEMI_ANNUAL, SEMI_ANNUAL)
+      .put(QUARTERLY, QUARTERLY)
+      .put(BIMONTHLY, BIMONTHLY)
+      .put(MONTHLY, MONTHLY)
+      .put(BIWEEKLY, BIWEEKLY)
+      .put(WEEKLY, WEEKLY)
+      .put(DAILY, DAILY)
+      .put(CONTINUOUS, CONTINUOUS)
+      .put(FOUR_MONTHS, FOUR_MONTHS)
+      .put(FIVE_MONTHS, FIVE_MONTHS)
+      .put(SEVEN_MONTHS, SEVEN_MONTHS)
+      .put(EIGHT_MONTHS, EIGHT_MONTHS)
+      .put(NINE_MONTHS, NINE_MONTHS)
+      .put(TEN_MONTHS, TEN_MONTHS)
+      .put(ELEVEN_MONTHS, ELEVEN_MONTHS)
+      .put(EIGHTEEN_MONTHS, EIGHTEEN_MONTHS)
+      .build();
 
   /**
    * The name of the convention.
@@ -140,7 +140,13 @@ public final class PeriodFrequency implements Frequency, Serializable {
     return temp;
   }
 
+  /**
+   * Constructs a frequency from a period
+   * @param period The period, not null
+   * @return a period frequency, not null
+   */
   public static PeriodFrequency of(final Period period) {
+    ArgumentChecker.notNull(period, "period");
     for (final Map.Entry<PeriodFrequency, PeriodFrequency> entry : s_cache.entrySet()) {
       if (entry.getKey().getPeriod().normalized().equals(period.normalized())) {
         return entry.getValue();
@@ -149,6 +155,22 @@ public final class PeriodFrequency implements Frequency, Serializable {
     return new PeriodFrequency(period.toString(), period);
   }
 
+  /**
+   * Given a {@link PeriodFrequency} or {@link SimpleFrequency}, returns a {@link PeriodFrequency}.
+   * If the input is already a {@link PeriodFrequency}, then the original object is returned.
+   * @param frequency The frequency, not null
+   * @return A frequency based on {@link Period}
+   * @throws IllegalArgumentException if the input is not a {@link PeriodFrequency} or {@link SimpleFrequency}
+   */
+  public static PeriodFrequency convertToPeriodFrequency(final Frequency frequency) {
+    ArgumentChecker.notNull(frequency, "frequency");
+    if (frequency instanceof PeriodFrequency) {
+      return (PeriodFrequency) frequency;
+    } else if (frequency instanceof SimpleFrequency) {
+      return ((SimpleFrequency) frequency).toPeriodFrequency();
+    }
+    throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
+  }
   /**
    * Creates an instance.
    * 
@@ -256,6 +278,9 @@ public final class PeriodFrequency implements Frequency, Serializable {
     }
     if (_name.equals(EIGHT_MONTH_NAME)) {
       return SimpleFrequency.EIGHTEEN_MONTHS;
+    }
+    if (_name.equals(TWENTY_EIGHT_DAYS_NAME)) {
+      return SimpleFrequency.TWENTY_EIGHT_DAYS;
     }
     throw new IllegalArgumentException("Cannot get a simple frequency for " + toString());
   }

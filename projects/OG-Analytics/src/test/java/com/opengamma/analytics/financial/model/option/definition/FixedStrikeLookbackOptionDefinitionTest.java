@@ -8,19 +8,17 @@ package com.opengamma.analytics.financial.model.option.definition;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 
 /**
  * 
@@ -33,9 +31,9 @@ public class FixedStrikeLookbackOptionDefinitionTest {
   private static final FixedStrikeLookbackOptionDefinition PUT = new FixedStrikeLookbackOptionDefinition(STRIKE, EXPIRY, false);
   private static final double SPOT = 100;
   private static final double DIFF = 10;
-  private static final DoubleTimeSeries<?> HIGH_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT + DIFF,
+  private static final DoubleTimeSeries<?> HIGH_TS = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT + DIFF,
       SPOT});
-  private static final DoubleTimeSeries<?> LOW_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT - DIFF,
+  private static final DoubleTimeSeries<?> LOW_TS = ImmutableLocalDateDoubleTimeSeries.of(new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT - DIFF,
       SPOT});
   private static final StandardOptionWithSpotTimeSeriesDataBundle HIGH_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.1)), 0.05,
       new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), HIGH_TS);

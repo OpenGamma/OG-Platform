@@ -7,8 +7,6 @@ package com.opengamma.financial.security.capfloor;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -97,7 +96,7 @@ public class CapFloorSecurity extends FinancialSecurity {
   private boolean _ibor;
 
   CapFloorSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public CapFloorSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId underlyingIdentifier, double strike,
@@ -610,7 +609,7 @@ public class CapFloorSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "startDate",
         "maturityDate",
         "notional",

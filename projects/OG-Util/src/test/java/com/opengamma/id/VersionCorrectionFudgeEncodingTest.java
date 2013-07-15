@@ -5,20 +5,20 @@
  */
 package com.opengamma.id;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class VersionCorrectionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
-  private static final Instant INSTANT1 = Instant.ofEpochSeconds(1);
-  private static final Instant INSTANT2 = Instant.ofEpochSeconds(2);
+  private static final Instant INSTANT1 = Instant.ofEpochSecond(1);
+  private static final Instant INSTANT2 = Instant.ofEpochSecond(2);
 
   public void test_instants() {
     VersionCorrection object = VersionCorrection.of(INSTANT1, INSTANT2);

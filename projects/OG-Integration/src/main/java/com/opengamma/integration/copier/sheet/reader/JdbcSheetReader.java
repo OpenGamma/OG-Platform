@@ -38,16 +38,18 @@ public class JdbcSheetReader extends SheetReader {
   private static final Logger s_logger = LoggerFactory.getLogger(JdbcSheetReader.class);
 
   public JdbcSheetReader(DataSource dataSource, String query) {
-    init(dataSource, query);
+    init(new JdbcTemplate(dataSource), query);
   }
 
+  public JdbcSheetReader(JdbcTemplate jdbcTemplate, String query) {
+    init(jdbcTemplate, query);
+  }
 
-
-  protected void init(DataSource dataSource, String query) {
-    ArgumentChecker.notNull(dataSource, "dataSource");
+  protected void init(JdbcTemplate jdbcTemplate, String query) {
+    ArgumentChecker.notNull(jdbcTemplate, "jdbcTemplate");
     ArgumentChecker.notEmpty(query, "query");
 
-    _jdbcTemplate = new JdbcTemplate(dataSource);
+    _jdbcTemplate = jdbcTemplate;
 
     ResultSetExtractor<List<Map<String, String>>> extractor = new ResultSetExtractor<List<Map<String, String>>>() {
       @Override

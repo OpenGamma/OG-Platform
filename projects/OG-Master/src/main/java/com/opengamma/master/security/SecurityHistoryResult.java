@@ -95,7 +95,6 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
    * The meta-bean for {@code SecurityHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SecurityHistoryResult.Meta meta() {
     return SecurityHistoryResult.Meta.INSTANCE;
   }
@@ -149,7 +148,7 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

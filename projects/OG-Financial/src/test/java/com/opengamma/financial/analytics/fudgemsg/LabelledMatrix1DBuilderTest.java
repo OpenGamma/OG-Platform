@@ -7,17 +7,20 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.StringLabelledMatrix1D;
+import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
 
   @Test
@@ -68,5 +71,16 @@ public class LabelledMatrix1DBuilderTest extends AnalyticsTestBase {
     final StringLabelledMatrix1D m3 = new StringLabelledMatrix1D(keys, "labels", values, "values");
     final StringLabelledMatrix1D m4 = cycleObject(StringLabelledMatrix1D.class, m3);
     assertEquals(m3, m4);
+  }
+
+  @Test
+  public void testTenor() {
+    final Tenor[] tenors = new Tenor[] {Tenor.ONE_DAY, Tenor.ONE_WEEK, Tenor.ONE_MONTH, Tenor.ONE_YEAR};
+    final Object[] labels = new Object[] {"P1D", "P7D", "P1M", "P1Y"};
+    final double[] values = new double[] {1, 2, 3, 4};
+    TenorLabelledMatrix1D matrix = new TenorLabelledMatrix1D(tenors, labels, values);
+    assertEquals(matrix, cycleObject(TenorLabelledMatrix1D.class, matrix));
+    matrix = new TenorLabelledMatrix1D(tenors, values);
+    assertEquals(matrix, cycleObject(TenorLabelledMatrix1D.class, matrix));
   }
 }

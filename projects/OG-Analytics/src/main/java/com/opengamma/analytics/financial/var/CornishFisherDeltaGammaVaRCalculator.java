@@ -6,9 +6,9 @@
 package com.opengamma.analytics.financial.var;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -22,10 +22,10 @@ public class CornishFisherDeltaGammaVaRCalculator<T> implements VaRCalculator<No
 
   public CornishFisherDeltaGammaVaRCalculator(final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator,
       final Function<T, Double> skewCalculator, final Function<T, Double> kurtosisCalculator) {
-    Validate.notNull(meanCalculator, "mean calculator");
-    Validate.notNull(stdCalculator, "standard deviation calculator");
-    Validate.notNull(skewCalculator, "skew calculator");
-    Validate.notNull(kurtosisCalculator, "kurtosis calculator");
+    ArgumentChecker.notNull(meanCalculator, "mean calculator");
+    ArgumentChecker.notNull(stdCalculator, "standard deviation calculator");
+    ArgumentChecker.notNull(skewCalculator, "skew calculator");
+    ArgumentChecker.notNull(kurtosisCalculator, "kurtosis calculator");
     _meanCalculator = meanCalculator;
     _stdCalculator = stdCalculator;
     _skewCalculator = skewCalculator;
@@ -50,8 +50,8 @@ public class CornishFisherDeltaGammaVaRCalculator<T> implements VaRCalculator<No
 
   @Override
   public VaRCalculationResult evaluate(final NormalVaRParameters parameters, final T... data) {
-    Validate.notNull(parameters, "parameters");
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(data, "data");
     final double z = parameters.getZ();
     final double mult = parameters.getTimeScaling();
     final double zSq = z * z;

@@ -67,11 +67,20 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractDbMasterFactoryBean}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static AbstractDbMasterFactoryBean.Meta meta() {
+    return AbstractDbMasterFactoryBean.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code AbstractDbMasterFactoryBean}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> AbstractDbMasterFactoryBean.Meta<R> meta() {
+  public static <R> AbstractDbMasterFactoryBean.Meta<R> metaAbstractDbMasterFactoryBean(Class<R> cls) {
     return AbstractDbMasterFactoryBean.Meta.INSTANCE;
   }
   static {
@@ -316,7 +325,7 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "dbConnector",
         "jmsConnector",
         "jmsChangeManagerTopic",

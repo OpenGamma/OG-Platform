@@ -56,7 +56,7 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     } else {
       // TODO format as matrix
       // TODO this won't work - the cell value isn't an error so this makes no difference
-      return new MissingFormatter("Unable to format surface of type " + surface.getClass().getSimpleName());
+      return new MissingValueFormatter("Unable to format surface of type " + surface.getClass().getSimpleName());
     }
   }
 
@@ -76,11 +76,12 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     }
   }
 
-  /* package */ static List<String> getAxisLabels(Collection values) {
+  /* package */ static List<String> getAxisLabels(Collection<?> values) {
     List<String> labels = Lists.newArrayListWithCapacity(values.size());
     for (Object value : values) {
       labels.add(LabelFormatter.format(value));
     }
     return labels;
   }
+
 }

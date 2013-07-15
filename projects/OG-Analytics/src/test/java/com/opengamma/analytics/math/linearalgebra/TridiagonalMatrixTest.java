@@ -51,9 +51,9 @@ public class TridiagonalMatrixTest {
 
   @Test
   public void testGetters() {
-    assertTrue(Arrays.equals(A, M.getDiagonal()));
-    assertTrue(Arrays.equals(B, M.getUpperSubDiagonal()));
-    assertTrue(Arrays.equals(C, M.getLowerSubDiagonal()));
+    assertTrue(Arrays.equals(A, M.getDiagonalData()));
+    assertTrue(Arrays.equals(B, M.getUpperSubDiagonalData()));
+    assertTrue(Arrays.equals(C, M.getLowerSubDiagonalData()));
     final int n = A.length;
     final DoubleMatrix2D matrix = M.toDoubleMatrix2D();
     for (int i = 0; i < n; i++) {

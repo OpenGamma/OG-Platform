@@ -10,11 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ExternalSchemes}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalSchemesTest {
 
   public void test_constants() {
@@ -25,6 +26,7 @@ public class ExternalSchemesTest {
     assertEquals("BLOOMBERG_TICKER", ExternalSchemes.BLOOMBERG_TICKER.getName());
     assertEquals("BLOOMBERG_TCM", ExternalSchemes.BLOOMBERG_TCM.getName());
     assertEquals("RIC", ExternalSchemes.RIC.getName());
+    assertEquals("MARKIT_RED_CODE", ExternalSchemes.MARKIT_RED_CODE.getName());
   }
 
   public void test_identifiers() {
@@ -35,6 +37,7 @@ public class ExternalSchemesTest {
     assertEquals(ExternalId.of("BLOOMBERG_TICKER", "A"), ExternalSchemes.bloombergTickerSecurityId("A"));
     assertEquals(ExternalId.of("BLOOMBERG_TCM", "T 4.75 15/08/43 Govt"), ExternalSchemes.bloombergTCMSecurityId("T", "4.75", "15/08/43", "Govt"));
     assertEquals(ExternalId.of("RIC", "A"), ExternalSchemes.ricSecurityId("A"));
+    assertEquals(ExternalId.of("MARKIT_RED_CODE", "A"), ExternalSchemes.markItRedCode("A"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -71,5 +74,9 @@ public class ExternalSchemesTest {
   public void test_ric_null() {
     ExternalSchemes.ricSecurityId(null);
   }
-
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_markitRedCode_null() {
+    ExternalSchemes.markItRedCode(null);
+  }
 }

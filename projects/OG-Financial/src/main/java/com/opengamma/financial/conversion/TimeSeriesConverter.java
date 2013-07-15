@@ -8,7 +8,7 @@ package com.opengamma.financial.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

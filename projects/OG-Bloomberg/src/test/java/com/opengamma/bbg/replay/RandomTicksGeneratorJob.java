@@ -12,14 +12,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.util.TerminatableJob;
@@ -85,8 +83,8 @@ public class RandomTicksGeneratorJob extends TerminatableJob {
       for (int i = 0; i < msgSize; i++) {
         try {
           MutableFudgeMsg msg = getRandomMessage();
-          Instant instant = Clock.system(TimeZone.UTC).instant();
-          long epochMillis = instant.toEpochMillisLong();
+          Instant instant = Clock.systemUTC().instant();
+          long epochMillis = instant.toEpochMilli();
           msg.add(RECEIVED_TS_KEY, epochMillis);
           msg.add(SECURITY_KEY, security);
           s_logger.debug("generating {}", msg);

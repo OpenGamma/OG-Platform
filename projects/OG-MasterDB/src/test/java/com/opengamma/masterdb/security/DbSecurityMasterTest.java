@@ -14,16 +14,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -36,15 +31,17 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
 /**
  * Test DbSecurityMaster.
  */
-public class DbSecurityMasterTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbSecurityMasterTest extends AbstractDbSecurityTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterTest.class);
 
@@ -52,26 +49,20 @@ public class DbSecurityMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbSecurityMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _secMaster = new DbSecurityMaster(getDbConnector());
+    _secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _secMaster = null;
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
@@ -80,11 +71,11 @@ public class DbSecurityMasterTest extends DbTest {
     assertNotNull(_secMaster);
     assertEquals(true, _secMaster.getUniqueIdScheme().equals("DbSec"));
     assertNotNull(_secMaster.getDbConnector());
-    assertNotNull(_secMaster.getTimeSource());
+    assertNotNull(_secMaster.getClock());
   }
 
   //-------------------------------------------------------------------------
-  @Test
+  @Test(enabled = false)
   public void test_equity() throws Exception {
     EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
     sec.setName("OpenGamma");
@@ -99,7 +90,7 @@ public class DbSecurityMasterTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
+  @Test(enabled = false)
   public void test_bond() throws Exception {
     ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
     GovernmentBondSecurity sec = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
@@ -121,7 +112,7 @@ public class DbSecurityMasterTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
+  @Test(enabled = false)
   public void test_concurrentModification() {    
     final AtomicReference<Throwable> exceptionOccurred = new AtomicReference<Throwable>();
     Runnable task = new Runnable() {

@@ -1,0 +1,12 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-icon.og-icon-csv:after {
+  background-position: -64px -182px;
+  background-color: transparent;
+  height: 10px;
+  width: 10px;
+  z-index: 2;
+  position: absolute;
+}

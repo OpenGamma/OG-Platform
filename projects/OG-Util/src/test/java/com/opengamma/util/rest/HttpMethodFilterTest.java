@@ -15,13 +15,14 @@ import java.util.Arrays;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.spi.container.ContainerRequest;
 
 /**
  * Test HttpMethodFilter.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class HttpMethodFilterTest {
 
   public void test_filter_noActionOnGet() {

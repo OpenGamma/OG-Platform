@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.volatility.local;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.option.definition.BinomialOptionModelDefinition;
 import com.opengamma.analytics.financial.model.option.definition.CoxRossRubinsteinBinomialOptionModelDefinition;
@@ -25,8 +24,8 @@ import com.opengamma.util.time.Expiry;
 public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<OptionDefinition, StandardOptionDataBundle> {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
   private final int _n;
-  
-  public DermanKaniImpliedBinomialTreeModel(int n) {
+
+  public DermanKaniImpliedBinomialTreeModel(final int n) {
     Validate.isTrue(n > 0);
     _n = n;
   }
@@ -37,9 +36,9 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
 
     final int m1 = RecombiningBinomialTree.NODES.evaluate(_n);
     final int m2 = RecombiningBinomialTree.NODES.evaluate(_n - 1);
-    final double[][] impliedTree = new double[_n + 1][m1]; //TODO this wastes space 
+    final double[][] impliedTree = new double[_n + 1][m1]; //TODO this wastes space
 
-   
+
     final double[] transitionProbabilities = new double[m2];
     double[] arrowDebreu = new double[m1];
     final double[][] localVolatilityTree = new double[_n][m2];
@@ -52,7 +51,7 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
     final ZonedDateTime date = data.getDate();
     for (int i = 1; i < _n + 1; i++) {
       final int nodes = RecombiningBinomialTree.NODES.evaluate(i);
-      final BinomialOptionModel<StandardOptionDataBundle> crrModel = new BinomialOptionModel<StandardOptionDataBundle>(CRR, i);
+      final BinomialOptionModel<StandardOptionDataBundle> crrModel = new BinomialOptionModel<>(CRR, i);
       t += dt;
       final double df1 = Math.exp(dt * data.getInterestRate(t));
       final double df2 = Math.exp(dt * data.getCostOfCarry());
@@ -74,7 +73,7 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
         final double f = impliedTree[i - 1][j] * df2;
         transitionProbabilities[j] = (f - impliedTree[i][j]) / (impliedTree[i][j + 1] - impliedTree[i][j]);
         //TODO emcleod 31-8-10 Need to check that transition probabilities are positive - use adjustment suggested in "The Volatility Smile and its Implied Tree"
-        localVolatilityTree[i - 1][j] = Math.sqrt(transitionProbabilities[j] * (1 - transitionProbabilities[j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]); //TODO need 1/sqrt(dt) here 
+        localVolatilityTree[i - 1][j] = Math.sqrt(transitionProbabilities[j] * (1 - transitionProbabilities[j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]); //TODO need 1/sqrt(dt) here
       }
       final double[] temp = new double[m1];
       temp[0] = (1 - transitionProbabilities[0]) * arrowDebreu[0] / df1;
@@ -95,7 +94,7 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
         }
       }
     }
-    return new ImpliedTreeResult(new RecombiningBinomialTree<Double>(impliedTreeResult), new RecombiningBinomialTree<Double>(localVolResult));
+    return new ImpliedTreeResult(new RecombiningBinomialTree<>(impliedTreeResult), new RecombiningBinomialTree<>(localVolResult));
   }
 
   private void addLowerNodes(final StandardOptionDataBundle data, final double[][] impliedTree, final double[] arrowDebreu, final int step,

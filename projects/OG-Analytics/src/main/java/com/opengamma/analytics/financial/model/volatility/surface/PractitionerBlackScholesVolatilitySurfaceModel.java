@@ -60,9 +60,9 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
     if (prices.size() < DEGREE) {
       throw new IllegalArgumentException("Price map contained " + prices.size() + " data point(s); need at least " + DEGREE);
     }
-    final List<Double> kList = new ArrayList<Double>();
-    final List<Double> tList = new ArrayList<Double>();
-    final List<Double> sigmaList = new ArrayList<Double>();
+    final List<Double> kList = new ArrayList<>();
+    final List<Double> tList = new ArrayList<>();
+    final List<Double> sigmaList = new ArrayList<>();
     double k, t, sigma;
     for (final Map.Entry<OptionDefinition, Double> entry : prices.entrySet()) {
       k = entry.getKey().getStrike();

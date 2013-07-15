@@ -5,12 +5,12 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.concurrent.ExecutorService;
+import org.threeten.bp.Instant;
 
-import javax.time.InstantProvider;
+import com.opengamma.util.PoolExecutor;
 
 /**
- * Compilation service to convert a {@link FunctionRepository} to a {@link CompiledFunctionRepository}. 
+ * Compilation service to convert a {@link FunctionRepository} to a {@link CompiledFunctionRepository}.
  */
 public interface FunctionRepositoryCompiler {
 
@@ -23,6 +23,6 @@ public interface FunctionRepositoryCompiler {
    * @param atInstant the snapshot time.
    * @return the repository of compiled functions.
    */
-  CompiledFunctionRepository compile(FunctionRepository repository, FunctionCompilationContext context, ExecutorService executor, InstantProvider atInstant);
+  CompiledFunctionRepository compile(FunctionRepository repository, FunctionCompilationContext context, PoolExecutor executor, Instant atInstant);
 
 }

@@ -7,193 +7,206 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text'],
     obj: function () {
-        var STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
-            form_template = '<form action="." id="${id}"><div class="OG-form">' +
-                '{{html html}}<input type="submit" style="display: none;"></div></form>',
-            Form, Block, Field;
-        /**
-         * @class Block
-         */
-        Block = function (form, config) {
-            var block = this, klass = 'Block', config = config || {}, template = null, url = config.url,
-                module = config.module, handlers = config.handlers || [], extras = config.extras,
-                processor = config.processor,
-                wrap = function (html) {
-                    return config.wrap ? $(dummy).append($.tmpl(config.wrap, {html: html})).html() : html;
-                };
-            block.children = config.children || [];
-            block.html = function (handler) {
-                if (template === null) return setTimeout(block.html.partial(handler), STALL);
-                var self = 'html', total = block.children.length, done = 0, result = [],
-                    internal_handler = function () {
-                        handler(template ? $(dummy).append($.tmpl(template, $.extend(
-                            result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
-                            extras
-                        ))).html() : wrap(result.join('')));
-                    };
-                if (!total) return internal_handler();
-                block.children.forEach(function (val, idx) {
-                    var error_prefix;
-                    if (val.html) return val.html(function (html) {
-                        result[idx] = html, (total === ++done) && internal_handler();
-                    });
-                    if (typeof val === 'string') return result[idx] = val, (total === ++done) && internal_handler();
-                    error_prefix = klass + '#' + self + ': children[' + idx + ']';
-                    throw new TypeError(error_prefix + ' is neither a string nor does it have an html function');
-                });
-            };
-            block.load = function () {
-                handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
-                block.children.forEach(function (child) {if (child.load) child.load();});
-            };
-            block.process = function (data, errors) {
-                block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
-                try {if (processor) processor(data);} catch (error) {errors.push(error);}
-            };
-            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
-                .then(function (result) {template = result || '';});
-            if (form) form.attach(handlers);
-        };
-        /**
-         * @class Field
-         */
-        Field = function (form, config) {
-            var field = this, klass = 'Field', template = null, url = config.url, module = config.module,
-                extras = config.extras, handlers = config.handlers || [], generator = config.generator,
-                processor = config.processor;
-            field.html = function (handler) {
-                if (template === null) return setTimeout(field.html.partial(handler), STALL);
-                if (extras && template) return handler($(dummy).append($.tmpl(template, extras)).html());
-                generator(handler, template);
-            };
-            field.load = function () {
-                handlers.forEach(function (handler) {if (handler.type === 'form:load') handler.handler();});
-            };
-            field.process = function (data, errors) {
-                try {if (processor) processor(data);} catch (error) {errors.push(error);}
-            };
-            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
-                .then(function (result) {template = result || '';});
-            form.attach(handlers);
-        };
-        /**
-         * @class Form
-         */
-        Form = function (config) {
-            var form = new Block(null, config), selector = config.selector, $root = $(selector), $form, dom_events = {},
-                klass = 'Form', form_events = {'form:load': [], 'form:submit': [], 'form:error': []},
-                delegator = function (e) {
-                    var $target = $(e.target), results = [];
-                    dom_events[e.type].forEach(function (val) {
-                        if (!$target.is(val.selector) && !$target.parent(val.selector).length) return;
-                        var result = val.handler(e);
-                        results.push(typeof result === 'undefined' ? true : !!result);
-                    });
-                    if (results.length && !results.some(Boolean)) return false;
-                },
-                type_map = config.type_map,
-                find_in_meta = (function (memo) {
-                    var key, len;
-                    for (key in type_map) if (~key.indexOf('*')) memo.push({
-                        expr: new RegExp('^' + key.replace(/\./g, '\\.').replace(/\*/g, '[^\.]+') + '$'),
-                        value: type_map[key]
-                    });
-                    len = memo.length;
-                    return function (path) {
-                        for (var lcv = 0; lcv < len; lcv += 1) if (memo[lcv].expr.test(path)) return memo[lcv].value;
-                        return null
-                    };
-                })([]),
-                build_meta = function (data, path, warns) {
-                    var result = {}, key, empty = '<EMPTY>', index = '<INDEX>', null_path = path === null, new_path;
-                    if ($.isArray(data)) return data.map(function (val, idx) {
-                        var value = build_meta(val, null_path ? idx : [path, index].join('.'), warns);
-                        if ((value === Form.type.IND) && (val !== null)) value = Form.type.STR;
-                        return value in numbers ? ((data[idx] = +data[idx]), value) : value;
-                    });
-                    if (data === null || typeof data !== 'object') // no empty string keys at root level
-                        return !(result = type_map[path] || find_in_meta(path)) ? (warns.push(path), 'BADTYPE'): result;
-                    for (key in data) {
-                        new_path = null_path ? key.replace(/\./g, '') // if a key has dots in it, drop them, it is
-                            : [path, key.replace(/\./g, '') || empty].join('.'); // a wildcard anyway
-                        result[key] = build_meta(data[key], new_path, warns);
-                        if (result[key] in numbers) {
-                            if (typeof data[key] === 'number') continue;
-                            if (data[key].length) data[key] = +data[key]; else delete data[key];
-                        }
-                        // INDs that are not null need to be re-typed as STRs
-                        if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
-                    }
-                    return result;
-                },
-                submit_handler = function (event, extras) {
-                    var self = 'submit_handler', result = form.compile();
-                    $.extend(true, result.extras, extras);
-                    if (event && event.preventDefault) event.preventDefault();
-                    try {
-                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
-                    } catch (error) {
-                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with:\n', error);
-                    }
-                };
-            form.attach = function (handlers) {
-                var self = 'attach';
-                handlers.forEach(function (val) {
-                    val.type.split(' ').forEach(function (type) {
-                        if (form_events[type]) return form_events[type].push(val);
-                        if (!val.selector) throw new TypeError(klass + '#' + self + ': val.selector is not defined');
-                        if (dom_events[type]) return dom_events[type].push(val);
-                        dom_events[type] = [val];
-                        $root.on(type, delegator);
-                    });
-                });
-            };
-            form.Block = Block.partial(form);
-            form.compile = function () {
-                var raw = $form.serializeArray(), built_meta, meta_warns = [],
-                    data = form.data ? $.extend(true, {}, form.data) : null, errors = [];
-                if (data) raw.forEach(function (value) {
-                    var hier = value.name.split('.'), last = hier.pop();
-                    try {
-                        hier.reduce(function (acc, level) {
-                            return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
-                        }, data)[last] = value.value;
-                    } catch (error) {
-                        data = null;
-                        error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);
-                        form_events['form:error'].forEach(function (val) {val.handler(error);});
-                    }
-                });
-                form.process(data, errors);
-                built_meta = type_map ? build_meta(data, null, meta_warns) : null;
-                meta_warns = meta_warns.sort().reduce(function (acc, val) {
-                    return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
-                }, []).join('\n');
-                if (meta_warns.length) og.dev.warn(klass + '#build_meta needs these:\n', meta_warns);
-                return {raw: raw, data: data, errors: errors, meta: built_meta, extras: {}};
-            };
-            form.data = config.data;
-            form.dom = form.html.partial(function (html) {
-                $root.empty().append($.tmpl(form_template, {id: form.id, html: html}));
-                form_events['form:load'].forEach(function (val) {val.handler();});
-                ($form = $('#' + form.id)).unbind().submit(submit_handler);
+        var module = this, numbers = {}, has = 'hasOwnProperty';
+        var form_template = Handlebars.compile('<form action="." id="{{id}}">' +
+            '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
+        /** @private */
+        var delegator = function (event) {
+            var form = this, $target = $(event.target), results = [];
+            form.dom_events[event.type].forEach(function (val) {
+                if (!$target.is(val.selector) && !$target.parent(val.selector).length) return;
+                var result = val.handler(event);
+                results.push(typeof result === 'undefined' ? true : !!result);
             });
-            form.Field = Field.partial(form);
-            form.id = 'gen_form_' + id_count++;
-            form.submit = submit_handler.partial(null);
-            $root.unbind();
-            if (config.handlers) form.attach(config.handlers);
-            return form;
+            if (results.length && !results.some(Boolean)) return false;
         };
-        Form.type =  {
-            BOO: 'boolean',
-            BYT: 'byte',
-            DBL: 'double',
-            IND: 'indicator',
-            SHR: 'short',
-            STR: 'string'
+        /** @private */
+        /** @private */
+        var meta_build = function (input, type_map, find) {
+            var result = {}, key, empty = '<EMPTY>', index = '<INDEX>',
+                data = input.data, path = input.path, warns = input.warns, null_path = path === null, new_path;
+            if ($.isArray(data)) return data.map(function (val, idx) {
+                var value = meta_build({
+                    data: val, path: null_path ? idx : [path, index].join('.'), warns: warns
+                }, type_map, find);
+                if ((value === Form.type.IND) && (val !== null)) value = Form.type.STR;
+                return numbers[has](value) ? ((data[idx] = +data[idx]), value) : value;
+            });
+            if (data === null || typeof data !== 'object') {// no empty string keys at root level
+                return !(result = type_map[path] || find(path)) ? (warns.push(path), 'BADTYPE'): result;
+        }
+            for (key in data) {
+                new_path = null_path ? key.replace(/\./g, '') // if a key has dots in it, drop them, it is
+                    : [path, key.replace(/\./g, '') || empty].join('.'); // a wildcard anyway
+                result[key] = meta_build({data: data[key], path: new_path, warns: warns}, type_map, find);
+                if (numbers[has](result[key])) {
+                    if (typeof data[key] === 'number') continue;
+                    if (data[key].length) data[key] = +data[key]; else delete data[key];
+                }
+                // INDs that are not null need to be re-typed as STRs
+                if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
+            }
+            return result;
         };
-        [Form.type.BYT, Form.type.DBL, Form.type.SHR].forEach(function (val, idx) {numbers[val] = null;});
+        /** @private */
+        var meta_find = function (memo, type_map) {
+            var key, len;
+            for (key in type_map) if (~key.indexOf('*')) memo.push({
+                expr: new RegExp('^' + key.replace(/\./g, '\\.').replace(/\*/g, '[^\.]+') + '$'), value: type_map[key]
+            });
+            len = memo.length;
+            return function (path) {
+                for (var lcv = 0; lcv < len; lcv += 1) if (memo[lcv].expr.test(path)) return memo[lcv].value;
+                return null
+            };
+        };
+        /** @private */
+        var submit_handler = function (form, extras) {
+            var result = form.compile();
+            result.extras = extras || {};
+            try {
+                og.common.events.fire.call(form, 'form:submit', result);
+            } catch (error) {
+                og.dev.warn(module.name + '#submit_handler a form:submit handler failed with:', error);
+            }
+        };
+        /**
+         * creates a Form instance
+         * @name Form
+         * @constructor
+         * @param {Object} data optional map which is used to build the final compiled for results upon submit
+         * @augments Block
+         * @property {String} id autogenerated ID of form, useful for making child selectors
+         */
+        var Form = function (config) {
+            var form = this;
+            og.common.util.ui.Block.call(form, null, config); // assign a Block instance to this (form)
+            /**
+             * creates Block instance whose parent is current Form instance
+             * @function
+             * @name Form.prototype.Block
+             */
+            form.Block = og.common.util.ui.Block.partial(form);
+            form.data = config.data || {};
+            form.dom_events = {};
+            form.id = og.common.id('form');
+            form.parent = $(config.selector).unbind(); // no listeners on the selector
+            form.root = null;
+            /**
+             * submits the form
+             * @function
+             * @name Form.prototype.submit
+             * @param {Object} extras optional extraneous values that may be necessary upon submit (like as_new)
+             * @type undefined
+             */
+            /** @ignore */
+            form.submit = function (extras) {submit_handler(form, extras);}; // defined here so $ can't hijack this
+        };
+        Form.prototype = new og.common.util.ui.Block; // inherit Block prototype
+        /**
+         * turns contents of form into a data structure using field names and block processors
+         * @function
+         * @type Object
+         * @returns {Object} a data structures with raw, data, errors, and meta
+         * @throws {Error} if form field names do not correspond with data keys to drill down into
+         */
+        Form.prototype.compile = function () {
+            var form = this, raw = form.root.serializeArray(), built_meta = null, meta_warns = [],
+                data = $.extend(true, {}, form.data), errors = [], type_map = form.config.type_map;
+            if (!form.meta_find && type_map) form.meta_find = meta_find([], type_map); // cache this function
+            if (data) raw.forEach(function (value) {
+                var hier = value.name.split('.'), last = hier.pop();
+                try {
+                    hier.reduce(function (acc, level) {
+                        return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                    }, data)[last] = value.value;
+                } catch (error) {
+                    data = null;
+                    error = new Error(module.name + '#compile: could not drill down to data.' + value.name);
+                    og.common.events.fire.call(form, 'form:error', error);
+                }
+            });
+            form.process(data, errors);
+            if (type_map)
+                built_meta = meta_build({data: data, path: null, warns: meta_warns}, type_map, form.meta_find);
+            meta_warns = meta_warns.sort().reduce(function (acc, val) {
+                return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
+            }, []).join(', ');
+            if (meta_warns.length) throw new Error(module.name + '#meta_build needs: ' + meta_warns);
+            return {raw: raw, data: data, errors: errors, meta: built_meta};
+        };
+        /**
+         * writes form and all of its children to the DOM
+         * @type Form
+         * @returns {Form} reference to current Form instance
+         */
+        Form.prototype.dom = function () {
+            var form = this;
+            return form.html(function (html) {
+                form.parent.empty().append(form_template({id: form.id, html: html}));
+                og.common.events.fire.call(form, 'form:load');
+                (form.root = $('#' + form.id)).unbind().submit(function (event) {return submit_handler(form), false;});
+            });
+        };
+        /**
+         * removes an event listener
+         * @param {String} type event type
+         * @param {String} selector DOM selector for event
+         * (optional, and only applicable for DOM events, not Form events)
+         * @param {Function} handler event handler to remove (optional)
+         * @type Form
+         * @returns {Form} reference to current Form instance
+         */
+        Form.prototype.off = function (type) {
+            var form = this.form || this, origin = this,
+                selector = typeof arguments[1] === 'string' ? arguments[1] : null,
+                handler = typeof arguments[1] === 'function' ? arguments[1] : arguments[2];
+            if (0 === type.indexOf('form:')) return og.common.events.off.call(form, type, handler), origin;
+            if (!form.dom_events[type]) return origin;
+            form.dom_events[type] = form.dom_events[type].filter(function (val) {
+                if (val.type !== type) return true;
+                if (handler && selector) return val.handler !== handler && val.selector !== selector;
+                if (handler) return val.handler !== handler;
+                if (selector) return val.selector !== selector;
+                return false;
+            });
+            if (form.dom_events[type].length) return origin;
+            delete form.dom_events[type];
+            form.root.off(type);
+            return origin;
+        };
+        /**
+         * adds an event listener, returns reference to current Form instance, in addition to supporting DOM events,
+         * Form also has three custom events: "form:load", "form:submit", and "form:error"
+         * @param {String} type event type
+         * @param {String} selector DOM selector for event
+         * (optional, and only applicable for DOM events, not Form events)
+         * @param {Function} handler event handler to add (optional)
+         * @type Form
+         * @returns {Form} reference to current Form instance
+         */
+        Form.prototype.on = function (type) {
+            var form = this.form || this, origin = this,
+                selector = typeof arguments[1] === 'string' ? arguments[1] : null,
+                handler = typeof arguments[1] === 'function' ? arguments[1] : arguments[2],
+                context = typeof arguments[2] !== 'function' ? arguments[2] : arguments[3];
+            if (0 === type.indexOf('form:')) {
+                og.common.events.on.call(form, type, handler, context);
+                return form['og.common.events'][type][form['og.common.events'][type].length - 1].origin = origin;
+            }
+            if (!selector) throw new TypeError(module.name + '#on: selector is not defined');
+            if (form.dom_events[type])
+                return form.dom_events[type].push({type: type, selector: selector, handler: handler}), origin;
+            form.dom_events[type] = [{type: type, selector: selector, handler: handler}];
+            form.parent.on(type, delegator.bind(form));
+            return origin;
+        };
+        /**
+         * collection of meta type information for creating metadata to describe config objects for REST API
+         * @name Form.type
+         */
+        Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', LNG: 'long', SHR: 'short', STR: 'string'};
+        ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
     }
 });

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.marketdata;
@@ -9,30 +9,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.expression.CommonSynthetics;
 import com.opengamma.financial.expression.ELExpressionParser;
 import com.opengamma.financial.expression.UserExpression;
 import com.opengamma.financial.expression.UserExpressionParser;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
- * Implementation of {@link OverrideOperationCompiler} that allows market data
- * overrides to be expressed as EL expressions.
+ * Implementation of {@link OverrideOperationCompiler} that allows market data overrides to be expressed as EL expressions.
  */
 public class MarketDataELCompiler implements OverrideOperationCompiler {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataELCompiler.class);
-  
+
   private final class Evaluator implements OverrideOperation {
 
     private final UserExpression _expr;
 
-    public Evaluator(final UserExpression expr) {
+    private final ComputationTargetResolver.AtVersionCorrection _resolver;
+
+    public Evaluator(final UserExpression expr, final ComputationTargetResolver.AtVersionCorrection resolver) {
       _expr = expr;
+      _resolver = resolver;
     }
 
     private UserExpression getExpr() {
@@ -41,44 +47,64 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
 
     @Override
     public Object apply(final ValueRequirement requirement, final Object original) {
-      synchronized (MarketDataELFunctions.class) {
-        MarketDataELFunctions.setCompiler(MarketDataELCompiler.this);
-        s_logger.debug("Applying {} to {}", _expr, requirement);
-        final UserExpression.Evaluator eval = getExpr().evaluator();
-        eval.setVariable("x", original);
-        switch (requirement.getTargetSpecification().getType()) {
-          case SECURITY:
-            eval.setVariable("security", getSecuritySource().get(requirement.getTargetSpecification().getUniqueId()));
-            break;
-          case PRIMITIVE:
-            if (requirement.getTargetSpecification().getIdentifier() != null) {
-              eval.setVariable("externalId", requirement.getTargetSpecification().getIdentifier());
+      UserExpressionParser.setResolver(_resolver);
+      s_logger.debug("Applying {} to {}", _expr, requirement);
+      final UserExpression.Evaluator eval = getExpr().evaluator();
+      eval.setVariable("x", original);
+      if (requirement.getTargetReference().getType().isTargetType(ComputationTargetType.SECURITY)) {
+        requirement.getTargetReference().accept(new ComputationTargetReferenceVisitor<Void>() {
+
+          @Override
+          public Void visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+            eval.setVariable("security", UserExpressionParser.resolve(ComputationTargetType.SECURITY, requirement.getIdentifiers()));
+            return null;
+          }
+
+          @Override
+          public Void visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+            eval.setVariable("security", UserExpressionParser.resolve(ComputationTargetType.SECURITY, specification.getUniqueId()));
+            return null;
+          }
+
+        });
+      } else if (requirement.getTargetReference().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
+        requirement.getTargetReference().accept(new ComputationTargetReferenceVisitor<Void>() {
+
+          @Override
+          public Void visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+            final ExternalIdBundle bundle = requirement.getIdentifiers();
+            eval.setVariable("externalIds", bundle);
+            if (bundle.size() == 1) {
+              eval.setVariable("externalId", bundle.iterator().next());
             }
-            if (requirement.getTargetSpecification().getUniqueId() != null) {
-              eval.setVariable("uniqueId", requirement.getTargetSpecification().getUniqueId());
-            }
-            break;
-        }
-        eval.setVariable("value", requirement.getValueName());
-        final Object result = eval.evaluate();
-        if (result == UserExpression.NA) {
-          s_logger.debug("Evaluation failed - using original {}", original);
-          return original;
-        } else {
-          s_logger.debug("Evaluation of {} to {}", original, result);
-          return result;
-        }
+            return null;
+          }
+
+          @Override
+          public Void visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+            eval.setVariable("uniqueId", specification.getUniqueId());
+            return null;
+          }
+
+        });
+      }
+      eval.setVariable("value", requirement.getValueName());
+      final Object result = eval.evaluate();
+      UserExpressionParser.setResolver(null);
+      if (result == UserExpression.NA) {
+        s_logger.debug("Evaluation failed - using original {}", original);
+        return original;
+      } else {
+        s_logger.debug("Evaluation of {} to {}", original, result);
+        return result;
       }
     }
 
   }
 
-  private final SecuritySource _securitySource;
   private final UserExpressionParser _parser;
 
-  public MarketDataELCompiler(final SecuritySource securitySource) {
-    ArgumentChecker.notNull(securitySource, "securitySource");
-    _securitySource = securitySource;
+  public MarketDataELCompiler() {
     _parser = new ELExpressionParser();
     try {
       _parser.setFunction("Curve", "parallelShift", MarketDataELFunctions.class.getMethod("parallelShiftCurve", Object.class, Double.TYPE));
@@ -86,20 +112,16 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
       _parser.setFunction("Security", "get", MarketDataELFunctions.class.getMethod("getSecurity", Object.class));
       _parser.setFunction("FX", "isRate", MarketDataELFunctions.class.getMethod("isFXRate", Object.class));
       _parser.setFunction("FX", "multiplier", MarketDataELFunctions.class.getMethod("getFXMultiplier", Object.class, Double.TYPE));
-      CommonSynthetics.configureParser(_parser, securitySource);
-    } catch (Exception ex) {
+      CommonSynthetics.configureParser(_parser);
+    } catch (final Exception ex) {
       throw new OpenGammaRuntimeException("Caught", ex);
     }
   }
 
   @Override
-  public OverrideOperation compile(final String operation) {
+  public OverrideOperation compile(final String operation, final ComputationTargetResolver.AtVersionCorrection resolver) {
     final UserExpression expr = getParser().parse(operation);
-    return new Evaluator(expr);
-  }
-
-  protected SecuritySource getSecuritySource() {
-    return _securitySource;
+    return new Evaluator(expr, resolver);
   }
 
   private UserExpressionParser getParser() {

@@ -1,15 +1,16 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -23,9 +24,13 @@ import com.opengamma.util.PublicAPI;
 public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
-   * The name under which an instance of {@link ViewProcessorQuery} should be bound.
+   * The name under which the target resolver will be bound.
    */
-  public static final String VIEW_PROCESSOR_QUERY_NAME = "viewProcessorQuery";
+  public static final String COMPUTATION_TARGET_RESOLVER_NAME = "targetResolver";
+  /**
+   * Resolver for mapping the resolved computation targets to the preferred external identifiers.
+   */
+  public static final String EXTERNAL_IDENTIFIER_LOOKUP = "externalIdLookup";
   /**
    * The name under which the valuation instant will be bound.
    */
@@ -38,6 +43,10 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which an instance of {@link SecuritySource} should be bound.
+   */
+  public static final String ORGANIZATION_SOURCE_NAME = "organizationSource";
   /**
    * The name under which function parameters (such as # of Monte Carlo iterations) should be bound.
    */
@@ -55,35 +64,24 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
    * Creates a function execution context as a copy of another.
-   * 
+   *
    * @param copyFrom  the context to copy elements from, not null
    */
   protected FunctionExecutionContext(final FunctionExecutionContext copyFrom) {
     super(copyFrom);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the view processor query.
-   * 
-   * @return the view processor query, null if not in the context
-   */
-  public ViewProcessorQuery getViewProcessorQuery() {
-    return (ViewProcessorQuery) get(VIEW_PROCESSOR_QUERY_NAME);
+  public ComputationTargetResolver.AtVersionCorrection getComputationTargetResolver() {
+    return (ComputationTargetResolver.AtVersionCorrection) get(COMPUTATION_TARGET_RESOLVER_NAME);
   }
 
-  /**
-   * Sets the view processor query.
-   * 
-   * @param viewProcessorQuery  the view processor query to bind
-   */
-  public void setViewProcessorQuery(ViewProcessorQuery viewProcessorQuery) {
-    put(VIEW_PROCESSOR_QUERY_NAME, viewProcessorQuery);
+  public void setComputationTargetResolver(final ComputationTargetResolver.AtVersionCorrection targetResolver) {
+    put(COMPUTATION_TARGET_RESOLVER_NAME, targetResolver);
   }
 
   /**
    * Gets the valuation time.
-   * 
+   *
    * @return the valuation time, null if not in the context
    */
   public Instant getValuationTime() {
@@ -92,16 +90,16 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
    * Sets the valuation time.
-   * 
+   *
    * @param valuationTime the valuation time to bind
    */
-  public void setValuationTime(Instant valuationTime) {
+  public void setValuationTime(final Instant valuationTime) {
     put(VALUATION_INSTANT_NAME, valuationTime);
   }
 
   /**
    * Gets the clock providing the valuation time.
-   * 
+   *
    * @return the clock, null if not in the context
    */
   public Clock getValuationClock() {
@@ -110,16 +108,16 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
    * Sets the clock providing the valuation time.
-   * 
+   *
    * @param snapshotClock the clock instance
    */
-  public void setValuationClock(Clock snapshotClock) {
+  public void setValuationClock(final Clock snapshotClock) {
     put(VALUATION_CLOCK_NAME, snapshotClock);
   }
 
   /**
    * Gets the source of securities.
-   * 
+   *
    * @return the source of securities, null if not in the context
    */
   public SecuritySource getSecuritySource() {
@@ -128,16 +126,34 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
    * Sets the source of securities.
-   * 
+   *
    * @param securitySource  the source of securities to bind
    */
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
   }
-  
+
+  /**
+   * Gets the source of organizations.
+   *
+   * @return the source of organizations, null if not in the context
+   */
+  public OrganizationSource getOrganizationSource() {
+    return (OrganizationSource) get(ORGANIZATION_SOURCE_NAME);
+  }
+
+  /**
+   * Sets the source of organizations.
+   *
+   * @param organizationSource  the source of organizations to bind
+   */
+  public void setOrganizationSource(final OrganizationSource organizationSource) {
+    put(ORGANIZATION_SOURCE_NAME, organizationSource);
+  }
+
   /**
    * Gets the function parameters.
-   * 
+   *
    * @return the function parameters, null if not in the context
    */
   public FunctionParameters getFunctionParameters() {
@@ -146,16 +162,16 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
    * Sets the source of function parameters.
-   * 
+   *
    * @param functionParameters  the function parameters to bind
    */
-  public void setFunctionParameters(FunctionParameters functionParameters) {
+  public void setFunctionParameters(final FunctionParameters functionParameters) {
     put(FUNCTION_PARAMETERS_NAME, functionParameters);
   }
 
   /**
    * Gets the source of portfolio structure information.
-   * 
+   *
    * @return the portfolio structure, null if not in the context
    */
   public PortfolioStructure getPortfolioStructure() {
@@ -164,7 +180,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
    * Sets the source of portfolio structure information.
-   * 
+   *
    * @param portfolioStructure  the portfolio structure to bind
    */
   public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
@@ -173,13 +189,13 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
 
   /**
    * Gets the source of securities cast to a specific type.
-   * 
+   *
    * @param <T>  the security source type
    * @param clazz  the security source type
    * @return the security source
    * @throws ClassCastException if the security source is of a different type
    */
-  public <T extends SecuritySource> T getSecuritySource(Class<T> clazz) {
+  public <T extends SecuritySource> T getSecuritySource(final Class<T> clazz) {
     return clazz.cast(get(SECURITY_SOURCE_NAME));
   }
 

@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
@@ -52,7 +52,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
   /**
    * Compute the present value of a FRA by discounting.
    * @param fra The FRA.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value.
    */
   public CurrencyAmount presentValue(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
@@ -75,7 +75,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
   /**
    * Compute the present value sensitivity to rates of a FRA by discounting.
    * @param fra The FRA.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
@@ -94,13 +94,13 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / fra.getFixingYearFraction() * forwardBar;
     final double dfForwardStartBar = 1.0 / (fra.getFixingYearFraction() * dfForwardEnd) * forwardBar;
     final double dfBar = fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * pvBar;
-    final Map<String, List<DoublesPair>> resultMapDiscouting = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapDiscouting = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(fra.getPaymentTime(), -fra.getPaymentTime() * df * dfBar));
     resultMapDiscouting.put(fra.getFundingCurveName(), listDiscounting);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapDiscouting);
-    final Map<String, List<DoublesPair>> resultMapForward = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapForward = new HashMap<>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     listForward.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMapForward.put(fra.getForwardCurveName(), listForward);
@@ -110,7 +110,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
   /**
    * Compute the par rate or forward rate of the FRA.
    * @param fra The FRA.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The par rate.
    */
   public double parRate(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
@@ -124,7 +124,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
   /**
    * Compute the par rate sensitivity to the rates for a FRA.
    * @param fra The FRA.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The par rate sensitivity.
    */
   public InterestRateCurveSensitivity parRateCurveSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
@@ -137,8 +137,8 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final double forwardBar = 1.0;
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / fra.getFixingYearFraction() * forwardBar;
     final double dfForwardStartBar = 1.0 / (fra.getFixingYearFraction() * dfForwardEnd) * forwardBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     listForward.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(fra.getForwardCurveName(), listForward);
@@ -174,8 +174,8 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     Validate.notNull(fra, "FRA");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
-    double dfStart = forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime());
-    double dfEnd = forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime());
+    final double dfStart = forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime());
+    final double dfEnd = forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime());
     final double forward = (dfStart / dfEnd - 1) / fra.getFixingYearFraction();
     return forward - fra.getRate();
   }
@@ -190,14 +190,14 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     Validate.notNull(fra, "FRA");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
-    double dfStart = forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime());
-    double dfEnd = forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime());
+    final double dfStart = forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime());
+    final double dfEnd = forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime());
     // Backward sweep
-    double parSpreadBar = 1.0;
-    double dfEndBar = -dfStart / (dfEnd * dfEnd * fra.getFixingYearFraction()) * parSpreadBar;
-    double dfStartBar = 1 / (dfEnd * fra.getFixingYearFraction()) * parSpreadBar;
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final double parSpreadBar = 1.0;
+    final double dfEndBar = -dfStart / (dfEnd * dfEnd * fra.getFixingYearFraction()) * parSpreadBar;
+    final double dfStartBar = 1 / (dfEnd * fra.getFixingYearFraction()) * parSpreadBar;
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfStart * dfStartBar));
     listDiscounting.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfEnd * dfEndBar));
     resultMapDsc.put(fra.getForwardCurveName(), listDiscounting);

@@ -1,0 +1,65 @@
+/**
+ * Copyright 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.og-histogram-plot {
+    top: 20px;
+}
+
+.og-bucket-select {
+    margin: 0 5px;
+}
+
+.OG-histogram-gadget, .og-histogram-plots {
+    width: 100%;
+}
+
+.OG-histogram-gadget .og-buckets {
+  border-radius: 1px 1px 1px 1px;
+  color: #555555;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 12px;
+  margin-top: 4px;
+  position: absolute;
+  right: 0;
+  text-shadow: 0 1px 0 #FFFFFF;
+  z-index: 3;
+}
+
+.og-histogram-var95-line {
+    position:absolute;
+    top:6px;
+    border-left:2px solid #700404;
+}
+
+.og-histogram-var99-line {
+    position:absolute;
+    top:6px;
+    border-left:2px solid #ba1c1c;
+}
+
+.og-histogram-cvar95-line {
+    position:absolute;
+    top:6px;
+    border-left:2px solid #a30505;
+}
+
+.og-histogram-cvar99-line {
+    position:absolute;
+    top:6px;
+    border-left:2px solid #c93636;
+}
+
+.og-histogram-var-label {
+    background-color: #FFFFFF;
+    color: #666666;
+    font-size: 10px;
+    position: absolute;
+}
+
+.og-histogram-refresh {
+    display: none;
+    margin: 4px 0 0 15px;
+    position: absolute;
+}

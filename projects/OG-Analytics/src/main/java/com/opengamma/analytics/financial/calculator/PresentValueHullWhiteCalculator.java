@@ -5,10 +5,6 @@
  */
 package com.opengamma.analytics.financial.calculator;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureHullWhiteMethod;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value as a multiple currency amount with Hull-White one factor model.
@@ -34,16 +30,16 @@ public class PresentValueHullWhiteCalculator extends PresentValueMCACalculator {
   public PresentValueHullWhiteCalculator() {
   }
 
-  /**
-   * The methods used by the different instruments.
-   */
-  private static final InterestRateFutureHullWhiteMethod METHOD_IR_FUTURES = InterestRateFutureHullWhiteMethod.getInstance();
-
-  // -----     Futures     ------
-
-  @Override
-  public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return MultipleCurrencyAmount.of(METHOD_IR_FUTURES.presentValue(future, curves));
-  }
+  //  /**
+  //   * The methods used by the different instruments.
+  //   */
+  //  private static final InterestRateFutureHullWhiteMethod METHOD_IR_FUTURES = InterestRateFutureHullWhiteMethod.getInstance();
+  //
+  //  // -----     Futures     ------
+  //
+  //  @Override
+  //  public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  //    return MultipleCurrencyAmount.of(METHOD_IR_FUTURES.presentValue(future, curves));
+  //  }
 
 }

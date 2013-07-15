@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.schedule;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -44,9 +43,9 @@ public class ScheduleFactory {
     LocalDate[] result = null;
     if (periodsPerYear == 1) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -56,9 +55,9 @@ public class ScheduleFactory {
       }
     } else if (periodsPerYear == 2) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.SEMI_ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.SEMI_ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.SEMI_ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -68,9 +67,9 @@ public class ScheduleFactory {
       }
     } else if (periodsPerYear == 4) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.QUARTERLY_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.QUARTERLY_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.QUARTERLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -80,9 +79,9 @@ public class ScheduleFactory {
       }
     } else if (periodsPerYear == 12) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.lengthOfMonth()) {
           result = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.MONTHLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -130,9 +129,9 @@ public class ScheduleFactory {
     ZonedDateTime[] result = null;
     if (periodsPerYear == 1) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.toLocalDate().isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.toLocalDate().isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -142,9 +141,9 @@ public class ScheduleFactory {
       }
     } else if (periodsPerYear == 2) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.toLocalDate().isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.SEMI_ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.toLocalDate().isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.SEMI_ANNUAL_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.SEMI_ANNUAL_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -154,9 +153,9 @@ public class ScheduleFactory {
       }
     } else if (periodsPerYear == 4) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.toLocalDate().isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.QUARTERLY_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.toLocalDate().isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.QUARTERLY_EOM_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.QUARTERLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
@@ -166,9 +165,9 @@ public class ScheduleFactory {
       }
     } else if (periodsPerYear == 12) {
       if (endOfMonth) {
-        if (fromEnd && endDate.getDayOfMonth() == endDate.getMonthOfYear().getLastDayOfMonth(endDate.toLocalDate().isLeapYear())) {
+        if (fromEnd && endDate.getDayOfMonth() == endDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
-        } else if (startDate.getDayOfMonth() == startDate.getMonthOfYear().getLastDayOfMonth(startDate.toLocalDate().isLeapYear())) {
+        } else if (startDate.getDayOfMonth() == startDate.toLocalDate().lengthOfMonth()) {
           result = ScheduleCalculatorFactory.END_OF_MONTH_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);
         } else {
           result = ScheduleCalculatorFactory.MONTHLY_CALCULATOR.getSchedule(startDate, endDate, fromEnd, generateRecursive);

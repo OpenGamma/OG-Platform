@@ -6,7 +6,6 @@
 package com.opengamma.web.security;
 
 import java.net.URI;
-import java.util.Collections;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -21,12 +20,17 @@ import javax.ws.rs.core.Response.Status;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.sensitivities.FactorExposureData;
+import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityLoaderRequest;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
@@ -34,7 +38,7 @@ import com.opengamma.web.FreemarkerCustomRenderer;
  */
 @Path("/securities/{securityId}")
 public class WebSecurityResource extends AbstractWebSecurityResource {
-
+  
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -48,14 +52,35 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/security.ftl", out);
+    return getFreemarker().build(HTML_DIR + "security.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/jsonsecurity.ftl", out);
+    return getFreemarker().build(JSON_DIR + getFreemarkerTemplateName(), out);
+  }
+
+  private String getFreemarkerTemplateName() {
+    SecurityDocument doc = data().getSecurity();
+    ManageableSecurity security = doc.getSecurity();
+    String result = "default-security.ftl";
+    if (security instanceof FinancialSecurity) {
+      FinancialSecurity financialSec = (FinancialSecurity) security;
+      String templateName = financialSec.accept(getTemplateProvider());
+      if (templateName != null) {
+        result = templateName;
+      }
+    } else {
+      if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
+        result = "external-sensitivities.ftl";
+      }
+      if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
+        result = "external-sensitivities-risk-factors.ftl";
+      }
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -88,7 +113,9 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
 
   private URI updateSecurity(SecurityDocument doc) {
     ExternalIdBundle identifierBundle = doc.getSecurity().getExternalIdBundle();
-    data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
+    SecurityLoaderRequest request = SecurityLoaderRequest.create(identifierBundle);
+    request.setForceUpdate(true);
+    data().getSecurityLoader().loadSecurities(request);  // ignore errors
     return WebSecurityResource.uri(data());
   }
 
@@ -122,7 +149,8 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    SecurityDocument doc = data().getSecurity();
+    SecurityDocument securityDoc = data().getSecurity();
+    ManageableSecurity security = securityDoc.getSecurity();
     
     // REVIEW jonathan 2012-01-12 -- we are throwing away any adjuster that may be required, e.g. to apply
     // normalisation to the time-series. This reproduces the previous behaviour but probably indicates that the
@@ -131,18 +159,18 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     // Get the last price HTS for the security
     ObjectId tsObjectId = null;
     HistoricalTimeSeriesInfoSearchRequest searchRequest =
-        new HistoricalTimeSeriesInfoSearchRequest(doc.getSecurity().getExternalIdBundle());
+        new HistoricalTimeSeriesInfoSearchRequest(security.getExternalIdBundle());
     HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
     if (searchResult.getFirstInfo() != null) {
       tsObjectId = searchResult.getFirstInfo().getUniqueId().getObjectId();
     }
 
-    out.put("securityAttributes", doc.getSecurity().getAttributes());
-    out.put("securityDoc", doc); 
-    out.put("security", doc.getSecurity());
+    out.put("securityAttributes", security.getAttributes());
+    out.put("securityDoc", securityDoc); 
+    out.put("security", security);
     out.put("timeSeriesId", tsObjectId);
-    out.put("deleted", !doc.isLatest());
-    addSecuritySpecificMetaData(doc.getSecurity(), out);
+    out.put("deleted", !securityDoc.isLatest());
+    addSecuritySpecificMetaData(security, out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);
     return out;
   }

@@ -17,10 +17,12 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests for the {@link ValueProperties} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ValuePropertiesTest {
 
   public void testNone() {

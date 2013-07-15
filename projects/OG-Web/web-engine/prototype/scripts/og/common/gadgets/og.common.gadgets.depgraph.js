@@ -4,25 +4,32 @@
  */
 $.register_module({
     name: 'og.common.gadgets.Depgraph',
-    dependencies: ['og.common.gadgets.manager'],
+    dependencies: ['og.common.gadgets.Grid'],
     obj: function () {
-        var module = this, prefix = 'og_depgraph_gadget_', counter = 1, menu;
-        return function (config) {
-            var gadget = this, alive = prefix + counter++,
-                css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid;
-            gadget.alive = function () {return grid.alive();};
-            gadget.load = function () {
-                $(config.selector).addClass(alive).css(css_position);
-                menu = (config.selector.indexOf('inplace') >= 0) ? false : true;
-                grid = new og.analytics.Grid({
-                    selector: config.selector, source: config.source, cellmenu: menu, child: config.child
+        var Grid = og.common.gadgets.Grid, Depgraph = function (config) {
+            var depgraph = this, containers;
+            Grid.call(depgraph, {selector: config.selector, child: config.child,
+                cellmenu: !~config.selector.indexOf('inplace'), show_sets: false, show_views: false, collapse_level: 1,
+                source: $.extend({depgraph: true, row: config.row, col: config.col}, config.source)
                 });
+            if (!og.analytics.containers) return; // highlighting only works in analytics view (for now)
+            containers = og.analytics.containers;
+            var highlight = function (parent, row, col, event_type) {
+                if (Object.equals(parent, depgraph.source)) {
+                    depgraph.highlight(row, col, event_type);
+                } else {
+                    depgraph.highlight();
+                }
             };
-            gadget.load();
-            gadget.resize = function () {
-                if (grid) grid.resize(); else throw new Error(module.name + ': no grid to resize');
-            };
-            if (!config.child) og.common.gadgets.manager.register(gadget);
+            containers.on('cellhighlight', highlight);
+            containers.on('cellhighlightinplace', highlight);
+            depgraph.on('kill', function () {
+                containers.off('cellhighlight', highlight);
+                containers.off('cellhighlightinplace', highlight);
+            });
         };
+        Depgraph.prototype = Object.create(Grid.prototype);
+        Depgraph.prototype.label = 'depgraph';
+        return Depgraph;
     }
 });

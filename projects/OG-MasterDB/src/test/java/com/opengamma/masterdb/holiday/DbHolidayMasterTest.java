@@ -10,27 +10,24 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbHolidayMaster.
  */
-public class DbHolidayMasterTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbHolidayMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMasterTest.class);
 
@@ -38,26 +35,19 @@ public class DbHolidayMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbHolidayMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _holMaster = (DbHolidayMaster) context.getBean(getDatabaseType() + "DbHolidayMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _holMaster = new DbHolidayMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _holMaster = null;
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
@@ -66,7 +56,7 @@ public class DbHolidayMasterTest extends DbTest {
     assertNotNull(_holMaster);
     assertEquals(true, _holMaster.getUniqueIdScheme().equals("DbHol"));
     assertNotNull(_holMaster.getDbConnector());
-    assertNotNull(_holMaster.getTimeSource());
+    assertNotNull(_holMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

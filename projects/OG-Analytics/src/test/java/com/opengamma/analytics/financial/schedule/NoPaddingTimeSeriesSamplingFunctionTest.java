@@ -11,14 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -55,9 +54,9 @@ public class NoPaddingTimeSeriesSamplingFunctionTest {
         d2.add(Double.valueOf(i));
       }
     }
-    TS_NO_MISSING_DATA = new ArrayLocalDateDoubleTimeSeries(t1, d1);
-    TS_MISSING_DATA = new ArrayLocalDateDoubleTimeSeries(t2, d2);
-    TS_MISSING_MONTH_DATA = new ArrayLocalDateDoubleTimeSeries(t3, d3);
+    TS_NO_MISSING_DATA = ImmutableLocalDateDoubleTimeSeries.of(t1, d1);
+    TS_MISSING_DATA = ImmutableLocalDateDoubleTimeSeries.of(t2, d2);
+    TS_MISSING_MONTH_DATA = ImmutableLocalDateDoubleTimeSeries.of(t3, d3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -72,26 +71,26 @@ public class NoPaddingTimeSeriesSamplingFunctionTest {
 
   @Test
   public void testNoMissingData() {
-    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_NO_MISSING_DATA, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_NO_MISSING_DATA, DAILY_SCHEDULE);
     assertEquals(TS_NO_MISSING_DATA.size(), result.size());
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(TS_NO_MISSING_DATA.getTimeAt(i), entry.getKey());
-      assertEquals(TS_NO_MISSING_DATA.getValueAt(i++), entry.getValue(), 0);
+      assertEquals(TS_NO_MISSING_DATA.getTimeAtIndex(i), entry.getKey());
+      assertEquals(TS_NO_MISSING_DATA.getValueAtIndex(i++), entry.getValue(), 0);
     }
   }
 
   @Test
   public void testOneDayMissingData() {
-    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_MISSING_DATA, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_MISSING_DATA, DAILY_SCHEDULE);
     assertEquals(result.size(), TS_MISSING_DATA.size());
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(TS_MISSING_DATA.getTimeAt(i), entry.getKey());
+      assertEquals(TS_MISSING_DATA.getTimeAtIndex(i), entry.getKey());
       if (entry.getKey().equals(MISSING_DAY_TUESDAY)) {
-        assertEquals(TS_MISSING_DATA.getValueAt(i - 1), entry.getValue(), 0);
+        assertEquals(TS_MISSING_DATA.getValueAtIndex(i - 1), entry.getValue(), 0);
       } else {
-        assertEquals(TS_MISSING_DATA.getValueAt(i), entry.getValue(), 0);
+        assertEquals(TS_MISSING_DATA.getValueAtIndex(i), entry.getValue(), 0);
       }
       i++;
     }
@@ -99,12 +98,12 @@ public class NoPaddingTimeSeriesSamplingFunctionTest {
 
   @Test
   public void testOneMonthMissingData() {
-    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_MISSING_MONTH_DATA, DAILY_SCHEDULE).toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries result = F.getSampledTimeSeries(TS_MISSING_MONTH_DATA, DAILY_SCHEDULE);
     assertEquals(result.size(), TS_MISSING_MONTH_DATA.size());
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(TS_MISSING_MONTH_DATA.getTimeAt(i), entry.getKey());
-      assertEquals(TS_MISSING_MONTH_DATA.getValueAt(i), entry.getValue(), 0);
+      assertEquals(TS_MISSING_MONTH_DATA.getTimeAtIndex(i), entry.getKey());
+      assertEquals(TS_MISSING_MONTH_DATA.getValueAtIndex(i), entry.getValue(), 0);
       i++;
     }
   }

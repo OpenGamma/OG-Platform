@@ -8,6 +8,9 @@ package com.opengamma.web.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 
+/**
+ * Formatter.
+ */
 public class VolatilitySurfaceSpecificationFormatter extends AbstractFormatter<VolatilitySurfaceSpecification> {
 
   /* package */ VolatilitySurfaceSpecificationFormatter() {
@@ -15,12 +18,12 @@ public class VolatilitySurfaceSpecificationFormatter extends AbstractFormatter<V
   }
 
   @Override
-  public Object formatCell(VolatilitySurfaceSpecification spec, ValueSpecification valueSpec) {
+  public Object formatCell(VolatilitySurfaceSpecification spec, ValueSpecification valueSpec, Object inlineKey) {
     return "Volatility Surface Spec - " + spec.getName() + "/" + spec.getSurfaceQuoteType() + "/" + spec.getQuoteUnits();
   }
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

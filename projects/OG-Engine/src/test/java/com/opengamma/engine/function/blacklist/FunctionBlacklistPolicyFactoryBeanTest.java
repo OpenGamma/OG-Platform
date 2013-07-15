@@ -17,11 +17,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.function.blacklist.FunctionBlacklistPolicy.Entry;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link FunctionBlacklistPolicyFactoryBean} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionBlacklistPolicyFactoryBeanTest {
 
   @Test(expectedExceptions = {IllegalArgumentException.class })

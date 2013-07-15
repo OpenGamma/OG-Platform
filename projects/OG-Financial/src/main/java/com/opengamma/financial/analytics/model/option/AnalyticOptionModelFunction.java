@@ -8,21 +8,21 @@ package com.opengamma.financial.analytics.model.option;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
+import org.threeten.bp.Clock;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -31,18 +31,21 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  *
  */
+@Deprecated
 public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-    final StandardOptionDataBundle data = getDataBundle(executionContext.getSecuritySource(), executionContext.getValuationClock(), option, inputs);
+    final StandardOptionDataBundle data = getDataBundle(executionContext.getValuationClock(), option, inputs);
     final OptionDefinition definition = getOptionDefinition(option);
     final Set<Greek> requiredGreeks = new HashSet<Greek>();
     for (final ValueRequirement dV : desiredValues) {
@@ -85,18 +88,13 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     return results;
   }
 
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueId uid) {
+  protected ValueRequirement getUnderlyingMarketDataRequirement(final ExternalId eid) {
     // TODO 2010-10-28 Andrew -- We're assuming the underlying is in the same currency as the PUT/CALL price. Detect if it's different and act accordingly.
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, eid);
   }
 
-  protected ValueRequirement getYieldCurveMarketDataRequirement(final UniqueId uid, final String curveName) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid, ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
+  protected ValueRequirement getYieldCurveMarketDataRequirement(final Currency currency, final String curveName) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
   }
 
   protected ValueRequirement getCostOfCarryMarketDataRequirement(final UniqueId uid, final String curveName) {
@@ -112,5 +110,5 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
 
   protected abstract OptionDefinition getOptionDefinition(EquityOptionSecurity option);
 
-  protected abstract <S extends StandardOptionDataBundle> S getDataBundle(SecuritySource secMaster, Clock relevantTime, EquityOptionSecurity option, FunctionInputs inputs);
+  protected abstract <S extends StandardOptionDataBundle> S getDataBundle(Clock relevantTime, EquityOptionSecurity option, FunctionInputs inputs);
 }

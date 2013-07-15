@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.defaultproperties;
@@ -9,20 +9,20 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardFunctionDeprecated;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexForwardDefaultPropertiesFunction
+ * @see FXForwardDefaults
  */
 @Deprecated
 public class FXForwardDefaultsDeprecated extends DefaultPropertyFunction {
@@ -44,7 +44,7 @@ public class FXForwardDefaultsDeprecated extends DefaultPropertyFunction {
 
   public FXForwardDefaultsDeprecated(final String payCurveName, final String payForwardCurveName, final String payCurveCalculationMethod, final String receiveCurveName,
       final String receiveForwardCurveName, final String receiveCurveCalculationMethod, final String payCurrency, final String receiveCurrency) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FX_FORWARD_SECURITY, true);
     ArgumentChecker.notNull(payCurveName, "pay curve name");
     ArgumentChecker.notNull(payForwardCurveName, "pay forward curve name");
     ArgumentChecker.notNull(payCurveCalculationMethod, "pay curve calculation method");
@@ -65,12 +65,6 @@ public class FXForwardDefaultsDeprecated extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (!(target.getSecurity() instanceof FXForwardSecurity)) {
-      return false;
-    }
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();

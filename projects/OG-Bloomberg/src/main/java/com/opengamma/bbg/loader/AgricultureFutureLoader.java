@@ -5,6 +5,10 @@
  */
 package com.opengamma.bbg.loader;
 
+import static com.opengamma.bbg.BloombergConstants.BBG_CORN;
+import static com.opengamma.bbg.BloombergConstants.BBG_FOODSTUFF;
+import static com.opengamma.bbg.BloombergConstants.BBG_LIVESTOCK;
+import static com.opengamma.bbg.BloombergConstants.BBG_SOY;
 import static com.opengamma.bbg.BloombergConstants.BBG_WHEAT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
@@ -65,7 +69,7 @@ public final class AgricultureFutureLoader extends SecurityLoader {
   /**
    * The valid Bloomberg future categories for Agriculture Futures
    */
-  public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(BBG_WHEAT);
+  public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(BBG_CORN, BBG_WHEAT, BBG_SOY, BBG_LIVESTOCK, BBG_FOODSTUFF);
 
   /**
    * Creates an instance.

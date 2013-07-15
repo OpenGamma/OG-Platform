@@ -5,49 +5,38 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.EnumSet;
 import java.util.List;
 
-import com.opengamma.engine.view.calcnode.EmptyExecutionLog;
+import com.opengamma.engine.calcnode.EmptyExecutionLog;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.log.LogEvent;
+import com.opengamma.util.log.LogLevel;
 
 /**
- * Provides access to the log events which occurred during some execution.
+ * Provides access to the log events which occurred during an individual execution.
  * <p>
  * These are summarised as error, warning and information indicators, although the full list of events may contain any
  * level of log event.
  */
 @PublicAPI
 public interface ExecutionLog {
-  
+
   /**
    * An empty execution log.
    */
   ExecutionLog EMPTY = EmptyExecutionLog.INSTANCE;
+  //-------------------------------------------------------------------------
   
   /**
-   * Indicates whether any error-level log events occurred.
-   * 
-   * @return true if any error-level log events occurred, false otherwise
+   * Gets the levels of log events which occurred during the execution.
+   *
+   * @return the levels of log events, not null.
    */
-  boolean hasError();
-  
+  EnumSet<LogLevel> getLogLevels();
+
   /**
-   * Indicates whether any warning-level log events occurred.
-   * 
-   * @return true if any warning-level log events occurred, false otherwise.
-   */
-  boolean hasWarn();
-  
-  /**
-   * Indicates whether any information-level log events occurred.
-   * 
-   * @return true if any information-level log events occurred, false otherwise.
-   */
-  boolean hasInfo();
-  
-  /**
-   * Gets the log events, if these have been collected.
+   * Gets the log events which occurred during the execution, if these have been collected.
    *  
    * @return an ordered list of log events, null if not collected
    */
@@ -81,5 +70,15 @@ public interface ExecutionLog {
    * @return the stack trace of the exception, null if not applicable.
    */
   String getExceptionStackTrace();
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Indicates whether the log is empty.
+   * <p>
+   * An empty log contains no events and no exception.
+   * 
+   * @return true if the log is empty, false otherwise
+   */
+  boolean isEmpty();
   
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -9,21 +9,21 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.lambdava.functions.Function3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -31,13 +31,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.functional.Function3;
-import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 
 /**
  * Base class for functions to shift historical market data values, implemented using properties and constraints.
- * 
+ *
  * @param <T> the type of data converted
  */
 public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends AbstractFunction.NonCompiledInvoker {
@@ -51,13 +49,7 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    return uid != null;
+    return ComputationTargetType.PRIMITIVE; // The unique identifier of the time series
   }
 
   @Override
@@ -80,7 +72,7 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
       return null;
     }
     final ValueProperties properties = desiredValue.getConstraints().copy().withoutAny(SHIFT_PROPERTY).with(SHIFT_PROPERTY, "0").withOptional(SHIFT_PROPERTY).get();
-    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), properties));
+    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), target.toSpecification(), properties));
   }
 
   @Override
@@ -91,12 +83,7 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
   }
 
   private ValueRequirement createRequirement(final FunctionExecutionContext context, final String field, final ExternalIdBundle identifiers) {
-    final Security security = context.getSecuritySource().getSingle(identifiers);
-    if (security != null) {
-      return new ValueRequirement(field, new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId()), ValueProperties.none());
-    } else {
-      return new ValueRequirement(field, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, null));
-    }
+    return new ValueRequirement(field, ComputationTargetType.SECURITY, identifiers);
   }
 
   protected HistoricalTimeSeries applyOverride(final FunctionExecutionContext context, final OverrideOperation operation, final String field, final ExternalIdBundle identifiers,
@@ -140,9 +127,9 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
       throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
     }
     s_logger.debug("Applying {} to yield curve {}", shift, inputValue);
-    final T result = apply(executionContext, compiler.compile(shift), inputValue, input.getSpecification());
+    final T result = apply(executionContext, compiler.compile(shift, executionContext.getComputationTargetResolver()), inputValue, input.getSpecification());
     s_logger.debug("Got result {}", result);
-    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), result));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), result));
   }
 
 }

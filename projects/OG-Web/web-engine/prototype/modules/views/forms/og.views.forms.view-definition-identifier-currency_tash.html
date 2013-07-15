@@ -1,0 +1,46 @@
+<section style="margin-bottom: 0px;">
+  <div class="OG-tabs og-tab-hat">
+    <ul class="og-js-colset-tabs">
+      <li>
+        <a class="og-tab og-js-viewdef-tab og-active" href="#">
+          <span class="og-js-viewdef-tab-name">General Settings</span>
+        </a>
+      </li>
+      <li>
+        <a class="og-tab og-js-viewdef-tab" href="#">
+          <span class="og-js-viewdef-tab-name">Results Model Definition</span>
+        </a>
+      </li>
+      <li>
+        <a class="og-tab og-js-viewdef-tab" href="#">
+          <span class="og-js-viewdef-tab-name">Execution Parameters</span>
+        </a>
+      </li>
+      <li>
+        <a class="og-tab og-js-viewdef-tab" href="#">
+          <span class="og-js-viewdef-tab-name">User Information</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="OG-mod-0 og-grid-last og-id-cur og-js-viewdef-0" style="height: 160px;">
+  <div class="og-mod-content">
+    <label>
+      <span>Name</span>
+      <span><input name="name" value="{{name}}" type="text" /></span>
+    </label>
+    <label>
+      <span>Portfolio</span>
+      <span>{{{item_0}}}</span>
+    </label>
+    <label>
+      <span>Currency</span>
+      <span>{{{item_1}}}</span>
+    </label>
+    <div data-tooltip="1" data-tooltip-type="large">Persistent</div>
+    <input type="checkbox" name="persistent" {{#persistent}}checked="checked"{{/persistent}}
+      style="vertical-align: baseline" />
+  </div>
+</section>

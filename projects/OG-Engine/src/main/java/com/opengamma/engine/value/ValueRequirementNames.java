@@ -7,14 +7,13 @@ package com.opengamma.engine.value;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.TargetSourcingFunction;
 
 /**
  * Standard names used to refer to particular computed values.
  * <p>
- * These name are used as keys to define specific required values in the engine.
- * They should be used by a {@link FunctionDefinition} to state their required inputs
- * and their potential outputs.
- * These are a typical common set of names, which may be extended.
+ * These name are used as keys to define specific required values in the engine. They should be used by a {@link FunctionDefinition} to state their required inputs and their potential outputs. These
+ * are a typical common set of names, which may be extended.
  * <p>
  * For names used to refer to market data, see {@link MarketDataRequirementNames}.
  */
@@ -130,6 +129,11 @@ public final class ValueRequirementNames {
    */
   public static final String PROJECTED_FLOATING_RECEIVE_CASH_FLOWS = "Projected Floating Receive Cash-Flows";
 
+  /**
+   * (For barrier options) The absolute difference between the nearest barrier and the spot.
+   */
+  public static final String BARRIER_DISTANCE = "BarrierDistance";
+
   ///// Curves
   /**
    * Curve containing (date, discount factor) pairs.
@@ -148,19 +152,52 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Curve containing (time, price index) pairs.
+   */
+  public static final String PRICE_INDEX_CURVE = "PriceIndexCurve";
+  /**
    * Hazard rate curve for credit instruments.
    */
   public static final String HAZARD_RATE_CURVE = "HazardRateCurve";
   /**
-   * The bundle of historical time series objects for instruments on a curve.
+   * Credit spread curves.
+   */
+  public static final String CREDIT_SPREAD_CURVE = "CreditSpreadCurve";
+  /**
+   * The bundle of historical time series objects for nodes on a credit spread curve.
+   */
+  public static final String CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES = "Credit Spread Curve Historical Time Series";
+  /**
+   * The bundle of historical time series objects for instruments on a yield curve.
    */
   public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
   /**
-   * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
+   * The bundle of historical time series objects for instruments on an FX forward curve.
+   */
+  public static final String FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES = "FX Forward Curve Historical Time Series";
+  /**
+   * The bundle of historical time series objects for instruments on a curve.
+   */
+  public static final String CURVE_HISTORICAL_TIME_SERIES = "Curve Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a yield curve to their OG-Analytics derivative form.
    */
   public static final String YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Instrument Conversion Historical Time Series";
   /**
-   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
+   * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
+   */
+  public static final String CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Curve Instrument Conversion Historical Time Series";
+  /** 
+   * The FX matrix associated with a bundle of curves.
+   */
+  public static final String FX_MATRIX = "FX Matrix";
+  /** 
+   * A set of parameters for the Hull-White one factor model.
+   */
+  public static final String HULL_WHITE_ONE_FACTOR_PARAMETERS = "Hull-White One Factor Parameters";
+  /**
+   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
+   * ignoring the type of instrument etc.).
    */
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   /**
@@ -168,9 +205,18 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   /**
+   * The transition matrix between the sensitivity with respect to the new currency parameters and the initial currency market data.
+   * Used for FX swaps implied curves calibration. 
+   */
+  public static final String FX_IMPLIED_TRANSITION_MATRIX = "FXImpliedTransitionMatrix";
+  /**
    * The raw market data that is used in yield curve construction.
    */
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
+  /**
+   * The raw market data that is used in curve construction.
+   */
+  public static final String CURVE_MARKET_DATA = "CurveMarketData";
   /**
    * The sensitivities of a cash-flow based fixed-income instrument to each of the nodal points in a yield curve.
    */
@@ -180,21 +226,61 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
   /**
+   * Curve specifications.
+   */
+  public static final String CURVE_SPECIFICATION = "CurveSpecification";
+  /**
+   * Curve definitions.
+   */
+  public static final String CURVE_DEFINITION = "CurveDefinition";
+  /**
+   * A vector of P&L series for the nodal points of a yield curve. 
+   */
+  public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
+  /**
+   * A vector of return series for the nodal points of a yield curve.
+   */
+  public static final String YIELD_CURVE_RETURN_SERIES = "Yield Curve Return Series";
+  /**
+   * A vector of return series for the nodal points of an FX forward curve.
+   */
+  public static final String FX_FORWARD_CURVE_RETURN_SERIES = "FX Forward Curve Return Series";
+  /**
    * Curve calculation property metadata
    */
   public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
+  /**
+   * Curve construction property metadata
+   */
+  public static final String CURVE_CONSTRUCTION_CONFIG = "CurveConstructionConfiguration";
   /**
    * The raw FX forward and spot market data that is used in curve construction
    */
   public static final String FX_FORWARD_CURVE_MARKET_DATA = "FXForwardCurveMarketData";
   /**
+   * The raw FX forward points and spot market data
+   */
+  public static final String FX_FORWARD_POINTS_CURVE_MARKET_DATA = "FXForwardPointsCurveMarketData";
+  /**
+   * The sensitivities of an fx instrument to each of the nodal points in a FX forward points curve.
+   */
+  public static final String FX_FORWARD_POINTS_NODE_SENSITIVITIES = "FX Forward Points Node Sensitivities";
+  /**
    * The raw forward swap and spot market data that is used in curve construction
    */
   public static final String FORWARD_SWAP_CURVE_MARKET_DATA = "ForwardSwapCurveMarketData";
   /**
-   * FX forward curve property metadata
+   * FX forward curve definition
    */
-  public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
+  public static final String FX_FORWARD_CURVE_DEFINITION = "FXForwardCurveDefinition";
+  /**
+   * FX forward curve specification
+   */
+  public static final String FX_FORWARD_CURVE_SPECIFICATION = "FXForwardCurveSpecification";
+  /**
+   * A bundle of curves
+   */
+  public static final String CURVE_BUNDLE = "CurveBundle"; 
   /**
    * Currency pairs property metadata
    */
@@ -255,6 +341,10 @@ public final class ValueRequirementNames {
    */
   public static final String VOLATILITY_SURFACE_SPEC = "VolatilitySurfaceSpecification";
   /**
+   * A volatility surface definition
+   */
+  public static final String VOLATILITY_SURFACE_DEFINITION = "VolatilitySurfaceDefinition";
+  /**
    * The bundle of historical time series objects for elements of a volatility surface.
    */
   public static final String VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES = "Volatility Surface Historical Time Series";
@@ -296,6 +386,87 @@ public final class ValueRequirementNames {
    * The change in the value of an instrument if the credit curve is moved by 1 basis point.
    */
   public static final String CS01 = "CS01";
+
+  /**
+   * The bucketed CS01 for a credit default swap.
+   */
+  public static final String BUCKETED_CS01 = "Bucketed CS01";
+
+  /**
+   * The parallel CS01 for a credit default swap.
+   */
+  public static final String PARALLEL_CS01 = "Parallel CS01";
+
+  /**
+   * The second-order change in the value of an instrument if the credit curve is moved by 1 basis point.
+   */
+  public static final String GAMMA_CS01 = "Gamma CS01";
+
+  /**
+   * The bucketed second-order changes in the value of an instrument if the credit curve is moved by 1 basis point.
+   */
+  public static final String BUCKETED_GAMMA_CS01 = "Bucketed Gamma CS01";
+
+  /**
+   * The change in the value of an instrument if the recovery rate is moved by one basis point.
+   */
+  public static final String RR01 = "RR01";
+
+  /**
+   * The change in the value of an instrument if the yield curve is shifted in parallel by one basis point.
+   */
+  public static final String IR01 = "IR01";
+
+  /**
+   * The bucketed changes in the value of an instrument if the interest rate curve is moved by 1 basis point.
+   */
+  public static final String BUCKETED_IR01 = "Bucketed IR01";
+
+  /**
+   * The accrued premium for a credit default swap.
+   */
+  public static final String ACCRUED_PREMIUM = "Accrued Premium ";
+
+  /**
+   * The accrued days for a credit default swap.
+   */
+  public static final String ACCRUED_DAYS = "Accrued Days";
+
+  /**
+   * The upfront ammount for a credit default swap.
+   */
+  public static final String UPFRONT_AMOUNT = "Upfront Amount";
+
+  /**
+   * The points upfront for a credit default swap.
+   */
+  public static final String POINTS_UPFRONT = "Points Upfront";
+
+  /**
+   * The principal for a credit default swap.
+   */
+  public static final String PRINCIPAL = "Principal";
+
+  /**
+   * The clean present value for a credit default swap.
+   */
+  public static final String CLEAN_PRESENT_VALUE = "Clean Present Value";
+
+  /**
+   * The dirty present value for a credit default swap.
+   */
+  public static final String DIRTY_PRESENT_VALUE = "Dirty Present Value";
+
+  /**
+   * The jump-to-default.
+   */
+  public static final String JUMP_TO_DEFAULT = "Jump to Default";
+
+  /**
+   * The bucketed (CS01) spreads for a credit default swap.
+   */
+  public static final String BUCKETED_SPREADS = "Bucketed Spreads";
+
   /**
    * The dividend yield of an equity or equity index.
    */
@@ -512,6 +683,10 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_VEGA_P = "PositionVegaP";
   /**
+   * The aggregate vega of an option with a weighting factor related to square root of time to expiry
+   */
+  public static final String POSITION_WEIGHTED_VEGA = "PositionWeightedVega";
+  /**
    * The aggregate vomma of an option (second order derivative of price with respect to the volatility).
    */
   public static final String POSITION_VOMMA = "PositionVomma";
@@ -568,7 +743,10 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_CARRY_RHO = "ValueCarryRho";
   /**
-   * The amount by which the value of a portfolio would change due to delta.
+   * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
+   * {@link Delta} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
+   * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t), 
+   * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
    */
   public static final String VALUE_DELTA = "ValueDelta";
   /**
@@ -579,6 +757,10 @@ public final class ValueRequirementNames {
    * The amount by which the value of a portfolio would change due to driftless theta.
    */
   public static final String VALUE_DRIFTLESS_DELTA = "ValueDriftlessTheta";
+  /**
+   * The amount by which the value of a portfolio would change due to dual delta.
+   */
+  public static final String VALUE_DUAL_DELTA = "ValueDualDelta";
   /**
    * The amount by which the value of a portfolio would change due to dVannadVol.
    */
@@ -732,6 +914,10 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
+   * The vega of an option with a weighting factor related to square root of time to expiry
+   */
+  public static final String WEIGHTED_VEGA = "Weighted Vega";
+  /**
    * The bucketed vega of a security to the market data volatility cube.
    */
   public static final String VEGA_QUOTE_CUBE = "Vega Quote Cube";
@@ -763,13 +949,30 @@ public final class ValueRequirementNames {
    * The time derivative of the percentage gamma of an option.
    */
   public static final String ZOMMA_P = "ZommaP";
+  /**
+   * The monetized vega.
+   */
+  public static final String MONETIZED_VEGA = "Monetized Vega";
 
   ///// Series Analysis
 
   /**
+   * A correlation matrix. This should be a labeled matrix with {@link ValueSpecification} labels that indicate the original components.
+   */
+  public static final String CORRELATION_MATRIX = "Correlation Matrix";
+  /**
+   * A covariance matrix. This should be a labeled matrix with {@link ValueSpecification} labels that indicate the original components.
+   */
+  public static final String COVARIANCE_MATRIX = "Covariance Matrix";
+  /**
    * The daily profit and loss of a security
    */
   public static final String DAILY_PNL = "Daily PnL";
+  /**
+   * The daily profit and loss of an exchange traded security
+   */
+  public static final String MTM_PNL = "Mark-to-Market P&L";
+
   /**
    * The Fisher kurtosis of a distribution (usually the return series of a security or its underlying).
    */
@@ -810,6 +1013,14 @@ public final class ValueRequirementNames {
    * The return series of the underlying of a security (usually an option).
    */
   public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
+  /**
+   * The notional of a security
+   */
+  public static final String NOTIONAL = "Notional";
+  /**
+   * The attributes of a security
+   */
+  public static final String ATTRIBUTES = "Attributes";
 
   ///// Value At Risk
 
@@ -1070,7 +1281,6 @@ public final class ValueRequirementNames {
    */
   public static final String FX_PRESENT_VALUE = "FX Present Value";
 
-
   /**
    * The value vega of a digital option that is priced using call spread replication
    */
@@ -1148,6 +1358,10 @@ public final class ValueRequirementNames {
    */
   public static final String FORWARD_DELTA = "Forward Delta";
   /**
+   * The forward driftless theta of an instrument
+   */
+  public static final String FORWARD_DRIFTLESS_THETA = "Forward Driftless Theta";
+  /**
    * The forward gamma of an instrument
    */
   public static final String FORWARD_GAMMA = "Forward Gamma";
@@ -1224,6 +1438,20 @@ public final class ValueRequirementNames {
    * The affine dividends of an index or equity
    */
   public static final String AFFINE_DIVIDENDS = "Affine Dividends";
+
+  ///// Miscellaneous
+
+  /**
+   * The object referenced by a target specification. Can be used to load an item, referenced by a target specification, directly from a database and receive it as an input to a function. See the
+   * documentation for {@link TargetSourcingFunction} for details on requesting target resolved items.
+   */
+  public static final String TARGET = "Target";
+
+  // TODO what section should this be in
+  /**
+   * The quantity of a position or trade.
+   */
+  public static final String QUANTITY = "Quantity";
 
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

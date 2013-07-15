@@ -7,9 +7,9 @@ package com.opengamma.integration.copier.portfolio.writer;
 
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,10 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolio _portfolio;
 
-  public SingleSheetSimplePortfolioWriter(SheetWriter sheet, RowParser rowParser) {
+  /** Generate one row per trade instead of one row per position */
+  private boolean _includeTrades;
+
+  public SingleSheetSimplePortfolioWriter(SheetWriter sheet, RowParser rowParser, boolean includeTrades) {
     super(sheet);
     
     ArgumentChecker.notNull(rowParser, "rowParser");
@@ -50,6 +53,12 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
     _currentNode = new ManageablePortfolioNode("Root");
     _portfolio = new ManageablePortfolio("Portfolio", _currentNode);
     _currentNode.setPortfolioId(_portfolio.getUniqueId());
+
+    _includeTrades = includeTrades;
+  }
+
+  public SingleSheetSimplePortfolioWriter(SheetWriter sheet, RowParser rowParser) {
+    this(sheet, rowParser, false);
   }
 
   public SingleSheetSimplePortfolioWriter(SheetWriter sheet, String securityType) {
@@ -59,45 +68,96 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
   public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, RowParser rowParser) {
     this(SheetWriter.newSheetWriter(sheetFormat, outputStream, rowParser.getColumns()), rowParser);
   }  
- 
+
+  public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, RowParser rowParser,
+                                          boolean includeTrades) {
+    this(SheetWriter.newSheetWriter(sheetFormat, outputStream, rowParser.getColumns()), rowParser, includeTrades);
+  }
+
   public SingleSheetSimplePortfolioWriter(String filename, RowParser rowParser) {
     this(SheetWriter.newSheetWriter(filename, rowParser.getColumns()), rowParser);
   }
-  
+
+  public SingleSheetSimplePortfolioWriter(String filename, RowParser rowParser, boolean includeTrades) {
+    this(SheetWriter.newSheetWriter(filename, rowParser.getColumns()), rowParser, includeTrades);
+  }
+
   public SingleSheetSimplePortfolioWriter(String filename, String securityType) {
     this(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
   }
-  
+
+  public SingleSheetSimplePortfolioWriter(String filename, String securityType, boolean includeTrades) {
+    this(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType), includeTrades);
+  }
+
   public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType) {
     this(sheetFormat, outputStream, JodaBeanRowParser.newJodaBeanRowParser(securityType));
+  }
+
+  public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType,
+                                          boolean includeTrades) {
+    this(sheetFormat, outputStream, JodaBeanRowParser.newJodaBeanRowParser(securityType), includeTrades);
+  }
+
+  @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
   }
 
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(securities, "securities");
-    
+
     // Write securities
     _currentRow.putAll(_rowParser.constructRow(securities));
 
-    if (_rowParser != null) {
+    if (_includeTrades) {
+      // Write each trade as a separate row if the current position contains trades
+      if (position.getTrades().size() > 0) {
+        ManageablePosition subPosition = JodaBeanUtils.clone(position);
+        for (ManageableTrade trade : position.getTrades()) {
+          Map<String, String> tempRow = new HashMap<>();
+          tempRow.putAll(_currentRow);
+          tempRow.putAll(_rowParser.constructRow(trade));
+
+          // Set position quantity to its trade's quantity and write position
+          subPosition.setQuantity(trade.getQuantity());
+          tempRow.putAll(_rowParser.constructRow(subPosition));
+
+          // Flush out the current row with trade
+          if (!tempRow.isEmpty()) {
+            getSheet().writeNextRow(tempRow);
+          }
+        }
+      } else {
+        // Write position
+        _currentRow.putAll(_rowParser.constructRow(position));
+
+        // Flush out the current row (excluding trades)
+        if (!_currentRow.isEmpty()) {
+          getSheet().writeNextRow(_currentRow);
+        }
+      }
+    } else {
+      // Write position
       _currentRow.putAll(_rowParser.constructRow(position));
-      
-      List<ManageableTrade> trades = position.getTrades();
-      if (trades.size() > 1) {
-        s_logger.warn("Omitting extra trades: only one trade per position is currently supported");
+
+      // Export only the first trade of each position or none at all
+      if (!position.getTrades().isEmpty()) {
+        _currentRow.putAll(_rowParser.constructRow(position.getTrades().get(0)));
       }
-      if (trades.size() > 0) {
-        _currentRow.putAll(_rowParser.constructRow(trades.get(0)));
+      if (position.getTrades().size() > 1) {
+        s_logger.warn("Omitting extra trades: only one trade per position is supported in the current mode");
+      }
+      if (!_currentRow.isEmpty()) {
+        getSheet().writeNextRow(_currentRow);
       }
     }
-    
-    // Flush out the current row and prepare a new one
-    if (!_currentRow.isEmpty()) {
-      getSheet().writeNextRow(_currentRow);
-      _currentRow = new HashMap<String, String>();
-    }
-    
+
+    // Empty the current row buffer
+    _currentRow = new HashMap<String, String>();
+
     return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);            
   }
 

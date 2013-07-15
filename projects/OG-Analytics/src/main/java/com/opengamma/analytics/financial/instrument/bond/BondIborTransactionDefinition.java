@@ -5,9 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -24,13 +22,14 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a transaction on a Ibor coupon bond issue.
  */
-public class BondIborTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponIborDefinition> implements
-    InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+public class BondIborTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponIborDefinition>
+implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Ibor coupon bond transaction from all the transaction details.
@@ -47,13 +46,13 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
   public BondIborTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for discounting and the third for forward (Ibor).
     // TODO: review this implementation using the Security toDerivative.
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final String creditCurveName = yieldCurveNames[0];
     final String discountingCurveName = yieldCurveNames[1];
     final String iborCurveName = yieldCurveNames[2];
-    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName};
+    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName };
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot);
@@ -87,14 +86,14 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
   @Override
   public BondIborTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for discounting and the third for forward (Ibor).
-    Validate.notNull(date, "date");
-    Validate.notNull(indexFixingTS, "index fixing time series");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final String creditCurveName = yieldCurveNames[0];
     final String discountingCurveName = yieldCurveNames[1];
     final String iborCurveName = yieldCurveNames[2];
-    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName};
+    final String[] couponCurveName = new String[] {creditCurveName, iborCurveName };
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot);
@@ -127,11 +126,13 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborTransactionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondIborTransactionDefinition(this);
   }
 

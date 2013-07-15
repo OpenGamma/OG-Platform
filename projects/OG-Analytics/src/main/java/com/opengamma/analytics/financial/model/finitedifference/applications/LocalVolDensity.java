@@ -7,9 +7,10 @@ package com.opengamma.analytics.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DFullCoefficients;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DStandardCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function;
@@ -22,7 +23,14 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
  */
 public class LocalVolDensity {
 
-  public static ZZConvectionDiffusionPDEDataBundle getConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
+  /**
+   * Get the coefficients (a, b and c) for the PDE governing the evolution of the transition density for a single underlying (i.e. 1 spatial dimension). The PDE is of the form
+   * $frac{\partial V}{\partial t} + a(x,t)\frac{\partial^2V}{\partial x^2}+b(x,t)\frac{\partial V}{\partial x} +c(x,t)V=0$ where $V(x,t)$ is the density
+   * @param forward the forward curve
+   * @param localVol the local volatility surface (parameterised by strike)
+   * @return The coefficients a, b & c - which are all functions of time and asset value (space)
+   */
+  public static ConvectionDiffusionPDE1DCoefficients getStandardCoefficients(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -65,26 +73,32 @@ public class LocalVolDensity {
       }
     };
 
-    //using a log-normal distribution with a very small Standard deviation as a proxy for a Dirac delta
-    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-      private final double _volRootTOffset = 0.01;
+    //    //using a log-normal distribution with a very small Standard deviation as a proxy for a Dirac delta
+    //    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
+    //      private final double _volRootTOffset = 0.01;
+    //
+    //      @Override
+    //      public Double evaluate(final Double s) {
+    //        if (s == 0) {
+    //          return 0.0;
+    //        }
+    //        final double x = Math.log(s / forward.getSpot());
+    //        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
+    //        return dist.getPDF(x) / s;
+    //      }
+    //    };
 
-      @Override
-      public Double evaluate(final Double s) {
-        if (s == 0) {
-          return 0.0;
-        }
-        final double x = Math.log(s / forward.getSpot());
-        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
-        return dist.getPDF(x) / s;
-      }
-    };
-
-    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), initialCondition);
-
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c));
   }
 
-  public static ExtendedConvectionDiffusionPDEDataBundle getExtendedConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
+  /**
+   * Get the coefficients (a, b, c, $\alpha$ & $\beta$) for the PDE governing the evolution of the transition density for a single underlying (i.e. 1 spatial dimension).
+   * The PDE is of the form $frac{\partial V}{\partial t} + a(x,t)\frac{\alpha(x,t)\partial^2V}{\partial x^2}+b(x,t)\frac{\beta(x,t)\partial V}{\partial x} +c(x,t)V=0$ where $V(x,t)$ is the density
+   * @param forward the forward curve
+   * @param localVol the local volatility surface (parameterised by strike)
+   * @return The coefficients a, b, c, $\alpha$ & $\beta$ - which are all functions of time and asset value (space)
+   */
+  public static ConvectionDiffusionPDE1DFullCoefficients getFullCoefficients(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -134,23 +148,8 @@ public class LocalVolDensity {
       }
     };
 
-    //using a log-normal distribution with a very small Standard deviation as a proxy for a Dirac delta
-    final Function1D<Double, Double> initialCondition = new Function1D<Double, Double>() {
-      private final double _volRootTOffset = 0.01;
-
-      @Override
-      public Double evaluate(final Double s) {
-        if (s == 0) {
-          return 0.0;
-        }
-        final double x = Math.log(s / forward.getSpot());
-        final NormalDistribution dist = new NormalDistribution(0, _volRootTOffset);
-        return dist.getPDF(x) / s;
-      }
-    };
-
-    return new ExtendedConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), FunctionalDoublesSurface.from(alpha),
-        FunctionalDoublesSurface.from(beta), initialCondition);
+    return new ConvectionDiffusionPDE1DFullCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), FunctionalDoublesSurface.from(alpha),
+        FunctionalDoublesSurface.from(beta));
   }
 
   public static ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol, final double lambda1, final double lambda2,

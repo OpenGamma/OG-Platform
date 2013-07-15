@@ -5,16 +5,15 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of an transaction on a Federal Funds Futures.
@@ -46,9 +45,9 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price. The price is in relative number and not in percent. This is the quoted price of the future.
    */
-  public FederalFundsFutureTransactionDefinition(final FederalFundsFutureSecurityDefinition underlyingFuture, int quantity, final ZonedDateTime tradeDate, double tradePrice) {
-    Validate.notNull(underlyingFuture, "Future");
-    Validate.notNull(tradeDate, "Trade date");
+  public FederalFundsFutureTransactionDefinition(final FederalFundsFutureSecurityDefinition underlyingFuture, final int quantity, final ZonedDateTime tradeDate, final double tradePrice) {
+    ArgumentChecker.notNull(underlyingFuture, "Future");
+    ArgumentChecker.notNull(tradeDate, "Trade date");
     this._underlyingFuture = underlyingFuture;
     this._quantity = quantity;
     this._tradeDate = tradeDate;
@@ -88,7 +87,7 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   }
 
   @Override
-  public FederalFundsFutureTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of FederalFundsFutureTransactionDefinition does not support the two argument method (without ON fixing and margin price data).");
   }
 
@@ -98,26 +97,28 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
    * @param data Two time series. The first one with the ON index fixing; the second one with the future closing (margining) prices.
    * The last closing price at a date strictly before "date" is used as last closing.
    */
-  public FederalFundsFutureTransaction toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime>[] data, String... yieldCurveNames) {
-    Validate.notNull(date, "Date");
-    Validate.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    FederalFundsFutureSecurity underlying = _underlyingFuture.toDerivative(date, data[0], yieldCurveNames);
+  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "Date");
+    ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
+    final FederalFundsFutureSecurity underlying = _underlyingFuture.toDerivative(date, data[0], yieldCurveNames);
     if (_tradeDate.equals(date)) {
       return new FederalFundsFutureTransaction(underlying, _quantity, _tradePrice);
     }
-    DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
-    Validate.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
-    double lastMargin = pastClosing.getLatestValue();
+    final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
+    ArgumentChecker.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
+    final double lastMargin = pastClosing.getLatestValue();
     return new FederalFundsFutureTransaction(underlying, _quantity, lastMargin);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureTransactionDefinition(this);
   }
 
@@ -135,7 +136,7 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -145,7 +146,7 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FederalFundsFutureTransactionDefinition other = (FederalFundsFutureTransactionDefinition) obj;
+    final FederalFundsFutureTransactionDefinition other = (FederalFundsFutureTransactionDefinition) obj;
     if (_quantity != other._quantity) {
       return false;
     }

@@ -5,176 +5,121 @@
  */
 package com.opengamma.livedata.server;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.client.HeartbeatSender;
+import com.opengamma.livedata.client.Heartbeater;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AbstractHousekeeper;
 
 /**
- * Keeps track of all market data currently being published, and controls the
- * expiry by keeping track of heartbeat messages.
+ * Keeps track of all market data currently being published, and controls the expiry by keeping track of heartbeat messages.
  */
-public class ExpirationManager implements SubscriptionListener {
+public class ExpirationManager extends AbstractHousekeeper<StandardLiveDataServer> {
 
-  /** 
+  /**
    * How long market data should live, by default. Milliseconds
    */
-  public static final long DEFAULT_TIMEOUT_EXTENSION = 3 * HeartbeatSender.DEFAULT_PERIOD;
+  public static final long DEFAULT_TIMEOUT_EXTENSION = 3 * Heartbeater.DEFAULT_PERIOD;
   /**
    * How often expiry task should run. Milliseconds
    */
-  public static final long DEFAULT_CHECK_PERIOD = HeartbeatSender.DEFAULT_PERIOD / 2;
+  public static final long DEFAULT_CHECK_PERIOD = Heartbeater.DEFAULT_PERIOD / 2;
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExpirationManager.class);
 
   /**
-   * The live data server.
-   */
-  private final StandardLiveDataServer _dataServer;
-  /**
    * The extension to the timeout.
    */
-  private final long _timeoutExtension;
+  private long _timeoutExtension = DEFAULT_TIMEOUT_EXTENSION;
+  /**
+   * The checking period.
+   */
+  private long _checkPeriod = DEFAULT_CHECK_PERIOD;
 
   /**
    * Creates the manager with a default period between checks.
    * 
-   * @param dataServer  the live data server, not null
+   * @param dataServer the live data server, not null
    */
-  public ExpirationManager(StandardLiveDataServer dataServer) {
-    this(dataServer, DEFAULT_CHECK_PERIOD);
+  /* package */ExpirationManager(StandardLiveDataServer dataServer) {
+    super(dataServer);
   }
 
   /**
-   * Creates the manager specifying the check period.
+   * Sets the timeout extension.
    * 
-   * @param dataServer  the live data server, not null
-   * @param checkPeriod  the check period in milliseconds
+   * @param timeoutExtension the extension in milliseconds
    */
-  public ExpirationManager(StandardLiveDataServer dataServer, long checkPeriod) {
-    this(dataServer, DEFAULT_TIMEOUT_EXTENSION, new Timer("ExpirationManager Timer"), checkPeriod);
-  }
-
-  /**
-   * Creates the manager.
-   * 
-   * @param dataServer  the live data server, not null
-   * @param timeoutExtension  the timeout extension in milliseconds
-   * @param checkPeriod  the check period in milliseconds
-   */
-  public ExpirationManager(StandardLiveDataServer dataServer, long timeoutExtension, long checkPeriod) {
-    this(dataServer, timeoutExtension, new Timer("ExpirationManager Timer"), checkPeriod);
-  }
-
-  /**
-   * Creates the manager.
-   * 
-   * @param dataServer  the live data server, not null
-   * @param timeoutExtension  the timeout extension in milliseconds
-   * @param timer  the timer to use, not null
-   * @param checkPeriod  the check period in milliseconds
-   */
-  public ExpirationManager(StandardLiveDataServer dataServer, long timeoutExtension, Timer timer, long checkPeriod) {
-    ArgumentChecker.notNull(dataServer, "dataServer");
-    ArgumentChecker.notNull(timer, "timer");
-    _dataServer = dataServer;
+  public void setTimeoutExtension(final long timeoutExtension) {
     _timeoutExtension = timeoutExtension;
-    _dataServer.addSubscriptionListener(this);
-    timer.schedule(new ExpirationCheckTimerTask(), checkPeriod, checkPeriod);
   }
 
-  //-------------------------------------------------------------------------
   /**
-   * Gets the live data server.
+   * Sets the check period. This must be set before the manager is started.
    * 
-   * @return the dataServer  the server, not null
+   * @param checkPeriod the checking period in milliseconds
    */
-  public StandardLiveDataServer getDataServer() {
-    return _dataServer;
+  public void setCheckPeriod(final long checkPeriod) {
+    _checkPeriod = checkPeriod;
+  }
+
+  /**
+   * Gets the check period.
+   * 
+   * @return the checking period in milliseconds
+   */
+  public long getCheckPeriod() {
+    return _checkPeriod;
   }
 
   /**
    * Gets the timeout extension.
    * 
-   * @return the timeoutExtension  the extension in milliseconds
+   * @return the timeoutExtension the extension in milliseconds
    */
   public long getTimeoutExtension() {
     return _timeoutExtension;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Extends the expiry for the distributors of the subscription.
-   * 
-   * @param subscription  the subscription, not null
-   */
-  @Override
-  public void subscribed(Subscription subscription) {
-    for (MarketDataDistributor distributor : subscription.getDistributors()) {
-      distributor.extendExpiry(getTimeoutExtension());
-    }
-  }
-
-  /**
-   * Takes no action.
-   * 
-   * @param subscription  the subscription, not null
-   */
-  @Override
-  public void unsubscribed(Subscription subscription) {
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Extends the timeout for the live data specification.
    * 
-   * @param fullyQualifiedSpec  the specification, not null
+   * @param fullyQualifiedSpec the specification, not null
    */
   public void extendPublicationTimeout(LiveDataSpecification fullyQualifiedSpec) {
-    MarketDataDistributor distributor = _dataServer.getMarketDataDistributor(fullyQualifiedSpec);
-    if (distributor != null) {
-      distributor.extendExpiry(getTimeoutExtension());
+    final StandardLiveDataServer server = getTarget();
+    if (server != null) {
+      MarketDataDistributor distributor = server.getMarketDataDistributor(fullyQualifiedSpec);
+      if (distributor != null) {
+        s_logger.debug("Heartbeat on {}", fullyQualifiedSpec);
+        distributor.extendExpiry(getTimeoutExtension());
+      } else {
+        // We have (presumably erroneously) dropped a subscription that a client is
+        // expecting. In lieu of determining the underlying cause of dropping the
+        // subscription, we automatically create a new subscribtion
+        s_logger.warn("Failed to find distributor for heartbeat on {} from {} - adding new subscription",
+                      fullyQualifiedSpec, server);
+        server.subscribe(fullyQualifiedSpec, false);
+      }
     } else {
-      s_logger.warn("Failed to find distributor for heartbeat on {} from {}", fullyQualifiedSpec, _dataServer);
+      s_logger.warn("No server for {}", fullyQualifiedSpec);
     }
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * A periodic task that calls {@link #expirationCheck()}  
-   */
-  final class ExpirationCheckTimerTask extends TimerTask {
-    @Override
-    public void run() {
-      try {
-        expirationCheck();
-      } catch (RuntimeException e) {
-        s_logger.error("Checking for data specifications to time out failed", e);
-      }
-    }
+  @Override
+  protected int getPeriodSeconds() {
+    return (int) (_checkPeriod / 1000);
   }
 
-  // this is called by the timer task.
-  void expirationCheck() {
+  @Override
+  protected boolean housekeep(StandardLiveDataServer server) {
     s_logger.debug("Checking for data specifications to time out");
-    int nExpired = 0;
-    for (Subscription subscription : _dataServer.getSubscriptions()) {
-      for (MarketDataDistributor distributor : subscription.getDistributors()) {
-        if (distributor.hasExpired()) {
-          boolean stopped = _dataServer.stopDistributor(distributor);
-          if (stopped) {
-            nExpired++;
-          }
-        }
-      }
-    }
+    int nExpired = server.expireSubscriptions();
     s_logger.info("Expired {} specifications", nExpired);
+    return server.isRunning();
   }
 
 }

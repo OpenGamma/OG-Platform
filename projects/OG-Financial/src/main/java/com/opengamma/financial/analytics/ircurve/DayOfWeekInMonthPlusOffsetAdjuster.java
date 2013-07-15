@@ -5,15 +5,17 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 /**
  *
  */
-public class DayOfWeekInMonthPlusOffsetAdjuster implements DateAdjuster {
+public class DayOfWeekInMonthPlusOffsetAdjuster implements TemporalAdjuster {
 
   private final int _week;
   private final DayOfWeek _day;
@@ -26,9 +28,8 @@ public class DayOfWeekInMonthPlusOffsetAdjuster implements DateAdjuster {
   }
 
   @Override
-  public LocalDate adjustDate(LocalDate date) {
-
-    final DateAdjuster unadjustedDayInMonth = DateAdjusters.dayOfWeekInMonth(_week, _day);
-    return date.with(unadjustedDayInMonth).plusDays(_offset);
+  public Temporal adjustInto(Temporal temporal) {
+    final TemporalAdjuster unadjustedDayInMonth = TemporalAdjusters.dayOfWeekInMonth(_week, _day);
+    return temporal.with(unadjustedDayInMonth).plus(_offset, DAYS);
   }
 }

@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -26,25 +26,17 @@ public class EquityPnLDefaultPropertiesFunction extends DefaultPropertyFunction 
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
-  private final PriorityClass _priority;
 
   public EquityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator) {
-    this(samplingPeriod, scheduleCalculator, samplingCalculator, returnCalculator, PriorityClass.NORMAL.name());
-  }
-
-  public EquityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator,
-      final String priority) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
     ArgumentChecker.notNull(samplingCalculator, "time series sampling calculator name");
     ArgumentChecker.notNull(returnCalculator, "return calculator name");
-    ArgumentChecker.notNull(priority, "priority");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingCalculator = samplingCalculator;
     _returnCalculator = returnCalculator;
-    _priority = PriorityClass.valueOf(priority);
   }
 
   @Override
@@ -78,8 +70,4 @@ public class EquityPnLDefaultPropertiesFunction extends DefaultPropertyFunction 
     return OpenGammaFunctionExclusions.PNL_SERIES;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
 }

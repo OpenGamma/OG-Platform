@@ -19,6 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.util.ClassUtils;
 
 /**
  * 
@@ -77,7 +78,7 @@ final class LabelledMatrix2DBuilder {
         message.add(VALUES_TITLE_FIELD, object.getValuesTitle());
       }
     }
-    
+
     @Override
     public DoubleLabelledMatrix2D buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
       FudgeMsg msg = message.getMessage(MATRIX_FIELD);
@@ -134,7 +135,7 @@ final class LabelledMatrix2DBuilder {
           final String labelType = xLabelTypes.remove();
           Class<?> labelClass;
           try {
-            labelClass = Class.forName(labelType);
+            labelClass = ClassUtils.loadClass(labelType);
           } catch (final ClassNotFoundException ex) {
             throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
           }
@@ -147,7 +148,7 @@ final class LabelledMatrix2DBuilder {
           final String labelType = yLabelTypes.remove();
           Class<?> labelClass;
           try {
-            labelClass = Class.forName(labelType);
+            labelClass = ClassUtils.loadClass(labelType);
           } catch (final ClassNotFoundException ex) {
             throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
           }
@@ -156,11 +157,11 @@ final class LabelledMatrix2DBuilder {
           yLabels.add(label);
         }
       }
-      
+
       final String xTitle = message.getString(X_TITLE_FIELD);
       final String yTitle = message.getString(Y_TITLE_FIELD);
       final String valuesTitle = message.getString(VALUES_TITLE_FIELD);
-      
+
       final int matrixRowSize = yKeys.size();
       final int matrixColumnSize = xKeys.size();
       final Double[] xKeysArray = new Double[matrixColumnSize];

@@ -8,12 +8,12 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -21,20 +21,20 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class NoPaddingTimeSeriesSamplingFunction implements TimeSeriesSamplingFunction {
 
   @Override
-  public DoubleTimeSeries<?> getSampledTimeSeries(final DoubleTimeSeries<?> ts, final LocalDate[] schedule) {
+  public LocalDateDoubleTimeSeries getSampledTimeSeries(final DateDoubleTimeSeries<?> ts, final LocalDate[] schedule) {
     ArgumentChecker.notNull(ts, "time series");
     ArgumentChecker.notNull(schedule, "schedule");
-    final LocalDateDoubleTimeSeries localDateTS = ts.toLocalDateDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries localDateTS = ImmutableLocalDateDoubleTimeSeries.of(ts);
     final List<LocalDate> tsDates = localDateTS.times();
-    final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
-    final List<Double> scheduledData = new ArrayList<Double>();
+    final List<LocalDate> scheduledDates = new ArrayList<>();
+    final List<Double> scheduledData = new ArrayList<>();
     for (final LocalDate localDate : schedule) {
       if (tsDates.contains(localDate)) {
         scheduledDates.add(localDate);
         scheduledData.add(localDateTS.getValue(localDate));
       }
     }
-    return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
+    return ImmutableLocalDateDoubleTimeSeries.of(scheduledDates, scheduledData);
   }
 
 }

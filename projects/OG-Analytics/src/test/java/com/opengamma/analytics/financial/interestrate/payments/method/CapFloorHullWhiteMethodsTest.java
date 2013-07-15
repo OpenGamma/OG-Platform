@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -63,7 +62,7 @@ public class CapFloorHullWhiteMethodsTest {
   private static final CapFloorCMS[] CAP_CMS = new CapFloorCMS[NB_STRIKE];
   static {
     for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
-      CAP_CMS_DEFINITION[loopstrike] = CapFloorCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y, STRIKE[loopstrike], true);
+      CAP_CMS_DEFINITION[loopstrike] = CapFloorCMSDefinition.from(PAYMENT_DATE, START_DATE, PAYMENT_DATE, ACCRUAL_FACTOR, NOTIONAL, SWAP_EUR10Y, STRIKE[loopstrike], true, TARGET);
       CAP_CMS[loopstrike] = (CapFloorCMS) CAP_CMS_DEFINITION[loopstrike].toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[0], CURVE_NAMES[2]});
     }
   }
@@ -75,11 +74,11 @@ public class CapFloorHullWhiteMethodsTest {
   @Test
   public void presentValueApproximation() {
     for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
-      CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
-      CurrencyAmount pvApproximation = METHOD_APP.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
+      final CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
+      final CurrencyAmount pvApproximation = METHOD_APP.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
       assertEquals("Cap floor CMS - Hull-White - present value - approximation - strike: " + STRIKE[loopstrike], pvNumericalIntegration.getAmount(), pvApproximation.getAmount(), NOTIONAL
           * ACCRUAL_FACTOR * BP1);
-      // Error of less than 1.0bp in rate 
+      // Error of less than 1.0bp in rate
     }
     //TODO: Review if error can be decreased.
   }

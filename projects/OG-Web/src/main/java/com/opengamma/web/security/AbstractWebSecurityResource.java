@@ -7,8 +7,6 @@ package com.opengamma.web.security;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -19,38 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.security.Security;
-import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.AgricultureFutureSecurity;
-import com.opengamma.financial.security.future.BondFutureDeliverable;
-import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.financial.security.future.EnergyFutureSecurity;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
-import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
-import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.future.IndexFutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.future.MetalFutureSecurity;
-import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.swap.FixedInterestRateLeg;
-import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
-import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
-import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
-import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
-import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
-import com.opengamma.financial.security.swap.SwapLegVisitor;
-import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
@@ -59,6 +26,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityLoader;
@@ -77,26 +45,43 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
+  
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "securities/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "securities/json/";
 
   /**
    * The backing bean.
    */
   private final WebSecuritiesData _data;
+  /**
+   * The template name provider
+   */
+  private final SecurityTemplateNameProvider _templateNameProvider = new SecurityTemplateNameProvider();
 
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
+   * @param organizationMaster the organization master, not null
    */
-  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster) {
+  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, 
+      final OrganizationMaster organizationMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(htsMaster, "htsMaster");
+    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
     _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);
     data().setHistoricalTimeSeriesMaster(htsMaster);
+    data().setOrganizationMaster(organizationMaster);
   }
 
   /**
@@ -136,92 +121,52 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
 
   /**
    * Gets the backing bean.
-   * @return the beacking bean, not null
+   * @return the backing bean, not null
    */
   protected WebSecuritiesData data() {
     return _data;
   }
+  
+  /**
+   * Gets the security template provider
+   * @return the template provider, not null
+   */
+  protected SecurityTemplateNameProvider getTemplateProvider() {
+    return _templateNameProvider;
+  }
 
   protected void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
-    if (security.getSecurityType().equals(SwapSecurity.SECURITY_TYPE)) {
-      SwapSecurity swapSecurity = (SwapSecurity) security;
-      out.put("payLegType", swapSecurity.getPayLeg().accept(new SwapLegClassifierVisitor()));
-      out.put("receiveLegType", swapSecurity.getReceiveLeg().accept(new SwapLegClassifierVisitor()));
-    }
-    if (security.getSecurityType().equals(FutureSecurity.SECURITY_TYPE)) {
-      FutureSecurity futureSecurity = (FutureSecurity) security;
-      out.put("futureSecurityType", futureSecurity.accept(new FutureSecurityTypeVisitor()));
-      out.put("basket", getBondFutureBasket(security));
-      Security underlyingSecurity = getUnderlyingFutureSecurity(futureSecurity);
-      if (underlyingSecurity != null) {
-        out.put("underlyingSecurity", underlyingSecurity);
-      }
-    }
-    if (security.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
-      EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
-      addUnderlyingSecurity(out, equityOption.getUnderlyingId());
-    }
-    if (security.getSecurityType().equals(IRFutureOptionSecurity.SECURITY_TYPE)) {
-      IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) security;
-      addUnderlyingSecurity(out, irFutureOption.getUnderlyingId());
-    }
-    if (security.getSecurityType().equals(SwaptionSecurity.SECURITY_TYPE)) {
-      SwaptionSecurity swaptionSecurity = (SwaptionSecurity) security;
-      addUnderlyingSecurity(out, swaptionSecurity.getUnderlyingId());
-    }
-    if (security.getSecurityType().equals(EquityBarrierOptionSecurity.SECURITY_TYPE)) {
-      EquityBarrierOptionSecurity equityBarrierOptionSecurity = (EquityBarrierOptionSecurity) security;
-      addUnderlyingSecurity(out, equityBarrierOptionSecurity.getUnderlyingId());
-    }
-    if (security.getSecurityType().equals(CapFloorSecurity.SECURITY_TYPE)) {
-      CapFloorSecurity capFloorSecurity = (CapFloorSecurity) security;
-      addUnderlyingSecurity(out, capFloorSecurity.getUnderlyingId());
-    }
-    if (security.getSecurityType().equals(CapFloorCMSSpreadSecurity.SECURITY_TYPE)) {
-      CapFloorCMSSpreadSecurity capFloorCMSSpreadSecurity = (CapFloorCMSSpreadSecurity) security;
-      Security shortUnderlying = getSecurity(capFloorCMSSpreadSecurity.getShortId());
-      Security longUnderlying = getSecurity(capFloorCMSSpreadSecurity.getLongId());
-      if (shortUnderlying != null) {
-        out.put("shortSecurity", shortUnderlying);
-      }
-      if (longUnderlying != null) {
-        out.put("longSecurity", longUnderlying);
-      }
-    }
-    if (security.getSecurityType().equals(EquityIndexOptionSecurity.SECURITY_TYPE)) {
-      EquityIndexOptionSecurity equityIndxOption = (EquityIndexOptionSecurity) security;
-      addUnderlyingSecurity(out, equityIndxOption.getUnderlyingId());
-    }
-    if (security.getSecurityType().equals(FRASecurity.SECURITY_TYPE)) {
-      FRASecurity fraSecurity = (FRASecurity) security;
-      addUnderlyingSecurity(out, fraSecurity.getUnderlyingId());
-    }
-    if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
-      RawSecurity rawSecurity = (RawSecurity) security;
-      FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
-      SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
+    if (security instanceof FinancialSecurity) {
+      FinancialSecurity financialSec = (FinancialSecurity) security;
+      financialSec.accept(new SecurityTemplateModelObjectBuilder(out, data().getSecurityMaster(), data().getOrganizationMaster()));
+    } else {
+      if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
+        RawSecurity rawSecurity = (RawSecurity) security;
+        FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
+        SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
 
-      out.put("securityEntryData", securityEntryData);
-      RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId());
-      if (underlyingRawSecurity != null) {
-        FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
+        out.put("securityEntryData", securityEntryData);
+        RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId(), data().getSecurityMaster());
+        if (underlyingRawSecurity != null) {
+          FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
+          @SuppressWarnings("unchecked")
+          List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, factorIdMsg.getMessage());
+          s_logger.error(factorExposureDataList.toString());
+          List<FactorExposure> factorExposuresList = convertToFactorExposure(factorExposureDataList);
+          out.put("factorExposuresList", factorExposuresList);
+        } else {
+          s_logger.error("Couldn't find security");
+        }
+
+      }
+      if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
+        RawSecurity rawSecurity = (RawSecurity) security;
+        FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
         @SuppressWarnings("unchecked")
-        List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, factorIdMsg.getMessage());
-        s_logger.error(factorExposureDataList.toString());
+        List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, msg.getMessage());
         List<FactorExposure> factorExposuresList = convertToFactorExposure(factorExposureDataList);
         out.put("factorExposuresList", factorExposuresList);
-      } else {
-        s_logger.error("Couldn't find security");
       }
-
-    }
-    if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
-      RawSecurity rawSecurity = (RawSecurity) security;
-      FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
-      @SuppressWarnings("unchecked")
-      List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, msg.getMessage());
-      List<FactorExposure> factorExposuresList = convertToFactorExposure(factorExposureDataList);
-      out.put("factorExposuresList", factorExposuresList);
     }
   }
 
@@ -334,169 +279,14 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     }
   }
 
-  private void addUnderlyingSecurity(FlexiBean out, ExternalId externalId) {
-    Security underlyingSec = getSecurity(externalId);
-    if (underlyingSec != null) {
-      out.put("underlyingSecurity", underlyingSec);
-    }
-  }
-
-  private ManageableSecurity getSecurity(ExternalId underlyingIdentifier) {
+  public static ManageableSecurity getSecurity(final ExternalId underlyingIdentifier, final SecurityMaster securityMaster) {
     if (underlyingIdentifier == null) {
       return null;
     }
-    SecurityMaster securityMaster = data().getSecurityMaster();
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(underlyingIdentifier);
     SecuritySearchResult search = securityMaster.search(request);
     return search.getFirstSecurity();
   }
-
-  private Map<String, String> getBondFutureBasket(ManageableSecurity security) {
-    Map<String, String> result = new TreeMap<String, String>();
-    if (security instanceof BondFutureSecurity) {
-      BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
-      List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
-      for (BondFutureDeliverable bondFutureDeliverable : basket) {
-        String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID);
-        result.put(ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
-      }
-    }
-    return result;
-  }
-
-  private Security getUnderlyingFutureSecurity(FutureSecurity future) {
-    return future.accept(new FinancialSecurityVisitorSameValueAdapter<Security>(null) {
-
-
-      @Override
-      public Security visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-        return getSecurity(security.getUnderlyingId());
-      }
-
-      @Override
-      public Security visitEquityFutureSecurity(EquityFutureSecurity security) {
-        return getSecurity(security.getUnderlyingId());
-      }
-
-      @Override
-      public Security visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
-        return getSecurity(security.getUnderlyingId());
-      }
-
-      @Override
-      public Security visitIndexFutureSecurity(IndexFutureSecurity security) {
-        return getSecurity(security.getUnderlyingId());
-      }
-
-      @Override
-      public Security visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-        return getSecurity(security.getUnderlyingId());
-      }
-
-      @Override
-      public Security visitMetalFutureSecurity(MetalFutureSecurity security) {
-        return getSecurity(security.getUnderlyingId());
-      }
-
-      @Override
-      public Security visitStockFutureSecurity(StockFutureSecurity security) {
-        return getSecurity(security.getUnderlyingId());
-      }
-
-    });
-  }
-
-  /**
-   * FutureSecurityTypeVisitor
-   */
-  private static class FutureSecurityTypeVisitor extends FinancialSecurityVisitorAdapter<String> {
-
-    @Override
-    public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
-      return "AgricultureFuture";
-    }
-
-    @Override
-    public String visitBondFutureSecurity(BondFutureSecurity security) {
-      return "BondFuture";
-    }
-
-    @Override
-    public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-      return "EnergyFuture";
-    }
-
-    @Override
-    public String visitEquityFutureSecurity(EquityFutureSecurity security) {
-      return "EquityFuture";
-    }
-
-    @Override
-    public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
-      return "EquityIndexDividendFuture";
-    }
-
-    @Override
-    public String visitFXFutureSecurity(FXFutureSecurity security) {
-      return "FxFuture";
-    }
-
-    @Override
-    public String visitIndexFutureSecurity(IndexFutureSecurity security) {
-      return "IndexFuture";
-    }
-
-    @Override
-    public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-      return "InterestRate";
-    }
-
-    @Override
-    public String visitMetalFutureSecurity(MetalFutureSecurity security) {
-      return "MetalFuture";
-    }
-
-    @Override
-    public String visitStockFutureSecurity(StockFutureSecurity security) {
-      return "StockFuture";
-    }
-
-  }
-
-  /**
-   * SwapLegClassifierVisitor
-   */
-  private static class SwapLegClassifierVisitor implements SwapLegVisitor<String> {
-    @Override
-    public String visitFixedInterestRateLeg(FixedInterestRateLeg swapLeg) {
-      return "FixedInterestRateLeg";
-    }
-
-    @Override
-    public String visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
-      return "FloatingInterestRateLeg";
-    }
-
-    @Override
-    public String visitFloatingSpreadIRLeg(FloatingSpreadIRLeg swapLeg) {
-      return "FloatingSpreadInterestRateLeg";
-    }
-
-    @Override
-    public String visitFloatingGearingIRLeg(FloatingGearingIRLeg swapLeg) {
-      return "FloatingGearingInterestRateLeg";
-    }
-
-    @Override
-    public String visitFixedVarianceSwapLeg(FixedVarianceSwapLeg swapLeg) {
-      return "FixedVarianceLeg";
-    }
-
-    @Override
-    public String visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
-      return "FloatingVarianceLeg";
-    }
-  }
-
+    
 }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.businessday;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 

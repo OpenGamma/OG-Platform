@@ -5,19 +5,22 @@
  */
 package com.opengamma.engine;
 
-import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.resolver.ObjectResolver;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A target resolver implementation that delegates to a backing resolver.
  * <p>
- * This can be used to implement additional behavior on top of an underlying
- * resolver as per the decorator pattern.
+ * This can be used to implement additional behavior on top of an underlying resolver as per the decorator pattern.
  */
 public abstract class DelegatingComputationTargetResolver implements ComputationTargetResolver {
 
-  // TODO: move to com.opengamma.engine.target
+  // [PLAT-444]: move to com.opengamma.engine.target
 
   /**
    * The underlying resolver.
@@ -26,7 +29,8 @@ public abstract class DelegatingComputationTargetResolver implements Computation
 
   /**
    * Creates an instance specifying the underlying resolver.
-   * @param underlying  the underlying resolver, not null
+   * 
+   * @param underlying the underlying resolver, not null
    */
   public DelegatingComputationTargetResolver(final ComputationTargetResolver underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -35,6 +39,7 @@ public abstract class DelegatingComputationTargetResolver implements Computation
 
   /**
    * Gets the underlying resolver.
+   * 
    * @return the underlying resolver, not null
    */
   protected ComputationTargetResolver getUnderlying() {
@@ -42,8 +47,18 @@ public abstract class DelegatingComputationTargetResolver implements Computation
   }
 
   @Override
-  public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    return getUnderlying().resolve(specification);
+  public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
+    return getUnderlying().resolve(specification, versionCorrection);
+  }
+
+  @Override
+  public ObjectResolver<?> getResolver(final ComputationTargetSpecification specification) {
+    return getUnderlying().getResolver(specification);
+  }
+
+  @Override
+  public ComputationTargetType simplifyType(final ComputationTargetType type) {
+    return getUnderlying().simplifyType(type);
   }
 
   @Override
@@ -52,8 +67,18 @@ public abstract class DelegatingComputationTargetResolver implements Computation
   }
 
   @Override
-  public PositionSource getPositionSource() {
-    return getUnderlying().getPositionSource();
+  public ComputationTargetSpecificationResolver getSpecificationResolver() {
+    return getUnderlying().getSpecificationResolver();
+  }
+
+  @Override
+  public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+    return getUnderlying().atVersionCorrection(versionCorrection);
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return getUnderlying().changeManager();
   }
 
 }

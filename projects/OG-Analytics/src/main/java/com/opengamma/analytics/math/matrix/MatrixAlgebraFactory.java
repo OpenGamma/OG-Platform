@@ -29,8 +29,8 @@ public final class MatrixAlgebraFactory {
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    s_staticInstances = new HashMap<String, MatrixAlgebra>();
-    s_instanceNames = new HashMap<Class<?>, String>();
+    s_staticInstances = new HashMap<>();
+    s_instanceNames = new HashMap<>();
     s_staticInstances.put(COLT, COLT_ALGEBRA);
     s_instanceNames.put(ColtMatrixAlgebra.class, COLT);
     s_staticInstances.put(COMMONS, COMMONS_ALGEBRA);

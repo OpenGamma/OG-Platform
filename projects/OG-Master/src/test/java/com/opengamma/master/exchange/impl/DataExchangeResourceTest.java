@@ -14,7 +14,7 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -27,11 +27,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataExchangeResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataExchangeResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");
@@ -50,7 +52,7 @@ public class DataExchangeResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testGetExchange() {
-    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, TimeZone.of("Europe/London"));
+    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, ZoneId.of("Europe/London"));
     final ExchangeDocument result = new ExchangeDocument(target);
     when(_underlying.get(OID, VersionCorrection.LATEST)).thenReturn(result);
     
@@ -61,7 +63,7 @@ public class DataExchangeResourceTest {
 
   @Test
   public void testUpdateExchange() {
-    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, TimeZone.of("Europe/London"));
+    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, ZoneId.of("Europe/London"));
     final ExchangeDocument request = new ExchangeDocument(target);
     request.setUniqueId(OID.atLatestVersion());
     

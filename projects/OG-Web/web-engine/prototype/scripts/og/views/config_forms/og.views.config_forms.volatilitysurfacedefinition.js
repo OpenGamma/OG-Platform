@@ -41,12 +41,10 @@ $.register_module({
         return constructor;
         /* dead code below */
         return function (config) {
-            var selector = config.selector,
-                form = new Form({
-                    module: 'og.views.forms.volatility-surface-definition',
-                    type_map: type_map,
-                    selector: selector
-                });
+            var form = new Form({
+                module: 'og.views.forms.volatility-surface-definition_tash',
+                type_map: type_map, selector: config.selector
+            });
             form.dom();
         };
     }

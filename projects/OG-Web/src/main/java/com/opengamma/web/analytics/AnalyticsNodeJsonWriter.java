@@ -7,11 +7,6 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import com.opengamma.OpenGammaRuntimeException;
-
 /**
  * Writes an {@link AnalyticsNode} into very compact JSON. The nodes are represented as nested arrays. There is
  * always a single root node.
@@ -21,25 +16,38 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class AnalyticsNodeJsonWriter {
 
-  public static String getJson(AnalyticsNode root) {
-    Object[] rootArray = createNodeArray(root);
-    try {
-      return new JSONArray(rootArray).toString();
-    } catch (JSONException e) {
-      throw new OpenGammaRuntimeException("Failed to create JSON for node " + root, e);
-    }
+  /**
+   * Gets the JSON structure.
+   * 
+   * @param node  the node
+   * @return the nested JSON array of the node structure
+   */
+  public static Object[] getJsonStructure(AnalyticsNode node) {
+    return createNodeArray(node);
   }
 
   /**
    * Creates an array containing the contents of {@code node}. Recursively creates arrays for child nodes.
+   * {@code isFungiblePosition} is optional, it has a value of 1 for fungible positions and is omitted for all
+   * other node types.
    * <pre>
-   *   [startRow,endRow,[childNode1,childNode2,...]]
+   *   [startRow,endRow,[childNode1,childNode2,...],isFungiblePosition]
    * </pre>
-   * @param node The grid node
-   * @return <pre>[startRow,endRow,[childNode1,childNode2,...]]</pre>
+   * 
+   * @param node  the grid node, null returns an empty array
+   * @return <pre>[startRow,endRow,[childNode1,childNode2,...],isFungiblePosition]</pre>
    */
   private static Object[] createNodeArray(AnalyticsNode node) {
-    Object[] nodeArray = new Object[3];
+    if (node == null) {
+      return new Object[0];
+    }
+    Object[] nodeArray;
+    if (node.isCollapseByDefault()) {
+      nodeArray = new Object[4];
+      nodeArray[3] = 1;
+    } else {
+      nodeArray = new Object[3];
+    }
     nodeArray[0] = node.getStartRow();
     nodeArray[1] = node.getEndRow();
 
@@ -51,4 +59,5 @@ public class AnalyticsNodeJsonWriter {
     nodeArray[2] = childArray;
     return nodeArray;
   }
+
 }

@@ -7,11 +7,13 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.core.config.Config;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * 
  */
+@Config
 public class FuturePriceCurveSpecification {
   private String _name;
   private UniqueIdentifiable _target;

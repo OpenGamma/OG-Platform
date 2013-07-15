@@ -1,6 +1,5 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.engine.marketdata.spec;
 public class LatestHistoricalMarketDataSpecification extends com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification implements java.io.Serializable {
   private static final long serialVersionUID = 1l;
@@ -55,5 +54,4 @@ public class LatestHistoricalMarketDataSpecification extends com.opengamma.engin
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON

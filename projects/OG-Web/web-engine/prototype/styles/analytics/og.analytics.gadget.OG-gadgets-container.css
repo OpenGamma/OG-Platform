@@ -8,24 +8,54 @@
 }
 
 .OG-gadgets-container .ui-layout-header {
-    min-height: 23px;
-    background: #dadcdd url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAKElEQVQIW2M8dfrMfwFBQQYYYLx15+7/D+/fM8AEwQIgWZggXAAmCAAQjhcbxFaq/gAAAABJRU5ErkJggg==);
+    min-height: 21px;
+    background: #eee;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
 }
 
 .OG-gadgets-container .ui-layout-header:after {
     content: '';
-    background: #fff;
+    background: #fafafa;
     position: absolute;
     top: 1px;
     left: 0;
-    right: 0;
+    right: 1px;
     height: 12px;
-    opacity: 0.15;
 }
 
 .ie8 .OG-gadgets-container .ui-layout-header:after {
     content: none;
 }
+
+
+.OG-g-h-set-name {
+    background: #eee;
+    height: 18px;
+    position: absolute;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    cursor: default;
+    font-size: 10px;
+    color: #555;
+    text-shadow: 0 1px 0 #fff;
+    padding: 2px 3px;
+}
+
+.OG-g-h-set-name:after {
+    display: block;
+    content: '';
+    background: #fafafa;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 50%;
+    left: 0;
+}
+
+
 
 /**
   * 20x20

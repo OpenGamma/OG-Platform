@@ -6,40 +6,53 @@
 package com.opengamma.web.analytics;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
- * Represents a cell in a grid displaying analytics data. This class is also useful for specifying cell co-ordinates as
- * parameters to JAX-RS HTTP methods. The JAX-RS container can automatically create objects from form parameters if the
+ * Represents a cell in a grid displaying analytics data.
+ * This class is also useful for specifying cell co-ordinates as parameters to JAX-RS HTTP methods.
+ * The JAX-RS container can automatically create objects from form parameters if the
  * class has a constructor with a single string parameter.
  */
 public class GridCell implements Comparable<GridCell> {
 
   /** Row index, not null. */
-  private final Integer _row;
+  private final int _row;
   /** Column index, not null. */
-  private final Integer _column;
+  private final int _column;
+  /** The cell's format */
+  private final TypeFormatter.Format _format;
 
   /**
-   * @param cell The row and column indices separated by a comma, e.g. "12,46", not null, indices must be non-negative
+   * Creates an instance from a packed text format.
+   * 
+   * @param cell  the row and column indices separated by a comma, for example "12,46", not null, indices must be non-negative
    */
   public GridCell(String cell) {
+    // used by JAX-RS
     ArgumentChecker.notNull(cell, "cell");
     String[] rowCol = cell.split(",");
-    if (rowCol.length != 2) {
-      throw new IllegalArgumentException("Cell must be specified as 'row,col'");
+    if (rowCol.length < 3) {
+      throw new IllegalArgumentException("Cell must be specified as 'row,col,\"format\"'");
     }
     _row = Integer.parseInt(rowCol[0].trim());
     _column = Integer.parseInt(rowCol[1].trim());
+    _format = TypeFormatter.Format.valueOf(rowCol[2].trim());
     validate();
   }
 
   /**
-   * @param row Row index, not negative
-   * @param column Column index, not negative
+   * Creates an instance.
+   * 
+   * @param row  the row index, not negative
+   * @param column  the column index, not negative
+   * @param format  the formatter to use, not null
    */
-  public GridCell(int row, int column) {
+  public GridCell(int row, int column, TypeFormatter.Format format) {
+    ArgumentChecker.notNull(format, "format");
     _row = row;
     _column = column;
+    _format = format;
     validate();
   }
 
@@ -49,20 +62,35 @@ public class GridCell implements Comparable<GridCell> {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return The row index
+   * Gets the row.
+   * 
+   * @return the row index
    */
   /* package */ int getRow() {
     return _row;
   }
 
   /**
-   * @return The column index
+   * Gets the column.
+   * 
+   * @return the column index
    */
   /* package */ int getColumn() {
     return _column;
   }
 
+  /**
+   * Gets the formatter.
+   * 
+   * @return the format applied to the cell's data
+   */
+  /* package */ TypeFormatter.Format getFormat() {
+    return _format;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -71,16 +99,17 @@ public class GridCell implements Comparable<GridCell> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
+    GridCell cell = (GridCell) o;
 
-    GridCell gridCell = (GridCell) o;
-
-    if (!_column.equals(gridCell._column)) {
+    if (_column != cell._column) {
       return false;
     }
-    if (!_row.equals(gridCell._row)) {
+    if (_row != cell._row) {
       return false;
     }
-
+    if (_format != cell._format) {
+      return false;
+    }
     return true;
   }
 
@@ -88,24 +117,33 @@ public class GridCell implements Comparable<GridCell> {
   public int hashCode() {
     int result = _row;
     result = 31 * result + _column;
+    result = 31 * result + _format.hashCode();
     return result;
   }
 
   /**
-   * A cell is greater than another cell if its row index is higher or it's row index is the same and its column index
-   * is higher.
+   * A cell is greater than another cell if its row index is higher or it's row
+   * index is the same and its column index is higher.
+   * 
+   * @param other  the other cell, not null
+   * @return the comparison result
    */
   @Override
   public int compareTo(GridCell other) {
-    int rowComp = _row.compareTo(other._row);
+    int rowComp = Integer.compare(_row, other._row);
     if (rowComp != 0) {
       return rowComp;
     }
-    return _column.compareTo(other._column);
+    int colComp = Integer.compare(_column, other._column);
+    if (colComp != 0) {
+      return colComp;
+    }
+    return _format.compareTo(other._format);
   }
 
   @Override
   public String toString() {
-    return "GridCell [_row=" + _row + ", _column=" + _column + "]";
+    return "GridCell [_row=" + _row + ", _column=" + _column + ", _format=" + _format + "]";
   }
+
 }

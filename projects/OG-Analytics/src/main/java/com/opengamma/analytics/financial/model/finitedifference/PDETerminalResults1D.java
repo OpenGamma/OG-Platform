@@ -88,7 +88,8 @@ public class PDETerminalResults1D implements PDEResults1D {
     return _grid;
   }
 
-  public double[] getFinalTimePrices() {
+  @Override
+  public double[] getTerminalResults() {
     return _f;
   }
 

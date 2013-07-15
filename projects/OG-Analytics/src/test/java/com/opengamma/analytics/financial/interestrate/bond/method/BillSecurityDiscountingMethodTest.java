@@ -9,10 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -84,8 +83,8 @@ public class BillSecurityDiscountingMethodTest {
    * Tests the present value against explicit computation.
    */
   public void presentValue() {
-    CurrencyAmount pvComputed = METHOD_SECURITY.presentValue(BILL_IAM_SEC, CURVE_BUNDLE);
-    double pvExpected = NOTIONAL * CURVE_BUNDLE.getCurve(NAME_CURVES[1]).getDiscountFactor(BILL_IAM_SEC.getEndTime());
+    final CurrencyAmount pvComputed = METHOD_SECURITY.presentValue(BILL_IAM_SEC, CURVE_BUNDLE);
+    final double pvExpected = NOTIONAL * CURVE_BUNDLE.getCurve(NAME_CURVES[1]).getDiscountFactor(BILL_IAM_SEC.getEndTime());
     assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
   }
 
@@ -94,113 +93,113 @@ public class BillSecurityDiscountingMethodTest {
    * Tests the present value: Method vs Calculator
    */
   public void presentValueMethodVsCalculator() {
-    CurrencyAmount pvMethod = METHOD_SECURITY.presentValue(BILL_IAM_SEC, CURVE_BUNDLE);
-    double pvCalculator = PVC.visit(BILL_IAM_SEC, CURVE_BUNDLE);
+    final CurrencyAmount pvMethod = METHOD_SECURITY.presentValue(BILL_IAM_SEC, CURVE_BUNDLE);
+    final double pvCalculator = BILL_IAM_SEC.accept(PVC, CURVE_BUNDLE);
     assertEquals("Bill Security: discounting method - present value", pvMethod.getAmount(), pvCalculator, TOLERANCE_PV);
   }
 
   @Test
   public void priceFromYield() {
-    double[] yields = new double[] {0.0010, 0.0, -0.0010};
-    for (int loopyields = 0; loopyields < yields.length; loopyields++) {
-      double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, yields[loopyields]);
-      double priceExpected = 1.0 / (1 + BILL_IAM_SEC.getAccralFactor() * yields[loopyields]);
+    final double[] yields = new double[] {0.0010, 0.0, -0.0010 };
+    for (final double yield2 : yields) {
+      final double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, yield2);
+      final double priceExpected = 1.0 / (1 + BILL_IAM_SEC.getAccralFactor() * yield2);
       assertEquals("Bill Security: discounting method - price", priceExpected, priceComputed, TOLERANCE_PRICE);
     }
   }
 
   @Test
   public void priceFromYieldExternal() {
-    double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, YIELD);
+    final double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, YIELD);
     assertEquals("Bill Security: discounting method - price", PRICE, priceComputed, TOLERANCE_PRICE_EXTERNAL);
   }
 
   @Test
   public void yieldFromPrice() {
-    double yieldComputedIAM = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
-    double yieldExpectedIAM = (1.0 / PRICE - 1.0) / BILL_IAM_SEC.getAccralFactor();
+    final double yieldComputedIAM = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
+    final double yieldExpectedIAM = (1.0 / PRICE - 1.0) / BILL_IAM_SEC.getAccralFactor();
     assertEquals("Bill Security: discounting method - yield", yieldExpectedIAM, yieldComputedIAM, TOLERANCE_YIELD);
-    double yieldComputedDSC = METHOD_SECURITY.yieldFromPrice(BILL_DSC_SEC, PRICE);
-    double yieldExpectedDSC = (1.0 - PRICE) / BILL_DSC_SEC.getAccralFactor();
+    final double yieldComputedDSC = METHOD_SECURITY.yieldFromPrice(BILL_DSC_SEC, PRICE);
+    final double yieldExpectedDSC = (1.0 - PRICE) / BILL_DSC_SEC.getAccralFactor();
     assertEquals("Bill Security: discounting method - yield", yieldExpectedDSC, yieldComputedDSC, TOLERANCE_YIELD);
   }
 
   @Test
   public void yieldFromPriceDerivative() {
-    double shift = 1.0E-8;
-    double yieldIAM = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
-    double yieldPIAM = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE + shift);
-    double yieldDerivativeExpectedIAM = (yieldPIAM - yieldIAM) / shift;
-    double yieldDerivativeComputedIAM = METHOD_SECURITY.yieldFromPriceDerivative(BILL_IAM_SEC, PRICE);
+    final double shift = 1.0E-8;
+    final double yieldIAM = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
+    final double yieldPIAM = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE + shift);
+    final double yieldDerivativeExpectedIAM = (yieldPIAM - yieldIAM) / shift;
+    final double yieldDerivativeComputedIAM = METHOD_SECURITY.yieldFromPriceDerivative(BILL_IAM_SEC, PRICE);
     assertEquals("Bill Security: discounting method - yield", yieldDerivativeExpectedIAM, yieldDerivativeComputedIAM, TOLERANCE_YIELD_DERIVATIVE);
-    double yieldDSC = METHOD_SECURITY.yieldFromPrice(BILL_DSC_SEC, PRICE);
-    double yieldPDSC = METHOD_SECURITY.yieldFromPrice(BILL_DSC_SEC, PRICE + shift);
-    double yieldDerivativeExpectedDSC = (yieldPDSC - yieldDSC) / shift;
-    double yieldDerivativeComputedDSC = METHOD_SECURITY.yieldFromPriceDerivative(BILL_DSC_SEC, PRICE);
+    final double yieldDSC = METHOD_SECURITY.yieldFromPrice(BILL_DSC_SEC, PRICE);
+    final double yieldPDSC = METHOD_SECURITY.yieldFromPrice(BILL_DSC_SEC, PRICE + shift);
+    final double yieldDerivativeExpectedDSC = (yieldPDSC - yieldDSC) / shift;
+    final double yieldDerivativeComputedDSC = METHOD_SECURITY.yieldFromPriceDerivative(BILL_DSC_SEC, PRICE);
     assertEquals("Bill Security: discounting method - yield", yieldDerivativeExpectedDSC, yieldDerivativeComputedDSC, TOLERANCE_YIELD_DERIVATIVE);
   }
 
   @Test
   public void yieldFromPriceExternal() {
-    double yieldComputed = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
+    final double yieldComputed = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
     assertEquals("Bill Security: discounting method - yield", YIELD, yieldComputed, TOLERANCE_YIELD_EXTERNAL);
   }
 
   @Test
   public void yieldFromPriceCoherence() {
-    double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, YIELD);
-    double yieldComputed = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, priceComputed);
+    final double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, YIELD);
+    final double yieldComputed = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, priceComputed);
     assertEquals("Bill Security: discounting method - yield", YIELD, yieldComputed, TOLERANCE_YIELD);
   }
 
   @Test
   public void priceFromYieldCoherence() {
-    double yieldComputed = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
-    double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, yieldComputed);
+    final double yieldComputed = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
+    final double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, yieldComputed);
     assertEquals("Bill Security: discounting method - price", PRICE, priceComputed, TOLERANCE_PRICE);
   }
 
   @Test
   public void presentValueFromPrice() {
-    CurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromPrice(BILL_IAM_SEC, PRICE, CURVE_BUNDLE);
-    double pvExpected = NOTIONAL * PRICE * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_IAM_SEC.getSettlementTime());
+    final CurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromPrice(BILL_IAM_SEC, PRICE, CURVE_BUNDLE);
+    final double pvExpected = NOTIONAL * PRICE * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_IAM_SEC.getSettlementTime());
     assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueFromYield() {
-    CurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromYield(BILL_IAM_SEC, YIELD, CURVE_BUNDLE);
-    double price = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, YIELD);
-    double pvExpected = NOTIONAL * price * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_IAM_SEC.getSettlementTime());
+    final CurrencyAmount pvComputed = METHOD_SECURITY.presentValueFromYield(BILL_IAM_SEC, YIELD, CURVE_BUNDLE);
+    final double price = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, YIELD);
+    final double pvExpected = NOTIONAL * price * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_IAM_SEC.getSettlementTime());
     assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void priceFromCurves() {
-    double priceComputed = METHOD_SECURITY.priceFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
-    CurrencyAmount pvComputed = METHOD_SECURITY.presentValue(BILL_IAM_SEC, CURVE_BUNDLE);
-    double priceExpected = pvComputed.getAmount() / (NOTIONAL * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_IAM_SEC.getSettlementTime()));
+    final double priceComputed = METHOD_SECURITY.priceFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
+    final CurrencyAmount pvComputed = METHOD_SECURITY.presentValue(BILL_IAM_SEC, CURVE_BUNDLE);
+    final double priceExpected = pvComputed.getAmount() / (NOTIONAL * CURVE_BUNDLE.getCurve(NAME_CURVES[0]).getDiscountFactor(BILL_IAM_SEC.getSettlementTime()));
     assertEquals("Bill Security: discounting method - price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 
   @Test
   public void yieldFromCurves() {
-    double yieldComputed = METHOD_SECURITY.yieldFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
-    double priceComputed = METHOD_SECURITY.priceFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
-    double yieldExpected = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, priceComputed);
+    final double yieldComputed = METHOD_SECURITY.yieldFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
+    final double priceComputed = METHOD_SECURITY.priceFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
+    final double yieldExpected = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, priceComputed);
     assertEquals("Bill Security: discounting method - yield", yieldExpected, yieldComputed, TOLERANCE_YIELD);
   }
 
   @Test
   public void yieldFromCurvesMethodVsCalculator() {
-    double yieldMethod = METHOD_SECURITY.yieldFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
-    double yieldCalculator = YFCC.visit(BILL_IAM_SEC, CURVE_BUNDLE);
+    final double yieldMethod = METHOD_SECURITY.yieldFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
+    final double yieldCalculator = BILL_IAM_SEC.accept(YFCC, CURVE_BUNDLE);
     assertEquals("Bill Security: discounting method - yield", yieldMethod, yieldCalculator, TOLERANCE_YIELD);
   }
 
   @Test
   public void presentValueCurveSensitivity() {
-    InterestRateCurveSensitivity pvcsComputed = METHOD_SECURITY.presentValueCurveSensitivity(BILL_IAM_SEC, CURVE_BUNDLE);
+    final InterestRateCurveSensitivity pvcsComputed = METHOD_SECURITY.presentValueCurveSensitivity(BILL_IAM_SEC, CURVE_BUNDLE);
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().size());
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().get(NAME_CURVES[1]).size());
     final double deltaTolerancePrice = 1.0E+2;
@@ -208,8 +207,8 @@ public class BillSecurityDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    BillSecurity billBumped = BILL_IAM_SEC_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES[0], bumpedCurveName);
-    final double[] nodeTimes = new double[] {billBumped.getEndTime()};
+    final BillSecurity billBumped = BILL_IAM_SEC_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES[0], bumpedCurveName);
+    final double[] nodeTimes = new double[] {billBumped.getEndTime() };
     final double[] sensi = SensitivityFiniteDifference.curveSensitivity(billBumped, CURVE_BUNDLE, NAME_CURVES[1], bumpedCurveName, nodeTimes, deltaShift, METHOD_SECURITY);
     final List<DoublesPair> sensiPv = pvcsComputed.getSensitivities().get(NAME_CURVES[1]);
     for (int loopnode = 0; loopnode < sensi.length; loopnode++) {
@@ -221,8 +220,8 @@ public class BillSecurityDiscountingMethodTest {
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    InterestRateCurveSensitivity pvcsMethod = METHOD_SECURITY.presentValueCurveSensitivity(BILL_IAM_SEC, CURVE_BUNDLE);
-    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC.visit(BILL_IAM_SEC, CURVE_BUNDLE));
+    final InterestRateCurveSensitivity pvcsMethod = METHOD_SECURITY.presentValueCurveSensitivity(BILL_IAM_SEC, CURVE_BUNDLE);
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(BILL_IAM_SEC.accept(PVCSC, CURVE_BUNDLE));
     AssertSensivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 

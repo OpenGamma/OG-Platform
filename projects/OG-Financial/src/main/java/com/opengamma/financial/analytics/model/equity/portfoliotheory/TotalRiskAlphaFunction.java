@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorF
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -41,8 +42,8 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesIntersector;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesIntersector;
 
 /**
  * 
@@ -57,21 +58,32 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+    return true;
+  }
+
+  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final Object positionOrNode = getTarget(target);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final HistoricalTimeSeries marketTSObject = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket());
+    if (marketTSObject == null) {
+      throw new OpenGammaRuntimeException("Market value series was not available");
+    }
     final HistoricalTimeSeries riskFreeTSObject = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate());
-    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
+    if (riskFreeTSObject == null) {
+      throw new OpenGammaRuntimeException("Risk free series was not available");
+    }
+    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L series was null");
     }
-    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
     if (assetFairValueObject == null) {
       throw new OpenGammaRuntimeException("Asset fair value was null");
     }
@@ -88,12 +100,11 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
         constraints.getValues(ValuePropertyNames.STD_DEV_CALCULATOR));
     final double tra = calculator.evaluate(assetReturnTS, riskFreeReturnTS, marketReturnTS);
     final ValueProperties resultProperties = getResultProperties(desiredValues.iterator().next());
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode, resultProperties), getUniqueId()), tra));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.TOTAL_RISK_ALPHA, targetSpec, resultProperties), tra));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Object positionOrNode = getTarget(target);
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> samplingPeriodNames = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
     if (samplingPeriodNames == null || samplingPeriodNames.size() != 1) {
@@ -116,13 +127,14 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     final String samplingFunctionName = samplingFunctionNames.iterator().next();
     final String returnCalculatorName = returnCalculatorNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, ValueProperties.builder()
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, ValueProperties.builder()
         .withAny(ValuePropertyNames.CURRENCY)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName).get()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
@@ -145,13 +157,10 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode, getResultProperties()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.TOTAL_RISK_ALPHA, target.toSpecification(), getResultProperties()));
     }
     return null;
   }
-
-  public abstract Object getTarget(ComputationTarget target);
 
   private ValueProperties getResultProperties() {
     return createValueProperties()

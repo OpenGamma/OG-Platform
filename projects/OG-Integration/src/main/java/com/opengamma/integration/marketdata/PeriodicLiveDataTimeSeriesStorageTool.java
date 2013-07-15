@@ -12,7 +12,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.livedata.LiveDataClient;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * 

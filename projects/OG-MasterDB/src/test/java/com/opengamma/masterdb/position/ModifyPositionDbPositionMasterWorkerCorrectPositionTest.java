@@ -9,12 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.math.BigDecimal;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
@@ -24,10 +23,12 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends AbstractDbPositionMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -77,7 +78,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
   @Test
   public void test_correct_getUpdateGet() {
-    Instant now = Instant.now(_posMaster.getTimeSource());
+    Instant now = Instant.now(_posMaster.getClock());
     
     PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));

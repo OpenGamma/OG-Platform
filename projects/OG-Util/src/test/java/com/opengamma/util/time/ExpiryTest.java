@@ -9,22 +9,23 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Expiry.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExpiryTest {
 
   private static final FudgeContext s_fudgeContext = new FudgeContext();
@@ -52,23 +53,23 @@ public class ExpiryTest {
 
   public void testFudgeMessageUTC() {
     for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
-      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), TimeZone.UTC), accuracy));
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC), accuracy));
     }
   }
 
   public void testFudgeMessageNonUTC() {
     for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
-      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), TimeZone.of("GMT+02:00")), accuracy));
+      testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("GMT+02:00")), accuracy));
     }
   }
 
   public void testEqualsToAccuracy() {
-    final ZonedDateTime zdtMinute = ZonedDateTime.of(2011, 7, 12, 12, 30, 0, 0, TimeZone.UTC);
-    final ZonedDateTime zdtHour = ZonedDateTime.of(2011, 7, 12, 12, 45, 0, 0, TimeZone.UTC);
-    final ZonedDateTime zdtDay = ZonedDateTime.of(2011, 7, 12, 11, 45, 0, 0, TimeZone.UTC);
-    final ZonedDateTime zdtMonth = ZonedDateTime.of(2011, 7, 11, 11, 45, 0, 0, TimeZone.UTC);
-    final ZonedDateTime zdtYear = ZonedDateTime.of(2011, 6, 11, 11, 45, 0, 0, TimeZone.UTC);
-    final ZonedDateTime zdtNone = ZonedDateTime.of(2010, 6, 11, 11, 45, 0, 0, TimeZone.UTC);
+    final ZonedDateTime zdtMinute = ZonedDateTime.of(LocalDateTime.of(2011, 7, 12, 12, 30, 0, 0), ZoneOffset.UTC);
+    final ZonedDateTime zdtHour = ZonedDateTime.of(LocalDateTime.of(2011, 7, 12, 12, 45, 0, 0), ZoneOffset.UTC);
+    final ZonedDateTime zdtDay = ZonedDateTime.of(LocalDateTime.of(2011, 7, 12, 11, 45, 0, 0), ZoneOffset.UTC);
+    final ZonedDateTime zdtMonth = ZonedDateTime.of(LocalDateTime.of(2011, 7, 11, 11, 45, 0, 0), ZoneOffset.UTC);
+    final ZonedDateTime zdtYear = ZonedDateTime.of(LocalDateTime.of(2011, 6, 11, 11, 45, 0, 0), ZoneOffset.UTC);
+    final ZonedDateTime zdtNone = ZonedDateTime.of(LocalDateTime.of(2010, 6, 11, 11, 45, 0, 0), ZoneOffset.UTC);
     assertTrue(Expiry.equalsToAccuracy(ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR, zdtMinute, zdtMinute));
     assertFalse(Expiry.equalsToAccuracy(ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR, zdtMinute, zdtHour));
     assertTrue(Expiry.equalsToAccuracy(ExpiryAccuracy.HOUR_DAY_MONTH_YEAR, zdtHour, zdtMinute));

@@ -169,7 +169,7 @@ public class FloatingSpreadIRLeg extends FloatingInterestRateLeg {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "spread");
 
     /**

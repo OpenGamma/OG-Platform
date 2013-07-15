@@ -43,7 +43,7 @@ public class TwoStateMarkovChainLocalVolCalculator {
   private Map<DoublesPair, Double> getLocalVolMap(final PDEFullResults1D[] denRes, final TwoStateMarkovChainDataBundle chainData, final AbsoluteLocalVolatilitySurface lvOverlay) {
     final int tNodes = denRes[0].getNumberTimeNodes();
     final int xNodes = denRes[0].getNumberSpaceNodes();
-    final Map<DoublesPair, Double> lv = new HashMap<DoublesPair, Double>(tNodes * xNodes);
+    final Map<DoublesPair, Double> lv = new HashMap<>(tNodes * xNodes);
     double s;
     for (int j = 0; j < xNodes; j++) {
       s = denRes[0].getSpaceValue(j);
@@ -56,7 +56,7 @@ public class TwoStateMarkovChainLocalVolCalculator {
         final double p1 = denRes[0].getFunctionValue(j, i);
         final double p2 = denRes[1].getFunctionValue(j, i);
         final double p = p1 + p2;
-        if (p > 0.0 && p1 >= 0.0 && p2 >= 0.0) { //if p = 0 can't find equivalent local vol for this t-s, so don't use point 
+        if (p > 0.0 && p1 >= 0.0 && p2 >= 0.0) { //if p = 0 can't find equivalent local vol for this t-s, so don't use point
           double ol = 1.0;
           if (lvOverlay != null) {
             ol = lvOverlay.getVolatility(t, s);

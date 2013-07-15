@@ -7,6 +7,10 @@ package com.opengamma.util.money;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -60,6 +64,48 @@ public final class CurrencyAmount implements Serializable {
     return of(Currency.of(currencyCode), amount);
   }
 
+  /**
+   * Parses the string to produce a {@code CurrencyAmount}.
+   * <p>
+   * This parses the {@code toString} format of '${currency} ${amount}'.
+   * 
+   * @param amountStr  the amount string, not null
+   * @return the currency amount
+   * @throws IllegalArgumentException if the amount cannot be parsed
+   */
+  @FromString
+  public static CurrencyAmount parse(final String amountStr) {
+    ArgumentChecker.notNull(amountStr, "amountStr");
+    String[] parts = StringUtils.split(amountStr, ' ');
+    if (parts.length != 2) {
+      throw new IllegalArgumentException("Unable to parse amount, invalid format: " + amountStr);
+    }
+    try {
+      Currency cur = Currency.parse(parts[0]);
+      double amount = Double.parseDouble(parts[1]);
+      return new CurrencyAmount(cur, amount);
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("Unable to parse amount: " + amountStr, ex);
+    }
+  }
+
+  /**
+   * Creates a currency amount for the specified currency and amount,
+   * handling null inputs by returning null.
+   *
+   * @param currency  the currency the amount is in, may be null
+   * @param amount  the amount of the currency to represent, may be null
+   * @return the currency amount, may be null
+   */
+  public static CurrencyAmount create(final Currency currency, final Double amount) {
+    if (currency != null && amount != null) {
+      return new CurrencyAmount(currency, amount);
+    } else {
+      return null;
+    }
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    * 
@@ -181,11 +227,13 @@ public final class CurrencyAmount implements Serializable {
   /**
    * Gets the amount as a string.
    * <p>
-   * The format is the currency code, followed by a space, followed by the amount.
+   * The format is the currency code, followed by a space, followed by the
+   * amount: '${currency} ${amount}'.
    * 
    * @return the currency amount, not null
    */
   @Override
+  @ToString
   public String toString() {
     return _currency + " " + _amount;
   }

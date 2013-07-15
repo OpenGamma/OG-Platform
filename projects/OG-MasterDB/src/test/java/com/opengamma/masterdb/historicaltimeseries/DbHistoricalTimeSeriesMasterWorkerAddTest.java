@@ -9,13 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -24,10 +23,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistoricalTimeSeriesMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -53,7 +54,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
 
   @Test
   public void test_add_add() {
-    Instant now = Instant.now(_htsMaster.getTimeSource());
+    Instant now = Instant.now(_htsMaster.getClock());
     
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
     info.setName("Added");
@@ -112,4 +113,102 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
   public void test_toString() {
     assertEquals(_htsMaster.getClass().getSimpleName() + "[DbHts]", _htsMaster.toString());
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingNameProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingDataFieldProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingDataSourceProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingDataProviderProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingObservationTimeProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingExternalIdBundleProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    _htsMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    _htsMaster.add(doc);
+  }
+
 }

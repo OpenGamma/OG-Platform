@@ -7,25 +7,26 @@ package com.opengamma.analytics.financial.horizon;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Tests functionality of TPC, which returns currency amounts paid on provided date
@@ -43,14 +44,15 @@ public class TodayPaymentCalculatorTest {
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, RATE_FIXED, true);
   // Market
   private static final String[] CURVE_NAMES = TestsDataSetsSABR.curves2Names();
-  private static final ArrayZonedDateTimeDoubleTimeSeries FIXING_TS_3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15)}, new double[] {
-      0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160});
-  private static final ArrayZonedDateTimeDoubleTimeSeries FIXING_TS_6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16)}, new double[] {0.0095, 0.0120, 0.0130});
-  private static final ArrayZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ArrayZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6};
+  private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_3 = ImmutableZonedDateTimeDoubleTimeSeries.of(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
+      DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15)},
+      new double[] {0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160}, ZoneOffset.UTC);
+  private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_6 = ImmutableZonedDateTimeDoubleTimeSeries.of(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
+      DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16)}, new double[] {0.0095, 0.0120, 0.0130}, ZoneOffset.UTC);
+  private static final ZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6};
 
-  // Tests 
+  // Tests
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
 
   @Test
@@ -111,7 +113,7 @@ public class TodayPaymentCalculatorTest {
 
   // BACKWARD LOOKING TESTS //////////////////////////////////////////
   @Test
-  public void TpcLookingBackwardOnDayOfPayment() {
+  public void tpcLookingBackwardOnDayOfPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 17);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final double todayCash = ((CouponFixed) swapToday.getSecondLeg().getNthPayment(0)).getAmount();
@@ -125,7 +127,7 @@ public class TodayPaymentCalculatorTest {
   }
 
   @Test
-  public void TpcLookingBackwardOneDayOneDayAfterPayment() {
+  public void tpcLookingBackwardOneDayOneDayAfterPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 18);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final double todayCash = 0.0; // ((CouponFixed) swapToday.getSecondLeg().getNthPayment(0)).getAmount();
@@ -139,7 +141,7 @@ public class TodayPaymentCalculatorTest {
   }
 
   @Test
-  public void TpcLookingBackwardAndForwardOnDayOfPayment() {
+  public void tpcLookingBackwardAndForwardOnDayOfPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 17);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
 
@@ -161,7 +163,7 @@ public class TodayPaymentCalculatorTest {
   // The following test fails because the payment on 2012/08/17 is dropped when toDerivative is called.
   // TodayPaymentCalculator does what it says on the tin. It provides the cashflows that occur today.
   // The horizon is there only to give flexibility in financial-time as to the range in which one considers something as having occurred today.
-  public void TpcWontProvidePaymentFromOneWeekBack() {
+  public void tpcWontProvidePaymentFromOneWeekBack() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 21);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final ZonedDateTime horizonDate = referenceDate.minusDays(7);

@@ -46,6 +46,7 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -77,10 +78,6 @@ public class SavePortfolio {
     _rewriteExistingPositions = rewriteExistingPositions;
   }
 
-  protected ExternalIdBundle filterSecurityKey(final ExternalIdBundle securityKey) {
-    return securityKey;
-  }
-
   protected ExternalIdBundle mapSecurityKey(final ExternalIdBundle securityKey) {
     return null;
   }
@@ -88,8 +85,7 @@ public class SavePortfolio {
   protected ManageablePosition createManageablePosition(final Position position) {
     final ManageablePosition manageablePosition = new ManageablePosition();
     manageablePosition.setQuantity(position.getQuantity());
-    final ExternalIdBundle securityKey = filterSecurityKey(position.getSecurityLink().getExternalId());
-    manageablePosition.getSecurityLink().setExternalId(securityKey);
+    manageablePosition.setSecurityLink(new ManageableSecurityLink(position.getSecurityLink()));
     manageablePosition.setAttributes(position.getAttributes());
     final Collection<Trade> trades = position.getTrades();
     final List<ManageableTrade> manageableTrades = new ArrayList<ManageableTrade>(trades.size());
@@ -117,7 +113,7 @@ public class SavePortfolio {
     final List<Future<Pair<UniqueId, ObjectId>>> futures = new LinkedList<Future<Pair<UniqueId, ObjectId>>>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
       @Override
-      public void preOrderOperation(final Position position) {
+      public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
         final ExternalId positionId = position.getUniqueId().toExternalId();
         ObjectId id = s_cache.get(positionId);
         if (id == null) {
@@ -176,10 +172,8 @@ public class SavePortfolio {
   protected ObjectId mapPositionIdentifier(final Position position) {
     ObjectId id = _positionMap.get(position.getUniqueId());
     if (id == null) {
-      if (id == null) {
-        s_logger.debug("Adding position {} to master", position);
-        id = _positions.add(new PositionDocument(createManageablePosition(position))).getUniqueId().getObjectId();
-      }
+      s_logger.debug("Adding position {} to master", position);
+      id = _positions.add(new PositionDocument(createManageablePosition(position))).getUniqueId().getObjectId();
       _positionMap.put(position.getUniqueId(), id);
       s_cache.put(position.getUniqueId().toExternalId(), id);
     } else {
@@ -214,6 +208,7 @@ public class SavePortfolio {
     final ManageablePortfolio manageablePortfolio = new ManageablePortfolio();
     manageablePortfolio.setName(getPortfolioName(portfolio));
     manageablePortfolio.setRootNode(createManageablePortfolioNode(portfolio.getRootNode()));
+    manageablePortfolio.setAttributes(portfolio.getAttributes());
     return manageablePortfolio;
   }
 

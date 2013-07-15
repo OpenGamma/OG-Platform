@@ -9,6 +9,7 @@
     -moz-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
     border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
     border-style: solid;
+    z-index: 6;
 }
 
 .ie8 .OG-analytics-resize.og-bars, .ie9 .OG-analytics-resize.og-bars {
@@ -23,7 +24,7 @@
     height: 100%;
     top: 0;
     left: 0;
-    z-index: 2;
+    z-index: 6;
     background-color: #fff;
     opacity: 0;
 }
@@ -50,6 +51,11 @@
     position: absolute;
     width: 16px;
     height: 16px;
+}
+
+.og-inplace-resizer {
+    z-index: 5;
+    margin-top: 23px;
 }
 
 .OG-analytics-resize.og-menu {

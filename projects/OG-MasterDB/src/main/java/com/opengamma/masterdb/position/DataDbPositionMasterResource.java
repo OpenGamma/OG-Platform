@@ -7,11 +7,12 @@ package com.opengamma.masterdb.position;
 
 import java.net.URI;
 
-import javax.time.TimeSource;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+
+import org.threeten.bp.Clock;
 
 import com.opengamma.master.position.impl.DataPositionMasterResource;
 import com.opengamma.masterdb.TimeOverrideRequest;
@@ -51,9 +52,9 @@ public class DataDbPositionMasterResource extends DataPositionMasterResource {
   public Response setTimeOverride(final TimeOverrideRequest doc) {
     ArgumentChecker.notNull(doc, "doc");
     if (doc.getTimeOverride() == null) {
-      getDbPositionMaster().resetTimeSource();
+      getDbPositionMaster().resetClock();
     } else {
-      getDbPositionMaster().setTimeSource(TimeSource.fixed(doc.getTimeOverride()));
+      getDbPositionMaster().setClock(Clock.fixed(doc.getTimeOverride(), getDbPositionMaster().getClock().getZone()));
     }
     return responseOk();
   }

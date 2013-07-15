@@ -109,4 +109,22 @@ public class Extrapolator1DTest {
       assertEquals(LINEAR_EXTRAPOLATOR.interpolate(DATA, X_TEST[i]), Y_TEST[i], 1e-6);
     }
   }
+
+  @Test(enabled=false)
+  public void debugTest() {
+    final DoubleQuadraticInterpolator1D baseInterpolator = new DoubleQuadraticInterpolator1D();
+
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getExtrapolator(Interpolator1DFactory.LINEAR_EXTRAPOLATOR, baseInterpolator);
+    Interpolator1DDataBundle data = interpolator.getDataBundleFromSortedArrays(X_DATA, Y_DATA);
+    Double y = interpolator.interpolate(data, 1.0);
+  }
+  
+  @Test(enabled=false)
+  public void debug2Test() {
+    final DoubleQuadraticInterpolator1D baseInterpolator = new DoubleQuadraticInterpolator1D();
+
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    Interpolator1DDataBundle data = interpolator.getDataBundleFromSortedArrays(X_DATA, Y_DATA);
+    Double y = interpolator.interpolate(data, 1.0);
+  }
 }

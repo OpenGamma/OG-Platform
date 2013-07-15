@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -15,13 +15,13 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -29,8 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.money.Currency;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Function to shift a yield curve's market data, implemented using properties and constraints.
@@ -53,16 +52,7 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -78,7 +68,7 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
       return null;
     }
     final ValueProperties properties = desiredValue.getConstraints().copy().withoutAny(SHIFT).with(SHIFT, "0").withOptional(SHIFT).get();
-    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), properties));
+    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), target.toSpecification(), properties));
   }
 
   private ValueProperties.Builder createValueProperties(final ValueSpecification input) {
@@ -105,10 +95,11 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
       throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
     }
     s_logger.debug("Applying {} to {}", shift, marketData);
-    final OverrideOperation operation = compiler.compile(shift);
-    for (final Map.Entry<UniqueId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
+    final OverrideOperation operation = compiler.compile(shift, executionContext.getComputationTargetResolver());
+    for (final Map.Entry<ExternalIdBundle, Double> dataPoint : marketData.getDataPointSet()) {
       s_logger.debug("Applying to {}", dataPoint);
-      final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, dataPoint.getKey()), dataPoint.getValue());
+      final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, dataPoint.getKey()),
+          dataPoint.getValue());
       s_logger.debug("Got result {}", result);
       if (result instanceof Number) {
         dataPoint.setValue(((Number) result).doubleValue());

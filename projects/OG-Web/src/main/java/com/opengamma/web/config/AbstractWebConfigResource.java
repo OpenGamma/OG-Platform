@@ -8,16 +8,17 @@ package com.opengamma.web.config;
 import java.io.CharArrayReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Map.Entry;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -30,8 +31,6 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -44,8 +43,6 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDef
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigMetaDataRequest;
-import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractPerRequestWebResource;
@@ -66,6 +63,17 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
  * 
  */
 public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
+    
+  /**
+   * HTML ftl directory
+   */
+  protected static final String HTML_DIR = "configs/html/";
+  /**
+   * JSON ftl directory
+   */
+  protected static final String JSON_DIR = "configs/json/";
+  
+  private static final int INDENTATION_SIZE = 4;
   
   /**
    * Logger.
@@ -76,7 +84,12 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
    * The Fudge context.
    */
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-
+  
+  /**
+   * The Config Types provider
+   */
+  private final ConfigTypesProvider _configTypesProvider = ConfigTypesProvider.getInstance();
+  
   /**
    * The backing bean.
    */
@@ -90,15 +103,17 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
     ArgumentChecker.notNull(configMaster, "configMaster");
     _data = new WebConfigData();
     data().setConfigMaster(configMaster);
-    
-    // init meta-data
-    ConfigMetaDataResult metaData = configMaster.metaData(new ConfigMetaDataRequest());
-    for (Class<?> configType : metaData.getConfigTypes()) {
-      data().getTypeMap().put(configType.getSimpleName(), configType);
-    }
+    initializeMetaData();
     initializeJSONBuilders();
   }
 
+  //init meta-data
+  private void initializeMetaData() {
+    for (Entry<String, Class<?>> entry : _configTypesProvider.getConfigTypeMap().entrySet()) {
+      data().getTypeMap().put(entry.getKey(), entry.getValue());
+    }
+  }
+  
   private void initializeJSONBuilders() {
     data().getJsonBuilderMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.INSTANCE);
@@ -159,6 +174,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
    */
   protected Object parseXML(String xml) {
     final CharArrayReader car = new CharArrayReader(xml.toCharArray());
+    @SuppressWarnings("resource")
     final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(getFudgeContext(), car));
     final FudgeMsg message = fmr.nextMessage();
     return getFudgeContext().fromFudgeMsg(message);
@@ -182,29 +198,30 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
   }
 
   protected String createXML(ConfigDocument doc) {
-    String configXML = null;
     // get xml and pretty print it
     FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(doc.getConfig().getValue());
     s_logger.debug("config doc {} converted to fudge {}", doc.getUniqueId(), msg);
     StringWriter buf = new StringWriter(1024);  
+    @SuppressWarnings("resource")
     FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(getFudgeContext(), buf));
     writer.writeMessageEnvelope(msg);
     s_logger.debug("config doc {} converted to xmk {}", doc.getUniqueId(), buf.toString());
     try {
-      DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      Document xmlDoc = db.parse(new InputSource(new StringReader(buf.toString())));
-      xmlDoc.getDocumentElement().normalize();
-      Transformer transformer = TransformerFactory.newInstance().newTransformer();
-      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      DOMSource source = new DOMSource(xmlDoc);
-      buf = new StringWriter(1024);
-      StreamResult result =  new StreamResult(buf);
-      transformer.transform(source, result);
-      configXML = buf.toString();
+      return prettyXML(buf.toString(), INDENTATION_SIZE);
     } catch (Exception ex) {
       throw new IllegalStateException(ex);
     }
-    return configXML;
+  }
+  
+  private static String prettyXML(String input, int indent) throws TransformerException {
+    Source xmlInput = new StreamSource(new StringReader(input));
+    StreamResult xmlOutput = new StreamResult(new StringWriter());
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    transformerFactory.setAttribute("indent-number", indent);
+    Transformer transformer = transformerFactory.newTransformer();
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    transformer.transform(xmlInput, xmlOutput);
+    return xmlOutput.getWriter().toString();
   }
 
   /**
@@ -215,4 +232,12 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
     return _fudgeContext;
   }
 
+  /**
+   * Gets the configTypesProvider.
+   * @return the configTypesProvider
+   */
+  public ConfigTypesProvider getConfigTypesProvider() {
+    return _configTypesProvider;
+  }
+  
 }

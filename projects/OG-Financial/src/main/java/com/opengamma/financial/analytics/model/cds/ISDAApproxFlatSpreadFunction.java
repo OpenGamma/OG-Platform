@@ -9,17 +9,16 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.async.AsynchronousExecution;
 
 
@@ -37,21 +36,7 @@ public class ISDAApproxFlatSpreadFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-  
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    
-    // Flat rate can be found for any CDS
-    if (target.getSecurity() instanceof CDSSecurity) {
-      return true;
-    }
-    
-    return false;
+    return FinancialSecurityTypes.CDS_SECURITY;
   }
   
   @Override
@@ -78,14 +63,8 @@ public class ISDAApproxFlatSpreadFunction extends AbstractFunction.NonCompiledIn
   
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    
     // TODO: Are extra value properties needed here? (see ISDAApproxCDSPriceFlatSpreadFunction)
-    final ValueSpecification result = new ValueSpecification(new ValueRequirement(
-        ValueRequirementNames.SPOT_RATE, ComputationTargetType.SECURITY, target.getUniqueId(),
-        ValueProperties.none()),
-      getUniqueId());
-    
-    return Collections.singleton(result);
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.SPOT_RATE, target.toSpecification(), createValueProperties().get()));
   }
 
   
@@ -98,7 +77,7 @@ public class ISDAApproxFlatSpreadFunction extends AbstractFunction.NonCompiledIn
      * In may be necessary to index points on the spread curve using real dates rather than t-values  
     
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
-    final double maturity = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), cds.getMaturity());
+    final double maturity = TimeCalculator.getTimeBetween(ZonedDateTime.now(executionContext.getValuationClock()), cds.getMaturity());
     
     final YieldCurve spreadCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
       ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
@@ -121,11 +100,7 @@ public class ISDAApproxFlatSpreadFunction extends AbstractFunction.NonCompiledIn
     
     final double flatSpread = 0.01;
     
-    final ComputedValue result = new ComputedValue(new ValueSpecification(new ValueRequirement(
-        ValueRequirementNames.SPOT_RATE, ComputationTargetType.SECURITY, target.getUniqueId(),
-        ValueProperties.none()),
-      getUniqueId()),
-      new Double(flatSpread));
+    final ComputedValue result = new ComputedValue(new ValueSpecification(ValueRequirementNames.SPOT_RATE, target.toSpecification(), createValueProperties().get()), flatSpread);
     
     return Collections.singleton(result);
   }

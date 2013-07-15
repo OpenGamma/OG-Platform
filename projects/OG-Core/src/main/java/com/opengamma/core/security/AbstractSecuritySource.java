@@ -5,34 +5,11 @@
  */
 package com.opengamma.core.security;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.core.AbstractSourceWithExternalBundle;
 
 /**
  * Partial implementation of {@link SecuritySource}.
  */
-public abstract class AbstractSecuritySource implements SecuritySource {
-
-  @Override
-  public Map<UniqueId, Security> get(Collection<UniqueId> uniqueIds) {
-    ArgumentChecker.notNull(uniqueIds, "uniqueIds");
-    Map<UniqueId, Security> result = new HashMap<UniqueId, Security>(uniqueIds.size());
-    for (UniqueId uniqueId : uniqueIds) {
-      try {
-        Security security = get(uniqueId);
-        if (security != null) {
-          result.put(uniqueId, security);
-        }
-      } catch (DataNotFoundException ex) {
-        // Ignore
-      }
-    }
-    return result;
-  }
+public abstract class AbstractSecuritySource extends AbstractSourceWithExternalBundle<Security> implements SecuritySource {
 
 }

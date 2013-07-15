@@ -25,7 +25,7 @@ import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolio
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * The portfolio saver tool
@@ -43,6 +43,8 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
   private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
+  /** Include trades flag */
+  private static final String INCLUDE_TRADES_OPT = "t";
 
   private static ToolContext s_context;
   
@@ -74,7 +76,8 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
         getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
-        getCommandLine().hasOption(WRITE_OPT)
+        getCommandLine().hasOption(WRITE_OPT),
+        getCommandLine().hasOption(INCLUDE_TRADES_OPT)
     );
     
     // Construct portfolio copier
@@ -96,7 +99,8 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
     portfolioWriter.close();
   }
   
-  private static PortfolioWriter constructPortfolioWriter(String filename, String securityType, boolean write) {
+  private static PortfolioWriter constructPortfolioWriter(String filename, String securityType, boolean write,
+                                                          boolean includeTrades) {
     if (write) {  
       // Check that the file name was specified on the command line
       if (filename == null) {
@@ -110,13 +114,13 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
         
         RowParser rowParser = JodaBeanRowParser.newJodaBeanRowParser(securityType);
         if (rowParser != null) {
-          return new SingleSheetSimplePortfolioWriter(filename, rowParser);
+          return new SingleSheetSimplePortfolioWriter(filename, rowParser, includeTrades);
         } else {
           throw new OpenGammaRuntimeException("Could not create a row parser for security type " + securityType);
         }
 //        }
       } else if (SheetFormat.of(filename) == SheetFormat.ZIP) {
-        return new ZippedPortfolioWriter(filename);
+        return new ZippedPortfolioWriter(filename, includeTrades);
       } else {
         throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
       }
@@ -163,6 +167,11 @@ public class PortfolioSaverTool extends AbstractTool<ToolContext> {
         VERBOSE_OPT, "verbose", false, 
         "Displays progress messages on the terminal");
     options.addOption(verboseOption);
+
+    Option includeTradesOption = new Option(
+        INCLUDE_TRADES_OPT, "trades", false,
+        "Generate a separate row for each trade instead of one row per position");
+    options.addOption(includeTradesOption);
 
     return options;
   }

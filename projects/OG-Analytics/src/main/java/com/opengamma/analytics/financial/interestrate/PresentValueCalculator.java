@@ -9,7 +9,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -24,17 +23,17 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -48,17 +47,13 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponIbor
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to)
  */
-public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class PresentValueCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The method unique instance.
@@ -95,25 +90,6 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final CouponCMSDiscountingMethod METHOD_CMS_DISCOUNTING = CouponCMSDiscountingMethod.getInstance();
-
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
-
-  @Override
-  public Double[] visit(final InstrumentDerivative[] derivative, final YieldCurveBundle curves) {
-    Validate.notNull(derivative, "derivative");
-    Validate.noNullElements(derivative, "derivative");
-    Validate.notNull(curves, "curves");
-    final Double[] output = new Double[derivative.length];
-    for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
-      output[loopderivative] = derivative[loopderivative].accept(this, curves);
-    }
-    return output;
-  }
 
   // -----     Deposit     ------
 
@@ -204,7 +180,7 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   }
 
   @Override
-  public Double visitCouponIborCompounded(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+  public Double visitCouponIborCompounding(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     return METHOD_CPN_IBOR_COMP.presentValue(coupon, curves).getAmount();
   }
 
@@ -213,15 +189,11 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
     return METHOD_FRA.presentValue(fra, curves).getAmount();
   }
 
-  /**
-   * {@inheritDoc}
-   * Future transaction pricing without convexity adjustment.
-   */
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(future);
-    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
+    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
     return method.presentValue(future, curves).getAmount();
   }
 
@@ -229,20 +201,13 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    final double pvFirst = visit(swap.getFirstLeg(), curves);
-    final double pvSecond = visit(swap.getSecondLeg(), curves);
+    final double pvFirst = swap.getFirstLeg().accept(this, curves);
+    final double pvSecond = swap.getSecondLeg().accept(this, curves);
     return pvSecond + pvFirst;
   }
 
   @Override
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(swap);
     return visitSwap(swap, curves);
   }
 
@@ -260,22 +225,9 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
     Validate.notNull(annuity);
     double pv = 0;
     for (final Payment p : annuity.getPayments()) {
-      pv += visit(p, curves);
+      pv += p.accept(this, curves);
     }
     return pv;
-  }
-
-  @Override
-  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle data) {
-    return visitSwap(frn, data);
-  }
-
-  @Override
-  public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle data) {
-    final double domesticValue = visit(ccs.getDomesticLeg(), data);
-    final double foreignValue = visit(ccs.getForeignLeg(), data);
-    final double fx = ccs.getSpotFX();
-    return domesticValue - fx * foreignValue;
   }
 
   @Override
@@ -286,18 +238,8 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   }
 
   @Override
-  public Double visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
-    return visitGenericAnnuity(annuity, curves);
-  }
-
-  @Override
   public Double visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
-  }
-
-  @Override
-  public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
-    return visitFixedCouponSwap(swap, curves);
   }
 
   @Override

@@ -1,12 +1,13 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.bbg.component;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -19,19 +20,20 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
+import com.opengamma.engine.marketdata.live.InMemoryLKVLiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.live.LiveDataAvailabilityNotificationListener;
 import com.opengamma.engine.marketdata.live.LiveDataFactory;
-import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
@@ -46,17 +48,12 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
  */
 @BeanDefinition
 public class BloombergLiveDataClientComponentFactory extends AbstractComponentFactory {
-  
+
   /**
    * The classifier under which to publish.
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-  /**
-   * The security source.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private SecuritySource _securitySource;
   /**
    * The JMS connector.
    */
@@ -67,44 +64,55 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
    */
   @PropertyDefinition
   private LiveDataMetaDataProvider _bloombergMetaDataProvider;
-  
+  /**
+   * JMS topic for notifications when market data providers become available
+   */
+  @PropertyDefinition
+  private String _jmsMarketDataAvailabilityTopic;
+
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    LiveDataMetaData metaData = getBloombergMetaDataProvider().metaData();
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) throws Exception {
+    final LiveDataMetaData metaData = getBloombergMetaDataProvider().metaData();
     if (metaData.getServerType() != LiveDataServerTypes.STANDARD) {
       throw new OpenGammaRuntimeException("Unexpected server type in metadata " + metaData);
     }
     String description = metaData.getDescription() != null ? metaData.getDescription() : "Bloomberg";
     description = "Live market data (" + description + ")";
-    URI jmsUri = metaData.getJmsBrokerUri();
+    final URI jmsUri = metaData.getJmsBrokerUri();
     if (jmsUri == null) {
       throw new OpenGammaRuntimeException("JMS URI not set in metadata " + metaData);
     }
-    
+
     JmsConnector jmsConnector = getJmsConnector();
     if (jmsConnector.getClientBrokerUri().equals(jmsUri) == false) {
-      JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean(jmsConnector);
+      final JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean(jmsConnector);
       jmsFactory.setClientBrokerUri(jmsUri);
       jmsConnector = jmsFactory.getObjectCreating();
     }
-    
-    RemoteLiveDataClientFactoryBean liveDataClientFactory = new RemoteLiveDataClientFactoryBean();
+
+    final RemoteLiveDataClientFactoryBean liveDataClientFactory = new RemoteLiveDataClientFactoryBean();
     liveDataClientFactory.setJmsConnector(jmsConnector);
     liveDataClientFactory.setSubscriptionTopic(metaData.getJmsSubscriptionTopic());
     liveDataClientFactory.setEntitlementTopic(metaData.getJmsEntitlementTopic());
     liveDataClientFactory.setHeartbeatTopic(metaData.getJmsHeartbeatTopic());
-    LiveDataClient liveDataClient = liveDataClientFactory.getObjectCreating();
-    
-    MarketDataAvailabilityProvider availabilityProvider = BloombergDataUtils.createAvailabilityProvider(getSecuritySource());
-    LiveDataFactory liveDataFactory = new LiveDataFactory(liveDataClient, availabilityProvider, getSecuritySource());
-    LiveMarketDataProviderFactory liveMarketDataProviderFactory = new LiveMarketDataProviderFactory(liveDataFactory, ImmutableMap.of(description, liveDataFactory));
-    ComponentInfo providerFactoryInfo = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
+    final LiveDataClient liveDataClient = liveDataClientFactory.getObjectCreating();
+
+    final MarketDataAvailabilityFilter availability = BloombergDataUtils.createAvailabilityFilter();
+    final LiveDataFactory liveDataFactory = new LiveDataFactory(liveDataClient, availability);
+    final MarketDataProviderFactory liveMarketDataProviderFactory = new InMemoryLKVLiveMarketDataProviderFactory(liveDataFactory, ImmutableMap.of(description, liveDataFactory));
+    final ComponentInfo providerFactoryInfo = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(providerFactoryInfo, liveMarketDataProviderFactory);
 
-    InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
+    // notifies LiveDataFactories when market data providers come up so they can retry failed subscriptions
+    List<LiveDataFactory> factoryList = ImmutableList.of(liveDataFactory);
+    LiveDataAvailabilityNotificationListener availabilityNotificationListener =
+        new LiveDataAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), factoryList, getJmsConnector());
+    repo.registerLifecycle(availabilityNotificationListener);
+
+    final InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
     specRepository.addSpecification(description, new LiveMarketDataSpecification(description));
-    
-    ComponentInfo specRepositoryInfo = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
+
+    final ComponentInfo specRepositoryInfo = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
     repo.registerComponent(specRepositoryInfo, specRepository);
   }
 
@@ -131,12 +139,12 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
-      case -702456965:  // securitySource
-        return getSecuritySource();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
       case -1210045765:  // bloombergMetaDataProvider
         return getBloombergMetaDataProvider();
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        return getJmsMarketDataAvailabilityTopic();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -147,14 +155,14 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
       case -1210045765:  // bloombergMetaDataProvider
         setBloombergMetaDataProvider((LiveDataMetaDataProvider) newValue);
+        return;
+      case 108776830:  // jmsMarketDataAvailabilityTopic
+        setJmsMarketDataAvailabilityTopic((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -163,7 +171,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
     super.validate();
   }
@@ -176,9 +183,9 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     if (obj != null && obj.getClass() == this.getClass()) {
       BloombergLiveDataClientComponentFactory other = (BloombergLiveDataClientComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getBloombergMetaDataProvider(), other.getBloombergMetaDataProvider()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
           super.equals(obj);
     }
     return false;
@@ -188,9 +195,9 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergMetaDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
     return hash ^ super.hashCode();
   }
 
@@ -218,32 +225,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the security source.
-   * @return the value of the property, not null
-   */
-  public SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-
-  /**
-   * Sets the security source.
-   * @param securitySource  the new value of the property, not null
-   */
-  public void setSecuritySource(SecuritySource securitySource) {
-    JodaBeanUtils.notNull(securitySource, "securitySource");
-    this._securitySource = securitySource;
-  }
-
-  /**
-   * Gets the the {@code securitySource} property.
-   * @return the property, not null
-   */
-  public final Property<SecuritySource> securitySource() {
-    return metaBean().securitySource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -299,6 +280,31 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
 
   //-----------------------------------------------------------------------
   /**
+   * Gets jMS topic for notifications when market data providers become available
+   * @return the value of the property
+   */
+  public String getJmsMarketDataAvailabilityTopic() {
+    return _jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Sets jMS topic for notifications when market data providers become available
+   * @param jmsMarketDataAvailabilityTopic  the new value of the property
+   */
+  public void setJmsMarketDataAvailabilityTopic(String jmsMarketDataAvailabilityTopic) {
+    this._jmsMarketDataAvailabilityTopic = jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Gets the the {@code jmsMarketDataAvailabilityTopic} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsMarketDataAvailabilityTopic() {
+    return metaBean().jmsMarketDataAvailabilityTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code BloombergLiveDataClientComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -313,11 +319,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", BloombergLiveDataClientComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code securitySource} property.
-     */
-    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
-        this, "securitySource", BloombergLiveDataClientComponentFactory.class, SecuritySource.class);
-    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
@@ -328,14 +329,19 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     private final MetaProperty<LiveDataMetaDataProvider> _bloombergMetaDataProvider = DirectMetaProperty.ofReadWrite(
         this, "bloombergMetaDataProvider", BloombergLiveDataClientComponentFactory.class, LiveDataMetaDataProvider.class);
     /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     */
+    private final MetaProperty<String> _jmsMarketDataAvailabilityTopic = DirectMetaProperty.ofReadWrite(
+        this, "jmsMarketDataAvailabilityTopic", BloombergLiveDataClientComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "securitySource",
         "jmsConnector",
-        "bloombergMetaDataProvider");
+        "bloombergMetaDataProvider",
+        "jmsMarketDataAvailabilityTopic");
 
     /**
      * Restricted constructor.
@@ -348,12 +354,12 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -702456965:  // securitySource
-          return _securitySource;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
         case -1210045765:  // bloombergMetaDataProvider
           return _bloombergMetaDataProvider;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return _jmsMarketDataAvailabilityTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -383,14 +389,6 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     }
 
     /**
-     * The meta-property for the {@code securitySource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<SecuritySource> securitySource() {
-      return _securitySource;
-    }
-
-    /**
      * The meta-property for the {@code jmsConnector} property.
      * @return the meta-property, not null
      */
@@ -404,6 +402,14 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
      */
     public final MetaProperty<LiveDataMetaDataProvider> bloombergMetaDataProvider() {
       return _bloombergMetaDataProvider;
+    }
+
+    /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
+      return _jmsMarketDataAvailabilityTopic;
     }
 
   }

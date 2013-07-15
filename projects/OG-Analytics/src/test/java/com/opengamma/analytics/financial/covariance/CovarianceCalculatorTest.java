@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.covariance;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 public class CovarianceCalculatorTest {
   private static final CovarianceCalculator CALCULATOR = new CovarianceCalculator() {
@@ -20,10 +19,10 @@ public class CovarianceCalculatorTest {
     }
 
   };
-  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {2}, new double[] {1});
-  private static final DoubleTimeSeries<?> TS2 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {2, 3}, new double[] {1, 2});
-  private static final DoubleTimeSeries<?> TS3 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {4, 5}, new double[] {1, 2});
-  private static final DoubleTimeSeries<?> TS4 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {4, 5, 6}, new double[] {1, 2, 3});
+  private static final DoubleTimeSeries<?> TS1 = ImmutableInstantDoubleTimeSeries.of(new long[] {2}, new double[] {1});
+  private static final DoubleTimeSeries<?> TS2 = ImmutableInstantDoubleTimeSeries.of(new long[] {2, 3}, new double[] {1, 2});
+  private static final DoubleTimeSeries<?> TS3 = ImmutableInstantDoubleTimeSeries.of(new long[] {4, 5}, new double[] {1, 2});
+  private static final DoubleTimeSeries<?> TS4 = ImmutableInstantDoubleTimeSeries.of(new long[] {4, 5, 6}, new double[] {1, 2, 3});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS1() {
@@ -37,12 +36,12 @@ public class CovarianceCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS1() {
-    CALCULATOR.testTimeSeries(FastArrayIntDoubleTimeSeries.EMPTY_SERIES, TS1);
+    CALCULATOR.testTimeSeries(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES, TS1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS2() {
-    CALCULATOR.testTimeSeries(TS2, FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
+    CALCULATOR.testTimeSeries(TS2, ImmutableInstantDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

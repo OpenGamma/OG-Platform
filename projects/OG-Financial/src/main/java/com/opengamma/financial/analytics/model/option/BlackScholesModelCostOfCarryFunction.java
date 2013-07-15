@@ -9,21 +9,23 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -31,16 +33,12 @@ import com.opengamma.util.time.Expiry;
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
  */
+@Deprecated
 public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getSecurity() instanceof EquityOptionSecurity;
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
   }
 
   @Override
@@ -56,7 +54,8 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
     }
     final String curveName = curveNames.iterator().next();
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, option.getCurrency(), ValueProperties.with(ValuePropertyNames.CURVE, curveName).get()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(option.getCurrency()),
+        ValueProperties.with(ValuePropertyNames.CURVE, curveName).get()));
   }
 
   @Override
@@ -67,7 +66,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final Object curveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (curveObject == null) {
@@ -75,7 +74,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
     }
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     final Expiry expiry = option.getExpiry();
-    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry());
     final double b = curve.getInterestRate(t);
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE,
         desiredValues.iterator().next().getConstraint(ValuePropertyNames.CURVE)).get()), b));

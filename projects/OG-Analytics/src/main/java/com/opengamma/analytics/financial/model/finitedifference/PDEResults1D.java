@@ -23,4 +23,6 @@ public interface PDEResults1D {
 
   PDEGrid1D getGrid();
 
+  double[] getTerminalResults();
+
 }

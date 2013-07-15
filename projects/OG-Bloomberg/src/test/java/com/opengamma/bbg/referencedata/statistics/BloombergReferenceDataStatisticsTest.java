@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -20,7 +21,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class BloombergReferenceDataStatisticsTest {
 
-  @Test(groups = "unit")
+  @Test(groups = TestGroup.UNIT)
   public void singleTest() {
     MapBloombergReferenceDataStatistics stats = new MapBloombergReferenceDataStatistics();
     stats.recordStatistics(Collections.singleton("1"), Collections.singleton("A"));
@@ -43,7 +44,7 @@ public class BloombergReferenceDataStatisticsTest {
     assertEquals(2, snap2.getLookupsBySecurity().get(0).getFirst().longValue());
   }
 
-  @Test(groups = "unit")
+  @Test(groups = TestGroup.UNIT)
   public void multiTest() {
     MapBloombergReferenceDataStatistics stats = new MapBloombergReferenceDataStatistics();
     stats.recordStatistics(Collections.singleton("1"), Collections.singleton("A"));
@@ -72,7 +73,7 @@ public class BloombergReferenceDataStatisticsTest {
     assertPairEquals(Pair.of(1, "A"), snap2.getLookupsByField().get(1));
   }
 
-  @Test(groups = {"unit", "slow"})
+  @Test(groups = TestGroup.UNIT_SLOW)
   public void bigTest() throws InterruptedException {
     assertSmall(new Supplier<MapBloombergReferenceDataStatistics>() {
       @Override
@@ -82,7 +83,7 @@ public class BloombergReferenceDataStatisticsTest {
     }, 10 * 1024 * 1024, "Stats");
   }
 
-  @Test(groups = {"unit", "slow"})
+  @Test(groups = TestGroup.INTEGRATION)  // mark as integration because its a bit random
   public void bigIncrementTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
     assertSmall(new Supplier<Object>() {
@@ -94,7 +95,7 @@ public class BloombergReferenceDataStatisticsTest {
     }, 1 * 1024 * 1024, "Increment");
   }
 
-  @Test(groups = {"unit", "slow"})
+  @Test(groups = TestGroup.INTEGRATION)  // mark as integration because its a bit random
   public void bigSnapshotTest() throws InterruptedException {
     final MapBloombergReferenceDataStatistics stats = getBigStats();
     assertSmall(new Supplier<Snapshot>() {
@@ -184,8 +185,8 @@ public class BloombergReferenceDataStatisticsTest {
   }
 
   private <TValue> void assertPairEquals(Pair<? extends Number, TValue> expected, Pair<? extends Number, TValue> actual) {
-    assertEquals(expected.getKey().longValue(), actual.getKey().longValue());
-    assertEquals(expected.getValue(), actual.getValue());
+    assertEquals(expected.getFirst().longValue(), actual.getFirst().longValue());
+    assertEquals(expected.getSecond(), actual.getSecond());
   }
 
 }

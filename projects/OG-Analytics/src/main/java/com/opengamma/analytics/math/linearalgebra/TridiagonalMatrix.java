@@ -10,6 +10,8 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.Matrix;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class representing a tridiagonal matrix:
@@ -25,7 +27,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * \end{align*}
  * $$
  */
-public class TridiagonalMatrix {
+public class TridiagonalMatrix implements Matrix<Double> {
   private final double[] _a;
   private final double[] _b;
   private final double[] _c;
@@ -49,24 +51,48 @@ public class TridiagonalMatrix {
   }
 
   /**
+   * Direct access to Diagonal Data
+   * @return An array of the values of the diagonal
+   */
+  public double[] getDiagonalData() {
+    return _a;
+  }
+
+  /**
    * @return An array of the values of the diagonal
    */
   public double[] getDiagonal() {
-    return _a;
+    return Arrays.copyOf(_a, _a.length);
+  }
+
+  /**
+   *  Direct access to upper sub-Diagonal Data
+   * @return An array of the values of the upper sub-diagonal
+   */
+  public double[] getUpperSubDiagonalData() {
+    return _b;
   }
 
   /**
    * @return An array of the values of the upper sub-diagonal
    */
   public double[] getUpperSubDiagonal() {
-    return _b;
+    return Arrays.copyOf(_b, _b.length);
+  }
+
+  /**
+   * Direct access to lower sub-Diagonal Data
+   * @return An array of the values of the lower sub-diagonal
+   */
+  public double[] getLowerSubDiagonalData() {
+    return _c;
   }
 
   /**
    * @return An array of the values of the lower sub-diagonal
    */
   public double[] getLowerSubDiagonal() {
-    return _c;
+    return Arrays.copyOf(_c, _c.length);
   }
 
   /**
@@ -128,4 +154,27 @@ public class TridiagonalMatrix {
     return true;
   }
 
+  @Override
+  public int getNumberOfElements() {
+    return _a.length;
+  }
+
+  @Override
+  public Double getEntry(int... index) {
+    ArgumentChecker.notNull(index, "indices");
+    final int n = _a.length;
+    final int i = index[0];
+    final int j = index[1];
+    ArgumentChecker.isTrue(i >= 0 && i < n, "x index {} out of range. Matrix has {} rows", index[0], n);
+    ArgumentChecker.isTrue(j >= 0 && j < n, "y index {} out of range. Matrix has {} columns", index[1], n);
+    if (i == j) {
+      return _a[i];
+    } else if ((i - 1) == j) {
+      return _c[i - 1];
+    } else if ((i + 1) == j) {
+      return _b[i];
+    }
+
+    return 0.0;
+  }
 }

@@ -14,13 +14,15 @@ import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.timeseries.date.ArrayDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ResultConverterCacheTest {
-  
+
   @Test
   public void get() {
     ResultConverterCache cache = new ResultConverterCache();
@@ -37,7 +39,7 @@ public class ResultConverterCacheTest {
     assertNotNull(converter);
     assertTrue(converter instanceof DoubleMatrix2DConverter);
     
-    converter = cache.getConverter(new ArrayDateDoubleTimeSeries());
+    converter = cache.getConverter(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     assertNotNull(converter);
     assertTrue(converter instanceof TimeSeriesConverter);
     

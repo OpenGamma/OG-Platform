@@ -7,7 +7,6 @@ package com.opengamma.web.bundle;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,10 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test YUI Compression.
  */
-@Test
+@Test(groups = TestGroup.UNIT, enabled = false)
 public class YUIBundleCompressorTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YUIBundleCompressorTest.class);
@@ -62,12 +63,13 @@ public class YUIBundleCompressorTest {
     String uncompressed = IOUtils.toString(fragment.getUri());
     assertNotNull(uncompressed);
     s_logger.debug("uncompressed length {}", uncompressed.length());
+    assertEquals(853389, uncompressed.length());
 
     String compressed = _compressor.compressBundle(_bundle);
     assertNotNull(compressed);
     s_logger.debug("compressed length {}", compressed.length());
+    assertEquals(492128, compressed.length());
 
-    assertTrue(uncompressed.length() > compressed.length());
   }
 
 }

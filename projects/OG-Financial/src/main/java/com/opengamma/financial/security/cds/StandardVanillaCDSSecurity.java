@@ -7,8 +7,6 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,7 +16,10 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -37,6 +38,10 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   private static final long serialVersionUID = 1L;
 
   /**
+   * The security type
+   */
+  public static final String SECURITY_TYPE = "STANDARD_VANILLA_CDS";
+  /**
    * The premium leg coupon in basis points.
    */
   @PropertyDefinition(validate = "notNull")
@@ -46,24 +51,31 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
    * The settlement date.
    */
   @PropertyDefinition(validate = "notNull")
-  private ZonedDateTime _settlementDate;
+  private ZonedDateTime _cashSettlementDate;
+
+  /**
+   * Whether to adjust the cash settlement date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private boolean _adjustCashSettlementDate;
 
   StandardVanillaCDSSecurity() { // for fudge
-    super();
+    super(SECURITY_TYPE);
   }
 
   public StandardVanillaCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
-      final String debtSeniority, final String restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
+      final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
       final boolean protectionStart, final double quotedSpread, final InterestRateNotional upfrontAmount, final double coupon,
-      final ZonedDateTime settlementDate) {
+      final ZonedDateTime cashSettlementDate, final boolean adjustCashSettlementDate) {
     super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium,
-        protectionStart, quotedSpread, upfrontAmount);
-    setQuotedSpread(quotedSpread);
-    setUpfrontAmount(upfrontAmount);
+        protectionStart, quotedSpread, upfrontAmount, SECURITY_TYPE);
+    setCoupon(coupon);
+    setCashSettlementDate(cashSettlementDate);
+    setAdjustCashSettlementDate(adjustCashSettlementDate);
   }
 
   @Override
@@ -94,8 +106,10 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
     switch (propertyName.hashCode()) {
       case -1354573786:  // coupon
         return getCoupon();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
+      case 487875210:  // cashSettlementDate
+        return getCashSettlementDate();
+      case -1224855431:  // adjustCashSettlementDate
+        return isAdjustCashSettlementDate();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -106,8 +120,11 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
       case -1354573786:  // coupon
         setCoupon((Double) newValue);
         return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTime) newValue);
+      case 487875210:  // cashSettlementDate
+        setCashSettlementDate((ZonedDateTime) newValue);
+        return;
+      case -1224855431:  // adjustCashSettlementDate
+        setAdjustCashSettlementDate((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -116,7 +133,8 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_coupon, "coupon");
-    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
+    JodaBeanUtils.notNull(_cashSettlementDate, "cashSettlementDate");
+    JodaBeanUtils.notNull(_adjustCashSettlementDate, "adjustCashSettlementDate");
     super.validate();
   }
 
@@ -128,7 +146,8 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       StandardVanillaCDSSecurity other = (StandardVanillaCDSSecurity) obj;
       return JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
-          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getCashSettlementDate(), other.getCashSettlementDate()) &&
+          JodaBeanUtils.equal(isAdjustCashSettlementDate(), other.isAdjustCashSettlementDate()) &&
           super.equals(obj);
     }
     return false;
@@ -138,7 +157,8 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCashSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustCashSettlementDate());
     return hash ^ super.hashCode();
   }
 
@@ -173,25 +193,51 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
    * Gets the settlement date.
    * @return the value of the property, not null
    */
-  public ZonedDateTime getSettlementDate() {
-    return _settlementDate;
+  public ZonedDateTime getCashSettlementDate() {
+    return _cashSettlementDate;
   }
 
   /**
    * Sets the settlement date.
-   * @param settlementDate  the new value of the property, not null
+   * @param cashSettlementDate  the new value of the property, not null
    */
-  public void setSettlementDate(ZonedDateTime settlementDate) {
-    JodaBeanUtils.notNull(settlementDate, "settlementDate");
-    this._settlementDate = settlementDate;
+  public void setCashSettlementDate(ZonedDateTime cashSettlementDate) {
+    JodaBeanUtils.notNull(cashSettlementDate, "cashSettlementDate");
+    this._cashSettlementDate = cashSettlementDate;
   }
 
   /**
-   * Gets the the {@code settlementDate} property.
+   * Gets the the {@code cashSettlementDate} property.
    * @return the property, not null
    */
-  public final Property<ZonedDateTime> settlementDate() {
-    return metaBean().settlementDate().createProperty(this);
+  public final Property<ZonedDateTime> cashSettlementDate() {
+    return metaBean().cashSettlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether to adjust the cash settlement date.
+   * @return the value of the property, not null
+   */
+  public boolean isAdjustCashSettlementDate() {
+    return _adjustCashSettlementDate;
+  }
+
+  /**
+   * Sets whether to adjust the cash settlement date.
+   * @param adjustCashSettlementDate  the new value of the property, not null
+   */
+  public void setAdjustCashSettlementDate(boolean adjustCashSettlementDate) {
+    JodaBeanUtils.notNull(adjustCashSettlementDate, "adjustCashSettlementDate");
+    this._adjustCashSettlementDate = adjustCashSettlementDate;
+  }
+
+  /**
+   * Gets the the {@code adjustCashSettlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> adjustCashSettlementDate() {
+    return metaBean().adjustCashSettlementDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -210,17 +256,23 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
     private final MetaProperty<Double> _coupon = DirectMetaProperty.ofReadWrite(
         this, "coupon", StandardVanillaCDSSecurity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code settlementDate} property.
+     * The meta-property for the {@code cashSettlementDate} property.
      */
-    private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
-        this, "settlementDate", StandardVanillaCDSSecurity.class, ZonedDateTime.class);
+    private final MetaProperty<ZonedDateTime> _cashSettlementDate = DirectMetaProperty.ofReadWrite(
+        this, "cashSettlementDate", StandardVanillaCDSSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code adjustCashSettlementDate} property.
+     */
+    private final MetaProperty<Boolean> _adjustCashSettlementDate = DirectMetaProperty.ofReadWrite(
+        this, "adjustCashSettlementDate", StandardVanillaCDSSecurity.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "coupon",
-        "settlementDate");
+        "cashSettlementDate",
+        "adjustCashSettlementDate");
 
     /**
      * Restricted constructor.
@@ -233,8 +285,10 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
       switch (propertyName.hashCode()) {
         case -1354573786:  // coupon
           return _coupon;
-        case -295948169:  // settlementDate
-          return _settlementDate;
+        case 487875210:  // cashSettlementDate
+          return _cashSettlementDate;
+        case -1224855431:  // adjustCashSettlementDate
+          return _adjustCashSettlementDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -264,11 +318,19 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
     }
 
     /**
-     * The meta-property for the {@code settlementDate} property.
+     * The meta-property for the {@code cashSettlementDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZonedDateTime> settlementDate() {
-      return _settlementDate;
+    public final MetaProperty<ZonedDateTime> cashSettlementDate() {
+      return _cashSettlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code adjustCashSettlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> adjustCashSettlementDate() {
+      return _adjustCashSettlementDate;
     }
 
   }

@@ -6,9 +6,13 @@
 package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeAPVLEquityOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeCommodityFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURIBORFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURODOLLARFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEquityIndexDividendFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEquityIndexFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeExpectedAAPLEquitySecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeFxFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeInterestRateFuture;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeLIBORFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeSPXIndexOptionSecurity;
@@ -23,17 +27,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.bbg.referencedata.ReferenceDataProvider;
+import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
+import com.opengamma.bbg.security.BloombergSecurityProvider;
+import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.DefaultSecurityLoader;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
@@ -42,6 +46,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -65,65 +70,84 @@ import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
+import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.provider.security.SecurityProvider;
+import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles;
+import com.opengamma.util.db.DbConnectorFactoryBean;
+import com.opengamma.util.db.HibernateMappingFiles;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
-public class BloombergSecurityLoaderTest extends DbTest {
+@Test(groups = TestGroup.INTEGRATION, singleThreaded = true)
+public class BloombergSecurityLoaderTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityLoaderTest.class);
 
-  private ConfigurableApplicationContext _context;
-  private SecurityMaster _securityMaster;
-  private BloombergSecurityLoader _securityLoader;
+  private BloombergReferenceDataProvider _bbgProvider;
+  private DbSecurityMaster _securityMaster;
+  private DefaultSecurityLoader _securityLoader;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public BloombergSecurityLoaderTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("/com/opengamma/bbg/loader/bloomberg-security-loader-test-context.xml");
-    context.start();
-    _context = context;
-    SecurityProvider secProvider = _context.getBean("bloombergSecurityProvider", SecurityProvider.class);
-    _securityMaster = _context.getBean(getDatabaseType() + "DbSecurityMaster", SecurityMaster.class);
-    _securityLoader = new BloombergSecurityLoader(secProvider, _securityMaster);
+  protected Class<?> dbConnectorScope() {
+    return BloombergSecurityLoaderTest.class;
   }
 
   @Override
-  @AfterMethod
-  public void tearDown() throws Exception {
-    if (_context != null) {
-      _context.stop();
-      _context = null;
+  protected void initDbConnectorFactory(DbConnectorFactoryBean factory) {
+    factory.setHibernateMappingFiles(new HibernateMappingFiles[] {new HibernateSecurityMasterFiles() });
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUpClass() {
+    _bbgProvider = BloombergTestUtils.getBloombergReferenceDataProvider();
+    _bbgProvider.start();
+    ReferenceDataProvider cachingProvider = BloombergTestUtils.getMongoCachingReferenceDataProvider(_bbgProvider);
+    ExchangeDataProvider exchangeProvider = DefaultExchangeDataProvider.getInstance();
+    BloombergSecurityProvider secProvider = new BloombergSecurityProvider(cachingProvider, exchangeProvider );
+    _securityMaster = new DbSecurityMaster(getDbConnector());
+    _securityMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
+    _securityLoader = new DefaultSecurityLoader(_securityMaster, secProvider);
+  }
+
+  @Override
+  protected void doTearDownClass() {
+    if (_bbgProvider != null) {
+      _bbgProvider.stop();
+      _bbgProvider = null;
     }
     _securityMaster = null;
-    super.tearDown();
   }
 
   //-------------------------------------------------------------------------
@@ -131,7 +155,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
     //test we can load security from bloomberg
     ExternalIdBundle identifierBundle = expected.getExternalIdBundle();
 
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurity(Collections.singleton(identifierBundle));
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurities(Collections.singleton(identifierBundle));
     assertNotNull(loadedSecurities);
     assertEquals(1, loadedSecurities.size());
     UniqueId uid = loadedSecurities.get(identifierBundle);
@@ -170,6 +194,12 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
       @Override
       public Void visitCashSecurity(CashSecurity security) {
+        assertSecurity();
+        return null;
+      }
+
+      @Override
+      public Void visitCashFlowSecurity(CashFlowSecurity security) {
         assertSecurity();
         return null;
       }
@@ -259,10 +289,10 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
           @Override
           public Void visitBondFutureSecurity(BondFutureSecurity security) {
-            assertTrue(fromSecMaster instanceof BondFutureSecurity);
+            assertTrue("Security is instance of: " + fromSecMaster.getClass().getName(), fromSecMaster instanceof BondFutureSecurity);
             BondFutureSecurity actual = (BondFutureSecurity) fromSecMaster;
 
-            assertEquals(new HashSet<BondFutureDeliverable>(security.getBasket()), new HashSet<BondFutureDeliverable>(actual.getBasket()));
+            assertEquals(new HashSet<>(security.getBasket()), new HashSet<>(actual.getBasket()));
 
             assertEquals(security.getContractCategory(), actual.getContractCategory());
             assertEquals(security.getCurrency(), actual.getCurrency());
@@ -450,10 +480,9 @@ public class BloombergSecurityLoaderTest extends DbTest {
         return null;           
       }
 
-
       @Override
       public Void visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
-        assertTrue(fromSecMaster instanceof IRFutureOptionSecurity);
+        assertTrue(fromSecMaster instanceof CommodityFutureOptionSecurity);
         CommodityFutureOptionSecurity actual = (CommodityFutureOptionSecurity) fromSecMaster;
 
         assertEquals(security.getCurrency(), actual.getCurrency());
@@ -479,10 +508,88 @@ public class BloombergSecurityLoaderTest extends DbTest {
       }
 
       @Override
-      public Void visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security) {
-        throw new NotImplementedException();
+      public Void visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
+        assertTrue(fromSecMaster instanceof FxFutureOptionSecurity);
+        FxFutureOptionSecurity actual = (FxFutureOptionSecurity) fromSecMaster;
+
+        assertEquals(security.getCurrency(), actual.getCurrency());
+
+        assertEquals(security.getTradingExchange(), actual.getTradingExchange());
+        assertEquals(security.getSettlementExchange(), actual.getSettlementExchange());
+        assertEquals(security.getExerciseType(), actual.getExerciseType());
+        assertEquals(security.getExpiry(), actual.getExpiry());
+        assertEquals(security.getOptionType(), actual.getOptionType());
+        assertEquals(security.getPointValue(), actual.getPointValue());
+        assertEquals(security.getStrike(), actual.getStrike());
+        assertEquals(security.getUnderlyingId(), actual.getUnderlyingId());
+
+        assertEquals(security.getExternalIdBundle(), actual.getExternalIdBundle());
+        assertEquals(security.getName(), actual.getName());
+        assertEquals(security.getSecurityType(), actual.getSecurityType());
+        assertNotNull(actual.getUniqueId());
+
+        //test underlying is loaded as well
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        assertUnderlyingIsLoaded(underlyingIdentifier);
+        return null;
       }
-      
+
+      @Override
+      public Void visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security) {
+
+        assertTrue(fromSecMaster instanceof EquityIndexDividendFutureOptionSecurity);
+        EquityIndexDividendFutureOptionSecurity actual = (EquityIndexDividendFutureOptionSecurity) fromSecMaster;
+
+        assertEquals(security.getCurrency(), actual.getCurrency());
+
+        assertEquals(security.getExchange(), actual.getExchange());
+        assertEquals(security.getExerciseType(), actual.getExerciseType());
+        assertEquals(security.getExpiry(), actual.getExpiry());
+        assertEquals(security.getOptionType(), actual.getOptionType());
+        assertEquals(security.getPointValue(), actual.getPointValue());
+        assertEquals(security.getStrike(), actual.getStrike());
+        assertEquals(security.isMargined(), actual.isMargined());
+        assertEquals(security.getUnderlyingId(), actual.getUnderlyingId());
+
+        assertEquals(security.getExternalIdBundle(), actual.getExternalIdBundle());
+        assertEquals(security.getName(), actual.getName());
+        assertEquals(security.getSecurityType(), actual.getSecurityType());
+        assertNotNull(actual.getUniqueId());
+
+        //test underlying is loaded as well
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        assertUnderlyingIsLoaded(underlyingIdentifier);
+        return null;
+      }
+
+      @Override
+      public Void visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
+
+        assertTrue(fromSecMaster instanceof EquityIndexFutureOptionSecurity);
+        EquityIndexFutureOptionSecurity actual = (EquityIndexFutureOptionSecurity) fromSecMaster;
+
+        assertEquals(security.getCurrency(), actual.getCurrency());
+
+        assertEquals(security.getExchange(), actual.getExchange());
+        assertEquals(security.getExerciseType(), actual.getExerciseType());
+        assertEquals(security.getExpiry(), actual.getExpiry());
+        assertEquals(security.getOptionType(), actual.getOptionType());
+        assertEquals(security.getPointValue(), actual.getPointValue());
+        assertEquals(security.getStrike(), actual.getStrike());
+        assertEquals(security.isMargined(), actual.isMargined());
+        assertEquals(security.getUnderlyingId(), actual.getUnderlyingId());
+
+        assertEquals(security.getExternalIdBundle(), actual.getExternalIdBundle());
+        assertEquals(security.getName(), actual.getName());
+        assertEquals(security.getSecurityType(), actual.getSecurityType());
+        assertNotNull(actual.getUniqueId());
+
+        //test underlying is loaded as well
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        assertUnderlyingIsLoaded(underlyingIdentifier);
+        return null;
+      }
+
       @Override
       public Void visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
         assertSecurity();
@@ -532,58 +639,66 @@ public class BloombergSecurityLoaderTest extends DbTest {
         return null;
       }
 
-	@Override
-	public Void visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
-		assertSecurity();
-		return null;
-	}
+    	@Override
+    	public Void visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
+    		assertSecurity();
+    		return null;
+    	}
 
-	@Override
-	public Void visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
-		assertSecurity();
-		return null;
-	}
+    	@Override
+    	public Void visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
+    		assertSecurity();
+    		return null;
+    	}
 
-	@Override
-	public Void visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
-		assertSecurity();
-		return null;
-	}
-
+    	@Override
+    	public Void visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
+    		assertSecurity();
+    		return null;
+    	}
     });
-
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityOptionSecurity() {
     assertLoadAndSaveSecurity(makeAPVLEquityOptionSecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityIndexOptionSecurity() {
     assertLoadAndSaveSecurity(makeSPXIndexOptionSecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
+  public void testEquityIndexFutureOptionSecurity() {
+    assertLoadAndSaveSecurity(makeEquityIndexFutureOptionSecurity());
+  }
+
+  public void testEquityIndexDividendFutureOptionSecurity() {
+    assertLoadAndSaveSecurity(makeEquityIndexDividendFutureOptionSecurity());
+  }
+
   public void testEquitySecurity() {
     assertLoadAndSaveSecurity(makeExpectedAAPLEquitySecurity());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testInterestRateFutureSecurity() {
     assertLoadAndSaveSecurity(makeInterestRateFuture());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testBondFutureSecurity() {
     assertLoadAndSaveSecurity(makeUSBondFuture());
   }
 
-  @Test(groups={"bbgSecurityLoaderTests"})
   public void testIRFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeEURODOLLARFutureOptionSecurity());
     assertLoadAndSaveSecurity(makeLIBORFutureOptionSecurity());
     assertLoadAndSaveSecurity(makeEURIBORFutureOptionSecurity());
+  }
+
+  public void testCommodityFutureOptionSecurity() {
+    assertLoadAndSaveSecurity(makeCommodityFutureOptionSecurity());
+  }
+
+  public void testFxFutureOptionSecurity() {
+    assertLoadAndSaveSecurity(makeFxFutureOptionSecurity());
   }
 
   private void assertUnderlyingIsLoaded(final ExternalId underlyingIdentifier) {

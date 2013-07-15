@@ -11,10 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.ArgumentChecker;
@@ -51,7 +50,7 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     }
 
     @Override
-    public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+    public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
       return _underlying.compile(context, atInstant);
     }
 

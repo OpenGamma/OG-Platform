@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Lists;
-import com.opengamma.analytics.financial.equity.DerivativeSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Equity Spot contracts,<p>
  * Equity Forward contracts,<p>
  */
-public final class VarianceSwapSensitivityCalculator extends DerivativeSensitivityCalculator {
+public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSensitivityCalculator {
 
   private static final VarianceSwapSensitivityCalculator INSTANCE = new VarianceSwapSensitivityCalculator();
 
@@ -131,7 +131,7 @@ public final class VarianceSwapSensitivityCalculator extends DerivativeSensitivi
     // 1st arg = Map<String, List<DoublesPair>> curveSensitivities = <curveName, List<(maturity,sensitivity)>>
     final double settlement = swap.getTimeToSettlement();
     final Double sens = calcDiscountRateSensitivity(swap, market);
-    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
 
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();

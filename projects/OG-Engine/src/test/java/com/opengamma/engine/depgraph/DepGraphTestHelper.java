@@ -1,14 +1,17 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
 
-import javax.time.Instant;
+import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -17,6 +20,7 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -24,10 +28,13 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ *
  */
+@Test(groups = TestGroup.UNIT)
 public class DepGraphTestHelper {
 
   private static final String REQUIREMENT_1 = "Req-1";
@@ -65,36 +72,36 @@ public class DepGraphTestHelper {
   private final InMemoryFunctionRepository _functionRepo;
   private final FixedMarketDataAvailabilityProvider _liveDataAvailabilityProvider;
 
-  private DependencyGraphBuilder _builder;
   private int _mockId;
 
   public DepGraphTestHelper() {
     _functionRepo = new InMemoryFunctionRepository();
-    UniqueId targetId = UniqueId.of("Scheme", "Value");
-    _target = new ComputationTarget(targetId);
-    _req1 = new ValueRequirement(REQUIREMENT_1, targetId);
-    _spec1 = new ValueSpecification(_req1, MockFunction.UNIQUE_ID);
+    final UniqueId targetId = UniqueId.of("Scheme", "Value");
+    _target = new ComputationTarget(ComputationTargetType.PRIMITIVE, targetId);
+    final ComputationTargetSpecification targetSpec = _target.toSpecification();
+    _req1 = new ValueRequirement(REQUIREMENT_1, targetSpec);
+    _spec1 = new ValueSpecification(REQUIREMENT_1, targetSpec, _req1.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
     _value1 = new ComputedValue(_spec1, 14.2);
-    _req1Foo = new ValueRequirement(REQUIREMENT_1, targetId, ValueProperties.with(TEST_PROPERTY, "Foo").get());
-    _spec1Foo = new ValueSpecification(_req1Foo, MockFunction.UNIQUE_ID);
+    _req1Foo = new ValueRequirement(REQUIREMENT_1, targetSpec, ValueProperties.with(TEST_PROPERTY, "Foo").get());
+    _spec1Foo = new ValueSpecification(REQUIREMENT_1, targetSpec, _req1Foo.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
     _value1Foo = new ComputedValue(_spec1Foo, 14.3);
-    _req1Bar = new ValueRequirement(REQUIREMENT_1, targetId, ValueProperties.with(TEST_PROPERTY, "Bar").get());
-    _spec1Bar = new ValueSpecification (_req1Bar, MockFunction.UNIQUE_ID);
-    _value1Bar = new ComputedValue (_spec1Bar, 9.0);
-    _req1Any = new ValueRequirement(REQUIREMENT_1, targetId, ValueProperties.withAny(TEST_PROPERTY).get());
-    _req2 = new ValueRequirement(REQUIREMENT_2, targetId);
-    _spec2 = new ValueSpecification(_req2, MockFunction.UNIQUE_ID);
+    _req1Bar = new ValueRequirement(REQUIREMENT_1, targetSpec, ValueProperties.with(TEST_PROPERTY, "Bar").get());
+    _spec1Bar = new ValueSpecification(REQUIREMENT_1, targetSpec, _req1Bar.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
+    _value1Bar = new ComputedValue(_spec1Bar, 9.0);
+    _req1Any = new ValueRequirement(REQUIREMENT_1, targetSpec, ValueProperties.withAny(TEST_PROPERTY).get());
+    _req2 = new ValueRequirement(REQUIREMENT_2, targetSpec);
+    _spec2 = new ValueSpecification(REQUIREMENT_2, targetSpec, _req2.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
     _value2 = new ComputedValue(_spec2, 15.5);
-    _req2Beta = new ValueRequirement(REQUIREMENT_2, targetId, ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_PRODUCING_2_BETA).get());
-    _spec2Beta = new ValueSpecification(_req2, FUNCTION_PRODUCING_2_BETA);
+    _req2Beta = new ValueRequirement(REQUIREMENT_2, targetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_PRODUCING_2_BETA).get());
+    _spec2Beta = new ValueSpecification(REQUIREMENT_2, targetSpec, _req2Beta.getConstraints().copy().with(ValuePropertyNames.FUNCTION, FUNCTION_PRODUCING_2_BETA).get());
     _value2Beta = new ComputedValue(_spec2Beta, 31.0);
-    _req2Foo = new ValueRequirement(REQUIREMENT_2, targetId, ValueProperties.with(TEST_PROPERTY, "Foo").get());
-    _spec2Foo = new ValueSpecification(_req2Foo, MockFunction.UNIQUE_ID);
+    _req2Foo = new ValueRequirement(REQUIREMENT_2, targetSpec, ValueProperties.with(TEST_PROPERTY, "Foo").get());
+    _spec2Foo = new ValueSpecification(REQUIREMENT_2, targetSpec, _req2Foo.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
     _value2Foo = new ComputedValue(_spec2Foo, 15.6);
-    _req2Bar = new ValueRequirement(REQUIREMENT_2, targetId, ValueProperties.with(TEST_PROPERTY, "Bar").get());
-    _spec2Bar = new ValueSpecification(_req2Bar, MockFunction.UNIQUE_ID);
+    _req2Bar = new ValueRequirement(REQUIREMENT_2, targetSpec, ValueProperties.with(TEST_PROPERTY, "Bar").get());
+    _spec2Bar = new ValueSpecification(REQUIREMENT_2, targetSpec, _req2Bar.getConstraints().copy().with(ValuePropertyNames.FUNCTION, MockFunction.UNIQUE_ID).get());
     _value2Bar = new ComputedValue(_spec2Bar, 7.8);
-    _req2Any = new ValueRequirement(REQUIREMENT_2, targetId, ValueProperties.withAny(TEST_PROPERTY).get());
+    _req2Any = new ValueRequirement(REQUIREMENT_2, targetSpec, ValueProperties.withAny(TEST_PROPERTY).get());
     _liveDataAvailabilityProvider = new FixedMarketDataAvailabilityProvider();
   }
 
@@ -103,14 +110,14 @@ public class DepGraphTestHelper {
   }
 
   public MockFunction addFunctionProducing1and2() {
-    MockFunction function = new MockFunction(FUNCTION_PRODUCING_1_AND_2, _target);
+    final MockFunction function = new MockFunction(FUNCTION_PRODUCING_1_AND_2, _target);
     function.addResults(Sets.newHashSet(_value1, _value2));
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionRequiring2Producing1() {
-    MockFunction function = new MockFunction(FUNCTION_REQUIRING_2_PRODUCING_1, _target);
+    final MockFunction function = new MockFunction(FUNCTION_REQUIRING_2_PRODUCING_1, _target);
     function.addRequirement(_req2);
     function.addResult(_value1);
     _functionRepo.addFunction(function);
@@ -118,28 +125,28 @@ public class DepGraphTestHelper {
   }
 
   public MockFunction addFunctionProducing2() {
-    MockFunction function = new MockFunction(FUNCTION_PRODUCING_2, _target);
+    final MockFunction function = new MockFunction(FUNCTION_PRODUCING_2, _target);
     function.addResult(_value2);
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionProducing2Beta() {
-    MockFunction function = new MockFunction(FUNCTION_PRODUCING_2_BETA, _target);
+    final MockFunction function = new MockFunction(FUNCTION_PRODUCING_2_BETA, _target);
     function.addResult(_value2Beta);
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionProducing(final ComputedValue result) {
-    MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
+    final MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
     function.addResult(result);
     _functionRepo.addFunction(function);
     return function;
   }
 
   public MockFunction addFunctionRequiringProducing(final ValueRequirement requirement, final ComputedValue result) {
-    MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
+    final MockFunction function = new MockFunction(Integer.toString(_mockId++), _target);
     function.addRequirement(requirement);
     function.addResult(result);
     _functionRepo.addFunction(function);
@@ -147,34 +154,34 @@ public class DepGraphTestHelper {
   }
 
   public void make2AvailableFromLiveData() {
-    _liveDataAvailabilityProvider.addAvailableRequirement(_req2);
+    _liveDataAvailabilityProvider.addAvailableData(new ValueSpecification(_req2.getValueName(), _req2.getTargetReference().getSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION,
+        "LiveData").get()));
   }
 
   public void make2MissingFromLiveData() {
-    _liveDataAvailabilityProvider.addMissingRequirement(_req2);
+    _liveDataAvailabilityProvider.addMissingData(_req2.getTargetReference().getSpecification().getUniqueId(), _req2.getValueName());
   }
 
-  public DependencyGraphBuilder getBuilder(final FunctionPriority prioritizer) {
-    if (_builder == null) {
-      _builder = new DependencyGraphBuilder();
-      _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
-      final FunctionCompilationContext context = new FunctionCompilationContext();
-      final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-      context.setComputationTargetResolver(targetResolver);
-      _builder.setCompilationContext(context);
-      final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
-      compilationService.initialize();
-      final DefaultFunctionResolver resolver;
-      if (prioritizer != null) {
-        resolver = new DefaultFunctionResolver(compilationService, prioritizer);
-      } else {
-        resolver = new DefaultFunctionResolver(compilationService);
-      }
-      _builder.setFunctionResolver(resolver.compile(Instant.now()));
-      targetResolver.addTarget(_target);
-      _builder.setCalculationConfigurationName("testCalcConf");
+  public DependencyGraphBuilder createBuilder(final FunctionPriority prioritizer) {
+    final Instant now = Instant.now();
+    final DependencyGraphBuilder builder = new DependencyGraphBuilder();
+    builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
+    final FunctionCompilationContext context = new FunctionCompilationContext();
+    final ComputationTargetResolver targetResolver = new MapComputationTargetResolver();
+    context.setRawComputationTargetResolver(targetResolver);
+    context.setComputationTargetResolver(targetResolver.atVersionCorrection(VersionCorrection.of(now, now)));
+    builder.setCompilationContext(context);
+    final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
+    compilationService.initialize();
+    final DefaultFunctionResolver resolver;
+    if (prioritizer != null) {
+      resolver = new DefaultFunctionResolver(compilationService, prioritizer);
+    } else {
+      resolver = new DefaultFunctionResolver(compilationService);
     }
-    return _builder;
+    builder.setFunctionResolver(resolver.compile(now));
+    builder.setCalculationConfigurationName("testCalcConf");
+    return builder;
   }
 
   public ComputationTarget getTarget() {
@@ -204,12 +211,12 @@ public class DepGraphTestHelper {
   public ValueRequirement getRequirement1Bar() {
     return _req1Bar;
   }
-  
-  public ValueSpecification getSpecification1Bar () {
+
+  public ValueSpecification getSpecification1Bar() {
     return _spec1Bar;
   }
-  
-  public ComputedValue getValue1Bar () {
+
+  public ComputedValue getValue1Bar() {
     return _value1Bar;
   }
 

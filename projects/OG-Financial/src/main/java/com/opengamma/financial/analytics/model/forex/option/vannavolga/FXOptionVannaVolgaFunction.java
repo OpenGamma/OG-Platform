@@ -19,10 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -37,10 +36,11 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -48,11 +48,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -76,15 +77,7 @@ public abstract class FXOptionVannaVolgaFunction extends AbstractFunction.NonCom
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof FXOptionSecurity;
+    return FinancialSecurityTypes.FX_OPTION_SECURITY;
   }
 
   @Override
@@ -143,11 +136,11 @@ public abstract class FXOptionVannaVolgaFunction extends AbstractFunction.NonCom
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ValueRequirement putFundingCurve = getCurveRequirement(putCurrency, putCurveName, putCurveCalculationConfig);
-    final ValueRequirement callFundingCurve = getCurveRequirement(callCurrency, callCurveName, callCurveCalculationConfig);
+    final ValueRequirement putFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfig);
+    final ValueRequirement callFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(callCurrency), callCurveName, callCurveCalculationConfig);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair);
+    final ValueRequirement spotRequirement = ConventionBasedFXRateFunction.getSpotRateRequirement(currencyPair);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId());
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement, pairQuoteRequirement);
   }
@@ -167,9 +160,9 @@ public abstract class FXOptionVannaVolgaFunction extends AbstractFunction.NonCom
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
-      return new String[] {fullPutCurveName, fullCallCurveName};
+      return new String[] {fullPutCurveName, fullCallCurveName };
     }
-    return new String[] {fullCallCurveName, fullPutCurveName};
+    return new String[] {fullCallCurveName, fullPutCurveName };
   }
 
   protected InstrumentDerivative getDerivative(final FinancialSecurity security, final String[] allCurveNames, final CurrencyPairs baseQuotePairs, final ZonedDateTime now) {
@@ -195,7 +188,7 @@ public abstract class FXOptionVannaVolgaFunction extends AbstractFunction.NonCom
     }
     final SmileDeltaParameters[] surface = new SmileDeltaParameters[allSmiles.getNumberExpiration()];
     final int atmIndex = (allSmiles.getNumberStrike() - 1) / 2;
-    final double[] deltas = {delta};
+    final double[] deltas = {delta };
     for (int i = 0; i < allSmiles.getNumberExpiration(); i++) {
       final SmileDeltaParameters parameters = allSmiles.getSmileForTime(i);
       final double timeToExpiration = parameters.getTimeToExpiry();
@@ -226,11 +219,11 @@ public abstract class FXOptionVannaVolgaFunction extends AbstractFunction.NonCom
     if (baseQuotePair.getBase().equals(putCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
-      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
+      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve };
       curveCurrency.put(allCurveNames[0], putCurrency);
       curveCurrency.put(allCurveNames[1], callCurrency);
     } else {
-      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve};
+      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve };
       ccy1 = callCurrency;
       ccy2 = putCurrency;
       curveCurrency.put(allCurveNames[1], putCurrency);

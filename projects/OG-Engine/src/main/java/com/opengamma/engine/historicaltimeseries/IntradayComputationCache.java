@@ -7,11 +7,11 @@ package com.opengamma.engine.historicaltimeseries;
 
 import java.util.Map;
 
-import javax.time.Duration;
+import org.threeten.bp.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 
 /**
  * Cache storing historical values while the engine is running.
@@ -66,7 +66,7 @@ public interface IntradayComputationCache {
    *  null if no values are found
    * @throws IllegalArgumentException if the given resolution has not been set up
    */
-  DateTimeDoubleTimeSeries getValue(
+  ZonedDateTimeDoubleTimeSeries getValue(
       String viewName, 
       String calcConf, 
       ValueSpecification specification, 

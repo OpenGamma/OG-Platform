@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.instrument.payment;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -31,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests the constructors and equal/hash for CouponFixedDefinition.
  */
 public class CouponFixedDefinitionTest {
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 5);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 5);
@@ -42,8 +41,8 @@ public class CouponFixedDefinitionTest {
   private static final ZonedDateTime FAKE_DATE = DateUtils.getUTCDate(0, 1, 1);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BD_CONVENTION = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(6), 0, CALENDAR, DAY_COUNT, BD_CONVENTION, false);
-  private static final CouponFloatingDefinition COUPON = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE, INDEX);
+  private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(6), 0, DAY_COUNT, BD_CONVENTION, false);
+  private static final CouponFloatingDefinition COUPON = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE, INDEX, CALENDAR);
   private static final CouponFixedDefinition FIXED_COUPON = new CouponFixedDefinition(COUPON, RATE);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27); //For conversion to derivative
@@ -61,12 +60,12 @@ public class CouponFixedDefinitionTest {
 
   @Test
   public void fromGeneratorDeposit() {
-    GeneratorDeposit generator = new USDDeposit(CALENDAR);
-    Period tenor = Period.ofMonths(3);
-    CouponFixedDefinition cpnFixed = CouponFixedDefinition.from(ACCRUAL_START_DATE, tenor, generator, NOTIONAL, RATE);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, tenor, generator.getBusinessDayConvention(), CALENDAR, generator.isEndOfMonth());
-    double accrual = generator.getDayCount().getDayCountFraction(ACCRUAL_START_DATE, endDate);
-    CouponFixedDefinition cpnExpected = new CouponFixedDefinition(generator.getCurrency(), endDate, ACCRUAL_START_DATE, endDate, accrual, NOTIONAL, RATE);
+    final GeneratorDeposit generator = new USDDeposit(CALENDAR);
+    final Period tenor = Period.ofMonths(3);
+    final CouponFixedDefinition cpnFixed = CouponFixedDefinition.from(ACCRUAL_START_DATE, tenor, generator, NOTIONAL, RATE);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, tenor, generator.getBusinessDayConvention(), CALENDAR, generator.isEndOfMonth());
+    final double accrual = generator.getDayCount().getDayCountFraction(ACCRUAL_START_DATE, endDate);
+    final CouponFixedDefinition cpnExpected = new CouponFixedDefinition(generator.getCurrency(), endDate, ACCRUAL_START_DATE, endDate, accrual, NOTIONAL, RATE);
     assertEquals("CouponFixedDefinition: from deposit generator", cpnExpected, cpnFixed);
   }
 

@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
 import java.util.Collections;
@@ -18,7 +17,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Smi
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -28,8 +27,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 
 /**
  *
@@ -39,7 +37,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final Object interpolatorObject = inputs.getValue(getInterpolatorRequirement(target, desiredValue));
+    final Object interpolatorObject = inputs.getValue(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR);
     if (interpolatorObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface interpolator");
     }
@@ -52,16 +50,6 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
   }
 
   @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && isCorrectIdType(target);
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties));
@@ -70,7 +58,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> forwardCurveCalculationMethods = constraints.getValues(CURVE_CALCULATION_METHOD);
+    final Set<String> forwardCurveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
       return null;
     }
@@ -89,34 +77,51 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     return Sets.newHashSet(forwardCurveRequirement, volatilitySurfaceRequirement, interpolatorRequirement);
   }
 
-  protected abstract boolean isCorrectIdType(final ComputationTarget target);
-
+  /**
+   * Gets the data in a form that the analytics library can understand
+   * @param inputs The inputs
+   * @return The data
+   */
   protected abstract SmileSurfaceDataBundle getData(final FunctionInputs inputs);
 
+  /**
+   * Gets the instrument type supported by the function
+   * @return The instrument type
+   */
   protected abstract String getInstrumentType();
 
-  protected abstract String getSurfaceQuoteUnits();
-
-  protected abstract String getSurfaceQuoteType();
-
+  /**
+   * Gets general result properties
+   * @return The result properties
+   */
   protected abstract ValueProperties getResultProperties();
 
+  /**
+   * Gets result properties with the constraints set
+   * @param desiredValue The desired value
+   * @return The result properties
+   */
   protected abstract ValueProperties getResultProperties(final ValueRequirement desiredValue);
 
-  protected abstract ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue);
-
-  protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
-    final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        ValueProperties.builder()
-        .with(SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, getSurfaceQuoteType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, getSurfaceQuoteUnits()).get());
-    return volDataRequirement;
-  }
-
   private ValueRequirement getInterpolatorRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, target.toSpecification(),
+    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, ComputationTargetSpecification.NULL,
         BlackVolatilitySurfacePropertyUtils.addVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue).get());
   }
+
+  /**
+   * Gets the forward curve requirement
+   * @param target The target
+   * @param desiredValue The desired value
+   * @return The forward curve requirement
+   */
+  protected abstract ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue);
+
+  /**
+   * Gets the volatility surface data requirement
+   * @param target The target
+   * @param surfaceName The surface name
+   * @return The volatility surface data requirement
+   */
+  protected abstract ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName);
+
 }

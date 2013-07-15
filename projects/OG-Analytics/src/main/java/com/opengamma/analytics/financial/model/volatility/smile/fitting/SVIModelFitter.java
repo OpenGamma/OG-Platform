@@ -33,25 +33,30 @@ public class SVIModelFitter extends SmileModelFitter<SVIFormulaData> {
     DEFAULT_TRANSFORMS[4] = new NullTransform(); //m
   }
 
-  public SVIModelFitter(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols,
-      final double[] error, VolatilityFunctionProvider<SVIFormulaData> model) {
+  public SVIModelFitter(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols, final double[] error,
+      final VolatilityFunctionProvider<SVIFormulaData> model) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start) {
-    BitSet fixed = new BitSet();
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start) {
+    final BitSet fixed = new BitSet(5);
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start, BitSet fixed) {
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed) {
     return new UncoupledParameterTransforms(start, DEFAULT_TRANSFORMS, fixed);
   }
 
   @Override
-  protected SVIFormulaData toSmileModelData(DoubleMatrix1D modelParameters) {
+  protected SVIFormulaData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new SVIFormulaData(modelParameters.getData());
+  }
+
+  @Override
+  protected DoubleMatrix1D getMaximumStep() {
+    return null;
   }
 
 }

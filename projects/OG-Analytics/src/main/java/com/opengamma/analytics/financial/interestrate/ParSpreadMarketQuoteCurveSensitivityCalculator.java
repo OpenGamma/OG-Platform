@@ -19,10 +19,12 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCou
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.util.ArgumentChecker;
@@ -32,7 +34,7 @@ import com.opengamma.util.money.Currency;
  * Compute the sensitivity of the spread to the curve; the spread is the number to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "spread" will depend of each instrument.
  */
-public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
+public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -64,15 +66,9 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUTURES_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
-
-  @Override
-  public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
 
   //     -----     Deposit     -----
 
@@ -103,11 +99,11 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
     ArgumentChecker.notNull(curves, "Curves");
     ArgumentChecker.notNull(swap, "Swap");
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
-    final MultipleCurrencyInterestRateCurveSensitivity pvcsmc = PVCSMCC.visit(swap, curves);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsmc = swap.accept(PVCSMCC, curves);
     final InterestRateCurveSensitivity pvcs = pvcsmc.converted(ccy1, curves.getFxRates()).getSensitivity(ccy1);
-    final InterestRateCurveSensitivity pvbpcs = PVBPCSC.visit(swap.getFirstLeg(), curves);
-    final double pvbp = PVBPC.visit(swap.getFirstLeg(), curves);
-    final double pv = curves.getFxRates().convert(PVMCC.visit(swap, curves), ccy1).getAmount();
+    final InterestRateCurveSensitivity pvbpcs = swap.getFirstLeg().accept(PVBPCSC, curves);
+    final double pvbp = swap.getFirstLeg().accept(PVBPC, curves);
+    final double pv = curves.getFxRates().convert(swap.accept(PVMCC, curves), ccy1).getAmount();
     // Implementation note: Total pv in currency 1.
     return pvcs.multipliedBy(-1.0 / pvbp).plus(pvbpcs.multipliedBy(pv / (pvbp * pvbp)));
   }
@@ -125,8 +121,13 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
   }
 
   @Override
-  public InterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves);
+  public InterestRateCurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    return METHOD_IR_FUTURES_TRANSACTION.presentValueCurveSensitivity(future, curves);
+  }
+
+  @Override
+  public InterestRateCurveSensitivity visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    return METHOD_IR_FUTURES_SECURITY.presentValueCurveSensitivity(future, curves);
   }
 
   @Override

@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-public class HyperbolicMeshingTest {
+public class HyperbolicMeshingTest extends MeshingTest {
 
   private static final double A = 1.2;
   private static final double B = 5.1;
@@ -82,5 +82,83 @@ public class HyperbolicMeshingTest {
       i--;
       x = HYP_MESH.evaluate(i);
     }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void outOfRangeTest() {
+    double xMin = -3.4;
+    double xMax = 10.0;
+    double xCent = 0.0;
+    double[] fp = new double[] {5.0, -3.5, -2.0, 7.0 };
+    double beta = 0.2;
+    int n = 12;
+
+    @SuppressWarnings("unused")
+    MeshingFunction mesh = new HyperbolicMeshing(xMin, xMax, xCent, n, beta, fp);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void outOfRangeTest2() {
+    double xMin = -3.4;
+    double xMax = 10.0;
+    double xCent = -2.0;
+    double[] fp = new double[] {5.0, -1.4, -2.0, 17.0 };
+    double beta = 0.2;
+    int n = 12;
+
+    @SuppressWarnings("unused")
+    MeshingFunction mesh = new HyperbolicMeshing(xMin, xMax, xCent, n, beta, fp);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void tooFewPointsTest() {
+    double xMin = -3.4;
+    double xMax = 10.0;
+    double xCent = 2.0;
+    double[] fp = new double[] {5.0, -1.4, 1.4, 2.0, -2.0, 9.0 };
+    double beta = 0.5;
+    int n = 7;
+
+    @SuppressWarnings("unused")
+    MeshingFunction mesh = new HyperbolicMeshing(xMin, xMax, xCent, n, beta, fp);
+  }
+
+  @Test
+  public void oneFixedPointTest() {
+    double xMin = 3.4;
+    double xMax = 10.0;
+    double xCent = 3.9;
+    double[] fp = new double[] {xCent };
+    double beta = 0.2;
+    int n = 10;
+
+    MeshingFunction mesh = new HyperbolicMeshing(xMin, xMax, xCent, n, beta, fp);
+    testMesh(mesh, fp, xMin, xMax);
+  }
+
+  @Test
+  public void multiFixedPointTest() {
+    double xMin = -3.4;
+    double xMax = 10.0;
+    double xCent = 5.0;
+    double[] fp = new double[] {5.0, -1.0, -2.0, 7.0 };
+    double beta = 0.7;
+    int n = 12;
+
+    MeshingFunction mesh = new HyperbolicMeshing(xMin, xMax, xCent, n, beta, fp);
+    testMesh(mesh, fp, xMin, xMax);
+  }
+
+  @Test
+  public void multiFixedPointTest2() {
+    double xMin = 3.4;
+    double xMax = 10.0;
+    double xCent = 4.0;
+    double[] fp = new double[] {3.5, 9.0, 9.9, 9.5, 9.9, 9.4 };
+    double beta = 0.1;
+    int n = 12;
+
+    MeshingFunction mesh = new HyperbolicMeshing(xMin, xMax, xCent, n, beta, fp);
+    testMesh(mesh, fp, xMin, xMax);
   }
 }

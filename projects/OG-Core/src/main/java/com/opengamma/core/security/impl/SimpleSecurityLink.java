@@ -210,7 +210,6 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * The meta-bean for {@code SimpleSecurityLink}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SimpleSecurityLink.Meta meta() {
     return SimpleSecurityLink.Meta.INSTANCE;
   }
@@ -306,7 +305,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "target");
 
     /**

@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.timeseries.analysis;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 

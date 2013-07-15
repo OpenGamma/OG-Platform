@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
@@ -36,15 +36,12 @@ import com.opengamma.util.tuple.Pair;
  */
 public class FXOptionBlackPnLCurveDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackPnLCurveDefaults.class);
-  private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
-  public FXOptionBlackPnLCurveDefaults(final String priority, final String... currencyCurveConfigAndDiscountingCurveNames) {
+  public FXOptionBlackPnLCurveDefaults(final String... currencyCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.POSITION, true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "property values by currency");
     ArgumentChecker.isTrue(currencyCurveConfigAndDiscountingCurveNames.length % 3 == 0, "Must have a curve calculation configuration name and curve name per currency");
-    _priority = PriorityClass.valueOf(priority);
     _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
@@ -54,9 +51,6 @@ public class FXOptionBlackPnLCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     if (!(target.getPosition().getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
@@ -118,12 +112,8 @@ public class FXOptionBlackPnLCurveDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.CURVE_DEFAULTS;
   }
 
-  @Override
-  public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_CURVE_DEFAULTS;
-  }
 }

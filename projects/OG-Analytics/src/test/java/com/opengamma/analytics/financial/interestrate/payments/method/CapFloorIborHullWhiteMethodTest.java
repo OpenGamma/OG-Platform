@@ -9,10 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -43,7 +42,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Tests on the Hull-White one factor method to price Cap/Floor on Ibor. 
+ * Tests on the Hull-White one factor method to price Cap/Floor on Ibor.
  */
 public class CapFloorIborHullWhiteMethodTest {
   // Cap/floor description
@@ -53,15 +52,15 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Currency CUR = Currency.USD;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final Currency CUR = Currency.EUR;
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double NOTIONAL = 100000000; //100m
   private static final double STRIKE = 0.04;
   private static final boolean IS_CAP = true;
-  private static final CapFloorIborDefinition CAP_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP);
-  private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP);
-  private static final CapFloorIborDefinition PUT_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, !IS_CAP);
+  private static final CapFloorIborDefinition CAP_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP, CALENDAR);
+  private static final CapFloorIborDefinition PUT_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, !IS_CAP, CALENDAR);
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String[] CURVES_NAME = TestsDataSetsSABR.curves1Names();
@@ -82,17 +81,17 @@ public class CapFloorIborHullWhiteMethodTest {
 
   @Test
   public void presentValueStandard() {
-    double tp = CAP_LONG.getPaymentTime();
-    double t0 = CAP_LONG.getFixingPeriodStartTime();
-    double t1 = CAP_LONG.getFixingPeriodEndTime();
-    double theta = CAP_LONG.getFixingTime();
-    double deltaF = CAP_LONG.getFixingYearFraction();
-    double deltaP = CAP_LONG.getPaymentYearFraction();
-    double alpha0 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t0);
-    double alpha1 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t1);
-    double ptp = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(tp);
-    double pt0 = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(t0);
-    double pt1 = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(t1);
+    final double tp = CAP_LONG.getPaymentTime();
+    final double t0 = CAP_LONG.getFixingPeriodStartTime();
+    final double t1 = CAP_LONG.getFixingPeriodEndTime();
+    final double theta = CAP_LONG.getFixingTime();
+    final double deltaF = CAP_LONG.getFixingAccrualFactor();
+    final double deltaP = CAP_LONG.getPaymentYearFraction();
+    final double alpha0 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t0);
+    final double alpha1 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t1);
+    final double ptp = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(tp);
+    final double pt0 = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(t0);
+    final double pt1 = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(t1);
     double kappa = Math.log((1.0 + deltaF * STRIKE) * pt1 / pt0);
     kappa += -(alpha1 * alpha1 - alpha0 * alpha0) / 2.0;
     kappa /= alpha1 - alpha0;
@@ -100,7 +99,7 @@ public class CapFloorIborHullWhiteMethodTest {
     double priceExpected = pt0 / pt1 * normal.getCDF(-kappa - alpha0) - (1.0 + deltaF * STRIKE) * normal.getCDF(-kappa - alpha1);
     priceExpected *= deltaP / deltaF * ptp;
     priceExpected *= NOTIONAL;
-    CurrencyAmount priceMethod = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
+    final CurrencyAmount priceMethod = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
     assertEquals("Cap/floor: Hull-White pricing", priceExpected, priceMethod.getAmount(), TOLERANCE_PV);
     assertEquals("Cap/floor: Hull-White pricing", CUR, priceMethod.getCurrency());
   }
@@ -109,8 +108,8 @@ public class CapFloorIborHullWhiteMethodTest {
 
   @Test
   public void presentValueLongShort() {
-    CurrencyAmount priceLong = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
-    CurrencyAmount priceShort = METHOD_HW.presentValue(CAP_SHORT, BUNDLE_HW);
+    final CurrencyAmount priceLong = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
+    final CurrencyAmount priceShort = METHOD_HW.presentValue(CAP_SHORT, BUNDLE_HW);
     assertEquals("Cap/floor: Hull-White pricing", priceLong.getAmount(), -priceShort.getAmount(), TOLERANCE_PV);
   }
 
@@ -122,13 +121,13 @@ public class CapFloorIborHullWhiteMethodTest {
     InterestRateCurveSensitivity pvcsCap = METHOD_HW.presentValueCurveSensitivity(CAP_LONG, BUNDLE_HW);
     pvcsCap = pvcsCap.cleaned();
     final double deltaShift = 1.0E-6;
-    String bumpedCurveName = "Bumped Curve";
+    final String bumpedCurveName = "Bumped Curve";
     // 1. Forward curve sensitivity
     final String[] CurveNameBumpedForward = {CURVES_NAME[0], bumpedCurveName};
     final CapFloorIbor capBumpedForward = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
-    double[] nodeTimesForward = new double[] {CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime()};
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, BUNDLE_HW, CURVES_NAME[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD_HW);
-    List<DoublesPair> sensiPvForward = pvcsCap.getSensitivities().get(CURVES_NAME[1]);
+    final double[] nodeTimesForward = new double[] {CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime()};
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, BUNDLE_HW, CURVES_NAME[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD_HW);
+    final List<DoublesPair> sensiPvForward = pvcsCap.getSensitivities().get(CURVES_NAME[1]);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity cap/floor Ibor pv to forward curve with HW: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
@@ -138,9 +137,9 @@ public class CapFloorIborHullWhiteMethodTest {
     // 2. Discounting curve sensitivity
     final String[] CurveNameBumpedDisc = {bumpedCurveName, CURVES_NAME[1]};
     final CapFloorIbor capBumpedDisc = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedDisc);
-    double[] nodeTimesDisc = new double[] {CAP_LONG.getPaymentTime()};
-    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, BUNDLE_HW, CURVES_NAME[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_HW);
-    List<DoublesPair> sensiPvDisc = pvcsCap.getSensitivities().get(CURVES_NAME[0]);
+    final double[] nodeTimesDisc = new double[] {CAP_LONG.getPaymentTime()};
+    final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, BUNDLE_HW, CURVES_NAME[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_HW);
+    final List<DoublesPair> sensiPvDisc = pvcsCap.getSensitivities().get(CURVES_NAME[0]);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity cap/floor Ibor pv to forward curve with HW: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
@@ -159,18 +158,18 @@ public class CapFloorIborHullWhiteMethodTest {
   }
 
   private void presentValueHullWhiteSensitivityInstrument(final CapFloorIbor instrument) {
-    double[] hwSensitivity = METHOD_HW.presentValueHullWhiteSensitivity(instrument, BUNDLE_HW);
-    int nbVolatility = PARAMETERS_HW.getVolatility().length;
-    double shiftVol = 1.0E-6;
-    double[] volatilityBumped = new double[nbVolatility];
+    final double[] hwSensitivity = METHOD_HW.presentValueHullWhiteSensitivity(instrument, BUNDLE_HW);
+    final int nbVolatility = PARAMETERS_HW.getVolatility().length;
+    final double shiftVol = 1.0E-6;
+    final double[] volatilityBumped = new double[nbVolatility];
     System.arraycopy(PARAMETERS_HW.getVolatility(), 0, volatilityBumped, 0, nbVolatility);
-    double[] volatilityTime = new double[nbVolatility - 1];
+    final double[] volatilityTime = new double[nbVolatility - 1];
     System.arraycopy(PARAMETERS_HW.getVolatilityTime(), 1, volatilityTime, 0, nbVolatility - 1);
-    double[] pvBumpedPlus = new double[nbVolatility];
-    double[] pvBumpedMinus = new double[nbVolatility];
-    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(PARAMETERS_HW.getMeanReversion(), volatilityBumped, volatilityTime);
-    HullWhiteOneFactorPiecewiseConstantDataBundle bundleBumped = new HullWhiteOneFactorPiecewiseConstantDataBundle(parametersBumped, CURVES);
-    double[] hwSensitivityExpected = new double[hwSensitivity.length];
+    final double[] pvBumpedPlus = new double[nbVolatility];
+    final double[] pvBumpedMinus = new double[nbVolatility];
+    final HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(PARAMETERS_HW.getMeanReversion(), volatilityBumped, volatilityTime);
+    final HullWhiteOneFactorPiecewiseConstantDataBundle bundleBumped = new HullWhiteOneFactorPiecewiseConstantDataBundle(parametersBumped, CURVES);
+    final double[] hwSensitivityExpected = new double[hwSensitivity.length];
     for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
       volatilityBumped[loopvol] += shiftVol;
       parametersBumped.setVolatility(volatilityBumped);
@@ -193,13 +192,13 @@ public class CapFloorIborHullWhiteMethodTest {
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
-    CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
-    CurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, CUR, CURVES_NAME[0], BUNDLE_HW);
+    final CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
+    final CurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, CUR, CURVES_NAME[0], BUNDLE_HW);
     assertEquals("Cap/floor - Hull-White - Monte Carlo", pvExplicit.getAmount(), pvMC.getAmount(), 4.0E+2);
-    double pvMCPreviousRun = 150060.593;
+    final double pvMCPreviousRun = 150060.593;
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
-    CurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, CUR, CURVES_NAME[0], BUNDLE_HW);
+    final CurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, CUR, CURVES_NAME[0], BUNDLE_HW);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvMC.getAmount(), pvShortMC.getAmount(), 1.0E-2);
   }
 
@@ -209,13 +208,13 @@ public class CapFloorIborHullWhiteMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
+    final CurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, BUNDLE_HW);
     HullWhiteMonteCarloMethod methodMC;
-    int nbPath = 1000000;
+    final int nbPath = 1000000;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-    int nbTest = 10;
-    double[] pv = new double[nbTest];
-    double[] pvDiff = new double[nbTest];
+    final int nbTest = 10;
+    final double[] pv = new double[nbTest];
+    final double[] pvDiff = new double[nbTest];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pv[looptest] = methodMC.presentValue(CAP_LONG, CUR, CURVES_NAME[0], BUNDLE_HW).getAmount();

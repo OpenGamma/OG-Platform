@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class SurfaceArrayUtils {
 
   /**
-   * For an array of doubles in strictly acceding order find the index of the entry in the array that is largest value less than or equal to the lookUpValue. 
+   * For an array of doubles in strictly ascending order, find the index of the entry in the array that is largest value less than or equal to the lookUpValue. 
    * If the lookUpValue is less than the first entry, zero is return, and if the lookUpValue is greater than the last entry, n-1 is returned. 
    * @param array The array of strictly acceding doubles 
    * @param lookUpValue lookup value

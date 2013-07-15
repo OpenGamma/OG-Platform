@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -47,19 +46,19 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
   private static final Period IBOR_TENOR = Period.ofMonths(6);
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(12);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR, CALENDAR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
-  private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
-  private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER);
+  private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER, CALENDAR);
   private static final boolean IS_LONG = true;
   private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
@@ -104,8 +103,8 @@ public class SwaptionCashFixedIborG2ppMethodTest {
    * Tests the present value vs a physical delivery swaption.
    */
   public void physical() {
-    CurrencyAmount pvPhys = METHOD_G2PP_PHYS_APPROXIMATION.presentValue(SWAPTION_PHYS_PAYER_LONG, BUNDLE_G2PP);
-    CurrencyAmount pvCash = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvPhys = METHOD_G2PP_PHYS_APPROXIMATION.presentValue(SWAPTION_PHYS_PAYER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvCash = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
     assertEquals("Swaption physical - G2++ - present value - hard coded value", pvPhys.getAmount(), pvCash.getAmount(), 2.0E+5);
   }
 
@@ -114,8 +113,8 @@ public class SwaptionCashFixedIborG2ppMethodTest {
    * Test the present value vs a hard-coded value.
    */
   public void presentValue() {
-    CurrencyAmount pv = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
-    double pvExpected = 5121815.309;
+    final CurrencyAmount pv = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final double pvExpected = 5121815.309;
     assertEquals("Swaption physical - G2++ - present value - hard coded value", pvExpected, pv.getAmount(), 1E-2);
   }
 
@@ -124,11 +123,11 @@ public class SwaptionCashFixedIborG2ppMethodTest {
    * Tests long/short parity.
    */
   public void longShortParity() {
-    CurrencyAmount pvPayerLong = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
-    CurrencyAmount pvPayerShort = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_G2PP);
+    final CurrencyAmount pvPayerLong = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvPayerShort = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_G2PP);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvPayerLong.getAmount(), -pvPayerShort.getAmount(), 1E-2);
-    CurrencyAmount pvReceiverLong = METHOD_G2PP_NI.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_G2PP);
-    CurrencyAmount pvReceiverShort = METHOD_G2PP_NI.presentValue(SWAPTION_RECEIVER_SHORT, BUNDLE_G2PP);
+    final CurrencyAmount pvReceiverLong = METHOD_G2PP_NI.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_G2PP);
+    final CurrencyAmount pvReceiverShort = METHOD_G2PP_NI.presentValue(SWAPTION_RECEIVER_SHORT, BUNDLE_G2PP);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvReceiverLong.getAmount(), -pvReceiverShort.getAmount(), 1E-2);
   }
 
@@ -139,7 +138,7 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
-    CurrencyAmount[] pvPayerLongNI = new CurrencyAmount[nbTest];
+    final CurrencyAmount[] pvPayerLongNI = new CurrencyAmount[nbTest];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvPayerLongNI[looptest] = METHOD_G2PP_NI.presentValue(SWAPTION_PAYER_LONG, BUNDLE_G2PP);

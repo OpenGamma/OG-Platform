@@ -7,7 +7,8 @@ package com.opengamma.analytics.financial.timeseries.util;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.CompareUtils;
 
 /**
  * Utility class for test that are performed often on time series.
@@ -53,8 +54,32 @@ public class TimeSeriesDataTestUtils {
     final Object[] times2 = ts2.timesArray();
     for (int i = 0; i < n; i++) {
       if (!times1[i].equals(times2[i])) {
-        throw new IllegalArgumentException("Time series did not contain the same dates");
+        throw new IllegalArgumentException("Time series did not contain the same dates at index " + i);
       }
     }
   }
+  
+  /**
+   * Tests that the two time-series contain approximately-equal values.
+   * @param ts1  the first time-series, not null
+   * @param ts2  the second time-series, not null
+   */
+  public static void testCloseEquals(DoubleTimeSeries<?> ts1, DoubleTimeSeries<?> ts2, double maxDifference) {
+    testNotNullOrEmpty(ts1);
+    testNotNullOrEmpty(ts2);
+    final int n = ts1.size();
+    if (n != ts2.size()) {
+      throw new IllegalArgumentException("Time series were not the same length; have " + ts1.size() + " and " + ts2.size());
+    }
+    for (int i = 0; i < n; i++) {
+      if (!ts1.timesArray()[i].equals(ts2.timesArray()[i])) {
+        throw new IllegalArgumentException("Time series did not contain the same dates at index " + i);
+      }
+      if (!CompareUtils.closeEquals(ts1.valuesArrayFast()[i], ts2.valuesArrayFast()[i], maxDifference)) {
+        throw new IllegalArgumentException("Time-series did not contain approximately-equal values at " +
+            ts1.timesArray()[i] + ": " + ts1.valuesArrayFast()[i] + " and " + ts2.valuesArrayFast()[i]);
+      }
+    }
+  }
+  
 }

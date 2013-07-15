@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 
 /**
  * Class describing the data required to price swaptions with Black (curves and volatility).
@@ -18,14 +19,14 @@ public class YieldCurveWithBlackSwaptionBundle extends YieldCurveBundle {
   /**
    * The Black volatility surface. Not null.
    */
-  private final BlackSwaptionParameters _parameters;
+  private final BlackFlatSwaptionParameters _parameters;
 
   /**
    * Constructor from Black volatility surface and curve bundle.
    * @param parameters The Black volatility surface.
    * @param curves Curve bundle.
    */
-  public YieldCurveWithBlackSwaptionBundle(final BlackSwaptionParameters parameters, final YieldCurveBundle curves) {
+  public YieldCurveWithBlackSwaptionBundle(final BlackFlatSwaptionParameters parameters, final YieldCurveBundle curves) {
     super(curves);
     Validate.notNull(parameters, "Volatility surface");
     _parameters = parameters;
@@ -44,7 +45,7 @@ public class YieldCurveWithBlackSwaptionBundle extends YieldCurveBundle {
    * Gets the Black volatility surface.
    * @return The surface.
    */
-  public BlackSwaptionParameters getBlackParameters() {
+  public BlackFlatSwaptionParameters getBlackParameters() {
     return _parameters;
   }
 

@@ -12,9 +12,12 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleConverterTest {
   
   private final DoubleConverter _converter = new DoubleConverter();

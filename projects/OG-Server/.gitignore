@@ -1,1 +1,6 @@
+.project
+.classpath
+.checkstyle
 .settings/
+/*.project
+*.iml

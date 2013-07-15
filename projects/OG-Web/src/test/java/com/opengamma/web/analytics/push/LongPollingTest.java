@@ -17,12 +17,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests pushing results to a long polling HTTP connection.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class LongPollingTest {
 
   public static final String CLIENT_ID = "CLIENT_ID";
@@ -70,7 +71,7 @@ public class LongPollingTest {
       }
     }).start();
     String result = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(result, RESULT1);
+    WebPushTestUtils.checkJsonResults(result, RESULT1);
   }
 
   /**
@@ -81,7 +82,7 @@ public class LongPollingTest {
     String clientId = _webPushTestUtils.handshake();
     _updateManager.sendUpdate(RESULT1);
     String result = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(result, RESULT1);
+    WebPushTestUtils.checkJsonResults(result, RESULT1);
   }
 
   /**
@@ -94,7 +95,7 @@ public class LongPollingTest {
     _updateManager.sendUpdate(RESULT2);
     _updateManager.sendUpdate(RESULT3);
     String result = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(result, RESULT1, RESULT2, RESULT3);
+    WebPushTestUtils.checkJsonResults(result, RESULT1, RESULT2, RESULT3);
   }
 
   /**
@@ -109,7 +110,7 @@ public class LongPollingTest {
     _updateManager.sendUpdate(RESULT3);
     _updateManager.sendUpdate(RESULT2);
     String result = _webPushTestUtils.readFromPath("/updates/" + clientId);
-    _webPushTestUtils.checkJsonResults(result, RESULT1, RESULT2, RESULT3);
+    WebPushTestUtils.checkJsonResults(result, RESULT1, RESULT2, RESULT3);
   }
 
   @Test
@@ -126,11 +127,11 @@ public class LongPollingTest {
       }
     }).start();
     String path = "/updates/" + clientId;
-    _webPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT1);
-    _webPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT2);
-    _webPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT3);
-    _webPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT2);
-    _webPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT1);
+    WebPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT1);
+    WebPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT2);
+    WebPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT3);
+    WebPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT2);
+    WebPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT1);
   }
 
   @Test
@@ -140,7 +141,7 @@ public class LongPollingTest {
     String timeoutResult = _webPushTestUtils.readFromPath(path);
     assertEquals("", timeoutResult);
     _updateManager.sendUpdate(RESULT1);
-    _webPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT1);
+    WebPushTestUtils.checkJsonResults(_webPushTestUtils.readFromPath(path), RESULT1);
   }
 
   /**

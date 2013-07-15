@@ -14,10 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingFudgeBuilder;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test OpenGammaFudgeContext.
  */
+@Test(groups = TestGroup.UNIT)
 public class OpenGammaFudgeContextTest {
 
   @Test

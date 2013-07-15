@@ -65,32 +65,32 @@ public interface HibernateSecurityMasterDao {
 
   // UnitName
   UnitBean getOrCreateUnitNameBean(final String unitName);
-  
+
   List<UnitBean> getUnitNameBeans();
 
   // IssuerTypeBean
   IssuerTypeBean getOrCreateIssuerTypeBean(final String type);
-  
+
   List<IssuerTypeBean> getIssuerTypeBeans();
 
   // MarketBean
   MarketBean getOrCreateMarketBean(final String market);
-  
+
   List<MarketBean> getMarketBeans();
 
   // YieldConventionBean
   YieldConventionBean getOrCreateYieldConventionBean(final String convention);
-  
+
   List<YieldConventionBean> getYieldConventionBeans();
 
   // GuaranteeTypeBean
   GuaranteeTypeBean getOrCreateGuaranteeTypeBean(final String type);
-  
+
   List<GuaranteeTypeBean> getGuaranteeTypeBeans();
 
   // CouponTypeBean
   CouponTypeBean getOrCreateCouponTypeBean(final String type);
-  
+
   List<CouponTypeBean> getCouponTypeBeans();
 
   IdentifierAssociationBean getCreateOrUpdateIdentifierAssociationBean(Date now, String scheme,
@@ -107,9 +107,24 @@ public interface HibernateSecurityMasterDao {
 
   FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future);
 
-  void persistFutureBundleBeans(final Date now, final FutureSecurityBean future);  
-  
+  void persistFutureBundleBeans(final Date now, final FutureSecurityBean future);
+
   ContractCategoryBean getOrCreateContractCategoryBean(String name);
-  
+
   StubTypeBean getOrCreateStubTypeBean(String name);
+
+  DebtSeniorityBean getOrCreateDebtSeniorityBean(String name);
+
+  RestructuringClauseBean getOrCreateRestructuringCleanBean(String name);
+
+  // CDSI family
+  CDSIndexFamilyBean getOrCreateCDSIFamilyBean(String family);
+  
+  List<CDSIndexFamilyBean> getCDSIFamilyBeans();
+  
+  //Tenors
+  TenorBean getOrCreateTenorBean(String tenor);
+  
+  List<TenorBean> getTenorBeans();
+  
 }

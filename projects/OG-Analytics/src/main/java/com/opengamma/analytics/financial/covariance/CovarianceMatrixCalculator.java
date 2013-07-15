@@ -9,8 +9,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 

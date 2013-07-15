@@ -41,7 +41,7 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
    * @throws MathException If the root is not found to the required accuracy in 100 attempts
    */
   @Override
-  public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {    
+  public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
     checkInputs(function, x1, x2);
     final double y1 = function.evaluate(x1);
     double y = function.evaluate(x2);

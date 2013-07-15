@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackTermStructureForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -17,10 +18,10 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -40,12 +41,16 @@ public class FXOptionBlackPresentValueFunction extends FXOptionBlackSingleValued
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final MultipleCurrencyAmount result;
     if (data instanceof YieldCurveWithBlackForexTermStructureBundle) {
-      result = FLAT_CALCULATOR.visit(forex, data);
+      result = forex.accept(FLAT_CALCULATOR, data);
     } else {
-      result = SMILE_CALCULATOR.visit(forex, data);
+      result = forex.accept(SMILE_CALCULATOR, data);
     }
-    ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
     final CurrencyAmount ca = result.getCurrencyAmounts()[0];
+    final String resultCurrency = ca.getCurrency().getCode();
+    final String expectedCurrency = spec.getProperty(ValuePropertyNames.CURRENCY);
+    if (!expectedCurrency.equals(resultCurrency)) {
+      throw new OpenGammaRuntimeException("Expected currency " + expectedCurrency + " does not equal result currency " + resultCurrency);
+    }
     final double amount = ca.getAmount();
     return Collections.singleton(new ComputedValue(spec, amount));
   }

@@ -9,10 +9,10 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
@@ -34,22 +34,21 @@ public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE;
+    assert ComputationTargetType.PRIMITIVE.isCompatible(target.getType());
+    return true;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, 
-        ComputationTargetType.PRIMITIVE, 
+        ComputationTargetType.PRIMITIVE,
         UniqueId.of("foo", "bar"));
     return Collections.singleton(requirement);
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, 
-      ComputationTarget target) {
-    ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
-    ValueSpecification specification = new ValueSpecification(requirement, getUniqueId());
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), createValueProperties().get());
     return Collections.singleton(specification);
   }
 

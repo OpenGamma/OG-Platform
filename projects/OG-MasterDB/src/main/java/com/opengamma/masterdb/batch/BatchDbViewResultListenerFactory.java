@@ -6,8 +6,9 @@
 package com.opengamma.masterdb.batch;
 
 import com.opengamma.batch.BatchRunWriter;
-import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.engine.view.listener.ViewResultListenerFactory;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * 
@@ -17,8 +18,8 @@ public class BatchDbViewResultListenerFactory implements ViewResultListenerFacto
   private BatchRunWriter _batchRunWriter;
 
   @Override
-  public ViewResultListener createViewResultListener() {
-    return new BatchDbViewResultListener(_batchRunWriter);
+  public ViewResultListener createViewResultListener(UserPrincipal user) {
+    return new BatchDbViewResultListener(_batchRunWriter, user);
   }
 
   public BatchRunWriter getBatchRunMaster() {

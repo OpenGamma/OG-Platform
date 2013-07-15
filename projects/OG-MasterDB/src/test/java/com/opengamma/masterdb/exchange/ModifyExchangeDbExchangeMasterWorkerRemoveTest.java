@@ -8,13 +8,12 @@ package com.opengamma.masterdb.exchange;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
@@ -23,10 +22,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbExchangeMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -47,7 +48,7 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
 
   @Test
   public void test_remove_removed() {
-    Instant now = Instant.now(_exgMaster.getTimeSource());
+    Instant now = Instant.now(_exgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
     _exgMaster.remove(uniqueId);
@@ -62,7 +63,7 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
-    assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
+    assertEquals(ZoneId.of("Europe/London"), exchange.getTimeZone());
     assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
   }
 

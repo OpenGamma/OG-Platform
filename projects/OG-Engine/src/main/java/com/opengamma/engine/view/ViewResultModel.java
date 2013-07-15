@@ -9,10 +9,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.Duration;
-import javax.time.Instant;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicAPI;
@@ -38,13 +39,13 @@ public interface ViewResultModel {
    * @return the unique identifier, not null
    */
   UniqueId getViewCycleId();
-
+  
   /**
-   * Returns the time for which the results were computed. 
+   * Gets the fully-resolved execution options from the view cycle responsible for the results.
    * 
-   * @return the time for which the results were computed, not null
+   * @return the fully-resolved execution options, not null
    */
-  Instant getValuationTime();
+  ViewCycleExecutionOptions getViewCycleExecutionOptions();
 
   /**
    * Returns the time at which these results became available.

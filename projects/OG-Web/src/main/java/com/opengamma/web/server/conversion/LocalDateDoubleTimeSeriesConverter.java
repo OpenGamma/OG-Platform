@@ -8,34 +8,35 @@ package com.opengamma.web.server.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Converter for {@link LocalDateDoubleTimeSeries} results.
  */
 public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<LocalDateDoubleTimeSeries> {
 
-  /* package */static Object convertForDisplayImpl(ResultConverterCache context, ValueSpecification valueSpec, LocalDateDoubleTimeSeries value, ConversionMode mode) {
+  /** The number of milliseconds per day. */
+  private static final long MILLIS_PER_DAY = 86400L * 1000;
+
+  /* package */static Object convertForDisplayImpl(ResultConverterCache context, ValueSpecification valueSpec, LocalDateDoubleTimeSeries series, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
-    if (value.isEmpty()) {
+    if (series.isEmpty()) {
       return result;
     }
     Map<String, Object> summary = ImmutableMap.<String, Object>of(
-        "from", value.getEarliestTime().toLocalDate().toString(),
-        "to", value.getLatestTime().toLocalDate().toString());
+        "from", series.getEarliestTime().toString(),
+        "to", series.getLatestTime().toString());
     result.put("summary", summary);
     if (mode == ConversionMode.FULL) {
-      ZonedDateTimeDoubleTimeSeries zonedTimeSeries = value.toZonedDateTimeDoubleTimeSeries();
-      Object[] tsData = new Object[zonedTimeSeries.size()];
-      for (int i = 0; i < zonedTimeSeries.size(); i++) {
-        ZonedDateTime time = zonedTimeSeries.getTimeAt(i);
-        double tsValue = zonedTimeSeries.getValueAt(i);
-        tsData[i] = new Object[] {time.toInstant().toEpochMillisLong(), tsValue};
+      Object[] tsData = new Object[series.size()];
+      for (int i = 0; i < series.size(); i++) {
+        LocalDate date = series.getTimeAtIndex(i);
+        long epochMillis = date.toEpochDay() * MILLIS_PER_DAY;
+        tsData[i] = new Object[]{epochMillis, series.getValueAtIndex(i)};
       }
       Map<String, Object> ts = ImmutableMap.<String, Object>of(
           "template_data", ImmutableMap.<String, Object>of(

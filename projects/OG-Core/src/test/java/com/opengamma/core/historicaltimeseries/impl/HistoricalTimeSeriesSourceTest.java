@@ -12,28 +12,30 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test {@link HistoricalTimeSeriesSource}.
+ * Test.
  */
-@Test
+@Test(groups = {TestGroup.INTEGRATION, "ehcache"})  // this fails randomly
 public class HistoricalTimeSeriesSourceTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesSourceTest.class);
@@ -45,17 +47,17 @@ public class HistoricalTimeSeriesSourceTest {
   }
 
   private LocalDateDoubleTimeSeries randomTimeSeries() {
-    MutableLocalDateDoubleTimeSeries dts = new ListLocalDateDoubleTimeSeries();
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate start = LocalDate.of(2000, 1, 2);
     LocalDate end = start.plusYears(10);
     LocalDate current = start;
     while (current.isBefore(end)) {
       current = current.plusDays(1);
       if (isWeekday(current)) {
-        dts.putDataPoint(current, Math.random());
+        bld.put(current, Math.random());
       }
     }
-    return dts;
+    return bld.build();
   }
 
   private int random(int maxBoundExclusive) {
@@ -155,16 +157,20 @@ public class HistoricalTimeSeriesSourceTest {
     buildAndTestInMemoryProvider();
   }
 
-  // Should this be in EHCachingHistoricalTimeSeriesSourceTest instead of here?
+  //-------------------------------------------------------------------------
   public void testEHCachingHistoricalTimeSeriesSource() {
-    
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(HistoricalTimeSeriesSourceTest.class);
+    doTestCaching(cacheManager);
+    EHCacheUtils.shutdownQuiet(cacheManager);
+  }
+
+  private void doTestCaching(CacheManager cacheManager) {
     // Populate an in-memory mock source (inMemoryHistoricalSource)
     Pair<HistoricalTimeSeriesSource, Set<ExternalIdBundle>> providerAndDsids = buildAndTestInMemoryProvider();
     HistoricalTimeSeriesSource inMemoryHistoricalSource = providerAndDsids.getFirst();
     
     // Set up a caching hts source with the mock underlying it (cachedProvider)
-    EHCachingHistoricalTimeSeriesSource cachedProvider = 
-        new EHCachingHistoricalTimeSeriesSource(inMemoryHistoricalSource, EHCacheUtils.createCacheManager());
+    EHCachingHistoricalTimeSeriesSource cachedProvider = new EHCachingHistoricalTimeSeriesSource(inMemoryHistoricalSource, cacheManager);
     
     // Obtain the id bundles it contains (dsids)
     Set<ExternalIdBundle> identifiers = providerAndDsids.getSecond();
@@ -270,5 +276,9 @@ public class HistoricalTimeSeriesSourceTest {
       HistoricalTimeSeries historicalTimeSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field);
       assertEquals(ids, cachedProvider.getExternalIdBundle(historicalTimeSeries.getUniqueId()));
     }
+
+    // Shut down cache
+    cachedProvider.shutdown();
   }
+
 }

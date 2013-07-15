@@ -7,34 +7,29 @@ package com.opengamma.id;
 
 import java.io.Serializable;
 
-import javax.time.CalendricalException;
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+import org.threeten.bp.DateTimeException;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.NormalizingWeakInstanceCache;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.WeakInstanceCache;
 
 /**
  * An immutable version-correction combination.
  * <p>
- * History can be stored in two dimensions and the version-correction provides the key.
- * The first historic dimension is the classic series of versions.
- * Each new version is stored in such a manor that previous versions can be accessed.
- * The second historic dimension is corrections.
- * A correction occurs when it is realized that the original data stored was incorrect.
+ * History can be stored in two dimensions and the version-correction provides the key. The first historic dimension is the classic series of versions. Each new version is stored in such a manor that
+ * previous versions can be accessed. The second historic dimension is corrections. A correction occurs when it is realized that the original data stored was incorrect.
  * <p>
- * A fully versioned object in an OpenGamma installation will have a single state for
- * any combination of version and correction. This state is assigned a version string
- * which is used as the third component in a {@link UniqueId}, where all versions
- * share the same {@link ObjectId}.
+ * A fully versioned object in an OpenGamma installation will have a single state for any combination of version and correction. This state is assigned a version string which is used as the third
+ * component in a {@link UniqueId}, where all versions share the same {@link ObjectId}.
  * <p>
- * This class represents a single version-correction combination suitable for identifying
- * a single state. It is typically used to obtain an object, while the version string is
- * used in the response.
+ * This class represents a single version-correction combination suitable for identifying a single state. It is typically used to obtain an object, while the version string is used in the response.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -50,6 +45,21 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   public static final VersionCorrection LATEST = new VersionCorrection(null, null);
 
   /**
+   * A weak instance cache for creating singleton forms; this may be used by caching strategies. If the singleton form of a version-correction is used for the duration of operations requiring that
+   * version-correction then temporary data may be cached using the version-correction instance as a weak key.
+   * 
+   * @return a new instance of a weak instance cache, not null
+   */
+  public static WeakInstanceCache<VersionCorrection> weakInstances() {
+    return new NormalizingWeakInstanceCache<VersionCorrection>() {
+      @Override
+      protected VersionCorrection normalize(final VersionCorrection value) {
+        return new VersionCorrection(value.getVersionAsOf(), value.getCorrectedTo());
+      }
+    };
+  }
+
+  /**
    * The version instant.
    */
   private final Instant _versionAsOf;
@@ -59,10 +69,9 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   private final Instant _correctedTo;
 
   /**
-   * Obtains a {@code VersionCorrection} from another version-correction,
-   * defaulting the LATEST constant for null.
+   * Obtains a {@code VersionCorrection} from another version-correction, defaulting the LATEST constant for null.
    * 
-   * @param versionCorrection  the version-correction to check, null for latest
+   * @param versionCorrection the version-correction to check, null for latest
    * @return the version-correction combination, not null
    */
   public static VersionCorrection of(VersionCorrection versionCorrection) {
@@ -72,53 +81,48 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Obtains a {@code VersionCorrection} from a version and correction instant.
    * 
-   * @param versionAsOf  the version as of instant, null for latest
-   * @param correctedTo  the corrected to instant, null for latest
+   * @param versionAsOf the version as of instant, null for latest
+   * @param correctedTo the corrected to instant, null for latest
    * @return the version-correction combination, not null
    */
-  public static VersionCorrection of(InstantProvider versionAsOf, InstantProvider correctedTo) {
+  public static VersionCorrection of(Instant versionAsOf, Instant correctedTo) {
     if (versionAsOf == null && correctedTo == null) {
       return LATEST;
     }
-    Instant v = (versionAsOf != null ? Instant.of(versionAsOf) : null);
-    Instant c = (correctedTo != null ? Instant.of(correctedTo) : null);
-    return new VersionCorrection(v, c);
+    return new VersionCorrection(versionAsOf, correctedTo);
   }
 
   /**
-   * Obtains a {@code VersionCorrection} from a version instant and the latest
-   * correction.
+   * Obtains a {@code VersionCorrection} from a version instant and the latest correction.
    * 
-   * @param versionAsOf  the version as of instant, null for latest
+   * @param versionAsOf the version as of instant, null for latest
    * @return the version-correction combination, not null
    */
-  public static VersionCorrection ofVersionAsOf(InstantProvider versionAsOf) {
+  public static VersionCorrection ofVersionAsOf(Instant versionAsOf) {
     return of(versionAsOf, null);
   }
 
   /**
-   * Obtains a {@code VersionCorrection} from a correction instant and the latest
-   * version.
+   * Obtains a {@code VersionCorrection} from a correction instant and the latest version.
    * 
-   * @param correctedTo  the corrected to instant, null for latest
+   * @param correctedTo the corrected to instant, null for latest
    * @return the version-correction combination, not null
    */
-  public static VersionCorrection ofCorrectedTo(InstantProvider correctedTo) {
+  public static VersionCorrection ofCorrectedTo(Instant correctedTo) {
     return of(null, correctedTo);
   }
 
   /**
    * Parses a {@code VersionCorrection} from the standard string format.
    * <p>
-   * This parses the version-correction from the form produced by {@code toString()}.
-   * It consists of 'V' followed by the version, a dot, then 'C' followed by the correction,
-   * such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
-   * The text 'LATEST' is used in place of the instant for a latest version or correction.
+   * This parses the version-correction from the form produced by {@code toString()}. It consists of 'V' followed by the version, a dot, then 'C' followed by the correction, such as
+   * {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}. The text 'LATEST' is used in place of the instant for a latest version or correction.
    * 
-   * @param str  the identifier to parse, not null
+   * @param str the identifier to parse, not null
    * @return the version-correction combination, not null
    * @throws IllegalArgumentException if the version-correction cannot be parsed
    */
+  @FromString
   public static VersionCorrection parse(String str) {
     ArgumentChecker.notEmpty(str, "str");
     int posC = str.indexOf(".C");
@@ -133,14 +137,12 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   }
 
   /**
-   * Parses a {@code VersionCorrection} from standard string representations of the
-   * version and correction.
+   * Parses a {@code VersionCorrection} from standard string representations of the version and correction.
    * <p>
-   * This parses the version-correction from the forms produced by
-   * {@link #getVersionAsOfString()} and {@link #getCorrectedToString()}.
+   * This parses the version-correction from the forms produced by {@link #getVersionAsOfString()} and {@link #getCorrectedToString()}.
    * 
-   * @param versionAsOfString  the version as of string, null treated as latest
-   * @param correctedToString  the corrected to string, null treated as latest
+   * @param versionAsOfString the version as of string, null treated as latest
+   * @param correctedToString the corrected to string, null treated as latest
    * @return the version-correction combination, not null
    * @throws IllegalArgumentException if the version-correction cannot be parsed
    */
@@ -153,10 +155,9 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Parses a version-correction {@code Instant} from a standard string representation.
    * <p>
-   * The string representation must be either {@code LATEST} for null, or the ISO-8601
-   * representation of the desired {@code Instant}.
+   * The string representation must be either {@code LATEST} for null, or the ISO-8601 representation of the desired {@code Instant}.
    * 
-   * @param instantStr  the instant string, null treated as latest
+   * @param instantStr the instant string, null treated as latest
    * @return the instant, not null
    */
   private static Instant parseInstantString(String instantStr) {
@@ -165,7 +166,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
     } else {
       try {
         return Instant.parse(instantStr);
-      } catch (CalendricalException ex) {
+      } catch (DateTimeException ex) {
         throw new IllegalArgumentException(ex);
       }
     }
@@ -174,8 +175,8 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Creates a version-correction combination.
    * 
-   * @param versionAsOf  the version as of instant, null for latest
-   * @param correctedTo  the corrected to instant, null for latest
+   * @param versionAsOf the version as of instant, null for latest
+   * @param correctedTo the corrected to instant, null for latest
    */
   private VersionCorrection(Instant versionAsOf, Instant correctedTo) {
     _versionAsOf = versionAsOf;
@@ -211,15 +212,14 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * <p>
    * This instance is immutable and unaffected by this method call.
    * 
-   * @param versionAsOf  the version instant, null for latest
+   * @param versionAsOf the version instant, null for latest
    * @return a version-correction based on this one with the version as of instant altered, not null
    */
-  public VersionCorrection withVersionAsOf(InstantProvider versionAsOf) {
-    Instant v = (versionAsOf != null ? Instant.of(versionAsOf) : null);
-    if (ObjectUtils.equals(_versionAsOf, v)) {
+  public VersionCorrection withVersionAsOf(Instant versionAsOf) {
+    if (ObjectUtils.equals(_versionAsOf, versionAsOf)) {
       return this;
     }
-    return new VersionCorrection(v, _correctedTo);
+    return new VersionCorrection(versionAsOf, _correctedTo);
   }
 
   /**
@@ -227,21 +227,19 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * <p>
    * This instance is immutable and unaffected by this method call.
    * 
-   * @param correctedTo  the corrected to instant, null for latest
+   * @param correctedTo the corrected to instant, null for latest
    * @return a version-correction based on this one with the corrected to instant altered, not null
    */
-  public VersionCorrection withCorrectedTo(InstantProvider correctedTo) {
-    Instant c = (correctedTo != null ? Instant.of(correctedTo) : null);
-    if (ObjectUtils.equals(_correctedTo, c)) {
+  public VersionCorrection withCorrectedTo(Instant correctedTo) {
+    if (ObjectUtils.equals(_correctedTo, correctedTo)) {
       return this;
     }
-    return new VersionCorrection(_versionAsOf, c);
+    return new VersionCorrection(_versionAsOf, correctedTo);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Checks whether this object has either the version or correction instant
-   * set to 'latest'.
+   * Checks whether this object has either the version or correction instant set to 'latest'.
    * 
    * @return true if either instant is 'latest'
    */
@@ -254,7 +252,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * <p>
    * This instance is immutable and unaffected by this method call.
    * 
-   * @param now  the current instant, not null
+   * @param now the current instant, not null
    * @return a version-correction based on this one with the correction altered, not null
    */
   public VersionCorrection withLatestFixed(Instant now) {
@@ -269,8 +267,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Gets a string representation of the version as of instant.
    * <p>
-   * This is either the ISO-8601 representation of the version as of instant, such as
-   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * This is either the ISO-8601 representation of the version as of instant, such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
    * 
    * @return the string version as of, not null
    */
@@ -281,8 +278,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Gets a string representation of the corrected to instant.
    * <p>
-   * This is either the ISO-8601 representation of the corrected to instant, such as
-   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * This is either the ISO-8601 representation of the corrected to instant, such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
    * 
    * @return the string corrected to, not null
    */
@@ -294,7 +290,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Compares the version-corrections, sorting by version followed by correction.
    * 
-   * @param other  the other identifier, not null
+   * @param other the other identifier, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
@@ -327,14 +323,13 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Returns the version-correction instants.
    * <p>
-   * This is a standard format that can be parsed.
-   * It consists of 'V' followed by the version, a dot, then 'C' followed by the correction,
-   * such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
+   * This is a standard format that can be parsed. It consists of 'V' followed by the version, a dot, then 'C' followed by the correction, such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
    * The text 'LATEST' is used in place of the instant for a latest version or correction.
    * 
    * @return the string version-correction, not null
    */
   @Override
+  @ToString
   public String toString() {
     return "V" + getVersionAsOfString() + ".C" + getCorrectedToString();
   }

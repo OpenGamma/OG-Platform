@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -17,9 +19,12 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.json.JSONObject;
+
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.analytics.AnalyticsNodeJsonWriter;
+import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.PortfolioGridStructure;
 
 /**
@@ -29,16 +34,16 @@ import com.opengamma.web.analytics.PortfolioGridStructure;
 @Produces(MediaType.APPLICATION_JSON)
 public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWriter<PortfolioGridStructure> {
 
-  private final AnalyticsColumnsJsonWriter _writer;
+  private final GridColumnsJsonWriter _writer;
 
-  public PortfolioGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+  public PortfolioGridStructureMessageBodyWriter(GridColumnsJsonWriter writer) {
     ArgumentChecker.notNull(writer, "writer");
     _writer = writer;
   }
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(PortfolioGridStructure.class);
+    return PortfolioGridStructure.class.isAssignableFrom(type);
   }
 
   @Override
@@ -59,12 +64,9 @@ public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWrite
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
-    entityStream.write(("{\"columnSets\":" + columnsJson(gridStructure) + "," +
-        "\"rootNode\":" + rootNodeJson + "}").getBytes());
-  }
-
-  private String columnsJson(PortfolioGridStructure gridStructure) {
-    return _writer.getJson(gridStructure.getColumnStructure().getGroups());
+    Object[] rootNode = AnalyticsNodeJsonWriter.getJsonStructure(gridStructure.getRootNode());
+    List<Map<String, Object>> columns = _writer.getJsonStructure(gridStructure.getColumnStructure().getGroups());
+    ImmutableMap<String, Object> jsonMap = ImmutableMap.of("columnSets", columns, "rootNode", rootNode);
+    entityStream.write(new JSONObject(jsonMap).toString().getBytes());
   }
 }

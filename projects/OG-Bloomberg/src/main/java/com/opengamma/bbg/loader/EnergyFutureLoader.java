@@ -8,6 +8,7 @@ package com.opengamma.bbg.loader;
 import static com.opengamma.bbg.BloombergConstants.BBG_COAL;
 import static com.opengamma.bbg.BloombergConstants.BBG_CRUDE_OIL;
 import static com.opengamma.bbg.BloombergConstants.BBG_ELECTRICITY;
+import static com.opengamma.bbg.BloombergConstants.BBG_NATURAL_GAS;
 import static com.opengamma.bbg.BloombergConstants.BBG_REFINED_PRODUCTS;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
@@ -72,7 +73,7 @@ public final class EnergyFutureLoader extends SecurityLoader {
   /**
    * The valid Bloomberg future categories for Energy Futures
    */
-  public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(BBG_REFINED_PRODUCTS, BBG_ELECTRICITY, BBG_COAL, BBG_CRUDE_OIL);
+  public static final Set<String> VALID_FUTURE_CATEGORIES = ImmutableSet.of(BBG_REFINED_PRODUCTS, BBG_ELECTRICITY, BBG_COAL, BBG_CRUDE_OIL, BBG_NATURAL_GAS);
 
   /**
    * Creates an instance.

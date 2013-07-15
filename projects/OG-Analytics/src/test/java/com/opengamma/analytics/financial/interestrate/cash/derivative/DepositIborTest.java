@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
@@ -25,7 +24,7 @@ import com.opengamma.util.time.DateUtils;
 public class DepositIborTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR6M", TARGET);
+  private static final IborIndex INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR6M");
   private static final Currency EUR = INDEX.getCurrency();
 
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 12, 12);
@@ -33,7 +32,7 @@ public class DepositIborTest {
 
   private static final double NOTIONAL = 100000000;
   private static final double RATE = 0.0250;
-  private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, INDEX);
+  private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, INDEX, TARGET);
   private static final double DEPOSIT_AF = INDEX.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final double SPOT_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, SPOT_DATE);
   private static final double END_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, END_DATE);
@@ -68,11 +67,11 @@ public class DepositIborTest {
    */
   public void equalHash() {
     assertTrue("DepositIbor: equal hash", DEPOSIT_IBOR.equals(DEPOSIT_IBOR));
-    DepositIbor depositIbor2 = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    final DepositIbor depositIbor2 = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
     assertTrue("DepositIbor: equal hash", DEPOSIT_IBOR.equals(depositIbor2));
     assertEquals("DepositIbor: equal hash", DEPOSIT_IBOR.hashCode(), depositIbor2.hashCode());
     DepositIbor other;
-    other = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, IndexIborMaster.getInstance().getIndex("EURIBOR3M", TARGET), CURVE_NAME);
+    other = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, IndexIborMaster.getInstance().getIndex("EURIBOR3M"), CURVE_NAME);
     assertFalse("DepositIbor: equal hash", DEPOSIT_IBOR.equals(other));
   }
 

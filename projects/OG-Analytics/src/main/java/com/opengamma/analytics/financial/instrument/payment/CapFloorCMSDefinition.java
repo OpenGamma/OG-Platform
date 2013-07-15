@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -20,8 +18,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a caplet/floorlet on CMS rate. The notional is positive for long the option and negative for short the option.
@@ -62,8 +62,8 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
   public CapFloorCMSDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap, final IndexSwap cmsIndex, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.notNull(cmsIndex, "CMS index");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.notNull(cmsIndex, "CMS index");
     _underlyingSwap = underlyingSwap;
     _cmsIndex = cmsIndex;
     _strike = strike;
@@ -86,7 +86,7 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
    */
   public static CapFloorCMSDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap, final IndexSwap cmsIndex, final double strike, final boolean isCap) {
-    Validate.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     return new CapFloorCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex, strike, isCap);
   }
 
@@ -100,13 +100,14 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
    * @param cmsIndex The CMS index associated to the cap/floor.
    * @param strike The strike
    * @param isCap The cap (true) /floor (false) flag.
+   * @param calendar The holiday calendar of the ibor index.
    * @return The CMS cap/floor.
    */
   public static CapFloorCMSDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final IndexSwap cmsIndex, final double strike, final boolean isCap) {
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex.getIborIndex().getSpotLag(), cmsIndex.getIborIndex().getCalendar());
+      final double notional, final IndexSwap cmsIndex, final double strike, final boolean isCap, final Calendar calendar) {
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex.getIborIndex().getSpotLag(), calendar);
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
-    final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex, 1.0, 1.0, true);
+    final SwapFixedIborDefinition underlyingSwap = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex, 1.0, 1.0, true, calendar);
     return from(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex, strike, isCap);
   }
 
@@ -118,7 +119,7 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
    * @return The CMS cap/floor.
    */
   public static CapFloorCMSDefinition from(final CouponCMSDefinition coupon, final double strike, final boolean isCap) {
-    Validate.notNull(coupon);
+    ArgumentChecker.notNull(coupon, "coupon");
     return new CapFloorCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
         coupon.getFixingDate(), coupon.getUnderlyingSwap(), coupon.getCMSIndex(), strike, isCap);
   }
@@ -166,11 +167,11 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
 
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     // CMS is not fixed yet, all the details are required.
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
@@ -183,23 +184,23 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
 
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    Validate.notNull(dateTime, "date");
-    LocalDate dayConversion = dateTime.toLocalDate();
-    Validate.notNull(indexFixingTimeSeries, "Index fixing time series");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    LocalDate dayFixing = getFixingDate().toLocalDate();
+    final LocalDate dayFixing = getFixingDate().toLocalDate();
     if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
-      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate != null) {
         return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
       }
     }
     if (dayConversion.isAfter(dayFixing)) { // The fixing is required
-      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate().withHourOfDay(0)); // TODO: remove time from fixing date.
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate().withHour(0)); // TODO: remove time from fixing date.
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + dayFixing);
       }
@@ -214,11 +215,13 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorCMSDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorCMSDefinition(this);
   }
 

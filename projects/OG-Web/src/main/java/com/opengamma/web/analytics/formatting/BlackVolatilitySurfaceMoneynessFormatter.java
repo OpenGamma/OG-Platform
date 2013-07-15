@@ -18,14 +18,14 @@ import com.opengamma.engine.value.ValueSpecification;
     super(BlackVolatilitySurfaceMoneyness.class);
     addFormatter(new Formatter<BlackVolatilitySurfaceMoneyness>(Format.EXPANDED) {
       @Override
-      Object format(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
+      Object format(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec, Object inlineKey) {
         return SurfaceFormatterUtils.formatExpanded(value.getSurface());
       }
     });
   }
 
   @Override
-  public Object formatCell(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec) {
+  public Object formatCell(BlackVolatilitySurfaceMoneyness value, ValueSpecification valueSpec, Object inlineKey) {
     return SurfaceFormatterUtils.formatCell(value.getSurface());
   }
 

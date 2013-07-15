@@ -21,9 +21,8 @@ import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.sensitivity.Sensitivity;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -49,8 +48,8 @@ public class SensitivityAndReturnDataBundleTest {
       x1[i] = Math.random() - 0.5;
       x2[i] = Math.random() - 0.5;
     }
-    TS1 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, times, x1);
-    TS2 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, times, x2);
+    TS1 = ImmutableInstantDoubleTimeSeries.of(times, x1);
+    TS2 = ImmutableInstantDoubleTimeSeries.of(times, x2);
     M1 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
     M1.put(UnderlyingType.SPOT_PRICE, TS1);
     M2 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();

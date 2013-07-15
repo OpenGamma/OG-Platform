@@ -49,12 +49,11 @@
          * Create html columns to house the grids
          */
         util.process_data = function (object) {
-            if (!object.data) return;
             var is_matrix, xlabels, ylabels, col_width, cols;
-            is_matrix = (object.data.matrix && !$.isEmptyObject(object.data.matrix));
+            is_matrix = (object.matrix && !$.isEmptyObject(object.matrix));
             if (!is_matrix && !object.labels) object.labels = ['Label', 'Value'];
-            xlabels = is_matrix ? object.data['xLabels'] : object.labels;
-            ylabels = is_matrix ? object.data['yLabels'] : null;
+            xlabels = is_matrix ? object['xLabels'] : object.labels;
+            ylabels = is_matrix ? object['yLabels'] : null;
             col_width = util.column_width(xlabels, settings.max_col_width, is_matrix);
             cols = [];
             if (is_matrix) {
@@ -63,14 +62,14 @@
             } else {
                 $selector.removeClass('matrix');
             }
-            xlabels.forEach(function (val) {
-                cols.push({id: val, name: val, field: val, width: col_width});
-            });
+            xlabels
+                .forEach(function (val) {cols.push({id: val, name: val, field: val, width: col_width});});
             return {
-                data: (is_matrix ? object.data.matrix : object.data).reduce(function (acc, val, i) {
+                data: (is_matrix ? object.matrix : object.data).reduce(function (acc, val, i) {
                     var obj = {};
                     if (is_matrix) obj.ylabelscol = ylabels[i];
-                    val.forEach(function (val, i) {obj[xlabels[i]] = val;});
+                    if ($.isArray(val)) val.forEach(function (val, i) {obj[xlabels[i]] = val;});
+                    else obj[xlabels[0]] = val
                     return acc.push(obj) && acc;
                 }, []),
                 columns:cols

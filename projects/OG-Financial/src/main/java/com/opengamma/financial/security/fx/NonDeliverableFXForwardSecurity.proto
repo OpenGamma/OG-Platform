@@ -10,12 +10,12 @@
    * An FX forward security.
    */
   message NonDeliverableFXForwardSecurity extends FinancialSecurity {
-  	required string securityType [default = "FX_FORWARD"];
+    required string securityType [default = "FX_FORWARD"];
     required com.opengamma.util.money.Currency payCurrency;
     required com.opengamma.util.money.Currency receiveCurrency;
     required double payAmount;
     required double receiveAmount;
-  	required javax.time.calendar.ZonedDateTime forwardDate;
+    required javax.time.calendar.ZonedDateTime forwardDate;
     required id.ExternalId region;
     required boolean deliverInReceiveCurrency;
   }

@@ -138,48 +138,48 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
       final double[][][] yBoundary = new double[2][xSteps + 1][];
 
       for (int i = 0; i <= xSteps; i++) {
-        yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
-        yBoundary[1][i] = yUpperBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
+        yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(t, x[i]);
+        yBoundary[1][i] = yUpperBoundary.getLeftMatrixCondition(t, x[i]);
 
-        double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        double[] temp = yLowerBoundary.getRightMatrixCondition(t, x[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           final int offset = k * (xSteps + 1);
           sum += temp[k] * u[offset + i];
         }
-        q[i] = sum + yLowerBoundary.getConstant(pdeData, t, x[i], dy);
+        q[i] = sum + yLowerBoundary.getConstant(t, x[i], dy);
 
-        temp = yUpperBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        temp = yUpperBoundary.getRightMatrixCondition(t, x[i]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           final int offset = (ySteps - k) * (xSteps + 1);
           sum += temp[k] * u[offset + i];
         }
-        q[i + ySteps * (xSteps + 1)] = sum + yUpperBoundary.getConstant(pdeData, t, x[i], dy);
+        q[i + ySteps * (xSteps + 1)] = sum + yUpperBoundary.getConstant(t, x[i], dy);
       }
 
       // The x boundary conditions
       final double[][][] xBoundary = new double[2][ySteps - 1][];
 
       for (int j = 1; j < ySteps; j++) {
-        xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
-        xBoundary[1][j - 1] = xUpperBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+        xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(t, y[j]);
+        xBoundary[1][j - 1] = xUpperBoundary.getLeftMatrixCondition(t, y[j]);
 
-        double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, t, y[j]);
+        double[] temp = xLowerBoundary.getRightMatrixCondition(t, y[j]);
         int offset = j * (xSteps + 1);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * u[offset + k];
         }
-        q[offset] = sum + xLowerBoundary.getConstant(pdeData, t, y[j], dx);
+        q[offset] = sum + xLowerBoundary.getConstant(t, y[j], dx);
 
-        temp = xUpperBoundary.getRightMatrixCondition(pdeData, t, y[j]);
+        temp = xUpperBoundary.getRightMatrixCondition(t, y[j]);
         offset = (j + 1) * (xSteps + 1) - 1;
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * u[offset - k];
         }
-        q[offset] = sum + xUpperBoundary.getConstant(pdeData, t, y[j], dx);
+        q[offset] = sum + xUpperBoundary.getConstant(t, y[j], dx);
       }
 
       // SOR
@@ -412,48 +412,48 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
       final double[][][] yBoundary = new double[2][xNodes][];
 
       for (int i = 0; i < xNodes; i++) {
-        yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
-        yBoundary[1][i] = yUpperBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
+        yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(timeGrid[n], xGrid[i]);
+        yBoundary[1][i] = yUpperBoundary.getLeftMatrixCondition(timeGrid[n], xGrid[i]);
 
-        double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
+        double[] temp = yLowerBoundary.getRightMatrixCondition(timeGrid[n], xGrid[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           final int offset = k * xNodes;
           sum += temp[k] * u[offset + i];
         }
-        q[i] = sum + yLowerBoundary.getConstant(pdeData, timeGrid[n], xGrid[i], dy[0]); // TODO need to change how boundary are calculated
+        q[i] = sum + yLowerBoundary.getConstant(timeGrid[n], xGrid[i], dy[0]); // TODO need to change how boundary are calculated
 
-        temp = yUpperBoundary.getRightMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
+        temp = yUpperBoundary.getRightMatrixCondition(timeGrid[n], xGrid[i]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           final int offset = (yNodes - 1 - k) * xNodes;
           sum += temp[k] * u[offset + i];
         }
-        q[i + (yNodes - 1) * xNodes] = sum + yUpperBoundary.getConstant(pdeData, timeGrid[n], xGrid[i], dy[yNodes - 2]);
+        q[i + (yNodes - 1) * xNodes] = sum + yUpperBoundary.getConstant(timeGrid[n], xGrid[i], dy[yNodes - 2]);
       }
 
       // The x boundary conditions
       final double[][][] xBoundary = new double[2][yNodes - 2][];
 
       for (int j = 1; j < yNodes - 1; j++) {
-        xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
-        xBoundary[1][j - 1] = xUpperBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
+        xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(timeGrid[n], yGrid[j]);
+        xBoundary[1][j - 1] = xUpperBoundary.getLeftMatrixCondition(timeGrid[n], yGrid[j]);
 
-        double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
+        double[] temp = xLowerBoundary.getRightMatrixCondition(timeGrid[n], yGrid[j]);
         int offset = j * xNodes;
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * u[offset + k];
         }
-        q[offset] = sum + xLowerBoundary.getConstant(pdeData, timeGrid[n], yGrid[j], dx[0]);
+        q[offset] = sum + xLowerBoundary.getConstant(timeGrid[n], yGrid[j], dx[0]);
 
-        temp = xUpperBoundary.getRightMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
+        temp = xUpperBoundary.getRightMatrixCondition(timeGrid[n], yGrid[j]);
         offset = (j + 1) * xNodes - 1;
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * u[offset - k];
         }
-        q[offset] = sum + xUpperBoundary.getConstant(pdeData, timeGrid[n], yGrid[j], dx[xNodes - 2]);
+        q[offset] = sum + xUpperBoundary.getConstant(timeGrid[n], yGrid[j], dx[xNodes - 2]);
       }
 
       // SOR

@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
@@ -20,20 +20,18 @@ import com.opengamma.util.ArgumentChecker;
 public class HistoricalMarketDataProviderFactory implements MarketDataProviderFactory {
 
   private final HistoricalTimeSeriesSource _timeSeriesSource;
-  private final SecuritySource _securitySource;
+  private final HistoricalTimeSeriesResolver _timeSeriesResolver;
 
-  public HistoricalMarketDataProviderFactory(HistoricalTimeSeriesSource timeSeriesSource, SecuritySource securitySource) {
+  public HistoricalMarketDataProviderFactory(final HistoricalTimeSeriesSource timeSeriesSource, final HistoricalTimeSeriesResolver timeSeriesResolver) {
     ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
-    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(timeSeriesResolver, "timeSeriesResolver");
     _timeSeriesSource = timeSeriesSource;
-    _securitySource = securitySource;
+    _timeSeriesResolver = timeSeriesResolver;
   }
 
   @Override
-  public MarketDataProvider create(UserPrincipal marketDataUser, MarketDataSpecification marketDataSpec) {
-    HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataProvider(_timeSeriesSource,
-                                            _securitySource,
-                                            historicalMarketDataSpec.getTimeSeriesResolverKey());
+  public MarketDataProvider create(final UserPrincipal marketDataUser, final MarketDataSpecification marketDataSpec) {
+    final HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
+    return new HistoricalMarketDataProvider(_timeSeriesSource, _timeSeriesResolver, historicalMarketDataSpec.getTimeSeriesResolverKey());
   }
 }

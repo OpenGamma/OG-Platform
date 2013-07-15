@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of an transaction on a Federal Funds Futures.
@@ -36,7 +37,7 @@ public class FederalFundsFutureTransaction implements InstrumentDerivative {
    * @param quantity The quantity of the transaction. Can be positive or negative.
    * @param referencePrice The reference price. It is the transaction price on the transaction date and the last close (margining) price afterward.
    */
-  public FederalFundsFutureTransaction(FederalFundsFutureSecurity underlyingFuture, int quantity, double referencePrice) {
+  public FederalFundsFutureTransaction(final FederalFundsFutureSecurity underlyingFuture, final int quantity, final double referencePrice) {
     Validate.notNull(underlyingFuture, "Future");
     _underlyingFuture = underlyingFuture;
     _quantity = quantity;
@@ -68,12 +69,14 @@ public class FederalFundsFutureTransaction implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureTransaction(this);
   }
 
@@ -90,7 +93,7 @@ public class FederalFundsFutureTransaction implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -100,7 +103,7 @@ public class FederalFundsFutureTransaction implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FederalFundsFutureTransaction other = (FederalFundsFutureTransaction) obj;
+    final FederalFundsFutureTransaction other = (FederalFundsFutureTransaction) obj;
     if (_quantity != other._quantity) {
       return false;
     }

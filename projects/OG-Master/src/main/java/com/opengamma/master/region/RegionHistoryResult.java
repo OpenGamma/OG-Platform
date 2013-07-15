@@ -95,7 +95,6 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
    * The meta-bean for {@code RegionHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static RegionHistoryResult.Meta meta() {
     return RegionHistoryResult.Meta.INSTANCE;
   }
@@ -149,7 +148,7 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

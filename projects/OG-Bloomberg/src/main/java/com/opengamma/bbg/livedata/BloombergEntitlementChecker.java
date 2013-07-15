@@ -12,15 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
-import net.sf.ehcache.Cache;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
-import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.UserHandle;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -38,6 +35,8 @@ import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
+
+import net.sf.ehcache.Cache;
 
 /**
  * Checks that the user has entitlement to access Bloomberg.
@@ -57,10 +56,6 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
    * The Bloomberg reference data provider.
    */
   private final ReferenceDataProvider _refDataProvider;
-  /**
-   * The Bloomberg //blp/apiauth service.
-   */
-  private Service _apiAuthSvc;
   /** 
    * Cache: UserPrincipal -> UserHandle 
    */
@@ -85,7 +80,7 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       BloombergConnector bloombergConnector,
       ReferenceDataProvider referenceDataProvider,
       DistributionSpecificationResolver resolver) {
-    super(bloombergConnector);
+    super(bloombergConnector, BloombergConstants.AUTH_SVC_NAME);
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(resolver, "resolver");
     
@@ -102,12 +97,6 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
   }
 
   @Override
-  protected void openServices() {
-    Service authService = openService(BloombergConstants.AUTH_SVC_NAME);
-    _apiAuthSvc = authService;
-  }
-
-  @Override
   protected Logger getLogger() {
     return s_logger;
   }
@@ -115,7 +104,7 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
   //-------------------------------------------------------------------------
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications) {
-    Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
+    Map<LiveDataSpecification, Boolean> returnValue = new HashMap<>();
     for (LiveDataSpecification spec : requestedSpecifications) {
       boolean entitled = isEntitled(user,  spec);
       returnValue.put(spec, entitled);                  
@@ -141,14 +130,14 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       return true;
     }
     
-    boolean isEntitled = userHandle.hasEntitlements(neededEntitlements, _apiAuthSvc);
+    boolean isEntitled = userHandle.hasEntitlements(neededEntitlements, getService());
     return isEntitled;
   }
 
   private UserHandle getUserHandle(UserPrincipal user) {
     net.sf.ehcache.Element cachedUserHandle = _userHandleCache.get(user);
     if (cachedUserHandle == null) {
-      Request authorizationRequest = _apiAuthSvc.createAuthorizationRequest();
+      Request authorizationRequest = getService().createAuthorizationRequest();
       
       Integer uuid;
       try {
@@ -186,7 +175,7 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       }
       
       if (!authorizedSuccessfully) {
-        return null;        
+        return null;
       }
     }
     

@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.model.interestrate.G2ppPiecewiseConstantModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.integration.IntegratorRepeated2D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
@@ -61,8 +62,8 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
     final double[][] tIbor = new double[2][];
     final double[][] dfIbor = new double[2][];
     final double[][] discountedCashFlowIbor = new double[2][];
-    final AnnuityPaymentFixed[] cfeIbor = new AnnuityPaymentFixed[] {CFEC.visit(cmsSpread.getUnderlyingSwap1().getSecondLeg(), g2Data),
-        CFEC.visit(cmsSpread.getUnderlyingSwap2().getSecondLeg(), g2Data) };
+    final AnnuityPaymentFixed[] cfeIbor = new AnnuityPaymentFixed[] {cmsSpread.getUnderlyingSwap1().getSecondLeg().accept(CFEC, g2Data),
+        cmsSpread.getUnderlyingSwap2().getSecondLeg().accept(CFEC, g2Data) };
     final int[] nbCfIbor = new int[] {cfeIbor[0].getNumberOfPayments(), cfeIbor[1].getNumberOfPayments() };
     final double[] notionalSwap = new double[] {cmsSpread.getUnderlyingSwap1().getFixedLeg().getNthPayment(0).getNotional(),
         cmsSpread.getUnderlyingSwap2().getFixedLeg().getNthPayment(0).getNotional() };
@@ -137,7 +138,7 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
       pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar))
           * integrator2D.integrate(integrant, new Double[] {-INTEGRATION_LIMIT, -INTEGRATION_LIMIT }, new Double[] {INTEGRATION_LIMIT, INTEGRATION_LIMIT });
     } catch (final Exception e) {
-      throw new RuntimeException(e);
+      throw new MathException(e);
     }
     return CurrencyAmount.of(cmsSpread.getCurrency(), dftp * pv * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction());
   }

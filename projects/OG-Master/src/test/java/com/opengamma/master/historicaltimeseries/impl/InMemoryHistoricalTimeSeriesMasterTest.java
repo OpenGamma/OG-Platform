@@ -12,10 +12,9 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
@@ -31,13 +30,14 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemoryHistoricalTimeSeriesMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryHistoricalTimeSeriesMasterTest {
 
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
@@ -280,7 +280,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   public void test_points_update_correct() {
     LocalDate[] dates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2)};
     double[] values = {1.1d, 2.2d};
-    LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries input = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     
     UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
@@ -291,14 +291,14 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     
     LocalDate[] dates2 = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 3)};
     double[] values2 = {1.5d, 2.5d};
-    LocalDateDoubleTimeSeries input2 = new ArrayLocalDateDoubleTimeSeries(dates2, values2);
+    LocalDateDoubleTimeSeries input2 = ImmutableLocalDateDoubleTimeSeries.of(dates2, values2);
     
     UniqueId uniqueId2 = testPopulated.correctTimeSeriesDataPoints(doc1.getUniqueId(), input2);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId2.getObjectId());
     
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 3)};
     double[] expectedValues = {1.5d, 2.2d, 2.5d};
-    LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
+    LocalDateDoubleTimeSeries expected = ImmutableLocalDateDoubleTimeSeries.of(expectedDates, expectedValues);
     ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
@@ -307,7 +307,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   public void test_points_update_remove() {
     LocalDate[] dates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2)};
     double[] values = {1.1d, 2.2d};
-    LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries input = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     
     UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
@@ -321,7 +321,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1)};
     double[] expectedValues = {1.1d};
-    LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
+    LocalDateDoubleTimeSeries expected = ImmutableLocalDateDoubleTimeSeries.of(expectedDates, expectedValues);
     ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId);
     assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
@@ -346,7 +346,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
         2.2d, 
         2.0d
     }; 
-    LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    LocalDateDoubleTimeSeries input = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
     ManageableHistoricalTimeSeries reference = testPopulated.getTimeSeries(doc1.getUniqueId());
     
@@ -357,67 +357,67 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     assertEquals(input, test.getTimeSeries());
 
     // Get filtered by time, open-ended end
-    filter.setEarliestDate(reference.getTimeSeries().getTimeAt(1)); // exclude first point
+    filter.setEarliestDate(reference.getTimeSeries().getTimeAtIndex(1)); // exclude first point
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(reference.getTimeSeries().size() - 1, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getEarliestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getEarliestTime());
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestTime());    
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getEarliestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getEarliestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getLatestTime());    
 
     // Get filtered by time, closed at both ends
-    filter.setLatestDate(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2)); // exclude last point
+    filter.setLatestDate(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2)); // exclude last point
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(reference.getTimeSeries().size() - 2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getEarliestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getEarliestTime());
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getEarliestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getEarliestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
     
     // Get filtered by time, open-ended start
     filter.setEarliestDate(null);
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(reference.getTimeSeries().size() - 1, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getValueAt(0), test.getTimeSeries().getEarliestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(0), test.getTimeSeries().getEarliestTime());
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(0), test.getTimeSeries().getEarliestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(0), test.getTimeSeries().getEarliestTime());
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestValue());
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getLatestTime());
 
     // Get filtered by +ve maxPoints, open-ended start
     filter.setMaxPoints(2); // get earliest two points
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(0), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(0), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getValueAt(1));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(0), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(0), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getValueAtIndex(1));
     
     // Get filtered by +ve maxPoints, closed date range
-    filter.setEarliestDate(reference.getTimeSeries().getTimeAt(1)); // exclude first point
+    filter.setEarliestDate(reference.getTimeSeries().getTimeAtIndex(1)); // exclude first point
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(1), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(1), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(2), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(2), test.getTimeSeries().getValueAt(1));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(1), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(1), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(2), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(2), test.getTimeSeries().getValueAtIndex(1));
     
     // Get filtered by -ve maxPoints, closed date range
     filter.setMaxPoints(-2); // get latest two points
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 3), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 3), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAt(1));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 3), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 3), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAtIndex(1));
     
     // Get filtered by -ve maxPoints, open-ended end
     filter.setLatestDate(null);
     test = testPopulated.getTimeSeries(doc1.getUniqueId(), filter);
     assertEquals(2, test.getTimeSeries().size());
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAt(0));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAt(0));
-    assertEquals(reference.getTimeSeries().getTimeAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getTimeAt(1));
-    assertEquals(reference.getTimeSeries().getValueAt(reference.getTimeSeries().size() - 1), test.getTimeSeries().getValueAt(1));   
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getTimeAtIndex(0));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 2), test.getTimeSeries().getValueAtIndex(0));
+    assertEquals(reference.getTimeSeries().getTimeAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getTimeAtIndex(1));
+    assertEquals(reference.getTimeSeries().getValueAtIndex(reference.getTimeSeries().size() - 1), test.getTimeSeries().getValueAtIndex(1));   
   }
 
 }

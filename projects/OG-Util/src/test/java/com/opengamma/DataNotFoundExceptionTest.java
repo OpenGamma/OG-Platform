@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertSame;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test {@link DataNotFoundException}. 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DataNotFoundExceptionTest {
 
   public void test_constructor_String() {

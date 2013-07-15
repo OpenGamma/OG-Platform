@@ -1,0 +1,68 @@
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 33%">              
+    <col style="width: 67%">              
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          <span>Expiry Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.expiry" type="text" value="{{expiry}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Settlement Date</span>
+        </label>
+      </td>
+      <td>
+        <input class="blotter-date" name="security.settlementDate" type="text" value="{{date}}" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Barrier Level</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.barrierLevel" type="text" value="{{level}}" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Direction / Type</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span>{{{item_0}}}</span><span>{{{item_1}}}</span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Monitoring Type</span>
+        </label>
+      </td>
+      <td>
+        {{{item_2}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Sampling Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_3}}}
+      </td>
+    </tr>
+  </tbody>
+</table>

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  *
@@ -47,7 +47,7 @@ public class CAPMFromRegressionCalculator implements Function<DoubleTimeSeries<?
     final double[] asset = assetTS.valuesArrayFast();
     final double[][] market = new double[asset.length][1];
     for (int i = 0; i < asset.length; i++) {
-      market[i][0] = marketTS.getValueAt(i);
+      market[i][0] = marketTS.getValueAtIndex(i);
     }
     //final double[][] market = new double[][] {marketTS.toFastLongDoubleTimeSeries().valuesArrayFast()}; //TODO change when [ANA-254] is completed
     final LeastSquaresRegressionResult result = OLS.regress(market, asset, true);

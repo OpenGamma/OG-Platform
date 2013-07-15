@@ -127,7 +127,7 @@
     }
 
     .OG-analytics-form-menu.og-menu-datasources tr td select.source{
-        width: 100%;
+        width: auto;
         min-width: 256px;
     }
 
@@ -147,13 +147,13 @@
         display: none;
         z-index: 10;
     }
-    
+
     .OG-analytics-form-menu.og-menu-datasources .extra-opts{
         margin-left: 11px;
     }
 
     .OG-analytics-form-menu.og-menu-datasources .extra-opts span{
-        vertical-align: middle;        
+        vertical-align: middle;
     }
 
     .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button]{
@@ -168,7 +168,7 @@
         border-top-color: #ccc !important;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button].active{ 
+    .OG-analytics-form-menu.og-menu-datasources .extra-opts input[type=button].active{
         border-top-color: #80c696 !important;
         cursor: default;
     }
@@ -210,6 +210,96 @@
     .OG-analytics-form-menu.og-menu-datasources .historical .extra-opts{
         margin-left: 0px;
     }
+
+/* temporal */
+    .OG-analytics-form-menu.og-menu-temporal{
+        background: none;
+        font-family: 'Open Sans', arial, serif;
+        width:auto;
+    }
+
+    .OG-analytics-form-menu.og-menu-temporal fieldset p{
+        font-size: 14px;
+    }
+
+
+    .og-menu-temporal fieldset label {
+        margin:0 6em 0 0;
+    }
+
+    .og-menu-temporal fieldset label + label {
+        margin:0 0 0 0;
+    }
+
+    .og-menu-temporal input[type=text] {
+        margin:0 0 0 2em;
+    }
+
+    .OG-analytics-form-menu.og-menu-temporal .valuation-time{
+        color: #fff;
+        margin: 1px;
+        position: relative;
+    }
+
+    .og-menu-temporal .valuation-time:before{
+        bottom:40%;
+        background-color: #fff;
+        content: "";
+        left:0;
+        opacity:0.1;
+        position: absolute;
+        right:0;
+        top:0;
+    }
+
+    .OG-analytics-form-menu.og-menu-temporal .valuation-time.OG-background-03{
+        height:auto;
+    }
+
+    .OG-analytics-form-menu.og-menu-temporal .valuation-time em{
+        font-size: 8pt;
+        display: block;
+    }
+
+    .og-menu-temporal .portfolio-version{
+        position: relative;
+    }
+
+    .og-menu-temporal .portfolio-version:before{
+        bottom:93%;
+        content: "";
+        left:0;
+        opacity:0.3;
+        position: absolute;
+        right:0;
+        top:0;
+
+        background: -moz-linear-gradient(top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%); /* FF3.6+ */
+        background: -webkit-linear-gradient(top, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%); /* Chrome10+,Safari5.1+ */
+        background: -ms-linear-gradient(top, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%); /* IE10+ */
+        background: linear-gradient(to bottom, rgba(0,0,0,0.65) 0%,rgba(0,0,0,0) 100%);
+    }
+
+    .OG-analytics-form-menu.og-menu-temporal .valuation-time,
+    .OG-analytics-form-menu.og-menu-temporal .portfolio-version,
+    .OG-analytics-form-menu.og-menu-temporal .portfolio-correction{
+        padding: 10px
+    }
+
+    .OG-analytics-form-menu.og-menu-temporal .portfolio-version,
+    .OG-analytics-form-menu.og-menu-temporal .portfolio-correction{
+        background-color: #fff;
+    }
+
+    .OG-analytics-form-menu.og-menu-temporal .portfolio-version p,
+    .OG-analytics-form-menu.og-menu-temporal .portfolio-correction p{
+        margin-bottom: 10px;
+}
+
+/* filters */
+.OG-analytics-form-menu.og-filters-menu input[type=radio] {
+    vertical-align: top;
+}
 
 /* ie8 doesnt support nth or last child...degrade */
     .ie8 .OG-analytics-form-menu select {

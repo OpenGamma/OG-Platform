@@ -3,17 +3,23 @@
  * Please see distribution for license.
  */
 .OG-analytics-inplace .OG-icon.og-icon-down-chevron {
-    border: 1px solid #dadcdd;
+    border: 1px solid #01467a;
     cursor: pointer;
-    height: 11px;
-    left: -2px;
+    height: 20px;
+    width: 20px;
+    background-color: #01467a;
 }
+
 .OG-analytics-inplace .ui-layout-content {
-    background-color: #F8F8F8;
-    box-shadow: 3px 3px 3px #ebebeb;
-    -moz-box-shadow: 3px 3px 3px #ebebeb;
-    -webkit-box-shadow: 3px 3px 3px #ebebeb;
-    height:275px;
+    background-color: #f8f8f8;
+    top: 31px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    border: 1px solid #01467a;
+    border-top: transparent;
+    margin: 0;
 }
 .OG-analytics-inplace .ui-layout-header:after,
 .OG-analytics-inplace .ui-layout-header {
@@ -23,22 +29,90 @@
 .OG-analytics-inplace .OG-gadgets-container {
     background: none;
     display: none;
-    height: 300px;
-    margin-left: -1px;
-    margin-top: 17px;
-    width: 480px;
+    margin-top: 21px;
     position: absolute;
 }
 
-.OG-analytics-inplace .OG-gadget-tabs {
-    border-top: none;
+.OG-analytics-inplace .OG-gadget-container {
+    border: 1px solid #ccc;
 }
 
-.OG-analytics-inplace .OG-gadget-tabs ul:before {
-    height: 0;
+.OG-analytics-inplace .ui-layout-header {
+    border: none;
 }
 
-/* Remove left shadow on tabs to coincide with rest of inplace gadget */
-.OG-analytics-inplace .OG-gadget-tabs li.og-active:before {
-    background-size: 0 100%, 6px 100%;
+.OG-analytics-inplace .ui-layout-header .og-container {
+    background-color: #eee;
+    height: 30px;
+    border-left: 1px solid #01467a;
+    border-right: 1px solid #01467a;
+    border-top: 1px solid #01467a;
+    overflow: hidden;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-container table {
+    width: 100%;
+    height: 100%;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-menu {
+    width: 22px;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-label {
+    text-align: right;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-label div {
+    position: relative;
+    padding: 5px;
+    cursor: move;
+    z-index: 2;
+    white-space: nowrap;
+}
+
+
+.OG-analytics-inplace .ui-layout-header .og-menu span {
+    height: 11px;
+    left: 3px;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-menu div {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    margin-left: 5px;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-menu div:hover {
+    background-color: #01467a;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-dock div:hover {
+    background-color: #006600;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-dock div:hover .og-icon-dock:after {
+    background-position: -52px -162px;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-separator {
+    width: 16px;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-separator span {
+    width: 16px;
+    display: block;
+}
+
+.OG-analytics-inplace .ui-layout-header .og-separator span:after {
+    background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+    content: '';
+    background-position: 0 0;
+    display: inline-block;
+    height: 3px;
+    width: 3px;
+    position: relative;
+    top: -3px;
+    left: 9px;
 }

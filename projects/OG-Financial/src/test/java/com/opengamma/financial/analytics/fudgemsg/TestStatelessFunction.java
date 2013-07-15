@@ -5,12 +5,16 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class TestStatelessFunction {
 
   public Function<Double, Double> getSurface(final Double a, final Double b) {

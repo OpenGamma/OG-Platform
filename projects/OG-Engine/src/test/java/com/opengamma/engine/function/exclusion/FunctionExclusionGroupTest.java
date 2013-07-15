@@ -9,19 +9,19 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNull;
 
-import javax.time.InstantProvider;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the function exclusion group class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionExclusionGroupTest {
 
   private static class Function implements FunctionDefinition {
@@ -38,7 +38,7 @@ public class FunctionExclusionGroupTest {
     }
 
     @Override
-    public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+    public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
       throw new UnsupportedOperationException();
     }
 
@@ -60,7 +60,7 @@ public class FunctionExclusionGroupTest {
   }
 
   public void testAbstract() {
-    final FunctionExclusionGroups groups = new AbstractFunctionExclusionGroups<String>() {
+    final FunctionExclusionGroups groups = new AbstractFunctionExclusionGroups() {
       @Override
       protected String getKey(final FunctionDefinition function) {
         if (function.getShortName().startsWith("A_")) {

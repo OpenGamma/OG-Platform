@@ -60,7 +60,7 @@ public class PositionAccumulator {
    */
   private class Callback extends AbstractPortfolioNodeTraversalCallback {
     @Override
-    public void preOrderOperation(Position position) {
+    public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
       _positions.add(position);
     }
   }

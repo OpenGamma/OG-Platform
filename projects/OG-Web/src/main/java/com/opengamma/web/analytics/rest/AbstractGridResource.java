@@ -31,24 +31,47 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
  */
 public abstract class AbstractGridResource {
 
-  /** For generating IDs for grids and viewports. */
-  protected static final AtomicInteger s_nextId = new AtomicInteger(0);
-
-  /** The view whose data the grid displays. */
-  protected final AnalyticsView _view;
-
-  /** The type of data displayed in the grid (portfolio or primitives). */
-  protected final AnalyticsView.GridType _gridType;
+  /**
+   * For generating IDs for grids and viewports.
+   */
+  static final AtomicInteger s_nextId = new AtomicInteger(0);
+  /**
+   * The view whose data the grid displays.
+   */
+  private final AnalyticsView _view;
+  /**
+   * The type of data displayed in the grid (portfolio or primitives).
+   */
+  private final AnalyticsView.GridType _gridType;
 
   /**
-   * @param gridType The type of grid
-   * @param view The view whose data the grid displays
+   * @param gridType  the type of grid, not null
+   * @param view  the view whose data the grid displays, not null
    */
   public AbstractGridResource(AnalyticsView.GridType gridType, AnalyticsView view) {
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(view, "view");
     _gridType = gridType;
     _view = view;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the view.
+   * 
+   * @return the view, not null
+   */
+  protected AnalyticsView getView() {
+    return _view;
+  }
+
+  /**
+   * Gets the grid type.
+   * 
+   * @return the grid type, not null
+   */
+  protected AnalyticsView.GridType getGridType() {
+    return _gridType;
   }
 
   /**
@@ -59,24 +82,29 @@ public abstract class AbstractGridResource {
 
   /**
    * Creates a new viewport which represents a part of a grid that the user is viewing.
-   * @param uriInfo Details of the request URI
-   * @param rows Indices of rows in the viewport, can be empty if {@code cells} is non-empty
-   * @param columns Indices of columns in the viewport, can be empty if {@code cells} is non-empty
-   * @param cells Cells in the viewport, can be empty if {@code rows} and {@code columns} are non-empty
-   * @param format Specifies the way the data should be formatted
-   * @return A response with the viewport's URL in the {@code Location} header
+   * 
+   * @param requestId  the request ID
+   * @param version  the version
+   * @param uriInfo  the details of the request URI
+   * @param rows  the indices of rows in the viewport, can be empty if {@code cells} is non-empty
+   * @param columns  the indices of columns in the viewport, can be empty if {@code cells} is non-empty
+   * @param cells  the cells in the viewport, can be empty if {@code rows} and {@code columns} are non-empty
+   * @param format  the way the data should be formatted
+   * @param enableLogging  whether to enable logging
+   * @return a response with the viewport's URL in the {@code Location} header
    */
   @POST
   @Path("viewports")
   // TODO need requestId for initial callback
   public Response createViewport(@Context UriInfo uriInfo,
-                                 @FormParam("requestId") int requestId,
-                                 @FormParam("version") int version,
-                                 @FormParam("rows") List<Integer> rows,
-                                 @FormParam("columns") List<Integer> columns,
-                                 @FormParam("cells") List<GridCell> cells,
-                                 @FormParam("format") TypeFormatter.Format format) {
-    ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format);
+      @FormParam("requestId") int requestId,
+      @FormParam("version") int version,
+      @FormParam("rows") List<Integer> rows,
+      @FormParam("columns") List<Integer> columns,
+      @FormParam("cells") List<GridCell> cells,
+      @FormParam("format") TypeFormatter.Format format,
+      @FormParam("enableLogging") Boolean enableLogging) {
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
@@ -93,7 +121,7 @@ public abstract class AbstractGridResource {
    * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
    * its current state
    */
-  /* package */ abstract void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  /* package */abstract void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Returns a resource for a viewport. If the ID is unknown a resource will be returned but a
@@ -103,4 +131,5 @@ public abstract class AbstractGridResource {
    */
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") int viewportId);
+
 }

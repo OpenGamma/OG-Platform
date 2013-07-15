@@ -13,17 +13,17 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one 
+ * For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one
  */
 public class SumToOne {
   private static final double TOL = 1e-9;
-  private static final Map<Integer, int[][]> SETS = new HashMap<Integer, int[][]>();
+  private static final Map<Integer, int[][]> SETS = new HashMap<>();
 
-  private int[][] _set;
-  private int _n;
+  private final int[][] _set;
+  private final int _n;
 
   /**
-   *For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one 
+   *For a set of N-1 "fit" parameters, produces N "model" parameters that sum to one
    * @param n The number of "model" parameters, N
    */
   public SumToOne(final int n) {
@@ -32,14 +32,14 @@ public class SumToOne {
   }
 
   /**
-   * Transform from the N-1 "fit" parameters to the N "model" parameters 
+   * Transform from the N-1 "fit" parameters to the N "model" parameters
    * @param fitParms The N-1 "fit" parameters
    * @return The N "model" parameters
    */
   public double[] transform(final double[] fitParms) {
     ArgumentChecker.isTrue(fitParms.length == _n - 1, "length of fitParms is {}, but must be {} ", fitParms.length, _n - 1);
-    double[] s2 = new double[_n - 1];
-    double[] c2 = new double[_n - 1];
+    final double[] s2 = new double[_n - 1];
+    final double[] c2 = new double[_n - 1];
     for (int j = 0; j < _n - 1; j++) {
       double temp = Math.sin(fitParms[j]);
       temp *= temp;
@@ -47,7 +47,7 @@ public class SumToOne {
       c2[j] = 1.0 - temp;
     }
 
-    double[] res = new double[_n];
+    final double[] res = new double[_n];
     for (int i = 0; i < _n; i++) {
       double prod = 1.0;
       for (int j = 0; j < _n - 1; j++) {
@@ -63,7 +63,7 @@ public class SumToOne {
   }
 
   /**
-   * Transform from the N-1 "fit" parameters to the N "model" parameters 
+   * Transform from the N-1 "fit" parameters to the N "model" parameters
    * @param fitParms The N-1 "fit" parameters
    * @return The N "model" parameters
    */
@@ -79,8 +79,8 @@ public class SumToOne {
   public double[] inverseTransform(final double[] modelParms) {
     ArgumentChecker.isTrue(modelParms.length == _n, "length of modelParms is {}, but must be {} ", modelParms.length, _n);
 
-    double[] res = new double[_n - 1];
-    double[] cum = new double[_n + 1];
+    final double[] res = new double[_n - 1];
+    final double[] cum = new double[_n + 1];
 
     double sum = 0.0;
     for (int i = 0; i < _n; i++) {
@@ -107,20 +107,20 @@ public class SumToOne {
   }
 
   /**
-   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters 
+   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters
    * @param fitParms  The N-1 "fit" parameters
    * @return The N by N-1 Jacobian matrix
    */
   public double[][] jacobian(final double[] fitParms) {
     ArgumentChecker.isTrue(fitParms.length == _n - 1, "length of fitParms is {}, but must be {} ", fitParms.length, _n - 1);
-    double[] sin = new double[_n - 1];
-    double[] cos = new double[_n - 1];
+    final double[] sin = new double[_n - 1];
+    final double[] cos = new double[_n - 1];
     for (int j = 0; j < _n - 1; j++) {
       sin[j] = Math.sin(fitParms[j]);
       cos[j] = Math.cos(fitParms[j]);
     }
 
-    double[] a = new double[_n];
+    final double[] a = new double[_n];
     for (int i = 0; i < _n; i++) {
       double prod = 1.0;
       for (int j = 0; j < _n - 1; j++) {
@@ -133,7 +133,7 @@ public class SumToOne {
       a[i] = 2 * prod * prod;
     }
 
-    double[][] res = new double[_n][_n - 1];
+    final double[][] res = new double[_n][_n - 1];
     for (int i = 0; i < _n; i++) {
       for (int j = 0; j < _n - 1; j++) {
         if (_set[i][j] == 1 && a[i] != 0.0) {
@@ -147,7 +147,7 @@ public class SumToOne {
   }
 
   /**
-   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters 
+   * The N by N-1 Jacobian matrix between the N "model" parameters (that sum to one) and the N-1 "fit" parameters
    * @param fitParms  The N-1 "fit" parameters
    * @return The N by N-1 Jacobian matrix
    */
@@ -159,16 +159,16 @@ public class SumToOne {
     if (n == 1) {
       return;
     }
-    int n1 = n / 2;
-    int n2 = n - n1;
-    double s = (cum[p1 + n1] - cum[p1]) * factor;
-    double c = 1 - s;
+    final int n1 = n / 2;
+    final int n2 = n - n1;
+    final double s = (cum[p1 + n1] - cum[p1]) * factor;
+    final double c = 1 - s;
     res[d] = s;
     cal(cum, factor / s, d + 1, n1, p1, res);
     cal(cum, factor / c, d + n1, n2, p1 + n1, res);
   }
 
-  protected static int[][] getSet(int n) {
+  protected static int[][] getSet(final int n) {
     ArgumentChecker.isTrue(n > 1, "need n>1");
     if (SETS.containsKey(n)) {
       return SETS.get(n);
@@ -191,10 +191,10 @@ public class SumToOne {
         res[3] = new int[] {-1, 0, -1 };
         break;
       default:
-        int n1 = n / 2;
-        int n2 = n - n1;
-        int[][] set1 = getSet(n1);
-        int[][] set2 = (n1 == n2 ? set1 : getSet(n2));
+        final int n1 = n / 2;
+        final int n2 = n - n1;
+        final int[][] set1 = getSet(n1);
+        final int[][] set2 = (n1 == n2 ? set1 : getSet(n2));
         res = new int[n][n - 1];
 
         for (int i = 0; i < n1; i++) {

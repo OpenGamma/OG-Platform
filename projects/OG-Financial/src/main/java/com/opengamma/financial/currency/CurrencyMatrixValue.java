@@ -12,7 +12,13 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.springframework.util.ObjectUtils;
 
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -74,9 +80,8 @@ public abstract class CurrencyMatrixValue {
   }
 
   /**
-   * A conversion rate from one currency to another supplied by another node in the dependency
-   * graph. This might be a live data sourcing function to use current market data, or a
-   * calculated value based on something else.
+   * A conversion rate from one currency to another supplied by another node in the dependency graph. This might be a live data sourcing function to use current market data, or a calculated value
+   * based on something else.
    */
   public static final class CurrencyMatrixValueRequirement extends CurrencyMatrixValue {
 
@@ -129,8 +134,31 @@ public abstract class CurrencyMatrixValue {
       return msg;
     }
 
+    /**
+     * Support translation from pre-3044 type specifications, such as CTSpec[PRIMITIVE, BLOOMBERG_TICKER~USD Curncy], to the correct CTReq[PRIMITIVE, BLOOMBERGTICKER~USD Curncy].
+     * 
+     * @param valueRequirement the possibly legacy specification, not null
+     * @return the updated specification, not null
+     * @deprecated shouldn't be relying on this, a configuration database upgrade script to apply the transformation would be better
+     */
+    @Deprecated
+    private static ValueRequirement plat3044Translate(final ValueRequirement valueRequirement) {
+      if (valueRequirement.getTargetReference() instanceof ComputationTargetSpecification) {
+        final ComputationTargetSpecification spec = valueRequirement.getTargetReference().getSpecification();
+        if (spec.getType().equals(ComputationTargetType.PRIMITIVE)) {
+          final UniqueId uid = spec.getUniqueId();
+          if (ExternalSchemes.BLOOMBERG_TICKER.getName().equals(uid.getScheme())) {
+            return new ValueRequirement(valueRequirement.getValueName(), new ComputationTargetRequirement(spec.getType(), ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, uid.getValue())),
+                valueRequirement.getConstraints());
+          }
+        }
+      }
+      return valueRequirement;
+    }
+
     public static CurrencyMatrixValueRequirement fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-      return new CurrencyMatrixValueRequirement(deserializer.fudgeMsgToObject(ValueRequirement.class, msg), msg.getBoolean("reciprocal"));
+      ValueRequirement requirement = deserializer.fudgeMsgToObject(ValueRequirement.class, msg);
+      return new CurrencyMatrixValueRequirement(plat3044Translate(requirement), msg.getBoolean("reciprocal"));
     }
 
     @Override
@@ -205,8 +233,8 @@ public abstract class CurrencyMatrixValue {
   }
 
   /**
-   * Creates a matrix value that is obtained from an arbitrary value produced by the dependency graph. This may
-   * be a requirement satisfied by a live data provider or a value calculated by other functions.
+   * Creates a matrix value that is obtained from an arbitrary value produced by the dependency graph. This may be a requirement satisfied by a live data provider or a value calculated by other
+   * functions.
    * 
    * @param valueRequirement identifies the value to use
    * @return the matrix value
@@ -216,8 +244,7 @@ public abstract class CurrencyMatrixValue {
   }
 
   /**
-   * Creates a matrix value that indicates a conversion between currencies should be performed using
-   * the rates of each to/from an intermediate currency.
+   * Creates a matrix value that indicates a conversion between currencies should be performed using the rates of each to/from an intermediate currency.
    * 
    * @param currency the intermediate currency
    * @return the matrix value

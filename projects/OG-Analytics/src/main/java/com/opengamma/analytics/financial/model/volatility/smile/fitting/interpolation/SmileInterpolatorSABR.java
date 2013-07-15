@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 
 import java.util.BitSet;
 
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
@@ -34,14 +36,24 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     this(DEFAULT_SABR, beta);
   }
 
+  public SmileInterpolatorSABR(final int seed, final double beta) {
+    this(seed, DEFAULT_SABR, beta);
+  }
+
   public SmileInterpolatorSABR(final double beta, final WeightingFunction weightFunction) {
     this(DEFAULT_SABR, beta, weightFunction);
   }
 
+  public SmileInterpolatorSABR(final int seed, final double beta, final WeightingFunction weightFunction) {
+    this(seed, DEFAULT_SABR, beta, weightFunction);
+  }
+
   public SmileInterpolatorSABR(final WeightingFunction weightFunction) {
-    super(DEFAULT_SABR, weightFunction);
-    _beta = DEFAULT_BETA;
-    _externalBeta = false;
+    this(DEFAULT_SABR, weightFunction);
+  }
+
+  public SmileInterpolatorSABR(final int seed, final WeightingFunction weightFunction) {
+    this(seed, DEFAULT_SABR, weightFunction);
   }
 
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model) {
@@ -50,8 +62,20 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     _externalBeta = false;
   }
 
+  public SmileInterpolatorSABR(final int seed, final VolatilityFunctionProvider<SABRFormulaData> model) {
+    super(seed, model);
+    _beta = DEFAULT_BETA;
+    _externalBeta = false;
+  }
+
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final WeightingFunction weightFunction) {
     super(model, weightFunction);
+    _beta = DEFAULT_BETA;
+    _externalBeta = false;
+  }
+
+  public SmileInterpolatorSABR(final int seed, final VolatilityFunctionProvider<SABRFormulaData> model, final WeightingFunction weightFunction) {
+    super(seed, model, weightFunction);
     _beta = DEFAULT_BETA;
     _externalBeta = false;
   }
@@ -63,8 +87,22 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     _externalBeta = true;
   }
 
+  public SmileInterpolatorSABR(final int seed, final VolatilityFunctionProvider<SABRFormulaData> model, final double beta) {
+    super(seed, model);
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0.0, 1.0, beta), "beta value of {} not in range 0 to 1", beta);
+    _beta = beta;
+    _externalBeta = true;
+  }
+
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final double beta, final WeightingFunction weightFunction) {
     super(model, weightFunction);
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0.0, 1.0, beta), "beta value of {} not in range 0 to 1", beta);
+    _beta = beta;
+    _externalBeta = true;
+  }
+
+  public SmileInterpolatorSABR(final int seed, final VolatilityFunctionProvider<SABRFormulaData> model, final double beta, final WeightingFunction weightFunction) {
+    super(seed, model, weightFunction);
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0.0, 1.0, beta), "beta value of {} not in range 0 to 1", beta);
     _beta = beta;
     _externalBeta = true;
@@ -80,6 +118,7 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
 
   @Override
   protected DoubleMatrix1D getGlobalStart(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    final RandomEngine random = getRandom();
     final DoubleMatrix1D fitP = getPolynomialFit(forward, strikes, impliedVols);
     final double a = fitP.getEntry(0);
     final double b = fitP.getEntry(1);
@@ -90,7 +129,7 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     if (_externalBeta) {
       beta = _beta;
     } else {
-      beta = RANDOM.nextDouble();
+      beta = random.nextDouble();
     }
 
     if (a <= 0.0) { //negative ATM vol - can get this if fit points are far from ATM
@@ -100,9 +139,9 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
         sum += impliedVols[i];
       }
       final double approxAlpha = sum / n * Math.pow(forward, 1 - beta);
-      alpha = (RANDOM.nextDouble() + 0.5) * approxAlpha;
-      rho = RANDOM.nextDouble() - 0.5;
-      nu = 0.5 * RANDOM.nextDouble() + 0.1;
+      alpha = (random.nextDouble() + 0.5) * approxAlpha;
+      rho = random.nextDouble() - 0.5;
+      nu = 0.5 * random.nextDouble() + 0.1;
       return new DoubleMatrix1D(alpha, beta, rho, nu);
     }
     if (Math.abs(b) < 1e-3 && Math.abs(c) < 1e-3) { //almost flat smile
@@ -112,9 +151,9 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
       return new DoubleMatrix1D(a, 1.0, 0.0, Math.max(0.0, 4 * c));
     }
     final double approxAlpha = a * Math.pow(forward, 1 - beta);
-    alpha = (RANDOM.nextDouble() + 0.5) * approxAlpha;
-    rho = RANDOM.nextDouble() - 0.5;
-    nu = (RANDOM.nextDouble() + 0.5) * Math.max(0.0, 4 * c);
+    alpha = (random.nextDouble() + 0.5) * approxAlpha;
+    rho = random.nextDouble() - 0.5;
+    nu = (random.nextDouble() + 0.5) * Math.max(0.0, 4 * c);
     return new DoubleMatrix1D(alpha, beta, rho, nu);
   }
 

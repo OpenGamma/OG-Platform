@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial;
@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -16,6 +17,8 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -31,13 +34,16 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   private ConventionBundleSource _conventionBundleSource;
   private ExchangeSource _exchangeSource;
   private ConfigSource _configSource;
+  private OrganizationSource _organizationSource;
+  private ConfigMaster _configMaster;
   private OverrideOperationCompiler _overrideOperationCompiler;
+  private ConventionSource _conventionSource;
 
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
 
-  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource source) {
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource source) {
     _historicalTimeSeriesSource = source;
   }
 
@@ -45,11 +51,11 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _securitySource;
   }
 
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
   }
 
-  public void setPositionSource(PositionSource positionSource) {
+  public void setPositionSource(final PositionSource positionSource) {
     _positionSource = positionSource;
   }
 
@@ -61,15 +67,23 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _regionSource;
   }
 
-  public void setRegionSource(RegionSource regionRepository) {
+  public void setRegionSource(final RegionSource regionRepository) {
     _regionSource = regionRepository;
+  }
+
+  public OrganizationSource getOrganizationSource() {
+    return _organizationSource;
+  }
+
+  public void setOrganizationSource(final OrganizationSource organizationSource) {
+    _organizationSource = organizationSource;
   }
 
   public ExchangeSource getExchangeSource() {
     return _exchangeSource;
   }
 
-  public void setExchangeSource(ExchangeSource exchangeSource) {
+  public void setExchangeSource(final ExchangeSource exchangeSource) {
     _exchangeSource = exchangeSource;
   }
 
@@ -77,7 +91,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _holidaySource;
   }
 
-  public void setHolidaySource(HolidaySource holidaySource) {
+  public void setHolidaySource(final HolidaySource holidaySource) {
     _holidaySource = holidaySource;
   }
 
@@ -85,7 +99,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _conventionBundleSource;
   }
 
-  public void setConventionBundleSource(ConventionBundleSource referenceRateRepository) {
+  public void setConventionBundleSource(final ConventionBundleSource referenceRateRepository) {
     _conventionBundleSource = referenceRateRepository;
   }
 
@@ -93,8 +107,16 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _configSource;
   }
 
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(final ConfigSource configSource) {
     _configSource = configSource;
+  }
+
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+
+  public void setConfigMaster(final ConfigMaster configMaster) {
+    _configMaster = configMaster;
   }
 
   public OverrideOperationCompiler getOverrideOperationCompiler() {
@@ -105,9 +127,17 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     _overrideOperationCompiler = overrideOperationCompiler;
   }
 
+  public ConventionSource getConventionSource() {
+    return _conventionSource;
+  }
+
+  public void setConventionSource(final ConventionSource conventionSource) {
+    _conventionSource = conventionSource;
+  }
+
   @Override
   protected FunctionExecutionContext createObject() {
-    FunctionExecutionContext context = new FunctionExecutionContext();
+    final FunctionExecutionContext context = new FunctionExecutionContext();
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     if (getHistoricalTimeSeriesSource() != null) {
@@ -115,6 +145,9 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     }
     if (getRegionSource() != null) {
       OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
+    }
+    if (getOrganizationSource() != null) {
+      context.setOrganizationSource(getOrganizationSource());
     }
     if (getExchangeSource() != null) {
       OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());
@@ -125,8 +158,14 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     if (getConventionBundleSource() != null) {
       OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
     }
+    if (getConventionSource() != null) {
+      OpenGammaExecutionContext.setConventionSource(context, getConventionSource());
+    }
     if (getConfigSource() != null) {
       OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    }
+    if (getConfigMaster() != null) {
+      OpenGammaExecutionContext.setConfigMaster(context, getConfigMaster());
     }
     if (getOverrideOperationCompiler() != null) {
       OpenGammaExecutionContext.setOverrideOperationCompiler(context, getOverrideOperationCompiler());

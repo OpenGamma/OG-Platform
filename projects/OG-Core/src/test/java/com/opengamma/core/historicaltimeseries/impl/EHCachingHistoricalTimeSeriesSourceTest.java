@@ -10,13 +10,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -25,34 +26,49 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test {@link EHCachingHistoricalTimeSeriesSource}.
+ * Test.
  */
-@Test
+@Test(groups = {TestGroup.UNIT, "ehcache"})
 public class EHCachingHistoricalTimeSeriesSourceTest {
-
-  private HistoricalTimeSeriesSource _underlyingSource;
-  private EHCachingHistoricalTimeSeriesSource _cachingSource;
 
   private static final UniqueId UID = UniqueId.of("A", "B");
 
+  private HistoricalTimeSeriesSource _underlyingSource;
+  private EHCachingHistoricalTimeSeriesSource _cachingSource;
+  private CacheManager _cacheManager;
+
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(EHCachingHistoricalTimeSeriesSourceTest.class);
+  }
+
+  @AfterClass
+  public void tearDownClass() {
+    EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
     _underlyingSource = mock(HistoricalTimeSeriesSource.class);
     when(_underlyingSource.changeManager()).thenReturn(new BasicChangeManager());
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.clearAllStartingWith(EHCachingHistoricalTimeSeriesSource.CACHE_PREFIX);
-    _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, cm);
+    _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, _cacheManager);
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cachingSource.shutdown();
   }
 
   //-------------------------------------------------------------------------
   public void getHistoricalTimeSeries_UniqueId() {
     LocalDate[] dates = {LocalDate.of(2011, 6, 30)};
     double[] values = {12.34d};
-    ArrayLocalDateDoubleTimeSeries timeSeries = new ArrayLocalDateDoubleTimeSeries(dates, values);
+    ImmutableLocalDateDoubleTimeSeries timeSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     HistoricalTimeSeries series = new SimpleHistoricalTimeSeries(UID, timeSeries);
     
     when(_underlyingSource.getHistoricalTimeSeries(UID)).thenReturn(series);
@@ -85,6 +101,5 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
     // underlying source should only have been called once if cache worked as expected
     verify(_underlyingSource, times(1)).getExternalIdBundle(UID);
   }
-
 
 }

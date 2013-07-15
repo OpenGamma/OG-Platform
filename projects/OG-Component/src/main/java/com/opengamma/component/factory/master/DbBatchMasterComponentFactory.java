@@ -25,7 +25,6 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.masterdb.batch.DbBatchMaster;
-import com.opengamma.util.db.DbConnector;
 
 /**
  * Component factory for the database batch master.
@@ -44,11 +43,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   @PropertyDefinition
   private boolean _publishRest = true;
   /**
-   * The database connector.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private DbConnector _dbConnector;
-  /**
    * The scheme used by the {@code UniqueId}.
    */
   @PropertyDefinition
@@ -64,7 +58,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "rsk");
+    checkSchema(master.getSchemaVersion(), "rsk");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -103,8 +97,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
-      case 39794031:  // dbConnector
-        return getDbConnector();
       case -1737146991:  // uniqueIdScheme
         return getUniqueIdScheme();
     }
@@ -120,9 +112,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
       case -1737146991:  // uniqueIdScheme
         setUniqueIdScheme((String) newValue);
         return;
@@ -133,7 +122,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
     super.validate();
   }
 
@@ -146,7 +134,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
       DbBatchMasterComponentFactory other = (DbBatchMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
           super.equals(obj);
     }
@@ -158,7 +145,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     return hash ^ super.hashCode();
   }
@@ -216,32 +202,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the database connector.
-   * @return the value of the property, not null
-   */
-  public DbConnector getDbConnector() {
-    return _dbConnector;
-  }
-
-  /**
-   * Sets the database connector.
-   * @param dbConnector  the new value of the property, not null
-   */
-  public void setDbConnector(DbConnector dbConnector) {
-    JodaBeanUtils.notNull(dbConnector, "dbConnector");
-    this._dbConnector = dbConnector;
-  }
-
-  /**
-   * Gets the the {@code dbConnector} property.
-   * @return the property, not null
-   */
-  public final Property<DbConnector> dbConnector() {
-    return metaBean().dbConnector().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the scheme used by the {@code UniqueId}.
    * @return the value of the property
    */
@@ -286,11 +246,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", DbBatchMasterComponentFactory.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code dbConnector} property.
-     */
-    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
-        this, "dbConnector", DbBatchMasterComponentFactory.class, DbConnector.class);
-    /**
      * The meta-property for the {@code uniqueIdScheme} property.
      */
     private final MetaProperty<String> _uniqueIdScheme = DirectMetaProperty.ofReadWrite(
@@ -299,10 +254,9 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "dbConnector",
         "uniqueIdScheme");
 
     /**
@@ -318,8 +272,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
-        case 39794031:  // dbConnector
-          return _dbConnector;
         case -1737146991:  // uniqueIdScheme
           return _uniqueIdScheme;
       }
@@ -356,14 +308,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
-    }
-
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbConnector> dbConnector() {
-      return _dbConnector;
     }
 
     /**

@@ -1,0 +1,78 @@
+<article>
+  <header class="OG-header-generic">
+    <div class="OG-tools"></div>
+    <h1>{{html name}}</h1>
+    <div class="OG-js-header-links"></div>
+  </header>
+  <section>
+    <div class="OG-details-content OG-js-details-panel">
+      <section class="og-js-identifiers"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>${securityType.lang()}</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Name</span></td><td>${name}</td></tr>
+            <tr><td><span>Family</span></td><td>${family}</td></tr>
+            <tr><td><span>Series</span></td><td>${series}</td></tr>   
+            <tr><td><span>Currency</span></td><td>${currency}</td></tr>
+            <tr><td><span>Recovery Rate</span></td><td>${recovery}</td></tr>
+            <tr>
+              <td><span>Terms</span></td>
+              <td>{{if terms}}{{each terms}}${this}&nbsp;&nbsp;&nbsp;{{/each}}{{/if}}</td>
+            </tr>
+          </tbody>
+        </table>
+        {{if components}}
+          {{each components}}
+              <table class="OG-table">
+                <col style="width: 40%" />
+                <col style="width: 60%" />
+                 <tbody>
+                  <tr><td><span>Bond Scheme</span></td><td><span>${bond.scheme}</span></td></tr>
+                  <tr><td><span>Bond Value</span></td><td><span>${bond.value}</span></td></tr>
+                  <tr><td><span>Obligor Scheme</span></td><td><span>${obligor.scheme}</span></td></tr>
+                  <tr><td><span>Obligor Value</span></td><td><span>${obligor.value}</span></td></tr>
+                  <tr><td><span>Name</span></td><td><span>${name}</span></td></tr>
+                  <tr><td><span>Weight</span></td><td><span>${weight}</span></td></tr>
+                </tbody>
+              </table>
+          {{/each}}
+        {{/if}}
+      </section>
+      <section class="OG-timeseries-container"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr><th colspan="2"><span><em>Attributes</em></span></th></tr>
+            <tr>
+              <th><div><em>Name</em></div></th>
+              <th><div><em>Value</em></div></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{if attributes}}
+              {{each(attribute_index, attribute_value) attributes}}
+              <tr>
+                <td><span>${attribute_index}</span></td>
+                <td><span>${attribute_value}</span></td>
+              </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="2"><span>(no values)</span></td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </section>
+</article>

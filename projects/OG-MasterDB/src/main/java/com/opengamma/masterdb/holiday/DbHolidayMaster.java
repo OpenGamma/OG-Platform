@@ -8,19 +8,21 @@ package com.opengamma.masterdb.holiday;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-
-import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.threeten.bp.LocalDate;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
@@ -85,6 +87,13 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     ORDER_BY_MAP.put(HolidaySearchSortOrder.NAME_DESC, "name DESC");
   }
 
+  // -----------------------------------------------------------------
+  // TIMERS FOR METRICS GATHERING
+  // By default these do nothing. Registration will replace them
+  // so that they actually do something.
+  // -----------------------------------------------------------------
+  private Timer _insertTimer = new Timer();
+  
   /**
    * Creates an instance.
    * 
@@ -93,6 +102,12 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   public DbHolidayMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbHolidayMaster.class));
+  }
+
+  @Override
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    super.registerMetrics(summaryRegistry, detailedRegistry, namePrefix);
+    _insertTimer = summaryRegistry.timer(namePrefix + ".insert");
   }
 
   //-------------------------------------------------------------------------
@@ -175,7 +190,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
     final String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new HolidayDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new HolidayDocumentExtractor(), result);
     return result;
   }
 
@@ -224,45 +239,77 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   @Override
   protected HolidayDocument insert(final HolidayDocument document) {
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday().getType(), "document.holiday.type");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    
-    final long docId = nextId("hol_holiday_seq");
-    final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
-    // the arguments for inserting into the holiday table
-    final ManageableHoliday holiday = document.getHoliday();
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-      .addValue("doc_id", docId)
-      .addValue("doc_oid", docOid)
-      .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-      .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-      .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-      .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", document.getName())
-      .addValue("provider_scheme", (document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null))
-      .addValue("provider_value", (document.getProviderId() != null ? document.getProviderId().getValue() : null))
-      .addValue("hol_type", holiday.getType() != null ? holiday.getType().name() : null)
-      .addValue("region_scheme", (holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getScheme().getName() : null))
-      .addValue("region_value", (holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getValue() : null))
-      .addValue("exchange_scheme", (holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getScheme().getName() : null))
-      .addValue("exchange_value", (holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null))
-      .addValue("currency_iso", (holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null));
-    // the arguments for inserting into the date table
-    final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
-    for (LocalDate date : holiday.getHolidayDates()) {
-      final DbMapSqlParameterSource dateArgs = new DbMapSqlParameterSource()
-        .addValue("doc_id", docId)
-        .addDate("hol_date", date);
-      dateList.add(dateArgs);
+    switch (document.getHoliday().getType()) {
+      case BANK:
+        ArgumentChecker.notNull(document.getHoliday().getRegionExternalId(), "document.holiday.region");
+        break;
+      case CURRENCY:
+        ArgumentChecker.notNull(document.getHoliday().getCurrency(), "document.holiday.currency");
+        break;
+      case TRADING:
+      case SETTLEMENT:
+        ArgumentChecker.notNull(document.getHoliday().getExchangeExternalId(), "document.holiday.exchange");
+        break;
+      default:
+        throw new IllegalArgumentException("Holiday type not set");
     }
-    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
-    final String sqlDate = getElSqlBundle().getSql("InsertDate");
-    getJdbcTemplate().update(sqlDoc, docArgs);
-    getJdbcTemplate().batchUpdate(sqlDate, dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
-    // set the uniqueId
-    final UniqueId uniqueId = createUniqueId(docOid, docId);
-    holiday.setUniqueId(uniqueId);
-    document.setUniqueId(uniqueId);
-    return document;
+    
+    try (Timer.Context context = _insertTimer.time()) {
+      final long docId = nextId("hol_holiday_seq");
+      final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
+      // the arguments for inserting into the holiday table
+      final ManageableHoliday holiday = document.getHoliday();
+      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+        .addValue("doc_id", docId)
+        .addValue("doc_oid", docOid)
+        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+        .addValue("name", document.getName())
+        .addValue("provider_scheme",
+            document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null,
+            Types.VARCHAR)
+        .addValue("provider_value",
+            document.getProviderId() != null ? document.getProviderId().getValue() : null,
+            Types.VARCHAR)
+        .addValue("hol_type", holiday.getType().name())
+        .addValue("region_scheme",
+            holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getScheme().getName() : null,
+            Types.VARCHAR)
+        .addValue("region_value",
+            holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getValue() : null,
+            Types.VARCHAR)
+        .addValue("exchange_scheme",
+            holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getScheme().getName() : null,
+            Types.VARCHAR)
+        .addValue("exchange_value",
+            holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null,
+            Types.VARCHAR)
+        .addValue("currency_iso",
+            holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null,
+            Types.VARCHAR);
+      // the arguments for inserting into the date table
+      final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
+      for (LocalDate date : holiday.getHolidayDates()) {
+        final DbMapSqlParameterSource dateArgs = new DbMapSqlParameterSource()
+          .addValue("doc_id", docId)
+          .addDate("hol_date", date);
+        dateList.add(dateArgs);
+      }
+      final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+      final String sqlDate = getElSqlBundle().getSql("InsertDate");
+      getJdbcTemplate().update(sqlDoc, docArgs);
+      getJdbcTemplate().batchUpdate(sqlDate, dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
+      // set the uniqueId
+      final UniqueId uniqueId = createUniqueId(docOid, docId);
+      holiday.setUniqueId(uniqueId);
+      document.setUniqueId(uniqueId);
+      return document;
+    }
+    
   }
 
   //-------------------------------------------------------------------------
@@ -332,7 +379,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   }
 
   @Override
-  public AbstractHistoryResult<HolidayDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<HolidayDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     HolidayHistoryRequest historyRequest = new HolidayHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -341,4 +388,5 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

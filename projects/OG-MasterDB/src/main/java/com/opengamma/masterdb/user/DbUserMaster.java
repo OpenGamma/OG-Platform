@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -149,7 +149,7 @@ public class DbUserMaster
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new UserDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new UserDocumentExtractor(), result);
     return result;
   }
 
@@ -197,7 +197,9 @@ public class DbUserMaster
   @Override
   protected UserDocument insert(UserDocument document) {
     ArgumentChecker.notNull(document.getUser(), "document.user");
-    
+    ArgumentChecker.notNull(document.getUser().getUserId(), "document.user.userid");
+    ArgumentChecker.notNull(document.getUser().getTimeZone(), "document.user.timezone");
+
     final long docId = nextId("usr_oguser_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     final UniqueId uniqueId = createUniqueId(docOid, docId);
@@ -216,7 +218,7 @@ public class DbUserMaster
       .addValue("userid", user.getUserId())
       .addValue("password", user.getPasswordHash())
       .addValue("name", user.getName())
-      .addValue("time_zone", user.getTimeZone().getID())
+      .addValue("time_zone", user.getTimeZone().getId())
       .addValue("email_address", user.getEmailAddress());
     
     // the arguments for inserting into the idkey tables
@@ -263,7 +265,7 @@ public class DbUserMaster
 
   //-------------------------------------------------------------------------
   @Override
-  public AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     UserHistoryRequest historyRequest = new UserHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -287,12 +289,12 @@ public class DbUserMaster
     @Override
     public List<UserDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
-        System.out.println("===================");
-        System.out.println(rs.getObject("DOC_ID"));
-        System.out.println(rs.getObject("IDKEY_ID"));
-        System.out.println(rs.getObject("KEY_SCHEME"));
-        System.out.println(rs.getObject("KEY_VALUE"));
-        System.out.println(rs.getObject("ENTITLEMENT_PATTERN"));
+//        System.out.println("===================");
+//        System.out.println(rs.getObject("DOC_ID"));
+//        System.out.println(rs.getObject("IDKEY_ID"));
+//        System.out.println(rs.getObject("KEY_SCHEME"));
+//        System.out.println(rs.getObject("KEY_VALUE"));
+//        System.out.println(rs.getObject("ENTITLEMENT_PATTERN"));
         
         final long docId = rs.getLong("DOC_ID");
         // DOC_ID tells us when we're on a new document.
@@ -340,7 +342,7 @@ public class DbUserMaster
       ManageableOGUser user = new ManageableOGUser(rs.getString("USERID"));
       user.setPasswordHash(rs.getString("PASSWORD"));
       user.setName(rs.getString("NAME"));
-      user.setTimeZone(TimeZone.of(rs.getString("TIME_ZONE")));
+      user.setTimeZone(ZoneId.of(rs.getString("TIME_ZONE")));
       user.setEmailAddress(rs.getString("EMAIL_ADDRESS"));
       user.setUniqueId(uniqueId);
       _currUser = user;

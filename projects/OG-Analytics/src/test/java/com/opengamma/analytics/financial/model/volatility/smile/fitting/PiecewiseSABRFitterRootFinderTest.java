@@ -30,7 +30,7 @@ public class PiecewiseSABRFitterRootFinderTest {
   (enabled = false)
   public void test() {
 
-    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
+    final Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
     //double vol = fitter.getVol(1550);
 
     for (int i = 0; i < 200; i++) {
@@ -43,16 +43,16 @@ public class PiecewiseSABRFitterRootFinderTest {
   @Test
   (enabled = false)
   public void bumpTest() {
-    double bump = 5e-3;
-    int index = 1;
-    double[] vols = Arrays.copyOf(VOLS, VOLS.length);
+    final double bump = 5e-3;
+    final int index = 1;
+    final double[] vols = Arrays.copyOf(VOLS, VOLS.length);
     vols[index] += bump;
 
-    SABRFormulaData[] parms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, vols);
-    for (int i = 0; i < parms.length; i++) {
-      System.out.println(parms[i].toString());
+    final SABRFormulaData[] parms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, vols);
+    for (final SABRFormulaData parm : parms) {
+      System.out.println(parm.toString());
     }
-    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
+    final Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
     //double vol = fitter.getVol(1550);
 
     for (int i = 0; i < 200; i++) {
@@ -64,12 +64,12 @@ public class PiecewiseSABRFitterRootFinderTest {
 
   @Test
   (enabled = false)
-  public void FlatTest() {
+  public void flatTest() {
     final int n = STRIKES.length;
     final double[] vols = new double[n];
     Arrays.fill(vols, 0.2);
 
-    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
+    final Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
     //double vol = fitter.getVol(1550);
 
     for (int i = 0; i < 200; i++) {

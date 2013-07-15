@@ -6,7 +6,7 @@
 package com.opengamma.master.config.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.util.functional.Functional.functional;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
@@ -34,6 +34,7 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.MasterUtils;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -44,7 +45,6 @@ import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.functional.Function1;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 
@@ -53,8 +53,7 @@ import com.opengamma.util.paging.PagingRequest;
  * <p>
  * This master does not support versioning of configuration documents.
  * <p>
- * This implementation does not copy stored elements, making it thread-hostile.
- * As such, this implementation is currently most useful for testing scenarios.
+ * This implementation does not copy stored elements, making it thread-hostile. As such, this implementation is currently most useful for testing scenarios.
  */
 public class InMemoryConfigMaster implements ConfigMaster {
 
@@ -85,8 +84,8 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
    * Creates an instance specifying the change manager.
-   *
-   * @param changeManager  the change manager, not null
+   * 
+   * @param changeManager the change manager, not null
    */
   public InMemoryConfigMaster(final ChangeManager changeManager) {
     this(new ObjectIdSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME), changeManager);
@@ -94,8 +93,8 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers.
-   *
-   * @param objectIdSupplier  the supplier of object identifiers, not null
+   * 
+   * @param objectIdSupplier the supplier of object identifiers, not null
    */
   public InMemoryConfigMaster(final Supplier<ObjectId> objectIdSupplier) {
     this(objectIdSupplier, new BasicChangeManager());
@@ -103,9 +102,9 @@ public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
    * Creates an instance specifying the supplier of object identifiers and change manager.
-   *
-   * @param objectIdSupplier  the supplier of object identifiers, not null
-   * @param changeManager  the change manager, not null
+   * 
+   * @param objectIdSupplier the supplier of object identifiers, not null
+   * @param changeManager the change manager, not null
    */
   public InMemoryConfigMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
@@ -185,6 +184,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     document.setVersionToInstant(null);
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
+    IdUtils.setInto(document.getConfig().getValue(), uniqueId);
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
@@ -323,30 +323,30 @@ public class InMemoryConfigMaster implements ConfigMaster {
     final PagingRequest pagingRequest = request.getPagingRequest();
 
     return new ConfigHistoryResult<R>(
-      pagingRequest.select(
-        functional(_store.keySet())
-          .map(new Function1<ObjectId, ConfigDocument>() {
-            @Override
-            public ConfigDocument execute(final ObjectId objectId) {
-              return _store.get(objectId);
-            }
-          })
-          .filter(new Function1<ConfigDocument, Boolean>() {
-            @Override
-            public Boolean execute(final ConfigDocument configDocument) {
-              return
-                (oid == null || (configDocument.getObjectId().equals(oid)))
-                  &&
-                  (type == null || (type.isAssignableFrom(configDocument.getType())));
-            }
-          })
-          .sortBy(new Comparator<ConfigDocument>() {
-            @Override
-            public int compare(final ConfigDocument configDocument, final ConfigDocument configDocument1) {
-              return configDocument.getVersionFromInstant().compareTo(configDocument1.getVersionFromInstant());
-            }
-          })
-          .asList()));
+        pagingRequest.select(
+            functional(_store.keySet())
+                .map(new Function1<ObjectId, ConfigDocument>() {
+                  @Override
+                  public ConfigDocument execute(final ObjectId objectId) {
+                    return _store.get(objectId);
+                  }
+                })
+                .filter(new Function1<ConfigDocument, Boolean>() {
+                  @Override
+                  public Boolean execute(final ConfigDocument configDocument) {
+                    return
+                    (oid == null || (configDocument.getObjectId().equals(oid)))
+                        &&
+                        (type == null || (type.isAssignableFrom(configDocument.getType())));
+                  }
+                })
+                .sortBy(new Comparator<ConfigDocument>() {
+                  @Override
+                  public int compare(final ConfigDocument configDocument, final ConfigDocument configDocument1) {
+                    return configDocument.getVersionFromInstant().compareTo(configDocument1.getVersionFromInstant());
+                  }
+                })
+                .asList()));
   }
 
   @Override

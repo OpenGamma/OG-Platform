@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
@@ -30,7 +30,7 @@ public class InterpolatedVolatilitySurfaceDefaultPropertiesFunction extends Defa
 
   public InterpolatedVolatilitySurfaceDefaultPropertiesFunction(final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String xInterpolatorName,
       final String leftYExtrapolatorName, final String rightYExtrapolatorName, final String yInterpolatorName) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(leftXExtrapolatorName, "left x extrapolator name");
     ArgumentChecker.notNull(rightXExtrapolatorName, "right x extrapolator name");
     ArgumentChecker.notNull(xInterpolatorName, "x interpolator name");

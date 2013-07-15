@@ -75,8 +75,8 @@ public final class StatisticsCalculatorFactory {
   /** Sample covariance calculator */
   public static final SampleCovarianceCalculator SAMPLE_COVARIANCE_CALCULATOR = new SampleCovarianceCalculator();
 
-  private static final Map<String, Function<double[], Double>> s_staticInstances = new HashMap<String, Function<double[], Double>>();
-  private static final Map<Class<?>, String> s_instanceNames = new HashMap<Class<?>, String>();
+  private static final Map<String, Function<double[], Double>> s_staticInstances = new HashMap<>();
+  private static final Map<Class<?>, String> s_instanceNames = new HashMap<>();
 
   static {
     s_staticInstances.put(MEAN, MEAN_CALCULATOR);

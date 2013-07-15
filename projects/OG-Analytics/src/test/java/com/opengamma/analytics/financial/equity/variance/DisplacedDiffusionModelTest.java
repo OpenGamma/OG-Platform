@@ -11,10 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.equity.variance.pricing.DisplacedDiffusionModel;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
@@ -39,14 +36,14 @@ public class DisplacedDiffusionModelTest {
   // -------------------------------- SETUP ------------------------------------------
 
   // The derivative
-  final double varStrike = 0.05;
-  final double varNotional = 3150;
-  final double expiry1 = 1;
-  final double expiry5 = 5;
-  final int nObsExpected = 750;
-  final int nObsDisrupted = 0;
-  final double[] observations = {};
-  final double[] obsWeights = {};
+  //  private static final double varStrike = 0.05;
+  //  private static final double varNotional = 3150;
+  private static final double expiry1 = 1;
+  private static final double expiry5 = 5;
+  //  private static final int nObsExpected = 750;
+  //  private static final int nObsDisrupted = 0;
+  //  private static final double[] observations = {};
+  //  private static final double[] obsWeights = {};
 
   /*
   final VarianceSwap swap1 = new VarianceSwap(0, expiry1, expiry1, varStrike, varNotional, Currency.EUR, 250, nObsExpected, nObsDisrupted, observations, obsWeights);
@@ -61,23 +58,23 @@ public class DisplacedDiffusionModelTest {
   private static final double DRIFT = -0.01;
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, DRIFT);
   //double forward = 100;
-  final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
-  final YieldAndDiscountCurve curveDiscount = curves.getCurve("Funding");
+  //private static final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+  //private static final YieldAndDiscountCurve curveDiscount = curves.getCurve("Funding");
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
-      1.0, 1.0, 1.0, 1.0,
-      5.0, 5.0, 5.0, 5.0 };
+    1.0, 1.0, 1.0, 1.0,
+    5.0, 5.0, 5.0, 5.0 };
   private static final double[] DELTAS = new double[] {0.75, 0.5, 0.25, 0.1,
-      0.75, 0.5, 0.25, 0.1,
-      0.75, 0.5, 0.25, 0.1 };
+    0.75, 0.5, 0.25, 0.1,
+    0.75, 0.5, 0.25, 0.1 };
 
   private static final double[] STRIKES = new double[] {10, 50, 105, 150,
-      10, 50, 105, 150,
-      10, 50, 105, 150 };
+    10, 50, 105, 150,
+    10, 50, 105, 150 };
 
   private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
-      0.25, 0.25, 0.25, 0.25,
-      0.26, 0.24, 0.23, 0.25 };
+    0.25, 0.25, 0.25, 0.25,
+    0.26, 0.24, 0.23, 0.25 };
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -224,3 +221,4 @@ public class DisplacedDiffusionModelTest {
   //    }
   //  }
 }
+

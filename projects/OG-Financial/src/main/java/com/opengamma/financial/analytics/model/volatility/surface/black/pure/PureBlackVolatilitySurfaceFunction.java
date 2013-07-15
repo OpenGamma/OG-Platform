@@ -19,7 +19,8 @@ import static com.opengamma.financial.analytics.volatility.surface.SurfaceAndCub
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -33,11 +34,11 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -63,7 +64,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final LocalDate date = executionContext.getValuationClock().zonedDateTime().toLocalDate();
+    final LocalDate date = ZonedDateTime.now(executionContext.getValuationClock()).toLocalDate();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final Object spotObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (spotObject == null) {
@@ -106,14 +107,6 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PURE_VOLATILITY_SURFACE, target.toSpecification(), properties));
@@ -138,12 +131,12 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     if (currencies == null || currencies.size() != 1) {
       return null;
     }
-    final String surfaceName = Iterables.getOnlyElement(surfaceNames);
+    final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_PRICE";
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Currency currency = Currency.of(Iterables.getOnlyElement(currencies));
     final ValueRequirement curveRequirement = getCurveRequirement(currency, desiredValue);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(targetSpec, surfaceName);
-    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
+    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, targetSpec);
     final ValueRequirement interpolatorRequirement = getInterpolatorRequirement(targetSpec, desiredValue);
     return Sets.newHashSet(curveRequirement, volatilitySurfaceRequirement, spotRequirement, interpolatorRequirement);
   }
@@ -169,7 +162,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     final ValueProperties properties = ValueProperties.builder()
         .with(CURVE, discountingCurve)
         .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY.specification(currency), properties);
   }
 
   private ValueRequirement getInterpolatorRequirement(final ComputationTargetSpecification target, final ValueRequirement desiredValue) {

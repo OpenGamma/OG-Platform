@@ -26,11 +26,12 @@ import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link DefaultHistoricalTimeSeriesSelector}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultHistoricalTimeSeriesResolverTest {
 
   private static final int TS_DATASET_SIZE = 1;

@@ -7,11 +7,12 @@ package com.opengamma.masterdb.portfolio;
 
 import java.net.URI;
 
-import javax.time.TimeSource;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+
+import org.threeten.bp.Clock;
 
 import com.opengamma.master.portfolio.impl.DataPortfolioMasterResource;
 import com.opengamma.masterdb.TimeOverrideRequest;
@@ -51,9 +52,9 @@ public class DataDbPortfolioMasterResource extends DataPortfolioMasterResource {
   public Response setTimeOverride(final TimeOverrideRequest doc) {
     ArgumentChecker.notNull(doc, "doc");
     if (doc.getTimeOverride() == null) {
-      getDbPortfolioMaster().resetTimeSource();
+      getDbPortfolioMaster().resetClock();
     } else {
-      getDbPortfolioMaster().setTimeSource(TimeSource.fixed(doc.getTimeOverride()));
+      getDbPortfolioMaster().setClock(Clock.fixed(doc.getTimeOverride(), getDbPortfolioMaster().getClock().getZone()));
     }
     return responseOk();
   }

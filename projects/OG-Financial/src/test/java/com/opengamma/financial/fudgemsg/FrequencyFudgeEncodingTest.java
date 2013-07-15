@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test Frequency Fudge support.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FrequencyFudgeEncodingTest extends FinancialTestBase {
 
   private static final Frequency s_ref = SimpleFrequency.BIMONTHLY;

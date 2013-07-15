@@ -21,11 +21,16 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
 
+/**
+ * Example annuity.
+ */
 public class AnnuityExample {
-  public static final double[] FUNDING_CURVE_TIMES = new double[] {1, 2, 5, 10, 20, 31};
-  public static final double[] LIBOR_CURVE_TIMES = new double[] {0.5, 1, 2, 5, 10, 20, 31};
-  public static final double[] FUNDING_YIELDS = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044};
-  public static final double[] LIBOR_YIELDS = new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045};
+
+  // CSOFF
+  public static final double[] FUNDING_CURVE_TIMES = new double[] {1, 2, 5, 10, 20, 31 };
+  public static final double[] LIBOR_CURVE_TIMES = new double[] {0.5, 1, 2, 5, 10, 20, 31 };
+  public static final double[] FUNDING_YIELDS = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044 };
+  public static final double[] LIBOR_YIELDS = new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045 };
 
   public static final Currency CCY = Currency.EUR;
   public static final double T = 1.0;
@@ -36,59 +41,61 @@ public class AnnuityExample {
   public static final String LIBOR_CURVE_NAME = "Libor Curve";
 
   public static final int MATURITY = 5;
+  // CSON
 
   public static YieldCurveBundle getBundle() {
-    YieldCurveBundle bundle = new YieldCurveBundle();
+    final YieldCurveBundle bundle = new YieldCurveBundle();
 
-    Interpolator1D extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+    final Interpolator1D extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
 
-    InterpolatedDoublesCurve fCurve = InterpolatedDoublesCurve.from(FUNDING_CURVE_TIMES, FUNDING_YIELDS, extrapolator);
-    YieldCurve fundingCurve = YieldCurve.from(fCurve);
+    final InterpolatedDoublesCurve fCurve = InterpolatedDoublesCurve.from(FUNDING_CURVE_TIMES, FUNDING_YIELDS, extrapolator);
+    final YieldCurve fundingCurve = YieldCurve.from(fCurve);
     bundle.setCurve(FUNDING_CURVE_NAME, fundingCurve);
 
-    InterpolatedDoublesCurve lcurve = InterpolatedDoublesCurve.from(LIBOR_CURVE_TIMES, LIBOR_YIELDS, extrapolator);
-    YieldCurve liborCurve = YieldCurve.from(lcurve);
+    final InterpolatedDoublesCurve lcurve = InterpolatedDoublesCurve.from(LIBOR_CURVE_TIMES, LIBOR_YIELDS, extrapolator);
+    final YieldCurve liborCurve = YieldCurve.from(lcurve);
     bundle.setCurve(LIBOR_CURVE_NAME, liborCurve);
 
     return bundle;
   }
 
-  public static double[] fixedPaymentTimes(int maturity) {
-    double[] fixedPaymentTimes = new double[maturity + 1];
+  public static double[] fixedPaymentTimes(final int maturity) {
+    final double[] fixedPaymentTimes = new double[maturity + 1];
     for (int i = 0; i <= maturity; i++) {
       fixedPaymentTimes[i] = i;
     }
     return fixedPaymentTimes;
   }
 
-  public static void fixedPaymentTimesDemo(PrintStream out) {
-    double[] paymentTimes = fixedPaymentTimes(MATURITY);
+  public static void fixedPaymentTimesDemo(final PrintStream out) {
+    final double[] paymentTimes = fixedPaymentTimes(MATURITY);
     out.println(Arrays.toString(paymentTimes));
   }
 
-  public static void annuityFixedDemo(PrintStream out) {
-    double[] paymentTimes = fixedPaymentTimes(MATURITY);
-    AnnuityCouponFixed annuity = new AnnuityCouponFixed(CCY, paymentTimes, R, LIBOR_CURVE_NAME, false);
+  public static void annuityFixedDemo(final PrintStream out) {
+    final double[] paymentTimes = fixedPaymentTimes(MATURITY);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(CCY, paymentTimes, R, LIBOR_CURVE_NAME, false);
 
     out.println(Arrays.deepToString(annuity.getPayments()));
 
-    YieldCurveBundle bundle = getBundle();
+    final YieldCurveBundle bundle = getBundle();
 
-    PresentValueCalculator presentValueCalculator = PresentValueCalculator.getInstance();
-    double presentValue = presentValueCalculator.visit(annuity, bundle);
+    final PresentValueCalculator presentValueCalculator = PresentValueCalculator.getInstance();
+    final double presentValue = annuity.accept(presentValueCalculator, bundle);
     out.format("Present Value %f%n", presentValue);
   }
 
-  public static double[] floatingPaymentTimes(int maturity) {
-    double[] floatingPaymentTimes = new double[2 * maturity + 1];
+  public static double[] floatingPaymentTimes(final int maturity) {
+    final double[] floatingPaymentTimes = new double[2 * maturity + 1];
     for (int i = 0; i <= 2 * maturity; i++) {
       floatingPaymentTimes[i] = i * 0.5;
     }
     return floatingPaymentTimes;
   }
 
-  public static void floatingPaymentTimesDemo(PrintStream out) {
-    double[] paymentTimes = floatingPaymentTimes(MATURITY);
+  public static void floatingPaymentTimesDemo(final PrintStream out) {
+    final double[] paymentTimes = floatingPaymentTimes(MATURITY);
     out.println(Arrays.toString(paymentTimes));
   }
+
 }

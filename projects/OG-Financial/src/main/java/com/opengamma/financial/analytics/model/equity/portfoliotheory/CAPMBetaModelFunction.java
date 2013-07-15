@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
@@ -24,6 +25,7 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -39,25 +41,37 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesIntersector;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesIntersector;
 
 /**
  * 
  */
-public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiledInvoker {
+public class CAPMBetaModelFunction extends AbstractFunction.NonCompiledInvoker {
 
+  private final ComputationTargetType _targetType;
   private final String _resolutionKey;
 
-  public CAPMBetaModelFunction(final String resolutionKey) {
+  public CAPMBetaModelFunction(final ComputationTargetType targetType, final String resolutionKey) {
+    Validate.notNull(targetType, "target type");
     Validate.notNull(resolutionKey, "resolution key");
+    _targetType = targetType;
     _resolutionKey = resolutionKey;
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return _targetType;
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+    return true;
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final Object positionOrNode = getTarget(target);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties resultProperties = getResultProperties(desiredValue);
     final ValueProperties constraints = desiredValue.getConstraints();
@@ -73,7 +87,7 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
     final CAPMBetaCalculator calculator = getBetaCalculator(constraints.getValues(ValuePropertyNames.COVARIANCE_CALCULATOR),
         constraints.getValues(ValuePropertyNames.VARIANCE_CALCULATOR));
     final double beta = calculator.evaluate(assetReturn, marketReturn);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode, resultProperties), getUniqueId()), beta));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.CAPM_BETA, target.toSpecification(), resultProperties), beta));
   }
 
   @Override
@@ -96,14 +110,13 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
     if (returnCalculatorName == null || returnCalculatorName.size() != 1) {
       return null;
     }
-    final Object positionOrNode = getTarget(target);
-    final ValueRequirement pnlSeriesRequirement = new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, ValueProperties.builder()
+    final ValueRequirement pnlSeriesRequirement = new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.builder()
         .withAny(ValuePropertyNames.CURRENCY)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next()).get());
-    final ValueRequirement fairValueRequirement = new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode);
+    final ValueRequirement fairValueRequirement = new ValueRequirement(ValueRequirementNames.FAIR_VALUE, target.toSpecification());
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM")); //TODO country-specific
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
@@ -118,13 +131,8 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, getTarget(target), getResultProperties()), getUniqueId()));
-    }
-    return null;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.CAPM_BETA, target.toSpecification(), getResultProperties()));
   }
-
-  public abstract Object getTarget(ComputationTarget target);
 
   private ValueProperties getResultProperties() {
     return createValueProperties()

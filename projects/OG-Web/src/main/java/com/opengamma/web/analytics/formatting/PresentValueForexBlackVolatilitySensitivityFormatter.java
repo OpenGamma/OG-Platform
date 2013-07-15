@@ -16,10 +16,13 @@ import com.opengamma.engine.value.ValueSpecification;
 
   /* package */ PresentValueForexBlackVolatilitySensitivityFormatter() {
     super(PresentValueForexBlackVolatilitySensitivity.class);
+    // TODO if this is really a LABELLED_MATRIX_1D it needs to support expanded formatting
   }
 
   @Override
-  public Object formatCell(PresentValueForexBlackVolatilitySensitivity value, ValueSpecification valueSpec) {
+  public Object formatCell(PresentValueForexBlackVolatilitySensitivity value,
+                           ValueSpecification valueSpec,
+                           Object inlineKey) {
     return "Vector (" + value.getVega().getMap().size() + ")";
   }
 

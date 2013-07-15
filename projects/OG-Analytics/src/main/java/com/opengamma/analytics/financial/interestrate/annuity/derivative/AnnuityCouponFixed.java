@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -27,16 +28,16 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
     super(payments);
   }
 
-  public AnnuityCouponFixed(Currency currency, final double[] paymentTimes, final double couponRate, final String yieldCurveName, boolean isPayer) {
+  public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double couponRate, final String yieldCurveName, final boolean isPayer) {
     this(currency, paymentTimes, 1.0, couponRate, yieldCurveName, isPayer);
   }
 
-  public AnnuityCouponFixed(Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName, boolean isPayer) {
+  public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName, final boolean isPayer) {
     this(currency, paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), yieldCurveName, isPayer);
   }
 
   /**
-   * Constructor from payment times and year fractions and unique notional and rate. 
+   * Constructor from payment times and year fractions and unique notional and rate.
    * @param currency The payment currency.
    * @param paymentTimes The times (in year) of payment.
    * @param notional The common notional.
@@ -45,8 +46,8 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param yieldCurveName The discounting curve name.
    * @param isPayer Payer flag.
    */
-  public AnnuityCouponFixed(Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, 
-      final String yieldCurveName, boolean isPayer) {
+  public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions,
+      final String yieldCurveName, final boolean isPayer) {
     super(init(currency, paymentTimes, notional * (isPayer ? -1.0 : 1.0), couponRate, yearFractions, yieldCurveName));
   }
 
@@ -63,7 +64,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @return The new annuity.
    */
   public AnnuityCouponFixed withUnitCoupon() {
-    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+    final CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
       cpn[loopcpn] = getNthPayment(loopcpn).withUnitCoupon();
     }
@@ -75,8 +76,8 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param rate The rate.
    * @return The new annuity.
    */
-  public AnnuityCouponFixed withRate(double rate) {
-    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+  public AnnuityCouponFixed withRate(final double rate) {
+    final CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
       cpn[loopcpn] = getNthPayment(loopcpn).withRate(rate);
     }
@@ -88,8 +89,8 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param spread The spread.
    * @return The new annuity.
    */
-  public AnnuityCouponFixed withRateShifted(double spread) {
-    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+  public AnnuityCouponFixed withRateShifted(final double spread) {
+    final CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
       cpn[loopcpn] = getNthPayment(loopcpn).withRateShifted(spread);
     }
@@ -101,8 +102,8 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param notional The notional.
    * @return The new annuity.
    */
-  public AnnuityCouponFixed withNotional(double notional) {
-    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+  public AnnuityCouponFixed withNotional(final double notional) {
+    final CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
       cpn[loopcpn] = getNthPayment(loopcpn).withNotional(notional);
     }
@@ -115,14 +116,14 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @return The trimmed annuity.
    */
   @Override
-  public AnnuityCouponFixed trimBefore(double trimTime) {
-    List<CouponFixed> list = new ArrayList<CouponFixed>();
-    for (CouponFixed payment : getPayments()) {
+  public AnnuityCouponFixed trimBefore(final double trimTime) {
+    final List<CouponFixed> list = new ArrayList<>();
+    for (final CouponFixed payment : getPayments()) {
       if (payment.getPaymentTime() > trimTime) {
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixed(list.toArray(new CouponFixed[0]));
+    return new AnnuityCouponFixed(list.toArray(new CouponFixed[list.size()]));
   }
 
   /**
@@ -131,18 +132,18 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @return The trimmed annuity.
    */
   @Override
-  public AnnuityCouponFixed trimAfter(double trimTime) {
-    List<CouponFixed> list = new ArrayList<CouponFixed>();
-    for (CouponFixed payment : getPayments()) {
+  public AnnuityCouponFixed trimAfter(final double trimTime) {
+    final List<CouponFixed> list = new ArrayList<>();
+    for (final CouponFixed payment : getPayments()) {
       if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixed(list.toArray(new CouponFixed[0]));
+    return new AnnuityCouponFixed(list.toArray(new CouponFixed[list.size()]));
   }
 
   /**
-   * A list of fixed coupon from payment times and year fractions and unique notional and rate. 
+   * A list of fixed coupon from payment times and year fractions and unique notional and rate.
    * @param currency The payment currency.
    * @param paymentTimes The times (in year) of payment.
    * @param notional The common notional.
@@ -151,7 +152,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param yieldCurveName The discounting curve name.
    * @return The array of fixed coupons.
    */
-  private static CouponFixed[] init(Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
+  private static CouponFixed[] init(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yearFractions);
@@ -178,12 +179,14 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFixedCouponAnnuity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFixedCouponAnnuity(this);
   }
 

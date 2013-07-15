@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -27,12 +27,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 
 /**
  * Produces a value requirement that will query the fixing time series for a security.
@@ -76,11 +74,15 @@ public class FixingTimeSeriesVisitor extends FinancialSecurityVisitorAdapter<Val
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(ts, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.of(startDate), true, now, includeEndDate);
   }
 
-  public static DoubleTimeSeries<ZonedDateTime> convertTimeSeries(final HistoricalTimeSeries ts, final ZonedDateTime now) {
-    final FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
-    final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-    final LocalTime fixingTime = LocalTime.of(0, 0); // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
-    return new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime), convertedTS);
+  public static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final HistoricalTimeSeries ts, final ZonedDateTime now) {
+    final LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
+    // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
+    ZonedDateTime[] instants = new ZonedDateTime[localDateTS.size()];
+    for (LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
+      LocalDate date = it.nextTime();
+      instants[it.currentIndex()] = date.atStartOfDay(ZoneOffset.UTC);
+    }
+    return ImmutableZonedDateTimeDoubleTimeSeries.of(instants, localDateTS.valuesArrayFast(), ZoneOffset.UTC);
   }
 
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {

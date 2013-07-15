@@ -9,8 +9,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
 
 /**
- *
+ * Formatter.
  */
+@SuppressWarnings("rawtypes")
 /* package */ class LabelledMatrix3DFormatter extends AbstractFormatter<LabelledMatrix3D> {
 
   /* package */ LabelledMatrix3DFormatter() {
@@ -18,7 +19,7 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
   }
 
   @Override
-  public String formatCell(LabelledMatrix3D value, ValueSpecification valueSpec) {
+  public String formatCell(LabelledMatrix3D value, ValueSpecification valueSpec, Object inlineKey) {
     return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + " x " + value.getZKeys().length + ")";
   }
 

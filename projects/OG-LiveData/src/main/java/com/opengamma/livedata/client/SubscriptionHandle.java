@@ -91,23 +91,24 @@ public class SubscriptionHandle {
    * @param response Response received, not null
    */
   public void subscriptionResultReceived(LiveDataSubscriptionResponse response) {
-    
-    if (_subscriptionType == SubscriptionType.SNAPSHOT) {
-      if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-        s_logger.debug("Got snapshot {}", getRequestedSpecification());
+    if (s_logger.isDebugEnabled()) {
+      if (_subscriptionType == SubscriptionType.SNAPSHOT) {
+        if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+          s_logger.debug("Got snapshot {}", getRequestedSpecification());
+        } else {
+          s_logger.debug("Failed to snapshot {}. Result was {}, msg = {}",
+              new Object[] {getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage() });
+        }
       } else {
-        s_logger.debug("Failed to snapshot {}. Result was {}, msg = {}", 
-            new Object[] {getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage()});
-      }
-    } else {
-      if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-        s_logger.debug("Established subscription to {}", getRequestedSpecification());
-      } else if (response.getSubscriptionResult() == LiveDataSubscriptionResult.INTERNAL_ERROR) {
-        s_logger.warn("Failed to establish subscription, {} {}, request = {}", 
-            new Object[] {response.getSubscriptionResult(), response.getUserMessage(), getRequestedSpecification()});
-      } else {
-        s_logger.debug("Failed to establish subscription, {} {}, request = {}", 
-            new Object[] {response.getSubscriptionResult(), response.getUserMessage(), getRequestedSpecification()});
+        if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+          s_logger.debug("Established subscription to {}", getRequestedSpecification());
+        } else if (response.getSubscriptionResult() == LiveDataSubscriptionResult.INTERNAL_ERROR) {
+          s_logger.debug("Failed to establish subscription, {} {}, request = {}",
+              new Object[] {response.getSubscriptionResult(), response.getUserMessage(), getRequestedSpecification() });
+        } else {
+          s_logger.debug("Failed to establish subscription, {} {}, request = {}",
+              new Object[] {response.getSubscriptionResult(), response.getUserMessage(), getRequestedSpecification() });
+        }
       }
     }
     
@@ -169,7 +170,7 @@ public class SubscriptionHandle {
     
     if (resetIndex == null) {
       s_logger.debug("{}: Sending snapshot and {} ticks on hold to {}", 
-          new Object[] {getRequestedSpecification(), _ticksOnHold.size(), getListener()});
+          new Object[] {getRequestedSpecification(), _ticksOnHold.size(), getListener() });
       
       // No resets. This is the normal case. Use the snapshot
       // and any subsequent ticks. The subsequent ticks
@@ -184,7 +185,7 @@ public class SubscriptionHandle {
       }
     } else {
       s_logger.debug("{}: Reset detected. Sending {} ticks on hold to {}", 
-          new Object[] {getRequestedSpecification(), _ticksOnHold.size() - resetIndex, getListener()});
+          new Object[] {getRequestedSpecification(), _ticksOnHold.size() - resetIndex, getListener() });
       
       // This happens when the server is reset (rebooted/migrated) while subscribing.
       // We assume that the tick with sequence number = 0
@@ -200,5 +201,4 @@ public class SubscriptionHandle {
     _ticksOnHold.clear();
     _snapshotOnHold = null;
   }
-
 }

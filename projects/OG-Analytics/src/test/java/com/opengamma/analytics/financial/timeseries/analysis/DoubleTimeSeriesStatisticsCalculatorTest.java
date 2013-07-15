@@ -12,9 +12,8 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -23,7 +22,7 @@ public class DoubleTimeSeriesStatisticsCalculatorTest {
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();
   private static final Function<DoubleTimeSeries<?>, Double> CALC = new DoubleTimeSeriesStatisticsCalculator(MEAN);
   private static final double X = 1.23;
-  private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4, 5}, new double[] {X, X, X, X, X});
+  private static final DoubleTimeSeries<?> TS = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4, 5}, new double[] {X, X, X, X, X});
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConstructor() {
@@ -37,7 +36,7 @@ public class DoubleTimeSeriesStatisticsCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS() {
-    CALC.evaluate(FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
+    CALC.evaluate(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

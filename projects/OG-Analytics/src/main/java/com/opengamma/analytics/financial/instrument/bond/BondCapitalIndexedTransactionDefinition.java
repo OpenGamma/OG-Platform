@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -22,15 +21,16 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondTransa
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a capital inflation indexed bond transaction. Both the coupon and the nominal are indexed on a price index.
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  */
-public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition> extends BondTransactionDefinition<C, C> implements
-    InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition> extends BondTransactionDefinition<C, C>
+implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Capital indexed bond transaction from all the transaction details.
@@ -41,23 +41,23 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
    */
   public BondCapitalIndexedTransactionDefinition(final BondSecurityDefinition<C, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
     super(underlyingBond, quantity, settlementDate, price);
-    Validate.isTrue(underlyingBond instanceof BondCapitalIndexedSecurityDefinition, "Capital Indexed bond");
+    ArgumentChecker.isTrue(underlyingBond instanceof BondCapitalIndexedSecurityDefinition, "Capital Indexed bond");
   }
 
   //TODO: from clean price adjusted monthly (for UK linked-gilts pre-2005).
 
   @Override
   public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final DoubleTimeSeries<ZonedDateTime> series = new ArrayZonedDateTimeDoubleTimeSeries();
+    final ImmutableZonedDateTimeDoubleTimeSeries series = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC);
     return toDerivative(date, series, yieldCurveNames);
   }
 
   @Override
   public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(data, "Price index fixing time series");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(data, "Price index fixing time series");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final BondCapitalIndexedSecurity<Coupon> bondPurchase = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, getSettlementDate(), data);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final BondCapitalIndexedSecurity<Coupon> bondStandard = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, spot, data);
@@ -70,17 +70,19 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
-    final BondCapitalIndexedTransaction<Coupon> result = new BondCapitalIndexedTransaction<Coupon>(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
+    final BondCapitalIndexedTransaction<Coupon> result = new BondCapitalIndexedTransaction<>(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedTransaction(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedTransaction(this);
   }
 

@@ -25,12 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.time.StopWatch;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -39,6 +33,11 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.FudgeSize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
@@ -266,8 +265,8 @@ public class BloombergTickWriter extends TerminatableJob {
    * @return
    */
   private String makeBaseDirectoryName() {
-    Clock clock = Clock.system(TimeZone.UTC);
-    LocalDate today = clock.today();
+    Clock clock = Clock.systemUTC();
+    LocalDate today = LocalDate.now(clock);
     StringBuilder buf = new StringBuilder();
     buf.append(_rootDir).append(File.separator);
     int year = today.getYear();
@@ -277,7 +276,7 @@ public class BloombergTickWriter extends TerminatableJob {
       buf.append(year);
     }
     buf.append(File.separator);
-    int month = today.getMonthOfYear().getValue();
+    int month = today.getMonthValue();
     if (month < 10) {
       buf.append("0").append(month);
     } else {
@@ -351,13 +350,13 @@ public class BloombergTickWriter extends TerminatableJob {
    * @return
    */
   private File buildSecurityDirectory(String buid, long receivedTS) {
-    Instant instant = Instant.ofEpochMillis(receivedTS);
-    ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, TimeZone.UTC);
+    Instant instant = Instant.ofEpochMilli(receivedTS);
+    ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
     LocalDate today = dateTime.toLocalDate();
     StringBuilder buf = new StringBuilder();
     buf.append(_rootDir).append(File.separator);
     buf.append(buid).append(File.separator).append(today.getYear()).append(File.separator);
-    int month = today.getMonthOfYear().getValue();
+    int month = today.getMonthValue();
     if (month < 10) {
       buf.append("0").append(month);
     } else {
@@ -414,9 +413,9 @@ public class BloombergTickWriter extends TerminatableJob {
     String result = null;
     //s_logger.warn("cannot determine event time in msg {}, using received timestamp", tickMsg); // Andrew - uncomment before checking back in
     Long epochMillis = tickMsg.getLong(RECEIVED_TS_KEY);
-    Instant instant = Instant.ofEpochMillis(epochMillis);
-    ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, TimeZone.UTC);
-    int hourOfDay = dateTime.getHourOfDay();
+    Instant instant = Instant.ofEpochMilli(epochMillis);
+    ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
+    int hourOfDay = dateTime.getHour();
     if (hourOfDay < 10) {
       result = new StringBuilder("0").append(hourOfDay).toString();
     } else {

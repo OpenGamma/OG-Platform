@@ -6,43 +6,35 @@ $.register_module({
     name: 'og.common.masthead.menu',
     dependencies: [],
     obj: function () {
-
-        var keyboard;
-
-        /*
-         * TODO: setup keyboard shortcuts
-         */
-        keyboard = {
-            'A': 'OG-JS-analytics',
-            'P': 'OG-JS-portfolio',
-            'S': 'OG-JS-securities',
-            'E': 'OG-JS-exchanges',
-            'T': 'OG-JS-timeSeries',
-            'H': 'OG-JS-holidays',
-            'R': 'OG-JS-regions',
-            'C': 'OG-JS-configurations',
-            'N': 'OG-JS-new',
-            'F': 'OG-JS-feedback'
-        };
-
         return {
             init: function () {
-                $('.og-icon-header-dropdown').parent().hover(function () {
-                    $(this).addClass('open').find('.og-dd-menu').show();
-                });
-
-                /*
-                 * TODO: Add in delay
-                 */
-                $('.og-icon-header-dropdown').parent().mouseleave(function () {
-                    $(this).removeClass('open').find('.og-dd-menu').hide();
-                });
+                var link = '.OG-masthead .og-configs', menu = '.OG-masthead .og-menu', active = 'og-active-menu',
+                    hovering = false, common = og.views.common;
+                var hide_menu = function () {
+                    $(menu).hide();
+                    $(link).removeClass(active);
+                    common.layout.main.resetOverflow('north');
+                };
+                $(link + ', ' + menu).hover(
+                    function () {
+                        common.layout.main.allowOverflow('north');
+                        $(menu).show();
+                        $(link).addClass(active);
+                        hovering = true;
+                    },
+                    function () {
+                        hovering = false;
+                        setTimeout(function () {
+                            if (hovering === false) hide_menu();
+                        }, 500);
+                    }
+                ).on('click', 'a', function () {hide_menu();});
+                $(link).on('click', function () {hide_menu();});
             },
             set_tab: function (name) {
                 $('.OG-masthead a').removeClass('og-active');
                 $('.OG-masthead .og-' + name).addClass('og-active');
             }
         };
-
     }
 });

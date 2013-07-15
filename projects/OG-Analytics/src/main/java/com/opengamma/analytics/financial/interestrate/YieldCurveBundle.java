@@ -110,6 +110,21 @@ public class YieldCurveBundle {
     }
   }
 
+  public YieldCurveBundle(final FXMatrix fxMatrix, final String[] names, final YieldAndDiscountCurve[] curves) {
+    ArgumentChecker.notNull(names, "names");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(names.length == curves.length, "Different number of names ({}) and curves ({})", names.length, curves.length);
+    ArgumentChecker.noNulls(names, "names");
+    ArgumentChecker.noNulls(curves, "curves");
+    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    _curveCurrency = new HashMap<String, Currency>();
+    final int n = names.length;
+    for (int i = 0; i < n; i++) {
+      _curves.put(names[i], curves[i]);
+    }
+    _fxMatrix = fxMatrix;
+  }
+
   /**
    * Constructor from existing curve and currency maps and existing fxMatrix. A new map is created.
    * @param curvesMap The map of curves.

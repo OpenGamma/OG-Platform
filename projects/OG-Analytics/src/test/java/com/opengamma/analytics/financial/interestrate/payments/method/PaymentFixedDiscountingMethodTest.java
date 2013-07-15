@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
@@ -21,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
@@ -56,8 +55,8 @@ public class PaymentFixedDiscountingMethodTest {
    * Tests the present value of fixed coupons.
    */
   public void presentValue() {
-    CurrencyAmount pvComputed = METHOD.presentValue(PAYMENT, YC_BUNDLE);
-    double pvExpected = PAYMENT.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(PAYMENT.getPaymentTime());
+    final CurrencyAmount pvComputed = METHOD.presentValue(PAYMENT, YC_BUNDLE);
+    final double pvExpected = PAYMENT.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(PAYMENT.getPaymentTime());
     assertEquals("CouponFixed: Present value by discounting", pvExpected, pvComputed.getAmount(), 1.0E-2);
   }
 
@@ -66,8 +65,8 @@ public class PaymentFixedDiscountingMethodTest {
    * Tests the present value curve sensitivity to parallel curve movements of fixed payments.
    */
   public void presentValueParallelCurveSensitivity() {
-    StringValue pvpcsComputed = METHOD.presentValueParallelCurveSensitivity(PAYMENT, YC_BUNDLE);
-    double pvpcsExpected = -PAYMENT.getPaymentTime() * PAYMENT.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(PAYMENT.getPaymentTime());
+    final StringAmount pvpcsComputed = METHOD.presentValueParallelCurveSensitivity(PAYMENT, YC_BUNDLE);
+    final double pvpcsExpected = -PAYMENT.getPaymentTime() * PAYMENT.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(PAYMENT.getPaymentTime());
     assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", 1, pvpcsComputed.getMap().size());
     assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", pvpcsExpected, pvpcsComputed.getMap().get(CURVES_NAME[0]), 1.0E-2);
   }
@@ -77,9 +76,9 @@ public class PaymentFixedDiscountingMethodTest {
    * Tests the present value curve sensitivity to parallel curve movements of fixed payments.
    */
   public void presentValueParallelCurveSensitivityMethodVsCalculator() {
-    StringValue pvpcsMethod = METHOD.presentValueParallelCurveSensitivity(PAYMENT, YC_BUNDLE);
-    StringValue pvpcsCalculator = PVPCSC.visit(PAYMENT, YC_BUNDLE);
-    assertTrue("CouponFixed: Present value parallel curve sensitivity by discounting", StringValue.compare(pvpcsMethod, pvpcsCalculator, 1.0E-5));
+    final StringAmount pvpcsMethod = METHOD.presentValueParallelCurveSensitivity(PAYMENT, YC_BUNDLE);
+    final StringAmount pvpcsCalculator = PAYMENT.accept(PVPCSC, YC_BUNDLE);
+    assertTrue("CouponFixed: Present value parallel curve sensitivity by discounting", StringAmount.compare(pvpcsMethod, pvpcsCalculator, 1.0E-5));
   }
 
 }

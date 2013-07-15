@@ -12,11 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test {@link ExternalIdBundleMapper}.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdBundleMapperTest {
 
   public void testMapper() {

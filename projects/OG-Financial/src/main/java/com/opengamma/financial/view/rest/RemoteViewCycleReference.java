@@ -8,7 +8,7 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
-import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
  * 

@@ -10,10 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -21,13 +17,15 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbConfigMaster.
  */
-public class DbConfigMasterTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbConfigMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbConfigMasterTest.class);
 
@@ -35,26 +33,19 @@ public class DbConfigMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbConfigMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext springContext = DbMasterTestUtils.getContext(getDatabaseType());
-    _cfgMaster = springContext.getBean(getDatabaseType() + "DbConfigMaster", DbConfigMaster.class);
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _cfgMaster = new DbConfigMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _cfgMaster = null;
-    super.tearDown();
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
@@ -63,7 +54,7 @@ public class DbConfigMasterTest extends DbTest {
     assertNotNull(_cfgMaster);
     assertEquals(true, _cfgMaster.getUniqueIdScheme().equals("DbCfg"));
     assertNotNull(_cfgMaster.getDbConnector());
-    assertNotNull(_cfgMaster.getTimeSource());
+    assertNotNull(_cfgMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

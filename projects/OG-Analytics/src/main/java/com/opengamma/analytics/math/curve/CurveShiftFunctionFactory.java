@@ -20,7 +20,7 @@ public class CurveShiftFunctionFactory {
   public static final InterpolatedCurveShiftFunction INTERPOLATED = new InterpolatedCurveShiftFunction();
   /** Shift function for {@link SpreadDoublesCurve} */
   public static final SpreadCurveShiftFunction SPREAD = new SpreadCurveShiftFunction();
-  private static final Map<Class<?>, CurveShiftFunction<?>> s_instances = new HashMap<Class<?>, CurveShiftFunction<?>>();
+  private static final Map<Class<?>, CurveShiftFunction<?>> s_instances = new HashMap<>();
 
   static {
     s_instances.put(ConstantCurveShiftFunction.class, CONSTANT);
@@ -93,7 +93,7 @@ public class CurveShiftFunctionFactory {
   /**
    * For a curve Curve<Double, Double>, return a parallel-shifted curve.
    * @param curve The original curve
-   * @param x An array of <i>x</i> values to shift 
+   * @param x An array of <i>x</i> values to shift
    * @param y The shifts
    * @return A shifted curve with automatically-generated name
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
@@ -119,7 +119,7 @@ public class CurveShiftFunctionFactory {
    * @param curve The original curve
    * @param shift The shift
    * @param newName The name of the shifted curve
-   * @return A shifted curve 
+   * @return A shifted curve
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
   public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double shift, final String newName) {
@@ -144,7 +144,7 @@ public class CurveShiftFunctionFactory {
    * @param x The <i>x</i> value of the shift
    * @param shift The shift
    * @param newName The name of the shifted curve
-   * @return A shifted curve 
+   * @return A shifted curve
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
   public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift, final String newName) {
@@ -166,10 +166,10 @@ public class CurveShiftFunctionFactory {
   /**
    * For a curve Curve<Double, Double>, return a parallel-shifted curve.
    * @param curve The original curve
-   * @param x An array of <i>x</i> values to shift 
+   * @param x An array of <i>x</i> values to shift
    * @param y The shifts
    * @param newName The name of the shifted curve
-   * @return A shifted curve 
+   * @return A shifted curve
    * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
    */
   public static DoublesCurve getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y, final String newName) {

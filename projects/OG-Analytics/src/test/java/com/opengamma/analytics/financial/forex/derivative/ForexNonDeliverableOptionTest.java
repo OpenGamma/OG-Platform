@@ -2,9 +2,8 @@ package com.opengamma.analytics.financial.forex.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
@@ -13,7 +12,7 @@ import com.opengamma.util.time.DateUtils;
 public class ForexNonDeliverableOptionTest {
 
   private static final Currency KRW = Currency.of("KRW");
-  private static final Currency USD = Currency.USD;
+  private static final Currency USD = Currency.EUR;
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2012, 5, 2);
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_USD = 1000000; // 1m

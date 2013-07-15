@@ -18,11 +18,12 @@ import java.util.Random;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
 
   Random generator = new Random(System.currentTimeMillis());
@@ -364,15 +365,16 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_a_collection_which_is_inner_class() {
-
-    Map<Byte, Byte> map = Collections.unmodifiableMap(new HashMap<Byte, Byte>() {{
+    Map<Byte, Byte> map = Collections.unmodifiableMap(new HashMap<Byte, Byte>() {
+      private static final long serialVersionUID = 1L;
+      {
       this.put((byte) 1, (byte) 2);
-    }});
-
+      }
+    });
+    @SuppressWarnings("rawtypes")
     Map cycled = cycleObjectOverBytes(map);
 
     assertEquals(cycled.get((byte)1), (byte)2);
   }
-
 
 }

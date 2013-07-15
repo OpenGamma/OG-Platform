@@ -13,6 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -92,6 +94,7 @@ public final class ExternalId
    * @return the external identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
+  @FromString
   public static ExternalId parse(String str) {
     ArgumentChecker.notEmpty(str, "str");
     str = StringUtils.replace(str, "::", "~");  // leniently parse old data
@@ -110,7 +113,7 @@ public final class ExternalId
    */
   private ExternalId(ExternalScheme scheme, String value) {
     ArgumentChecker.notNull(scheme, "scheme");
-    ArgumentChecker.notEmpty(value, "standaloneId");
+    ArgumentChecker.notEmpty(value, "value");
     _scheme = scheme;
     _value = value;
   }
@@ -239,6 +242,7 @@ public final class ExternalId
    * @return a parsable representation of the identifier, not null
    */
   @Override
+  @ToString
   public String toString() {
     return new StrBuilder().append(_scheme).append('~').append(_value).toString();
   }

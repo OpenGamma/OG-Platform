@@ -7,13 +7,12 @@ package com.opengamma.integration.tool.portfolio;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.joda.beans.JodaBeanUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
@@ -25,12 +24,14 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link OrphanedPositionRemover}
  */
+@Test(groups = TestGroup.UNIT)
 public class OrphanedPositionRemoverTest {
-  
+
   private static final ExternalId SEC1 = ExternalId.of ("Test", "sec1");
   private static final ExternalId SEC2 = ExternalId.of ("Test", "sec2");
   private static final ExternalId SEC3 = ExternalId.of ("Test", "sec3");

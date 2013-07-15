@@ -20,10 +20,12 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test MultipleCurrencyAmount.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultipleCurrencyAmountTest {
 
   private static final Currency CCY1 = Currency.AUD;

@@ -13,11 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link AvailableOutput} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class AvailableOutputImplTest {
 
   private static final String VALUE_NAME = "Foo";

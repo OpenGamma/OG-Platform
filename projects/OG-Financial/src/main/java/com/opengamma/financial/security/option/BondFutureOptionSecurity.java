@@ -83,7 +83,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
   private OptionType _optionType;
 
   BondFutureOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public BondFutureOptionSecurity(String tradingExchange,
@@ -527,7 +527,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "tradingExchange",
         "settlementExchange",
         "expiry",

@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -16,29 +16,29 @@ import com.opengamma.util.SingletonFactoryBean;
 public class LatestHistoricalMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<LatestHistoricalMarketDataProviderFactory> {
 
   private HistoricalTimeSeriesSource _timeSeriesSource;
-  private SecuritySource _securitySource;
-  
+  private HistoricalTimeSeriesResolver _timeSeriesResolver;
+
   public HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
   }
 
-  public void setTimeSeriesSource(HistoricalTimeSeriesSource timeSeriesSource) {
+  public void setTimeSeriesSource(final HistoricalTimeSeriesSource timeSeriesSource) {
     _timeSeriesSource = timeSeriesSource;
   }
-  
-  public SecuritySource getSecuritySource() {
-    return _securitySource;
+
+  public HistoricalTimeSeriesResolver getTimeSeriesResolver() {
+    return _timeSeriesResolver;
   }
-  
-  public void setSecuritySource(SecuritySource securitySource) {
-    _securitySource = securitySource;
+
+  public void setTimeSeriesResolver(final HistoricalTimeSeriesResolver timeSeriesResolver) {
+    _timeSeriesResolver = timeSeriesResolver;
   }
 
   @Override
   protected LatestHistoricalMarketDataProviderFactory createObject() {
     ArgumentChecker.notNullInjected(getTimeSeriesSource(), "timeSeriesSource");
-    ArgumentChecker.notNullInjected(getSecuritySource(), "securitySource");
-    return new LatestHistoricalMarketDataProviderFactory(getTimeSeriesSource(), getSecuritySource());
+    ArgumentChecker.notNullInjected(getTimeSeriesResolver(), "timeSeriesResolver");
+    return new LatestHistoricalMarketDataProviderFactory(getTimeSeriesSource(), getTimeSeriesResolver());
   }
 
 }

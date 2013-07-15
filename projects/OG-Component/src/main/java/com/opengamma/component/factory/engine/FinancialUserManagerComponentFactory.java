@@ -9,8 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.time.calendar.Period;
-
 import org.fudgemsg.FudgeContext;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -21,6 +19,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Duration;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -100,7 +99,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * The time out for clients (default 30 minutes).
    */
   @PropertyDefinition
-  private Period _clientTimeOut = Period.ofMinutes(30);
+  private Duration _clientTimeOut = Duration.ofMinutes(30);
 
   //-------------------------------------------------------------------------
   @Override
@@ -208,7 +207,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
         setScheduler((ScheduledExecutorService) newValue);
         return;
       case -893669642:  // clientTimeOut
-        setClientTimeOut((Period) newValue);
+        setClientTimeOut((Duration) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -530,7 +529,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * Gets the time out for clients (default 30 minutes).
    * @return the value of the property
    */
-  public Period getClientTimeOut() {
+  public Duration getClientTimeOut() {
     return _clientTimeOut;
   }
 
@@ -538,7 +537,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * Sets the time out for clients (default 30 minutes).
    * @param clientTimeOut  the new value of the property
    */
-  public void setClientTimeOut(Period clientTimeOut) {
+  public void setClientTimeOut(Duration clientTimeOut) {
     this._clientTimeOut = clientTimeOut;
   }
 
@@ -546,7 +545,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * Gets the the {@code clientTimeOut} property.
    * @return the property, not null
    */
-  public final Property<Period> clientTimeOut() {
+  public final Property<Duration> clientTimeOut() {
     return metaBean().clientTimeOut().createProperty(this);
   }
 
@@ -613,13 +612,13 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     /**
      * The meta-property for the {@code clientTimeOut} property.
      */
-    private final MetaProperty<Period> _clientTimeOut = DirectMetaProperty.ofReadWrite(
-        this, "clientTimeOut", FinancialUserManagerComponentFactory.class, Period.class);
+    private final MetaProperty<Duration> _clientTimeOut = DirectMetaProperty.ofReadWrite(
+        this, "clientTimeOut", FinancialUserManagerComponentFactory.class, Duration.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "fudgeContext",
@@ -767,7 +766,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
      * The meta-property for the {@code clientTimeOut} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Period> clientTimeOut() {
+    public final MetaProperty<Duration> clientTimeOut() {
       return _clientTimeOut;
     }
 

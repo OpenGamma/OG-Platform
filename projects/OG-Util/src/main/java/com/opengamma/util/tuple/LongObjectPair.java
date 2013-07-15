@@ -7,7 +7,7 @@ package com.opengamma.util.tuple;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
-import org.apache.http.util.LangUtils;
+import java.util.Objects;
 
 /**
  * An immutable pair consisting of an {@code long} and {@code Object}.
@@ -38,7 +38,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
    * @return a pair formed from the two parameters, not null
    */
   public static <B> LongObjectPair<B> of(final long first, final B second) {
-    return new LongObjectPair<B>(first, second);
+    return new LongObjectPair<>(first, second);
   }
 
   /**
@@ -91,7 +91,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
     }
     if (obj instanceof LongObjectPair) {
       final LongObjectPair<T> other = (LongObjectPair<T>) obj;
-      return this.first == other.first && LangUtils.equals(this.second, other.second);
+      return this.first == other.first && Objects.equals(this.second, other.second);
     }
     return super.equals(obj);
   }

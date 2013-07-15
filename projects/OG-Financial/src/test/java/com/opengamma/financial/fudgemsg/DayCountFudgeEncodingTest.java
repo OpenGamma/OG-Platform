@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test DayCount Fudge support.
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DayCountFudgeEncodingTest extends FinancialTestBase {
 
   private static final DayCount s_ref = DayCountFactory.INSTANCE.getDayCount("Act/360");

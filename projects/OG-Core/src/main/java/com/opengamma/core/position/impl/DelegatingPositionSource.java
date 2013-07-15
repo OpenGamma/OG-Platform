@@ -66,9 +66,10 @@ public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSo
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueId uniqueId) {
+  public Portfolio getPortfolio(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId.getScheme()).getPortfolio(uniqueId);
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(uniqueId.getScheme()).getPortfolio(uniqueId, versionCorrection);
   }
 
   @Override
@@ -79,15 +80,23 @@ public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSo
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
+  public PortfolioNode getPortfolioNode(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId.getScheme()).getPortfolioNode(uniqueId);
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(uniqueId.getScheme()).getPortfolioNode(uniqueId, versionCorrection);
   }
 
   @Override
   public Position getPosition(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return chooseDelegate(uniqueId.getScheme()).getPosition(uniqueId);
+  }
+
+  @Override
+  public Position getPosition(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(objectId.getScheme()).getPosition(objectId, versionCorrection);
   }
 
   @Override

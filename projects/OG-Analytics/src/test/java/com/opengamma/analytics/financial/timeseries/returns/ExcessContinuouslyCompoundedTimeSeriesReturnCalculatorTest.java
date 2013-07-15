@@ -7,28 +7,27 @@ package com.opengamma.analytics.financial.timeseries.returns;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   private static final TimeSeriesReturnCalculator CALCULATOR = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.EXCESS_CONTINUOUS_STRICT);
-  private static final LocalDateDoubleTimeSeries TS1 = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), 
-                                                                                                           LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4), 
-                                                                                                           LocalDate.ofEpochDays(5)}, 
+  private static final LocalDateDoubleTimeSeries TS1 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+                                                                                                           LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4), 
+                                                                                                           LocalDate.ofEpochDay(5)}, 
                                                                                           new double[] {1, 2, 3, 4, 5});
-  private static final LocalDateDoubleTimeSeries TS2 = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), 
-                                                                                                           LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4), 
-                                                                                                           LocalDate.ofEpochDays(5)}, 
+  private static final LocalDateDoubleTimeSeries TS2 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
+                                                                                                           LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4), 
+                                                                                                           LocalDate.ofEpochDay(5)}, 
                                                                                           new double[] {1, 1, 1, 1, 1});
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
   private static final TimeSeriesReturnCalculator RETURNS = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.CONTINUOUS_STRICT);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -43,7 +42,7 @@ public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentLengths() {
-    CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {TS1, null, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] { LocalDate.ofEpochDays(1) }, new double[] {1}), null});
+    CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {TS1, null, ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] { LocalDate.ofEpochDay(1) }, new double[] {1}), null});
   }
 
   @Test

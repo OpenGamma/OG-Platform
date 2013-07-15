@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.option;
@@ -10,16 +10,16 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.JarrowRuddSkewnessKurtosisModel;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 
 /**
- * 
+ *
  *
  */
+@Deprecated
 public class JarrowRuddSkewnessKurtosisModelFunction extends SkewKurtosisDataOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> _model = new JarrowRuddSkewnessKurtosisModel();
 
@@ -35,11 +35,8 @@ public class JarrowRuddSkewnessKurtosisModelFunction extends SkewKurtosisDataOpt
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity) {
-      return true;
-    }
-    return false;
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
   }
 
   @Override

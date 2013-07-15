@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.JulianFields;
 
 /**
  * The 'Actual/365' day count.
@@ -18,8 +19,8 @@ public class ActualThreeSixtyFive extends ActualTypeDayCount {
   @Override
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
     testDates(firstDate, secondDate);
-    final long firstJulianDate = firstDate.toModifiedJulianDays();
-    final long secondJulianDate = secondDate.toModifiedJulianDays();
+    final long firstJulianDate = firstDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long secondJulianDate = secondDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     return (secondJulianDate - firstJulianDate) / 365.;
   }
 

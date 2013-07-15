@@ -5,13 +5,12 @@
  */
 package com.opengamma.analytics.financial.timeseries.model;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -47,6 +46,6 @@ public class AutoregressiveTimeSeriesModel {
       }
       data[i] = sum;
     }
-    return new ArrayLocalDateDoubleTimeSeries(dates, data);
+    return ImmutableLocalDateDoubleTimeSeries.of(dates, data);
   }
 }

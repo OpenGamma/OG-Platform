@@ -13,12 +13,13 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MapUtilsTest {
 
   public void test_putIfAbsentGet() {

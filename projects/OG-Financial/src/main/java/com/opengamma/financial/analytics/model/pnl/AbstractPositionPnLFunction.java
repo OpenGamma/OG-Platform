@@ -15,11 +15,11 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -45,10 +45,7 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
           ComputationTargetType.TRADE, trade.getUniqueId()));
       currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
-    final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties(ccy).get());
-    final ComputedValue result = new ComputedValue(valueSpecification, currentSum.doubleValue());
-    return Sets.newHashSet(result);
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties(position).get()), currentSum.doubleValue()));
   }
 
   @Override
@@ -56,12 +53,28 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
     return ComputationTargetType.POSITION;
   }
 
-  protected ValueProperties.Builder createValueProperties(final Currency currency) {
-    final ValueProperties.Builder properties = createValueProperties();
-    if (currency != null) {
-      properties.with(ValuePropertyNames.CURRENCY, currency.getCode());
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Security security = target.getPosition().getSecurity();
+    if (FXUtils.isFXSecurity(security)) {
+      // Can't do FX securities with this because they don't have a single currency we can use
+      return false;
+    }
+    return true;
+  }
+
+  protected ValueProperties.Builder createValueProperties(final Position position) {
+    final ValueProperties.Builder properties = super.createValueProperties();
+    final Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
+    if (ccy != null) {
+      properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     }
     return properties;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties(target.getPosition()).get()));
   }
 
   @Override
@@ -79,16 +92,6 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
       requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId(), constraints));
     }
     return requirements;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Security security = target.getPosition().getSecurity();
-    if (FXUtils.isFXSecurity(security)) {
-      return null;
-    }
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties(ccy).get()));
   }
 
 }

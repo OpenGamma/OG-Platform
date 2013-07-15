@@ -7,11 +7,14 @@
 
 .OG-masthead {
     background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAJ0lEQVQIW2MUFxf/b2BkzAADjO6eXv8vnDvLABMEC4BkYYJwAZggAPOTD9RNbjElAAAAAElFTkSuQmCC);
-    border-top: 1px solid #555;
     color: #ededed;
     height: 22px;
     line-height: 23px;
     position: relative;
+}
+
+.OG-masthead ul {
+  white-space: nowrap;
 }
 
 .OG-masthead li {
@@ -20,12 +23,13 @@
 
 .OG-masthead a {
     border: none;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
     color: #ededed;
-    margin: 0 10px;
-}
-
-.OG-masthead a:hover {
-    color: #909293;
+    display: inline-block;
+    line-height: 15px;
+    margin: 0 3px;
+    padding: 4px 7px 3px 7px;
 }
 
 .OG-masthead .OG-logo-light-small {
@@ -42,44 +46,128 @@
     width: 14px;
 }
 
-.OG-masthead .og-analytics-beta {
-    color: #e8d71c;
-}
-
 .OG-masthead .og-home {
-    cursor: default;
     margin-left: 0;
 }
 
-.OG-masthead .og-home:hover {
-    color: inherit;
-}
-
-.OG-masthead .og-active {
-    -webkit-border-top-left-radius: 2px;
-    -webkit-border-top-right-radius: 2px;
-    -moz-border-radius-topleft: 2px;
-    -moz-border-radius-topright: 2px;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    background: #fff;
-    color: #555;
-    padding: 3px;
-    border-bottom: 1px solid #fff;
-}
-
-.OG-masthead .og-icon-divider {
-    position: relative;
-    margin: 0 10px;
-    top: -2px;
-    cursor: default;
-}
-
-.OG-masthead .OG-icon.og-icon-divider:after {
-    position: relative;
-}
-
 .OG-masthead .OG-icon.og-icon-speech:after {
-    position: relative;
     left: -4px;
+    margin-left: 5px;
+    position: relative;
 }
+
+/* Active */
+    .OG-masthead .og-active {
+        background: #fff;
+        border-bottom: 1px solid #fff;
+        color: #555;
+        padding: 4px 7px 3px 7px;
+    }
+
+    .OG-masthead .og-active.og-configs:after {
+        border-top-color: #47494a;
+    }
+
+    .OG-masthead .og-active.og-analytics-beta {
+        color: #555;
+    }
+
+/* Configs */
+    .OG-masthead .og-configs {
+        position: relative;
+    }
+
+    .OG-masthead .og-configs:after {
+        content: '';
+        position: absolute;
+        top: 9px;
+        right: 6px;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 4px solid #fff;
+        -moz-transform: scale(.9999); /* Temporary fix for FF until mozilla patch bug */
+    }
+
+    .OG-masthead .og-configs {
+        padding-right: 21px;
+    }
+
+/* Hover */
+    .OG-masthead .og-active:hover.og-configs:after,
+    .OG-masthead .og-active-menu.og-configs:after {
+        border-top-color: #fff;
+    }
+
+    .OG-masthead a:hover,
+    .OG-masthead a.og-active-menu {
+        background: #47494a;
+        color: #fff;
+        border-bottom: 1px solid #fff;
+        border-left-color: #5a5c5c;
+        border-right-color: #5a5c5c;
+    }
+
+    .OG-masthead .og-analytics-beta,
+    .OG-masthead .og-analytics-beta:hover {
+        color: #e8d71c;
+    }
+
+    .OG-masthead .og-home:hover {
+        color: inherit;
+    }
+
+/* Megamenu */
+    .OG-masthead .og-menu {
+        display: block;
+        position: absolute;
+        padding: 5px 10px;
+        background: #555;
+        z-index: 3;
+        margin-left: 3px;
+        display: none;
+    }
+
+    .OG-masthead .og-menu td {
+        vertical-align: top;
+    }
+
+    .OG-masthead .og-menu ul,
+    .OG-masthead .og-menu header {
+        margin-right: 20px;
+        color: #fff;
+    }
+
+    .OG-masthead .og-menu ul {
+        padding-left: 10px;
+    }
+
+    .OG-masthead .og-menu header {
+        font-weight: bold;
+    }
+
+    .OG-masthead .og-menu li {
+        display: block;
+    }
+
+    .OG-masthead .og-menu a {
+        background: none;
+        border: none;
+        display: inline;
+        padding: 0;
+        margin: 0;
+        color: #ddd;
+    }
+
+    .OG-masthead .og-menu a:hover {
+        border-bottom: 1px solid #fff;
+    }
+
+    .OG-masthead .og-menu header {
+        margin-top: 20px;
+    }
+
+    .OG-masthead .og-menu tr:first-child header {
+        margin-top: 0;
+    }

@@ -7,17 +7,19 @@ package com.opengamma.masterdb.config;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.HOURS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
+import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -30,10 +32,12 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -47,12 +51,12 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
   @Test
   public void test_ReplaceVersion_of_some_middle_version() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
@@ -60,7 +64,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;        
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
-        doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(latestFrom.plus(i, MINUTES));
         replacement.add(doc);
       }
 
@@ -78,18 +82,18 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       assertEquals("test10", val);
 
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_ReplaceVersion_of_some_middle_version_timeBoundsNotExact() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
@@ -97,7 +101,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 1; i <= 10; i++) {
         String val = "test" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
-        doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(latestFrom.plus(i, MINUTES));
         replacement.add(doc);
       }
 
@@ -114,18 +118,18 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       assertEquals("test10", val);
 
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_ReplaceVersion_which_is_not_current() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
@@ -141,25 +145,25 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 1; i <= 10; i++) {
         String val = "test" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
-        doc.setVersionFromInstant(lastButOneDocVersionFrom.plus(i, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(lastButOneDocVersionFrom.plus(i, MINUTES));
         replacement.add(doc);
       }
 
       _cfgMaster.replaceVersion(lastButOneDoc.getUniqueId(), replacement);
 
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_ReplaceVersion_which_is_not_in_the_time_bounds_of_the_replaced_doc() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
 
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
@@ -176,25 +180,25 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 1; i <= 10; i++) {
         String val = "test" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
-        doc.setVersionFromInstant(lastButOneDocVersionFrom.plus(i, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(lastButOneDocVersionFrom.plus(i, MINUTES));
         replacement.add(doc);
       }
 
       _cfgMaster.replaceVersion(lastButOneDoc.getUniqueId(), replacement);
 
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
   @Test
   public void test_ReplaceVersions() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
@@ -203,7 +207,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
-        doc.setVersionFromInstant(latestFrom.plus(i, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(latestFrom.plus(i, SECONDS));
         replacement.add(doc);
       }
 
@@ -211,25 +215,25 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
       List<ConfigDocument> confDocs = result.getDocuments();
 
       assertEquals(15, confDocs.size());
 
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
   @Test
   public void test_ReplaceVersions2() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       Instant latestFrom = latestDoc.getVersionFromInstant();
 
@@ -238,7 +242,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 0; i <= 10; i++) {
         String val = "test" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
-        doc.setVersionFromInstant(latestFrom.plus(i - 3, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(latestFrom.plus(i - 3, MINUTES));
         replacement.add(doc);
       }
 
@@ -246,14 +250,14 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
       List<ConfigDocument> confDocs = result.getDocuments();
 
       assertEquals(12, confDocs.size());
 
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
@@ -290,12 +294,12 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_ReplaceVersion_notInTimeBounds() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       @SuppressWarnings("unused")
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
       
@@ -303,13 +307,13 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 1; i <= 3; i++) {
         String val = "replace_" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
-        doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 10, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.plus(1, MINUTES).plus(i * 10, SECONDS));
         replacement.add(doc);
       }
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
       List<ConfigDocument> confDocs = result.getDocuments();
 
@@ -318,7 +322,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       _cfgMaster.replaceVersion(secondVersionDoc.getUniqueId(), replacement);
 
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
@@ -356,12 +360,12 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_ReplaceVersion_inTimeBounds() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       @SuppressWarnings("unused")
       ConfigDocument latestDoc = _cfgMaster.get(baseOid, VersionCorrection.LATEST);
 
@@ -369,14 +373,14 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
       for (int i = 1; i <= 3; i++) {
         String val = "replace_" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
-        doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 10, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.plus(1, MINUTES).plus(i * 10, SECONDS));
         replacement.add(doc);
       }
-      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(1, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS));
+      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(1, MINUTES).plus(40, SECONDS));
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
       List<ConfigDocument> confDocs = result.getDocuments();
 
@@ -384,7 +388,7 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       _cfgMaster.replaceVersion(secondVersionDoc.getUniqueId(), replacement);
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
@@ -420,26 +424,26 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
    */
   @Test
   public void test_ReplaceVersion_atTimeBounds() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
 
 
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
-        doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.plus(1, MINUTES).plus(i * 20, SECONDS));
         replacement.add(doc);
       }
-      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(2, TimeUnit.MINUTES));
+      replacement.get(replacement.size() - 1).setVersionToInstant(now.plus(2, MINUTES));
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
       List<ConfigDocument> confDocs = result.getDocuments();
 
@@ -449,34 +453,34 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       result = _cfgMaster.history(historyRequest);
       confDocs = result.getDocuments();
 
       assertEquals(7, confDocs.size());
 
       assertEquals(now, confDocs.get(6).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES), confDocs.get(6).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES), confDocs.get(6).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES), confDocs.get(5).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), confDocs.get(5).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES), confDocs.get(5).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(20, SECONDS), confDocs.get(5).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), confDocs.get(4).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), confDocs.get(4).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(20, SECONDS), confDocs.get(4).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(40, SECONDS), confDocs.get(4).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), confDocs.get(3).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(60, TimeUnit.SECONDS), confDocs.get(3).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(40, SECONDS), confDocs.get(3).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(60, SECONDS), confDocs.get(3).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(60, TimeUnit.SECONDS), confDocs.get(2).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(120, TimeUnit.SECONDS), confDocs.get(2).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(60, SECONDS), confDocs.get(2).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(120, SECONDS), confDocs.get(2).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(120, TimeUnit.SECONDS), confDocs.get(1).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(180, TimeUnit.SECONDS), confDocs.get(1).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(120, SECONDS), confDocs.get(1).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(180, SECONDS), confDocs.get(1).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(180, TimeUnit.SECONDS), confDocs.get(0).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(180, SECONDS), confDocs.get(0).getVersionFromInstant());
       assertEquals(null, confDocs.get(0).getVersionToInstant());
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
@@ -512,25 +516,25 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
    */
   @Test
   public void test_ReplaceVersion_atTimeBounds2() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
 
 
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val, "some_name_"+i));
-        doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.plus(1, MINUTES).plus(i * 20, SECONDS));
         replacement.add(doc);
       }
 
       ConfigHistoryRequest<String> historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       ConfigHistoryResult<String> result = _cfgMaster.history(historyRequest);
       List<ConfigDocument> confDocs = result.getDocuments();
 
@@ -540,58 +544,58 @@ public class ModifyConfigDbConfigMasterWorkerReplaceVersionTest extends Abstract
 
       historyRequest = new ConfigHistoryRequest<String>();
       historyRequest.setObjectId(baseOid);
-      historyRequest.setCorrectionsFromInstant(now.plus(2, TimeUnit.HOURS));
+      historyRequest.setCorrectionsFromInstant(now.plus(2, HOURS));
       result = _cfgMaster.history(historyRequest);
       confDocs = result.getDocuments();
 
       assertEquals(7, confDocs.size());
 
       assertEquals(now, confDocs.get(6).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES), confDocs.get(6).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES), confDocs.get(6).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES), confDocs.get(5).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), confDocs.get(5).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES), confDocs.get(5).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(20, SECONDS), confDocs.get(5).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(20, TimeUnit.SECONDS), confDocs.get(4).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), confDocs.get(4).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(20, SECONDS), confDocs.get(4).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(40, SECONDS), confDocs.get(4).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(40, TimeUnit.SECONDS), confDocs.get(3).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(60, TimeUnit.SECONDS), confDocs.get(3).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(40, SECONDS), confDocs.get(3).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(60, SECONDS), confDocs.get(3).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(60, TimeUnit.SECONDS), confDocs.get(2).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(120, TimeUnit.SECONDS), confDocs.get(2).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(60, SECONDS), confDocs.get(2).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(120, SECONDS), confDocs.get(2).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(120, TimeUnit.SECONDS), confDocs.get(1).getVersionFromInstant());
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(180, TimeUnit.SECONDS), confDocs.get(1).getVersionToInstant());
+      assertEquals(now.plus(1, MINUTES).plus(120, SECONDS), confDocs.get(1).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(180, SECONDS), confDocs.get(1).getVersionToInstant());
       //
-      assertEquals(now.plus(1, TimeUnit.MINUTES).plus(180, TimeUnit.SECONDS), confDocs.get(0).getVersionFromInstant());
+      assertEquals(now.plus(1, MINUTES).plus(180, SECONDS), confDocs.get(0).getVersionFromInstant());
       assertEquals(null, confDocs.get(0).getVersionToInstant());
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_ReplaceVersion_noUid() {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
       Instant now = Instant.now();
 
       ObjectId baseOid = setupTestData(now);
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(2, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
 
 
       List<ConfigDocument> replacement = newArrayList();
       for (int i = 0; i <= 2; i++) {
         String val = "replace_" + i;
         ConfigDocument doc = new ConfigDocument(ConfigItem.of(val));
-        doc.setVersionFromInstant(now.plus(1, TimeUnit.MINUTES).plus(i * 20, TimeUnit.SECONDS));
+        doc.setVersionFromInstant(now.plus(1, MINUTES).plus(i * 20, SECONDS));
         replacement.add(doc);
       }
 
       _cfgMaster.replaceVersion(baseOid.atVersion("no such uid"), replacement);
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 

@@ -50,3 +50,15 @@
 .OG-background-04 {
     background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAJ0lEQVQIW2MUFxf/b2BkzAADjO6eXv8vnDvLABMEC4BkYYJwAZggAPOTD9RNbjElAAAAAElFTkSuQmCC);
 }
+
+/**
+  * @colordef #979797 dark grey (1)
+  * @colordef #adadad light grey (0)
+  * 1000
+  * 0100
+  * 0010
+  * 0001
+  */
+.OG-background-05 {
+    background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAKElEQVQIW2OcPn36fzExMQYYYFy7du3/V69eMcAEwQIgWZggXAAmCAC3AhTbjl+fJAAAAABJRU5ErkJggg==);
+}

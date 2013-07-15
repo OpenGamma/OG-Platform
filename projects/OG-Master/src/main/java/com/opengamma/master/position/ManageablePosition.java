@@ -157,6 +157,21 @@ public class ManageablePosition extends DirectBean
     }
   }
 
+  /**
+   * Creates a populated instance (no trades or attributes).
+   *
+   * @param uniqueId    the position unique identifier, may be null
+   * @param quantity    the amount of the position, not null
+   * @param securityId  the security identifier, not null
+   */
+  public ManageablePosition(UniqueId uniqueId, BigDecimal quantity, ExternalIdBundle securityId) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityId, "securityId");
+    setUniqueId(uniqueId);
+    setQuantity(quantity);
+    _securityLink = new ManageableSecurityLink(securityId);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Adds a trade to the list.
@@ -166,6 +181,16 @@ public class ManageablePosition extends DirectBean
   public void addTrade(final ManageableTrade trade) {
     ArgumentChecker.notNull(trade, "trade");
     getTrades().add(trade);
+  }
+
+  /**
+   * Removes a given trade from the set of trades.
+   *
+   * @param trade  the trade to remove, null ignored
+   * @return true if the set of trades contained the specified trade
+   */
+  public boolean removeTrade(final ManageableTrade trade) {
+    return getTrades().remove(trade);
   }
 
   /**
@@ -193,13 +218,12 @@ public class ManageablePosition extends DirectBean
     ArgumentChecker.notNull(tradeObjectId, "tradeObjectId");
     ObjectId objectId = tradeObjectId.getObjectId();
     for (ManageableTrade trade : getTrades()) {
-      if (getUniqueId().equalObjectId(objectId)) {
+      if (trade.getUniqueId().equalObjectId(objectId)) {
         return trade;
       }
     }
     return null;
   }
-
   /**
    * Checks if any trade object identifier matches one in the specified list.
    * 
@@ -261,13 +285,10 @@ public class ManageablePosition extends DirectBean
    * <p>
    * The interface contains different data to this class due to database design.
    * 
-   * @param parentNodeId  the parent node id, may be null
    * @return the security from the link, null if not resolve
    */
-  public SimplePosition toPosition(UniqueId parentNodeId) {
+  public SimplePosition toPosition() {
     SimplePosition sp = new SimplePosition();
-    sp.setUniqueId(this.getUniqueId());
-    sp.setParentNodeId(parentNodeId);
     sp.setQuantity(this.getQuantity());
     sp.setSecurityLink(this.getSecurityLink());
     sp.getTrades().addAll(getTrades());
@@ -277,7 +298,11 @@ public class ManageablePosition extends DirectBean
     if (this.getProviderId() != null) {
       sp.addAttribute(this.providerId().name(), this.getProviderId().toString());
     }
-    
+
+    if (this.getUniqueId() != null) { // may not have an id yet
+      sp.setUniqueId(this.getUniqueId());
+    }
+
     return sp;
   }
 

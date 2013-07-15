@@ -1,0 +1,15 @@
+<tr class="OG-dropmenu-options {{this.type}}">
+  <td class="number"><span></span></td>
+  <td>
+    <select class="type">
+      <option {{#this.selected}}selected{{/this.selected}}>select type...</option>
+      {{#each type_list}}<option {{#this.selected}}selected{{/this.selected}}>{{this.text}}</option>{{/each}}
+    </select>
+  </td>
+  <td class="datasource">
+    {{{children}}}
+  </td>
+  <td>
+    <div class="OG-icon og-icon-delete"></div>
+  </td>
+</tr>

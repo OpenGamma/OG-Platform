@@ -25,12 +25,15 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.rest.JerseyRestResourceFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.target.ComputationTargetTypeProvider;
+import com.opengamma.engine.target.DefaultComputationTargetTypeProvider;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
@@ -41,10 +44,12 @@ import com.opengamma.web.config.WebConfigsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
 import com.opengamma.web.holiday.WebHolidaysResource;
+import com.opengamma.web.orgs.WebOrganizationsResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.position.WebPositionsResource;
 import com.opengamma.web.region.WebRegionsResource;
 import com.opengamma.web.security.WebSecuritiesResource;
+import com.opengamma.web.target.WebComputationTargetTypeResource;
 import com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource;
 
 /**
@@ -123,6 +128,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private ScheduledExecutorService _scheduler;
+  /**
+   * The available computation target types.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ComputationTargetTypeProvider _targetTypes = new DefaultComputationTargetTypeProvider();
+  /**
+   * The organization master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private OrganizationMaster _organizationMaster;
 
   //-------------------------------------------------------------------------
   @Override
@@ -137,32 +152,27 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected void initMasters(ComponentRepository repo) {
-    JerseyRestResourceFactory cfg = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
-    repo.getRestComponents().publishResource(cfg);
-    
-    JerseyRestResourceFactory exg = new JerseyRestResourceFactory(WebExchangesResource.class, getExchangeMaster());
-    repo.getRestComponents().publishResource(exg);
-    
-    JerseyRestResourceFactory hol = new JerseyRestResourceFactory(WebHolidaysResource.class, getHolidayMaster());
-    repo.getRestComponents().publishResource(hol);
-    
-    JerseyRestResourceFactory reg = new JerseyRestResourceFactory(WebRegionsResource.class, getRegionMaster());
-    repo.getRestComponents().publishResource(reg);
-    
-    JerseyRestResourceFactory sec = new JerseyRestResourceFactory(WebSecuritiesResource.class,
-        getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster());
-    repo.getRestComponents().publishResource(sec);
-    
-    JerseyRestResourceFactory pos = new JerseyRestResourceFactory(WebPositionsResource.class,
-        getPositionMaster(), getSecurityLoader(), getSecuritySource(), getHistoricalTimeSeriesSource());
-    repo.getRestComponents().publishResource(pos);
-    
-    JerseyRestResourceFactory prt = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster(), getSecuritySource(), getScheduler());
-    repo.getRestComponents().publishResource(prt);
-    
-    JerseyRestResourceFactory hts = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class,
-        getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), new MasterConfigSource(getConfigMaster()));
-    repo.getRestComponents().publishResource(hts);
+    JerseyRestResourceFactory resource;
+    resource = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebExchangesResource.class, getExchangeMaster());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebHolidaysResource.class, getHolidayMaster());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebRegionsResource.class, getRegionMaster());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getOrganizationMaster());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebPositionsResource.class, getPositionMaster(), getSecurityLoader(), getSecuritySource(), getHistoricalTimeSeriesSource());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster(), getSecuritySource(), getScheduler());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class, getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), new MasterConfigSource(getConfigMaster()));
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebComputationTargetTypeResource.class, getTargetTypes());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebOrganizationsResource.class, getOrganizationMaster());
+    repo.getRestComponents().publishResource(resource);
   }
 
   protected void initValueRequirementNames(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -175,8 +185,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       repo.getRestComponents().publishResource(
           new WebValueRequirementNamesResource(valueRequirementNameClasses.split(",")));
     } else {
-      repo.getRestComponents().publishResource(new WebValueRequirementNamesResource(new String[]
-          {valueRequirementNameClasses}));
+      repo.getRestComponents().publishResource(new WebValueRequirementNamesResource(new String[] {valueRequirementNameClasses}));
     }
   }
 
@@ -229,6 +238,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         return getHistoricalTimeSeriesLoader();
       case -160710469:  // scheduler
         return getScheduler();
+      case -2094577304:  // targetTypes
+        return getTargetTypes();
+      case -1158737547:  // organizationMaster
+        return getOrganizationMaster();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -278,6 +291,12 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       case -160710469:  // scheduler
         setScheduler((ScheduledExecutorService) newValue);
         return;
+      case -2094577304:  // targetTypes
+        setTargetTypes((ComputationTargetTypeProvider) newValue);
+        return;
+      case -1158737547:  // organizationMaster
+        setOrganizationMaster((OrganizationMaster) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -298,6 +317,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
     JodaBeanUtils.notNull(_scheduler, "scheduler");
+    JodaBeanUtils.notNull(_targetTypes, "targetTypes");
+    JodaBeanUtils.notNull(_organizationMaster, "organizationMaster");
     super.validate();
   }
 
@@ -322,6 +343,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
+          JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           super.equals(obj);
     }
     return false;
@@ -344,6 +367,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     return hash ^ super.hashCode();
   }
 
@@ -713,6 +738,58 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the available computation target types.
+   * @return the value of the property, not null
+   */
+  public ComputationTargetTypeProvider getTargetTypes() {
+    return _targetTypes;
+  }
+
+  /**
+   * Sets the available computation target types.
+   * @param targetTypes  the new value of the property, not null
+   */
+  public void setTargetTypes(ComputationTargetTypeProvider targetTypes) {
+    JodaBeanUtils.notNull(targetTypes, "targetTypes");
+    this._targetTypes = targetTypes;
+  }
+
+  /**
+   * Gets the the {@code targetTypes} property.
+   * @return the property, not null
+   */
+  public final Property<ComputationTargetTypeProvider> targetTypes() {
+    return metaBean().targetTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the organization master.
+   * @return the value of the property, not null
+   */
+  public OrganizationMaster getOrganizationMaster() {
+    return _organizationMaster;
+  }
+
+  /**
+   * Sets the organization master.
+   * @param organizationMaster  the new value of the property, not null
+   */
+  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
+    JodaBeanUtils.notNull(organizationMaster, "organizationMaster");
+    this._organizationMaster = organizationMaster;
+  }
+
+  /**
+   * Gets the the {@code organizationMaster} property.
+   * @return the property, not null
+   */
+  public final Property<OrganizationMaster> organizationMaster() {
+    return metaBean().organizationMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code WebsiteBasicsComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -792,10 +869,20 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ScheduledExecutorService> _scheduler = DirectMetaProperty.ofReadWrite(
         this, "scheduler", WebsiteBasicsComponentFactory.class, ScheduledExecutorService.class);
     /**
+     * The meta-property for the {@code targetTypes} property.
+     */
+    private final MetaProperty<ComputationTargetTypeProvider> _targetTypes = DirectMetaProperty.ofReadWrite(
+        this, "targetTypes", WebsiteBasicsComponentFactory.class, ComputationTargetTypeProvider.class);
+    /**
+     * The meta-property for the {@code organizationMaster} property.
+     */
+    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
+        this, "organizationMaster", WebsiteBasicsComponentFactory.class, OrganizationMaster.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "configMaster",
         "exchangeMaster",
         "holidayMaster",
@@ -809,7 +896,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesMaster",
         "historicalTimeSeriesSource",
         "historicalTimeSeriesLoader",
-        "scheduler");
+        "scheduler",
+        "targetTypes",
+        "organizationMaster");
 
     /**
      * Restricted constructor.
@@ -848,6 +937,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _historicalTimeSeriesLoader;
         case -160710469:  // scheduler
           return _scheduler;
+        case -2094577304:  // targetTypes
+          return _targetTypes;
+        case -1158737547:  // organizationMaster
+          return _organizationMaster;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -978,6 +1071,22 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ScheduledExecutorService> scheduler() {
       return _scheduler;
+    }
+
+    /**
+     * The meta-property for the {@code targetTypes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ComputationTargetTypeProvider> targetTypes() {
+      return _targetTypes;
+    }
+
+    /**
+     * The meta-property for the {@code organizationMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OrganizationMaster> organizationMaster() {
+      return _organizationMaster;
     }
 
   }

@@ -10,17 +10,27 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
+/**
+ * Formatter.
+ */
+@SuppressWarnings("rawtypes")
 /* package */ class VolatilitySurfaceDataFormatter extends AbstractFormatter<VolatilitySurfaceData> {
 
   protected VolatilitySurfaceDataFormatter() {
@@ -28,14 +38,14 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     addFormatter(new Formatter<VolatilitySurfaceData>(Format.EXPANDED) {
       @SuppressWarnings("unchecked")
       @Override
-      Object format(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+      Object format(VolatilitySurfaceData value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public String formatCell(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+  public String formatCell(VolatilitySurfaceData value, ValueSpecification valueSpec, Object inlineKey) {
     int xSize = value.getUniqueXValues().size();
     int ySize = Sets.newHashSet(value.getYs()).size();
     return "Volatility Surface (" + xSize + " x " + ySize + ")";
@@ -46,7 +56,22 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     // the x and y values won't necessarily be unique and won't necessarily map to a rectangular grid
     // this projects them onto a grid and inserts nulls where there's no data available
     Set<X> xVals = surface.getUniqueXValues();
-    Set<Y> yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
+    Y[] yValues = surface.getYs();
+    Set<Y> yVals;
+    if (yValues.length > 0 && yValues[0] instanceof Pair) {
+      //TODO emcleod This nastiness is here because ObjectsPair is now (2013/5/13) no longer Comparable
+      Pair<Object, Object> pair = (Pair) yValues[0];
+      if (pair.getFirst() instanceof Integer && pair.getSecond() instanceof FXVolQuoteType) {
+        FirstThenSecondPairComparator<Integer, FXVolQuoteType> comparator = new FirstThenSecondPairComparator<>();
+        Set sortedSet = new TreeSet(comparator);
+        sortedSet.addAll(Arrays.asList(surface.getYs()));
+        yVals = (Set<Y>) sortedSet;
+      } else {
+        throw new UnsupportedOperationException("Cannot handle pairs of type " + pair);
+      }
+    } else {
+      yVals = Sets.newTreeSet((Iterable) Arrays.asList(surface.getYs()));
+    }
     Map<String, Object> results = Maps.newHashMap();
     results.put(SurfaceFormatterUtils.X_LABELS, getAxisLabels(xVals));
     results.put(SurfaceFormatterUtils.Y_LABELS, getAxisLabels(yVals));
@@ -62,7 +87,6 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    * @param surface The surface data
    * @return The data formatted for display as text
    */
-  @SuppressWarnings("unchecked")
   private <X, Y> Map<String, Object> formatForGrid(VolatilitySurfaceData<X, Y> surface,
                                                    Set<X> xVals,
                                                    Set<Y> yVals,
@@ -84,17 +108,19 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   }
 
   /**
-   * <p>Formats the surface data for display in the 3D surface viewer.. Returns a map containing the x-axis labels 
+   * Formats the surface data for display in the 3D surface viewer.. Returns a map containing the x-axis labels 
    * and values, y-axis labels and values, axis titles and volatility values. The lists of axis labels are sorted and 
    * have no duplicate values (which isn't necessarily true of the underlying data). The volatility data list contains 
    * a value for every combination of x and y values. If there is no corresponding value in the underlying data the 
-   * volatility value will be {@code null}.</p>
-   * <p>The axis values are numeric values which correspond to the axis labels. It is unspecified what they
+   * volatility value will be null.
+   * <p>
+   * The axis values are numeric values which correspond to the axis labels. It is unspecified what they
    * actually represent but their relative sizes show the relationship between the label values.
-   * This allows the labels to be properly laid out on the plot axes.</p>
-   * <p>Not all volatility surfaces can be sensibly plotted as a surface and in that case the axis labels can't
+   * This allows the labels to be properly laid out on the plot axes.
+   * <p>
+   * Not all volatility surfaces can be sensibly plotted as a surface and in that case the axis labels can't
    * be converted to a meaningful numeric value. For these surfaces one or both of the axis values will be missing
-   * and the UI shouldn't attempt to plot the surface.</p>
+   * and the UI shouldn't attempt to plot the surface.
    *
    * @param surface The surface
    * @return {xLabels: [...],
@@ -105,7 +131,6 @@ import com.opengamma.web.server.conversion.LabelFormatter;
    *          yTitle: "Y Axis Title",
    *          vol: [x0y0, x1y0,... , x0y1, x1y1,...]}
    */
-  @SuppressWarnings("unchecked")
   private <X, Y> Map<String, Object> formatForPlotting(VolatilitySurfaceData<X, Y> surface,
                                                        Set<X> xVals,
                                                        Set<Y> yVals,
@@ -151,9 +176,10 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     if (axisValue instanceof Number) {
       return (Number) axisValue;
     } else if (axisValue instanceof LocalDate) {
-      return ((LocalDate) axisValue).toEpochDays();
+      return ((LocalDate) axisValue).toEpochDay();
     } else if (axisValue instanceof Tenor) {
-      return ((Tenor) axisValue).getPeriod().toEstimatedDuration().toSeconds();
+      Period period = ((Tenor) axisValue).getPeriod();
+      return DateUtils.estimatedDuration(period).getSeconds();
     }
     return null;
   }
@@ -186,9 +212,10 @@ import com.opengamma.web.server.conversion.LabelFormatter;
   }
 
   /**
-   * Returns {@code true} if the surface data can be sensibly plotted.
-   * @param surfaceData The surface data
-   * @return {@code true} if the data can be sensibly plotted
+   * Returns true if the surface data can be sensibly plotted.
+   * 
+   * @param surfaceData  the surface data
+   * @return true if the data can be sensibly plotted
    */
   private boolean isPlottable(VolatilitySurfaceData surfaceData) {
     Object[] xVals = surfaceData.getXs();

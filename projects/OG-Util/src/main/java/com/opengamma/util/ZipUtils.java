@@ -5,15 +5,16 @@
  */
 package com.opengamma.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,51 +43,51 @@ public final class ZipUtils {
    * 
    * @param archive  the archive file, not null
    * @param outputDir  the output directory, not null
-   * @throws IOException if an error occurs
    */
-  public static void unzipArchive(final File archive, final File outputDir) throws IOException {
+  public static void unzipArchive(final File archive, final File outputDir) {
     ArgumentChecker.notNull(archive, "archive");
     ArgumentChecker.notNull(outputDir, "outputDir");
+
+    s_logger.debug("Unzipping file:{} to {}", archive, outputDir);
     try {
-      ZipFile zipfile = new ZipFile(archive);
-      Enumeration<?> e = zipfile.entries();
-      while (e.hasMoreElements()) {
-        ZipEntry entry = (ZipEntry) e.nextElement();
-        unzipEntry(zipfile, entry, outputDir);
+      FileUtils.forceMkdir(outputDir);
+      unzipArchive(new ZipFile(archive), outputDir);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Error while extracting file: " + archive + " to: " + outputDir, ex);
+    } 
+  }
+  
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Unzips a ZIP archive.
+   * 
+   * @param zipFile  the archive file, not null
+   * @param outputDir  the output directory, not null
+   */
+  public static void unzipArchive(final ZipFile zipFile, final File outputDir) {
+    ArgumentChecker.notNull(zipFile, "zipFile");
+    ArgumentChecker.notNull(outputDir, "outputDir");
+    
+    try {
+      Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry entry = entries.nextElement();
+        if (entry.isDirectory()) {
+          FileUtils.forceMkdir(new File(outputDir, entry.getName()));
+          continue;
+        }
+        File entryDestination = new File(outputDir, entry.getName());
+        entryDestination.getParentFile().mkdirs();
+        InputStream in = zipFile.getInputStream(entry);
+        OutputStream out = new FileOutputStream(entryDestination);
+        IOUtils.copy(in, out);
+        IOUtils.closeQuietly(in);
+        IOUtils.closeQuietly(out);
       }
+      zipFile.close();
     } catch (IOException ex) {
-      s_logger.error("Error while extracting file {}, rethrowing..", archive, ex);
-      throw ex;
-    }
-  }
-
-  private static void unzipEntry(ZipFile zipfile, ZipEntry entry, File outputDir) throws IOException {
-    if (entry.isDirectory()) {
-      createDir(new File(outputDir, entry.getName()));
-      return;
-    }
-    
-    File outputFile = new File(outputDir, entry.getName());
-    if (!outputFile.getParentFile().exists()) {
-      createDir(outputFile.getParentFile());
-    }
-    
-    s_logger.debug("Extracting: " + entry);
-    BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
-    BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-    
-    try {
-      IOUtils.copy(inputStream, outputStream);
-    } finally {
-      outputStream.close();
-      inputStream.close();
-    }
-  }
-
-  private static void createDir(File dir) {
-    s_logger.debug("Creating dir {}", dir.getName());
-    if (!dir.mkdirs()) {
-      throw new OpenGammaRuntimeException("Can not create dir " + dir);
+      throw new OpenGammaRuntimeException("Error while extracting file: " + zipFile.getName() + " to: " + outputDir, ex);
     }
   }
 

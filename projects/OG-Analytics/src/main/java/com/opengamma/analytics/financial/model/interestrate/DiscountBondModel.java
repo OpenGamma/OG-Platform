@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.interestrate;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
 import com.opengamma.analytics.math.function.Function1D;

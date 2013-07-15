@@ -29,7 +29,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to spot 
+   * First-order sensitivity with respect to spot
    */
   public static final Greek DELTA = new Greek(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), "Delta") {
 
@@ -98,7 +98,7 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * Fair price 
+   * Fair price
    */
   public static final Greek FAIR_PRICE = new Greek(new NthOrderUnderlying(0, null), "FairPrice") {
 
@@ -210,6 +210,17 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
+   * First-order sensitivity with respect to strike
+   */
+  public static final Greek DUAL_DELTA = new Greek(new NthOrderUnderlying(1, UnderlyingType.STRIKE), "DualDelta") {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      return visitor.visitStrikeDelta();
+    }
+
+  };
+  /**
    * Second-order sensitivity with respect to strike
    */
   public static final Greek STRIKE_GAMMA = new Greek(new NthOrderUnderlying(2, UnderlyingType.STRIKE), "StrikeGamma") {
@@ -221,7 +232,18 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * First-order sensitivity with respect to time 
+   * Second-order sensitivity with respect to strike
+   */
+  public static final Greek DUAL_GAMMA = new Greek(new NthOrderUnderlying(2, UnderlyingType.STRIKE), "DualGamma") {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      return visitor.visitStrikeGamma();
+    }
+
+  };
+  /**
+   * First-order sensitivity with respect to time
    */
   public static final Greek THETA = new Greek(new NthOrderUnderlying(1, UnderlyingType.TIME), "Theta") {
 
@@ -400,15 +422,18 @@ public abstract class Greek implements Comparable<Greek> {
     }
 
   };
+  /** A set containing all greeks that can be calculated */
   private static final Set<Greek> ALL_GREEKS;
 
   //REVIEW elaine 9-7-2010 This is not ideal, because adding a new greek definition means remembering to put it in here
   static {
-    ALL_GREEKS = new HashSet<Greek>();
+    ALL_GREEKS = new HashSet<>();
     ALL_GREEKS.add(CARRY_RHO);
     ALL_GREEKS.add(DELTA);
     ALL_GREEKS.add(DELTA_BLEED);
     ALL_GREEKS.add(DRIFTLESS_THETA);
+    ALL_GREEKS.add(DUAL_DELTA);
+    ALL_GREEKS.add(DUAL_GAMMA);
     ALL_GREEKS.add(DVANNA_DVOL);
     ALL_GREEKS.add(DZETA_DVOL);
     ALL_GREEKS.add(ELASTICITY);
@@ -440,20 +465,38 @@ public abstract class Greek implements Comparable<Greek> {
     ALL_GREEKS.add(ZOMMA_P);
   }
 
+  /**
+   * @return A set containing all greeks
+   */
   public static final Set<Greek> getAllGreeks() {
     return ALL_GREEKS;
   }
 
+  /** The underlying of the greek */
   private final Underlying _underlying;
+  /** The name of the greek */
   private final String _name;
 
+  /**
+   * @param underlying The underlying
+   * @param name The name
+   */
   public Greek(final Underlying underlying, final String name) {
     _underlying = underlying;
     _name = name;
   }
 
+  /**
+   * accept() method for the visitor pattern
+   * @param visitor A visitor
+   * @param <T> The type of the result
+   * @return The result returned by the visitor
+   */
   public abstract <T> T accept(GreekVisitor<T> visitor);
 
+  /**
+   * @return The underlying
+   */
   public Underlying getUnderlying() {
     return _underlying;
   }

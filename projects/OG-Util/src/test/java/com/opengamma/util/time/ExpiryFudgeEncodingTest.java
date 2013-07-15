@@ -5,16 +5,16 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExpiryFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_accuracyHour() {

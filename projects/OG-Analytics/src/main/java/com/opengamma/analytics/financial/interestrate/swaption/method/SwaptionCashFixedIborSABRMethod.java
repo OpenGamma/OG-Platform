@@ -60,7 +60,7 @@ public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    final double forward = PRC.visit(swaption.getUnderlyingSwap(), sabrData);
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
     // TODO: A better notion of maturity may be required (using period?)
@@ -74,7 +74,7 @@ public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionCashFixedIbor, "Cash settlement swaption");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((SwaptionCashFixedIbor) instrument, (SABRInterestRateDataBundle) curves);
@@ -89,11 +89,10 @@ public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueSensitivity(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
-    final ParRateCalculator prc = ParRateCalculator.getInstance();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    final double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     // Derivative of the forward with respect to the rates.
-    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), sabrData));
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(swaption.getUnderlyingSwap().accept(PRSC, sabrData));
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Derivative of the cash annuity with respect to the forward.
     final double pvbpDf = METHOD_SWAP.getAnnuityCashDerivative(swaption.getUnderlyingSwap(), forward);
@@ -127,9 +126,8 @@ public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
-    final ParRateCalculator prc = ParRateCalculator.getInstance();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    final double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
     final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);

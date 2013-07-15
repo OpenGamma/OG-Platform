@@ -17,7 +17,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.test.MockFunction;
@@ -25,12 +24,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.test.Timeout;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultManageableFunctionBlacklist} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultManageableFunctionBlacklistTest {
 
   private final ParameterizedFunction _function;
@@ -40,7 +39,7 @@ public class DefaultManageableFunctionBlacklistTest {
 
   public DefaultManageableFunctionBlacklistTest() {
     _function = new ParameterizedFunction(new MockFunction("F1", null), new EmptyFunctionParameters());
-    _target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Foo"));
+    _target = ComputationTargetSpecification.of(UniqueId.of("Test", "Foo"));
     _inputs = Collections.singleton(new ValueSpecification("Foo", _target, ValueProperties.with(ValuePropertyNames.FUNCTION, "X").get()));
     _outputs = Collections.singleton(new ValueSpecification("Bar", _target, ValueProperties.with(ValuePropertyNames.FUNCTION, "Y").get()));
   }
@@ -90,27 +89,6 @@ public class DefaultManageableFunctionBlacklistTest {
       assertTrue(qry.isBlacklisted(_function, _target));
       assertTrue(qry.isBlacklisted(_function, _target, _inputs, _outputs));
       bl.removeBlacklistRules(Arrays.asList(new FunctionBlacklistRule(_function), new FunctionBlacklistRule(_target)));
-      assertFalse(qry.isBlacklisted(_function));
-      assertFalse(qry.isBlacklisted(_target));
-      assertFalse(qry.isBlacklisted(_function, _target));
-      assertFalse(qry.isBlacklisted(_function, _target, _inputs, _outputs));
-    } finally {
-      executor.shutdown();
-    }
-  }
-
-  public void testExpiry() throws Exception {
-    final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    try {
-      final int timeout = (int) Timeout.standardTimeoutSeconds();
-      final DefaultManageableFunctionBlacklist bl = new DefaultManageableFunctionBlacklist("TEST", executor, timeout);
-      bl.addBlacklistRule(new FunctionBlacklistRule(_function));
-      final DefaultFunctionBlacklistQuery qry = new DefaultFunctionBlacklistQuery(bl);
-      assertTrue(qry.isBlacklisted(_function));
-      assertFalse(qry.isBlacklisted(_target));
-      assertTrue(qry.isBlacklisted(_function, _target));
-      assertTrue(qry.isBlacklisted(_function, _target, _inputs, _outputs));
-      Thread.sleep(timeout * 2000);
       assertFalse(qry.isBlacklisted(_function));
       assertFalse(qry.isBlacklisted(_target));
       assertFalse(qry.isBlacklisted(_function, _target));

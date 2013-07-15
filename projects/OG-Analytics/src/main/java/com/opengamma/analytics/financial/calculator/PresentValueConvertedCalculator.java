@@ -5,18 +5,18 @@
  */
 package com.opengamma.analytics.financial.calculator;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * A present value calculator that convert a multi-currency present value into a given currency.
  */
-public class PresentValueConvertedCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class PresentValueConvertedCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, Double> {
 
   /**
    * The currency in which the present value should be converted.
@@ -25,24 +25,28 @@ public class PresentValueConvertedCalculator extends AbstractInstrumentDerivativ
   /**
    * The present value calculator (with MultiCurrencyAmount output)
    */
-  private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> _pvCalculator;
+  private final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyAmount> _pvCalculator;
 
   /**
    * Constructor.
    * @param currency The currency in which the present value should be converted.
    * @param pvCalculator The present value calculator (with MultiCurrencyAmount output).
    */
-  public PresentValueConvertedCalculator(final Currency currency, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyAmount> pvCalculator) {
-    super();
+  public PresentValueConvertedCalculator(final Currency currency, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyAmount> pvCalculator) {
     _currency = currency;
     _pvCalculator = pvCalculator;
   }
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return curves.getFxRates().convert(_pvCalculator.visit(derivative, curves), _currency).getAmount();
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(derivative, "derivative");
+    return curves.getFxRates().convert(derivative.accept(_pvCalculator, curves), _currency).getAmount();
+  }
+
+  @Override
+  public Double visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException("Need curves data");
   }
 
 }

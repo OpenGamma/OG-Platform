@@ -40,6 +40,7 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -64,16 +65,17 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 @Path("/securities")
 public class WebSecuritiesResource extends AbstractWebSecurityResource {
-
+  
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
    * @param htsMaster  the historical time series master, not null
+   * @param organizationMaster the organization master, not null
    */
   public WebSecuritiesResource(
-      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster) {
-    super(securityMaster, securityLoader, htsMaster);
+      final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesMaster htsMaster, final OrganizationMaster organizationMaster) {
+    super(securityMaster, securityLoader, htsMaster, organizationMaster);
   }
 
   //-------------------------------------------------------------------------
@@ -93,7 +95,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
-    return getFreemarker().build("securities/securities.ftl", out);
+    return getFreemarker().build(HTML_DIR + "securities.ftl", out);
   }
 
   @GET
@@ -112,7 +114,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecuritySearchSortOrder so = buildSortOrder(sort, SecuritySearchSortOrder.NAME_ASC);
     FlexiBean out = createSearchResultData(pr, so, name, identifier, type, securityIdStrs, uriInfo);
-    return getFreemarker().build("securities/jsonsecurities.ftl", out);
+    return getFreemarker().build(JSON_DIR + "securities.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, SecuritySearchSortOrder so, String name, String identifier,
@@ -162,13 +164,13 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       }
       out.put("idscheme", idScheme);
       out.put("idvalue", idValue);
-      String html = getFreemarker().build("securities/securities-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "securities-add.ftl", out);
       return Response.ok(html).build();
     }
     ExternalScheme scheme = ExternalScheme.of(idScheme);
     Collection<ExternalIdBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(bundles);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(bundles);
     
     URI uri = null;
     if (bundles.size() == 1 && loadedSecurities.size() == 1) {
@@ -194,9 +196,9 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     ExternalScheme scheme = ExternalScheme.of(idScheme);
     Collection<ExternalIdBundle> requestBundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(requestBundles);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(requestBundles);
     FlexiBean out = createPostJSONOutput(loadedSecurities, requestBundles, scheme);    
-    return Response.ok(getFreemarker().build("securities/jsonsecurities-added.ftl", out)).build();
+    return Response.ok(getFreemarker().build(JSON_DIR + "securities-added.ftl", out)).build();
   }
 
   private FlexiBean createPostJSONOutput(Map<ExternalIdBundle, UniqueId> loadedSecurities, Collection<ExternalIdBundle> requestBundles, ExternalScheme scheme) {
@@ -241,7 +243,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getMetaDataJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("securities/jsonmetadata.ftl", out);
+    return getFreemarker().build(JSON_DIR + "metadata.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -273,8 +275,11 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     out.put("searchRequest", searchRequest);
-    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(new SecurityMetaDataRequest());
+    final SecurityMetaDataRequest request = new SecurityMetaDataRequest();
+    request.setSchemaVersion(true);
+    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(request);
     out.put("securityTypes", new TreeSet<String>(metaData.getSecurityTypes()));
+    out.put("schemaVersion", metaData.getSchemaVersion());
     return out;
   }
 

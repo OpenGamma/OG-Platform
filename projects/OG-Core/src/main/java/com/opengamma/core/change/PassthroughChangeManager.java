@@ -8,7 +8,7 @@ package com.opengamma.core.change;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ObjectId;
 
@@ -29,7 +29,7 @@ public class PassthroughChangeManager implements ChangeManager {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param changeProviders the underlying change providers, not null and not containing null
    */
   public PassthroughChangeManager(final Iterable<? extends ChangeProvider> changeProviders) {
@@ -40,7 +40,7 @@ public class PassthroughChangeManager implements ChangeManager {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param changeProviders the underlying change providers, not null and not containing null
    */
   public PassthroughChangeManager(final ChangeProvider... changeProviders) {
@@ -52,7 +52,7 @@ public class PassthroughChangeManager implements ChangeManager {
   /**
    * Adds the manager as an underlying. Once added as an underlying, the manager cannot be removed. Any requests to add or remove a listener made on this instance will be passed to all underlying
    * change managers.
-   * 
+   *
    * @param changeManager the change manager to add, not null
    */
   public void addChangeManager(final ChangeManager changeManager) {

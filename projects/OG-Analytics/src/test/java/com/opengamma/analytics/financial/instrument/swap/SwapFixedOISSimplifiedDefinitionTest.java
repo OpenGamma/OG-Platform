@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.instrument.swap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -38,7 +37,7 @@ public class SwapFixedOISSimplifiedDefinitionTest {
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("EUR");
   private static final int EUR_PUBLICATION_LAG = 0;
   private static final DayCount EUR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG, EUR_CALENDAR);
+  private static final IndexON EUR_OIS = new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, EUR_PUBLICATION_LAG);
 
   private static final double NOTIONAL = 100000000;
   private static final double FIXED_RATE = 0.01;
@@ -49,13 +48,13 @@ public class SwapFixedOISSimplifiedDefinitionTest {
   // Swap EONIA 3M
   private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
-      FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
+      FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM, EUR_CALENDAR);
 
   // Swap EONIA 3Y
   private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
   private static final Period EUR_COUPON_TENOR = Period.ofMonths(12);
   private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS, FIXED_RATE,
-      IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
+      IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM, EUR_CALENDAR);
 
   @Test
   public void construction3M() {

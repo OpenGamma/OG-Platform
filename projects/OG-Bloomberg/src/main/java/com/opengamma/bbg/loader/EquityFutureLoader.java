@@ -5,6 +5,7 @@
  */
 package com.opengamma.bbg.loader;
 
+import static com.opengamma.bbg.BloombergConstants.BBG_WEEKLY_INDEX_OPTIONS_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_INDEX_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
@@ -25,11 +26,10 @@ import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -66,8 +66,10 @@ public class EquityFutureLoader extends SecurityLoader {
       FIELD_FUTURES_CATEGORY));
 
   /** The set of valid Bloomberg 'Futures Category Types' that will map to EquityFutureSecurity */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BLOOMBERG_EQUITY_INDEX_TYPE);
-
+  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
+      BLOOMBERG_EQUITY_INDEX_TYPE,
+      BBG_WEEKLY_INDEX_OPTIONS_TYPE); // THIS IS IFFY - 2EH3 INDEX, FOR EXAMPLE, HAS A FUTURE CATEGORY OF WEEKLY INDEX OPTIONS, THOUGH IT JUST AN ALIAS FOR ESH3 INDEX WHICH IS EQUITY INDEX);
+                                      //TODO: Answer this: Are Equity Index Futures EquityFutureSecurity or IndexFutureSecurity? - See EquityFutureLoader, too
   /**
    * Creates an instance.
    * @param referenceDataProvider  the provider, not null

@@ -125,11 +125,11 @@ public class G2ppPiecewiseConstantModel {
    * Computes the swap rate for a given value of the standard normal random
    * variables in the $P(.,\theta)$ numeraire.
    * @param x The random variable values.
-   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg. Dimensions: cash flow - factor
-   * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg. Dimensions: cash flow - factor
    * @param tau2Fixed The total zero-coupon bond volatilities for the swap fixed leg.
    * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
-   * @param alphaIbor The zero-coupon bond volatilities for each random variable for the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for each random variable for the swap Ibor leg. Dimensions: cash flow - factor
    * @param tau2Ibor The total zero-coupon bond volatilities for the swap Ibor leg.
    * @return The swap rate.
    */
@@ -246,6 +246,43 @@ public class G2ppPiecewiseConstantModel {
     }
     d2[1][0] = d2[0][1];
     return -f / g;
+  }
+
+  public double futuresConvexityFactor(final G2ppPiecewiseConstantParameters g2parameters, final double expiry, final double u, final double v) {
+    final double[] a = g2parameters.getMeanReversion();
+    final double rho = g2parameters.getCorrelation();
+    final DoubleArrayList[] eta = g2parameters.getVolatility();
+    final double factor111 = 0.5 / (a[0] * a[0] * a[0]);
+    final double factor112 = rho / (a[0] * a[1]);
+    final double factor121 = rho / (a[0] * a[1]);
+    final double factor122 = 0.5 / (a[1] * a[1] * a[1]);
+    final double factor21 = Math.exp(-a[0] * u) - Math.exp(-a[0] * v);
+    final double factor22 = Math.exp(-a[1] * u) - Math.exp(-a[1] * v);
+    final double[] s = g2parameters.getVolatilityTime();
+    int indexexpiry = 1; // Period in which the expiry is; _volatilityTime[i-1] <= expiry < _volatilityTime[i];
+    while (expiry > s[indexexpiry]) {
+      indexexpiry++;
+    }
+    double[] r = new double[indexexpiry + 1];
+    System.arraycopy(s, 0, r, 0, indexexpiry);
+    r[indexexpiry] = expiry;
+    double factor311 = 0.0;
+    double factor312 = 0.0;
+    double factor321 = 0.0;
+    double factor322 = 0.0;
+    for (int j = 0; j < indexexpiry; j++) {
+      factor311 += eta[0].getDouble(j) * eta[0].getDouble(j) * (Math.exp(a[0] * r[j + 1]) - Math.exp(a[0] * r[j])) *
+          (2 - Math.exp(-a[0] * (v - r[j + 1])) - Math.exp(-a[0] * (v - r[j])));
+      factor312 += eta[0].getDouble(j) * eta[1].getDouble(j) *
+          ((Math.exp(a[1] * r[j + 1]) - Math.exp(a[1] * r[j])) / a[1] - (Math.exp(-a[0] * (v - r[j + 1]) + a[1] * r[j + 1]) - Math.exp(-a[0] * (v - r[j]) + a[1] * r[j])) / (a[0] + a[1]));
+      factor321 += eta[1].getDouble(j) * eta[0].getDouble(j) *
+          ((Math.exp(a[0] * r[j + 1]) - Math.exp(a[0] * r[j])) / a[0] - (Math.exp(-a[1] * (v - r[j + 1]) + a[0] * r[j + 1]) - Math.exp(-a[1] * (v - r[j]) + a[0] * r[j])) / (a[1] + a[0]));
+      factor322 += eta[1].getDouble(j) * eta[1].getDouble(j) * (Math.exp(a[1] * r[j + 1]) - Math.exp(a[1] * r[j])) *
+          (2 - Math.exp(-a[1] * (v - r[j + 1])) - Math.exp(-a[1] * (v - r[j])));
+    }
+    double convexity = factor111 * factor21 * factor311 + factor112 * factor22 * factor312 + factor121 * factor21 * factor321 + factor122 * factor22 * factor322;
+    convexity = Math.exp(convexity);
+    return convexity;
   }
 
 }

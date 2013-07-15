@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.math.matrix;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
@@ -22,6 +20,17 @@ public class DoubleMatrix2D implements Matrix<Double> {
   private final int _elements;
   /** * Empty 2D matrix */
   public static final DoubleMatrix2D EMPTY_MATRIX = new DoubleMatrix2D(new double[0][0]);
+
+  /**
+   * @deprecated
+   * Does not copy data on constructions. Do not use.
+   * @param data The data
+   * @return A matrix
+   */
+  @Deprecated
+  public static DoubleMatrix2D noCopy(final double[][] data) {
+    return new DoubleMatrix2D(data, false);
+  }
 
   /**
    * Sets up an empty matrix
@@ -54,8 +63,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row: " + _columns + " expected but " + data[i].length + " found in row " + i);
-        _data[i] = Arrays.copyOf(data[i], _columns);
+        System.arraycopy(data[i], 0, _data[i], 0, data[i].length);
       }
       _elements = _rows * _columns;
     }
@@ -77,13 +85,19 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row");
         for (int j = 0; j < _columns; j++) {
           _data[i][j] = data[i][j];
         }
       }
       _elements = _rows * _columns;
     }
+  }
+
+  private DoubleMatrix2D(final double[][] data, final boolean copy) {
+    _rows = data.length;
+    _columns = data[0].length;
+    _elements = _rows * _columns;
+    _data = data;
   }
 
   /**

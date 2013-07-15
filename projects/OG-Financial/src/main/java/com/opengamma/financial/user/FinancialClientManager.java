@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 /**
  * A manager of clients for each user that provide access to underlying services.

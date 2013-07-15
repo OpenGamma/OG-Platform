@@ -10,6 +10,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Describes a (Treasury) Bill transaction.
@@ -17,7 +19,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 public class BillTransaction implements InstrumentDerivative {
 
   /**
-   * The bill underlying the transaction. 
+   * The bill underlying the transaction.
    * <P> The bill may not be suitable for standard price and yield calculation (incorrect settlement).
    */
   private final BillSecurity _billPurchased;
@@ -43,7 +45,7 @@ public class BillTransaction implements InstrumentDerivative {
    * @param settlementAmount The amount paid at settlement date for the bill transaction. The amount is negative for a purchase (_quantity>0) and positive for a sell (_quantity<0).
    * @param billStandard The bill with standard settlement date (time).
    */
-  public BillTransaction(BillSecurity billPurchased, double quantity, double settlementAmount, BillSecurity billStandard) {
+  public BillTransaction(final BillSecurity billPurchased, final double quantity, final double settlementAmount, final BillSecurity billStandard) {
     Validate.notNull(billPurchased, "Bill purchased");
     Validate.notNull(billStandard, "Bill standard");
     Validate.isTrue(quantity * settlementAmount <= 0, "Quantity and settlement amount should have opposite signs");
@@ -85,18 +87,24 @@ public class BillTransaction implements InstrumentDerivative {
     return _billStandard;
   }
 
+  public Currency getCurrency() {
+    return _billStandard.getCurrency();
+  }
+
   @Override
   public String toString() {
     return "Transaction: " + _quantity + " of " + _billPurchased.toString();
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBillTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBillTransaction(this);
   }
 
@@ -115,7 +123,7 @@ public class BillTransaction implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -125,7 +133,7 @@ public class BillTransaction implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BillTransaction other = (BillTransaction) obj;
+    final BillTransaction other = (BillTransaction) obj;
     if (!ObjectUtils.equals(_billPurchased, other._billPurchased)) {
       return false;
     }

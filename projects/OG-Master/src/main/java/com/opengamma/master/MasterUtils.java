@@ -6,6 +6,7 @@
 package com.opengamma.master;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +17,11 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.util.functional.Function1;
-import com.opengamma.util.functional.Functional;
+import com.opengamma.lambdava.functions.Function1;
 
 /**
  * Utilities for managing masters.
@@ -91,12 +91,12 @@ public class MasterUtils {
   }
 
   public static <D extends UniqueIdentifiable> List<UniqueId> mapToUniqueIDs(List<D> documents) {
-    return Functional.map(new ArrayList<UniqueId>(), documents, new Function1<D, UniqueId>() {
+    return functional(documents).map(new Function1<D, UniqueId>() {
       @Override
       public UniqueId execute(D d) {
         return d.getUniqueId();
       }
-    });
+    }).asList();
   }
 
 }

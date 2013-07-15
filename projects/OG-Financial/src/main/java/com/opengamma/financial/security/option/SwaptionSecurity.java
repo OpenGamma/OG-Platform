@@ -7,8 +7,6 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -41,7 +40,9 @@ public class SwaptionSecurity extends FinancialSecurity {
   public static final String SECURITY_TYPE = "SWAPTION";
 
   /**
-   * The payer flag.
+   * The payer flag. 
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    */
   @PropertyDefinition
   private boolean _payer;
@@ -67,6 +68,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   private boolean _cashSettled;
   /**
    * The currency.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
@@ -78,7 +81,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   /**
    * The exercise type.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ExerciseType _exerciseType;
   /**
    * The settlement date.
@@ -87,14 +90,14 @@ public class SwaptionSecurity extends FinancialSecurity {
   private ZonedDateTime _settlementDate;
 
   SwaptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {
     this(payer, underlyingIdentifier, isLong, expiry, cashSettled, currency, null, new EuropeanExerciseType(), null);
   }
-  
-  public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, 
+
+  public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong,
       Expiry expiry, boolean cashSettled, Currency currency, Double notional, ExerciseType exerciseType, ZonedDateTime settlementDate) {
     super(SECURITY_TYPE);
     setPayer(payer);
@@ -107,7 +110,7 @@ public class SwaptionSecurity extends FinancialSecurity {
     setExerciseType(exerciseType);
     setSettlementDate(settlementDate);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
@@ -216,6 +219,7 @@ public class SwaptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_longShort, "longShort");
     JodaBeanUtils.notNull(_expiry, "expiry");
     JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_exerciseType, "exerciseType");
     super.validate();
   }
 
@@ -258,6 +262,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the payer flag.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the value of the property
    */
   public boolean isPayer() {
@@ -266,6 +272,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the payer flag.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @param payer  the new value of the property
    */
   public void setPayer(boolean payer) {
@@ -274,6 +282,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Gets the the {@code payer} property.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the property, not null
    */
   public final Property<Boolean> payer() {
@@ -386,6 +396,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the currency.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -394,6 +406,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the currency.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @param currency  the new value of the property, not null
    */
   public void setCurrency(Currency currency) {
@@ -403,6 +417,8 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Gets the the {@code currency} property.
+   * Note - this field isn't used by the analytics since it duplicates information
+   * on the underlying. (See PLAT-1924).
    * @return the property, not null
    */
   public final Property<Currency> currency() {
@@ -437,7 +453,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the exercise type.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ExerciseType getExerciseType() {
     return _exerciseType;
@@ -445,9 +461,10 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the exercise type.
-   * @param exerciseType  the new value of the property
+   * @param exerciseType  the new value of the property, not null
    */
   public void setExerciseType(ExerciseType exerciseType) {
+    JodaBeanUtils.notNull(exerciseType, "exerciseType");
     this._exerciseType = exerciseType;
   }
 
@@ -543,7 +560,7 @@ public class SwaptionSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "payer",
         "underlyingId",
         "longShort",

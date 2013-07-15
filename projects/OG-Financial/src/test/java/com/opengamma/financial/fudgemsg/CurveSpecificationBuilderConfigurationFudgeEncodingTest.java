@@ -13,8 +13,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.TestYieldCurveDefinitionAndSpecificationProvider;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CurveSpecificationBuilderConfigurationFudgeEncodingTest extends FinancialTestBase {
+
   private static final Logger s_logger = LoggerFactory.getLogger(CurveSpecificationBuilderConfigurationFudgeEncodingTest.class);
 
   @Test

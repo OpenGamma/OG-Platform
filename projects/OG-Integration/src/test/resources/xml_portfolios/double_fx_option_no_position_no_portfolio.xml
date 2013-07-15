@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+
+    <fxOptionTrade id="t1">
+      <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
+      <tradeDate>2013-01-20</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-22</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <optionType>Put</optionType>
+      <buySell>Buy</buySell>
+      <currencyPair>EUR/USD</currencyPair>
+      <optionCurrency>EUR</optionCurrency>
+
+      <strike>1.9</strike>
+
+      <fxExpiry>
+        <expiryDate>2018-01-31</expiryDate>
+        <expiryCutoff>ECB|10am NY</expiryCutoff>
+
+        <expiryCalendars>
+          <calendar type="bank">
+            <id scheme="CountryISO2">FD</id>
+          </calendar>
+        </expiryCalendars>
+      </fxExpiry>
+
+      <paymentCalendars>
+        <calendar type="bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </paymentCalendars>
+
+      <notional>1000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>European</exerciseType>
+
+    </fxOptionTrade>
+
+    <fxOptionTrade id="t2">
+      <externalSystemId><id scheme="External">IdFromExternalSystem2</id></externalSystemId>
+
+      <tradeDate>2013-01-25</tradeDate>
+      <maturityDate>2018-01-31</maturityDate>
+
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+
+      <additionalCashflows>
+        <additionalCashflow type="premium">
+          <counterparty><id scheme="CParty">xyz</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-01-27</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <optionType>Put</optionType>
+      <buySell>Buy</buySell>
+      <currencyPair>EUR/USD</currencyPair>
+      <optionCurrency>EUR</optionCurrency>
+
+      <strike>1.9</strike>
+
+      <fxExpiry>
+        <expiryDate>2018-01-31</expiryDate>
+        <expiryCutoff>ECB|10am NY</expiryCutoff>
+
+        <expiryCalendars>
+          <calendar type="bank">
+            <id scheme="CountryISO2">FD</id>
+          </calendar>
+        </expiryCalendars>
+      </fxExpiry>
+
+      <paymentCalendars>
+        <calendar type="bank">
+          <id scheme="CountryISO2">FD</id>
+        </calendar>
+      </paymentCalendars>
+
+      <notional>2000000</notional>
+      <notionalCurrency>EUR</notionalCurrency>
+
+      <!-- CashSettled|Physical - switch between NonDeliverableFxOption and the vanilla version respectively -->
+      <settlementType>CashSettled</settlementType>
+      <!-- Only valid for NonDeliverableFxOption (i.e. CashSettled settlement type) -->
+      <settlementCurrency>USD</settlementCurrency>
+
+      <exerciseType>American</exerciseType>
+
+    </fxOptionTrade>
+  </trades>
+
+</og-portfolio>

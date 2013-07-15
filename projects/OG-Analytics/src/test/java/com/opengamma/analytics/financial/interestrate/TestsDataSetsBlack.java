@@ -9,8 +9,8 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -28,40 +28,50 @@ public class TestsDataSetsBlack {
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
+  private static final GridInterpolator2D INTERPOLATOR_LINEAR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", CALENDAR);
 
-  private static final InterpolatedDoublesSurface BLACK_SURFACE = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, new double[] {
-      0.35,
-      0.34, 0.25, 0.30, 0.25, 0.20 }, INTERPOLATOR_2D);
-  private static final BlackSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR6M);
-  private static final BlackSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR3M);
+  private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_TEN = InterpolatedDoublesSurface.from(
+      new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
+      new double[] {2, 2, 2, 10, 10, 10 },
+      new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20 },
+      INTERPOLATOR_LINEAR_2D);
+  private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_STR = InterpolatedDoublesSurface.from(
+      new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
+      new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
+      new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20, 0.28, 0.23, 0.18 },
+      INTERPOLATOR_LINEAR_2D);
+  private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR6M);
+  private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR3M);
 
-  //  private static final double[] CUBE_X = new double[]{};
-  //  private static final double[] CUBE_Y = new double[]{};
-  //  private static final double[] CUBE_Z = new double[]{};
-  //  private static final double[] CUBE_VALUES = new double[]{};
-  //  private static final InterpolatorND INTERPOLATOR_2D = 
-  //  private static final InterpolatedDoublesCube BLACK_CUBE = InterpolatedDoublesCube.from(CUBE_X, CUBE_Y, CUBE_Z, CUBE_VALUES, interpolator);
-
-  public static InterpolatedDoublesSurface createBlackSurface() {
-    return BLACK_SURFACE;
+  public static InterpolatedDoublesSurface createBlackSurfaceExpiryTenor() {
+    return BLACK_SURFACE_EXP_TEN;
   }
 
-  public static InterpolatedDoublesSurface createBlackSurfaceShift(final double shift) {
+  public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrike() {
+    return BLACK_SURFACE_EXP_STR;
+  }
+
+  public static InterpolatedDoublesSurface createBlackSurfaceExpiryTenorShift(final double shift) {
     return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift,
-        0.25 + shift, 0.20 + shift }, INTERPOLATOR_2D);
+        0.25 + shift, 0.20 + shift }, INTERPOLATOR_LINEAR_2D);
   }
-
-  public static BlackSwaptionParameters createBlackSwaptionEUR6() {
+  
+  public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrikeShift(final double shift) {
+    return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
+        new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
+        new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift, 0.25 + shift, 0.20 + shift, 0.28 + shift, 0.23 + shift, 0.18 + shift},
+        INTERPOLATOR_LINEAR_2D);
+  }
+  public static BlackFlatSwaptionParameters createBlackSwaptionEUR6() {
     return BLACK_SWAPTION_EUR6;
   }
 
-  public static BlackSwaptionParameters createBlackSwaptionEUR3() {
+  public static BlackFlatSwaptionParameters createBlackSwaptionEUR3() {
     return BLACK_SWAPTION_EUR3;
   }
 
@@ -70,9 +80,9 @@ public class TestsDataSetsBlack {
    * @param shift The shift.
    * @return The surface.
    */
-  public static BlackSwaptionParameters createBlackSwaptionEUR6Shift(final double shift) {
-    final InterpolatedDoublesSurface surfaceShift = createBlackSurfaceShift(shift);
-    return new BlackSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
+  public static BlackFlatSwaptionParameters createBlackSwaptionEUR6Shift(final double shift) {
+    final InterpolatedDoublesSurface surfaceShift = createBlackSurfaceExpiryTenorShift(shift);
+    return new BlackFlatSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
   }
 
   /**
@@ -81,11 +91,11 @@ public class TestsDataSetsBlack {
    * @param shift The shift.
    * @return The surface.
    */
-  public static BlackSwaptionParameters createBlackSwaptionEUR6Shift(final int index, final double shift) {
+  public static BlackFlatSwaptionParameters createBlackSwaptionEUR6Shift(final int index, final double shift) {
     final double[] vol = new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20 };
     vol[index] += shift;
-    final InterpolatedDoublesSurface surfaceShift = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, vol, INTERPOLATOR_2D);
-    return new BlackSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
+    final InterpolatedDoublesSurface surfaceShift = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, vol, INTERPOLATOR_LINEAR_2D);
+    return new BlackFlatSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
   }
 
   public static YieldCurveBundle createCurvesEUR() {
@@ -149,7 +159,7 @@ public class TestsDataSetsBlack {
   }
 
   public static YieldCurveWithBlackCubeBundle createCubesBondFutureOption() {
-    return new YieldCurveWithBlackCubeBundle(BLACK_SURFACE, createCurvesBond());
+    return new YieldCurveWithBlackCubeBundle(BLACK_SURFACE_EXP_TEN, createCurvesBond());
   }
 
 }

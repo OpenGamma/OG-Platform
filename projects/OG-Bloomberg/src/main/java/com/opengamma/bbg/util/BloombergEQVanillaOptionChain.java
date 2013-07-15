@@ -7,14 +7,16 @@
 package com.opengamma.bbg.util;
 
 
+import static org.threeten.bp.DayOfWeek.FRIDAY;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
@@ -380,8 +382,8 @@ public class BloombergEQVanillaOptionChain {
   // -------- PRIVATE SUBROUTINES --------
   private LocalDate determineTargetExpiry(LocalDate referenceDate, int monthsFromReferenceDate) {
     LocalDate result = referenceDate.plusMonths(monthsFromReferenceDate);
-    result = LocalDate.of(result.getYear(), result.getMonthOfYear(), 1);
-    while (!result.getDayOfWeek().isFriday()) {
+    result = LocalDate.of(result.getYear(), result.getMonth(), 1);
+    while (!(result.getDayOfWeek() == FRIDAY)) {
       result = result.plusDays(1);
     }
     result = result.plusDays(15); // Saturday after third Friday
@@ -397,10 +399,8 @@ public class BloombergEQVanillaOptionChain {
   private double calcDayDiff(LocalDate thirdSaturdayOfTargetMonth, LocalDate expiry) {
     ZonedDateTime dummyNow = ZonedDateTime.now(OpenGammaClock.getInstance()); // "now()" is just to get dummy time of day and zone
     
-    ZonedDateTime zonedThirdSaturdayOfTargetMonth = 
-      ZonedDateTime.of(thirdSaturdayOfTargetMonth, dummyNow.toLocalTime(), dummyNow.getZone());
-    ZonedDateTime zonedExpiry = 
-      ZonedDateTime.of(expiry, dummyNow.toLocalTime(), dummyNow.getZone());
+    ZonedDateTime zonedThirdSaturdayOfTargetMonth = thirdSaturdayOfTargetMonth.atTime(dummyNow.toLocalTime()).atZone(dummyNow.getZone());
+    ZonedDateTime zonedExpiry = expiry.atTime(dummyNow.toLocalTime()).atZone(dummyNow.getZone());
     if (expiry.isAfter(thirdSaturdayOfTargetMonth)) {
       return _dayCount.getDayCountFraction(zonedThirdSaturdayOfTargetMonth, zonedExpiry);  
     } else {

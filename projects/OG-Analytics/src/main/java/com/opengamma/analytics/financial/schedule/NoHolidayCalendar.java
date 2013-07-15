@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.schedule;
 
 import java.io.Serializable;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 

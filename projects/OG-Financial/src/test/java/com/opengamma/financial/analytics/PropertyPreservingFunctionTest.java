@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.analytics;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -14,10 +19,11 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
@@ -25,7 +31,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class PropertyPreservingFunctionTest {
 
   private MockPropertyPreservingFunction getFunction() {
@@ -111,7 +122,7 @@ public class PropertyPreservingFunctionTest {
 
   private ValueSpecification getSpec(final ValueProperties props) {
     final Builder realProps = props.copy().with(ValuePropertyNames.FUNCTION, "SomeFunc");
-    final ValueSpecification spec = ValueSpecification.of("X", Currency.USD, realProps.get());
+    final ValueSpecification spec = new ValueSpecification("X", ComputationTargetSpecification.of(Currency.USD), realProps.get());
     return spec;
   }
 

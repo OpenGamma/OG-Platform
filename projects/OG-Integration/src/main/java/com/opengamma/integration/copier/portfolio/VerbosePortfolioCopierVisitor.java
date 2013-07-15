@@ -11,7 +11,7 @@ import com.opengamma.master.security.ManageableSecurity;
 /**
  * Portfolio copier visitor that prints messages to stdout
  */
-public class VerbosePortfolioCopierVisitor implements PortfolioCopierVisitor {
+public class VerbosePortfolioCopierVisitor extends PortfolioCopierStats {
 
   @Override
   public void error(String message) {
@@ -19,6 +19,7 @@ public class VerbosePortfolioCopierVisitor implements PortfolioCopierVisitor {
   }
   @Override
   public void info(String message, ManageablePosition position, ManageableSecurity[] securities) {
+    super.info(message, position, securities);
     if (message != null && message.length() > 0) {
       System.out.print("[" + message + "] ");
     }

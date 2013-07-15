@@ -9,11 +9,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "integration", enabled = false, description = "Properties file refers to absolute paths which won't work")
+@Test(groups = TestGroup.INTEGRATION, enabled = false, description = "Properties file refers to absolute paths which won't work")
 public class BloombergTicksCollectorSpringTest extends AbstractSpringContextValidationTestNG {
 
   @Test(enabled = false)

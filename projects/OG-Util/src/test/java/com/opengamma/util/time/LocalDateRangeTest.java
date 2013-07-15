@@ -7,22 +7,23 @@ package com.opengamma.util.time;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test LocalDateRange.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class LocalDateRangeTest {
 
   @Test
   public void test_ALL() {
     LocalDateRange test = LocalDateRange.ALL;
-    assertEquals(LocalDate.MIN_DATE, test.getStartDateInclusive());
-    assertEquals(LocalDate.MAX_DATE, test.getEndDateInclusive());
-    assertEquals(LocalDate.MAX_DATE, test.getEndDateExclusive());
+    assertEquals(LocalDate.MIN, test.getStartDateInclusive());
+    assertEquals(LocalDate.MAX, test.getEndDateInclusive());
+    assertEquals(LocalDate.MAX, test.getEndDateExclusive());
     assertEquals(true, test.isStartDateMinimum());
     assertEquals(true, test.isEndDateMaximum());
   }
@@ -88,7 +89,7 @@ public class LocalDateRangeTest {
   @Test
   public void test_ofNullUnbounded_2_null1() {
     LocalDateRange test = LocalDateRange.ofNullUnbounded(null, LocalDate.of(2012, 7, 30), false);
-    assertEquals(LocalDate.MIN_DATE, test.getStartDateInclusive());
+    assertEquals(LocalDate.MIN, test.getStartDateInclusive());
     assertEquals(LocalDate.of(2012, 7, 29), test.getEndDateInclusive());
     assertEquals(LocalDate.of(2012, 7, 30), test.getEndDateExclusive());
     assertEquals(true, test.isStartDateMinimum());
@@ -99,8 +100,8 @@ public class LocalDateRangeTest {
   public void test_ofNullUnbounded_2_null2() {
     LocalDateRange test = LocalDateRange.ofNullUnbounded(LocalDate.of(2012, 7, 28), null, false);
     assertEquals(LocalDate.of(2012, 7, 28), test.getStartDateInclusive());
-    assertEquals(LocalDate.MAX_DATE, test.getEndDateInclusive());
-    assertEquals(LocalDate.MAX_DATE, test.getEndDateExclusive());
+    assertEquals(LocalDate.MAX, test.getEndDateInclusive());
+    assertEquals(LocalDate.MAX, test.getEndDateExclusive());
     assertEquals(false, test.isStartDateMinimum());
     assertEquals(true, test.isEndDateMaximum());
   }

@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
@@ -14,6 +13,7 @@ import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -26,15 +26,15 @@ public class ForwardCurve {
   private final double _spot;
 
   public ForwardCurve(final Curve<Double, Double> fwdCurve, final Curve<Double, Double> driftCurve) {
-    Validate.notNull(fwdCurve, "null fwdCurve");
-    Validate.notNull(driftCurve, "null driftCurve");
+    ArgumentChecker.notNull(fwdCurve, "null fwdCurve");
+    ArgumentChecker.notNull(driftCurve, "null driftCurve");
     _fwdCurve = fwdCurve;
     _drift = driftCurve;
     _spot = _fwdCurve.getYValue(0.0);
   }
 
   public ForwardCurve(final Curve<Double, Double> fwdCurve) {
-    Validate.notNull(fwdCurve, "curve");
+    ArgumentChecker.notNull(fwdCurve, "curve");
     _fwdCurve = fwdCurve;
     _drift = getDriftCurve(fwdCurve);  //TODO YieldAndDiscountCurve should have a getForwardRate method, which should be used here
     _spot = _fwdCurve.getYValue(0.0);
@@ -57,13 +57,7 @@ public class ForwardCurve {
    */
   public ForwardCurve(final double spot, final double drift) {
     _drift = ConstantDoublesCurve.from(drift);
-    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double t) {
-        return spot * Math.exp(drift * t);
-      }
-    };
-    _fwdCurve = new FunctionalDoublesCurve(fwd);
+    _fwdCurve = getForwardCurve(spot, drift);
     _spot = spot;
   }
 
@@ -74,25 +68,9 @@ public class ForwardCurve {
    * @param driftCurve The drift curve
    */
   public ForwardCurve(final double spot, final Curve<Double, Double> driftCurve) {
-    Validate.notNull(driftCurve, "null driftCurve");
+    ArgumentChecker.notNull(driftCurve, "null driftCurve");
     _drift = driftCurve;
-    final Function1D<Double, Double> driftFunc = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double t) {
-        return driftCurve.getYValue(t);
-      }
-    };
-
-    //TODO cache integration results. REVIEW emcleod 22-6-2011 There's no point in thinking about caching until we know that this is a bottleneck
-    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double t) {
-        @SuppressWarnings("synthetic-access")
-        final double temp = INTEGRATOR.integrate(driftFunc, 0.0, t);
-        return spot * Math.exp(temp);
-      }
-    };
-    _fwdCurve = new FunctionalDoublesCurve(fwd);
+    _fwdCurve = getForwardCurve(spot, driftCurve);
     _spot = spot;
   }
 
@@ -128,13 +106,64 @@ public class ForwardCurve {
     ArgumentChecker.notNull(riskFreeCurve, "risk-free curve");
     ArgumentChecker.notNull(costOfCarryCurve, "cost-of-carry curve");
     final Function<Double, Double> f = new Function<Double, Double>() {
+
       @Override
       public Double evaluate(final Double... x) {
         final double t = x[0];
         return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
       }
+
     };
-    return FunctionalDoublesCurve.from(f);
+    return new FunctionalDoublesCurve(f) {
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ForwardCurve.class, "getForwardCurve", spot, riskFreeCurve, costOfCarryCurve);
+      }
+    };
+  }
+
+  protected static Curve<Double, Double> getForwardCurve(final Double spot, final Double drift) {
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double t) {
+        return spot * Math.exp(drift * t);
+      }
+
+    };
+
+    return new FunctionalDoublesCurve(fwd) {
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ForwardCurve.class, "getForwardCurve", spot, drift);
+      }
+    };
+  }
+
+  protected static Curve<Double, Double> getForwardCurve(final Double spot, final Curve<Double, Double> driftCurve) {
+    final Function1D<Double, Double> fwd = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double t) {
+        final Function1D<Double, Double> driftFunc = new Function1D<Double, Double>() {
+
+          @Override
+          public Double evaluate(final Double y) {
+            return driftCurve.getYValue(y);
+          }
+
+        };
+        @SuppressWarnings("synthetic-access")
+        final double temp = INTEGRATOR.integrate(driftFunc, 0.0, t);
+        return spot * Math.exp(temp);
+      }
+
+    };
+    return new FunctionalDoublesCurve(fwd) {
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ForwardCurve.class, "getForwardCurve", spot, driftCurve);
+      }
+    };
   }
 
   protected static Curve<Double, Double> getDriftCurve(final Curve<Double, Double> fwdCurve) {
@@ -156,7 +185,11 @@ public class ForwardCurve {
 
     };
 
-    return FunctionalDoublesCurve.from(drift);
+    return new FunctionalDoublesCurve(drift) {
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ForwardCurve.class, "getDriftCurve", fwdCurve);
+      }
+    };
   }
 
   /**
@@ -166,7 +199,7 @@ public class ForwardCurve {
    * @return The shifted curve
    */
   public ForwardCurve withFractionalShift(final double shift) {
-    Validate.isTrue(shift > -1, "shift must be > -1");
+    ArgumentChecker.isTrue(shift > -1, "shift must be > -1");
 
     final Function<Double, Double> func = new Function<Double, Double>() {
       @SuppressWarnings("synthetic-access")

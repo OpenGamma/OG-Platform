@@ -9,25 +9,25 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalScheme;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DependencyNode.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DependencyNodeTest {
   
   public void testDependentNodes() {
-    ExternalScheme domain = ExternalScheme.of("test");
+    String domain = "test";
     
-    DependencyNode node0 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "0")));
-    DependencyNode node1 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "1")));
-    DependencyNode node2 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "2")));
-    DependencyNode node3 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "3")));
-    DependencyNode node4 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "4")));
-    DependencyNode node5 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "5")));
+    DependencyNode node0 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(domain, "0")));
+    DependencyNode node1 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(domain, "1")));
+    DependencyNode node2 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(domain, "2")));
+    DependencyNode node3 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(domain, "3")));
+    DependencyNode node4 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(domain, "4")));
+    DependencyNode node5 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(domain, "5")));
     
     node0.addInputNode(node1);
     node0.addInputNode(node2);

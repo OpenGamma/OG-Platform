@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * @param <T> Type of the data 

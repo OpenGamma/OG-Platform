@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -16,31 +17,97 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
+import com.opengamma.financial.analytics.riskfactors.RiskFactorsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsResolver;
+import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionCompilationContext}.
  */
 public final class OpenGammaCompilationContext {
 
-  private static final String CONFIG_SOURCE_NAME = "configSource";
-  private static final String REGION_SOURCE_NAME = "regionSource";
-  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
-  private static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
-  private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
-  private static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
-  private static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
-  private static final String HOLIDAY_SOURCE_NAME = "holidaySource";
-  private static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
-  private static final String SECURITY_SOURCE_NAME = "securitySource";
-  private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
-  private static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
-  private static final String HISTORICAL_TIME_SERIES_RESOLVER = "historicalTimeSeriesResolver";
+  /**
+   * The name under which an instance of {@link ConfigSource} should be bound.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
+   */
+  public static final String CONFIG_SOURCE_NAME = "configSource";
+  /**
+   * The name under which an instance of {@link RegionSource} should be bound.
+   */
+  public static final String REGION_SOURCE_NAME = "regionSource";
+  /**
+   * The name under which an instance of {@link ConventionBundleSource} should be bound.
+   */
+  public static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+  /**
+   * The name under which an instance of {@link ConventionSource} should be bound.
+   */
+  public static final String CONVENTION_SOURCE_NAME = "conventionSource";
+  /**
+   * The name under which an instance of {@link InterpolatedYieldCurveDefinitionSource} should be bound.
+   */
+  public static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
+  /**
+   * The name under which an instance of {@link InterpolatedYieldCurveSpecificationBuilder} should be bound.
+   */
+  public static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
+  /**
+   * The name under which an instance of {@link VolatilityCubeDefinitionSource} should be bound.
+   */
+  public static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
+  /**
+   * The name under which an instance of {@link HolidaySource} should be bound.
+   */
+  public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
+  /**
+   * The name under which an instance of {@link ExchangeSource} should be bound.
+   */
+  public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
+  /**
+   * The name under which an instance of {@link SecuritySource} should be bound.
+   */
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which an instance of {@link CurveCalculationConfigSource} should be bound.
+   */
+  public static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
+  /**
+   * The name under which an instance of {@link HistoricalTimeSeriesSource} should be bound.
+   */
+  public static final String HISTORICAL_TIME_SERIES_SOURCE_NAME = "historicalTimeSeriesSource";
+  /**
+   * The name under which an instance of {@link HistoricalTimeSeriesResolver} should be bound.
+   */
+  public static final String HISTORICAL_TIME_SERIES_RESOLVER_NAME = "historicalTimeSeriesResolver";
+  /**
+   * The name under which an instance of {@link TempTargetRepository} should be bound.
+   */
+  public static final String TEMPORARY_TARGETS_NAME = "tempTargets";
+  /**
+   * The name under which an instance of {@link RiskFactorsGatherer} should be bound.
+   */
+  public static final String RISK_FACTORS_GATHERER_NAME = "riskFactorsGatherer";
+  /**
+   * The name under which a {@link Boolean#TRUE} value should be bound to put functions which support it into a permissive requirement mode. Note that this is a non-default mode of behavior that is
+   * not usually required.
+   */
   private static final String PERMISSIVE_FLAG_NAME = "permissive";
-  private static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
+  /**
+   * The name under which an instance of {@link PnLRequirementsGatherer} should be bound.
+   */
+  public static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
 
   /**
    * Restricted constructor.
@@ -60,7 +127,8 @@ public final class OpenGammaCompilationContext {
   // -------------------------------------------------------------------------
   /**
    * Gets a {@code ConfigSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   *
+   * @param compilationContext the context to examine, not null
    * @return the config source, null if not found
    */
   public static ConfigSource getConfigSource(final FunctionCompilationContext compilationContext) {
@@ -69,8 +137,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code ConfigSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param configSource  the config source to store, not null
+   *
+   * @param compilationContext the context to store in, not null
+   * @param configSource the config source to store, not null
    */
   public static void setConfigSource(final FunctionCompilationContext compilationContext, final ConfigSource configSource) {
     set(compilationContext, CONFIG_SOURCE_NAME, configSource);
@@ -79,7 +148,8 @@ public final class OpenGammaCompilationContext {
   // -------------------------------------------------------------------------
   /**
    * Gets a {@code RegionSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   *
+   * @param compilationContext the context to examine, not null
    * @return the region source, null if not found
    */
   public static RegionSource getRegionSource(final FunctionCompilationContext compilationContext) {
@@ -88,8 +158,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code RegionSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param regionSource  the region source to store, not null
+   *
+   * @param compilationContext the context to store in, not null
+   * @param regionSource the region source to store, not null
    */
   public static void setRegionSource(final FunctionCompilationContext compilationContext, final RegionSource regionSource) {
     set(compilationContext, REGION_SOURCE_NAME, regionSource);
@@ -97,8 +168,31 @@ public final class OpenGammaCompilationContext {
 
   // -------------------------------------------------------------------------
   /**
+   * Gets a {@code ConventionSource} from the context.
+   *
+   * @param compilationContext the context to examine, not null
+   * @return the convention source, null if not found
+   */
+  public static ConventionSource getConventionSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, CONVENTION_SOURCE_NAME);
+  }
+
+  /**
+   * Stores a {@code ConventionSource} in the context.
+   *
+   * @param compilationContext the context to store in, not null
+   * @param conventionSource the convention source to store, not null
+   */
+  public static void setConventionSource(final FunctionCompilationContext compilationContext,
+      final ConventionSource conventionSource) {
+    set(compilationContext, CONVENTION_SOURCE_NAME, conventionSource);
+  }
+
+  // -------------------------------------------------------------------------
+  /**
    * Gets a {@code ConventionBundleSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   *
+   * @param compilationContext the context to examine, not null
    * @return the convention bundle source, null if not found
    */
   public static ConventionBundleSource getConventionBundleSource(final FunctionCompilationContext compilationContext) {
@@ -107,8 +201,9 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code ConventionBundleSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param conventionBundleSource  the convention bundle source to store, not null
+   *
+   * @param compilationContext the context to store in, not null
+   * @param conventionBundleSource the convention bundle source to store, not null
    */
   public static void setConventionBundleSource(final FunctionCompilationContext compilationContext,
       final ConventionBundleSource conventionBundleSource) {
@@ -143,21 +238,20 @@ public final class OpenGammaCompilationContext {
     set(compilationContext, VOLATILITY_CUBE_DEFINITION_SOURCE_NAME, source);
   }
 
-  public static CurrencyMatrixSource getCurrencyMatrixSource(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, CURRENCY_MATRIX_SOURCE_NAME);
-  }
-
-  public static void setCurrencyMatrixSource(final FunctionCompilationContext compilationContext,
-      final CurrencyMatrixSource currencyMatrixSource) {
-    set(compilationContext, CURRENCY_MATRIX_SOURCE_NAME, currencyMatrixSource);
-  }
-
   public static HolidaySource getHolidaySource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, HOLIDAY_SOURCE_NAME);
   }
 
   public static void setHolidaySource(final FunctionCompilationContext compilationContext, final HolidaySource holidaySource) {
     set(compilationContext, HOLIDAY_SOURCE_NAME, holidaySource);
+  }
+
+  public static OrganizationSource getOrganizationSource(final FunctionCompilationContext compilationContext) {
+    return compilationContext.getOrganizationSource();
+  }
+
+  public static void setOrganizationSource(final FunctionCompilationContext compilationContext, final OrganizationSource organizationSource) {
+    compilationContext.setOrganizationSource(organizationSource);
   }
 
   public static ExchangeSource getExchangeSource(final FunctionCompilationContext compilationContext) {
@@ -178,7 +272,8 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Gets a {@code CurveCalculationConfigSource} from the context.
-   * @param compilationContext  the context to examine, not null
+   *
+   * @param compilationContext the context to examine, not null
    * @return the curve config source, null if not found
    */
   public static CurveCalculationConfigSource getCurveCalculationConfigSource(final FunctionCompilationContext compilationContext) {
@@ -187,27 +282,36 @@ public final class OpenGammaCompilationContext {
 
   /**
    * Stores a {@code CurveCalculationConfigSource} in the context.
-   * @param compilationContext  the context to store in, not null
-   * @param curveConfigSource  the curve config source to store, not null
+   *
+   * @param compilationContext the context to store in, not null
+   * @param curveConfigSource the curve config source to store, not null
    */
   public static void setCurveCalculationConfigSource(final FunctionCompilationContext compilationContext, final CurveCalculationConfigSource curveConfigSource) {
     set(compilationContext, CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
   }
 
   public static HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE);
+    return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE_NAME);
   }
 
   public static void setHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
+    set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE_NAME, historicalTimeSeriesSource);
   }
 
   public static HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER);
+    return get(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER_NAME);
   }
 
   public static void setHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
-    set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER, historicalTimeSeriesResolver);
+    set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER_NAME, historicalTimeSeriesResolver);
+  }
+
+  public static TempTargetRepository getTempTargets(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, TEMPORARY_TARGETS_NAME);
+  }
+
+  public static void setTempTargets(final FunctionCompilationContext compilationContext, final TempTargetRepository tempTargets) {
+    set(compilationContext, TEMPORARY_TARGETS_NAME, tempTargets);
   }
 
   /**
@@ -240,12 +344,49 @@ public final class OpenGammaCompilationContext {
     }
   }
 
+  public static RiskFactorsGatherer getRiskFactorsGatherer(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, RISK_FACTORS_GATHERER_NAME);
+  }
+
+  public static void setRiskFactorsGatherer(final FunctionCompilationContext compilationContext, final RiskFactorsGatherer riskFactorsGatherer) {
+    set(compilationContext, RISK_FACTORS_GATHERER_NAME, riskFactorsGatherer);
+  }
+
   public static PnLRequirementsGatherer getPnLRequirementsGatherer(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME);
   }
 
   public static void setPnLRequirementsGatherer(final FunctionCompilationContext compilationContext, final PnLRequirementsGatherer pnlRequirementsGatherer) {
     set(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME, pnlRequirementsGatherer);
+  }
+
+  /**
+   * @deprecated [PLAT-2782] interim measure to request data via function inputs, or targets
+   */
+  @Deprecated
+  public static CurrencyPairsSource getCurrencyPairsSource(final FunctionCompilationContext compilationContext) {
+    final ComputationTargetResolverWrapper resolver = new ComputationTargetResolverWrapper(compilationContext.getComputationTargetResolver());
+    return new CurrencyPairsSource() {
+
+      @Override
+      public CurrencyPairs getCurrencyPairs(String name) {
+        if (name == null) {
+          name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;
+        }
+        return (CurrencyPairs) resolver.get(CurrencyPairs.TYPE, ExternalId.of(CurrencyPairsResolver.IDENTIFIER_SCHEME, name));
+      }
+
+      @Override
+      public CurrencyPair getCurrencyPair(final String name, final Currency currency1, final Currency currency2) {
+        ArgumentChecker.notNull(currency1, "currency1");
+        ArgumentChecker.notNull(currency2, "currency2");
+        final CurrencyPairs currencyPairs = getCurrencyPairs(name);
+        if (currencyPairs == null) {
+          return null;
+        }
+        return currencyPairs.getCurrencyPair(currency1, currency2);
+      }
+    };
   }
 
 }

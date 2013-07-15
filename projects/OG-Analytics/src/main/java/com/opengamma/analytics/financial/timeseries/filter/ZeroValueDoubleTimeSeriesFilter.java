@@ -5,72 +5,75 @@
  */
 package com.opengamma.analytics.financial.timeseries.filter;
 
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cern.colt.Arrays;
-
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * 
+ * Filter that partitions the time-series points based on removing near zero values.
  */
 public class ZeroValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ZeroValueDoubleTimeSeriesFilter.class);
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
+
   private double _zero;
 
+  /**
+   * Creates an instance.
+   */
   public ZeroValueDoubleTimeSeriesFilter() {
     _zero = 1e-15;
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param zero  the zero tolerance, not negative
+   */
   public ZeroValueDoubleTimeSeriesFilter(final double zero) {
     ArgumentChecker.notNegative(zero, "zero");
     _zero = zero;
   }
 
+  //-------------------------------------------------------------------------
   public void setZero(final double zero) {
     ArgumentChecker.notNegative(zero, "zero");
     _zero = zero;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public FilteredTimeSeries evaluate(final LocalDateDoubleTimeSeries ts) {
-    Validate.notNull(ts, "ts");
+    ArgumentChecker.notNull(ts, "ts");
     if (ts.isEmpty()) {
       s_logger.info("Time series was empty");
       return new FilteredTimeSeries(EMPTY_SERIES, EMPTY_SERIES);
     }
-    final FastIntDoubleTimeSeries x = (FastIntDoubleTimeSeries) ts.getFastSeries();
-    final int n = x.size();
+    final int n = ts.size();
     final int[] filteredDates = new int[n];
     final double[] filteredData = new double[n];
     final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
-    final ObjectIterator<Int2DoubleMap.Entry> iter = x.iteratorFast();
-    Int2DoubleMap.Entry entry;
+    final LocalDateDoubleEntryIterator it = ts.iterator();
     int i = 0, j = 0;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      if (Math.abs(entry.getValue()) < _zero) {
-        rejectedDates[j] = entry.getKey();
-        rejectedData[j++] = entry.getValue();
+    while (it.hasNext()) {
+      int date = it.nextTimeFast();
+      double value = it.currentValue();
+      if (Math.abs(value) < _zero) {
+        rejectedDates[j] = date;
+        rejectedData[j++] = value;
       } else {
-        filteredDates[i] = entry.getKey();
-        filteredData[i++] = entry.getValue();
+        filteredDates[i] = date;
+        filteredData[i++] = value;
       }
     }
-    final DateTimeNumericEncoding encoding = x.getEncoding();
-    return new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(new FastArrayIntDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i))),
-        new ArrayLocalDateDoubleTimeSeries(new FastArrayIntDoubleTimeSeries(encoding, Arrays.trimToCapacity(rejectedDates, j), Arrays.trimToCapacity(rejectedData, j))));
+    return getFilteredSeries(filteredDates, filteredData, i, rejectedDates, rejectedData, j);
   }
+
 }

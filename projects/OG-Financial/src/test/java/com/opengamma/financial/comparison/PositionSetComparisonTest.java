@@ -26,11 +26,12 @@ import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Tests the PositionSetComparison class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class PositionSetComparisonTest extends AbstractTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PositionSetComparisonTest.class);

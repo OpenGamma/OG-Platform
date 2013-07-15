@@ -12,9 +12,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test the DoubleLabelledMatrix3D implementation.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleLabelledMatrix3DTest {
 
   private static final Double[] SORTED_X_KEYS1 = new Double[] {1., 2., 3., 4., 5. };

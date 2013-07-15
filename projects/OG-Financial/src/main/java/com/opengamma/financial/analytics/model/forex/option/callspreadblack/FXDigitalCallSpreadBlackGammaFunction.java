@@ -8,9 +8,10 @@ package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.calculator.GammaValueCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -18,6 +19,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -30,10 +32,12 @@ public class FXDigitalCallSpreadBlackGammaFunction extends FXDigitalCallSpreadBl
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
+    final String spreadName = Iterables.getOnlyElement(desiredValues).getConstraint(CalculationPropertyNamesAndValues.PROPERTY_CALL_SPREAD_VALUE);
+    final double spread = Double.parseDouble(spreadName);
     final GammaValueCallSpreadBlackForexCalculator calculator = new GammaValueCallSpreadBlackForexCalculator(spread);
-    final CurrencyAmount result = calculator.visit(fxDigital, data);
+    final CurrencyAmount result = fxDigital.accept(calculator, data);
     final double amount = result.getAmount();
     return Collections.singleton(new ComputedValue(spec, amount));
   }

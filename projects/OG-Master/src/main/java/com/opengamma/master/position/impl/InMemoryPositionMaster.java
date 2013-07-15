@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
-
 import org.joda.beans.JodaBeanUtils;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
@@ -39,9 +38,7 @@ import com.opengamma.util.paging.Paging;
 /**
  * An in-memory implementation of a position master.
  */
-public class InMemoryPositionMaster
-    extends SimpleAbstractInMemoryMaster<PositionDocument>
-    implements PositionMaster {
+public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<PositionDocument> implements PositionMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
@@ -90,19 +87,19 @@ public class InMemoryPositionMaster
 
   //-------------------------------------------------------------------------
   @Override
-  protected void validateDocument(PositionDocument document) {
+  protected void validateDocument(final PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
   }
 
   @Override
-  public PositionDocument get(UniqueId uniqueId) {
+  public PositionDocument get(final UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+  public PositionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final PositionDocument document = _store.get(objectId.getObjectId());
@@ -112,8 +109,8 @@ public class InMemoryPositionMaster
     return clonePositionDocument(document);
   }
 
-  private PositionDocument clonePositionDocument(PositionDocument document) {
-    PositionDocument clone = JodaBeanUtils.clone(document);
+  private PositionDocument clonePositionDocument(final PositionDocument document) {
+    final PositionDocument clone = JodaBeanUtils.clone(document);
     clone.setPosition(new ManageablePosition(document.getPosition()));
     return clone;
   }
@@ -144,12 +141,12 @@ public class InMemoryPositionMaster
     clonedDoc.setUniqueId(uniqueId);
   }
 
-  private void storeTrades(List<ManageableTrade> clonedTrades, List<ManageableTrade> trades, UniqueId parentPositionId) {
+  private void storeTrades(final List<ManageableTrade> clonedTrades, final List<ManageableTrade> trades, final UniqueId parentPositionId) {
     for (int i = 0; i < clonedTrades.size(); i++) {
       final ObjectId objectId = _objectIdSupplier.get();
       final UniqueId uniqueId = objectId.atVersion("");
-      ManageableTrade origTrade = trades.get(i);
-      ManageableTrade clonedTrade = clonedTrades.get(i);
+      final ManageableTrade origTrade = trades.get(i);
+      final ManageableTrade clonedTrade = clonedTrades.get(i);
       clonedTrade.setUniqueId(uniqueId);
       origTrade.setUniqueId(uniqueId);
       clonedTrade.setParentPositionId(parentPositionId);
@@ -185,8 +182,8 @@ public class InMemoryPositionMaster
     return document;
   }
 
-  private void setVersionTimes(PositionDocument document, final PositionDocument clonedDoc,
-                               final Instant versionFromInstant, final Instant versionToInstant, final Instant correctionFromInstant, final Instant correctionToInstant) {
+  private void setVersionTimes(final PositionDocument document, final PositionDocument clonedDoc,
+      final Instant versionFromInstant, final Instant versionToInstant, final Instant correctionFromInstant, final Instant correctionToInstant) {
 
     clonedDoc.setVersionFromInstant(versionFromInstant);
     document.setVersionFromInstant(versionFromInstant);
@@ -201,8 +198,8 @@ public class InMemoryPositionMaster
     document.setCorrectionToInstant(correctionToInstant);
   }
 
-  private void removeTrades(List<ManageableTrade> trades) {
-    for (ManageableTrade trade : trades) {
+  private void removeTrades(final List<ManageableTrade> trades) {
+    for (final ManageableTrade trade : trades) {
       if (_storeTrades.remove(trade.getUniqueId().getObjectId()) == null) {
         throw new DataNotFoundException("Trade not found: " + trade.getUniqueId());
       }
@@ -211,9 +208,9 @@ public class InMemoryPositionMaster
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(ObjectIdentifiable objectIdentifiable) {
+  public void remove(final ObjectIdentifiable objectIdentifiable) {
     ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
-    PositionDocument storedDocument = _store.remove(objectIdentifiable.getObjectId());
+    final PositionDocument storedDocument = _store.remove(objectIdentifiable.getObjectId());
     if (storedDocument == null) {
       throw new DataNotFoundException("Position not found: " + objectIdentifiable);
     }
@@ -226,18 +223,18 @@ public class InMemoryPositionMaster
   public PositionDocument correct(final PositionDocument document) {
     return update(document);
   }
-  
+
   @Override
-  public PositionHistoryResult history(PositionHistoryRequest request) {
+  public PositionHistoryResult history(final PositionHistoryRequest request) {
     throw new UnsupportedOperationException("History request not supported by InMemoryPositionMaster");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionSearchResult search(PositionSearchRequest request) {
+  public PositionSearchResult search(final PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     final List<PositionDocument> list = new ArrayList<PositionDocument>();
-    for (PositionDocument doc : _store.values()) {
+    for (final PositionDocument doc : _store.values()) {
       if (request.matches(doc)) {
         list.add(clonePositionDocument(doc));
       }
@@ -247,12 +244,12 @@ public class InMemoryPositionMaster
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
-  public ManageableTrade getTrade(UniqueId tradeId) {
+  public ManageableTrade getTrade(final UniqueId tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
-    ManageableTrade trade = _storeTrades.get(tradeId.getObjectId());
+    final ManageableTrade trade = _storeTrades.get(tradeId.getObjectId());
     if (trade == null) {
       throw new DataNotFoundException("Trade not found: " + tradeId.getObjectId());
     }

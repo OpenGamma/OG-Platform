@@ -15,11 +15,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -31,8 +29,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -41,15 +37,18 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryCompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
-@Test
+@Test(groups = TestGroup.UNIT)
 public class AvailablePortfolioOutputsTest {
 
   private static final String SECURITY_TYPE_1 = "Bond";
@@ -67,7 +66,7 @@ public class AvailablePortfolioOutputsTest {
 
   private Portfolio _testPortfolio;
   private CompiledFunctionRepository _functionRepository;
-  private MarketDataAvailabilityProvider _availabilityProvider;
+  private MarketDataAvailabilityFilter _marketDataAvailability;
 
   private SimplePosition createPosition(final String securityType, final String currency, final String securityId) {
     final SimplePosition position = new SimplePosition();
@@ -102,11 +101,11 @@ public class AvailablePortfolioOutputsTest {
       }
 
       @Override
-      public void setAttributes(Map<String, String> attributes) {
+      public void setAttributes(final Map<String, String> attributes) {
       }
 
       @Override
-      public void addAttribute(String key, String value) {
+      public void addAttribute(final String key, final String value) {
       }
     });
     position.setSecurityLink(link);
@@ -148,7 +147,8 @@ public class AvailablePortfolioOutputsTest {
     }
 
     @Override
-    public Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
+    public Set<ValueRequirement> getAdditionalRequirements(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
+        final Set<ValueSpecification> outputs) {
       throw new UnsupportedOperationException();
     }
 
@@ -162,7 +162,7 @@ public class AvailablePortfolioOutputsTest {
       return new FunctionDefinition() {
 
         @Override
-        public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+        public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
           throw new UnsupportedOperationException();
         }
 
@@ -208,7 +208,7 @@ public class AvailablePortfolioOutputsTest {
     }
 
     @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
       return getResults(context, target);
     }
 
@@ -302,7 +302,7 @@ public class AvailablePortfolioOutputsTest {
 
       @Override
       public Set<ValueRequirement> getRequirements(final Position position, final ValueRequirement desiredValue) {
-        return Collections.singleton(new ValueRequirement(VALUE_1, new ComputationTargetSpecification(position.getSecurity())));
+        return Collections.singleton(new ValueRequirement(VALUE_1, ComputationTargetSpecification.of(position.getSecurity())));
       }
 
     });
@@ -373,17 +373,17 @@ public class AvailablePortfolioOutputsTest {
   public void init() {
     _testPortfolio = createPortfolio();
     _functionRepository = createFunctionRepository();
-    _availabilityProvider = new OptimisticMarketDataAvailabilityProvider();
+    _marketDataAvailability = new OptimisticMarketDataAvailabilityFilter();
   }
 
   public void testGetSecurityTypes() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _marketDataAvailability, WILDCARD);
     final Set<String> securityTypes = outputs.getSecurityTypes();
     assertEquals(securityTypes, new HashSet<String>(Arrays.asList(SECURITY_TYPE_1, SECURITY_TYPE_2)));
   }
 
   public void testGetTypedPositionOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _marketDataAvailability, WILDCARD);
     Set<AvailableOutput> available = outputs.getPositionOutputs(SECURITY_TYPE_1);
     final AvailableOutputImpl value1Type1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1Type1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -399,7 +399,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetPortfolioNodeOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _marketDataAvailability, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPortfolioNodeOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
@@ -409,7 +409,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetPositionOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _marketDataAvailability, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPositionOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -421,7 +421,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _marketDataAvailability, WILDCARD);
     final Set<AvailableOutput> available = outputs.getOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -435,12 +435,12 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testWithNoExclusion() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups<String>() {
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups() {
       @Override
-      protected String getKey(FunctionDefinition function) {
+      protected String getKey(final FunctionDefinition function) {
         return null;
       }
-    }, _availabilityProvider, WILDCARD);
+    }, _marketDataAvailability, WILDCARD);
     final Set<AvailableOutput> available = outputs.getOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -454,16 +454,16 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testWithExclusion() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups<String>() {
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups() {
       @Override
-      protected String getKey(FunctionDefinition function) {
+      protected String getKey(final FunctionDefinition function) {
         if (FUNCTION_1_TYPE_1_POSITION.equals(function.getUniqueId()) || FUNCTION_1_TYPE_1_SECURITY.equals(function.getUniqueId())) {
           return "group";
         } else {
           return null;
         }
       }
-    }, _availabilityProvider, WILDCARD);
+    }, _marketDataAvailability, WILDCARD);
     final Set<AvailableOutput> available = outputs.getOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);

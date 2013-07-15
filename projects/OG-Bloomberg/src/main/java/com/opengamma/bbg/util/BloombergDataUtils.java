@@ -5,6 +5,9 @@
  */
 package com.opengamma.bbg.util;
 
+import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
@@ -12,6 +15,10 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.ON_OFF_FIELDS;
+import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
+import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
+import static org.threeten.bp.temporal.ChronoField.YEAR;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,19 +37,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.ISOChronology;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.CalendricalParseException;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +46,15 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
+import org.threeten.bp.format.DateTimeParseException;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
@@ -65,6 +68,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.historical.normalization.BloombergFixedRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.livedata.normalization.BloombergRateRuleProvider;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
@@ -73,12 +77,14 @@ import com.opengamma.bbg.referencedata.ReferenceDataError;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjustment;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesConstants;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
-import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.financial.analytics.ircurve.NextMonthlyExpiryAdjuster;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
@@ -97,7 +103,7 @@ import com.opengamma.livedata.normalization.RequiredFieldFilter;
 import com.opengamma.livedata.normalization.SecurityRuleApplier;
 import com.opengamma.livedata.normalization.SecurityRuleProvider;
 import com.opengamma.livedata.normalization.StandardRules;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.livedata.normalization.UnitChange;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
@@ -116,10 +122,10 @@ public final class BloombergDataUtils {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergDataUtils.class);
-  
+
   private static final Pattern s_bloombergTickerPattern = buildPattern();
-  
-  private static final DateAdjuster s_monthlyExpiryAdjuster = new NextMonthlyExpiryAdjuster();
+
+  private static final TemporalAdjuster s_monthlyExpiryAdjuster = new NextMonthlyExpiryAdjuster();
 
   /**
    * The standard fields required for Bloomberg data, as a list.
@@ -135,15 +141,16 @@ public final class BloombergDataUtils {
       "OPT_IMPLIED_VOLATILITY_MID_RT",
       "YLD_CNV_MID", //TODO BBG-96
       "YLD_YTM_MID", //TODO BBG-96
-      "PX_DIRTY_MID"); //TODO BBG-96
-  
+      "PX_DIRTY_MID", //TODO BBG-96
+      "EQY_DVD_YLD_EST");
+
   /**
    * The standard fields required for Bloomberg data, as a set.
    */
   public static final Set<String> STANDARD_FIELDS_SET = new ImmutableSet.Builder<String>().addAll(STANDARD_FIELDS_LIST).build();
 
-  /** 
-   * Map from RIC to BBG prefixes, for exceptions only 
+  /**
+   * Map from RIC to BBG prefixes, for exceptions only
    */
   private static final Map<String, String> s_ricToBbgPrefixMap;
   static {
@@ -159,7 +166,7 @@ public final class BloombergDataUtils {
     s_ricToBbgPrefixMap.put("2FMS", "2L");
     s_ricToBbgPrefixMap.put("FES", "ES");
   }
-  
+
   /**
    * Number format to use in BBC strike price
    */
@@ -168,36 +175,32 @@ public final class BloombergDataUtils {
   /**
    * Map from month to BBG month code
    */
-  private static final BiMap<MonthOfYear, String> s_monthCode;
+  private static final BiMap<Month, String> s_monthCode;
   static {
     s_monthCode = HashBiMap.create();
-    s_monthCode.put(MonthOfYear.JANUARY, "F");
-    s_monthCode.put(MonthOfYear.FEBRUARY, "G");
-    s_monthCode.put(MonthOfYear.MARCH, "H");
-    s_monthCode.put(MonthOfYear.APRIL, "J");
-    s_monthCode.put(MonthOfYear.MAY, "K");
-    s_monthCode.put(MonthOfYear.JUNE, "M");
-    s_monthCode.put(MonthOfYear.JULY, "N");
-    s_monthCode.put(MonthOfYear.AUGUST, "Q");
-    s_monthCode.put(MonthOfYear.SEPTEMBER, "U");
-    s_monthCode.put(MonthOfYear.OCTOBER, "V");
-    s_monthCode.put(MonthOfYear.NOVEMBER, "X");
-    s_monthCode.put(MonthOfYear.DECEMBER, "Z");
+    s_monthCode.put(Month.JANUARY, "F");
+    s_monthCode.put(Month.FEBRUARY, "G");
+    s_monthCode.put(Month.MARCH, "H");
+    s_monthCode.put(Month.APRIL, "J");
+    s_monthCode.put(Month.MAY, "K");
+    s_monthCode.put(Month.JUNE, "M");
+    s_monthCode.put(Month.JULY, "N");
+    s_monthCode.put(Month.AUGUST, "Q");
+    s_monthCode.put(Month.SEPTEMBER, "U");
+    s_monthCode.put(Month.OCTOBER, "V");
+    s_monthCode.put(Month.NOVEMBER, "X");
+    s_monthCode.put(Month.DECEMBER, "Z");
   }
 
   /**
    * The observation time map.
    */
-  private static final Map<String, String> OBSERVATION_TIME_MAP =
-      ImmutableMap.<String, String>builder().put("CMPL", "LONDON_CLOSE").put("CMPT", "TOKYO_CLOSE").put("CMPN", "NEWYORK_CLOSE").build();
-  /**
-   * The unknown data provider.
-   */
-  public static final String UNKNOWN_DATA_PROVIDER = "UNKNOWN";
-  /**
-   * The unknown observation time.
-   */
-  public static final String UNKNOWN_OBSERVATION_TIME = "UNKNOWN";
+  private static final Map<String, String> s_observationTimeMap = ImmutableMap.<String, String>builder()
+      .put("CMPL", HistoricalTimeSeriesConstants.LONDON_CLOSE)
+      .put("CMPT", HistoricalTimeSeriesConstants.TOKYO_CLOSE)
+      .put("CMPN", HistoricalTimeSeriesConstants.NEWYORK_CLOSE)
+      .put(DEFAULT_DATA_PROVIDER, HistoricalTimeSeriesConstants.DEFAULT_OBSERVATION_TIME)
+      .build();
 
   /**
    * Restricted constructor.
@@ -209,22 +212,22 @@ public final class BloombergDataUtils {
     if (BloombergConstants.MARKET_SECTORS.isEmpty()) {
       throw new OpenGammaRuntimeException("Bloomberg market sectors can not be empty");
     }
-    List<String> marketSectorList = Lists.newArrayList(BloombergConstants.MARKET_SECTORS);
+    final List<String> marketSectorList = Lists.newArrayList(BloombergConstants.MARKET_SECTORS);
     String sectorPattern = marketSectorList.get(0);
     for (int i = 1; i < marketSectorList.size(); i++) {
       sectorPattern += "|" + marketSectorList.get(i);
     }
-    Pattern bloombergTickerPattern = Pattern.compile(String.format("^(.+)(\\s+)((%s))$", sectorPattern), Pattern.CASE_INSENSITIVE);
+    final Pattern bloombergTickerPattern = Pattern.compile(String.format("^(.+)(\\s+)((%s))$", sectorPattern), Pattern.CASE_INSENSITIVE);
     return bloombergTickerPattern;
   }
 
-  public static Collection<NormalizationRuleSet> getDefaultNormalizationRules(ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+  public static Collection<NormalizationRuleSet> getDefaultNormalizationRules(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager) {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
-    
-    Collection<NormalizationRuleSet> returnValue = new ArrayList<NormalizationRuleSet>();
+
+    final Collection<NormalizationRuleSet> returnValue = new ArrayList<NormalizationRuleSet>();
     returnValue.add(StandardRules.getNoNormalization());
 
-    List<NormalizationRule> openGammaRules = new ArrayList<NormalizationRule>();
+    final List<NormalizationRule> openGammaRules = new ArrayList<NormalizationRule>();
 
     // Filter out non-price updates
     openGammaRules.add(new FieldFilter(STANDARD_FIELDS_LIST));
@@ -242,21 +245,23 @@ public final class BloombergDataUtils {
     openGammaRules.add(new FieldNameChange("YLD_CNV_MID", MarketDataRequirementNames.YIELD_CONVENTION_MID));
     openGammaRules.add(new FieldNameChange("YLD_YTM_MID", MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID));
     openGammaRules.add(new FieldNameChange("PX_DIRTY_MID", MarketDataRequirementNames.DIRTY_PRICE_MID));
-    
+    openGammaRules.add(new FieldNameChange("EQY_DVD_YLD_EST", MarketDataRequirementNames.DIVIDEND_YIELD));
+
     // Calculate market value
     openGammaRules.add(new MarketValueCalculator());
-    
+
     // Normalize the market value
     if (referenceDataProvider != null) {
-      BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
-      SecurityRuleProvider quoteRuleProvider = new BloombergRateRuleProvider(rateClassifier);
+      final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
+      final SecurityRuleProvider quoteRuleProvider = new BloombergRateRuleProvider(rateClassifier);
       openGammaRules.add(new SecurityRuleApplier(quoteRuleProvider));
     }
+    openGammaRules.add(new UnitChange(MarketDataRequirementNames.DIVIDEND_YIELD, 0.01)); // returned as % from bbg
 
     // Calculate implied vol value
     openGammaRules.add(new ImpliedVolatilityCalculator());
 
-    // At this point, BID, ASK, LAST, MARKET_VALUE, Volume and various Bloomberg implied vol fields are stored in the history. 
+    // At this point, BID, ASK, LAST, MARKET_VALUE, Volume and various Bloomberg implied vol fields are stored in the history.
     openGammaRules.add(new FieldHistoryUpdater());
 
     // Filter out non-OpenGamma fields (i.e., BID, ASK, various Bloomberg implied vol fields)
@@ -267,10 +272,11 @@ public final class BloombergDataUtils {
         MarketDataRequirementNames.IMPLIED_VOLATILITY,
         MarketDataRequirementNames.YIELD_CONVENTION_MID,
         MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID,
-        MarketDataRequirementNames.DIRTY_PRICE_MID));
+        MarketDataRequirementNames.DIRTY_PRICE_MID,
+        MarketDataRequirementNames.DIVIDEND_YIELD));
     openGammaRules.add(new RequiredFieldFilter(MarketDataRequirementNames.MARKET_VALUE));
 
-    NormalizationRuleSet openGammaRuleSet = new NormalizationRuleSet(
+    final NormalizationRuleSet openGammaRuleSet = new NormalizationRuleSet(
         StandardRules.getOpenGammaRuleSetId(),
         "",
         openGammaRules);
@@ -278,39 +284,42 @@ public final class BloombergDataUtils {
 
     return returnValue;
   }
-  
-  public static HistoricalTimeSeriesFieldAdjustmentMap createFieldAdjustmentMap(ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
-    HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
-    BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
-    HistoricalTimeSeriesAdjuster rateNormalizer = new BloombergRateHistoricalTimeSeriesNormalizer(rateClassifier);
+
+  public static HistoricalTimeSeriesFieldAdjustmentMap createFieldAdjustmentMap(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager) {
+    final HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
+    final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
+    final HistoricalTimeSeriesAdjuster rateNormalizer = new BloombergRateHistoricalTimeSeriesNormalizer(rateClassifier);
+    final BloombergFixedRateHistoricalTimeSeriesNormalizer div100 = new BloombergFixedRateHistoricalTimeSeriesNormalizer(new HistoricalTimeSeriesAdjustment.DivideBy(100.0));
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.SETTLE_PRICE, null, BloombergConstants.BBG_FIELD_SETTLE_PRICE, rateNormalizer);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, BloombergConstants.BBG_FIELD_LAST_PRICE, rateNormalizer);
+    fieldAdjustmentMap.addFieldAdjustment(BloombergConstants.BBG_FIELD_LAST_PRICE, null, BloombergConstants.BBG_FIELD_LAST_PRICE, rateNormalizer); 
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.VOLUME, null, BloombergConstants.BBG_FIELD_VOLUME, null);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, null, BloombergConstants.BBG_FIELD_YIELD_TO_MATURITY_MID, null);
+    fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.DIVIDEND_YIELD, null, BloombergConstants.BBG_FIELD_DIVIDEND_YIELD, div100);
     return fieldAdjustmentMap;
   }
-  
-  public static MarketDataAvailabilityProvider createAvailabilityProvider(SecuritySource securitySource) {
-    Set<ExternalScheme> acceptableSchemes = ImmutableSet.of(
+
+  public static MarketDataAvailabilityFilter createAvailabilityFilter() {
+    final Set<ExternalScheme> acceptableSchemes = ImmutableSet.of(
         ExternalSchemes.BLOOMBERG_BUID_WEAK,
         ExternalSchemes.BLOOMBERG_BUID,
         ExternalSchemes.BLOOMBERG_TICKER_WEAK,
         ExternalSchemes.BLOOMBERG_TICKER);
-    Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
-    return new DomainMarketDataAvailabilityProvider(securitySource, acceptableSchemes, validMarketDataRequirementNames);
+    final Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
+    return new DomainMarketDataAvailabilityFilter(acceptableSchemes, validMarketDataRequirementNames);
   }
 
-  public static FudgeMsg parseElement(Element element) {
-    MutableFudgeMsg fieldData = FudgeContext.GLOBAL_DEFAULT.newMessage();
+  public static FudgeMsg parseElement(final Element element) {
+    final MutableFudgeMsg fieldData = FudgeContext.GLOBAL_DEFAULT.newMessage();
     for (int iSubElement = 0; iSubElement < element.numElements(); iSubElement++) {
-      Element subElement = element.getElement(iSubElement);
+      final Element subElement = element.getElement(iSubElement);
       if (subElement.numValues() == 0) {
         continue;
       }
-      String name = subElement.elementDefinition().name().toString();
-      Object value = parseValue(subElement);
+      final String name = subElement.elementDefinition().name().toString();
+      final Object value = parseValue(subElement);
       if (value instanceof List<?>) {
-        for (Object obj : (List<?>) value) {
+        for (final Object obj : (List<?>) value) {
           fieldData.add(name, obj);
         }
       } else if (value != null) {
@@ -326,8 +335,8 @@ public final class BloombergDataUtils {
    * @param valueElement the value element
    * @return the parsed value
    */
-  public static Object parseValue(Element valueElement) {
-    Datatype datatype = valueElement.datatype();
+  public static Object parseValue(final Element valueElement) {
+    final Datatype datatype = valueElement.datatype();
     if (datatype == Datatype.STRING) {
       return valueElement.getValueAsString();
     } else if (datatype == Datatype.BOOL) {
@@ -335,16 +344,16 @@ public final class BloombergDataUtils {
     } else if (datatype == Datatype.BYTEARRAY) {
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.CHAR) {
-      char c = valueElement.getValueAsChar();
+      final char c = valueElement.getValueAsChar();
       return new String("" + c);
     } else if (datatype == Datatype.CHOICE) {
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.DATE) {
-      Datetime date = valueElement.getValueAsDate();
+      final Datetime date = valueElement.getValueAsDate();
       return date.toString();
     } else if (datatype == Datatype.DATETIME) {
       // REVIEW kirk 2009-10-22 -- This is clearly wrong.
-      Datetime date = valueElement.getValueAsDatetime();
+      final Datetime date = valueElement.getValueAsDatetime();
       return date.toString();
       //return date.calendar().getTime();
     } else if (datatype == Datatype.ENUMERATION) {
@@ -359,15 +368,15 @@ public final class BloombergDataUtils {
       return valueElement.getValueAsInt64();
     } else if (datatype == Datatype.TIME) {
       // REVIEW kirk 2009-10-22 -- This is clearly wrong.
-      Datetime date = valueElement.getValueAsDate();
+      final Datetime date = valueElement.getValueAsDate();
       return date.toString();
       //return date.calendar().getTime();
     } else if (datatype == Datatype.SEQUENCE) {
-      int numValues = valueElement.numValues();
-      List<FudgeMsg> valueAsList = new ArrayList<FudgeMsg>(numValues);
+      final int numValues = valueElement.numValues();
+      final List<FudgeMsg> valueAsList = new ArrayList<FudgeMsg>(numValues);
       for (int i = 0; i < numValues; i++) {
-        Element sequenceElem = valueElement.getValueAsElement(i);
-        FudgeMsg sequenceElemAsMsg = parseElement(sequenceElem);
+        final Element sequenceElem = valueElement.getValueAsElement(i);
+        final FudgeMsg sequenceElemAsMsg = parseElement(sequenceElem);
         valueAsList.add(sequenceElemAsMsg);
       }
       return valueAsList;
@@ -376,26 +385,26 @@ public final class BloombergDataUtils {
     return null;
   }
 
-  public static String getSingleBUID(ReferenceDataProvider refDataProvider, String securityDes) {
-    Map<String, String> ticker2buid = getBUID(refDataProvider, Collections.singleton(securityDes));
+  public static String getSingleBUID(final ReferenceDataProvider refDataProvider, final String securityDes) {
+    final Map<String, String> ticker2buid = getBUID(refDataProvider, Collections.singleton(securityDes));
     return ticker2buid.get(securityDes);
   }
 
-  public static Map<String, String> getBUID(ReferenceDataProvider refDataProvider, Set<String> bloombergKeys) {
+  public static Map<String, String> getBUID(final ReferenceDataProvider refDataProvider, final Set<String> bloombergKeys) {
     return refDataProvider.getReferenceDataValues(bloombergKeys, FIELD_ID_BBG_UNIQUE);
   }
 
-  public static Set<String> getIndexMembers(ReferenceDataProvider refDataProvider, String indexTicker) {
-    Set<String> result = new TreeSet<String>();
-    Set<String> bbgFields = new HashSet<String>();
+  public static Set<String> getIndexMembers(final ReferenceDataProvider refDataProvider, final String indexTicker) {
+    final Set<String> result = new TreeSet<String>();
+    final Set<String> bbgFields = new HashSet<String>();
     bbgFields.add("INDX_MEMBERS");
     bbgFields.add("INDX_MEMBERS2");
     bbgFields.add("INDX_MEMBERS3");
-    ReferenceDataProviderGetRequest dataRequest = ReferenceDataProviderGetRequest.createGet(indexTicker, bbgFields, true);
-    ReferenceDataProviderGetResult dataResult = refDataProvider.getReferenceData(dataRequest);
-    ReferenceData perSecResult = dataResult.getReferenceData(indexTicker);
+    final ReferenceDataProviderGetRequest dataRequest = ReferenceDataProviderGetRequest.createGet(indexTicker, bbgFields, true);
+    final ReferenceDataProviderGetResult dataResult = refDataProvider.getReferenceData(dataRequest);
+    final ReferenceData perSecResult = dataResult.getReferenceData(indexTicker);
     if (perSecResult.isIdentifierError()) {
-      List<ReferenceDataError> errors = perSecResult.getErrors();
+      final List<ReferenceDataError> errors = perSecResult.getErrors();
       if (!errors.isEmpty()) {
         s_logger.warn("Unable to lookup Index {} members because of exceptions {}", indexTicker, errors.toString());
         throw new OpenGammaRuntimeException("Unable to lookup Index members because of exceptions " + errors.toString());
@@ -412,31 +421,29 @@ public final class BloombergDataUtils {
    * @param perSecResult
    * @return
    */
-  private static void addIndexMembers(Set<String> result, ReferenceData perSecResult, String fieldName) {
-    FudgeMsg fieldData = perSecResult.getFieldValues();
-    List<FudgeField> fields = fieldData.getAllByName(fieldName);
-    for (FudgeField fudgeField : fields) {
-      FudgeMsg msg = (FudgeMsg) fudgeField.getValue();
-      String memberTicker = msg.getString("Member Ticker and Exchange Code");
+  private static void addIndexMembers(final Set<String> result, final ReferenceData perSecResult, final String fieldName) {
+    final FudgeMsg fieldData = perSecResult.getFieldValues();
+    final List<FudgeField> fields = fieldData.getAllByName(fieldName);
+    for (final FudgeField fudgeField : fields) {
+      final FudgeMsg msg = (FudgeMsg) fudgeField.getValue();
+      final String memberTicker = msg.getString("Member Ticker and Exchange Code");
       result.add(memberTicker);
     }
   }
 
-  public static Set<ExternalId> getOptionChain(ReferenceDataProvider refDataProvider, String securityID) {
+  public static Set<ExternalId> getOptionChain(final ReferenceDataProvider refDataProvider, final String securityID) {
     ArgumentChecker.notNull(securityID, "security name");
-    Set<ExternalId> result = new TreeSet<ExternalId>();
-    
-    FudgeMsg fieldData = refDataProvider.getReferenceData(Collections.singleton(securityID), Collections.singleton(FIELD_OPT_CHAIN)).get(securityID);
+    final Set<ExternalId> result = new TreeSet<ExternalId>();
+    final FudgeMsg fieldData = refDataProvider.getReferenceData(Collections.singleton(securityID), Collections.singleton(FIELD_OPT_CHAIN)).get(securityID);
     if (fieldData == null) {
       s_logger.info("Reference data for security {} cannot be null", securityID);
       return null;
     }
-    
-    for (FudgeField field : fieldData.getAllByName(FIELD_OPT_CHAIN)) {
-      FudgeMsg chainContainer = (FudgeMsg) field.getValue();
-      String identifier =  StringUtils.trimToNull(chainContainer.getString("Security Description"));
+    for (final FudgeField field : fieldData.getAllByName(FIELD_OPT_CHAIN)) {
+      final FudgeMsg chainContainer = (FudgeMsg) field.getValue();
+      final String identifier = StringUtils.trimToNull(chainContainer.getString("Security Description"));
       if (identifier != null) {
-        ExternalId ticker = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
+        final ExternalId ticker = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
         result.add(ticker);
       }
     }
@@ -444,15 +451,47 @@ public final class BloombergDataUtils {
   }
 
   /**
+   * Get the future chain for a security. There may be futures on multiple exchanges - in general need to restrict to exchanges using the same currency. Equities: restrict to One Chicago futures with
+   * a lead market maker (e.g. AAPL=G3 OC Equity)
+   * 
+   * @param refDataProvider the reference data provider
+   * @param securityID the security
+   * @return the (ordered)
+   */
+  public static Set<ExternalId> getFuturechain(final ReferenceDataProvider refDataProvider, final String securityID) {
+    ArgumentChecker.notNull(securityID, "security name");
+    final Set<ExternalId> result = new TreeSet<>();
+
+    final FudgeMsg fieldData = refDataProvider.getReferenceData(Collections.singleton(securityID), Collections.singleton(FIELD_FUT_CHAIN)).get(securityID);
+    if (fieldData == null) {
+      s_logger.info("Reference data for security {} cannot be null", securityID);
+      return null;
+    }
+
+    for (final FudgeField field : fieldData.getAllByName(FIELD_FUT_CHAIN)) {
+      final FudgeMsg chainContainer = (FudgeMsg) field.getValue();
+      final String identifier = StringUtils.trimToNull(chainContainer.getString("Security Description"));
+      if (identifier != null) {
+        if (identifier.endsWith("OC Equity") && identifier.startsWith(securityID.split("\\s+")[0] + "=")) { // equity
+          final ExternalId ticker = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
+          result.add(ticker);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Checks if the specified field contains valid data.
-   * @param name  the field name, not null
+   * 
+   * @param name the field name, not null
    * @return true if the field is valid
    */
-  public static boolean isValidField(String name) {
+  public static boolean isValidField(final String name) {
     return ON_OFF_FIELDS.contains(name) || (StringUtils.isNotBlank(name) && !name.equalsIgnoreCase("N.A"));
   }
 
-  public static ExternalIdBundleWithDates parseIdentifiers(FudgeMsg fieldData, String firstTradeDateField, String lastTradeDateField) {
+  public static ExternalIdBundleWithDates parseIdentifiers(final FudgeMsg fieldData, final String firstTradeDateField, final String lastTradeDateField) {
     ArgumentChecker.notNull(fieldData, "fieldData");
     final String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     final String cusip = fieldData.getString(FIELD_ID_CUSIP);
@@ -464,28 +503,28 @@ public final class BloombergDataUtils {
 
     final Set<ExternalIdWithDates> identifiers = new HashSet<ExternalIdWithDates>();
     if (isValidField(bbgUnique)) {
-      ExternalId buid = ExternalSchemes.bloombergBuidSecurityId(bbgUnique);
+      final ExternalId buid = ExternalSchemes.bloombergBuidSecurityId(bbgUnique);
       identifiers.add(ExternalIdWithDates.of(buid, null, null));
     }
     if (isValidField(cusip)) {
-      ExternalId cusipId = ExternalSchemes.cusipSecurityId(cusip);
+      final ExternalId cusipId = ExternalSchemes.cusipSecurityId(cusip);
       identifiers.add(ExternalIdWithDates.of(cusipId, null, null));
     }
     if (isValidField(sedol1)) {
-      ExternalId sedol1Id = ExternalSchemes.sedol1SecurityId(sedol1);
+      final ExternalId sedol1Id = ExternalSchemes.sedol1SecurityId(sedol1);
       identifiers.add(ExternalIdWithDates.of(sedol1Id, null, null));
     }
     if (isValidField(isin)) {
-      ExternalId isinId = ExternalSchemes.isinSecurityId(isin);
+      final ExternalId isinId = ExternalSchemes.isinSecurityId(isin);
       identifiers.add(ExternalIdWithDates.of(isinId, null, null));
     }
     if (isValidField(securityIdentifier)) {
-      ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityIdentifier);
+      final ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityIdentifier);
       LocalDate validFrom = null;
       if (isValidField(validFromStr)) {
         try {
           validFrom = LocalDate.parse(validFromStr);
-        } catch (CalendricalParseException ex) {
+        } catch (final DateTimeParseException ex) {
           s_logger.warn("valid from date not in yyyy-mm-dd format - {}", validFromStr);
         }
       }
@@ -493,7 +532,7 @@ public final class BloombergDataUtils {
       if (isValidField(validToStr)) {
         try {
           validTo = LocalDate.parse(validToStr);
-        } catch (CalendricalParseException ex) {
+        } catch (final DateTimeParseException ex) {
           s_logger.warn("valid to date not in yyyy-mm-dd format - {}", validToStr);
         }
       }
@@ -506,45 +545,45 @@ public final class BloombergDataUtils {
    * @param bundleWithDates the identifier bundle with dates
    * @return {@link ExternalIdBundleWithDates} with single and 2 digit year codes
    */
-  public static ExternalIdBundleWithDates addTwoDigitYearCode(ExternalIdBundleWithDates bundleWithDates) {
+  public static ExternalIdBundleWithDates addTwoDigitYearCode(final ExternalIdBundleWithDates bundleWithDates) {
     ArgumentChecker.notNull(bundleWithDates, "bundleWithDates");
-    Set<ExternalIdWithDates> identifiers = new HashSet<ExternalIdWithDates>();
-    for (ExternalIdWithDates identifierWithDates : bundleWithDates) {
-      ExternalId identifier = identifierWithDates.toExternalId();
-      String identifierValue = identifier.getValue();
+    final Set<ExternalIdWithDates> identifiers = new HashSet<ExternalIdWithDates>();
+    for (final ExternalIdWithDates identifierWithDates : bundleWithDates) {
+      final ExternalId identifier = identifierWithDates.toExternalId();
+      final String identifierValue = identifier.getValue();
       if (identifierValue.contains(BloombergConstants.MARKET_SECTOR_COMDTY) && identifierValue.indexOf(' ') == identifierValue.lastIndexOf(' ')) {
         //found a future code
-        int splitIndex = identifierValue.lastIndexOf(' ');
-        String secCode = identifierValue.substring(0, splitIndex);
-        
+        final int splitIndex = identifierValue.lastIndexOf(' ');
+        final String secCode = identifierValue.substring(0, splitIndex);
+
         //get two year digit code
-        int length = secCode.length();
+        final int length = secCode.length();
         String yearStr = secCode.substring(length - 2);
         try {
           Integer.parseInt(yearStr);
           identifiers.add(ExternalIdWithDates.of(identifierWithDates.toExternalId(), identifierWithDates.getValidTo().plusDays(1), null));
 
           //add single digit as well
-          StringBuilder buf = new StringBuilder(secCode.substring(0, secCode.indexOf(yearStr)));
+          final StringBuilder buf = new StringBuilder(secCode.substring(0, secCode.indexOf(yearStr)));
           buf.append(yearStr.charAt(yearStr.length() - 1));
           buf.append(identifierValue.substring(splitIndex));
-          ExternalId singleYearId = ExternalSchemes.bloombergTickerSecurityId(buf.toString());
+          final ExternalId singleYearId = ExternalSchemes.bloombergTickerSecurityId(buf.toString());
           identifiers.add(ExternalIdWithDates.of(singleYearId, identifierWithDates.getValidFrom(), identifierWithDates.getValidTo()));
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
           // try the single digit
           yearStr = secCode.substring(length - 1);
           try {
             Integer.parseInt(yearStr);
             identifiers.add(identifierWithDates);
             //add double digit as well
-            LocalDate validTo = identifierWithDates.getValidTo();
-            String endYear = String.valueOf(validTo.getYear());
-            StringBuilder buf = new StringBuilder(secCode.substring(0, secCode.indexOf(yearStr)));
+            final LocalDate validTo = identifierWithDates.getValidTo();
+            final String endYear = String.valueOf(validTo.getYear());
+            final StringBuilder buf = new StringBuilder(secCode.substring(0, secCode.indexOf(yearStr)));
             buf.append(endYear.substring(endYear.length() - 2));
             buf.append(identifierValue.substring(splitIndex));
-            ExternalId doubleDigitYearId = ExternalSchemes.bloombergTickerSecurityId(buf.toString());
+            final ExternalId doubleDigitYearId = ExternalSchemes.bloombergTickerSecurityId(buf.toString());
             identifiers.add(ExternalIdWithDates.of(doubleDigitYearId, identifierWithDates.getValidTo().plusDays(1), null));
-          } catch (NumberFormatException ex2) {
+          } catch (final NumberFormatException ex2) {
             s_logger.warn("cannot make out year code for {}", identifier);
           }
         }
@@ -557,22 +596,24 @@ public final class BloombergDataUtils {
 
   /**
    * Given a position master, it pulls the current positions identifier bundles.
-   * @param positionMaster  the position master, not-null
+   * 
+   * @param positionMaster the position master, not-null
    * @return a set of bundles of current positions
    */
-  public static Set<ExternalIdBundle> getCurrentIdentifiers(PositionMaster positionMaster) {
+  public static Set<ExternalIdBundle> getCurrentIdentifiers(final PositionMaster positionMaster) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
-    PositionSearchRequest searchRequest = new PositionSearchRequest();
-    Set<ExternalIdBundle> securities = new HashSet<ExternalIdBundle>();
-    for (PositionDocument doc : PositionSearchIterator.iterable(positionMaster, searchRequest)) {
-      securities.add(doc.getPosition().getSecurityLink().getExternalId());  // TODO: doesn't work if linked by object id
+    final PositionSearchRequest searchRequest = new PositionSearchRequest();
+    final Set<ExternalIdBundle> securities = new HashSet<ExternalIdBundle>();
+    for (final PositionDocument doc : PositionSearchIterator.iterable(positionMaster, searchRequest)) {
+      securities.add(doc.getPosition().getSecurityLink().getExternalId()); // TODO: doesn't work if linked by object id
     }
     return securities;
   }
 
   /**
    * Removes duplicate whitespace from the specified field.
-   * @param field  the field name, not null
+   * 
+   * @param field the field name, not null
    * @param replacement the replacement string, not null
    * @return the stripped field, not null
    */
@@ -586,10 +627,10 @@ public final class BloombergDataUtils {
     }
   }
 
-  public static Set<ExternalId> identifierLoader(Reader reader) {
+  public static Set<ExternalId> identifierLoader(final Reader reader) {
     ArgumentChecker.notNull(reader, "reader");
-    Set<ExternalId> result = Sets.newHashSet();
-    BufferedReader inputReader = new BufferedReader(reader);
+    final Set<ExternalId> result = Sets.newHashSet();
+    final BufferedReader inputReader = new BufferedReader(reader);
     try {
       String line;
       while ((line = inputReader.readLine()) != null) {
@@ -598,12 +639,12 @@ public final class BloombergDataUtils {
         }
         result.add(ExternalId.parse(line));
       }
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       throw new OpenGammaRuntimeException("cannot read from reader", ex);
     } finally {
       try {
         inputReader.close();
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
         s_logger.warn("cannot close reader ", ex);
       }
     }
@@ -611,75 +652,73 @@ public final class BloombergDataUtils {
   }
 
   /**
-   * Convert bundles to preferred bloomberg keys.
-   * Where possible these keys will be BUIDs [BBG-87]
+   * Convert bundles to preferred bloomberg keys. Where possible these keys will be BUIDs [BBG-87]
    * 
    * @param identifiers the collection of bundles, not null
    * @param refDataProvider the ReferenceDataProvider to use to resolve bundles not containing BUIDs, not null
-   * @return BiMap  of bloomberg key (hopefully a buid key) to bundle, not null
+   * @return BiMap of bloomberg key (hopefully a buid key) to bundle, not null
    */
-  public static BiMap<String, ExternalIdBundle> convertToBloombergBuidKeys(Collection<ExternalIdBundle> identifiers, ReferenceDataProvider refDataProvider) {
+  public static BiMap<String, ExternalIdBundle> convertToBloombergBuidKeys(final Collection<ExternalIdBundle> identifiers, final ReferenceDataProvider refDataProvider) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(refDataProvider, "refDataProvider");
-    
-    Set<String> nonBuids = new HashSet<String>();
+
+    final Set<String> nonBuids = new HashSet<String>();
     final BiMap<String, ExternalIdBundle> bundle2Bbgkey = HashBiMap.create();
-    for (ExternalIdBundle identifierBundle : identifiers) {
-      ExternalId preferredIdentifier = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifierBundle);
-      String bloombergKey = BloombergDomainIdentifierResolver.toBloombergKey(preferredIdentifier);
+    for (final ExternalIdBundle identifierBundle : identifiers) {
+      final ExternalId preferredIdentifier = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(identifierBundle);
+      final String bloombergKey = BloombergDomainIdentifierResolver.toBloombergKey(preferredIdentifier);
       if (bloombergKey == null) {
         s_logger.warn("bundle {} resolves to null bloomberg key", identifierBundle);
         continue;
       }
-      //REVIEW simon : is it ok that we discard duplicates here 
+      //REVIEW simon : is it ok that we discard duplicates here
       bundle2Bbgkey.put(bloombergKey, identifierBundle);
       if (!preferredIdentifier.getScheme().equals(ExternalSchemes.BLOOMBERG_BUID)) {
         nonBuids.add(bloombergKey);
       }
     }
-    
+
     if (!nonBuids.isEmpty()) {
       //BBG-87 Map everything to BUIDs
-      Map<String, String> remaps = getBUID(refDataProvider, nonBuids);
-      for (Entry<String, String> entry : remaps.entrySet()) {
-        String nonBuid = entry.getKey();
-        String buid = entry.getValue();
-        ExternalId buidExternalId = ExternalId.of(ExternalSchemes.BLOOMBERG_BUID, buid);
-        String buidKey = BloombergDomainIdentifierResolver.toBloombergKey(buidExternalId);
+      final Map<String, String> remaps = getBUID(refDataProvider, nonBuids);
+      for (final Entry<String, String> entry : remaps.entrySet()) {
+        final String nonBuid = entry.getKey();
+        final String buid = entry.getValue();
+        final ExternalId buidExternalId = ExternalId.of(ExternalSchemes.BLOOMBERG_BUID, buid);
+        final String buidKey = BloombergDomainIdentifierResolver.toBloombergKey(buidExternalId);
         changeKey(nonBuid, buidKey, bundle2Bbgkey);
       }
     }
     return bundle2Bbgkey;
   }
-  
-  private static <TKey, TValue>  void changeKey(TKey oldKey, TKey newKey, BiMap<TKey, TValue> map) {
-    //REVIEW simon : is it ok that we discard duplicates here 
-    TValue oldValue = map.remove(oldKey);
+
+  private static <TKey, TValue> void changeKey(final TKey oldKey, final TKey newKey, final BiMap<TKey, TValue> map) {
+    //REVIEW simon : is it ok that we discard duplicates here
+    final TValue oldValue = map.remove(oldKey);
     map.put(newKey, oldValue);
   }
 
   /**
-   * Splits a ticker at the market sector, returning a pair of the ticker excluding the market sector and the market
-   * sector itself.
+   * Splits a ticker at the market sector, returning a pair of the ticker excluding the market sector and the market sector itself.
    * 
-   * @param ticker  the ticker, not null
+   * @param ticker the ticker, not null
    * @return a pair of the ticker excluding the market sector, and the market sector, not null
    */
-  public static Pair<String, String> splitTickerAtMarketSector(String ticker) {
+  public static Pair<String, String> splitTickerAtMarketSector(final String ticker) {
     ArgumentChecker.notNull(ticker, "ticker");
-    int splitIdx = ticker.lastIndexOf(' ');
+    final int splitIdx = ticker.lastIndexOf(' ');
     if (splitIdx > 0) {
       return Pair.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
     } else {
       return null;
     }
   }
-  
-  public static boolean isValidBloombergTicker(String ticker) {
+
+  public static boolean isValidBloombergTicker(final String ticker) {
     ArgumentChecker.notNull(ticker, "ticker");
-    Matcher matcher = s_bloombergTickerPattern.matcher(ticker);
+    final Matcher matcher = s_bloombergTickerPattern.matcher(ticker);
     if (matcher.matches()) {
-      String marketSector = matcher.group(3);
+      final String marketSector = matcher.group(3);
       s_logger.debug("market sector {} extracted from ticker {}", marketSector, ticker);
       return true;
     } else {
@@ -690,68 +729,68 @@ public final class BloombergDataUtils {
   /**
    * Generates an equity option ticker from details about the option.
    * 
-   * @param underlyingTicker  the ticker of the underlying equity, not null
-   * @param expiry  the option expiry, not null
-   * @param optionType  the option type, not null
-   * @param strike  the strike rate
+   * @param underlyingTicker the ticker of the underlying equity, not null
+   * @param expiry the option expiry, not null
+   * @param optionType the option type, not null
+   * @param strike the strike rate
    * @return the equity option ticker, not null
    */
-  public static ExternalId generateEquityOptionTicker(String underlyingTicker, Expiry expiry, OptionType optionType, double strike) {
+  public static ExternalId generateEquityOptionTicker(final String underlyingTicker, final Expiry expiry, final OptionType optionType, final double strike) {
     ArgumentChecker.notNull(underlyingTicker, "underlyingTicker");
     ArgumentChecker.notNull(expiry, "expiry");
     ArgumentChecker.notNull(optionType, "optionType");
     Pair<String, String> tickerMarketSectorPair = splitTickerAtMarketSector(underlyingTicker);
-    DateTimeFormatter expiryFormatter = DateTimeFormatters.pattern("MM/dd/yy");
+    DateTimeFormatter expiryFormatter = DateTimeFormatter.ofPattern("MM/dd/yy");
     DecimalFormat strikeFormat = new DecimalFormat("0.###");
     String strikeString = strikeFormat.format(strike);
     StringBuilder sb = new StringBuilder();
     sb.append(tickerMarketSectorPair.getFirst())
-      .append(' ')
-      .append(expiry.getExpiry().toString(expiryFormatter))
-      .append(' ')
-      .append(optionType == OptionType.PUT ? 'P' : 'C')
-      .append(strikeString)
-      .append(' ')
-      .append(tickerMarketSectorPair.getSecond());
+        .append(' ')
+        .append(expiry.getExpiry().toString(expiryFormatter))
+        .append(' ')
+        .append(optionType == OptionType.PUT ? 'P' : 'C')
+        .append(strikeString)
+        .append(' ')
+        .append(tickerMarketSectorPair.getSecond());
     return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, sb.toString());
   }
 
-  public static String dateToBbgCode(LocalDate date) {
-    String y = Integer.toString(date.getYear());
-    return s_monthCode.get(date.getMonthOfYear()) + y.charAt(y.length() - 1);
+  public static String dateToBbgCode(final LocalDate date) {
+    final String y = Integer.toString(date.getYear());
+    return s_monthCode.get(date.getMonth()) + y.charAt(y.length() - 1);
   }
-  
-  public static ExternalId ricToBbgFuture(String ric) {
-    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, 
+
+  public static ExternalId ricToBbgFuture(final String ric) {
+    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER,
         ricToBbgFuturePrefix(ric) + ric.substring(ric.length() - 2, ric.length()) + " Comdty");
   }
-  
-  public static ExternalId ricToBbgFutureOption(String ric, boolean isCall, double strike, LocalDate expiry) {
-    String result = ricToBbgFuturePrefix(ric) + dateToBbgCode(expiry) + (isCall ? "C" : "P") + " " + THREE_DECIMAL_PLACES.format(strike) + " Comdty";
+
+  public static ExternalId ricToBbgFutureOption(final String ric, final boolean isCall, final double strike, final LocalDate expiry) {
+    final String result = ricToBbgFuturePrefix(ric) + dateToBbgCode(expiry) + (isCall ? "C" : "P") + " " + THREE_DECIMAL_PLACES.format(strike) + " Comdty";
     return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, result);
   }
- 
+
   private static String ricToBbgFuturePrefix(String ric) {
     if (ric.length() < 4) {
       return null;
     }
     ric = ric.trim().toUpperCase();
-    String front = ric.substring(0, (Character.isDigit(ric.charAt(0)) ? 4 : 3));
+    final String front = ric.substring(0, (Character.isDigit(ric.charAt(0)) ? 4 : 3));
     if (s_ricToBbgPrefixMap.containsKey(front)) {
       return s_ricToBbgPrefixMap.get(front);
     } else {
       throw new OpenGammaRuntimeException("Could not map RIC onto BBG code");
     }
   }
-  
-  public static ExternalId futureBundleToGenericFutureTicker(ExternalIdBundle bundle, ZonedDateTime now, OffsetTime futureExpiryTime, TimeZone futureExpiryTimeZone) {
-    ZonedDateTime nextExpiry = s_monthlyExpiryAdjuster.adjustDate(now.toLocalDate()).atTime(now.toLocalTime()).atZone(now.getZone());
+
+  public static ExternalId futureBundleToGenericFutureTicker(ExternalIdBundle bundle, ZonedDateTime now, OffsetTime futureExpiryTime, ZoneId futureExpiryTimeZone) {
+    ZonedDateTime nextExpiry = now.toLocalDate().with(s_monthlyExpiryAdjuster).atTime(now.toLocalTime()).atZone(now.getZone());
     ExternalId bbgTicker = bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
     if (bbgTicker == null) {
       throw new OpenGammaRuntimeException("Could not find a Bloomberg Ticker in the supplied bundle " + bundle.toString());
     }
-    String code = bbgTicker.getValue();
-    String marketSector = splitTickerAtMarketSector(code).getSecond();
+    final String code = bbgTicker.getValue();
+    final String marketSector = splitTickerAtMarketSector(code).getSecond();
     try {
       String typeCode;
       String monthCode;
@@ -761,18 +800,18 @@ public final class BloombergDataUtils {
         typeCode = code.substring(0, 2);
         monthCode = code.substring(2, 3);
         year = Integer.parseInt(code.substring(3, 4));
-        
-        int thisYear = now.getYear();
+
+        final int thisYear = now.getYear();
         if ((thisYear % 10) > year) {
           year = ((thisYear / 10) * 10) + 10 + year;
         } else if ((thisYear % 10) == year) {
           // This code assumes that the code is for this year, so constructs a trial date using the year and month and adjusts it forward to the expiry
           // note we're not taking into account exchange closing time here.
-          MonthOfYear month = s_monthCode.inverse().get(monthCode);
+          final Month month = s_monthCode.inverse().get(monthCode);
           if (month == null) {
             throw new OpenGammaRuntimeException("Invalid month code " + monthCode);
           }
-          LocalDate nextExpiryIfThisYear = s_monthlyExpiryAdjuster.adjustDate(LocalDate.of((((thisYear / 10) * 10) + year), month, 1));
+          LocalDate nextExpiryIfThisYear = LocalDate.of((((thisYear / 10) * 10) + year), month, 1).with(s_monthlyExpiryAdjuster);
           ZonedDateTime nextExpiryDateTimeIfThisYear = nextExpiryIfThisYear.atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
           if (now.isAfter(nextExpiryDateTimeIfThisYear)) {
             year = ((thisYear / 10) * 10) + 10 + year;
@@ -800,8 +839,9 @@ public final class BloombergDataUtils {
       // phew.
       // now we generate the expiry of the future from the code:
       // Again, note that we're not taking into account exchange trading hours.
-      ZonedDateTime expiry = s_monthlyExpiryAdjuster.adjustDate(LocalDate.of(year, s_monthCode.inverse().get(monthCode), 1)).atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
-      int quarters = (Period.monthsBetween(nextExpiry, expiry).getMonths() / 3);
+      LocalDate expiryDate = LocalDate.of(year, s_monthCode.inverse().get(monthCode), 1).with(s_monthlyExpiryAdjuster);
+      ZonedDateTime expiry = expiryDate.atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
+      int quarters = (int) nextExpiry.periodUntil(expiry, MONTHS) / 3;
       int genericFutureNumber = quarters + 1;
       StringBuilder sb = new StringBuilder();
       sb.append(typeCode);
@@ -809,48 +849,57 @@ public final class BloombergDataUtils {
       sb.append(" ");
       sb.append(marketSector);
       return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, sb.toString());
-    } catch (NumberFormatException nfe) {
+    } catch (final NumberFormatException nfe) {
       s_logger.error("Could not parse futures code {}", code);
     }
     return null;
   }
 
-
   //-------------------------------------------------------------------------
   /**
    * Resolves the data provider name.
    * 
-   * @param dataProvider  the data provider, null returns the unknown value
+   * @param dataProvider the data provider, null returns the unknown value
    * @return the resolver data provider, not null
    */
-  public static String resolveDataProvider(String dataProvider) {
-    return (dataProvider == null ? UNKNOWN_DATA_PROVIDER : dataProvider);
+  public static String resolveDataProvider(final String dataProvider) {
+    return (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(DEFAULT_DATA_PROVIDER) ? DEFAULT_DATA_PROVIDER : dataProvider);
   }
 
   /**
    * Resolves the data provider to provide an observation time.
    * 
-   * @param dataProvider  the data provider, null returns the unknown value
+   * @param dataProvider the data provider, null returns the unknown value
    * @return the corresponding observation time for the given data provider
    */
-  public static String resolveObservationTime(final String dataProvider) {
-    if (dataProvider == null) {
-      return UNKNOWN_OBSERVATION_TIME;
+  public static String resolveObservationTime(String dataProvider) {
+    if (dataProvider == null || dataProvider.equalsIgnoreCase(DATA_PROVIDER_UNKNOWN) || dataProvider.equalsIgnoreCase(DEFAULT_DATA_PROVIDER)) {
+      dataProvider = DEFAULT_DATA_PROVIDER;
     }
-    String observationTime = OBSERVATION_TIME_MAP.get(dataProvider);
-    return (observationTime == null ? UNKNOWN_OBSERVATION_TIME : observationTime);
+    return s_observationTimeMap.get(dataProvider);
+
   }
 
-  private static DateTimeFormatter BLOOMBERG_DATE_FORMATTER = new DateTimeFormatterBuilder()
-    .parseCaseInsensitive()
-    .appendValue(ISOChronology.yearRule(), 4)
-    .appendValue(ISOChronology.monthOfYearRule(), 2)
-    .appendValue(ISOChronology.dayOfMonthRule(), 2)
-    .toFormatter();
+  private static DateTimeFormatter s_bloombergDateFormatter = new DateTimeFormatterBuilder()
+      .parseCaseInsensitive()
+      .appendValue(YEAR, 4)
+      .appendValue(MONTH_OF_YEAR, 2)
+      .appendValue(DAY_OF_MONTH, 2)
+      .toFormatter();
 
   public static String toBloombergDate(LocalDate localDate) {
     localDate = localDate.withYear(Math.min(9999, localDate.getYear()));
-    return localDate.toString(BLOOMBERG_DATE_FORMATTER);
+    return localDate.toString(s_bloombergDateFormatter);
+  }
+
+  /**
+   * Returns future month code for a given month
+   * 
+   * @param month the month of year, not null
+   * @return the future month code, null if not available
+   */
+  public static String futureMonthCode(final Month month) {
+    return s_monthCode.get(month);
   }
 
 }

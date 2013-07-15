@@ -4,18 +4,20 @@
  */
 $.register_module({
     name: 'og.analytics.resize',
-    dependencies: ['og.views.common.layout', 'og.common.gadgets.manager'],
+    dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var resizer_html = '<div class="OG-analytics-resize og-resizer" title="Drag (resize) / Right click (menu)" />';
-        return function () {
-            var $main = $('.OG-layout-analytics-center'), $menu, block_menu = false, $resizer = $(resizer_html),
-                layout = og.views.common.layout, icon_size = 16, offset = $main.offset();
+        return function (config) {
+            var $main = $(config.selector), $menu, block_menu = false, $resizer = $(config.tmpl),
+                offset_top, offset_left,
+                icon_size = 16, offset = $main.offset(), right_handler = config.right_handler || $.noop,
+                $bars = $('<div class="OG-analytics-resize og-bars"></div>'),
+                $overlay = $('<div class="OG-analytics-resize og-overlay"></div>');
+                if (config.offset) offset_top = config.offset.top, offset_left = config.offset.left;
             var left_handler = function () {
-                var $bars = $('<div class="OG-analytics-resize og-bars"></div>'),
-                    $overlay = $('<div class="OG-analytics-resize og-overlay"></div>'),
-                    offset = $main.offset(), right, bottom;
+                var offset = $main.offset(), right, bottom;
                 if ($menu) $menu.remove();
-                $bars.css({width: $main.width(), height: $main.height() + 1, top: offset.top, left: offset.left + 1});
+                $bars.css({width: $main.width(), height: $main.outerHeight(true) + 1,
+                    top: offset.top, left: offset.left + 1});
                 $overlay.on('mousemove', function (event) {
                     $bars.css({
                         width: 'auto', height: 'auto',
@@ -24,42 +26,40 @@ $.register_module({
                     });
                 }).on('mouseup', function () {
                     if (!bottom || !right) return;
-                    layout.inner.sizePane('south', bottom);
-                    layout.main.sizePane('east', right);
+                    config.mouseup_handler(right, bottom);
                     $bars.remove(), $overlay.remove();
+                    resize();
+                     $(window).off('mouseout');
                 });
                 $([$bars, $overlay]).appendTo('body');
                 return false;
             };
-            var load_preset = function (preset) {
-                var inner = layout.inner.sizePane, right = layout.right.sizePane, main = layout.main.sizePane;
-                switch (preset) {
-                    case 1: inner('south', '50%'); main('east', '25%'); break;
-                    case 2: inner('south', '50%'); main('east', '50%'); break;
-                    case 3: inner('south', '15%'); main('east', '10%'); break;
-                }
-                right('north', '33%');
-                right('south', '33%');
-            };
             var mousedown_handler = function (event) {
-                return event.which !== 3 || event.button !== 2 ? left_handler()
-                    : (event.stopPropagation(), (block_menu = true), right_handler());
+                var handler;
+                if (event.which !== 3 || event.button !== 2){
+                    $(window).on('mouseout',  function(event) {
+                        event = event ? event : window.event;
+                        var from = event.relatedTarget || event.toElement;
+                        if (!from || from.nodeName == "HTML") reset();
+                    });
+                    handler = left_handler();
+                }else{
+                    event.stopPropagation();
+                    block_menu = true;
+                    handler =  right_handler($resizer);
+                }
+                return handler;
             };
             var resize = function () {
                 $resizer.css({
-                    left: offset.left + $main.width() - icon_size, top: offset.top + $main.height() - icon_size
+                    left: offset.left + $main.outerWidth() - icon_size - 1 + (offset_left || 0),
+                    top: offset.top + $main.outerHeight() - icon_size - 1 + (offset_top || 0)
                 });
             };
-            var right_handler = function () {
-                $.when(og.api.text({module: 'og.analytics.resize_menu_tash'})).then(function (template) {
-                    $menu = $(template).position({my: 'left top', at: 'right bottom', of: $resizer})
-                        .on('mousedown', 'div', function () {
-                            // extract preset number from class and load
-                            load_preset(+$(this).find('> span').attr('class').replace(/^(?:.*)([1-3])$/, '$1'));
-                            $menu.remove(); // it should already be gone, but just in case you are IE8
-                        }).appendTo('body').blurkill();
-                });
-                return false;
+            var reset = function () {
+                $bars.remove();
+                $overlay.remove();
+                $(window).off('mouseout');
             };
             og.common.gadgets.manager.register({alive: function () {return true;}, resize: resize});
             resize();
@@ -67,6 +67,6 @@ $.register_module({
                 if (block_menu) return event.stopPropagation(), (block_menu = false);
             });
             $resizer.on('mousedown', mousedown_handler).appendTo('body');
-        }
+        };
     }
 });

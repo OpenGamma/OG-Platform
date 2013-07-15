@@ -14,6 +14,8 @@
                     args.push(orig[i] === void 0 ? arguments[j++] : orig[i]);
                 return method.apply(this, args.concat(slice.call(arguments, j, arguments_len)));
             };
+        // make sure you also bring along the old prototype
+        new_method.prototype = method.prototype;
         // if the function instance has been extended, copy all of its properties
         for (key in method) if (method[has](key)) new_method[key] = method[key];
         return new_method;

@@ -5,7 +5,11 @@
  */
 package com.opengamma.util.money;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
+
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -19,7 +23,9 @@ import com.opengamma.util.ArgumentChecker;
  * This acts like a two element {@code Set}, thus
  * {@code UnorderedCurrencyPair(USD, EUR) == UnorderedCurrencyPair(EUR, USD)}.
  */
-public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectIdentifiable {
+public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectIdentifiable, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * The scheme to use in object identifiers.
@@ -50,6 +56,12 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
     return new UnorderedCurrencyPair(ccy1, ccy2);
   }
 
+  /**
+   * Extracts an {@code UnorderedCurrencyPair} from a unique identifier.
+   * 
+   * @param uniqueId  the unique identifier, not null
+   * @return the pair, not null
+   */
   public static UnorderedCurrencyPair of(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "unique id");
     if (uniqueId.getScheme().equals(OBJECT_SCHEME)) {
@@ -63,6 +75,32 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
     }
     throw new UnsupportedOperationException("Cannot create an UnorderedCurrencyPair from this UniqueId; need an ObjectScheme of UnorderedCurrencyPair, have " + uniqueId.getScheme());
   }
+
+  /**
+   * Parses the string to produce a {@code UnorderedCurrencyPair}.
+   * <p>
+   * This parses the {@code toString} format of '${currency1}${currency2}'
+   * where the currencies are in alphabetical order.
+   * 
+   * @param pairStr  the amount string, not null
+   * @return the currency amount
+   * @throws IllegalArgumentException if the amount cannot be parsed
+   */
+  @FromString
+  public static UnorderedCurrencyPair parse(final String pairStr) {
+    ArgumentChecker.notNull(pairStr, "pairStr");
+    if (pairStr.length() != 6) {
+      throw new IllegalArgumentException("Unable to parse amount, invalid format: " + pairStr);
+    }
+    try {
+      Currency cur1 = Currency.parse(pairStr.substring(0, 3));
+      Currency cur2 = Currency.parse(pairStr.substring(3));
+      return new UnorderedCurrencyPair(cur1, cur2);
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("Unable to parse pair: " + pairStr, ex);
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Constructs a new instance.
@@ -161,10 +199,14 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
   //-----------------------------------------------------------------------
   /**
    * Gets the unordered pair as a string.
+   * <p>
+   * This uses the format of '${currency1}${currency2}'
+   * where the currencies are in alphabetical order.
    * 
    * @return the unordered pair, not null
    */
   @Override
+  @ToString
   public String toString() {
     return _idValue;
   }

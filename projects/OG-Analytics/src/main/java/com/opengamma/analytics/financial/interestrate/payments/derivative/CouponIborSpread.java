@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -46,8 +47,6 @@ public class CouponIborSpread extends CouponFloating {
    */
   private final String _forwardCurveName;
 
-  //TODO: Should the spread be in CouponIbor or in a more generic coupon?
-
   /**
    * Constructor from all details.
    * @param currency The payment currency.
@@ -64,7 +63,7 @@ public class CouponIborSpread extends CouponFloating {
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
   public CouponIborSpread(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
-      IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
     _fixingPeriodStartTime = fixingPeriodStartTime;
@@ -94,7 +93,7 @@ public class CouponIborSpread extends CouponFloating {
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
   public CouponIborSpread(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
-      IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
   }
 
@@ -118,7 +117,7 @@ public class CouponIborSpread extends CouponFloating {
    * Gets the accrual factor for the fixing period.
    * @return The accrual factor.
    */
-  public double getFixingYearFraction() {
+  public double getFixingAccrualFactor() {
     return _fixingAccrualFactor;
   }
 
@@ -162,9 +161,9 @@ public class CouponIborSpread extends CouponFloating {
   }
 
   @Override
-  public CouponIborSpread withNotional(double notional) {
+  public CouponIborSpread withNotional(final double notional) {
     return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(),
-        getFixingPeriodEndTime(), getFixingYearFraction(), getSpread(), getForwardCurveName());
+        getFixingPeriodEndTime(), getFixingAccrualFactor(), getSpread(), getForwardCurveName());
   }
 
   @Override
@@ -222,7 +221,7 @@ public class CouponIborSpread extends CouponFloating {
 
   public CouponIborSpread withSpread(final double spread) {
     return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), _index, getFixingPeriodStartTime(),
-        getFixingPeriodEndTime(), getFixingYearFraction(), spread, getForwardCurveName());
+        getFixingPeriodEndTime(), getFixingAccrualFactor(), spread, getForwardCurveName());
   }
 
   public CouponFixed withUnitCoupon() {
@@ -231,11 +230,13 @@ public class CouponIborSpread extends CouponFloating {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborSpread(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborSpread(this);
   }
 

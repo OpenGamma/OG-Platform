@@ -4,17 +4,19 @@
  */
 
 .OG-gadget-tabs {
-    text-transform: uppercase;
-    font-size: 10px;
     color: #555;
     text-shadow: 0 1px 0 #fff;
-    border-top: 1px solid #fff;
     white-space: nowrap;
-    height: 23px;
+    height: 21px;
+    position: relative;
+    z-index: 1;
 }
 
 .OG-gadget-tabs-label {
     display: inline;
+    position: relative;
+    top: -2px;
+    z-index: 1;
 }
 
 .OG-gadget-tabs ul:before {
@@ -31,11 +33,16 @@
     display: inline-block;
     list-style: none;
     background: #eee;
-    border-top: 1px solid #d8d8d8;
-    border-bottom: 1px solid #d8d8d8;
     border-right: 1px solid #d8d8d8;
+    border-top: 1px solid #ddd;
     position: relative;
     cursor: move;
+    top: -1px;
+    font-size: 11px;
+}
+
+.ie9 .OG-gadget-tabs li {
+    top: -2px;
 }
 
 .OG-gadget-tabs li:first-child {
@@ -67,38 +74,29 @@
     }
 
 /* top colour hover notifier */
-    .OG-gadget-tabs li:hover:after {
-        content: '';
-        display: block;
-        position: absolute;
-        top: -2px;
-        border-top: 2px solid #ccc;
-        -webkit-border-top-left-radius: 1px;
-        -webkit-border-top-right-radius: 1px;
-        -moz-border-radius-topleft: 1px;
-        -moz-border-radius-topright: 1px;
-        border-top-left-radius: 1px;
-        border-top-right-radius: 1px;
+    .OG-gadget-tabs li:hover {
+        border-top: 1px solid #555!important;
     }
 
 /* top colour active notifier */
-    .OG-gadget-tabs .og-active:after {
-        content: '';
-        display: block;
-        position: absolute;
-        top: -2px;
-        border-top: 2px solid #80c696!important;
-        -webkit-border-top-left-radius: 1px;
-        -webkit-border-top-right-radius: 1px;
-        -moz-border-radius-topleft: 1px;
-        -moz-border-radius-topright: 1px;
-        border-top-left-radius: 1px;
-        border-top-right-radius: 1px;
-    }
-
     .OG-gadget-tabs li.og-active {
         background-color: #fff;
+        z-index: 5;
+        border: 1px solid #bbb;
+        border-bottom: 1px solid #fff;
+        line-height: 18px;
+        top: -1px;
     }
+
+    .OG-gadget-tabs li.og-focus {
+        border: 1px solid #000;
+        border-bottom: 1px solid #fff;
+    }
+
+    .OG-gadget-tabs li.og-active .OG-gadget-tabs-label {
+        padding: 2px 5px 0 0;
+    }
+
 
     .OG-gadget-tabs li.og-active:after {
         background-color: transparent;
@@ -117,7 +115,7 @@
             -moz-linear-gradient(left,  rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
         background-image:
             linear-gradient(to right,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%),
-            linear-gradient(to right,  rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);;
+            linear-gradient(to right,  rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);
         background-position: left top, right top;
         background-size: 6px 100%, 6px 100%;
         background-repeat: no-repeat;
@@ -133,7 +131,6 @@
     }
 
     .OG-gadget-tabs li > div {
-        position: relative;
         z-index: 2;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -146,9 +143,9 @@
 
 
     .OG-gadget-tabs li > div:first-child {
-        padding: 2px 5px 1px 5px;
+        padding: 3px 5px 0 5px;
     }
-
+login.ftl
     .OG-gadget-tabs li:last-child {
         float: none;
     }
@@ -168,8 +165,8 @@
         height: 10px;
         width: 11px;
         position: absolute;
-        right: -5px;
-        top: -5px;
+        right: -6px;
+        top: 6px;
         z-index: 4;
     }
 
@@ -180,7 +177,8 @@
 /* multiselect */
     .OG-gadget-tabs .OG-multiselect {
         display: none;
-        margin: -1px 0 0 -4px;
+        margin: -3px 0 0 -5px;
+        position: relative;
     }
 
     .OG-gadget-tabs .og-active .OG-multiselect {

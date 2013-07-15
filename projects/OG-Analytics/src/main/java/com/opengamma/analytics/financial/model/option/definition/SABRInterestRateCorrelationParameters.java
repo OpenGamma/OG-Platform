@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
@@ -31,7 +32,7 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
    * @param correlation The correlation function.
    */
   public SABRInterestRateCorrelationParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho,
-      final InterpolatedDoublesSurface nu, DayCount dayCount, final DoubleFunction1D correlation) {
+      final InterpolatedDoublesSurface nu, final DayCount dayCount, final DoubleFunction1D correlation) {
     super(alpha, beta, rho, nu, dayCount);
     Validate.notNull(correlation, "Correlation");
     _correlation = correlation;
@@ -54,6 +55,32 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
    */
   public DoubleFunction1D getCorrelation() {
     return _correlation;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _correlation.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof SABRInterestRateCorrelationParameters)) {
+      return false;
+    }
+    final SABRInterestRateCorrelationParameters other = (SABRInterestRateCorrelationParameters) obj;
+    if (!ObjectUtils.equals(_correlation, other._correlation)) {
+      return false;
+    }
+    return true;
   }
 
 }

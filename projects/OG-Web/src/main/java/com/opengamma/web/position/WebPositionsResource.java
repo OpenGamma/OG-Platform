@@ -10,7 +10,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -45,7 +44,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurityLink;
-import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
@@ -88,7 +86,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("tradeId") List<String> tradeIdStrs) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
-    return getFreemarker().build("positions/positions.ftl", out);
+    return getFreemarker().build(HTML_DIR + "positions.ftl", out);
   }
 
   @GET
@@ -105,7 +103,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("tradeId") List<String> tradeIdStrs) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
-    return getFreemarker().build("positions/jsonpositions.ftl", out);
+    return getFreemarker().build(JSON_DIR + "positions.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, String identifier, String minQuantityStr,
@@ -165,7 +163,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       if (idValue == null) {
         out.put("err_idvalueMissing", true);
       }
-      String html = getFreemarker().build("positions/positions-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
       return Response.ok(html).build();
     }
     ExternalIdBundle id = ExternalIdBundle.of(ExternalId.of(idScheme, idValue));
@@ -173,7 +171,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     if (secUid == null) {
       FlexiBean out = createRootData();
       out.put("err_idvalueNotFound", true);
-      String html = getFreemarker().build("positions/positions-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "positions-add.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = addPosition(quantity, secUid);
@@ -220,8 +218,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     if (security != null) {
       result = security.getUniqueId();
     } else {
-      Map<ExternalIdBundle, UniqueId> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
-      result = loaded.get(id);
+      result = data().getSecurityLoader().loadSecurity(id);
     }
     return result;
   }
@@ -231,8 +228,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   }
   
   private URI addPosition(BigDecimal quantity, UniqueId secUid, Collection<ManageableTrade> trades) {
-    SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
-    ExternalIdBundle secId = secDoc.getSecurity().getExternalIdBundle();
+    ExternalIdBundle secId = data().getSecuritySource().get(secUid).getExternalIdBundle();
     ManageablePosition position = new ManageablePosition(quantity, secId);
     for (ManageableTrade trade : trades) {
       trade.setSecurityLink(new ManageableSecurityLink(secId));

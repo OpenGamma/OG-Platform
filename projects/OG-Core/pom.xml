@@ -6,15 +6,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.0.0</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-core</artifactId>
   <packaging>jar</packaging>
   <name>OG-Core</name>
-  <description>OpenGamma platform core concepts</description>
+  <description>OpenGamma Platform core concepts</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Core</url>
@@ -22,7 +22,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-util</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -31,5 +31,8 @@
       <artifactId>jbcrypt</artifactId>
     </dependency>
   </dependencies>
+
+  <properties>
+  </properties>
 
 </project>

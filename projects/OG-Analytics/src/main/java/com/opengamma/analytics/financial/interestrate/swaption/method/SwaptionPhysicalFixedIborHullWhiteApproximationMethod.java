@@ -22,7 +22,7 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Method to computes the present value and sensitivities of physical delivery European swaptions with the Hull-White one factor model through efficient approximation. 
  * The method does not require the solution of a non-linear equation.
- * Reference: Henrard, M. Efficient swaptions price in Hull-White one factor model. arXiv, 2009. {@linktourl http://arxiv.org/abs/0901.1776}
+ * Reference: Henrard, M. Efficient swaptions price in Hull-White one factor model. arXiv, 2009. http://arxiv.org/abs/0901.1776
  */
 public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements PricingMethod {
 
@@ -38,19 +38,19 @@ public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements Pr
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    YieldAndDiscountCurve dsc = hwData.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
-    double expiry = swaption.getTimeToExpiry();
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), hwData);
-    int nbCf = cfe.getNumberOfPayments();
-    double a = hwData.getHullWhiteParameter().getMeanReversion();
-    double[] sigma = hwData.getHullWhiteParameter().getVolatility();
-    double[] s = hwData.getHullWhiteParameter().getVolatilityTime();
-    double[] cfa = new double[nbCf];
-    double[] t = new double[nbCf + 1];
-    double[] expt = new double[nbCf + 1];
-    double[] dfswap = new double[nbCf];
-    double[] p0 = new double[nbCf];
-    double[] cP = new double[nbCf];
+    final YieldAndDiscountCurve dsc = hwData.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
+    final double expiry = swaption.getTimeToExpiry();
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hwData);
+    final int nbCf = cfe.getNumberOfPayments();
+    final double a = hwData.getHullWhiteParameter().getMeanReversion();
+    final double[] sigma = hwData.getHullWhiteParameter().getVolatility();
+    final double[] s = hwData.getHullWhiteParameter().getVolatilityTime();
+    final double[] cfa = new double[nbCf];
+    final double[] t = new double[nbCf + 1];
+    final double[] expt = new double[nbCf + 1];
+    final double[] dfswap = new double[nbCf];
+    final double[] p0 = new double[nbCf];
+    final double[] cP = new double[nbCf];
     t[0] = expiry;
     expt[0] = Math.exp(-a * t[0]);
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
@@ -61,9 +61,9 @@ public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements Pr
       p0[loopcf] = dfswap[loopcf] / dfswap[0];
       cP[loopcf] = cfa[loopcf] * p0[loopcf];
     }
-    double k = -cfa[0];
+    final double k = -cfa[0];
     double b0 = 0.0;
-    double[] alpha0 = new double[nbCf - 1];
+    final double[] alpha0 = new double[nbCf - 1];
     for (int loopcf = 1; loopcf < nbCf; loopcf++) {
       b0 += cP[loopcf];
     }
@@ -78,29 +78,29 @@ public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements Pr
     }
     eta2 += sigma[j] * sigma[j] * (Math.exp(2.0 * a * expiry) - Math.exp(2.0 * a * s[j]));
     eta2 /= 2.0 * a;
-    double eta = Math.sqrt(eta2);
-    double[] factor2 = new double[nbCf];
-    double[] tau = new double[nbCf];
+    final double eta = Math.sqrt(eta2);
+    final double[] factor2 = new double[nbCf];
+    final double[] tau = new double[nbCf];
     double xbarnum = 0.0;
     double xbarde = 0.0;
-    double[] pK = new double[nbCf];
+    final double[] pK = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
       factor2[loopcf] = (expt[1] - expt[loopcf + 1]) / a;
       tau[loopcf] = factor2[loopcf] * eta;
       xbarnum += cP[loopcf] - cP[loopcf] * tau[loopcf] * tau[loopcf] / 2.0;
       xbarde += cP[loopcf] * tau[loopcf];
     }
-    double xbar = xbarnum / xbarde;
+    final double xbar = xbarnum / xbarde;
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
       pK[loopcf] = p0[loopcf] * (1.0 - tau[loopcf] * xbar - tau[loopcf] * tau[loopcf] / 2.0);
     }
-    double[] alphaK = new double[nbCf - 1];
+    final double[] alphaK = new double[nbCf - 1];
     double sigmaK = 0.0;
     for (int loopcf = 0; loopcf < nbCf - 1; loopcf++) {
       alphaK[loopcf] = cfa[loopcf + 1] * pK[loopcf + 1] / k;
       sigmaK += eta * (alpha0[loopcf] + alphaK[loopcf]) * factor2[loopcf + 1] / 2.0;
     }
-    EuropeanVanillaOption option = new EuropeanVanillaOption(k, 1, !swaption.isCall());
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(k, 1, !swaption.isCall());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(b0, dfswap[0], sigmaK);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
@@ -109,7 +109,7 @@ public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements Pr
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     return null;
   }
 

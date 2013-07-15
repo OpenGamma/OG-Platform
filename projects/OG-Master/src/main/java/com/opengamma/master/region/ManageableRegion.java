@@ -10,8 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
@@ -176,9 +175,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * for municipalities.
    * @return the value of the property
    */
-  public TimeZone getTimeZone() {
+  public ZoneId getTimeZone() {
     String id = _externalIdBundle.getValue(ExternalSchemes.TZDB_TIME_ZONE);
-    return (id != null ? TimeZone.of(id) : null);
+    return (id != null ? ZoneId.of(id) : null);
   }
 
   /**
@@ -186,7 +185,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * 
    * @param timeZone  the time-zone to set, null to remove any time-zone
    */
-  public void setTimeZone(TimeZone timeZone) {
+  public void setTimeZone(ZoneId timeZone) {
     setExternalIdBundle(getExternalIdBundle().withoutScheme(ExternalSchemes.TZDB_TIME_ZONE));
     if (timeZone != null) {
       addExternalId(ExternalSchemes.timeZoneRegionId(timeZone));

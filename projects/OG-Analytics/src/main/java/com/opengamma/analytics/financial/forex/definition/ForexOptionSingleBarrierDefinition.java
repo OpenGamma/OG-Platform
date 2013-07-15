@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.forex.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
@@ -16,10 +14,11 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class describing a single-barrier FX option definition. The class wraps a vanilla European FX option ({@code ForexOptionVanillaDefinition}) and a 
- * {code BarrierType}. 
+ * Class describing a single-barrier FX option definition. The class wraps a vanilla European FX option ({@code ForexOptionVanillaDefinition}) and a
+ * {code BarrierType}.
  * It is suppose that the barrier has not been activated yet (and thus there is no flag indicated if the activation took place already).
  */
 public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<InstrumentDerivative> {
@@ -43,8 +42,8 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
    * @param barrier The barrier type
    */
   public ForexOptionSingleBarrierDefinition(final ForexOptionVanillaDefinition underlyingOption, final Barrier barrier) {
-    Validate.notNull(underlyingOption, "underlying option");
-    Validate.notNull(barrier, "barrier");
+    ArgumentChecker.notNull(underlyingOption, "underlying option");
+    ArgumentChecker.notNull(barrier, "barrier");
     _underlyingOption = underlyingOption;
     _barrier = barrier;
     _rebate = 0.0;
@@ -57,8 +56,8 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
    * @param rebate The rebate amount (in domestic currency).
    */
   public ForexOptionSingleBarrierDefinition(final ForexOptionVanillaDefinition underlyingOption, final Barrier barrier, final double rebate) {
-    Validate.notNull(underlyingOption, "underlying option");
-    Validate.notNull(barrier, "barrier");
+    ArgumentChecker.notNull(underlyingOption, "underlying option");
+    ArgumentChecker.notNull(barrier, "barrier");
     _underlyingOption = underlyingOption;
     _barrier = barrier;
     _rebate = rebate;
@@ -72,7 +71,7 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
   }
 
   /**
-   * @return The barrier 
+   * @return The barrier
    */
   public Barrier getBarrier() {
     return _barrier;
@@ -88,19 +87,21 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
 
   @Override
   public ForexOptionSingleBarrier toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final ForexOptionVanilla underlying = _underlyingOption.toDerivative(date, yieldCurveNames);
     return new ForexOptionSingleBarrier(underlying, _barrier);
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionSingleBarrierDefiniton(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionSingleBarrierDefiniton(this);
   }
 
@@ -117,7 +118,7 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -127,7 +128,7 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexOptionSingleBarrierDefinition other = (ForexOptionSingleBarrierDefinition) obj;
+    final ForexOptionSingleBarrierDefinition other = (ForexOptionSingleBarrierDefinition) obj;
     if (_barrier != other._barrier) {
       return false;
     }

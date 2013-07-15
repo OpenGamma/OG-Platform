@@ -8,7 +8,7 @@ package com.opengamma.engine.function.blacklist;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.util.ArgumentChecker;
 
 /**

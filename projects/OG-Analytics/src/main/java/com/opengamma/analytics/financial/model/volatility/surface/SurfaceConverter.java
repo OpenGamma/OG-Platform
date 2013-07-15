@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility.surface;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function;
@@ -23,29 +21,35 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public final class SurfaceConverter {
-
+  /** The tolerance */
   private static final double EPS = 1e-12;
+  /** The root bracketer */
   private static final BracketRoot BRACKETER = new BracketRoot();
+  /** The root-finder */
   private static final BisectionSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder(EPS);
+  /** A normal distribution */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-
+  /** A static instance of this class */
   private static final SurfaceConverter INSTANCE = new SurfaceConverter();
 
   private SurfaceConverter() {
   }
 
+  /**
+   * Gets the static instance of this class
+   * @return The static instance
+   */
   public static SurfaceConverter getInstance() {
     return INSTANCE;
   }
 
   Surface<Double, Double, Double> deltaToLogMoneyness(final Surface<Double, Double, Double> deltaSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double x = tx[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
 
         //find the delta that gives the required log-moneyness (x) at time t
         final double delta = getDeltaForLogMoneyness(x, deltaSurf, t);
@@ -65,59 +69,14 @@ public final class SurfaceConverter {
     return moneynessToStrike(moneynessSurf, forwardCurve);
   }
 
-  /**
-   * Convert a volatility surface parameterised by log-moneyness to one parameterised by delta
-   * @param logMoneynessSurf
-   * @return
-   */
-  //  Surface<Double, Double, Double> logMoneynessToDelta(final Surface<Double, Double, Double> logMoneynessSurf) {
-  //    final Function<Double, Double> surFunc = new Function<Double, Double>() {
-  //      @SuppressWarnings("synthetic-access")
-  //      @Override
-  //      public Double evaluate(final Double... td) {
-  //        final double t = td[0];
-  //        final double delta = td[1];
-  //        Validate.isTrue(t >= 0, "Must have t >= 0.0");
-  //        Validate.isTrue(delta > 0 && delta < 1.0, "Delta not in range (0,1)");
-  //        final double rootT = Math.sqrt(t);
-  //        final double inDelta = NORMAL.getInverseCDF(delta);
-  //
-  //        final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-  //          @Override
-  //          public Double evaluate(final Double x) {
-  //            final double sigma = logMoneynessSurf.getZValue(t, x);
-  //            return sigma * sigma * t / 2 - sigma * rootT * inDelta - x;
-  //          }
-  //        };
-  //
-  //        final double logMoneynessApprox = func.evaluate(0.0);
-  //
-  //        double l, u;
-  //        if (logMoneynessApprox > 0) {
-  //          l = 0.8 * logMoneynessApprox;
-  //          u = 1.2 * logMoneynessApprox;
-  //        } else {
-  //          l = 1.2 * logMoneynessApprox;
-  //          u = 0.8 * logMoneynessApprox;
-  //        }
-  //
-  //        final double[] range = BRACKETER.getBracketedPoints(func, l, u);
-  //        final double logMoneyness = ROOT_FINDER.getRoot(func, range[0], range[1]);
-  //        return logMoneynessSurf.getZValue(t, logMoneyness);
-  //      }
-  //    };
-  //    return FunctionalDoublesSurface.from(surFunc);
-  //  }
-
   Surface<Double, Double, Double> logMoneynessToDelta(final Surface<Double, Double, Double> logMoneynessSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... td) {
         final double t = td[0];
         final double delta = td[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
-        Validate.isTrue(delta > 0 && delta < 1.0, "Delta not in range (0,1)");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(delta > 0 && delta < 1.0, "Delta not in range (0,1)");
 
         //find the log-moneyness that gives the required Black delta at the given time
         final double x = getlogMoneynessForDelta(delta, logMoneynessSurf, t);
@@ -133,8 +92,8 @@ public final class SurfaceConverter {
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double m = tx[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
-        Validate.isTrue(m > 0, "Must have moneyness > 0");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(m > 0, "Must have moneyness > 0");
         final double logM = Math.log(m);
         return logMoneynessSurf.getZValue(t, logM);
       }
@@ -148,8 +107,8 @@ public final class SurfaceConverter {
       public Double evaluate(final Double... tk) {
         final double t = tk[0];
         final double k = tk[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
-        Validate.isTrue(k > 0, "Must have strike > 0");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(k > 0, "Must have strike > 0");
         final double f = forwardCurve.getForward(t);
         final double logM = Math.log(k / f);
         return logMoneynessSurf.getZValue(t, logM);
@@ -169,7 +128,7 @@ public final class SurfaceConverter {
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double lm = tx[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
         final double m = Math.exp(lm);
         return moneynessSurf.getZValue(t, m);
       }
@@ -189,8 +148,8 @@ public final class SurfaceConverter {
       public Double evaluate(final Double... tk) {
         final double t = tk[0];
         final double k = tk[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
-        Validate.isTrue(k > 0, "Must have strike > 0");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(k > 0, "Must have strike > 0");
         final double m = k / forwardCurve.getForward(t);
         return moneynessSurf.getZValue(t, m);
       }
@@ -215,7 +174,7 @@ public final class SurfaceConverter {
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double x = tx[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
         final double k = Math.exp(x) * forwardCurve.getForward(t);
         return strikeSurf.getZValue(t, k);
       }
@@ -235,8 +194,8 @@ public final class SurfaceConverter {
       public Double evaluate(final Double... tm) {
         final double t = tm[0];
         final double m = tm[1];
-        Validate.isTrue(t >= 0, "Must have t >= 0.0");
-        Validate.isTrue(m > 0, "Must have moneyness > 0");
+        ArgumentChecker.isTrue(t >= 0, "Must have t >= 0.0");
+        ArgumentChecker.isTrue(m > 0, "Must have moneyness > 0");
         final double k = m * forwardCurve.getForward(t);
         return strikeSurf.getZValue(t, k);
       }

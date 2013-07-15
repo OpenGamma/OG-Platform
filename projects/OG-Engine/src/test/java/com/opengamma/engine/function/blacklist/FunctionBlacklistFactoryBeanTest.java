@@ -12,10 +12,12 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link FunctionBlacklistFactoryBean} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FunctionBlacklistFactoryBeanTest {
 
   public void test() {

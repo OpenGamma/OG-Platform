@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.simpleinstruments.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFXFuture;
 import com.opengamma.analytics.util.time.TimeCalculator;

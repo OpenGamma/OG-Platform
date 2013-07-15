@@ -2,17 +2,91 @@
  * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
-.OG-analytics-typemenu .og-menu{
+.OG-analytics-typemenu .og-menu {
 	background: none repeat scroll 0 0 #fff;
-	border: 1px solid #DADCDD;
+	border: 1px solid #dadcdd;
 	display: none;
-	margin-left: -6px;
-	margin-top: 1px;
-	padding: 2px 5px 2px 1px;
+	margin-left: -3px;
 	position: fixed;
 	z-index: 6;
+	font-size: 11px;
+	line-height: 20px;
+	color: #01467a;
+}
+
+.OG-analytics-typemenu .og-menu div {
+    padding: 2px 5px 2px 5px;
+    vertical-align: top;
+}
+
+.OG-analytics-typemenu .og-menu div:hover {
+    background-color: #01467a;
+    color: #fff;
+    text-shadow: none;
 }
 
 .OG-analytics-typemenu input {
 	margin-bottom: 3px;
+}
+
+.OG-analytics-typemenu {
+    border: 1px solid transparent;
+    display: inline-block;
+    height: 20px;
+    margin: 0;
+    position: relative;
+    cursor: default;
+}
+
+.OG-analytics-typemenu .OG-icon {
+    cursor: default;
+}
+
+
+.OG-analytics-typemenu:hover {
+    background-color: #fff;
+}
+
+.OG-analytics-typemenu .og-menu-toggle:hover {
+    background-color: #01467a;
+}
+
+.OG-analytics-typemenu .og-menu-toggle:after {
+    background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
+    background-color: transparent;
+    background-position: -18px -4px;
+    content: '';
+    display: inline-block;
+    height: 4px;
+    margin-left: 6px;
+    position: absolute;
+    top: 7px;
+    width: 7px;
+    z-index: 6;
+}
+
+.OG-analytics-typemenu .OG-gadget-buttons.og-active:after,
+.OG-analytics-typemenu .og-menu-toggle:hover:after {
+    background-position: -26px -4px;
+}
+
+.OG-analytics-typemenu .og-menu-toggle {
+    padding: 0 20px 0 3px;
+    position: relative;
+    z-index: 2;
+}
+
+.OG-analytics-typemenu .og-active:after {
+	border:none!important;
+}
+
+/* POSITION ICONS */
+.OG-analytics-typemenu .og-menu .OG-icon {
+    padding-right: 20px;
+}
+
+.OG-analytics-typemenu .og-menu-toggle .OG-icon,
+.OG-analytics-typemenu .og-menu .OG-icon {
+    top: 2px;
+    height: 16px;
 }

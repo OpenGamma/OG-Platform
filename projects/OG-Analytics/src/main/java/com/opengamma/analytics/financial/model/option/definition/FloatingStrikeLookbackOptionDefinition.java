@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
       return isCall() ? data.getSpot() - ts.minValue() : ts.maxValue() - data.getSpot();
     }
   };
-  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>();
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
 
   public FloatingStrikeLookbackOptionDefinition(final Expiry expiry, final boolean isCall) {
     super(null, expiry, isCall);

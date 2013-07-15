@@ -5,13 +5,18 @@
  */
 package com.opengamma.financial.currency;
 
+import com.opengamma.core.AbstractSource;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Provides a source of currency conversion matrices ({@link CurrencyMatrix}) backed by a config database.
  */
-public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
+public class ConfigDBCurrencyMatrixSource extends AbstractSource<CurrencyMatrix> implements CurrencyMatrixSource {
 
   /**
    * The config source for the data.
@@ -21,7 +26,7 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
   /**
    * Creates an instance backed by a config source.
    * 
-   * @param configSource  the source, not null
+   * @param configSource the source, not null
    */
   public ConfigDBCurrencyMatrixSource(final ConfigSource configSource) {
     ArgumentChecker.notNull(configSource, "configSource");
@@ -38,10 +43,29 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
     return _configSource;
   }
 
-  //-------------------------------------------------------------------------
+  // CurrencyMatrixSource
+
   @Override
-  public CurrencyMatrix getCurrencyMatrix(final String name) {
-    return getConfigSource().getLatestByName(CurrencyMatrix.class, name);
+  public CurrencyMatrix getCurrencyMatrix(final String name, final VersionCorrection versionCorrection) {
+    return getConfigSource().getSingle(CurrencyMatrix.class, name, versionCorrection);
+  }
+
+  @Override
+  public CurrencyMatrix get(UniqueId identifier) {
+    return getConfigSource().getConfig(CurrencyMatrix.class, identifier);
+  }
+
+  @Override
+  public CurrencyMatrix get(ObjectId identifier, VersionCorrection versionCorrection) {
+    return getConfigSource().getConfig(CurrencyMatrix.class, identifier, versionCorrection);
+  }
+
+  // ChangeProvider
+
+  @Override
+  public ChangeManager changeManager() {
+    // TODO: Only need to propogate change messages for configuration items that are CurrencyMatrix type
+    return getConfigSource().changeManager();
   }
 
 }

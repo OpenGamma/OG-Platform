@@ -42,10 +42,10 @@ public class InterestRateCurveSensitivityUtils {
     ArgumentChecker.notNull(old, "null list");
     ArgumentChecker.isTrue(relTol >= 0.0 && absTol >= 0.0, "Tolerances must be greater than zero");
     if (old.size() == 0) {
-      return new ArrayList<DoublesPair>();
+      return new ArrayList<>();
     }
-    final List<DoublesPair> res = new ArrayList<DoublesPair>();
-    final DoublesPair[] sort = old.toArray(new DoublesPair[] {});
+    final List<DoublesPair> res = new ArrayList<>();
+    final DoublesPair[] sort = old.toArray(new DoublesPair[old.size()]);
     Arrays.sort(sort, FirstThenSecondDoublesPairComparator.INSTANCE);
     final DoublesPair pairOld = sort[0];
     double tOld = pairOld.first;
@@ -85,9 +85,9 @@ public class InterestRateCurveSensitivityUtils {
    * @return A map between curve names and time ordered netted lists
    */
   public static Map<String, List<DoublesPair>> clean(final Map<String, List<DoublesPair>> old, final double relTol, final double absTol) {
-    final Map<String, List<DoublesPair>> res = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> res = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : old.entrySet()) {
-      List<DoublesPair> cleanList = clean(entry.getValue(), relTol, absTol);
+      final List<DoublesPair> cleanList = clean(entry.getValue(), relTol, absTol);
       if (!cleanList.isEmpty()) {
         res.put(entry.getKey(), cleanList);
       }
@@ -103,7 +103,7 @@ public class InterestRateCurveSensitivityUtils {
    * @return combined list
    */
   public static List<DoublesPair> addSensitivity(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2) {
-    final List<DoublesPair> result = new ArrayList<DoublesPair>(sensi1);
+    final List<DoublesPair> result = new ArrayList<>(sensi1);
     result.addAll(sensi2);
     return result;
   }
@@ -119,7 +119,7 @@ public class InterestRateCurveSensitivityUtils {
   public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2) {
     ArgumentChecker.notNull(sensi1, "sensitivity");
     ArgumentChecker.notNull(sensi2, "sensitivity");
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensi1.entrySet()) {
       final String name = entry.getKey();
       if (sensi2.containsKey(name)) {
@@ -147,7 +147,7 @@ public class InterestRateCurveSensitivityUtils {
   public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi, final String curveName, final List<DoublesPair> list) {
     ArgumentChecker.notNull(sensi, "sensitivity");
     ArgumentChecker.notNull(list, "sensitivity");
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensi.entrySet()) {
       final String name = entry.getKey();
       if (name.equals(curveName)) {
@@ -176,7 +176,7 @@ public class InterestRateCurveSensitivityUtils {
    */
   public static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensitivity, final double factor) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensitivity.entrySet()) {
       result.put(entry.getKey(), multiplySensitivity(entry.getValue(), factor));
     }
@@ -185,7 +185,7 @@ public class InterestRateCurveSensitivityUtils {
 
   public static List<DoublesPair> multiplySensitivity(final List<DoublesPair> sensitivity, final double factor) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
-    final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> curveSensi = new ArrayList<>();
     for (final DoublesPair pair : sensitivity) {
       curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
     }
@@ -200,6 +200,9 @@ public class InterestRateCurveSensitivityUtils {
    * @return True if the difference is below the tolerance and False if not.
    */
   public static boolean compare(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2, final double tolerance) {
+    if (sensi1.size() != sensi2.size()) {
+      return false;
+    }
     for (int looptime = 0; looptime < sensi1.size(); looptime++) {
       if ((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance) || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) > tolerance)) {
         return false;
@@ -218,9 +221,9 @@ public class InterestRateCurveSensitivityUtils {
   public static boolean compare(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, final double tolerance) {
     ArgumentChecker.notNull(sensi1, "sensitivity");
     ArgumentChecker.notNull(sensi2, "sensitivity");
-    for (final String name : sensi1.keySet()) {
-      if (sensi2.containsKey(name)) {
-        if (!compare(sensi1.get(name), sensi2.get(name), tolerance)) {
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensi1.entrySet()) {
+      if (sensi2.containsKey(entry.getKey())) {
+        if (!compare(entry.getValue(), sensi2.get(entry.getKey()), tolerance)) {
           return false;
         }
       } else {

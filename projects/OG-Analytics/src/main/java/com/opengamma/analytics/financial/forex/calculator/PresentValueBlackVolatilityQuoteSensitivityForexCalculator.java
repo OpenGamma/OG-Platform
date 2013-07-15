@@ -6,15 +6,15 @@
 package com.opengamma.analytics.financial.forex.calculator;
 
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityQuoteSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
  * 
  */
 public final class PresentValueBlackVolatilityQuoteSensitivityForexCalculator extends
-    AbstractInstrumentDerivativeVisitor<SmileDeltaTermStructureDataBundle, PresentValueForexBlackVolatilityQuoteSensitivityDataBundle> {
+    InstrumentDerivativeVisitorSameMethodAdapter<SmileDeltaTermStructureDataBundle, PresentValueForexBlackVolatilityQuoteSensitivityDataBundle> {
 
   /**
    * The unique instance of the calculator.
@@ -42,7 +42,12 @@ public final class PresentValueBlackVolatilityQuoteSensitivityForexCalculator ex
 
   @Override
   public PresentValueForexBlackVolatilityQuoteSensitivityDataBundle visit(final InstrumentDerivative derivative, final SmileDeltaTermStructureDataBundle data) {
-    return VEGA_CALCULATOR.visit(derivative, data).quoteSensitivity();
+    return derivative.accept(VEGA_CALCULATOR, data).quoteSensitivity();
+  }
+
+  @Override
+  public PresentValueForexBlackVolatilityQuoteSensitivityDataBundle visit(final InstrumentDerivative derivative) {
+    throw new UnsupportedOperationException("Need curves and volatility data");
   }
 
 }

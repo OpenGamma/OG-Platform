@@ -23,6 +23,11 @@ public class ResultConverterCache {
     registerConverter(new TimeSeriesConverter());
     registerConverter(new YieldAndDiscountCurveConverter());
     registerConverter(new LabelledMatrix1DConverter());
+    registerConverter(new LabelledMatrix2DConverter());
+    registerConverter(new CurrencyAmountConverter());
+    registerConverter(new MultipleCurrencyAmountConverter());
+    registerConverter(new MultipleCurrencyInterestRateCurveSensitivityConverter());
+    registerConverter(new VolatilitySurfaceDataConverter());
   }
   
   public <T> void registerConverter(ResultConverter<?> converter) {

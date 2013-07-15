@@ -17,12 +17,12 @@ import static org.testng.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.batch.BatchMaster;
@@ -38,11 +38,13 @@ import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
 
   @Mock

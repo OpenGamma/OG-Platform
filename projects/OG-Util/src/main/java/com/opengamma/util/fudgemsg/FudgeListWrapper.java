@@ -71,11 +71,20 @@ public class FudgeListWrapper<T> extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code FudgeListWrapper}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static FudgeListWrapper.Meta meta() {
+    return FudgeListWrapper.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code FudgeListWrapper}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> FudgeListWrapper.Meta<R> meta() {
+  public static <R> FudgeListWrapper.Meta<R> metaFudgeListWrapper(Class<R> cls) {
     return FudgeListWrapper.Meta.INSTANCE;
   }
   static {

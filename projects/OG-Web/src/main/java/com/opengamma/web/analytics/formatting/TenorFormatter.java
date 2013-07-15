@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.time.Tenor;
@@ -20,7 +20,7 @@ import com.opengamma.util.time.Tenor;
   }
 
   @Override
-  public Period formatCell(Tenor tenor, ValueSpecification valueSpec) {
+  public Period formatCell(Tenor tenor, ValueSpecification valueSpec, Object inlineKey) {
     return tenor.getPeriod();
   }
 

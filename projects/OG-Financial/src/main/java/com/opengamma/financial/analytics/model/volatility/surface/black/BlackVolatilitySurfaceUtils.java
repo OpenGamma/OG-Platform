@@ -10,14 +10,15 @@ import it.unimi.dsi.fastutil.doubles.DoubleLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -82,6 +83,34 @@ public class BlackVolatilitySurfaceUtils {
     return Pair.of(fullStrikes, fullValues);
   }
 
+  public static Triple<double[], double[][], double[][]> getStrikesAndValues(final double[] expiries, final double[] strikes, final VolatilitySurfaceData<Object, Object> volatilitySurface,
+      final int minNumberOfStrikes) {
+    final int nExpiries = expiries.length;
+    final int nStrikes = strikes.length;
+    final List<double[]> fullStrikes = new ArrayList<>();
+    final List<double[]> fullValues = new ArrayList<>();
+    final DoubleList availableExpiries = new DoubleArrayList();
+    for (int i = 0; i < nExpiries; i++) {
+      final DoubleList availableStrikes = new DoubleArrayList();
+      final DoubleList availableVols = new DoubleArrayList();
+      for (int j = 0; j < nStrikes; j++) {
+        final Double vol = volatilitySurface.getVolatility(expiries[i], strikes[j]);
+        if (vol != null) {
+          availableStrikes.add(strikes[j]);
+          availableVols.add(vol);
+        }
+      }
+      if (availableVols.size() == 0) {
+        throw new OpenGammaRuntimeException("No volatility values found for expiry " + expiries[i]);
+      } else if (availableVols.size() >= minNumberOfStrikes) {
+        availableExpiries.add(expiries[i]);
+        fullStrikes.add(availableStrikes.toDoubleArray());
+        fullValues.add(availableVols.toDoubleArray());
+      }
+    }
+    return new Triple<>(availableExpiries.toDoubleArray(), fullStrikes.toArray(new double[0][]), fullValues.toArray(new double[0][]));
+  }
+
   public static Triple<double[], double[][], double[][]> getStrippedStrikesAndValues(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
     final Object[] expiries = getUniqueExpiriesWithData(volatilitySurface);
     final Object[] strikeValues = volatilitySurface.getYs();
@@ -102,7 +131,7 @@ public class BlackVolatilitySurfaceUtils {
       strikes[i] = availableStrikes.toDoubleArray();
       values[i] = availableVols.toDoubleArray();
     }
-    return new Triple<double[], double[][], double[][]>(getArrayOfDoubles(expiries), strikes, values);
+    return new Triple<>(getArrayOfDoubles(expiries), strikes, values);
   }
 
   public static SmileSurfaceDataBundle getDataFromStandardQuotes(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Object, Object> volatilitySurface) {
@@ -114,11 +143,21 @@ public class BlackVolatilitySurfaceUtils {
     return new StandardSmileSurfaceDataBundle(forwardCurve, uniqueExpiries, strikesAndValues.getFirst(), strikesAndValues.getSecond());
   }
 
+  public static SmileSurfaceDataBundle getDataFromStandardQuotes(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Object, Object> volatilitySurface,
+      final int minNumberOfStrikes) {
+    final double[] uniqueExpiries = getUniqueExpiries(volatilitySurface);
+    final double[] uniqueStrikes = getUniqueStrikes(volatilitySurface);
+    final Triple<double[], double[][], double[][]> strikesAndValues = getStrikesAndValues(uniqueExpiries, uniqueStrikes, volatilitySurface, minNumberOfStrikes);
+    // Convert vols and strikes to double[][],
+    // noting that different expiries may have different populated strikes
+    return new StandardSmileSurfaceDataBundle(forwardCurve, strikesAndValues.getFirst(), strikesAndValues.getSecond(), strikesAndValues.getThird());
+  }
+
   public static ForexSmileDeltaSurfaceDataBundle getDataFromStrangleRiskReversalQuote(final ForwardCurve forwardCurve,
       final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface) {
-    final Tenor[] tenors = fxVolatilitySurface.getXs();
+    final Object[] tenors = fxVolatilitySurface.getXs();
     Arrays.sort(tenors);
-    final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs();
+    final Object[] quotes = fxVolatilitySurface.getYs();
     final Number[] deltaValues = getDeltaValues(quotes);
     final int nExpiries = tenors.length;
     final int nDeltas = deltaValues.length - 1;
@@ -128,7 +167,7 @@ public class BlackVolatilitySurfaceUtils {
     final double[][] riskReversals = new double[nDeltas][nExpiries];
     final double[][] strangle = new double[nDeltas][nExpiries];
     for (int i = 0; i < nExpiries; i++) {
-      final Tenor tenor = tenors[i];
+      final Tenor tenor = (Tenor) tenors[i];
       final double t = getTime(tenor);
       final Double atm = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[0], FXVolQuoteType.ATM));
       if (atm == null) {
@@ -144,8 +183,8 @@ public class BlackVolatilitySurfaceUtils {
         final DoubleArrayList riskReversalList = new DoubleArrayList();
         final DoubleArrayList strangleList = new DoubleArrayList();
         for (int j = 0; j < nExpiries; j++) {
-          final Double rr = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
-          final Double s = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
+          final Double rr = fxVolatilitySurface.getVolatility((Tenor) tenors[j], ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
+          final Double s = fxVolatilitySurface.getVolatility((Tenor) tenors[j], ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
           if (rr != null && s != null) {
             riskReversalList.add(rr);
             strangleList.add(s);
@@ -175,14 +214,13 @@ public class BlackVolatilitySurfaceUtils {
     throw new OpenGammaRuntimeException("Should never happen");
   }
 
-  private static Number[] getDeltaValues(final Pair<Number, FXVolQuoteType>[] quotes) {
-    final TreeSet<Number> values = new TreeSet<Number>();
-    for (final Pair<Number, FXVolQuoteType> pair : quotes) {
-      values.add(pair.getFirst());
+  private static Number[] getDeltaValues(final Object[] quotes) {
+    final TreeSet<Object> values = new TreeSet<Object>();
+    for (final Object pair : quotes) {
+      values.add(((Pair) pair).getFirst());
     }
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
   }
-
 
   private static double[] getArrayOfDoubles(final Object[] arrayOfObject) {
     final double[] expiries;

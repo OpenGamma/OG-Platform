@@ -31,9 +31,8 @@ import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.Matrix;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -148,18 +147,18 @@ public class VaRCovarianceMatrixCalculatorTest {
     final String name2 = "B";
     final String name3 = "C";
     final long[] t = new long[] {1};
-    final DoubleTimeSeries<?> volATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {VOL_A_RETURN});
-    final DoubleTimeSeries<?> spotATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {SPOT_A_RETURN});
-    final DoubleTimeSeries<?> rATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {R_A_RETURN});
-    final DoubleTimeSeries<?> rBTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {R_B_RETURN});
-    final DoubleTimeSeries<?> spotBTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {SPOT_B_RETURN});
-    final DoubleTimeSeries<?> volBTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {VOL_B_RETURN});
-    final DoubleTimeSeries<?> spotCTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {SPOT_C_RETURN});
-    final DoubleTimeSeries<?> volCTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {VOL_C_RETURN});
-    final DoubleTimeSeries<?> varianceCTS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {VARIANCE_C_RETURN});
-    final DoubleTimeSeries<?> strikeATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {STRIKE_A_RETURN});
-    final DoubleTimeSeries<?> timeATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {TIME_A_RETURN});
-    final DoubleTimeSeries<?> dummyATS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, t, new double[] {DUMMY_A_RETURN});
+    final DoubleTimeSeries<?> volATS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {VOL_A_RETURN});
+    final DoubleTimeSeries<?> spotATS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {SPOT_A_RETURN});
+    final DoubleTimeSeries<?> rATS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {R_A_RETURN});
+    final DoubleTimeSeries<?> rBTS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {R_B_RETURN});
+    final DoubleTimeSeries<?> spotBTS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {SPOT_B_RETURN});
+    final DoubleTimeSeries<?> volBTS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {VOL_B_RETURN});
+    final DoubleTimeSeries<?> spotCTS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {SPOT_C_RETURN});
+    final DoubleTimeSeries<?> volCTS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {VOL_C_RETURN});
+    final DoubleTimeSeries<?> varianceCTS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {VARIANCE_C_RETURN});
+    final DoubleTimeSeries<?> strikeATS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {STRIKE_A_RETURN});
+    final DoubleTimeSeries<?> timeATS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {TIME_A_RETURN});
+    final DoubleTimeSeries<?> dummyATS = ImmutableInstantDoubleTimeSeries.of(t, new double[] {DUMMY_A_RETURN});
     final Sensitivity<?> rhoA1 = new ValueGreekSensitivity(new ValueGreek(Greek.RHO), name1);
     final Sensitivity<?> deltaA1 = new ValueGreekSensitivity(new ValueGreek(Greek.DELTA), name1);
     final Sensitivity<?> vegaA1 = new ValueGreekSensitivity(new ValueGreek(Greek.VEGA), name1);
@@ -282,7 +281,7 @@ public class VaRCovarianceMatrixCalculatorTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testThirdOrderSensitivity() {
     final SensitivityAndReturnDataBundle data = new SensitivityAndReturnDataBundle(new ValueGreekSensitivity(new ValueGreek(Greek.SPEED), "A"), 10,
-        Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new long[] {1},
+        Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, ImmutableInstantDoubleTimeSeries.of(new long[] {1},
             new double[] {1})));
     CALC.evaluate(data);
   }

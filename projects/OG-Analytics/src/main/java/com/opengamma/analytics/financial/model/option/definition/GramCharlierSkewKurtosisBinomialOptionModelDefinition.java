@@ -35,7 +35,7 @@ public class GramCharlierSkewKurtosisBinomialOptionModelDefinition extends Binom
         tree[i][ii] = p * (1 + skew * x * (x2 - 3) / 6. + kurtosis * (x4 - 6 * x2 + 3) / 24. + skew * skew * (x6 - 15 * x4 + 45 * x2 - 15) / 72.);
       }
     }
-    return new RecombiningBinomialTree<Double>(rbTree);
+    return new RecombiningBinomialTree<>(rbTree);
   }
 
   @Override

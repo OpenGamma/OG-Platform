@@ -26,11 +26,12 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemorySecurityMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemorySecurityMasterTest {
 
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that

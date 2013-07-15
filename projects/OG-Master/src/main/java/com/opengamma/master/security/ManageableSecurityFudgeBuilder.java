@@ -52,7 +52,7 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
 
   @Override
   public ManageableSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ManageableSecurity object = new ManageableSecurity();
+    ManageableSecurity object = new ManageableSecurity(msg.getString(SECURITY_TYPE_FIELD_NAME));
     ManageableSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
@@ -61,7 +61,6 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ManageableSecurity object) {
     object.setUniqueId(UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_FIELD_NAME)));
     object.setName(msg.getString(NAME_FIELD_NAME));
-    object.setSecurityType(msg.getString(SECURITY_TYPE_FIELD_NAME));
     object.setExternalIdBundle(ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_FIELD_NAME)));
     object.setAttributes((Map<String, String>) deserializer.fieldValueToObject(msg.getByName(ATTRIBUTES_FIELD_NAME)));
   }

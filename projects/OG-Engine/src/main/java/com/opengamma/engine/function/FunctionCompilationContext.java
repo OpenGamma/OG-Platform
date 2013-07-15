@@ -1,10 +1,12 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
 
+import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
@@ -16,33 +18,19 @@ import com.opengamma.util.PublicAPI;
 /**
  * The context used during expression compilation.
  * <p>
- * In order to successfully complete expression compilation a variety of
- * contextual objects are needed.
- * This is primarily used by {@link FunctionDefinition}.
+ * In order to successfully complete expression compilation a variety of contextual objects are needed. This is primarily used by {@link FunctionDefinition}.
  */
 @PublicAPI
 public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
-   * The name under which the {@link ComputationTargetResolver} instance should be bound.
+   * The name under which the {@link ComputationTargetResolver.AtVersionCorrection} instance should be bound.
    */
   public static final String COMPUTATION_TARGET_RESOLVER = "computationTargetResolver";
   /**
    * The name under which the {@link ComputationTargetResults} instance should be bound.
    */
   public static final String COMPUTATION_TARGET_RESULTS_NAME = "computationTargetResults";
-  /**
-   * The name under which an instance of {@link SecuritySource} should be bound.
-   */
-  public static final String SECURITY_SOURCE_NAME = "securitySource";
-  /**
-   * The name under which an instance of {@link PortfolioStructure} should be bound.
-   */
-  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
-  /**
-   * The name under which the view calculation configuration should be bound.
-   */
-  public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
   /**
    * The name under which the initialization reference of the functions should be bound.
    */
@@ -54,13 +42,35 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * The name under which the graph building blacklist should be bound.
    */
-  public static final String GRAPH_BUILDING_BLACKLIST = "graphBuildingBlacklist";
+  public static final String GRAPH_BUILDING_BLACKLIST = "graphBuildingBlacklist"; // TODO: [PLAT-2638] The blacklists should not really be here.
   /**
    * The name under which the graph execution blacklist should be bound.
    */
-  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist";
-
-  // TODO: [PLAT-2638] The blacklists should not really be here. 
+  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist"; // TODO: [PLAT-2638] The blacklists should not really be here.
+  /**
+   * The name under which the portfolio should be point.
+   */
+  public static final String PORTFOLIO = "portfolio";
+  /**
+   * The name under which an instance of {@link PortfolioStructure} should be bound.
+   */
+  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
+  /**
+   * The name under which the {@link ComputationTargetResolver} instance should be bound.
+   */
+  public static final String RAW_COMPUTATION_TARGET_RESOLVER = "rawComputationTargetResolver";
+  /**
+   * The name under which an instance of {@link SecuritySource} should be bound.
+   */
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which an instance of {@link OrganizationSource} should be bound.
+   */
+  public static final String ORGANIZATION_SOURCE_NAME = "organizationSource";
+  /**
+   * The name under which the view calculation configuration should be bound.
+   */
+  public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
 
   /**
    * Creates an empty function compilation context.
@@ -73,20 +83,19 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Creates a function compilation context as a copy of another.
    * 
-   * @param copyFrom  the context to copy elements from, not null
+   * @param copyFrom the context to copy elements from, not null
    */
   protected FunctionCompilationContext(final FunctionCompilationContext copyFrom) {
     super(copyFrom);
   }
 
   /**
-   * Gets the computation target resolver. Functions should not need to access this directly - their computation target will always be resolved when they are invoked. It may be used to access the full
-   * target object referenced by a "desiredValue".
+   * Gets the computation target resolver configured for the correct version/correction. Functions shouldn't need to access this directly as their target will always be resolved when they are invoked.
    * 
    * @return the computation target resolver, null if not in the context
    */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return (ComputationTargetResolver) get(COMPUTATION_TARGET_RESOLVER);
+  public ComputationTargetResolver.AtVersionCorrection getComputationTargetResolver() {
+    return (ComputationTargetResolver.AtVersionCorrection) get(COMPUTATION_TARGET_RESOLVER);
   }
 
   /**
@@ -94,8 +103,27 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * 
    * @param computationTargetResolver the target resolver
    */
-  public void setComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+  public void setComputationTargetResolver(final ComputationTargetResolver.AtVersionCorrection computationTargetResolver) {
     put(COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
+  }
+
+  /**
+   * Gets the raw computation target resolver. Functions should not need to access this directly - the resolver returned by {@link #getComputationTargetResolver} is correctly configured for the
+   * version/correction time the owning view process needs.
+   * 
+   * @return the computation target resolver, null if not in the context
+   */
+  public ComputationTargetResolver getRawComputationTargetResolver() {
+    return (ComputationTargetResolver) get(RAW_COMPUTATION_TARGET_RESOLVER);
+  }
+
+  /**
+   * Sets the computation target resolver.
+   * 
+   * @param computationTargetResolver the target resolver
+   */
+  public void setRawComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+    put(RAW_COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
   }
 
   /**
@@ -110,7 +138,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Sets the source of result information on a target.
    * 
-   * @param computationTargetResults the source of target results
+   * @param computationTargetResults the source of target results, null to remove it from the context
    */
   public void setComputationTargetResults(final ComputationTargetResults computationTargetResults) {
     if (computationTargetResults == null) {
@@ -132,12 +160,48 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Sets the source of securities.
    * 
-   * @param securitySource  the source of securities to bind
+   * @param securitySource the source of securities to bind
    */
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
   }
-  
+
+  /**
+   * Gets the source of organizations.
+   *
+   * @return the source of organizations, null if not in the context
+   */
+  public OrganizationSource getOrganizationSource() {
+    return (OrganizationSource) get(ORGANIZATION_SOURCE_NAME);
+  }
+
+  /**
+   * Sets the source of organizations.
+   *
+   * @param organizationSource the source of organizations to bind
+   */
+  public void setOrganizationSource(final OrganizationSource organizationSource) {
+    put(ORGANIZATION_SOURCE_NAME, organizationSource);
+  }
+
+  /**
+   * Gets the portfolio being compiled, if any.
+   * 
+   * @return the portfolio object, or null if there is none for the current compilation
+   */
+  public Portfolio getPortfolio() {
+    return (Portfolio) get(PORTFOLIO);
+  }
+
+  /**
+   * Sets the portfolio being compiled, if any.
+   * 
+   * @param portfolio the portfolio object, or null if there is none for the current compilation
+   */
+  public void setPortfolio(final Portfolio portfolio) {
+    put(PORTFOLIO, portfolio);
+  }
+
   /**
    * Gets the source of portfolio structure information.
    * 
@@ -150,16 +214,14 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Sets the source of portfolio structure information.
    * 
-   * @param portfolioStructure  the portfolio structure to bind
+   * @param portfolioStructure the portfolio structure to bind
    */
   public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
     put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
   }
 
   /**
-   * Gets the view calculation configuration information.
-   * This may only be valid during dependency graph construction and not during
-   * function initialization or compilation.
+   * Gets the view calculation configuration information. This may only be valid during dependency graph construction and not during function initialization or compilation.
    * 
    * @return the view configuration, null if not in the context
    */
@@ -169,7 +231,8 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the view calculation configuration information. This should be set prior to dependency graph construction.
-   * @param viewCalculationConfiguration  the configuration to bind
+   * 
+   * @param viewCalculationConfiguration the configuration to bind
    */
   public void setViewCalculationConfiguration(final ViewCalculationConfiguration viewCalculationConfiguration) {
     put(VIEW_CALCULATION_CONFIGURATION_NAME, viewCalculationConfiguration);
@@ -187,7 +250,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Sets the function initialization identifier.
    * 
-   * @param id  the identifier to bind
+   * @param id the identifier to bind
    */
   public void setFunctionInitId(final long id) {
     put(FUNCTION_INIT_ID_NAME, id);
@@ -205,7 +268,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Sets the function re-initialization hook.
    * 
-   * @param reinitializer  the re-initialization hook to bind
+   * @param reinitializer the re-initialization hook to bind
    */
   public void setFunctionReinitializer(final FunctionReinitializer reinitializer) {
     if (reinitializer == null) {
@@ -261,12 +324,24 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * @return the security source
    * @throws ClassCastException if the security source is of a different type
    */
-  public <T extends SecuritySource> T getSecuritySource(Class<T> clazz) {
+  public <T extends SecuritySource> T getSecuritySource(final Class<T> clazz) {
     return clazz.cast(get(SECURITY_SOURCE_NAME));
   }
 
   /**
+   * Initialises the context. Any members that implement {@link FunctionCompilationContextAware} will receive appropriate callbacks.
+   */
+  public void init() {
+    for (final Object member : getAllElements()) {
+      if (member instanceof FunctionCompilationContextAware) {
+        ((FunctionCompilationContextAware) member).setFunctionCompilationContext(this);
+      }
+    }
+  }
+
+  /**
    * Produces a copy of the context.
+   * 
    * @return the copy
    */
   @Override

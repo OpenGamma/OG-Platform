@@ -5,11 +5,10 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -35,15 +34,16 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a capital inflation indexed bond issue. Both the coupon and the nominal are indexed on a price index.
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  */
-public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefinition> extends BondSecurityDefinition<C, C> implements
-    InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
+public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefinition>
+    extends BondSecurityDefinition<C, C> implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The default ex-coupon number of days.
@@ -79,7 +79,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   private final IndexPrice _priceIndex;
 
   /**
-   * Constructor of the Capital inflation indexed bond. The repo type is set to "". 
+   * Constructor of the Capital inflation indexed bond. The repo type is set to "".
    * @param nominal The nominal annuity.
    * @param coupon The coupon annuity.
    * @param indexStartDate The index value at the start of the bond.
@@ -96,7 +96,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final int monthLag, final String issuer) {
     super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, "");
     for (int loopcpn = 0; loopcpn < coupon.getNumberOfPayments(); loopcpn++) {
-      Validate.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
+      ArgumentChecker.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
     }
     _yieldConvention = yieldConvention;
     _monthLag = monthLag;
@@ -126,7 +126,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final int monthLag, final String issuer, final String repoType) {
     super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, repoType);
     for (int loopcpn = 0; loopcpn < coupon.getNumberOfPayments(); loopcpn++) {
-      Validate.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
+      ArgumentChecker.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
     }
     _yieldConvention = yieldConvention;
     _monthLag = monthLag;
@@ -161,20 +161,21 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final int settlementDays, final Calendar calendar, final DayCount dayCount, final YieldConvention yieldConvention, final boolean isEOM, final String issuer) {
     // Nominal construction
     final CouponInflationZeroCouponMonthlyGearingDefinition nominalPayment = CouponInflationZeroCouponMonthlyGearingDefinition.from(startDate, maturityDate, notional, priceIndex, indexStartValue,
-        monthLag, true, 1.0);
-    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(
-        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment});
+        monthLag, monthLag, true, 1.0);
+    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
+        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment });
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod, true, false);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length];
-    coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, true, realRate);
+    coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, monthLag,
+        true, realRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], notional, priceIndex,
-          indexStartValue, monthLag, true, realRate);
+          indexStartValue, monthLag, monthLag, true, realRate);
     }
-    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(coupons);
-    return new BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
+    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons);
+    return new BondCapitalIndexedSecurityDefinition<>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
         calendar, dayCount, yieldConvention, isEOM, monthLag, issuer);
   }
 
@@ -205,29 +206,29 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final String issuer) {
     // Nominal construction
     final CouponInflationZeroCouponMonthlyGearingDefinition nominalPayment = CouponInflationZeroCouponMonthlyGearingDefinition.from(startDate, maturityDate, notional, priceIndex, indexStartValue,
-        monthLag, true, 1.0);
-    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(
-        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment});
+        monthLag, monthLag, true, 1.0);
+    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
+        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment });
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, couponPeriod, true, false);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length + 1];
     coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(ScheduleCalculator.getAdjustedDate(firstCouponDate, 0, calendar), startDate, firstCouponDate, notional, priceIndex,
-        indexStartValue, monthLag, true, realRate);
-    coupons[1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], firstCouponDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, true, realRate);
+        indexStartValue, monthLag, monthLag, true, realRate);
+    coupons[1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], firstCouponDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag,
+        monthLag, true, realRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn + 1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], notional, priceIndex,
-          indexStartValue, monthLag, true, realRate);
+          indexStartValue, monthLag, monthLag, true, realRate);
     }
-    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(coupons);
-    return new BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
+    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons);
+    return new BondCapitalIndexedSecurityDefinition<>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
         calendar, dayCount, yieldConvention, isEOM, monthLag, issuer);
   }
 
   /**
    * Builder of Inflation capital index bond from financial details. The notional and the coupon reference index are interpolated index.
    * The coupon dates are computed from the maturity and have a short first coupon if required.
-   * @param priceIndex
    * @param priceIndex The price index associated to the bond.
    * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param startDate The bond start date.
@@ -251,20 +252,21 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final String issuer) {
     // Nominal construction
     final CouponInflationZeroCouponInterpolationGearingDefinition nominalPayment = CouponInflationZeroCouponInterpolationGearingDefinition.from(startDate, maturityDate, notional, priceIndex,
-        indexStartValue, monthLag, true, 1.0);
-    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(
-        new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment});
+        indexStartValue, monthLag, monthLag, true, 1.0);
+    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
+        new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment });
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod, true, true);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponInterpolationGearingDefinition[] coupons = new CouponInflationZeroCouponInterpolationGearingDefinition[paymentDates.length];
-    coupons[0] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, true, realRate);
+    coupons[0] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag,
+        monthLag, true, realRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], notional,
-          priceIndex, indexStartValue, monthLag, true, realRate);
+          priceIndex, indexStartValue, monthLag, monthLag, true, realRate);
     }
-    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> couponAnnuity = new AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(coupons);
-    return new BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
+    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons);
+    return new BondCapitalIndexedSecurityDefinition<>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
         calendar, dayCount, yieldConvention, isEOM, monthLag, issuer);
   }
 
@@ -326,22 +328,28 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
 
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
-    return toDerivative(date, spot, new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[0], new double[0]));
+    return toDerivative(date, spot, ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC));
   }
 
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(data, "data");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, data);
   }
 
+  /**
+   * @param date The date to use when converting to the derivative form, not null
+   * @param settlementDate The settlement date, not null
+   * @param data The index time series
+   * @return The derivative form
+   */
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTime settlementDate, final DoubleTimeSeries<ZonedDateTime> data) {
-    Validate.notNull(date, "date");
-    Validate.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
     double settlementTime;
     if (settlementDate.isBefore(date)) {
       settlementTime = 0.0;
@@ -373,7 +381,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final double notional = settlementDate.isBefore(date) ? 0.0 : 1.0;
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
     final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date, "Not used");
-    return new BondCapitalIndexedSecurity<Coupon>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
+    return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
         getIssuer());
   }
 
@@ -407,11 +415,13 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedSecurity(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondCapitalIndexedSecurity(this);
   }
 

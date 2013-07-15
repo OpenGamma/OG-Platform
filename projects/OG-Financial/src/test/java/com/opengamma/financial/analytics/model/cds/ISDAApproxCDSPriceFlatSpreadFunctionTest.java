@@ -3,21 +3,20 @@ package com.opengamma.financial.analytics.model.cds;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -26,17 +25,21 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CDSSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
-  private static final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalIdBundle.EMPTY, "Test security", "EQUITY");
   private static MockSecuritySource securitySource;
   private static FunctionCompilationContext functionCompilationContext;
-  private static final CDSSecurity CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
+  private static final CDSSecurity CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, zdt(2020, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
     DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), StubType.SHORT_START, 3,
     "US Treasury", Currency.USD, "Senior", "No Restructuring");
   private ISDAApproxCDSPriceFlatSpreadFunction testItem;
@@ -48,32 +51,13 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
     functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setSecuritySource(securitySource);
     final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
-    functionCompilationContext.setComputationTargetResolver(targetResolver);
-
+    functionCompilationContext.setRawComputationTargetResolver(targetResolver);
     CDS_SECURITY.setUniqueId(UniqueId.of("dummy_scheme", "dummy_value"));
   }
 
   @BeforeMethod
   public void beforeEachMethod() {
     testItem = new ISDAApproxCDSPriceFlatSpreadFunction();
-  }
-
-  @Test
-  public void canApplyTo() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget("test"));
-    Assert.assertFalse(result);
-  }
-
-  @Test
-  public void canApplyTo1() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget(SECURITY));
-    Assert.assertFalse(result);
-  }
-
-  @Test
-  public void canApplyTo2() {
-    boolean result = testItem.canApplyTo(null, new ComputationTarget(CDS_SECURITY));
-    Assert.assertTrue(result);
   }
 
   @Test
@@ -85,14 +69,15 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
   public void getRequirements() {
 
     ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.CLEAN_PRICE, ComputationTargetType.SECURITY, CDS_SECURITY.getUniqueId(),
-      ValueProperties
-        .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode())
-        .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
-        .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
-        .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_FLAT)
-        .get());
+        ValueProperties
+          .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode())
+          .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
+          .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX)
+          .with(ISDAFunctionConstants.ISDA_HAZARD_RATE_STRUCTURE, ISDAFunctionConstants.ISDA_HAZARD_RATE_FLAT)
+          .get());
+    
+    Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(ComputationTargetType.SECURITY, CDS_SECURITY), requirement);
 
-    Set<ValueRequirement> result = testItem.getRequirements(functionCompilationContext, new ComputationTarget(CDS_SECURITY), requirement);
     Assert.assertNotNull(result);
     Assert.assertEquals(result.size(), 2);
 
@@ -104,12 +89,12 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
     Assert
       .assertEquals(
         r.toString(),
-        "[ValueReq[SpotRate, CTSpec[SECURITY, dummy_scheme~dummy_value], EMPTY], ValueReq[YieldCurve, CTSpec[PRIMITIVE, CurrencyISO~GBP], {CalculationMethod=[ISDA]}]]");
+            "[ValueReq[SpotRate, CTSpec[SECURITY, dummy_scheme~dummy_value], EMPTY], ValueReq[YieldCurve, CTSpec[CURRENCY, CurrencyISO~GBP], {CalculationMethod=[ISDA]}]]");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getResults1() {
-    testItem.getResults(null, new ComputationTarget(CDS_SECURITY));
+    testItem.getResults(null, new ComputationTarget(ComputationTargetType.SECURITY, CDS_SECURITY));
   }
 
   @Test
@@ -119,6 +104,12 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
 
   @Test
   public void getTargetType() {
-    Assert.assertEquals(testItem.getTargetType(), ComputationTargetType.SECURITY);
+    Assert.assertEquals(testItem.getTargetType(), FinancialSecurityTypes.CDS_SECURITY);
   }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
+  }
+
 }

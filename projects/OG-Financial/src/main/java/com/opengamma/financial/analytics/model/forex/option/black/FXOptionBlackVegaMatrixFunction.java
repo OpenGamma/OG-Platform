@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -19,13 +19,17 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.currency.CurrencyPair;
 
 /**
- * 
+ *
  */
 public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFunction {
   private static final PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator.getInstance();
@@ -39,7 +43,7 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
-      final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(forex, (SmileDeltaTermStructureDataBundle) data);
+      final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = forex.accept(CALCULATOR, (SmileDeltaTermStructureDataBundle) data);
       final double[] expiries = result.getExpiries().getData();
       final double[] delta = result.getDelta().getData();
       final double[][] vega = result.getVega().getData();
@@ -56,7 +60,7 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
         for (int j = 0; j < nExpiries; j++) {
           if (i == 0) {
             rowValues[j] = expiries[j];
-            rowLabels[j] = getFormattedExpiry(expiries[j]);
+            rowLabels[j] = VegaMatrixHelper.getFXVolatilityFormattedExpiry(expiries[j]);
           }
           values[i][j] = vega[j][i];
         }
@@ -66,19 +70,26 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
     throw new OpenGammaRuntimeException("Can only calculate vega matrix for surfaces with smiles");
   }
 
-  private static String getFormattedExpiry(final double expiry) {
-    if (expiry < 1. / 54) {
-      final int days = (int) Math.ceil((365 * expiry));
-      return days + "D";
-    }
-    if (expiry < 1. / 13) {
-      final int weeks = (int) Math.ceil((52 * expiry));
-      return weeks + "W";
-    }
-    if (expiry < 0.95) {
-      final int months = (int) Math.ceil((12 * expiry));
-      return months + "M";
-    }
-    return ((int) Math.ceil(expiry)) + "Y";
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    final ValueProperties.Builder properties = super.getResultProperties(target);
+    properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+    return properties;
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair,
+        optionalProperties);
+    properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+    return properties;
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
+    properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+    return properties;
   }
 }

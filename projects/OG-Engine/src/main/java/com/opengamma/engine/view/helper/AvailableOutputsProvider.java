@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.helper;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
@@ -25,7 +25,7 @@ public interface AvailableOutputsProvider {
    * @param instant  the instant for which to analyse the available outputs, null for now
    * @return the available outputs, not null
    */
-  AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instant);
+  AvailableOutputs getPortfolioOutputs(Portfolio portfolio, Instant instant);
   
   /**
    * Gets details of the available outputs for a portfolio, by passing the portfolio to be analysed.
@@ -42,7 +42,7 @@ public interface AvailableOutputsProvider {
    * @return the available outputs, not null
    * @throws DataNotFoundException  if the portfolio identifier is invalid or cannot be resolved to a portfolio
    */
-  AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instant, Integer maxNodes, Integer maxPositions);
+  AvailableOutputs getPortfolioOutputs(Portfolio portfolio, Instant instant, Integer maxNodes, Integer maxPositions);
   
   /**
    * Gets details of the available outputs for a portfolio, by the portfolio identifier.
@@ -52,7 +52,7 @@ public interface AvailableOutputsProvider {
    * @return the available outputs, not null
    * @throws DataNotFoundException  if the portfolio identifier is invalid or cannot be resolved to a portfolio
    */
-  AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instant);
+  AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, Instant instant);
   
   /**
    * Gets details of the available outputs for a portfolio, by the portfolio identifier.
@@ -67,6 +67,6 @@ public interface AvailableOutputsProvider {
    * @return the available outputs, not null
    * @throws DataNotFoundException  if the portfolio identifier is invalid or cannot be resolved to a portfolio
    */
-  AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instant, Integer maxNodes, Integer maxPositions);
+  AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, Instant instant, Integer maxNodes, Integer maxPositions);
   
 }

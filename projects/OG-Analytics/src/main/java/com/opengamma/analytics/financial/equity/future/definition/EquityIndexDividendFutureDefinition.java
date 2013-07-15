@@ -5,15 +5,17 @@
  */
 package com.opengamma.analytics.financial.equity.future.definition;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Each time a view is recalculated, the security definition 
- * creates an analytic derivative for the current time. 
+ * Each time a view is recalculated, the security definition
+ * creates an analytic derivative for the current time.
  */
 public class EquityIndexDividendFutureDefinition extends EquityFutureDefinition {
 
@@ -29,12 +31,24 @@ public class EquityIndexDividendFutureDefinition extends EquityFutureDefinition 
   }
 
   @Override
-  public EquityIndexDividendFuture toDerivative(final ZonedDateTime date) {
-    double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());
-    double timeToDelivery = TimeCalculator.getTimeBetween(date, getSettlementDate());
+  public EquityIndexDividendFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());
+    final double timeToDelivery = TimeCalculator.getTimeBetween(date, getSettlementDate());
 
-    EquityIndexDividendFuture newDeriv = new EquityIndexDividendFuture(timeToFixing, timeToDelivery, getStrikePrice(), getCurrency(), getUnitAmount());
+    final EquityIndexDividendFuture newDeriv = new EquityIndexDividendFuture(timeToFixing, timeToDelivery, getStrikePrice(), getCurrency(), getUnitAmount());
     return newDeriv;
+  }
+
+  @Override
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityIndexDividendFutureDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityIndexDividendFutureDefinition(this);
   }
 
 }

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
   <class name="IdentifierAssociationBean" table="sec_identifier_association">
     <id name="id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
     </id>
     <property name="validStartDate" type="timestamp" not-null="false" />
     <property name="validEndDate" type="timestamp" not-null="false" />

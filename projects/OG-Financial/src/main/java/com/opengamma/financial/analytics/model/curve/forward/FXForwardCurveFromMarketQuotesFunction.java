@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.forward;
@@ -14,13 +14,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -30,12 +30,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -53,7 +53,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveFromMarketQuotesFunction.class);
@@ -61,16 +61,16 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
   public static final String FX_FORWARD_QUOTES = "FXForwardQuotes";
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBFXForwardCurveDefinitionSource curveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
     final ConfigDBFXForwardCurveSpecificationSource curveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
       }
 
       @Override
@@ -80,7 +80,7 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
             .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
+            .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(spec);
       }
@@ -111,23 +111,11 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
       }
 
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.PRIMITIVE) {
-          return false;
-        }
-        if (target.getUniqueId() == null) {
-          s_logger.error("Target unique id was null; {}", target);
-          return false;
-        }
-        return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
-      }
-
-      @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final ZonedDateTime now = snapshotClock.zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final DoubleArrayList expiries = new DoubleArrayList();
         final DoubleArrayList forwards = new DoubleArrayList();
         final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(target.getUniqueId());
@@ -171,7 +159,7 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
             .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, interpolatorName)
             .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
             .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
+            .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
         return new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
       }
     };

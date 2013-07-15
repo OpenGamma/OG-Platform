@@ -5,7 +5,7 @@
  */
 package com.opengamma.bbg.livedata;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 /**
  * Records information about a rejection of a subscription due to limit.

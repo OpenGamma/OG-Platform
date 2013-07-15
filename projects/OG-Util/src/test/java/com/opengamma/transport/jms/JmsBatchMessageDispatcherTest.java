@@ -20,11 +20,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.transport.BatchByteArrayMessageReceiver;
 import com.opengamma.util.test.ActiveMQTestUtils;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class JmsBatchMessageDispatcherTest {
 
   @Test(invocationCount = 5, successPercentage = 19)
@@ -84,7 +85,7 @@ public class JmsBatchMessageDispatcherTest {
     while(actualTotal < totalSize) {
       while(batchSizes.isEmpty()) {
         Thread.sleep(100);
-        if((System.currentTimeMillis() - startTime) > 5000l) {
+        if ((System.currentTimeMillis() - startTime) > 5000l) {
           fail("Did not receive a batch in 5 seconds.");
         }
       }
@@ -95,7 +96,7 @@ public class JmsBatchMessageDispatcherTest {
         batchSizes.clear();
       }
       
-      if((System.currentTimeMillis() - startTime) > 5000l) {
+      if ((System.currentTimeMillis() - startTime) > 5000l) {
         fail("Did not receive expected total batches in 5 seconds.");
       }
     }

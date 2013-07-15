@@ -11,16 +11,16 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicSPI;
 
 /**
- * Resolver for {@link MarketDataProvider}s 
+ * Resolver for {@link MarketDataProvider}s
  */
 @PublicSPI
 public interface MarketDataProviderResolver {
 
   /**
-   * Resolves a {@link MarketDataSpecification} into a {@link MarketDataProvider} which is able to
-   * work with the specification.
+   * Resolves a {@link MarketDataSpecification} into a {@link MarketDataProvider} which is able to work with the specification.
    * 
-   * @param snapshotSpec  the snapshot specification for which a provider is required, not null 
+   * @param marketDataUser the market data user any subscriptions should be made from
+   * @param snapshotSpec the snapshot specification for which a provider is required, not null
    * @return the resolved snapshot provider
    */
   MarketDataProvider resolve(UserPrincipal marketDataUser, MarketDataSpecification snapshotSpec);

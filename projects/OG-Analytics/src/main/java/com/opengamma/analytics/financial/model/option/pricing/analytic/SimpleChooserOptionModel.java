@@ -49,7 +49,7 @@ public class SimpleChooserOptionModel extends AnalyticOptionModel<SimpleChooserO
         final double s = data.getSpot();
         final double k = definition.getUnderlyingStrike();
         final double t1 = definition.getTimeToExpiry(data.getDate());
-        final double t2 = DateUtils.getDifferenceInYears(data.getDate(), definition.getUnderlyingExpiry());
+        final double t2 = DateUtils.getDifferenceInYears(data.getDate(), definition.getUnderlyingExpiry().getExpiry());
         final double b = data.getCostOfCarry();
         final double r = data.getInterestRate(t1);
         final double sigma = data.getVolatility(t1, k);

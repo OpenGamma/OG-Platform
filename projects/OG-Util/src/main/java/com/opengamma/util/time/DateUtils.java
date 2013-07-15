@@ -5,21 +5,30 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-import javax.time.TimeSource;
-import javax.time.calendar.Calendrical;
-import javax.time.calendar.Clock;
-import javax.time.calendar.DateProvider;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.ISOChronology;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
-import javax.time.calendar.format.DateTimeFormatterBuilder.SignStyle;
+import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
+import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
+import static org.threeten.bp.temporal.ChronoField.YEAR;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
+import org.fudgemsg.types.FudgeDate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
+import org.threeten.bp.format.SignStyle;
+import org.threeten.bp.temporal.Temporal;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -34,11 +43,11 @@ public final class DateUtils {
   /**
    * The original JVM time-zone.
    */
-  public static final TimeZone ORIGINAL_TIME_ZONE = Clock.systemDefaultZone().getZone();
+  public static final ZoneId ORIGINAL_TIME_ZONE = Clock.systemDefaultZone().getZone();
   static {
     // essential that OpenGamm runs in a default time-zone that has no Daylight Savings
     // UTC is desirable for many other reasons, so use it here
-    java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   /**
@@ -68,10 +77,10 @@ public final class DateUtils {
   private static final DateTimeFormatter YYYYMMDD_LOCAL_DATE;
   static {
     YYYYMMDD_LOCAL_DATE = new DateTimeFormatterBuilder()
-          .appendValue(ISOChronology.yearRule(), 4, 10, SignStyle.EXCEEDS_PAD)
-          .appendValue(ISOChronology.monthOfYearRule(), 2)
-          .appendValue(ISOChronology.dayOfMonthRule(), 2)
-          .toFormatter();
+        .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+        .appendValue(MONTH_OF_YEAR, 2)
+        .appendValue(DAY_OF_MONTH, 2)
+        .toFormatter();
   }
   /**
    * A formatter for MM-dd
@@ -79,9 +88,9 @@ public final class DateUtils {
   private static final DateTimeFormatter MM_DD_LOCAL_DATE;
   static {
     MM_DD_LOCAL_DATE = new DateTimeFormatterBuilder()
-        .appendValue(ISOChronology.monthOfYearRule(), 2)
+        .appendValue(MONTH_OF_YEAR, 2)
         .appendLiteral("-")
-        .appendValue(ISOChronology.dayOfMonthRule(), 2)
+        .appendValue(DAY_OF_MONTH, 2)
         .toFormatter();
   }
 
@@ -105,34 +114,52 @@ public final class DateUtils {
    * 
    * @return the original time-zone, not null
    */
-  public static java.util.TimeZone originalTimeZone() {
-    return java.util.TimeZone.getTimeZone(ORIGINAL_TIME_ZONE.getID());
+  public static TimeZone originalTimeZone() {
+    return TimeZone.getTimeZone(ORIGINAL_TIME_ZONE.getId());
   }
 
   //-------------------------------------------------------------------------
   /**
    * Returns endDate - startDate in years, where a year is defined as 365.25 days.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the difference in years
    * @throws IllegalArgumentException if either date is null
    */
-  public static double getDifferenceInYears(final InstantProvider startDate, final InstantProvider endDate) {
+  public static double getDifferenceInYears(final Instant startDate, final Instant endDate) {
     if (startDate == null) {
       throw new IllegalArgumentException("Start date was null");
     }
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    return (double) (endDate.toInstant().toEpochMillisLong() - startDate.toInstant().toEpochMillisLong()) / MILLISECONDS_PER_YEAR;
+    return (double) (endDate.toEpochMilli() - startDate.toEpochMilli()) / MILLISECONDS_PER_YEAR;
   }
 
   /**
    * Returns endDate - startDate in years, where a year is defined as 365.25 days.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
+   * @return the difference in years
+   * @throws IllegalArgumentException if either date is null
+   */
+  public static double getDifferenceInYears(final ZonedDateTime startDate, final ZonedDateTime endDate) {
+    if (startDate == null) {
+      throw new IllegalArgumentException("Start date was null");
+    }
+    if (endDate == null) {
+      throw new IllegalArgumentException("End date was null");
+    }
+    return (double) (endDate.toInstant().toEpochMilli() - startDate.toInstant().toEpochMilli()) / MILLISECONDS_PER_YEAR;
+  }
+
+  /**
+   * Returns endDate - startDate in years, where a year is defined as 365.25 days.
+   * 
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the difference in years
    * @throws IllegalArgumentException if either date is null
    */
@@ -143,57 +170,53 @@ public final class DateUtils {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    double diff = endDate.toLocalDate().toEpochDays() - startDate.toLocalDate().toEpochDays();
+    double diff = endDate.toEpochDay() - startDate.toEpochDay();
     return diff / DAYS_PER_YEAR;
   }
 
   /**
    * Returns endDate - startDate in years, where a year-length is specified.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
-   * @param daysPerYear  the number of days in the year for calculation
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
+   * @param daysPerYear the number of days in the year for calculation
    * @return the difference in years
    * @throws IllegalArgumentException if either date is null
    */
-  public static double getDifferenceInYears(final InstantProvider startDate, final InstantProvider endDate, final double daysPerYear) {
+  public static double getDifferenceInYears(final Instant startDate, final Instant endDate, final double daysPerYear) {
     if (startDate == null) {
       throw new IllegalArgumentException("Start date was null");
     }
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    return (endDate.toInstant().toEpochMillisLong() - startDate.toInstant().toEpochMillisLong()) / MILLISECONDS_PER_DAY / daysPerYear;
+    return (endDate.toEpochMilli() - startDate.toEpochMilli()) / MILLISECONDS_PER_DAY / daysPerYear;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond. Note that the number of days in a year
-   * is defined to be 365.25.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond. Note that the
+   * number of days in a year is defined to be 365.25.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
    * @return the calculated instant, not null
    * @throws IllegalArgumentException if the date is null
    */
-  public static Instant getDateOffsetWithYearFraction(final InstantProvider startDate, final double yearFraction) {
+  public static Instant getDateOffsetWithYearFraction(final Instant startDate, final double yearFraction) {
     if (startDate == null) {
       throw new IllegalArgumentException("Date was null");
     }
     final long nanos = Math.round(1e9 * SECONDS_PER_YEAR * yearFraction);
-    return startDate.toInstant().plusNanos(nanos);
+    return startDate.plusNanos(nanos);
   }
 
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond. Note that the number of days in a year
-   * is defined to be 365.25.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond. Note that the
+   * number of days in a year is defined to be 365.25.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
    * @return the calculated date-time, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -202,37 +225,33 @@ public final class DateUtils {
       throw new IllegalArgumentException("Date was null");
     }
     final Instant instant = startDate.toInstant();
-    final InstantProvider offsetDate = getDateOffsetWithYearFraction(instant, yearFraction);
+    final Instant offsetDate = getDateOffsetWithYearFraction(instant, yearFraction);
     return ZonedDateTime.ofInstant(offsetDate, startDate.getZone());
   }
 
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
-   * @param daysPerYear  the number of days in the year for calculation
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
+   * @param daysPerYear the number of days in the year for calculation
    * @return the calculated instant, not null
    * @throws IllegalArgumentException if the date is null
    */
-  public static Instant getDateOffsetWithYearFraction(final InstantProvider startDate, final double yearFraction, final double daysPerYear) {
+  public static Instant getDateOffsetWithYearFraction(final Instant startDate, final double yearFraction, final double daysPerYear) {
     if (startDate == null) {
       throw new IllegalArgumentException("Date was null");
     }
     final long nanos = Math.round(1e9 * SECONDS_PER_DAY * daysPerYear * yearFraction);
-    return startDate.toInstant().plusNanos(nanos);
+    return startDate.plusNanos(nanos);
   }
 
   /**
-   * Method that allows a fraction of a year to be added to a date. If the
-   * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest nanosecond.
+   * Method that allows a fraction of a year to be added to a date. If the yearFraction that is used does not give an integer number of seconds, it is rounded to the nearest nanosecond.
    * 
-   * @param startDate  the start date, not null
-   * @param yearFraction  the fraction of a year
-   * @param daysPerYear  the number of days in the year for calculation
+   * @param startDate the start date, not null
+   * @param yearFraction the fraction of a year
+   * @param daysPerYear the number of days in the year for calculation
    * @return the calculated date-time, not null
    * @throws IllegalArgumentException if the date is null
    */
@@ -241,7 +260,7 @@ public final class DateUtils {
       throw new IllegalArgumentException("Date was null");
     }
     final Instant instant = startDate.toInstant();
-    final InstantProvider offsetDate = getDateOffsetWithYearFraction(instant, yearFraction, daysPerYear);
+    final Instant offsetDate = getDateOffsetWithYearFraction(instant, yearFraction, daysPerYear);
     return ZonedDateTime.ofInstant(offsetDate, startDate.getZone());
   }
 
@@ -249,36 +268,35 @@ public final class DateUtils {
   /**
    * Returns a UTC date given year, month, day with the time set to midnight (UTC).
    * 
-   * @param year  the year
-   * @param month  the month
-   * @param day  the day of month
+   * @param year the year
+   * @param month the month
+   * @param day the day of month
    * @return the date-time, not null
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day) {
-    return ZonedDateTime.of(LocalDateTime.ofMidnight(year, month, day), TimeZone.UTC);
+    return LocalDate.of(year, month, day).atStartOfDay(ZoneOffset.UTC);
   }
 
   /**
    * Returns a UTC date given year, month, day, hour and minutes.
    * 
-   * @param year  the year
-   * @param month  the month
-   * @param day  the day of month
-   * @param hour  the hour
-   * @param minute  the minute
+   * @param year the year
+   * @param month the month
+   * @param day the day of month
+   * @param hour the hour
+   * @param minute the minute
    * @return the date-time, not null
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day, final int hour, final int minute) {
-    return ZonedDateTime.of(LocalDateTime.of(year, month, day, hour, minute), TimeZone.UTC);
+    return ZonedDateTime.of(LocalDateTime.of(year, month, day, hour, minute), ZoneOffset.UTC);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the exact number of 24 hour days in between two dates.
-   * Accounts for dates being in different time zones.
+   * Calculates the exact number of 24 hour days in between two dates. Accounts for dates being in different time zones.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the exact fraction of days between two dates
    * @throws IllegalArgumentException if the date is null
    */
@@ -290,39 +308,39 @@ public final class DateUtils {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    return (endDate.toInstant().getEpochSeconds() - startDate.toInstant().getEpochSeconds()) / (double) SECONDS_PER_DAY;
+    return (endDate.toInstant().getEpochSecond() - startDate.toInstant().getEpochSecond()) / (double) SECONDS_PER_DAY;
   }
 
   /**
    * Calculates the number of days in between two dates.
    * 
-   * @param startDate  the start date, not null
-   * @param endDate  the end date, not null
+   * @param startDate the start date, not null
+   * @param endDate the end date, not null
    * @return the number of days between two dates
    * @throws IllegalArgumentException if the date is null
    */
-  public static int getDaysBetween(final DateProvider startDate, final DateProvider endDate) {
+  public static int getDaysBetween(final Temporal startDate, final Temporal endDate) {
     return getDaysBetween(startDate, true, endDate, false);
   }
 
   /**
    * Calculates the number of days in between two dates.
    * 
-   * @param startDate  the start date, not null
-   * @param includeStart  whether to include the start
-   * @param endDate  the end date, not null
-   * @param includeEnd  whether to include the end
+   * @param startDate the start date, not null
+   * @param includeStart whether to include the start
+   * @param endDate the end date, not null
+   * @param includeEnd whether to include the end
    * @return the number of days between two dates
    * @throws IllegalArgumentException if the date is null
    */
-  public static int getDaysBetween(final DateProvider startDate, final boolean includeStart, final DateProvider endDate, final boolean includeEnd) {
+  public static int getDaysBetween(final Temporal startDate, final boolean includeStart, final Temporal endDate, final boolean includeEnd) {
     if (startDate == null) {
       throw new IllegalArgumentException("Start date was null");
     }
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    int daysBetween = (int) Math.abs(startDate.toLocalDate().toEpochDays() - endDate.toLocalDate().toEpochDays());
+    int daysBetween = (int) Math.abs(DAYS.between(startDate, endDate));
     if (includeStart && includeEnd) {
       daysBetween++;
     } else if (!includeStart && !includeEnd) {
@@ -333,51 +351,56 @@ public final class DateUtils {
 
   /**
    * Prints the date in yyyyMMdd format.
-   * @param date  the date, not null
+   * 
+   * @param date the date, not null
    * @return the date as a string, not null
    * @throws IllegalArgumentException if the date is null
    */
-  public static String printYYYYMMDD(Calendrical date) {
+  public static String printYYYYMMDD(Temporal date) {
     if (date == null) {
       throw new IllegalArgumentException("date was null");
     }
-    return YYYYMMDD_LOCAL_DATE.print(date);
+    return YYYYMMDD_LOCAL_DATE.format(date);
   }
 
   /**
    * Prints the date in MM-dd format.
-   * @param date  the date, not null
+   * 
+   * @param date the date, not null
    * @return the date as a string, not null
    * @throws IllegalArgumentException if the date is null
    */
-  public static String printMMDD(Calendrical date) {
+  public static String printMMDD(Temporal date) {
     if (date == null) {
       throw new IllegalArgumentException("date was null");
     }
-    return MM_DD_LOCAL_DATE.print(date);
+    return MM_DD_LOCAL_DATE.format(date);
   }
 
   /**
    * Gets the previous Monday to Friday week-day before now.
+   * 
    * @return the date, not null
    */
   public static LocalDate previousWeekDay() {
-    Clock clock = Clock.system(TimeZone.UTC);
-    return previousWeekDay(clock.today());
+    Clock clock = Clock.systemUTC();
+    return previousWeekDay(LocalDate.now(clock));
   }
 
   /**
    * Gets the next Monday to Friday week-day after now.
+   * 
    * @return the date, not null
    */
   public static LocalDate nextWeekDay() {
-    Clock clock = Clock.system(TimeZone.UTC);
-    return nextWeekDay(clock.today());
+    Clock clock = Clock.systemUTC();
+    return nextWeekDay(LocalDate.now(clock));
   }
 
   /**
    * Gets the next Monday to Friday week-day after now.
-   * @param startDate  the date to start from
+   * 
+   * @param startDate the date to start from
    * @return the date, not null
    */
   public static LocalDate nextWeekDay(LocalDate startDate) {
@@ -408,7 +431,8 @@ public final class DateUtils {
 
   /**
    * Gets the previous Monday to Friday week-day before now.
-   * @param startDate  the date to start from
+   * 
+   * @param startDate the date to start from
    * @return the date, not null
    */
   public static LocalDate previousWeekDay(LocalDate startDate) {
@@ -439,27 +463,30 @@ public final class DateUtils {
 
   /**
    * Converts a date in integer YYYYMMDD representation to epoch millis.
+   * 
    * @param date in integer YYYYMMDD representation
    * @return the epoch millis
    */
   public static long getUTCEpochMilis(int date) {
-    LocalDate localDate = YYYYMMDD_LOCAL_DATE.parse(String.valueOf(date), LocalDate.rule());
-    return localDate.toEpochDays() * 24 * 60 * 60 * 1000;
+    LocalDate localDate = LocalDate.parse(String.valueOf(date), YYYYMMDD_LOCAL_DATE);
+    return localDate.toEpochDay() * 24 * 60 * 60 * 1000;
   }
 
   /**
    * Converts a date in integer YYYYMMDD representation to a UTC date-time.
+   * 
    * @param date in integer YYYYMMDD representation
    * @return the date-time, not null
    */
   public static ZonedDateTime toZonedDateTimeUTC(int date) {
-    LocalDate localDate = YYYYMMDD_LOCAL_DATE.parse(String.valueOf(date), LocalDate.rule());
-    ZonedDateTime zonedDateTime = getUTCDate(localDate.getYear(), localDate.getMonthOfYear().getValue(), localDate.getDayOfMonth());
+    LocalDate localDate = LocalDate.parse(String.valueOf(date), YYYYMMDD_LOCAL_DATE);
+    ZonedDateTime zonedDateTime = getUTCDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
     return zonedDateTime;
   }
 
   /**
    * Converts a date in integer YYYYMMDD representation to a date.
+   * 
    * @param date in integer YYYYMMDD representation
    * @return the date, not null
    */
@@ -469,23 +496,21 @@ public final class DateUtils {
 
   /**
    * Converts a date in string YYYYMMDD representation to epoch millis.
+   * 
    * @param date in YYYYMMDD representation, not null
    * @return the date
    */
   public static LocalDate toLocalDate(String date) {
     ArgumentChecker.notNull(date, "date");
-    return YYYYMMDD_LOCAL_DATE.parse(date, LocalDate.rule());
+    return LocalDate.parse(date, YYYYMMDD_LOCAL_DATE);
   }
-  
+
   /**
-   * Constructs a LocalDate from a <code>java.util.Date</code>
-   * using exactly the same field values.
+   * Constructs a LocalDate from a <code>java.util.Date</code> using exactly the same field values.
    * <p>
-   * Each field is queried from the Date and assigned to the LocalDate.
-   * This is useful if you have been using the Date as a local date,
-   * ignoring the zone.
-   *
-   * @param date  the Date to extract fields from
+   * Each field is queried from the Date and assigned to the LocalDate. This is useful if you have been using the Date as a local date, ignoring the zone.
+   * 
+   * @param date the Date to extract fields from
    * @return the created LocalDate
    * @throws IllegalArgumentException if the calendar is null
    * @throws IllegalArgumentException if the date is invalid for the ISO chronology
@@ -495,26 +520,77 @@ public final class DateUtils {
     if (date == null) {
       throw new IllegalArgumentException("The date must not be null");
     }
-    return LocalDate.of(
-        date.getYear() + 1900,
-        date.getMonth() + 1,
-        date.getDate()
-    );
+    return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
+  }
+
+  /**
+   * Constructs a LocalDate from a Function Requirement / Input passed over the wire via {@link FudgeMsg} <p>
+   * Example usage: LocalDate nextDividendDate = DateUtils.toLocalDate(inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE));
+   * 
+   * @param date an Object
+   * @return the created LocalDate
+   * @throws IllegalArgumentException if the date is not a recognized type
+   */
+  public static LocalDate toLocalDate(Object date) {
+    if (date instanceof LocalDate) {
+      return (LocalDate) date;
+    }
+    if (date instanceof FudgeDate) {
+      return ((FudgeDate) date).toLocalDate();
+    }
+    throw new IllegalArgumentException(date.toString() + " is not a date");
   }
 
   //-------------------------------------------------------------------------
-  // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing in JSR-310.
   /**
    * Creates a clock with a fixed time-source and UTC time-zone.
-   * @param instantProvider  the instant to be provided by the clock, not null
+   * 
+   * @param instant the instant to be provided by the clock, not null
    * @return the clock, not null
    */
-  public static Clock fixedClockUTC(InstantProvider instantProvider) {
-    TimeSource timeSource = TimeSource.fixed(instantProvider);
-    Clock clock = Clock.clock(timeSource, TimeZone.UTC);
-    return clock;
+  public static Clock fixedClockUTC(Instant instant) {
+    return Clock.fixed(instant, ZoneOffset.UTC);
   }
 
-  // TODO useful to have methods such as # weeks between.
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the estimated duration of the period.
+   * 
+   * @param period the period to estimate the duration of, not null
+   * @return the estimated duration, not null
+   */
+  public static Duration estimatedDuration(Period period) {
+    Duration monthsDuration = MONTHS.getDuration().multipliedBy(period.toTotalMonths());
+    Duration daysDuration = DAYS.getDuration().multipliedBy(period.getDays());
+    return monthsDuration.plus(daysDuration);
+  }
+
+  /**
+   * Converts GregorianCalendar to ZonedDateTime
+   * 
+   * @param calendar the calendar, not null
+   * @return the zoned-date-time, not null
+   */
+  public static ZonedDateTime toZonedDateTime(GregorianCalendar calendar) {
+    ZoneId zone = ZoneId.of(calendar.getTimeZone().getID());
+    Instant instant = Instant.ofEpochMilli(calendar.getTimeInMillis());
+    return ZonedDateTime.ofInstant(instant, zone);
+  }
+
+  /**
+   * Converts a string to a period, allowing the old format of {@code PT0S} for {@code P0D}.
+   * 
+   * @param period the period to parse, not null
+   * @return the parsed period, not null
+   * @deprecated Don't rely on this, fix the source of data where the PT0S values are coming from
+   */
+  @Deprecated
+  public static Period toPeriod(final String period) {
+    if ("PT0S".equals(period)) {
+      return Period.ZERO;
+    } else {
+      return Period.parse(period);
+    }
+  }
 
 }

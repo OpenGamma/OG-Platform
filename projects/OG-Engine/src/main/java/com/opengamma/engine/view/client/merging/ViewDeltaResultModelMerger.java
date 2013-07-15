@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
 
 /**
  * Provides the ability to merge {@link ViewResultModel} instances.

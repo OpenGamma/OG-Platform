@@ -19,11 +19,12 @@ import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Fudge.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ManageableRegionFudgeEncodingTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ManageableRegionFudgeEncodingTest.class);

@@ -7,9 +7,8 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
-import javax.time.InstantProvider;
-
 import org.fudgemsg.FudgeContext;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.helper.AvailableOutputs;
@@ -40,28 +39,28 @@ public class RemoteAvailableOutputsProvider extends AbstractRemoteClient impleme
 
   //-------------------------------------------------------------------------
   @Override
-  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider) {
-    return getPortfolioOutputs(portfolio, instantProvider, null, null);
+  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, Instant instant) {
+    return getPortfolioOutputs(portfolio, instant, null, null);
   }
 
   @Override
-  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
+  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, Instant instant, Integer maxNodes, Integer maxPositions) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     
-    URI uri = DataAvailablePortfolioOutputsResource.uri(getBaseUri(), instantProvider, maxNodes, maxPositions, null);
+    URI uri = DataAvailablePortfolioOutputsResource.uri(getBaseUri(), instant, maxNodes, maxPositions, null);
     return accessRemote(uri).post(AvailableOutputs.class, portfolio);
   }
 
   @Override
-  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instantProvider) {
-    return getPortfolioOutputs(portfolioId, instantProvider, null, null);
+  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, Instant instant) {
+    return getPortfolioOutputs(portfolioId, instant, null, null);
   }
 
   @Override
-  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
+  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, Instant instant, Integer maxNodes, Integer maxPositions) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
     
-    URI uri = DataAvailablePortfolioOutputsResource.uri(getBaseUri(), instantProvider, maxNodes, maxPositions, portfolioId);
+    URI uri = DataAvailablePortfolioOutputsResource.uri(getBaseUri(), instant, maxNodes, maxPositions, portfolioId);
     return accessRemote(uri).get(AvailableOutputs.class);
   }
 

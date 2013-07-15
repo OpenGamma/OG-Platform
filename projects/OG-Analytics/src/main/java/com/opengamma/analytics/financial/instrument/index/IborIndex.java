@@ -5,14 +5,12 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -46,13 +44,12 @@ public class IborIndex extends IndexDeposit {
    * @param currency The index currency.
    * @param tenor The index tenor.
    * @param spotLag The index spot lag (usually 2 or 0).
-   * @param calendar The calendar associated to the index.
    * @param dayCount The day count convention associated to the index.
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth The end-of-month flag.
    */
-  public IborIndex(Currency currency, Period tenor, int spotLag, Calendar calendar, DayCount dayCount, BusinessDayConvention businessDayConvention, boolean endOfMonth) {
-    this(currency, tenor, spotLag, calendar, dayCount, businessDayConvention, endOfMonth, "Ibor");
+  public IborIndex(final Currency currency, final Period tenor, final int spotLag, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
+    this(currency, tenor, spotLag, dayCount, businessDayConvention, endOfMonth, "Ibor");
   }
 
   /**
@@ -60,19 +57,18 @@ public class IborIndex extends IndexDeposit {
    * @param currency The index currency.
    * @param tenor The index tenor.
    * @param spotLag The index spot lag (usually 2 or 0).
-   * @param calendar The calendar associated to the index.
    * @param dayCount The day count convention associated to the index.
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth The end-of-month flag.
    * @param name The index name.
    */
-  public IborIndex(Currency currency, Period tenor, int spotLag, Calendar calendar, DayCount dayCount, BusinessDayConvention businessDayConvention, boolean endOfMonth, final String name) {
-    super(name, currency, calendar);
-    Validate.notNull(tenor, "tenor");
+  public IborIndex(final Currency currency, final Period tenor, final int spotLag, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth, final String name) {
+    super(name, currency);
+    ArgumentChecker.notNull(tenor, "tenor");
     _tenor = tenor;
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(dayCount, "day count");
-    Validate.notNull(businessDayConvention, "business day convention");
+    ArgumentChecker.notNull(dayCount, "day count");
+    ArgumentChecker.notNull(businessDayConvention, "business day convention");
     _spotLag = spotLag;
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
@@ -137,7 +133,7 @@ public class IborIndex extends IndexDeposit {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -147,7 +143,7 @@ public class IborIndex extends IndexDeposit {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    IborIndex other = (IborIndex) obj;
+    final IborIndex other = (IborIndex) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

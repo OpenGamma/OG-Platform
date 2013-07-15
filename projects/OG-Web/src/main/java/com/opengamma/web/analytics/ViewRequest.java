@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -31,6 +31,8 @@ public class ViewRequest {
   private final List<MarketDataSpecification> _marketDataSpecs;
   /** Version time and correction time for the portfolio used as a basis for the calculations. */
   private final VersionCorrection _portfolioVersionCorrection;
+  /** Whether to display blotter columns in the portfolio view showing a summary of the security details. */
+  private final boolean _blotter;
 
   /**
    *
@@ -38,13 +40,15 @@ public class ViewRequest {
    * @param aggregators Used for aggregating the view's portfolio, not null
    * @param marketDataSpecs The source(s) of market data for the view, not empty
    * @param valuationTime The valuation time used when calculating the analytics, can be null
+   * @param blotter Whether to show blotter columns containing security and trade data in the portfolio grid
    * @param portfolioVersionCorrection Version and correction time for the portfolio used when calculating the analytics
    */
   public ViewRequest(UniqueId viewDefinitionId,
                      List<String> aggregators,
                      List<MarketDataSpecification> marketDataSpecs,
                      Instant valuationTime,
-                     VersionCorrection portfolioVersionCorrection) {
+                     VersionCorrection portfolioVersionCorrection,
+                     boolean blotter) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(aggregators, "aggregators");
     ArgumentChecker.notEmpty(marketDataSpecs, "marketDataSpecs");
@@ -54,6 +58,7 @@ public class ViewRequest {
     _viewDefinitionId = viewDefinitionId;
     _aggregators = ImmutableList.copyOf(aggregators);
     _portfolioVersionCorrection = portfolioVersionCorrection;
+    _blotter = blotter;
   }
 
   /**
@@ -89,5 +94,12 @@ public class ViewRequest {
    */
   public VersionCorrection getPortfolioVersionCorrection() {
     return _portfolioVersionCorrection;
+  }
+
+  /**
+   * @return Whether to show blotter columns in the portfolio view which show a summary of the security details.
+   */
+  public boolean showBlotterColumns() {
+    return _blotter;
   }
 }

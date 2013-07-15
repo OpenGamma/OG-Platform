@@ -1,0 +1,17 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.financial.security.cashflow {
+
+  message CashFlowSecurity extends FinancialSecurity {
+    required string securityType [default="CASHFLOW"];
+    
+    required com.opengamma.util.money.Currency currency;
+    required javax.time.calendar.ZonedDateTime settlement;
+    required double amount;
+  }
+
+}

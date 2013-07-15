@@ -7,7 +7,7 @@ package com.opengamma.master.exchange.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -23,11 +23,12 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.i18n.Country;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemoryExchangeMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemoryExchangeMasterTest {
 
   private static String NAME = "LIFFE";
@@ -47,7 +48,7 @@ public class InMemoryExchangeMasterTest {
   @BeforeMethod
   public void setUp() {
     master = new InMemoryExchangeMaster();
-    ManageableExchange inputExchange = new ManageableExchange(BUNDLE_FULL, NAME, GB, TimeZone.of("Europe/London"));
+    ManageableExchange inputExchange = new ManageableExchange(BUNDLE_FULL, NAME, GB, ZoneId.of("Europe/London"));
     ExchangeDocument inputDoc = new ExchangeDocument(inputExchange);
     addedDoc = master.add(inputDoc);
   }

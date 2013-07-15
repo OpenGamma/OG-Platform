@@ -5,16 +5,13 @@
  */
 package com.opengamma.analytics.financial.timeseries.returns;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -33,29 +30,26 @@ public class SimpleNetRelativeTimeSeriesReturnCalculator extends RelativeTimeSer
     if (x.length > 2) {
       s_logger.info("Have more than two time series in array; only using first two");
     }
-    final FastIntDoubleTimeSeries ts1 = x[0].toFastIntDoubleTimeSeries();
-    final FastIntDoubleTimeSeries ts2 = x[1].toFastIntDoubleTimeSeries();
+    final LocalDateDoubleTimeSeries ts1 = x[0];
+    final LocalDateDoubleTimeSeries ts2 = x[1];
     final int n = ts1.size();
     final int[] times = new int[n];
     final double[] returns = new double[n];
-    final Iterator<Entry<Integer, Double>> iter1 = ts1.iterator();
-    Entry<Integer, Double> entry1;
-    Double value2;
-    int t;
+    final LocalDateDoubleEntryIterator iter1 = ts1.iterator();
     int i = 0;
     while (iter1.hasNext()) {
-      entry1 = iter1.next();
-      t = entry1.getKey();
-      value2 = ts2.getValue(t);
+      int date = iter1.nextTimeFast();
+      Double value2 = ts2.getValue(date);
       if (value2 == null || Math.abs(value2) < ZERO) {
         if (getMode().equals(CalculationMode.STRICT)) {
-          throw new TimeSeriesException("No data in second series for time " + t);
+          throw new TimeSeriesException("No data in second series for time " + iter1.currentTime());
         }
       } else {
-        times[i] = entry1.getKey();
-        returns[i++] = (entry1.getValue() / value2 - 1);
+        times[i] = iter1.currentTimeFast();
+        returns[i++] = (iter1.currentValue() / value2 - 1);
       }
     }
     return getSeries(x[0], times, returns, i);
   }
+
 }

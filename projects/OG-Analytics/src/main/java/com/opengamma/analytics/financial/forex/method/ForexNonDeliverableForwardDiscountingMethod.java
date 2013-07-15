@@ -84,7 +84,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
 
   @Override
   public MultipleCurrencyAmount currencyExposure(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexNonDeliverableForward, "Derivative should be ForexNonDeliverableForward");    
+    Validate.isTrue(instrument instanceof ForexNonDeliverableForward, "Derivative should be ForexNonDeliverableForward");
     return currencyExposure((ForexNonDeliverableForward) instrument, curves);
   }
 
@@ -117,11 +117,11 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
     final double pvBar = 1.0;
     final double df1Bar = -ndf.getNotionalCurrency2() * ndf.getExchangeRate() / spot * pvBar;
     final double df2Bar = ndf.getNotionalCurrency2() * pvBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting1 = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listDiscounting1 = new ArrayList<>();
     listDiscounting1.add(new DoublesPair(ndf.getPaymentTime(), -ndf.getPaymentTime() * df1 * df1Bar));
     resultMap.put(ndf.getDiscountingCurve1Name(), listDiscounting1);
-    final List<DoublesPair> listDiscounting2 = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDiscounting2 = new ArrayList<>();
     listDiscounting2.add(new DoublesPair(ndf.getPaymentTime(), -ndf.getPaymentTime() * df2 * df2Bar));
     resultMap.put(ndf.getDiscountingCurve2Name(), listDiscounting2);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);

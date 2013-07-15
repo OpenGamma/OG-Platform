@@ -25,11 +25,13 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataRegionResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataRegionResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "PosA");

@@ -18,17 +18,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.Month;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -45,7 +45,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
  * Utility class used by WebResource testcases
  */
 public final class WebResourceTestUtils {
-
+  
   public static final ContainerFactory s_sortedJSONObjectFactory = new ContainerFactory() {
     
     @SuppressWarnings("rawtypes")
@@ -60,8 +60,6 @@ public final class WebResourceTestUtils {
       return new TreeMap();
     }
   };
-  
-  public static final JSONParser s_jsonParser = new JSONParser();
   
   private WebResourceTestUtils() {
   }
@@ -90,8 +88,8 @@ public final class WebResourceTestUtils {
    * @return the bond future security
    */
   public static BondFutureSecurity getBondFutureSecurity() {
-    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 21, 19, 0),
-        TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
+    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2010, Month.JUNE, 21, 19, 0),
+        ZoneOffset.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     Set<BondFutureDeliverable> basket = new HashSet<BondFutureDeliverable>();
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("GV912810EV6")), 1.0858));
@@ -143,8 +141,8 @@ public final class WebResourceTestUtils {
         ExternalSchemes.bloombergBuidSecurityId("GV912810FA1")), 1.0396));
     
     BondFutureSecurity sec = new BondFutureSecurity(expiry, "XCBT", "XCBT", Currency.USD, 1000, basket,
-                                                    ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC), 
-                                                    ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC),
+                                                    LocalDate.of(2010, 6, 01).atStartOfDay(ZoneOffset.UTC), 
+                                                    LocalDate.of(2010, 6, 01).atStartOfDay(ZoneOffset.UTC),
                                                     "Bond");
     sec.setName("US LONG BOND(CBT) Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
@@ -166,9 +164,9 @@ public final class WebResourceTestUtils {
   public static void assertJSONObjectEquals(final JSONObject expectedJson, final JSONObject actualJson) throws Exception {
     assertNotNull(expectedJson);
     assertNotNull(actualJson);
-    String expectedSorted = JSONValue.toJSONString((Map) s_jsonParser.parse(expectedJson.toString(), s_sortedJSONObjectFactory));
-    String actualSorted = JSONValue.toJSONString((Map) s_jsonParser.parse(actualJson.toString(), s_sortedJSONObjectFactory));
+    String expectedSorted = JSONValue.toJSONString((Map) new JSONParser().parse(expectedJson.toString(), s_sortedJSONObjectFactory));
+    String actualSorted = JSONValue.toJSONString((Map) new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
     assertEquals(expectedSorted, actualSorted);
   }
-  
+
 }

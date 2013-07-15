@@ -1,0 +1,59 @@
+<div class="OG-g-h-sets" style="position: relative; width: {{width}}px; padding-right: {{padding_right}}px;">
+  {{#each sets}}
+    <div class="OG-g-h-set">
+      {{#if show_sets}}
+        {{#if views}}
+          <!-- OPTIONS AND DROPDOWNS -->
+          <div class="OG-g-h-set-name s{{index}}">
+            <div class="OG-grid-options">
+              <!-- SPARKLINES -->
+              {{#if show_sparklines}}
+                <div class="og-sparklines og-active">
+                  <div class="OG-icon og-icon-sparkline"></div><span>ON</span>
+                </div>
+              {{else}}
+                <div class="og-sparklines">
+                  <div class="OG-icon og-icon-sparkline"></div><span>OFF</span>
+                </div>
+              {{/if}}
+              <!-- -->
+              <div class="og-divider"></div>
+              <!-- CSV -->
+              <div class="og-csv og-active">
+                <div class="OG-icon og-icon-csv"></div><span>CSV</span>
+              </div>
+              <!-- -->
+              <div class="og-divider"></div>
+              <!-- DROPDOWN MENU -->
+              <div class="og-dropdown {{#if views.list.length}}og-expandable{{/if}}">
+                <span>{{views.selected}}</span>
+                {{#if views.list.length}}
+                  <span class="OG-icon og-icon-down"></span>
+                  <div class="og-menu">
+                    {{#each views.list}}<div class="og-js-viewchange">{{this}}</div>{{/each}}
+                  </div>
+                {{/if}}
+              </div>
+              {{#if show_save}}
+              <!--<div class="og-buttons">
+                <div class="OG-button-save">save...</div>
+              </div>-->
+              {{/if}}
+            </div>
+          </div>
+        {{else}}
+          <!-- SET NAMES -->
+          <div class="OG-g-h-set-name s{{index}}"><div>{{name}}</div></div>
+        {{/if}}
+      {{/if}}
+      <div class="OG-g-h-cols">
+        {{#each columns}}
+            <div class="OG-g-h-col c{{index}} {{#if ../reorder}}reorder{{/if}}" data-index="{{index}}"
+                title="{{../name}}: {{name}} {{description}}">{{name}}
+              <div class="OG-g-h-resize resize"></div>
+            </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/each}}
+</div>

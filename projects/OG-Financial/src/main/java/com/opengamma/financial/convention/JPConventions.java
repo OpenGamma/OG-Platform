@@ -1,16 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -21,14 +20,20 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Contains information used to construct standard versions of JPY instruments.
  */
 public class JPConventions {
 
+  /**
+   * Adds conventions for deposit, Libor fixings, swaps, FRAs and IR futures.
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -40,40 +45,40 @@ public class JPConventions {
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
 
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00O/N Index"), simpleNameSecurityId("JPY LIBOR O/N")), "JPY LIBOR O/N", act360,
-        following, Period.ofDays(1), 0, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00S/N Index"), simpleNameSecurityId("JPY LIBOR S/N")), "JPY LIBOR S/N", act360,
-        following, Period.ofDays(1), 0, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00T/N Index"), simpleNameSecurityId("JPY LIBOR T/N")), "JPY LIBOR T/N", act360,
-        following, Period.ofDays(1), 0, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0001W Index"), simpleNameSecurityId("JPY LIBOR 1w")), "JPY LIBOR 1w", act360,
-        following, Period.ofDays(1), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0002W Index"), simpleNameSecurityId("JPY LIBOR 2w")), "JPY LIBOR 2w", act360,
-        following, Period.ofDays(1), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0001M Index"), simpleNameSecurityId("JPY LIBOR 1m")), "JPY LIBOR 1m", act360,
-        following, Period.ofMonths(1), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0002M Index"), simpleNameSecurityId("JPY LIBOR 2m")), "JPY LIBOR 2m", act360,
-        following, Period.ofMonths(2), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0003M Index"), simpleNameSecurityId("JPY LIBOR 3m")), "JPY LIBOR 3m", act360,
-        following, Period.ofMonths(3), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0004M Index"), simpleNameSecurityId("JPY LIBOR 4m")), "JPY LIBOR 4m", act360,
-        following, Period.ofMonths(4), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0005M Index"), simpleNameSecurityId("JPY LIBOR 5m")), "JPY LIBOR 5m", act360,
-        following, Period.ofMonths(5), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0006M Index"), simpleNameSecurityId("JPY LIBOR 6m")), "JPY LIBOR 6m", act360,
-        following, Period.ofMonths(6), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0007M Index"), simpleNameSecurityId("JPY LIBOR 7m")), "JPY LIBOR 7m", act360,
-        following, Period.ofMonths(7), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0008M Index"), simpleNameSecurityId("JPY LIBOR 8m")), "JPY LIBOR 8m", act360,
-        following, Period.ofMonths(8), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0009M Index"), simpleNameSecurityId("JPY LIBOR 9m")), "JPY LIBOR 9m", act360,
-        following, Period.ofMonths(9), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0010M Index"), simpleNameSecurityId("JPY LIBOR 10m")), "JPY LIBOR 10m", act360,
-        following, Period.ofMonths(10), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0011M Index"), simpleNameSecurityId("JPY LIBOR 11m")), "JPY LIBOR 11m", act360,
-        following, Period.ofMonths(11), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0012M Index"), simpleNameSecurityId("JPY LIBOR 12m")), "JPY LIBOR 12m", act360,
-        following, Period.ofMonths(12), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00O/N Index"), simpleNameSecurityId("JPY LIBOR O/N")),
+        "JPY LIBOR O/N", act360, following, Period.ofDays(1), 0, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00S/N Index"), simpleNameSecurityId("JPY LIBOR S/N"),
+        tullettPrebonSecurityId("ASLIBJPYSNL")), "JPY LIBOR S/N", act360, following, Period.ofDays(1), 0, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY00T/N Index"), simpleNameSecurityId("JPY LIBOR T/N")),
+        "JPY LIBOR T/N", act360, following, Period.ofDays(1), 0, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0001W Index"), simpleNameSecurityId("JPY LIBOR 1w"),
+        tullettPrebonSecurityId("ASLIBJPY1WL")), "JPY LIBOR 1w", act360, following, Period.ofDays(1), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0002W Index"), simpleNameSecurityId("JPY LIBOR 2w"),
+        tullettPrebonSecurityId("ASLIBJPY2WL")), "JPY LIBOR 2w", act360, following, Period.ofDays(1), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0001M Index"), simpleNameSecurityId("JPY LIBOR 1m"),
+        tullettPrebonSecurityId("ASLIBJPY01L")), "JPY LIBOR 1m", act360, following, Period.ofMonths(1), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0002M Index"), simpleNameSecurityId("JPY LIBOR 2m"),
+        tullettPrebonSecurityId("ASLIBJPY02L")), "JPY LIBOR 2m", act360, following, Period.ofMonths(2), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0003M Index"), simpleNameSecurityId("JPY LIBOR 3m"),
+        tullettPrebonSecurityId("ASLIBJPY03L")), "JPY LIBOR 3m", act360, following, Period.ofMonths(3), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0004M Index"), simpleNameSecurityId("JPY LIBOR 4m"),
+        tullettPrebonSecurityId("ASLIBJPY04L")), "JPY LIBOR 4m", act360, following, Period.ofMonths(4), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0005M Index"), simpleNameSecurityId("JPY LIBOR 5m"),
+        tullettPrebonSecurityId("ASLIBJPY05L")), "JPY LIBOR 5m", act360, following, Period.ofMonths(5), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0006M Index"), simpleNameSecurityId("JPY LIBOR 6m"),
+        tullettPrebonSecurityId("ASLIBJPY06L")), "JPY LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0007M Index"), simpleNameSecurityId("JPY LIBOR 7m"),
+        tullettPrebonSecurityId("ASLIBJPY07L")), "JPY LIBOR 7m", act360, following, Period.ofMonths(7), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0008M Index"), simpleNameSecurityId("JPY LIBOR 8m"),
+        tullettPrebonSecurityId("ASLIBJPY08L")), "JPY LIBOR 8m", act360, following, Period.ofMonths(8), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0009M Index"), simpleNameSecurityId("JPY LIBOR 9m"),
+        tullettPrebonSecurityId("ASLIBJPY09L")), "JPY LIBOR 9m", act360, following, Period.ofMonths(9), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0010M Index"), simpleNameSecurityId("JPY LIBOR 10m"),
+        tullettPrebonSecurityId("ASLIBJPY10L")), "JPY LIBOR 10m", act360, following, Period.ofMonths(10), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0011M Index"), simpleNameSecurityId("JPY LIBOR 11m"),
+        tullettPrebonSecurityId("ASLIBJPY11L")), "JPY LIBOR 11m", act360, following, Period.ofMonths(11), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0012M Index"), simpleNameSecurityId("JPY LIBOR 12m"),
+        tullettPrebonSecurityId("ASLIBJPY12L")), "JPY LIBOR 12m", act360, following, Period.ofMonths(12), 2, false, jp);
 
     //TODO need to check that these are right for deposit rates
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR1T Curncy"), simpleNameSecurityId("JPY DEPOSIT 1d")), "JPY DEPOSIT 1d", act360,
@@ -82,35 +87,50 @@ public class JPConventions {
         following, Period.ofDays(1), 0, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR3T Curncy"), simpleNameSecurityId("JPY DEPOSIT 3d")), "JPY DEPOSIT 3d", act360,
         following, Period.ofDays(1), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR1Z Curncy"), simpleNameSecurityId("JPY DEPOSIT 1w")), "JPY DEPOSIT 1w", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR1Z Curncy"), simpleNameSecurityId("JPY DEPOSIT 1w"),
+        tullettPrebonSecurityId("MNDEPJPYSPT01W")), "JPY DEPOSIT 1w", act360,
         following, Period.ofDays(7), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR2Z Curncy"), simpleNameSecurityId("JPY DEPOSIT 2w")), "JPY DEPOSIT 2w", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR2Z Curncy"), simpleNameSecurityId("JPY DEPOSIT 2w"),
+        tullettPrebonSecurityId("MNDEPJPYSPT02W")), "JPY DEPOSIT 2w", act360,
         following, Period.ofDays(14), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR3Z Curncy"), simpleNameSecurityId("JPY DEPOSIT 3w")), "JPY DEPOSIT 3w", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR3Z Curncy"), simpleNameSecurityId("JPY DEPOSIT 3w"),
+        tullettPrebonSecurityId("MNDEPJPYSPT03W")), "JPY DEPOSIT 3w", act360,
         following, Period.ofDays(21), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRA Curncy"), simpleNameSecurityId("JPY DEPOSIT 1m")), "JPY DEPOSIT 1m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRA Curncy"), simpleNameSecurityId("JPY DEPOSIT 1m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT01M")), "JPY DEPOSIT 1m", act360,
         following, Period.ofMonths(1), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRB Curncy"), simpleNameSecurityId("JPY DEPOSIT 2m")), "JPY DEPOSIT 2m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRB Curncy"), simpleNameSecurityId("JPY DEPOSIT 2m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT02M")), "JPY DEPOSIT 2m", act360,
         following, Period.ofMonths(2), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRC Curncy"), simpleNameSecurityId("JPY DEPOSIT 3m")), "JPY DEPOSIT 3m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRC Curncy"), simpleNameSecurityId("JPY DEPOSIT 3m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT03M")), "JPY DEPOSIT 3m", act360,
         following, Period.ofMonths(3), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRD Curncy"), simpleNameSecurityId("JPY DEPOSIT 4m")), "JPY DEPOSIT 4m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRD Curncy"), simpleNameSecurityId("JPY DEPOSIT 4m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT04M")), "JPY DEPOSIT 4m", act360,
         following, Period.ofMonths(4), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRE Curncy"), simpleNameSecurityId("JPY DEPOSIT 5m")), "JPY DEPOSIT 5m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRE Curncy"), simpleNameSecurityId("JPY DEPOSIT 5m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT05M")), "JPY DEPOSIT 5m", act360,
         following, Period.ofMonths(5), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRF Curncy"), simpleNameSecurityId("JPY DEPOSIT 6m")), "JPY DEPOSIT 6m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRF Curncy"), simpleNameSecurityId("JPY DEPOSIT 6m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT06M")), "JPY DEPOSIT 6m", act360,
         following, Period.ofMonths(6), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRG Curncy"), simpleNameSecurityId("JPY DEPOSIT 7m")), "JPY DEPOSIT 7m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRG Curncy"), simpleNameSecurityId("JPY DEPOSIT 7m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT07M")), "JPY DEPOSIT 7m", act360,
         following, Period.ofMonths(7), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRH Curncy"), simpleNameSecurityId("JPY DEPOSIT 8m")), "JPY DEPOSIT 8m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRH Curncy"), simpleNameSecurityId("JPY DEPOSIT 8m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT08M")), "JPY DEPOSIT 8m", act360,
         following, Period.ofMonths(8), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRI Curncy"), simpleNameSecurityId("JPY DEPOSIT 9m")), "JPY DEPOSIT 9m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRI Curncy"), simpleNameSecurityId("JPY DEPOSIT 9m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT09M")), "JPY DEPOSIT 9m", act360,
         following, Period.ofMonths(9), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRJ Curncy"), simpleNameSecurityId("JPY DEPOSIT 10m")), "JPY DEPOSIT 10m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRJ Curncy"), simpleNameSecurityId("JPY DEPOSIT 10m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT10M")), "JPY DEPOSIT 10m", act360,
         following, Period.ofMonths(10), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRK Curncy"), simpleNameSecurityId("JPY DEPOSIT 11m")), "JPY DEPOSIT 11m", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDRK Curncy"), simpleNameSecurityId("JPY DEPOSIT 11m"),
+        tullettPrebonSecurityId("MNDEPJPYSPT11M")), "JPY DEPOSIT 11m", act360,
         following, Period.ofMonths(11), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR1 Curncy"), simpleNameSecurityId("JPY DEPOSIT 1y")), "JPY DEPOSIT 1y", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR1 Curncy"), simpleNameSecurityId("JPY DEPOSIT 1y"),
+        tullettPrebonSecurityId("MNDEPJPYSPT12M")), "JPY DEPOSIT 1y", act360,
         following, Period.ofYears(1), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JYDR2 Curncy"), simpleNameSecurityId("JPY DEPOSIT 2y")), "JPY DEPOSIT 2y", act360,
         following, Period.ofYears(2), 2, false, jp);
@@ -148,5 +168,13 @@ public class JPConventions {
 
     //TODO check this
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_IBOR_INDEX")), "JPY_IBOR_INDEX", act360, following, 2, false);
+  }
+
+  public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JP_TREASURY_BOND_CONVENTION")), "JP_TREASURY_BOND_CONVENTION", true,
+        true, 0, 3, true);
+
   }
 }

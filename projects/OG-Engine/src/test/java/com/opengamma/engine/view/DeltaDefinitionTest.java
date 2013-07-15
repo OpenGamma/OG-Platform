@@ -10,16 +10,18 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DeltaDefinition. 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DeltaDefinitionTest {
   
   public void testEmptyDefinition() {
@@ -57,8 +59,6 @@ public class DeltaDefinitionTest {
   }
   
   private ValueSpecification createValueSpecification(String valueName) {
-    return new ValueSpecification(
-        new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, UniqueId.of("foo", "bar")),
-        "mockFunctionId");
+    return new ValueSpecification(valueName, ComputationTargetSpecification.of(UniqueId.of("foo", "bar")), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
   }
 }

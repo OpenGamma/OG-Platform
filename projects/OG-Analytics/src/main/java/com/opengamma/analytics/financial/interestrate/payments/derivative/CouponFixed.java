@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -128,7 +128,7 @@ public class CouponFixed extends Coupon {
    * @param rate The new rate.
    * @return The coupon.
    */
-  public CouponFixed withRate(double rate) {
+  public CouponFixed withRate(final double rate) {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
   }
 
@@ -137,12 +137,12 @@ public class CouponFixed extends Coupon {
    * @param spread The rate spread.
    * @return The coupon.
    */
-  public CouponFixed withRateShifted(double spread) {
+  public CouponFixed withRateShifted(final double spread) {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
   }
 
   @Override
-  public CouponFixed withNotional(double notional) {
+  public CouponFixed withNotional(final double notional) {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 
@@ -156,11 +156,13 @@ public class CouponFixed extends Coupon {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponFixed(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponFixed(this);
   }
 
@@ -184,7 +186,7 @@ public class CouponFixed extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -194,7 +196,7 @@ public class CouponFixed extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponFixed other = (CouponFixed) obj;
+    final CouponFixed other = (CouponFixed) obj;
     if (Double.doubleToLongBits(_amount) != Double.doubleToLongBits(other._amount)) {
       return false;
     }

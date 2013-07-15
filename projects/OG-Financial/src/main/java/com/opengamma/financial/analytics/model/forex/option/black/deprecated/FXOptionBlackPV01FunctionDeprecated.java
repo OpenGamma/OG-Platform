@@ -13,10 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.calculator.PV01ForexCalculator;
@@ -24,11 +23,11 @@ import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRa
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -36,15 +35,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPV01Function;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -59,20 +56,12 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity || target.getSecurity() instanceof FXDigitalOptionSecurity;
+    return FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime date = ZonedDateTime.now(executionContext.getValuationClock());
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
@@ -112,7 +101,7 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
     final ValueProperties properties = getResultProperties(curveCurrency.getCode(), curveName, putCurveName, putForwardCurveName, putCurveCalculationMethod,
         callCurveName, callForwardCurveName, callCurveCalculationMethod, surfaceName);
     final InstrumentDefinition<?> definition = security.accept(CONVERTER);
-    final InstrumentDerivative option = definition.toDerivative(date, new String[] {fullCurveName, forwardCurveName});
+    final InstrumentDerivative option = definition.toDerivative(date, new String[] {fullCurveName, forwardCurveName });
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PV01, target.toSpecification(), properties);
     final Map<String, Double> pv01 = option.accept(CALCULATOR, sensitivitiesForCurrency);
     return Collections.singleton(new ComputedValue(spec, pv01.get(fullCurveName)));
@@ -184,7 +173,7 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
     final String putCurveCalculationMethod = putCurveCalculationMethods.iterator().next();
     final String callCurveCalculationMethod = callCurveCalculationMethods.iterator().next();
     final String surfaceName = surfaceNames.iterator().next();
-    final ValueRequirement spotRequirement = new ValueRequirement(ValueRequirementNames.SPOT_RATE, UnorderedCurrencyPair.of(callCurrency, putCurrency));
+    final ValueRequirement spotRequirement = ConventionBasedFXRateFunction.getSpotRateRequirement(callCurrency, putCurrency);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(spotRequirement);
     requirements.add(getCurveSpecRequirement(Currency.of(currency), curveName));
@@ -215,7 +204,7 @@ public class FXOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCom
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.CURRENCY.specification(currency), properties);
   }
 
   private ValueProperties getResultProperties() {

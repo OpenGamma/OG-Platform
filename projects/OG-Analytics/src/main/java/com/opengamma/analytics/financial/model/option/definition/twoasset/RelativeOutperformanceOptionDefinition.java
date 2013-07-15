@@ -33,7 +33,7 @@ import com.opengamma.util.time.Expiry;
  * $S_2$ is the spot price of the second underlying.
  */
 public class RelativeOutperformanceOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardTwoAssetOptionDataBundle>();
+  private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardTwoAssetOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardTwoAssetOptionDataBundle>() {
 
     @Override

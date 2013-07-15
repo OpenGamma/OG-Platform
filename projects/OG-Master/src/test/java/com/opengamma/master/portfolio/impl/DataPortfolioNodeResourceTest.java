@@ -18,11 +18,13 @@ import org.testng.annotations.Test;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Tests DataPortfolioNodeResource.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataPortfolioNodeResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "NodeA");

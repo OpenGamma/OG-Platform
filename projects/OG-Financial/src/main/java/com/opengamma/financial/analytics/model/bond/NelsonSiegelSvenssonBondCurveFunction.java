@@ -12,21 +12,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.ParameterizedFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -37,12 +35,12 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -83,7 +81,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, CURRENCY.getUniqueId()), createValueProperties().with(
+    _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, ComputationTargetSpecification.of(CURRENCY), createValueProperties().with(
         PROPERTY_CURVE_CALCULATION_TYPE, PROPERTY_PREFIX + "_" + CURRENCY.getCode()).get());
     _results = Sets.newHashSet(_result);
   }
@@ -94,7 +92,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new AbstractInvokingCompiledFunction() {
 
       @SuppressWarnings("synthetic-access")
@@ -104,7 +102,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
         final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
         final Clock snapshotClock = executionContext.getValuationClock();
-        final ZonedDateTime now = snapshotClock.zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final BondSecurityConverter converter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
         final FinancialSecuritySource securitySource = executionContext.getSecuritySource(FinancialSecuritySource.class);
         final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName(ISSUER_NAME));
@@ -138,7 +136,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           final InstrumentDefinition<?> definition = converter.visitGovernmentBondSecurity(bondSec);
           final String bondStringName = PROPERTY_PREFIX + "_" + CURRENCY.getCode();
           final InstrumentDerivative bond = definition.toDerivative(now, bondStringName);
-          t[i] = LAST_DATE.visit(bond);
+          t[i] = bond.accept(LAST_DATE);
           ytm[i++] = ((Double) ytmObject / 100);
         }
         final DoubleMatrix1D initialValues = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3 });
@@ -152,16 +150,13 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.CURRENCY;
       }
 
       @SuppressWarnings("synthetic-access")
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.PRIMITIVE) {
-          return false;
-        }
-        return ObjectUtils.equals(target.getUniqueId(), CURRENCY.getUniqueId());
+        return CURRENCY.equals(target.getValue());
       }
 
       @SuppressWarnings("synthetic-access")
@@ -175,7 +170,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
             final Security sec = iter.next();
             if (sec instanceof BondSecurity) {
               final BondSecurity bond = (BondSecurity) sec;
-              if (bond.getLastTradeDate().getExpiry().toInstant().isBefore(atInstant.toInstant())) {
+              if (bond.getLastTradeDate().getExpiry().toInstant().isBefore(atInstant)) {
                 iter.remove();
               }
               s_logger.info(bond.getLastTradeDate().toString());

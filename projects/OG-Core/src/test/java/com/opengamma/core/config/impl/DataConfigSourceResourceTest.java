@@ -13,13 +13,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.net.URI;
 import java.util.Collections;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.impl.SimpleExchange;
@@ -27,11 +27,13 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DataConfigSourceResourceTest {
 
   private static final ObjectId OID = ObjectId.of("Test", "A");
@@ -51,7 +53,7 @@ public class DataConfigSourceResourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void testGetConfigByUid() {
     final SimpleExchange target = new SimpleExchange();
@@ -62,7 +64,7 @@ public class DataConfigSourceResourceTest {
     assertEquals(target, OpenGammaFudgeContext.getInstance().fromFudgeMsg(ConfigItem.class, (FudgeMsg) test.getEntity()).getValue());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void testGetConfigByOid() {
     final SimpleExchange target = new SimpleExchange();

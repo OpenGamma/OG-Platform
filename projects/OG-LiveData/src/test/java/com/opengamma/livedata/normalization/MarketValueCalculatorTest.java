@@ -13,11 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class MarketValueCalculatorTest {
 
   public void bidAskLast() {

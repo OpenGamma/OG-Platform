@@ -24,20 +24,20 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 public class DoublesSurfaceTestCase {
-  protected static final String NAME = "a";
-  protected static final double[] X_PRIMITIVE;
-  protected static final double[] Y_PRIMITIVE;
-  protected static final double[] Z_PRIMITIVE;
-  protected static final Double[] X_OBJECT;
-  protected static final Double[] Y_OBJECT;
-  protected static final Double[] Z_OBJECT;
-  protected static final List<Double> X_LIST;
-  protected static final List<Double> Y_LIST;
-  protected static final List<Double> Z_LIST;
-  protected static final DoublesPair[] XY_PAIR;
-  protected static final List<DoublesPair> XY_PAIR_LIST;
-  protected static final Map<DoublesPair, Double> XYZ_MAP;
-  protected static final List<Triple<Double, Double, Double>> XYZ_LIST;
+  static final String NAME = "a";
+  static final double[] X_PRIMITIVE;
+  static final double[] Y_PRIMITIVE;
+  static final double[] Z_PRIMITIVE;
+  static final Double[] X_OBJECT;
+  static final Double[] Y_OBJECT;
+  static final Double[] Z_OBJECT;
+  static final List<Double> X_LIST;
+  static final List<Double> Y_LIST;
+  static final List<Double> Z_LIST;
+  static final DoublesPair[] XY_PAIR;
+  static final List<DoublesPair> XY_PAIR_LIST;
+  static final Map<DoublesPair, Double> XYZ_MAP;
+  static final List<Triple<Double, Double, Double>> XYZ_LIST;
 
   static {
     final int n = 10;

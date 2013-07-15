@@ -10,28 +10,28 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.time.Instant;
-
 import org.eclipse.jetty.server.Server;
 import org.json.JSONException;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RestEntitySubscriptionTest {
 
   private final String _uidStr = "Tst~101";
   private final UniqueId _uid = UniqueId.parse(_uidStr);
   private final UniqueId _uidV1 = _uid.withVersion("1");
-  private final UniqueId _uidV2 = _uid.withVersion("2");
 
   private Server _server;
   private TestChangeManager _changeManager;
@@ -80,7 +80,6 @@ public class RestEntitySubscriptionTest {
     String uid2Str = "Tst~102";
     UniqueId uid2 = UniqueId.parse(uid2Str);
     UniqueId uid2V1 = uid2.withVersion("1");
-    UniqueId uid2V2 = uid2.withVersion("2");
     String restUrl2 = "/jax/test/" + uid2Str;
     _webPushTestUtils.readFromPath(restUrl1, clientId);
     _webPushTestUtils.readFromPath(restUrl2, clientId);

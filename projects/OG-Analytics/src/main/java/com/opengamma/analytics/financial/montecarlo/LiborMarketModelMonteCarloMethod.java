@@ -51,7 +51,7 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
    * @param numberGenerator The random number generator. Generate Normally distributed numbers.
    * @param nbPath The number of paths.
    */
-  public LiborMarketModelMonteCarloMethod(RandomNumberGenerator numberGenerator, int nbPath) {
+  public LiborMarketModelMonteCarloMethod(final RandomNumberGenerator numberGenerator, final int nbPath) {
     super(numberGenerator, nbPath);
     _maxJump = MAX_JUMP_DEFAULT;
   }
@@ -62,20 +62,20 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
    * @param nbPath The number of paths.
    * @param maxJump The maximum length of a jump in the path generation.
    */
-  public LiborMarketModelMonteCarloMethod(RandomNumberGenerator numberGenerator, int nbPath, double maxJump) {
+  public LiborMarketModelMonteCarloMethod(final RandomNumberGenerator numberGenerator, final int nbPath, final double maxJump) {
     super(numberGenerator, nbPath);
     _maxJump = maxJump;
   }
 
-  public CurrencyAmount presentValue(final InstrumentDerivative instrument, Currency ccy, YieldAndDiscountCurve dsc, final LiborMarketModelDisplacedDiffusionDataBundle lmmData) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final YieldAndDiscountCurve dsc, final LiborMarketModelDisplacedDiffusionDataBundle lmmData) {
     // The numeraire is the last time in the LMM description.
-    DecisionSchedule decision = DC.visit(instrument, lmmData);
-    int[][] impactIndex = index(decision.getImpactTime(), lmmData.getLmmParameter());
+    final DecisionSchedule decision = instrument.accept(DC, lmmData);
+    final int[][] impactIndex = index(decision.getImpactTime(), lmmData.getLmmParameter());
 
-    int nbPeriodLMM = lmmData.getLmmParameter().getNbPeriod();
-    double[] initL = new double[nbPeriodLMM];
-    double[] deltaLMM = lmmData.getLmmParameter().getAccrualFactor();
-    double[] dfL = new double[nbPeriodLMM + 1];
+    final int nbPeriodLMM = lmmData.getLmmParameter().getNbPeriod();
+    final double[] initL = new double[nbPeriodLMM];
+    final double[] deltaLMM = lmmData.getLmmParameter().getAccrualFactor();
+    final double[] dfL = new double[nbPeriodLMM + 1];
     for (int loopper = 0; loopper < nbPeriodLMM + 1; loopper++) {
       dfL[loopper] = dsc.getDiscountFactor(lmmData.getLmmParameter().getIborTime()[loopper]);
     }
@@ -83,8 +83,8 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
       initL[loopper] = (dfL[loopper] / dfL[loopper + 1] - 1.0) / deltaLMM[loopper];
     }
 
-    int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
-    int[] nbPath2 = new int[nbBlock];
+    final int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
+    final int[] nbPath2 = new int[nbBlock];
     for (int i = 0; i < nbBlock - 1; i++) {
       nbPath2[i] = BLOCK_SIZE;
     }
@@ -92,26 +92,26 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
 
     double price = 0.0;
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
-      double[][] initLPath = new double[nbPeriodLMM][nbPath2[loopblock]];
+      final double[][] initLPath = new double[nbPeriodLMM][nbPath2[loopblock]];
       for (int loopper = 0; loopper < nbPeriodLMM; loopper++) {
         for (int looppath = 0; looppath < nbPath2[loopblock]; looppath++) {
           initLPath[loopper][looppath] = initL[loopper];
         }
       }
-      double[][][] pathIbor = pathgeneratorlibor(decision.getDecisionTime(), initLPath, lmmData.getLmmParameter());
-      price += MCC.visit(instrument, new MonteCarloIborRateDataBundle(pathIbor, deltaLMM, decision.getImpactAmount(), impactIndex));
+      final double[][][] pathIbor = pathgeneratorlibor(decision.getDecisionTime(), initLPath, lmmData.getLmmParameter());
+      price += instrument.accept(MCC, new MonteCarloIborRateDataBundle(pathIbor, deltaLMM, decision.getImpactAmount(), impactIndex));
     }
     price *= dsc.getDiscountFactor(lmmData.getLmmParameter().getIborTime()[lmmData.getLmmParameter().getIborTime().length - 1]) / getNbPath();
     return CurrencyAmount.of(ccy, price);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     return null;
   }
 
   private int[][] index(final double[][] time, final LiborMarketModelDisplacedDiffusionParameters lmm) {
-    int[][] index = new int[time.length][];
+    final int[][] index = new int[time.length][];
     for (int loop1 = 0; loop1 < time.length; loop1++) {
       index[loop1] = new int[time[loop1].length];
       for (int loop2 = 0; loop2 < time[loop1].length; loop2++) {
@@ -127,52 +127,52 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
    * @param initIbor Rate at the start of the period. Size: nbPeriodLMM x nbPath.
    * @return The Ibor rates at the end of the jump period. Size: nbPeriodLMM x nbPath.
    */
-  private double[][] stepPC(double[] jumpTime, double[][] initIbor, final LiborMarketModelDisplacedDiffusionParameters lmm) {
-    double amr = lmm.getMeanReversion();
-    double[] iborTime = lmm.getIborTime();
-    double[] almm = lmm.getDisplacement();
-    double[] deltalmm = lmm.getAccrualFactor();
-    DoubleMatrix2D gammaLMM = new DoubleMatrix2D(lmm.getVolatility());
-    MatrixAlgebra algebra = new CommonsMatrixAlgebra();
-    DoubleMatrix2D s = (DoubleMatrix2D) algebra.multiply(gammaLMM, algebra.getTranspose(gammaLMM));
-    int nbJump = jumpTime.length - 1;
-    int nbPath = initIbor[0].length;
-    int nbPeriodLMM = lmm.getNbPeriod();
-    int nbFactorLMM = lmm.getNbFactor();
-    double[] dt = new double[nbJump];
-    double[] alpha = new double[nbJump];
-    double[] alpha2 = new double[nbJump];
+  private double[][] stepPC(final double[] jumpTime, final double[][] initIbor, final LiborMarketModelDisplacedDiffusionParameters lmm) {
+    final double amr = lmm.getMeanReversion();
+    final double[] iborTime = lmm.getIborTime();
+    final double[] almm = lmm.getDisplacement();
+    final double[] deltalmm = lmm.getAccrualFactor();
+    final DoubleMatrix2D gammaLMM = new DoubleMatrix2D(lmm.getVolatility());
+    final MatrixAlgebra algebra = new CommonsMatrixAlgebra();
+    final DoubleMatrix2D s = (DoubleMatrix2D) algebra.multiply(gammaLMM, algebra.getTranspose(gammaLMM));
+    final int nbJump = jumpTime.length - 1;
+    final int nbPath = initIbor[0].length;
+    final int nbPeriodLMM = lmm.getNbPeriod();
+    final int nbFactorLMM = lmm.getNbFactor();
+    final double[] dt = new double[nbJump];
+    final double[] alpha = new double[nbJump];
+    final double[] alpha2 = new double[nbJump];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       dt[loopjump] = jumpTime[loopjump + 1] - jumpTime[loopjump];
       alpha[loopjump] = Math.exp(amr * jumpTime[loopjump + 1]);
       alpha2[loopjump] = alpha[loopjump] * alpha[loopjump];
     }
 
-    double[][] f = initIbor;
+    final double[][] f = initIbor;
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      double sqrtDt = Math.sqrt(dt[loopjump]);
+      final double sqrtDt = Math.sqrt(dt[loopjump]);
       int index = Arrays.binarySearch(iborTime, jumpTime[loopjump + 1] - lmm.getTimeTolerance());
       index = -index - 1; // The index from which the rate should be evolved.
-      int nI = nbPeriodLMM - index;
-      double[] dI = new double[nI];
+      final int nI = nbPeriodLMM - index;
+      final double[] dI = new double[nI];
       for (int loopn = 0; loopn < nI; loopn++) {
         dI[loopn] = 1.0 / deltalmm[index + loopn];
       }
-      double[][] salpha2Array = new double[nI][nI];
+      final double[][] salpha2Array = new double[nI][nI];
       for (int loopn1 = 0; loopn1 < nI; loopn1++) {
         for (int loopn2 = 0; loopn2 < nI; loopn2++) {
           salpha2Array[loopn1][loopn2] = s.getEntry(index + loopn1, index + loopn2) * alpha2[loopjump];
         }
       }
-      DoubleMatrix2D salpha2 = new DoubleMatrix2D(salpha2Array);
+      final DoubleMatrix2D salpha2 = new DoubleMatrix2D(salpha2Array);
       // Random seed
-      double[][] dw = getNormalArray(nbFactorLMM, nbPath);
+      final double[][] dw = getNormalArray(nbFactorLMM, nbPath);
       // Common figures
-      double[] dr1 = new double[nI];
+      final double[] dr1 = new double[nI];
       for (int loopn = 0; loopn < nI; loopn++) {
         dr1[loopn] = -salpha2.getEntry(loopn, loopn) * dt[loopjump] / 2.0;
       }
-      double[][] cc = new double[nI][nbPath];
+      final double[][] cc = new double[nI][nbPath];
       for (int loopn = 0; loopn < nI; loopn++) {
         for (int looppath = 0; looppath < nbPath; looppath++) {
           for (int loopfact = 0; loopfact < nbFactorLMM; loopfact++) {
@@ -182,10 +182,10 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
         }
       }
       // Unique step: predictor and corrector
-      double[][] mP = new double[nI][nbPath];
-      double[][] mC = new double[nI][nbPath];
-      double[][] coefP = new double[nbPath][nI - 1];
-      double[][] coefC = new double[nI][nbPath];
+      final double[][] mP = new double[nI][nbPath];
+      final double[][] mC = new double[nI][nbPath];
+      final double[][] coefP = new double[nbPath][nI - 1];
+      final double[][] coefC = new double[nI][nbPath];
       for (int looppath = 0; looppath < nbPath; looppath++) {
         for (int loopn = 0; loopn < nI - 1; loopn++) {
           coefP[looppath][loopn] = (f[index + loopn + 1][looppath] + almm[index + loopn + 1]) / (f[index + loopn + 1][looppath] + dI[loopn + 1]);
@@ -221,27 +221,27 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
    * @param lmm The LMM parameters.
    * @return The paths. Size: nbJump x nbPeriodLMM x nbPath
    */
-  private double[][][] pathgeneratorlibor(double[] jumpTime, final double[][] initIbor, final LiborMarketModelDisplacedDiffusionParameters lmm) {
-    int nbPeriod = initIbor.length;
-    int nbPath = initIbor[0].length;
-    int nbJump = jumpTime.length;
+  private double[][][] pathgeneratorlibor(final double[] jumpTime, final double[][] initIbor, final LiborMarketModelDisplacedDiffusionParameters lmm) {
+    final int nbPeriod = initIbor.length;
+    final int nbPath = initIbor[0].length;
+    final int nbJump = jumpTime.length;
     double[][] initTmp = new double[nbPeriod][nbPath];
     for (int loop1 = 0; loop1 < nbPeriod; loop1++) {
       System.arraycopy(initIbor[loop1], 0, initTmp[loop1], 0, nbPath);
     }
-    double[] jumpTimeA = new double[nbJump + 1];
+    final double[] jumpTimeA = new double[nbJump + 1];
     jumpTimeA[0] = 0;
     System.arraycopy(jumpTime, 0, jumpTimeA, 1, nbJump);
-    double[][][] result = new double[nbJump][nbPeriod][nbPath];
+    final double[][][] result = new double[nbJump][nbPeriod][nbPath];
     // TODO: add intermediary jump dates if necessary
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       // Intermediary jumps
       double[] jumpIn;
       if (jumpTimeA[loopjump + 1] - jumpTimeA[loopjump] < _maxJump) {
-        jumpIn = new double[] {jumpTimeA[loopjump], jumpTimeA[loopjump + 1]};
+        jumpIn = new double[] {jumpTimeA[loopjump], jumpTimeA[loopjump + 1] };
       } else {
-        double jump = jumpTimeA[loopjump + 1] - jumpTimeA[loopjump];
-        int nbJumpIn = (int) Math.ceil(jump / _maxJump);
+        final double jump = jumpTimeA[loopjump + 1] - jumpTimeA[loopjump];
+        final int nbJumpIn = (int) Math.ceil(jump / _maxJump);
         jumpIn = new double[nbJumpIn + 1];
         jumpIn[0] = jumpTimeA[loopjump];
         for (int loopJumpIn = 1; loopJumpIn <= nbJumpIn; loopJumpIn++) {
@@ -262,8 +262,8 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
    * @param nbPath The number of paths.
    * @return The array of variables.
    */
-  private double[][] getNormalArray(int nbJump, int nbPath) {
-    double[][] result = new double[nbJump][nbPath];
+  private double[][] getNormalArray(final int nbJump, final int nbPath) {
+    final double[][] result = new double[nbJump][nbPath];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       result[loopjump] = getNumberGenerator().getVector(nbPath);
     }

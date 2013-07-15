@@ -1,16 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -21,14 +20,20 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Contains information used to construct standard versions of NZD instruments.
  */
 public class NZConventions {
 
+  /**
+   * Adds conventions for deposit, Libor and swaps
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -41,37 +46,52 @@ public class NZConventions {
 
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ00O/N Index"), simpleNameSecurityId("NZD LIBOR O/N")), "NZD LIBOR O/N", act365,
         following, Period.ofDays(1), 0, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ00S/N Index"), simpleNameSecurityId("NZD LIBOR S/N")), "NZD LIBOR S/N", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ00S/N Index"), simpleNameSecurityId("NZD LIBOR S/N"),
+        tullettPrebonSecurityId("ASLIBNZDSNL")), "NZD LIBOR S/N", act365,
         following, Period.ofDays(1), 0, false, nz);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ00T/N Index"), simpleNameSecurityId("NZD LIBOR T/N")), "NZD LIBOR T/N", act365,
         following, Period.ofDays(1), 0, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0001W Index"), simpleNameSecurityId("NZD LIBOR 1w")), "NZD LIBOR 1w", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0001W Index"), simpleNameSecurityId("NZD LIBOR 1w"),
+        tullettPrebonSecurityId("ASLIBNZD1WL")), "NZD LIBOR 1w", act365,
         following, Period.ofDays(1), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0002W Index"), simpleNameSecurityId("NZD LIBOR 2w")), "NZD LIBOR 2w", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0002W Index"), simpleNameSecurityId("NZD LIBOR 2w"),
+        tullettPrebonSecurityId("ASLIBNZD2WL")), "NZD LIBOR 2w", act365,
         following, Period.ofDays(1), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0001M Index"), simpleNameSecurityId("NZD LIBOR 1m")), "NZD LIBOR 1m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0001M Index"), simpleNameSecurityId("NZD LIBOR 1m"),
+        tullettPrebonSecurityId("ASLIBNZD01L")), "NZD LIBOR 1m", act365,
         following, Period.ofMonths(1), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0002M Index"), simpleNameSecurityId("NZD LIBOR 2m")), "NZD LIBOR 2m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0002M Index"), simpleNameSecurityId("NZD LIBOR 2m"),
+        tullettPrebonSecurityId("ASLIBNZD02L")), "NZD LIBOR 2m", act365,
         following, Period.ofMonths(2), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0003M Index"), simpleNameSecurityId("NZD LIBOR 3m")), "NZD LIBOR 3m", act365, 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0003M Index"), simpleNameSecurityId("NZD LIBOR 3m"),
+        tullettPrebonSecurityId("ASLIBNZD03L")), "NZD LIBOR 3m", act365,
         following, Period.ofMonths(3), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0004M Index"), simpleNameSecurityId("NZD LIBOR 4m")), "NZD LIBOR 4m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0004M Index"), simpleNameSecurityId("NZD LIBOR 4m"),
+        tullettPrebonSecurityId("ASLIBNZD04L")), "NZD LIBOR 4m", act365,
         following, Period.ofMonths(4), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0005M Index"), simpleNameSecurityId("NZD LIBOR 5m")), "NZD LIBOR 5m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0005M Index"), simpleNameSecurityId("NZD LIBOR 5m"),
+        tullettPrebonSecurityId("ASLIBNZD05L")), "NZD LIBOR 5m", act365,
         following, Period.ofMonths(5), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0006M Index"), simpleNameSecurityId("NZD LIBOR 6m")), "NZD LIBOR 6m", act365, 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0006M Index"), simpleNameSecurityId("NZD LIBOR 6m"),
+        tullettPrebonSecurityId("ASLIBNZD06L")), "NZD LIBOR 6m", act365,
         following, Period.ofMonths(6), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0007M Index"), simpleNameSecurityId("NZD LIBOR 7m")), "NZD LIBOR 7m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0007M Index"), simpleNameSecurityId("NZD LIBOR 7m"),
+        tullettPrebonSecurityId("ASLIBNZD07L")), "NZD LIBOR 7m", act365,
         following, Period.ofMonths(7), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0008M Index"), simpleNameSecurityId("NZD LIBOR 8m")), "NZD LIBOR 8m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0008M Index"), simpleNameSecurityId("NZD LIBOR 8m"),
+        tullettPrebonSecurityId("ASLIBNZD08L")), "NZD LIBOR 8m", act365,
         following, Period.ofMonths(8), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0009M Index"), simpleNameSecurityId("NZD LIBOR 9m")), "NZD LIBOR 9m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0009M Index"), simpleNameSecurityId("NZD LIBOR 9m"),
+        tullettPrebonSecurityId("ASLIBNZD09L")), "NZD LIBOR 9m", act365,
         following, Period.ofMonths(9), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0010M Index"), simpleNameSecurityId("NZD LIBOR 10m")), "NZD LIBOR 10m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0010M Index"), simpleNameSecurityId("NZD LIBOR 10m"),
+        tullettPrebonSecurityId("ASLIBNZD10L")), "NZD LIBOR 10m", act365,
         following, Period.ofMonths(10), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0011M Index"), simpleNameSecurityId("NZD LIBOR 11m")), "NZD LIBOR 11m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0011M Index"), simpleNameSecurityId("NZD LIBOR 11m"),
+        tullettPrebonSecurityId("ASLIBNZD11L")), "NZD LIBOR 11m", act365,
         following, Period.ofMonths(11), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0012M Index"), simpleNameSecurityId("NZD LIBOR 12m")), "NZD LIBOR 12m", act365, 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NZ0012M Index"), simpleNameSecurityId("NZD LIBOR 12m"),
+        tullettPrebonSecurityId("ASLIBNZD12L")), "NZD LIBOR 12m", act365,
         following, Period.ofMonths(12), 2, false, nz);
 
     //TODO need to check that these are right for deposit rates
@@ -81,35 +101,50 @@ public class NZConventions {
         following, Period.ofDays(1), 0, false, nz);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR3T Curncy"), simpleNameSecurityId("NZD DEPOSIT 3d")), "NZD DEPOSIT 3d", act365,
         following, Period.ofDays(1), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR1Z Curncy"), simpleNameSecurityId("NZD DEPOSIT 1w")), "NZD DEPOSIT 1w", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR1Z Curncy"), simpleNameSecurityId("NZD DEPOSIT 1w"),
+        tullettPrebonSecurityId("MNDEPNZDSPT01W")), "NZD DEPOSIT 1w", act365,
         following, Period.ofDays(7), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR2Z Curncy"), simpleNameSecurityId("NZD DEPOSIT 2w")), "NZD DEPOSIT 2w", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR2Z Curncy"), simpleNameSecurityId("NZD DEPOSIT 2w"),
+        tullettPrebonSecurityId("MNDEPNZDSPT02W")), "NZD DEPOSIT 2w", act365,
         following, Period.ofDays(14), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR3Z Curncy"), simpleNameSecurityId("NZD DEPOSIT 3w")), "NZD DEPOSIT 3w", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR3Z Curncy"), simpleNameSecurityId("NZD DEPOSIT 3w"),
+        tullettPrebonSecurityId("MNDEPNZDSPT03W")), "NZD DEPOSIT 3w", act365,
         following, Period.ofDays(21), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRA Curncy"), simpleNameSecurityId("NZD DEPOSIT 1m")), "NZD DEPOSIT 1m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRA Curncy"), simpleNameSecurityId("NZD DEPOSIT 1m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT01M")), "NZD DEPOSIT 1m", act365,
         following, Period.ofMonths(1), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRB Curncy"), simpleNameSecurityId("NZD DEPOSIT 2m")), "NZD DEPOSIT 2m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRB Curncy"), simpleNameSecurityId("NZD DEPOSIT 2m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT02M")), "NZD DEPOSIT 2m", act365,
         following, Period.ofMonths(2), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRC Curncy"), simpleNameSecurityId("NZD DEPOSIT 3m")), "NZD DEPOSIT 3m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRC Curncy"), simpleNameSecurityId("NZD DEPOSIT 3m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT03M")), "NZD DEPOSIT 3m", act365,
         following, Period.ofMonths(3), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRD Curncy"), simpleNameSecurityId("NZD DEPOSIT 4m")), "NZD DEPOSIT 4m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRD Curncy"), simpleNameSecurityId("NZD DEPOSIT 4m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT04M")), "NZD DEPOSIT 4m", act365,
         following, Period.ofMonths(4), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRE Curncy"), simpleNameSecurityId("NZD DEPOSIT 5m")), "NZD DEPOSIT 5m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRE Curncy"), simpleNameSecurityId("NZD DEPOSIT 5m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT05M")), "NZD DEPOSIT 5m", act365,
         following, Period.ofMonths(5), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRF Curncy"), simpleNameSecurityId("NZD DEPOSIT 6m")), "NZD DEPOSIT 6m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRF Curncy"), simpleNameSecurityId("NZD DEPOSIT 6m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT06M")), "NZD DEPOSIT 6m", act365,
         following, Period.ofMonths(6), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRG Curncy"), simpleNameSecurityId("NZD DEPOSIT 7m")), "NZD DEPOSIT 7m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRG Curncy"), simpleNameSecurityId("NZD DEPOSIT 7m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT07M")), "NZD DEPOSIT 7m", act365,
         following, Period.ofMonths(7), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRH Curncy"), simpleNameSecurityId("NZD DEPOSIT 8m")), "NZD DEPOSIT 8m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRH Curncy"), simpleNameSecurityId("NZD DEPOSIT 8m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT08M")), "NZD DEPOSIT 8m", act365,
         following, Period.ofMonths(8), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRI Curncy"), simpleNameSecurityId("NZD DEPOSIT 9m")), "NZD DEPOSIT 9m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRI Curncy"), simpleNameSecurityId("NZD DEPOSIT 9m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT09M")), "NZD DEPOSIT 9m", act365,
         following, Period.ofMonths(9), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRJ Curncy"), simpleNameSecurityId("NZD DEPOSIT 10m")), "NZD DEPOSIT 10m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRJ Curncy"), simpleNameSecurityId("NZD DEPOSIT 10m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT10M")), "NZD DEPOSIT 10m", act365,
         following, Period.ofMonths(10), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRK Curncy"), simpleNameSecurityId("NZD DEPOSIT 11m")), "NZD DEPOSIT 11m", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDRK Curncy"), simpleNameSecurityId("NZD DEPOSIT 11m"),
+        tullettPrebonSecurityId("MNDEPNZDSPT11M")), "NZD DEPOSIT 11m", act365,
         following, Period.ofMonths(11), 2, false, nz);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR1 Curncy"), simpleNameSecurityId("NZD DEPOSIT 1y")), "NZD DEPOSIT 1y", act365,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR1 Curncy"), simpleNameSecurityId("NZD DEPOSIT 1y"),
+        tullettPrebonSecurityId("MNDEPNZDSPT12M")), "NZD DEPOSIT 1y", act365,
         following, Period.ofYears(1), 2, false, nz);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("NDDR2 Curncy"), simpleNameSecurityId("NZD DEPOSIT 2y")), "NZD DEPOSIT 2y", act365,
         following, Period.ofYears(2), 2, false, nz);

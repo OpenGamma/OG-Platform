@@ -8,7 +8,7 @@ package com.opengamma.financial.convention;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -20,6 +20,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * An in-memory, statically initialized master for convention bundles and their meta-data.
@@ -72,6 +73,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     GBConventions.addCorporateBondConvention(this);
     GBConventions.addBondFutureConvention(this);
     HKConventions.addFixedIncomeInstrumentConventions(this);
+    HUConventions.addFixedIncomeInstrumentConventions(this);
     INConventions.addFixedIncomeInstrumentConventions(this);
     JPConventions.addFixedIncomeInstrumentConventions(this);
     KRConventions.addFixedIncomeInstrumentConventions(this);

@@ -9,13 +9,7 @@
     background: #fff!important;
     border: 1px solid #ccc!important;
     display: none;
-}
-
-.OG-tab-overflow-panel {
     height: auto;
-    -webkit-box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
-    -moz-box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
 }
 
 .OG-tab-overflow-panel li {
@@ -26,7 +20,15 @@
 }
 
 .OG-tab-overflow-panel li:hover {
-    background-color: #80c696;
+    background-color: #01467a;
     color: #fff;
     cursor: default;
+}
+
+.OG-tab-overflow-panel .OG-multiselect {
+    display: none;
+}
+
+.OG-tab-overflow-panel .OG-gadget-tabs-label {
+    top: 0;
 }

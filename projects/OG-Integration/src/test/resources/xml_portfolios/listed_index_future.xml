@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+    <listedSecurityTrade id="t1">
+
+      <externalSystemId><id scheme="External">IdFromExternalSystem1</id></externalSystemId>
+
+      <tradeDate>2013-01-20</tradeDate>
+
+      <additionalCashflows>
+        <additionalCashflow type="clearingFee">
+          <counterparty><id scheme="Broker">ClearingHouse</id></counterparty>
+          <monetaryAmount currency="EUR">150</monetaryAmount>
+          <cashflowDate>2013-09-12</cashflowDate>
+        </additionalCashflow>
+      </additionalCashflows>
+
+      <buySell>Buy</buySell>
+      <numContracts>1000</numContracts>
+
+      <brokers>
+        <broker type="executingBroker"><id scheme="BROKER">executingbrokerId</id></broker>
+        <broker type="clearingBroker"><id scheme="BROKER">clearingbrokerId</id></broker>
+      </brokers>
+
+      <futureSecurity type="equityDividendFuture">
+
+        <underlyingId><id scheme="BLOOMBERG_TICKER">EI09SPX</id></underlyingId>
+
+        <pointValue>100</pointValue>
+        <currency>EUR</currency>
+        <exchange>CME</exchange>
+
+        <additionalAttributes>
+          <attribute name="sec-attr1">sec-attr1-value</attribute>
+          <attribute name="sec-attr2">sec-attr2-value</attribute>
+        </additionalAttributes>
+
+        <price>550</price>
+        <futureExpiry>MAR15</futureExpiry>
+
+        <settlementExchange>EX1</settlementExchange>
+        <settlementDate>2014-09-21</settlementDate>
+        <futureCategory>SOME_VAL??</futureCategory>
+
+      </futureSecurity>
+    </listedSecurityTrade>
+  </trades>
+
+  <portfolios>
+    <portfolio name="listed_equity_index_future_portfolio">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

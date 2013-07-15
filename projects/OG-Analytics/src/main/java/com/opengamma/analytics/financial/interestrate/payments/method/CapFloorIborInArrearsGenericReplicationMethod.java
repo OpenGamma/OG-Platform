@@ -56,11 +56,11 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(), cap.getFundingCurveName(), cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(),
-        cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingYearFraction(), cap.getForwardCurveName(), cap.getStrike(), cap.isCap());
+        cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getForwardCurveName(), cap.getStrike(), cap.isCap());
     final double beta = sabrData.getCurve(cap.getForwardCurveName()).getDiscountFactor(cap.getFixingPeriodStartTime())
         / sabrData.getCurve(cap.getForwardCurveName()).getDiscountFactor(cap.getFixingPeriodEndTime()) * sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodEndTime())
         / sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getFixingPeriodStartTime());
-    final double strikePart = (1.0 + cap.getFixingYearFraction() * cap.getStrike()) * _baseMethod.presentValue(capStandard, sabrData).getAmount();
+    final double strikePart = (1.0 + cap.getFixingAccrualFactor() * cap.getStrike()) * _baseMethod.presentValue(capStandard, sabrData).getAmount();
     final double absoluteTolerance = 1.0;
     final double relativeTolerance = 1E-10;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
@@ -75,7 +75,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    integralPart *= 2.0 * cap.getFixingYearFraction();
+    integralPart *= 2.0 * cap.getFixingAccrualFactor();
     final double pv = (strikePart + integralPart) / beta;
     return CurrencyAmount.of(cap.getCurrency(), pv);
   }

@@ -9,15 +9,14 @@ import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -62,8 +61,8 @@ public final class TradeJsonConverter {
             if (tradeJson.has("premiumTime")) {
               LocalTime premiumTime = LocalTime.parse(tradeJson.getString("premiumTime"));
               ZoneOffset premiumOffset = getOffset(tradeJson, "premiumOffset");
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate, premiumTime, premiumOffset.toTimeZone());
-              trade.setPremiumTime(zonedDateTime.toOffsetTime());
+              ZonedDateTime zonedDateTime = premiumDate.atTime(premiumTime).atZone(premiumOffset);
+              trade.setPremiumTime(zonedDateTime.toOffsetDateTime().toOffsetTime());
             }
           }
           if (tradeJson.has("quantity")) {
@@ -75,8 +74,8 @@ public final class TradeJsonConverter {
             if (tradeJson.has("tradeTime")) {
               LocalTime tradeTime = LocalTime.parse(tradeJson.getString("tradeTime"));
               ZoneOffset tradeOffset = getOffset(tradeJson, "tradeOffset");
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate, tradeTime, tradeOffset.toTimeZone());
-              trade.setTradeTime(zonedDateTime.toOffsetTime());
+              ZonedDateTime zonedDateTime = tradeDate.atTime(tradeTime).atZone(tradeOffset);
+              trade.setTradeTime(zonedDateTime.toOffsetDateTime().toOffsetTime());
             }    
           }
           addTradeAttributes(trade, tradeJson);

@@ -33,12 +33,12 @@ public class ZSpreadCalculatorTest {
   private static final YieldCurveBundle CURVES;
   private static final String CURVE_NAME = "A";
   private static final double YIELD = 0.04;
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
 
   static {
     final int n = 5;
     final CouponFixed[] rateAtYield = new CouponFixed[n];
-    CURVES = new YieldCurveBundle(new String[] {CURVE_NAME}, new YieldCurve[] {YieldCurve.from(ConstantDoublesCurve.from(YIELD))});
+    CURVES = new YieldCurveBundle(new String[] {CURVE_NAME }, new YieldCurve[] {YieldCurve.from(ConstantDoublesCurve.from(YIELD)) });
     for (int i = 0; i < n; i++) {
       rateAtYield[i] = new CouponFixed(CUR, 0.5 * (i + 1), CURVE_NAME, 0.5, YIELD);
     }
@@ -132,7 +132,7 @@ public class ZSpreadCalculatorTest {
     }
     zSpread = 0.0;
     dPdC = CALCULATOR.calculatePriceSensitivityToCurve(PAYMENTS, CURVES, zSpread);
-    final Map<String, List<DoublesPair>> pvSensitivity = PresentValueCurveSensitivityCalculator.getInstance().visit(PAYMENTS, CURVES);
+    final Map<String, List<DoublesPair>> pvSensitivity = PAYMENTS.accept(PresentValueCurveSensitivityCalculator.getInstance(), CURVES);
     iter1 = dPdC.entrySet().iterator();
     iter2 = pvSensitivity.entrySet().iterator();
     while (iter1.hasNext()) {

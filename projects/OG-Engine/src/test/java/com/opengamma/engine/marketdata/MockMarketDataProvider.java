@@ -13,22 +13,21 @@ import java.util.concurrent.CountDownLatch;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Mock {@link MarketDataProvider}
  */
 public class MockMarketDataProvider extends AbstractMarketDataProvider {
-  
+
   private final String _name;
   private final boolean _subscriptionsSucceed;
   private final CountDownLatch _responseLatch;
-  private final Map<ValueRequirement, ComputedValue> _values = new HashMap<ValueRequirement, ComputedValue>();
+  private final Map<ValueSpecification, Object> _values = new HashMap<ValueSpecification, Object>();
   private int _queryCount;
   private int _snapshotCount;
-  
-  public MockMarketDataProvider(String name, boolean subscriptionsSucceed, int subscriptionCount) {
+
+  public MockMarketDataProvider(final String name, final boolean subscriptionsSucceed, final int subscriptionCount) {
     _name = name;
     _subscriptionsSucceed = subscriptionsSucceed;
     _responseLatch = new CountDownLatch(subscriptionCount);
@@ -36,19 +35,19 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscribe(final ValueRequirement valueRequirement) {
-    subscribe(Collections.singleton(valueRequirement));
+  public void subscribe(final ValueSpecification valueSpecification) {
+    subscribe(Collections.singleton(valueSpecification));
   }
 
   @Override
-  public void subscribe(final Set<ValueRequirement> valueRequirements) {
-    Thread t = new Thread(new Runnable() {
+  public void subscribe(final Set<ValueSpecification> valueSpecifications) {
+    final Thread t = new Thread(new Runnable() {
       @Override
       public void run() {
         if (_subscriptionsSucceed) {
-          subscriptionSucceeded(valueRequirements);
+          subscriptionsSucceeded(valueSpecifications);
         } else {
-          subscriptionFailed(valueRequirements, _name);
+          subscriptionFailed(valueSpecifications, _name);
         }
         _responseLatch.countDown();
       }
@@ -57,15 +56,15 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public void unsubscribe(ValueRequirement valueRequirement) {
+  public void unsubscribe(final ValueSpecification valueSpecification) {
   }
 
   @Override
-  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+  public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
   }
 
   @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     return null;
   }
 
@@ -75,43 +74,43 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     return false;
   }
 
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
     _snapshotCount++;
     return new MockMarketDataSnapshot(this);
   }
-    
+
   //-------------------------------------------------------------------------
   public void awaitSubscriptionResponses() throws InterruptedException {
     _responseLatch.await();
   }
-  
-  public void put(ValueRequirement requirement, Object value) {
-    _values.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), value));
+
+  public void put(final ValueSpecification specification, final Object value) {
+    _values.put(specification, value);
   }
-  
-  /*package*/ void incrementQueryCount() {
+
+  /*package*/void incrementQueryCount() {
     _queryCount++;
   }
-  
-  /*package*/ComputedValue getValue(ValueRequirement requirement) {
-    return _values.get(requirement);
+
+  /*package*/Object getValue(final ValueSpecification specification) {
+    return _values.get(specification);
   }
-  
+
   public int getAndResetQueryCount() {
-    int count = _queryCount;
+    final int count = _queryCount;
     _queryCount = 0;
     return count;
   }
-  
+
   public int getAndResetSnapshotCount() {
-    int count = _snapshotCount;
+    final int count = _snapshotCount;
     _snapshotCount = 0;
     return count;
   }
-  
+
 }

@@ -20,6 +20,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -47,6 +48,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -82,11 +84,13 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   private static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   private static final String IRFUTURE_OPTIONS = "IRFuture Options";
   private static final String COMMODITY_FUTURE_OPTIONS = "Commodity Future Options";
+  private static final String FX_FUTURE_OPTIONS = "FX Future Options";
   private static final String FX_OPTIONS = "FX Options";
   private static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
   private static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
   private static final String SWAPTIONS = "Swaptions";
   private static final String CASH = "Cash";
+  private static final String CASHFLOW = "CashFlow";
   private static final String FRAS = "FRAs";
   private static final String SWAPS = "Swaps";
   private static final String FORWARD_SWAPS = "Forward Swaps";
@@ -141,6 +145,11 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitCashSecurity(final CashSecurity security) {
           return CASH;
+        }
+
+        @Override
+        public String visitCashFlowSecurity(final CashFlowSecurity security) {
+          return CASHFLOW;
         }
 
         @Override
@@ -261,6 +270,11 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
           return COMMODITY_FUTURE_OPTIONS;
+        }
+
+        @Override
+        public String visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return FX_FUTURE_OPTIONS;
         }
 
         @Override

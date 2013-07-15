@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <trades>
+
+    <!-- Trade id must be unique in this list -->
+    <fraTrade id="t1">
+      <!-- Probably should be unique in this file too -->
+      <externalSystemId><id scheme="External">IdFromExternalSystem</id></externalSystemId>
+      <tradeDate>2013-01-21</tradeDate>
+      <counterparty><id scheme="Cpty">GOLDMAN</id></counterparty>
+      <!-- example 1x4 FRA -->
+      <payFixed>true</payFixed>
+      <!-- required by security model -->
+      <regionId><id scheme="External">IdFromExternalSystem</id></regionId>
+      <!-- effectiveDate=rate start date. -->
+      <effectiveDate>2013-01-23</effectiveDate> <!-- maps to startDate on security -->
+      <!-- paymentDate = optional. due to domain model limitations, this must equal effectiveDate currently. -->
+      <paymentDate>2013-01-23</paymentDate>
+      <fixingDate>2013-02-21</fixingDate>
+      <terminationDate>2013-05-23</terminationDate><!-- end of contract period, maps to end date -->
+      
+      <currency>USD</currency>
+      <notional>1000000</notional>
+      <rate>105.25</rate>
+      
+      <!-- businessDayConvention and dayCount must be consistent with the index 
+      (these will default to the index values).
+      -->
+      
+      <businessDayConvention>Modified Following</businessDayConvention>
+      <dayCount>Actual/365</dayCount>
+
+      <fixingIndex>
+        <id scheme="BLOOMBERG_TICKER">US0003M Curncy</id>
+        <!-- OIS|CMS|IBOR -->
+        <rateType>IBOR</rateType>
+      </fixingIndex>
+      
+    </fraTrade>
+  </trades>
+
+  <positions>
+    <position id="p1">
+      <quantity>1</quantity>
+      <!--<security><id scheme="BLOOMBERG_TICKER">US0003M Curncy</id></security>-->
+
+<!--      <positionAttributes>
+        &lt;!&ndash;Position may have a quantity if there are trades but may be recalced from trade values instead&ndash;&gt;
+        <positionAttribute key="Quantity" value="1"/>
+        <positionAttribute key="Bloomberg BUID" value="IX14276430-0"/>
+        <positionAttribute key="Bloomberg Ticker" value="USU2 Comdty"/>
+      </positionAttributes>-->
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </position>
+  </positions>
+
+  <portfolios>
+    <!-- portfolio name must be unique in this set -->
+    <portfolio name="single_irs_portfolio">
+      <positions>
+        <position ref="p1"/>
+      </positions>
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>

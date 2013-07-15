@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.map;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.util.tuple.Pair;
@@ -64,5 +65,19 @@ public interface Map2<K1, K2, V> extends Map<Pair<K1, K2>, V> {
    * @return true if the keypair is present, false otherwise
    */
   boolean containsKey(K1 key1, K2 key2);
+
+  /**
+   * Removes all elements in the map with the first key.
+   * 
+   * @param key1 the first key
+   */
+  void removeAllKey1(K1 key1);
+
+  /**
+   * Retains only elements in the map with the first key.
+   * 
+   * @param key1 the first key
+   */
+  void retainAllKey1(Collection<K1> key1);
 
 }

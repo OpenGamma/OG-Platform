@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.credit;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Region;
-import com.opengamma.analytics.financial.credit.obligormodel.Sector;
+import com.opengamma.analytics.financial.credit.obligor.CreditRating;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -77,7 +77,7 @@ public class CreditDefaultSwap {
   private static final Region referenceEntityRegion = Region.EUROPE;
   private static final String referenceEntityCountry = "United Kingdom";
 
-  private static final Currency currency = Currency.USD;
+  private static final Currency currency = Currency.EUR;
 
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
   private static final RestructuringClause restructuringClause = RestructuringClause.NORE;

@@ -35,8 +35,14 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   // We might not want to use a Map<> at all, but we can't use an EnumMap<>
   // as Greek is going to be promoted to an Object from an Enum.
   // REVIEW elaine 2010-06-25 Greek is now an Object
-  private final Map<Greek, Double> _backingMap = new TreeMap<Greek, Double>();
+  /** The backing map */
+  private final Map<Greek, Double> _backingMap = new TreeMap<>();
 
+  /**
+   * Gets the value of a greek.
+   * @param greek The greek
+   * @return the value of the greek
+   */
   public Double get(final Greek greek) {
     if (greek == null) {
       return null;
@@ -44,6 +50,11 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
     return _backingMap.get(greek);
   }
 
+  /**
+   * Adds a greek to the map
+   * @param greek The greek, not null
+   * @param result The result
+   */
   public void put(final Greek greek, final Double result) {
     ArgumentChecker.notNull(greek, "Greek");
     // NOTE kirk 2010-05-21 -- Per Elaine, a null result IS a legitimate result.
@@ -52,22 +63,38 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
     _backingMap.put(greek, result);
   }
 
+  /**
+   * @return true if this collection is empty
+   */
   public boolean isEmpty() {
     return _backingMap.isEmpty();
   }
 
+  /**
+   * @param greek The greek
+   * @return true if this collection contains a value for this greek
+   */
   public boolean contains(final Greek greek) {
     return _backingMap.containsKey(greek);
   }
 
+  /**
+   * @return The number of greeks in this collection
+   */
   public int size() {
     return _backingMap.size();
   }
 
+  /**
+   * @return All greeks in this collection
+   */
   public Set<Greek> keySet() {
     return _backingMap.keySet();
   }
 
+  /**
+   * @return All values of the greeks in this collection
+   */
   public Collection<Double> values() {
     return Collections.unmodifiableCollection(_backingMap.values());
   }
@@ -76,7 +103,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("GreekResultCollection[");
-    final List<String> elements = new LinkedList<String>();
+    final List<String> elements = new LinkedList<>();
     for (final Map.Entry<Greek, Double> entry : _backingMap.entrySet()) {
       final StringBuilder elementSb = new StringBuilder();
       elementSb.append(entry.getKey()).append("=").append(entry.getValue());
@@ -122,8 +149,12 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
    * Iterates over the backing map
    */
   protected static class BackingMapGreekIterator implements Iterator<Pair<Greek, Double>> {
+    /**  The backing map iterator */
     private final Iterator<Map.Entry<Greek, Double>> _backingIterator;
 
+    /**
+     * @param backingIterator The iterator of the backing map
+     */
     public BackingMapGreekIterator(final Iterator<Map.Entry<Greek, Double>> backingIterator) {
       _backingIterator = backingIterator;
     }

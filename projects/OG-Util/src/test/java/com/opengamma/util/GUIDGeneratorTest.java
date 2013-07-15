@@ -11,16 +11,18 @@ import java.util.UUID;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test GUIDGenerator.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class GUIDGeneratorTest {
 
   public void generatorAlwaysGeneratesSomething() {
     UUID uuid = GUIDGenerator.generate();
     assertNotNull(uuid);
-    System.out.println("Generated UUID " + uuid);
+    // System.out.println("Generated UUID " + uuid);
   }
 
 }

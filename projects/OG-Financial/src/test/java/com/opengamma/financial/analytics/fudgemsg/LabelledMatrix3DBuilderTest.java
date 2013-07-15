@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link LabelledMatrix3DFudgeBuilder} implementations.
  */
+@Test(groups = TestGroup.UNIT)
 public class LabelledMatrix3DBuilderTest extends AnalyticsTestBase {
 
   private static final Object[] X_LABELS = new Object[] {"A", 42d, "C", Short.MAX_VALUE + 1, "E" };

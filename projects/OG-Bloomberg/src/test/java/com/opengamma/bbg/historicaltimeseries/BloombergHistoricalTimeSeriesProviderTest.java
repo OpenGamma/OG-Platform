@@ -6,7 +6,7 @@
 package com.opengamma.bbg.historicaltimeseries;
 
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME;
-import static com.opengamma.bbg.BloombergConstants.DATA_PROVIDER_UNKNOWN;
+import static com.opengamma.bbg.BloombergConstants.DEFAULT_DATA_PROVIDER;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -20,11 +20,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.test.BloombergTestUtils;
@@ -32,20 +32,21 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Test.
  */
-@Test(groups = "integration")
+@Test(groups = TestGroup.INTEGRATION)
 public class BloombergHistoricalTimeSeriesProviderTest {
 
   private static final ExternalIdBundle SIMPLE_BUNDLE = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("IBM US Equity"));
   private static final ExternalIdBundle COMPLEX_BUNDLE = ExternalIdBundle.of(
       ExternalId.of("BLOOMBERG_BUID", "EQ0010121400001000"), ExternalId.of("BLOOMBERG_TICKER", "C US Equity"),
       ExternalId.of("CUSIP", "172967101"), ExternalId.of("ISIN", "US1729671016"), ExternalId.of("SEDOL1", "2297907"));
-  private static final String DEFAULT_DATA_PROVIDER = DATA_PROVIDER_UNKNOWN;
   private static final String BBG_DATA_SOURCE = BLOOMBERG_DATA_SOURCE_NAME;
   private static final String PX_LAST = "PX_LAST";
 
@@ -197,6 +198,18 @@ public class BloombergHistoricalTimeSeriesProviderTest {
       LocalDateRange range = LocalDateRange.of(_startDate, _endDate, true);
       return _provider.getHistoricalTimeSeries(_secDes, _dataSource, _dataProvider, _field, range);
     }
+  }
+  
+  @Test
+  public void test_getAllAvailiableSeries() {
+    LocalDateDoubleTimeSeries hts = _provider.getHistoricalTimeSeries(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("JPY3M Curncy")), BBG_DATA_SOURCE, "CMPL", PX_LAST);
+    assertNotNull(hts);
+    assertEquals(getLatestWeekDay(), hts.getLatestTime());
+  }
+  
+  private LocalDate getLatestWeekDay() {
+    Clock clock = Clock.systemUTC();
+    return DateUtils.previousWeekDay(LocalDate.now(clock).plusDays(1));
   }
 
 }

@@ -24,6 +24,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.Lists;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
@@ -97,6 +99,14 @@ public class DbSecurityMaster
    */
   private SecurityMasterDetailProvider _detailProvider;
 
+  // -----------------------------------------------------------------
+  // TIMERS FOR METRICS GATHERING
+  // By default these do nothing. Registration will replace them
+  // so that they actually do something.
+  // -----------------------------------------------------------------
+  private Timer _metaDataTimer = new Timer();
+  private Timer _insertTimer = new Timer();
+
   /**
    * Creates an instance.
    * 
@@ -105,6 +115,13 @@ public class DbSecurityMaster
   public DbSecurityMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbSecurityMaster.class));
+  }
+
+  @Override
+  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailedRegistry, String namePrefix) {
+    super.registerMetrics(summaryRegistry, detailedRegistry, namePrefix);
+    _insertTimer = summaryRegistry.timer(namePrefix + ".insert");
+    _metaDataTimer = summaryRegistry.timer(namePrefix + ".metaData");
   }
 
   //-------------------------------------------------------------------------
@@ -132,13 +149,22 @@ public class DbSecurityMaster
   @Override
   public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
-    SecurityMetaDataResult result = new SecurityMetaDataResult();
-    if (request.isSecurityTypes()) {
-      final String sql = getElSqlBundle().getSql("SelectTypes");
-      List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
-      result.getSecurityTypes().addAll(securityTypes);
+    
+    Timer.Context context = _metaDataTimer.time();
+    try {
+      SecurityMetaDataResult result = new SecurityMetaDataResult();
+      if (request.isSecurityTypes()) {
+        final String sql = getElSqlBundle().getSql("SelectTypes");
+        List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
+        result.getSecurityTypes().addAll(securityTypes);
+      }
+      if (request.isSchemaVersion()) {
+        result.setSchemaVersion(String.valueOf(getSchemaVersion()));
+      }
+      return result;
+    } finally {
+      context.stop();
     }
-    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -197,7 +223,7 @@ public class DbSecurityMaster
     }
     
     String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
+    doSearch(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
     if (request.isFullDetail()) {
       loadDetail(detailProvider, result.getDocuments());
     }
@@ -273,83 +299,93 @@ public class DbSecurityMaster
   @Override
   protected SecurityDocument insert(final SecurityDocument document) {
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notNull(document.getSecurity().getName(), "document.security.name");
+    ArgumentChecker.notNull(document.getSecurity().getSecurityType(), "document.security.securityTYpe");
+    ArgumentChecker.notNull(document.getSecurity().getExternalIdBundle(), "document.security.externalIdBundle");
     
-    final long docId = nextId("sec_security_seq");
-    final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
-    // the arguments for inserting into the security table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-      .addValue("doc_id", docId)
-      .addValue("doc_oid", docOid)
-      .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-      .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-      .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-      .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", document.getSecurity().getName())
-      .addValue("sec_type", document.getSecurity().getSecurityType());
-    if (document.getSecurity() instanceof RawSecurity) {
-      docArgs.addValue("detail_type", "R");
-    } else if (document.getSecurity().getClass() == ManageableSecurity.class) {
-      docArgs.addValue("detail_type", "M");
-    } else {
-      docArgs.addValue("detail_type", "D");
-    }
-    // the arguments for inserting into the idkey tables
-    final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
-    final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
-    for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
-      final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+    Timer.Context context = _insertTimer.time();
+    try {
+      final long docId = nextId("sec_security_seq");
+      final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
+      // the arguments for inserting into the security table
+      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
-        .addValue("key_scheme", id.getScheme().getName())
-        .addValue("key_value", id.getValue());
-      assocList.add(assocArgs);
-      if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
-        // select avoids creating unnecessary id, but id may still not be used
-        final long idKeyId = nextId("sec_idkey_seq");
-        final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
-          .addValue("idkey_id", idKeyId)
+        .addValue("doc_oid", docOid)
+        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+        .addValue("name", document.getSecurity().getName())
+        .addValue("sec_type", document.getSecurity().getSecurityType());
+      if (document.getSecurity() instanceof RawSecurity) {
+        docArgs.addValue("detail_type", "R");
+      } else if (document.getSecurity().getClass() == ManageableSecurity.class) {
+        docArgs.addValue("detail_type", "M");
+      } else {
+        docArgs.addValue("detail_type", "D");
+      }
+      // the arguments for inserting into the idkey tables
+      final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
+      final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
+      final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
+      for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
+        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+          .addValue("doc_id", docId)
           .addValue("key_scheme", id.getScheme().getName())
           .addValue("key_value", id.getValue());
-        idKeyList.add(idkeyArgs);
+        assocList.add(assocArgs);
+        if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
+          // select avoids creating unnecessary id, but id may still not be used
+          final long idKeyId = nextId("sec_idkey_seq");
+          final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+            .addValue("idkey_id", idKeyId)
+            .addValue("key_scheme", id.getScheme().getName())
+            .addValue("key_value", id.getValue());
+          idKeyList.add(idkeyArgs);
+        }
       }
-    }
-    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
-    final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
-    final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
-    getJdbcTemplate().update(sqlDoc, docArgs);
-    getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
-    getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
-    // set the uniqueId
-    final UniqueId uniqueId = createUniqueId(docOid, docId);
-    document.getSecurity().setUniqueId(uniqueId);
-    document.setUniqueId(uniqueId);
-    
-    // store the detail
-    if (document.getSecurity() instanceof RawSecurity) {
-      storeRawSecurityDetail((RawSecurity) document.getSecurity());
-    } else {
-      final SecurityMasterDetailProvider detailProvider = getDetailProvider();
-      if (detailProvider != null) {
-        detailProvider.storeSecurityDetail(document.getSecurity());
+      final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+      final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
+      final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
+      getJdbcTemplate().update(sqlDoc, docArgs);
+      getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
+      getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
+      // set the uniqueId
+      final UniqueId uniqueId = createUniqueId(docOid, docId);
+      document.getSecurity().setUniqueId(uniqueId);
+      document.setUniqueId(uniqueId);
+      
+      // store the detail
+      if (document.getSecurity() instanceof RawSecurity) {
+        storeRawSecurityDetail((RawSecurity) document.getSecurity());
+      } else {
+        final SecurityMasterDetailProvider detailProvider = getDetailProvider();
+        if (detailProvider != null) {
+          detailProvider.storeSecurityDetail(document.getSecurity());
+        }
       }
+      
+      // store attributes
+      Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
+      final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
+      for (Map.Entry<String, String> entry : attributes.entrySet()) {
+        final long securityAttrId = nextId("sec_security_attr_seq");
+        final DbMapSqlParameterSource attributeArgs = new DbMapSqlParameterSource()
+                .addValue("attr_id", securityAttrId)
+                .addValue("security_id", docId)
+                .addValue("security_oid", docOid)
+                .addValue("key", entry.getKey())
+                .addValue("value", entry.getValue());
+        securityAttributeList.add(attributeArgs);
+      }
+      final String sqlAttributes = getElSqlBundle().getSql("InsertAttributes");
+      getJdbcTemplate().batchUpdate(sqlAttributes, securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
+      return document;
+      
+    } finally {
+      context.stop();
     }
-    
-    // store attributes
-    Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
-    final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
-    for (Map.Entry<String, String> entry : attributes.entrySet()) {
-      final long securityAttrId = nextId("sec_security_attr_seq");
-      final DbMapSqlParameterSource attributeArgs = new DbMapSqlParameterSource()
-              .addValue("attr_id", securityAttrId)
-              .addValue("security_id", docId)
-              .addValue("security_oid", docOid)
-              .addValue("key", entry.getKey())
-              .addValue("value", entry.getValue());
-      securityAttributeList.add(attributeArgs);
-    }
-    final String sqlAttributes = getElSqlBundle().getSql("InsertAttributes");
-    getJdbcTemplate().batchUpdate(sqlAttributes, securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
-    return document;
+
   }
 
   private void storeRawSecurityDetail(RawSecurity security) {
@@ -423,7 +459,7 @@ public class DbSecurityMaster
   }
 
   @Override
-  public AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<SecurityDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     SecurityHistoryRequest historyRequest = new SecurityHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -432,4 +468,5 @@ public class DbSecurityMaster
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

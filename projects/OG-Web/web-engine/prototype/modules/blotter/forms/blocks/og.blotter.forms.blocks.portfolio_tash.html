@@ -1,0 +1,76 @@
+<section class="og-blotter-portfolio" id="{{id}}">
+  <table class="OG-table">
+    <colgroup>
+      <col style="width: 33%">
+      <col style="width: 67%">
+    </colgroup>
+    <tbody>
+      {{#if portfolio}}
+      <tr>
+        <td>
+          <label>
+            <span>Portfolio/Position</span>
+          </label>
+        </td>
+        <td>
+          <span>{{node}}</span>
+        </td>
+      </tr>
+      {{/if}}
+      <tr>
+        <td>
+          <label>
+            <span>Counterparty</span>
+          </label>
+        </td>
+        <td>
+          <input name="trade.counterparty" type="text" value="{{counterparty}}" />
+        </td>
+      </tr>
+      {{#unless fungible}}
+      <tr>
+        <td>
+          <label>
+            <span>Trade Name</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.name" type="text" value="{{name}}" />
+        </td>
+      </tr>
+      {{/unless}}
+      <tr>
+        <td>
+          <label>
+            <span>Trade Date/Time</span>
+          </label>
+        </td>
+        <td class="og-double-cell trade">
+          <div><span><input class="blotter-date" name="trade.tradeDate" type="text" value="{{trade.tradeDate}}" />
+          </span><span><input class="blotter-time" name="trade.tradeTime" type="text" value="{{trade.tradeTime}}" />
+          </span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a class="premium-toggle">Premium<span class="OG-icon og-icon-down"></span></a>
+        </td>
+        <td class="og-double-cell">
+          <div class="hidden"><span>{{{item_0}}}
+          </span><span><input name="trade.premium" type="text" value="{{trade.premium}}" />
+          </span></div>
+        </td>
+      </tr>
+      <tr class="hidden">
+        <td>
+          <label>Date/Time</label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><input class="blotter-date" name="trade.premiumDate" type="text" value="{{trade.premiumDate}}" />
+          </span><span><input class="blotter-time" name="trade.premiumTime" type="text" value="{{trade.premiumTime}}" />
+          </span></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

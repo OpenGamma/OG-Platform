@@ -34,83 +34,80 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
- * A JMS LiveData client. This client is implemented using JMS's asynchronous
- * onMessage() notification capability.
- * The client creates 10 JMS sessions by default. New market data
- * subscriptions are assigned to sessions in round-robin fashion.
+ * A JMS LiveData client. This client is implemented using JMS's asynchronous onMessage() notification capability. The client creates 10 JMS sessions by default. New market data subscriptions are
+ * assigned to sessions in round-robin fashion.
  */
 @PublicAPI
 public class JmsLiveDataClient extends DistributedLiveDataClient implements Lifecycle {
-  
+
   /**
    * How many JMS sessions the client will create by default
    */
   public static final int DEFAULT_NUM_SESSIONS = 10;
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(JmsLiveDataClient.class);
-  
+
   private final JmsConnector _jmsConnector;
   private volatile Connection _connection;
-  
+
   private final Map<String, Runnable> _closeRunnableBySpec =
-    new HashMap<String, Runnable>();
-  
+      new HashMap<String, Runnable>();
+
   /**
-   * A list of JMS sessions created so far. The size of the list
-   * will not exceed _maxSessions.
+   * A list of JMS sessions created so far. The size of the list will not exceed _maxSessions.
    */
   private final List<Session> _sessions = new ArrayList<Session>();
-  
+
   /**
-   * How many JMS sessions the client will create. Must be positive. 
+   * How many JMS sessions the client will create. Must be positive.
    */
   private final int _maxSessions;
-  
+
   /**
-   * This needs to be in [0, _maxSessions - 1] at all times.
-   * When it reaches _maxSessions, it will be reset back to 0.
+   * This needs to be in [0, _maxSessions - 1] at all times. When it reaches _maxSessions, it will be reset back to 0.
    */
   private int _currentSessionIndex; // = 0
-  
+
   private AtomicBoolean _running = new AtomicBoolean(false);
-  
+
   private ExecutorService _executor;
-  
+
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender,
       JmsConnector jmsConnector) {
-    this(subscriptionRequestSender, 
-        entitlementRequestSender, 
-        jmsConnector, 
+    this(subscriptionRequestSender,
+        entitlementRequestSender,
+        jmsConnector,
         OpenGammaFudgeContext.getInstance(),
         DEFAULT_NUM_SESSIONS);
   }
-  
+
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender,
       JmsConnector jmsConnector,
       FudgeContext fudgeContext) {
-    this(subscriptionRequestSender, 
-        entitlementRequestSender, 
-        jmsConnector, 
+    this(subscriptionRequestSender,
+        entitlementRequestSender,
+        jmsConnector,
         fudgeContext,
         DEFAULT_NUM_SESSIONS);
   }
 
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender,
-      JmsConnector jmsConnector, 
+      JmsConnector jmsConnector,
       FudgeContext fudgeContext,
       int maxSessions) {
     super(subscriptionRequestSender, entitlementRequestSender, fudgeContext);
     ArgumentChecker.notNull(jmsConnector, "jmsConnector");
     _jmsConnector = jmsConnector;
-    
+
     if (maxSessions <= 0) {
       throw new IllegalArgumentException("Max sessions must be positive");
     }
@@ -130,11 +127,11 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   @Override
   public synchronized void startReceivingTicks(Collection<String> tickDistributionSpecifications) {
     super.startReceivingTicks(tickDistributionSpecifications);
-    
+
     s_logger.info("Starting listening to tick distribution specifications {}", tickDistributionSpecifications);
-    
+
     List<List<String>> specsBySessionIndex = new ArrayList<List<String>>(_maxSessions);
-    
+
     for (String tickDistributionSpecification : tickDistributionSpecifications) {
       if (_closeRunnableBySpec.containsKey(tickDistributionSpecification)) {
         // Already receiving for that tick. Ignore it.
@@ -144,7 +141,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
       while (specsBySessionIndex.size() <= _currentSessionIndex) {
         specsBySessionIndex.add(new ArrayList<String>());
       }
-      
+
       try {
         Session session;
         if (_sessions.size() <= _currentSessionIndex) {
@@ -152,9 +149,9 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
           _sessions.add(session);
         } else {
           session = _sessions.get(_currentSessionIndex);
-        }        
+        }
       } catch (JMSException e) {
-        throw new OpenGammaRuntimeException("Failed to create subscription to JMS topic " + tickDistributionSpecification, e);      
+        throw new OpenGammaRuntimeException("Failed to create subscription to JMS topic " + tickDistributionSpecification, e);
       }
 
       specsBySessionIndex.get(_currentSessionIndex).add(tickDistributionSpecification);
@@ -165,7 +162,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
         _currentSessionIndex = 0;
       }
     }
-    List<Future<Map<String, Runnable>>> futures = new ArrayList<Future<Map<String, Runnable>>>(); 
+    List<Future<Map<String, Runnable>>> futures = new ArrayList<Future<Map<String, Runnable>>>();
     for (int i = 0; i < specsBySessionIndex.size(); i++) {
       Callable<Map<String, Runnable>> c = getStartReceivingCallable(specsBySessionIndex.get(i), i);
       futures.add(_executor.submit(c));
@@ -187,15 +184,15 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
       @Override
       public Map<String, Runnable> call() {
         Session session = _sessions.get(sessionIndex);
-        
+
         ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(JmsLiveDataClient.this, getFudgeContext());
         final JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(fudgeReceiver);
-        
+
         return startReceivingTicks(specs, session, jmsDispatcher);
       }
     };
   }
-  
+
   protected Map<String, Runnable> startReceivingTicks(final List<String> specs, Session session,
       final JmsByteArrayMessageDispatcher jmsDispatcher) {
     Map<String, Runnable> ret = new HashMap<String, Runnable>();
@@ -221,7 +218,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
       }
     };
   }
-  
+
   @Override
   public synchronized void stopReceivingTicks(String tickDistributionSpecification) {
     Runnable close = _closeRunnableBySpec.get(tickDistributionSpecification);
@@ -230,7 +227,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     }
 
     close.run();
-    
+
     _closeRunnableBySpec.remove(tickDistributionSpecification);
   }
 
@@ -247,7 +244,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("Failed to create JMS connection", e);
     }
-    _executor = Executors.newCachedThreadPool();
+    _executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory(toString(), true));
     _running.set(true);
   }
 
@@ -263,7 +260,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
         close.run(); // [PLAT-1809]  Must close these as well
       }
       _closeRunnableBySpec.clear();
-      
+
       if (_connection != null) {
         _connection.close();
         _connection = null;

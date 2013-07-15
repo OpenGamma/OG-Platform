@@ -7,12 +7,13 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.text.DecimalFormat;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.BondFutureExpiryCalculator;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
@@ -120,5 +121,10 @@ public class BloombergBondFuturePriceCurveInstrumentProvider implements FuturePr
     return getFuturePrefix().equals(other.getFuturePrefix()) &&
         getPostfix().equals(other.getPostfix()) &&
         getDataFieldName().equals(other.getDataFieldName());
+  }
+
+  @Override
+  public ExchangeTradedInstrumentExpiryCalculator getExpiryRuleCalculator() {
+    return BondFutureExpiryCalculator.getInstance();
   }
 }

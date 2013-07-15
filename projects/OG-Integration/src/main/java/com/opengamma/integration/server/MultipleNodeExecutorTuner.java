@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.engine.view.calc.MultipleNodeExecutorFactory;
-import com.opengamma.engine.view.calc.stats.GraphExecutionStatistics;
-import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
-import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatistics;
-import com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer;
+import com.opengamma.engine.calcnode.stats.CalculationNodeStatistics;
+import com.opengamma.engine.calcnode.stats.TotallingNodeStatisticsGatherer;
+import com.opengamma.engine.exec.MultipleNodeExecutorFactory;
+import com.opengamma.engine.exec.stats.GraphExecutionStatistics;
+import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.tuple.Pair;
 

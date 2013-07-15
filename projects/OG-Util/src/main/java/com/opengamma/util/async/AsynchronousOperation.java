@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.async;
 
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -18,13 +19,14 @@ import com.opengamma.util.NamedThreadPoolFactory;
 /**
  * Represents the production of a result by another thread and potentially allow the original calling thread to
  * perform another action in the meantime.
- * 
+ *
  * @param <T> type of the result
  */
-public class AsynchronousOperation<T> {
+public final class AsynchronousOperation<T> {
 
   private static final ScheduledExecutorService s_timeouts = createTimeoutExecutor();
 
+  private final Class<T> _type;
   private AsynchronousResult<T> _result;
   private ResultListener<T> _listener;
 
@@ -39,12 +41,35 @@ public class AsynchronousOperation<T> {
   /**
    * Creates a new instance.
    */
-  public AsynchronousOperation() {
+  private AsynchronousOperation(final Class<T> type) {
+    _type = type;
+  }
+
+  /**
+   * Creates a new instance typed for the given class.
+   *
+   * @param <T> the type of the result
+   * @param type the class of the result, never null
+   * @return the new instance, never null
+   */
+  public static <T> AsynchronousOperation<T> create(final Class<T> type) {
+    return new AsynchronousOperation<T>(type);
+  }
+
+  /**
+   * Creates a new instance typed for a set.
+   *
+   * @param <T> the type within the set
+   * @return the new instance, never null
+   */
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  public static <T> AsynchronousOperation<Set<T>> createSet() {
+    return new AsynchronousOperation(Set.class);
   }
 
   /**
    * Creates a callback object that can be used to post the result when it is available.
-   * 
+   *
    * @return the callback object
    */
   public ResultCallback<T> getCallback() {
@@ -52,8 +77,17 @@ public class AsynchronousOperation<T> {
   }
 
   /**
+   * Returns the type of the result.
+   *
+   * @return the type of the result, never null
+   */
+  protected Class<T> getResultType() {
+    return _type;
+  }
+
+  /**
    * Called when a result is available.
-   * 
+   *
    * @param result the result value
    */
   protected void setResult(final T result) {
@@ -62,7 +96,7 @@ public class AsynchronousOperation<T> {
 
   /**
    * Called when an exception is available.
-   * 
+   *
    * @param exception the exception
    */
   protected void setException(final RuntimeException exception) {
@@ -72,7 +106,7 @@ public class AsynchronousOperation<T> {
 
   /**
    * Sets the result object, invoking the listener if one is registered.
-   * 
+   *
    * @param result the signaled result object
    */
   protected void setAsynchronousResult(final AsynchronousResult<T> result) {
@@ -91,7 +125,7 @@ public class AsynchronousOperation<T> {
 
   /**
    * Called when a result listener has been registered with the exception.
-   * 
+   *
    * @param resultListener the listener
    */
   protected void setResultListener(final ResultListener<T> resultListener) {
@@ -111,7 +145,7 @@ public class AsynchronousOperation<T> {
 
   /**
    * Called when the exception is blocking on the result.
-   * 
+   *
    * @return the result
    * @throws InterruptedException if interrupted waiting for the result
    */
@@ -127,19 +161,10 @@ public class AsynchronousOperation<T> {
   }
 
   /**
-   * Creates the exception thrown by {@link #getResult}.
-   * 
-   * @return the exception to be thrown
-   */
-  protected AsynchronousExecution createException() {
-    return new AsynchronousExecution(this);
-  }
-
-  /**
    * Returns control to the calling thread. If a result or exception has already been signaled, the
    * result is returned or the exception thrown. If no result or exception is available, the checked
    * {@link AsynchronousExecution} is thrown.
-   * 
+   *
    * @return the result, if available
    * @throws AsynchronousExecution if the result is not available
    */
@@ -149,7 +174,7 @@ public class AsynchronousOperation<T> {
       result = _result;
     }
     if (result == null) {
-      throw createException();
+      throw new AsynchronousExecution(this);
     } else {
       return result.getResult();
     }
@@ -158,7 +183,7 @@ public class AsynchronousOperation<T> {
   /**
    * Declares a timeout on an asynchronous operation. The {@link Cancelable#cancel} callback is made after the timeout period
    * unless the handle returned by the timeout is itself canceled.
-   * 
+   *
    * @param cancelation the user callback, not null
    * @param timeoutMillis the timeout period in milliseconds
    * @return a cancellation handle for the timeout
@@ -171,7 +196,7 @@ public class AsynchronousOperation<T> {
       public void run() {
         cancelation.cancel(true);
       }
-    }, (long) timeoutMillis, TimeUnit.MILLISECONDS);
+    }, timeoutMillis, TimeUnit.MILLISECONDS);
     return new Cancelable() {
       @Override
       public boolean cancel(final boolean mayInterruptIfRunning) {
@@ -183,7 +208,7 @@ public class AsynchronousOperation<T> {
   /**
    * Returns the result (or throws the signaled exception), blocking the caller until it is available. This is equivalent to {@link AsynchronousExecution#getResult} but wraps any
    * {@link InterruptedException} in a {@link OpenGammaRuntimeException}.
-   * 
+   *
    * @param <T> type of the result
    * @param ex the caught exception
    * @return the result
@@ -192,7 +217,7 @@ public class AsynchronousOperation<T> {
   public static <T> T getResult(final AsynchronousExecution ex) {
     try {
       return (T) ex.getResult();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       throw new OpenGammaRuntimeException("interrupted", e);
     }
   }

@@ -18,17 +18,18 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests {@link FieldMappingHistoricalTimeSeriesResolver}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class FieldMappingHistoricalTimeSeriesResolverTest {
 
   private static final int TS_DATASET_SIZE = 1;

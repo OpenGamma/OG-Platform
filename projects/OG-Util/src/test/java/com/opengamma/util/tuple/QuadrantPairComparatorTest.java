@@ -9,12 +9,15 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Comparator;
 
+import com.opengamma.util.tuple.Pair;
 import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test QuadrantPairComparator.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class QuadrantPairComparatorTest {
 
   public void testCompare_differentQuadrants() {

@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -37,10 +37,11 @@ public class IndexSwap {
    * @param fixedLegDayCount The swap fixed leg day count convention.
    * @param iborIndex The Ibor index of swap the floating leg.
    * @param tenor The swap tenor.
+   * @param calendar The holiday calendar for the ibor index.
    */
-  public IndexSwap(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, Period tenor) {
-    Validate.notNull(tenor, "Swap tenor");
-    _swapGenerator = new GeneratorSwapFixedIbor("Swap Generator", fixedLegPeriod, fixedLegDayCount, iborIndex);
+  public IndexSwap(final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IborIndex iborIndex, final Period tenor, final Calendar calendar) {
+    ArgumentChecker.notNull(tenor, "Swap tenor");
+    _swapGenerator = new GeneratorSwapFixedIbor("Swap Generator", fixedLegPeriod, fixedLegDayCount, iborIndex, calendar);
     _tenor = tenor;
     _name = tenor.toString() + _swapGenerator.getName();
   }
@@ -50,9 +51,9 @@ public class IndexSwap {
    * @param swapGenerator The underlying swap generator.
    * @param tenor The swap tenor.
    */
-  public IndexSwap(GeneratorSwapFixedIbor swapGenerator, Period tenor) {
-    Validate.notNull(swapGenerator, "swap generator");
-    Validate.notNull(tenor, "tenor");
+  public IndexSwap(final GeneratorSwapFixedIbor swapGenerator, final Period tenor) {
+    ArgumentChecker.notNull(swapGenerator, "swap generator");
+    ArgumentChecker.notNull(tenor, "tenor");
     _swapGenerator = swapGenerator;
     _tenor = tenor;
     _name = tenor.toString() + _swapGenerator.getName();
@@ -122,7 +123,7 @@ public class IndexSwap {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -132,7 +133,7 @@ public class IndexSwap {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    IndexSwap other = (IndexSwap) obj;
+    final IndexSwap other = (IndexSwap) obj;
     if (!ObjectUtils.equals(_swapGenerator, other._swapGenerator)) {
       return false;
     }

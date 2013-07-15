@@ -16,13 +16,13 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
  */
 public abstract class ComputationTargetFilter implements DependencyNodeFilter {
 
-  private final ComputationTargetResolver _computationTargetResolver;
+  private final ComputationTargetResolver.AtVersionCorrection _computationTargetResolver;
 
-  public ComputationTargetFilter(final ComputationTargetResolver computationTargetResolver) {
+  public ComputationTargetFilter(final ComputationTargetResolver.AtVersionCorrection computationTargetResolver) {
     _computationTargetResolver = computationTargetResolver;
   }
 
-  protected ComputationTargetResolver getComputationTargetResolver() {
+  protected ComputationTargetResolver.AtVersionCorrection getComputationTargetResolver() {
     return _computationTargetResolver;
   }
 

@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +23,8 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -225,7 +224,7 @@ public class RedisLKVFileWriter implements Runnable {
 
   public File getOutputFile() {
     LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    String dateStr = today.toString(DateTimeFormatters.isoLocalDate());
+    String dateStr = today.toString(DateTimeFormatter.ISO_LOCAL_DATE);
     String[] dateParts = StringUtils.split(dateStr, "-");
     String year = dateParts[0];
     String month = dateParts[1];

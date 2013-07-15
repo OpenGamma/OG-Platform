@@ -7,7 +7,7 @@ package com.opengamma.engine.function.blacklist;
 
 import java.util.Collection;
 
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 
 /**
  * Builds/maintains a function blacklist as failure events are received.

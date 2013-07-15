@@ -9,7 +9,6 @@ import static com.opengamma.util.EnumUtils.safeValueOf;
 
 import java.net.URI;
 
-import javax.time.calendar.TimeZone;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -24,6 +23,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.UniqueId;
@@ -65,7 +65,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     }
     
     FlexiBean out = createRootData();
-    return getFreemarker().build("regions/region.ftl", out);
+    return getFreemarker().build(HTML_DIR + "region.ftl", out);
   }
 
   @GET
@@ -83,7 +83,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     }
 
     FlexiBean out = createRootData();
-    return getFreemarker().build("regions/jsonregion.ftl", out);
+    return getFreemarker().build(JSON_DIR + "region.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -115,7 +115,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       if (regionClassification == null) {
         out.put("err_classificationMissing", true);
       }
-      String html = getFreemarker().build("regions/region-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "region-add.ftl", out);
       return Response.ok(html).build();
     }
     if (fullName == null) {
@@ -162,7 +162,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setClassification(classification);
     region.setCountry(countryISO != null ? Country.of(countryISO) : null);
     region.setCurrency(currencyISO != null ? Currency.of(currencyISO) : null);
-    region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
+    region.setTimeZone(timeZoneId != null ? ZoneId.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     RegionDocument added = data().getRegionMaster().add(doc);
     return WebRegionResource.uri(data(), added.getUniqueId());
@@ -197,7 +197,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       if (regionClassification == null) {
         out.put("err_classificationMissing", true);
       }
-      String html = getFreemarker().build("regions/region-update.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "region-update.ftl", out);
       return Response.ok(html).build();
     }
     if (fullName == null) {
@@ -246,7 +246,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setClassification(classification);
     region.setCountry(countryISO != null ? Country.of(countryISO) : null);
     region.setCurrency(currencyISO != null ? Currency.of(currencyISO) : null);
-    region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
+    region.setTimeZone(timeZoneId != null ? ZoneId.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     doc = data().getRegionMaster().update(doc);
     data().setRegion(doc);

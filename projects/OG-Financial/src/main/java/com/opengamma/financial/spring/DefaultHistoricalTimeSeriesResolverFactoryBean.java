@@ -61,7 +61,6 @@ public class DefaultHistoricalTimeSeriesResolverFactoryBean extends SpringFactor
    * The meta-bean for {@code DefaultHistoricalTimeSeriesResolverFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DefaultHistoricalTimeSeriesResolverFactoryBean.Meta meta() {
     return DefaultHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE;
   }
@@ -194,7 +193,7 @@ public class DefaultHistoricalTimeSeriesResolverFactoryBean extends SpringFactor
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "historicalTimeSeriesMaster",
         "configSource");
 

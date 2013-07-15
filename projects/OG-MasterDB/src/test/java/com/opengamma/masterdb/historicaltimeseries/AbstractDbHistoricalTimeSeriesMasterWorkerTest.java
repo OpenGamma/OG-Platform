@@ -10,18 +10,15 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -29,14 +26,15 @@ import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbHistoricalTimeSeriesMasterWorker via DbHistoricalTimeSeriesMaster.
  */
-public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbHistoricalTimeSeriesMasterWorkerTest.class);
 
@@ -50,18 +48,17 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
   protected OffsetDateTime _now;
 
   public AbstractDbHistoricalTimeSeriesMasterWorkerTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _htsMaster = (DbHistoricalTimeSeriesMaster) context.getBean(getDatabaseType() + "DbHistoricalTimeSeriesMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _htsMaster = new DbHistoricalTimeSeriesMaster(getDbConnector());
     
     _now = OffsetDateTime.now();
-    _htsMaster.setTimeSource(TimeSource.fixed(_now.toInstant()));
+    _htsMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
     _version1Instant = _now.toInstant().minusSeconds(100);
     _version2Instant = _now.toInstant().minusSeconds(50);
     _version3Instant = _now.toInstant().minusSeconds(40);
@@ -71,7 +68,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     s_logger.debug("test data 2: {}", _version2Instant);
     s_logger.debug("test data 3: {}", _version3Instant);
     s_logger.debug("test data 4: {}", _version4Instant);
-    final SimpleJdbcTemplate template = _htsMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _htsMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO hts_name VALUES (?,?)",
         1, "N101");
     template.update("INSERT INTO hts_name VALUES (?,?)",
@@ -159,15 +156,9 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
         101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 3)), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version4Instant), 3.33d);
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _htsMaster = null;
-    super.tearDown();
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

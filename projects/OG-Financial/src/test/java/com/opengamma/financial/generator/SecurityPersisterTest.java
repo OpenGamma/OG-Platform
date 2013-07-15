@@ -10,9 +10,8 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -22,12 +21,13 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Tests the {@link SecurityPersister} class.
+ * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class SecurityPersisterTest {
   
   private static class Impl extends SecurityPersister {

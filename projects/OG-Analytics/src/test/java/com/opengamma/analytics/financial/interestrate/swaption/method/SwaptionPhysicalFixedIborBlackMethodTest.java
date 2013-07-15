@@ -11,10 +11,9 @@ import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadSwaptionBlackRolldown;
@@ -36,8 +35,8 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -59,7 +58,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor GENERATOR_EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final YieldCurveBundle CURVES = TestsDataSetsBlack.createCurvesEUR();
-  private static final BlackSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR6();
+  private static final BlackFlatSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR6();
   private static final YieldCurveWithBlackSwaptionBundle CURVES_BLACK = new YieldCurveWithBlackSwaptionBundle(BLACK, CURVES);
   private static final String[] CURVES_NAME = TestsDataSetsBlack.curvesEURNames();
   // Swaption
@@ -73,7 +72,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final double RATE = 0.02;
   private static final SwapFixedIborDefinition SWAP_DEFINITION_REC = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, false);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, true);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_REC = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[2]});
+  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_REC = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[2] });
   // Method - calculator
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_DELTA = 1.0E+2;
@@ -93,7 +92,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   @Test
   public void presentValue() {
     final CurrencyAmount pvMethod = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, CURVES_BLACK);
-    final double forward = PRC.visit(SWAPTION_LONG_REC.getUnderlyingSwap(), CURVES);
+    final double forward = SWAPTION_LONG_REC.getUnderlyingSwap().accept(PRC, CURVES);
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAPTION_LONG_REC.getUnderlyingSwap(), CURVES);
     final double volatility = BLACK.getVolatility(SWAPTION_LONG_REC.getTimeToExpiry(), SWAPTION_LONG_REC.getMaturityTime());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
@@ -111,11 +110,11 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   public void presentValuePayerReceiverParity() {
     final SwapFixedIborDefinition swapDefinitionPay = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, true);
     final SwaptionPhysicalFixedIborDefinition swaptionDefinitionShortPayer = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinitionPay, false);
-    final SwaptionPhysicalFixedIbor swaptionShortPayer = swaptionDefinitionShortPayer.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[2]});
-    final InstrumentDerivative swapRec = SWAP_DEFINITION_REC.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[2]});
+    final SwaptionPhysicalFixedIbor swaptionShortPayer = swaptionDefinitionShortPayer.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[2] });
+    final InstrumentDerivative swapRec = SWAP_DEFINITION_REC.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[2] });
     final CurrencyAmount pvLR = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, CURVES_BLACK);
     final CurrencyAmount pvSP = METHOD_BLACK.presentValue(swaptionShortPayer, CURVES_BLACK);
-    final double pvSwap = PVC_BLACK.visit(swapRec, CURVES);
+    final double pvSwap = swapRec.accept(PVC_BLACK, CURVES);
     assertEquals("Swaption Black method: present value", pvSwap, pvLR.getAmount() + pvSP.getAmount(), TOLERANCE_PV);
   }
 
@@ -125,7 +124,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     final CurrencyAmount pvMethod = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, CURVES_BLACK);
-    final double pvCalculator = PVC_BLACK.visit(SWAPTION_LONG_REC, CURVES_BLACK);
+    final double pvCalculator = SWAPTION_LONG_REC.accept(PVC_BLACK, CURVES_BLACK);
     assertEquals("Swaption Black method: present value", pvCalculator, pvMethod.getAmount(), TOLERANCE_PV);
   }
 
@@ -165,7 +164,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final InterestRateCurveSensitivity pvcsMethod = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
-    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_BLACK.visit(SWAPTION_LONG_REC, CURVES_BLACK));
+    final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(SWAPTION_LONG_REC.accept(PVCSC_BLACK, CURVES_BLACK));
     AssertSensivityObjects.assertEquals("Swaption Black method: present value", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 
@@ -176,10 +175,10 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   public void presentValueBlackSensitivity() {
     final double shift = 1.0E-6;
     final PresentValueBlackSwaptionSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
-    final BlackSwaptionParameters BlackP = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(shift);
+    final BlackFlatSwaptionParameters BlackP = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(shift);
     final YieldCurveWithBlackSwaptionBundle curvesBlackP = new YieldCurveWithBlackSwaptionBundle(BlackP, CURVES);
     final CurrencyAmount pvP = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackP);
-    final BlackSwaptionParameters BlackM = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(-shift);
+    final BlackFlatSwaptionParameters BlackM = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(-shift);
     final YieldCurveWithBlackSwaptionBundle curvesBlackM = new YieldCurveWithBlackSwaptionBundle(BlackM, CURVES);
     final CurrencyAmount pvM = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackM);
     final DoublesPair point = new DoublesPair(SWAPTION_LONG_REC.getTimeToExpiry(), SWAPTION_LONG_REC.getMaturityTime());
@@ -192,7 +191,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
    */
   public void presentValueBlackSensitivityMethodVsCalculator() {
     final PresentValueBlackSwaptionSensitivity pvbsMethod = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
-    final PresentValueBlackSwaptionSensitivity pvbsCalculator = PVBSC_BLACK.visit(SWAPTION_LONG_REC, CURVES_BLACK);
+    final PresentValueBlackSwaptionSensitivity pvbsCalculator = SWAPTION_LONG_REC.accept(PVBSC_BLACK, CURVES_BLACK);
     assertEquals("Swaption Black method: present value", pvbsMethod, pvbsCalculator);
   }
 
@@ -207,10 +206,10 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
     final double[] x = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getXDataAsPrimitive();
     final double[] y = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getYDataAsPrimitive();
     for (int loopindex = 0; loopindex < x.length; loopindex++) {
-      final BlackSwaptionParameters BlackP = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(loopindex, shift);
+      final BlackFlatSwaptionParameters BlackP = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(loopindex, shift);
       final YieldCurveWithBlackSwaptionBundle curvesBlackP = new YieldCurveWithBlackSwaptionBundle(BlackP, CURVES);
       final CurrencyAmount pvP = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackP);
-      final BlackSwaptionParameters BlackM = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(loopindex, -shift);
+      final BlackFlatSwaptionParameters BlackM = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(loopindex, -shift);
       final YieldCurveWithBlackSwaptionBundle curvesBlackM = new YieldCurveWithBlackSwaptionBundle(BlackM, CURVES);
       final CurrencyAmount pvM = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackM);
       assertEquals("Swaption Black method: present value volatility sensitivity", (pvP.getAmount() - pvM.getAmount()) / (2 * shift),
@@ -223,9 +222,9 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
     final MultipleCurrencyAmount theta = THETAC.getTheta(SWAPTION_DEFINITION_LONG_REC, REFERENCE_DATE, CURVES_NAME, CURVES_BLACK, 1);
     final SwaptionPhysicalFixedIbor swaptionToday = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final SwaptionPhysicalFixedIbor swaptionTomorrow = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
-    final double pvToday = PVC_BLACK.visit(swaptionToday, CURVES_BLACK);
+    final double pvToday = swaptionToday.accept(PVC_BLACK, CURVES_BLACK);
     final YieldCurveBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(CURVES_BLACK, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
-    final double pvTomorrow = PVC_BLACK.visit(swaptionTomorrow, tomorrowData);
+    final double pvTomorrow = swaptionTomorrow.accept(PVC_BLACK, tomorrowData);
     assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - pvToday, theta.getAmount(SWAPTION_DEFINITION_LONG_REC.getUnderlyingSwap().getCurrency()), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);
   }

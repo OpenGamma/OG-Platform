@@ -1,10 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata.live;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,9 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
@@ -27,51 +28,54 @@ import com.opengamma.util.ArgumentChecker;
 public class LiveMarketDataPermissionProvider implements MarketDataPermissionProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LiveMarketDataPermissionProvider.class);
-  
+
   private final LiveDataEntitlementChecker _entitlementChecker;
-  private final SecuritySource _securitySource;
-  
-  public LiveMarketDataPermissionProvider(LiveDataEntitlementChecker entitlementChecker, SecuritySource securitySource) {
+
+  public LiveMarketDataPermissionProvider(final LiveDataEntitlementChecker entitlementChecker) {
     ArgumentChecker.notNull(entitlementChecker, "entitlementChecker");
-    ArgumentChecker.notNull(securitySource, "securitySource");
     _entitlementChecker = entitlementChecker;
-    _securitySource = securitySource;
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
-  public Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> checkMarketDataPermissions(final UserPrincipal user, final Set<ValueSpecification> specifications) {
     s_logger.info("Checking that {} is entitled to computation results", user);
-    Map<LiveDataSpecification, ValueRequirement> requiredLiveData = getRequiredLiveDataSpecifications(requirements);
+    final Map<LiveDataSpecification, Collection<ValueSpecification>> requiredLiveData = getRequiredLiveDataSpecifications(specifications);
     Map<LiveDataSpecification, Boolean> entitlements;
     try {
       entitlements = _entitlementChecker.isEntitled(user, requiredLiveData.keySet());
-    } catch (Exception e) {
-      // TODO is this really the right thing to do?
-      s_logger.warn("Failed to perform entitlement checking. Failing open - assuming entitled.", e);
-      return requirements;
+    } catch (final Exception e) {
+      // 2013-02-04 Andrew -- The message below said this was failing open, but it's returning the full set of specifications which is no access. I kept
+      // this behaviour but changed the logging message.
+      s_logger.warn("Failed to perform entitlement checking. Assuming no access to data.", e);
+      return Sets.newHashSet();//specifications;
     }
-    Set<ValueRequirement> failures = Sets.newHashSet();
-    for (Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
+    final Set<ValueSpecification> failures = Sets.newHashSet();
+    for (final Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
       if (!entry.getValue()) {
-        failures.add(requiredLiveData.get(entry.getKey()));
+        failures.addAll(requiredLiveData.get(entry.getKey()));
       }
     }
     if (!failures.isEmpty()) {
-      s_logger.warn("User {} does not have permission to access {} out of {} market data requirements",
-                    new Object[] {user, failures.size(), requirements.size()});
+      s_logger.warn("User {} does not have permission to access {} out of {} market data values",
+          new Object[] {user, failures.size(), specifications.size() });
       s_logger.info("User {} does not have permission to access {}", user, failures);
     }
     return failures;
   }
 
-  private Map<LiveDataSpecification, ValueRequirement> getRequiredLiveDataSpecifications(Set<ValueRequirement> requirements) {
-    Map<LiveDataSpecification, ValueRequirement> returnValue = Maps.newHashMap();
-    for (ValueRequirement requirement : requirements) {
-      LiveDataSpecification liveDataSpec = requirement.getTargetSpecification().getRequiredLiveData(_securitySource);
-      returnValue.put(liveDataSpec, requirement);
+  private Map<LiveDataSpecification, Collection<ValueSpecification>> getRequiredLiveDataSpecifications(final Set<ValueSpecification> specifications) {
+    final Map<LiveDataSpecification, Collection<ValueSpecification>> returnValue = Maps.newHashMapWithExpectedSize(specifications.size());
+    for (final ValueSpecification specification : specifications) {
+      final LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(specification);
+      Collection<ValueSpecification> specs = returnValue.get(liveDataSpec);
+      if (specs == null) {
+        specs = new ArrayList<ValueSpecification>();
+        returnValue.put(liveDataSpec, specs);
+      }
+      specs.add(specification);
     }
     return returnValue;
   }
-  
+
 }

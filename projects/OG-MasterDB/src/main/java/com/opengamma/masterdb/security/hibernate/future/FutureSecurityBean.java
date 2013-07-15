@@ -71,7 +71,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
   /**
    * Visitor.
    */
-  public static interface Visitor<T> {
+  public interface Visitor<T> {
     T visitAgricultureFutureType(AgricultureFutureBean bean);
 
     T visitBondFutureType(BondFutureBean bean);
@@ -605,7 +605,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "expiry",
         "tradingExchange",
         "settlementExchange",

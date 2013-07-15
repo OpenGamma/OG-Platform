@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0"
+              xmlns="http://www.opengamma.com/portfolios"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.opengamma.com/portfolios">
+
+  <!--The set of trades that we are managing in this file -->
+  <trades/>
+
+  <portfolios/>
+
+</og-portfolio>

@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.cash;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -154,7 +152,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
 
   @Override
   public DepositZero toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.isTrue(!date.isAfter(_endDate), "date is after end date");
+    ArgumentChecker.isTrue(!date.isAfter(_endDate), "date is after end date");
     final double startTime = TimeCalculator.getTimeBetween(date.toLocalDate(), _startDate.toLocalDate());
     if (startTime < 0) {
       return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
@@ -164,11 +162,13 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositZeroDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositZeroDefinition(this);
   }
 

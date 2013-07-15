@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -11,10 +11,8 @@ import com.opengamma.util.PublicAPI;
 /**
  * A function configured to be invoked with certain parameters.
  * <p>
- * For example, suppose you have a function, PriceCDOMonteCarlo, which
- * takes one parameter, IterationCount.
- * You could then have two {@code ParameterizedFunctions}, one where
- * IterationCount = 20000 and another where IterationCount = 50000. 
+ * For example, suppose you have a function, PriceCDOMonteCarlo, which takes one parameter, IterationCount. You could then have two {@code ParameterizedFunctions}, one where IterationCount = 20000 and
+ * another where IterationCount = 50000.
  */
 @PublicAPI
 public class ParameterizedFunction {
@@ -29,7 +27,7 @@ public class ParameterizedFunction {
    * @param function the function definition, not null
    * @param parameters the function parameters, not null
    */
-  public ParameterizedFunction(CompiledFunctionDefinition function, FunctionParameters parameters) {
+  public ParameterizedFunction(final CompiledFunctionDefinition function, final FunctionParameters parameters) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(parameters, "parameters");
 
@@ -51,7 +49,7 @@ public class ParameterizedFunction {
    * 
    * @param uniqueId the unique identifier
    */
-  public void setUniqueId(String uniqueId) {
+  public void setUniqueId(final String uniqueId) {
     _uniqueId = uniqueId;
   }
 
@@ -78,4 +76,35 @@ public class ParameterizedFunction {
     return "ParameterizedFunction[" + getFunction() + ", " + getParameters() + "]";
   }
 
+  @Override
+  public int hashCode() {
+    if (_uniqueId != null) {
+      return _uniqueId.hashCode();
+    }
+    return _function.hashCode() ^ _parameters.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof ParameterizedFunction)) {
+      return false;
+    }
+    final ParameterizedFunction other = (ParameterizedFunction) o;
+    if (_uniqueId != null) {
+      return _uniqueId.equals(other._uniqueId);
+    }
+    if (_function != other._function) {
+      FunctionDefinition myFunction = _function.getFunctionDefinition();
+      FunctionDefinition otherFunction = other._function.getFunctionDefinition();
+      if (myFunction != otherFunction) {
+        if (!myFunction.getUniqueId().equals(otherFunction.getUniqueId())) {
+          return false;
+        }
+      }
+    }
+    return _parameters.equals(other._parameters);
+  }
 }

@@ -15,8 +15,8 @@ import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.provider.security.SecurityProviderGetRequest;
-import com.opengamma.provider.security.SecurityProviderGetResult;
+import com.opengamma.provider.security.SecurityProviderRequest;
+import com.opengamma.provider.security.SecurityProviderResult;
 import com.opengamma.provider.security.impl.AbstractSecurityProvider;
 
 /**
@@ -47,11 +47,9 @@ public final class BloombergSecurityProvider extends AbstractSecurityProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  protected SecurityProviderGetResult doBulkGet(SecurityProviderGetRequest request) {
+  protected SecurityProviderResult doBulkGet(SecurityProviderRequest request) {
     Map<ExternalIdBundle, ManageableSecurity> map = _bloombergBulkSecurityLoader.loadSecurity(request.getExternalIdBundles());
-    SecurityProviderGetResult result = new SecurityProviderGetResult();
-    result.getResultMap().putAll(map);
-    return result;
+    return new SecurityProviderResult(map);
   }
 
   //-------------------------------------------------------------------------

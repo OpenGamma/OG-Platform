@@ -77,7 +77,7 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
     
     // Build the underlying security
     ManageableSecurity[] securities = _rowParser.constructSecurity(row);
-    if (securities != null && securities.length > 0) {
+    if (securities != null && securities.length > 0 && securities[0] != null) {
       
       // Build the position and trade(s) using security[0] (underlying)
       ManageablePosition position = _rowParser.constructPosition(row, securities[0]);      
@@ -110,4 +110,8 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
     getSheet().close();
   }
 
+  @Override
+  public String getPortfolioName() {
+    return null;
+  }
 }

@@ -15,7 +15,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.SimpleFunctionParameters;
@@ -24,11 +23,12 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultFunctionBlacklistQuery} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultFunctionBlacklistQueryTest {
 
   private final ParameterizedFunction _function1;
@@ -47,8 +47,8 @@ public class DefaultFunctionBlacklistQueryTest {
     _function2 = new ParameterizedFunction(new MockFunction("F2", null), new EmptyFunctionParameters());
     _function3 = new ParameterizedFunction(new MockFunction("F1", null), new SimpleFunctionParameters());
     _function4 = new ParameterizedFunction(new MockFunction("F2", null), new SimpleFunctionParameters());
-    _target1 = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Foo"));
-    _target2 = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Bar"));
+    _target1 = ComputationTargetSpecification.of(UniqueId.of("Test", "Foo"));
+    _target2 = ComputationTargetSpecification.of(UniqueId.of("Test", "Bar"));
     _inputs1 = Collections.singleton(new ValueSpecification("Foo", _target1, ValueProperties.with(ValuePropertyNames.FUNCTION, "X").get()));
     _inputs2 = Collections.singleton(new ValueSpecification("Bar", _target1, ValueProperties.with(ValuePropertyNames.FUNCTION, "X").get()));
     _outputs1 = Collections.singleton(new ValueSpecification("Foo", _target2, ValueProperties.with(ValuePropertyNames.FUNCTION, "Y").get()));

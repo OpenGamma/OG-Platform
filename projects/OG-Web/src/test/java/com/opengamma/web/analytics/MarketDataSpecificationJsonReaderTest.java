@@ -9,10 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.json.JSONException;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
@@ -21,7 +20,12 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class MarketDataSpecificationJsonReaderTest {
 
   private static final String LIVE_JSON = "{\"marketDataType\": \"live\", \"source\": \"Bloomberg\"}";

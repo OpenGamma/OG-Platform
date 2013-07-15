@@ -14,11 +14,14 @@ public enum SheetFormat {
   CSV, 
 
   /** XLS sheet */
-  XLS, 
+  XLS,
 
   /** XLSX sheet */
   XLSX,
-  
+
+  /** XLS sheet */
+  XML,
+
   /** ZIP sheet */
   ZIP,
 
@@ -36,6 +39,8 @@ public enum SheetFormat {
       return SheetFormat.XLS;
     } else if (extension.equals(".xlsx")) {
       return SheetFormat.XLSX;
+    } else if (extension.equals(".xml")) {
+      return SheetFormat.XML;
     } else if (extension.equals(".zip")) {
       return SheetFormat.ZIP;
     } else {

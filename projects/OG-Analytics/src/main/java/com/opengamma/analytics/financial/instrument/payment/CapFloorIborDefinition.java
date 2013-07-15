@@ -5,9 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -17,8 +17,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a caplet/floorlet on Ibor. The notional is positive for long the option and negative for short the option.
@@ -49,31 +51,36 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
    * The cap (true) / floor (false) flag.
    */
   private final boolean _isCap;
-
+  /**
+   * The calendar of the ibor leg.
+   */
+  private final Calendar _calendar;
   /**
    * Constructor from all the cap/floor details.
    * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
-   * @param accrualFactor Accrual factor of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period; used for the payment.
    * @param notional Coupon notional.
    * @param fixingDate The coupon fixing date.
    * @param index The coupon Ibor index. The index currency should be the same as the payment currency.
    * @param strike The strike
    * @param isCap The cap/floor flag.
+   * @param calendar The holiday calendar for the ibor leg.
    */
   public CapFloorIborDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap, final Calendar calendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(index, "index");
     Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     _index = index;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), _index.getCalendar());
-    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
     _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     _strike = strike;
     _isCap = isCap;
+    _calendar = calendar;
   }
 
   /**
@@ -87,12 +94,13 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
    * @param index The coupon Ibor index.
    * @param strike The strike
    * @param isCap The cap/floor flag.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The cap/floor.
    */
   public static CapFloorIborDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap, final Calendar calendar) {
     Validate.notNull(index, "index");
-    return new CapFloorIborDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, strike, isCap);
+    return new CapFloorIborDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, strike, isCap, calendar);
   }
 
   /**
@@ -100,12 +108,13 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
    * @param couponIbor The underlying Ibor coupon.
    * @param strike The strike
    * @param isCap The cap/floor flag.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The cap/floor
    */
-  public static CapFloorIborDefinition from(final CouponIborDefinition couponIbor, final double strike, final boolean isCap) {
+  public static CapFloorIborDefinition from(final CouponIborDefinition couponIbor, final double strike, final boolean isCap, final Calendar calendar) {
     Validate.notNull(couponIbor, "coupon Ibor");
     return new CapFloorIborDefinition(couponIbor.getCurrency(), couponIbor.getPaymentDate(), couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(), couponIbor.getPaymentYearFraction(),
-        couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), strike, isCap);
+        couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), strike, isCap, calendar);
   }
 
   /**
@@ -115,10 +124,11 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
    * @param index The coupon Ibor index.
    * @param strike The strike
    * @param isCap The cap/floor flag.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The cap/floor
    */
-  public static CapFloorIborDefinition from(final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
-    return from(CouponIborDefinition.from(notional, fixingDate, index), strike, isCap);
+  public static CapFloorIborDefinition from(final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap, final Calendar calendar) {
+    return from(CouponIborDefinition.from(notional, fixingDate, index, calendar), strike, isCap, calendar);
   }
 
   /**
@@ -211,15 +221,15 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
       Double fixedRate = indexFixingTS.getValue(getFixingDate());
       //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
       if (fixedRate == null) {
-        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
+        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().with(LocalTime.of(11, 0));
         fixedRate = indexFixingTS.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getCalendar(), getFixingDate().minusDays(1));
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(_calendar, getFixingDate().minusDays(1));
         fixedRate = indexFixingTS.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {
-          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
+          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.with(LocalTime.of(11, 0));
           fixedRate = indexFixingTS.getValue(previousBusinessDayAtLiborFixingTime);
         }
         if (fixedRate == null) {
@@ -239,12 +249,14 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorIborDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorIborDefinition(this);
   }
 

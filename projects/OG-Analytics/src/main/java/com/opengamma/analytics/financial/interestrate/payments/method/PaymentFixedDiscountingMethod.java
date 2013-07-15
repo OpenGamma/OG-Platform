@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.util.surface.StringValue;
+import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -91,12 +91,12 @@ public final class PaymentFixedDiscountingMethod implements PricingMethod {
    * @param curves The curve bundle.
    * @return The sensitivity.
    */
-  public StringValue presentValueParallelCurveSensitivity(PaymentFixed payment, YieldCurveBundle curves) {
+  public StringAmount presentValueParallelCurveSensitivity(PaymentFixed payment, YieldCurveBundle curves) {
     final String curveName = payment.getFundingCurveName();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = payment.getPaymentTime();
     double sensitivity = -time * payment.getAmount() * discountingCurve.getDiscountFactor(time);
-    return StringValue.from(curveName, sensitivity);
+    return StringAmount.from(curveName, sensitivity);
   }
 
 }

@@ -27,7 +27,7 @@ public class EuropeanVanillaOptionDefinition extends OptionDefinition {
       return isCall() ? Math.max(0, spot - getStrike()) : Math.max(0, getStrike() - spot);
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
 
   public EuropeanVanillaOptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
     super(strike, expiry, isCall);

@@ -32,6 +32,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   private static final Logger s_logger = LoggerFactory.getLogger(BigDecimalFormatter.class);
   private static final Map<String, DoubleValueFormatter> s_formatters = Maps.newHashMap();
   private static final DoubleValueFormatter s_defaultFormatter = DoubleValueSignificantFiguresFormatter.NON_CCY_5SF;
+  private static final DoubleValueFormatter s_defaultCcyFormatter = DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT;
 
   static {
     // General
@@ -45,6 +46,12 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.DV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.GAMMA_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.RR01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.IR01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.JUMP_TO_DEFAULT, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.PAR_RATE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     s_formatters.put(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     s_formatters.put(ValueRequirementNames.FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -60,6 +67,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     // PnL
     s_formatters.put(ValueRequirementNames.PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.DAILY_PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.MTM_PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Greeks
     s_formatters.put(ValueRequirementNames.DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -78,7 +86,11 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.RHO, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.CARRY_RHO, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.BUCKETED_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.BUCKETED_GAMMA_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.BUCKETED_IR01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.YIELD_CURVE_JACOBIAN, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.VARIANCE_ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.SPEED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -163,14 +175,14 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     super(BigDecimal.class);
     addFormatter(new Formatter<BigDecimal>(Format.HISTORY) {
       @Override
-      Object format(BigDecimal value, ValueSpecification valueSpec) {
+      Object format(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
         return getFormatter(valueSpec).getRoundedValue(value);
       }
     });
     addFormatter(new Formatter<BigDecimal>(Format.EXPANDED) {
       @Override
-      Object format(BigDecimal value, ValueSpecification valueSpec) {
-        return formatCell(value, valueSpec);
+      Object format(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
+        return formatCell(value, valueSpec, inlineKey);
       }
     });
   }
@@ -199,6 +211,9 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     if (valueNameFormatter != null) {
       return valueNameFormatter;
     } else {
+      if (valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY) != null) {
+        return s_defaultCcyFormatter;
+      }
       return s_defaultFormatter;
     }
   }
@@ -209,7 +224,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   }
 
   @Override
-  public String formatCell(BigDecimal value, ValueSpecification valueSpec) {
+  public String formatCell(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
     DoubleValueFormatter formatter = getFormatter(valueSpec);
     String formattedNumber = formatter.format(value);
     String formattedValue;

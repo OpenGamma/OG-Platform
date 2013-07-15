@@ -11,13 +11,20 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
-@Test
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ValueSpecificationBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEncoding() {
-    assertEncodeDecodeCycle(ValueSpecification.class, new ValueSpecification("requirement", new ComputationTargetSpecification("Foo"), ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get()));
+    assertEncodeDecodeCycle(ValueSpecification.class,
+        new ValueSpecification("requirement", ComputationTargetSpecification.of(Currency.USD),
+            ValueProperties.with(ValuePropertyNames.FUNCTION, "Bar").get()));
   }
 
 }

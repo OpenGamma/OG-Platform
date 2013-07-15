@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.component.factory.tool.ToolContextComponentFactory;
+import com.opengamma.financial.depgraph.provider.DependencyGraphTraceProvider;
 import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
@@ -32,6 +33,9 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
    */
   @PropertyDefinition
   private ReferenceDataProvider _bloombergReferenceDataProvider;
+
+  @PropertyDefinition
+  private DependencyGraphTraceProvider _dependencyGraphTraceProvider;
 
   //-------------------------------------------------------------------------
   /**
@@ -66,6 +70,8 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     switch (propertyName.hashCode()) {
       case -245204181:  // bloombergReferenceDataProvider
         return getBloombergReferenceDataProvider();
+      case 67712595:  // dependencyGraphTraceProvider
+        return getDependencyGraphTraceProvider();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -75,6 +81,9 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     switch (propertyName.hashCode()) {
       case -245204181:  // bloombergReferenceDataProvider
         setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
+        return;
+      case 67712595:  // dependencyGraphTraceProvider
+        setDependencyGraphTraceProvider((DependencyGraphTraceProvider) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -88,6 +97,7 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     if (obj != null && obj.getClass() == this.getClass()) {
       IntegrationToolContextComponentFactory other = (IntegrationToolContextComponentFactory) obj;
       return JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getDependencyGraphTraceProvider(), other.getDependencyGraphTraceProvider()) &&
           super.equals(obj);
     }
     return false;
@@ -97,6 +107,7 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDependencyGraphTraceProvider());
     return hash ^ super.hashCode();
   }
 
@@ -127,6 +138,31 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the dependencyGraphTraceProvider.
+   * @return the value of the property
+   */
+  public DependencyGraphTraceProvider getDependencyGraphTraceProvider() {
+    return _dependencyGraphTraceProvider;
+  }
+
+  /**
+   * Sets the dependencyGraphTraceProvider.
+   * @param dependencyGraphTraceProvider  the new value of the property
+   */
+  public void setDependencyGraphTraceProvider(DependencyGraphTraceProvider dependencyGraphTraceProvider) {
+    this._dependencyGraphTraceProvider = dependencyGraphTraceProvider;
+  }
+
+  /**
+   * Gets the the {@code dependencyGraphTraceProvider} property.
+   * @return the property, not null
+   */
+  public final Property<DependencyGraphTraceProvider> dependencyGraphTraceProvider() {
+    return metaBean().dependencyGraphTraceProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code IntegrationToolContextComponentFactory}.
    */
   public static class Meta extends ToolContextComponentFactory.Meta {
@@ -141,11 +177,17 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
     private final MetaProperty<ReferenceDataProvider> _bloombergReferenceDataProvider = DirectMetaProperty.ofReadWrite(
         this, "bloombergReferenceDataProvider", IntegrationToolContextComponentFactory.class, ReferenceDataProvider.class);
     /**
+     * The meta-property for the {@code dependencyGraphTraceProvider} property.
+     */
+    private final MetaProperty<DependencyGraphTraceProvider> _dependencyGraphTraceProvider = DirectMetaProperty.ofReadWrite(
+        this, "dependencyGraphTraceProvider", IntegrationToolContextComponentFactory.class, DependencyGraphTraceProvider.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "bloombergReferenceDataProvider");
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "bloombergReferenceDataProvider",
+        "dependencyGraphTraceProvider");
 
     /**
      * Restricted constructor.
@@ -158,6 +200,8 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
       switch (propertyName.hashCode()) {
         case -245204181:  // bloombergReferenceDataProvider
           return _bloombergReferenceDataProvider;
+        case 67712595:  // dependencyGraphTraceProvider
+          return _dependencyGraphTraceProvider;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -184,6 +228,14 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
      */
     public final MetaProperty<ReferenceDataProvider> bloombergReferenceDataProvider() {
       return _bloombergReferenceDataProvider;
+    }
+
+    /**
+     * The meta-property for the {@code dependencyGraphTraceProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DependencyGraphTraceProvider> dependencyGraphTraceProvider() {
+      return _dependencyGraphTraceProvider;
     }
 
   }

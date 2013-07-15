@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.commodity.derivative;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -121,7 +120,7 @@ public abstract class CommodityFuture implements InstrumentDerivative {
    * @return the amount
    */
   public double getAmount() {
-    return _amount;
+    return _amount; // FIXME Resolve confusion about _amount and _unitAmount - What is _amount? Speak to Casey. Also need to look at Converters (Security > Definition > Derivative)
   }
 
   /**

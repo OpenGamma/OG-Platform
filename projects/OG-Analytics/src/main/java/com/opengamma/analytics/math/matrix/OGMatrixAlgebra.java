@@ -8,6 +8,8 @@ package com.opengamma.analytics.math.matrix;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
+
 /**
  * An absolutely minimal implementation of matrix algebra - only various multiplications covered. For more advanced stuff (e.g. calculating the inverse) use {@link ColtMatrixAlgebra} or
  * {@link CommonsMatrixAlgebra}
@@ -189,7 +191,11 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
     Validate.notNull(m1, "m1");
     Validate.notNull(m2, "m2");
-    if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
+    if (m1 instanceof TridiagonalMatrix && m2 instanceof DoubleMatrix1D) {
+      return multiply((TridiagonalMatrix) m1, (DoubleMatrix1D) m2);
+    } else if (m1 instanceof DoubleMatrix1D && m2 instanceof TridiagonalMatrix) {
+      return multiply((DoubleMatrix1D) m1, (TridiagonalMatrix) m2);
+    } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
       return multiply((DoubleMatrix2D) m1, (DoubleMatrix2D) m2);
     } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix1D) {
       return multiply((DoubleMatrix2D) m1, (DoubleMatrix1D) m2);
@@ -251,6 +257,23 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     return new DoubleMatrix1D(res);
   }
 
+  private DoubleMatrix1D multiply(final TridiagonalMatrix matrix, final DoubleMatrix1D vector) {
+    final double[] a = matrix.getLowerSubDiagonalData();
+    final double[] b = matrix.getDiagonalData();
+    final double[] c = matrix.getUpperSubDiagonalData();
+    final double[] x = vector.getData();
+    final int n = x.length;
+    Validate.isTrue(b.length == n, "Matrix/vector size mismatch");
+    final double[] res = new double[n];
+    int i;
+    res[0] = b[0] * x[0] + c[0] * x[1];
+    res[n - 1] = b[n - 1] * x[n - 1] + a[n - 2] * x[n - 2];
+    for (i = 1; i < n - 1; i++) {
+      res[i] = a[i - 1] * x[i - 1] + b[i] * x[i] + c[i] * x[i + 1];
+    }
+    return new DoubleMatrix1D(res);
+  }
+
   private DoubleMatrix1D multiply(final DoubleMatrix1D vector, final DoubleMatrix2D matrix) {
     final double[] a = vector.getData();
     final double[][] b = matrix.getData();
@@ -269,4 +292,22 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     }
     return new DoubleMatrix1D(res);
   }
+
+  private DoubleMatrix1D multiply(final DoubleMatrix1D vector, final TridiagonalMatrix matrix) {
+    final double[] a = matrix.getLowerSubDiagonalData();
+    final double[] b = matrix.getDiagonalData();
+    final double[] c = matrix.getUpperSubDiagonalData();
+    final double[] x = vector.getData();
+    final int n = x.length;
+    Validate.isTrue(b.length == n, "Matrix/vector size mismatch");
+    final double[] res = new double[n];
+    int i;
+    res[0] = b[0] * x[0] + a[0] * x[1];
+    res[n - 1] = b[n - 1] * x[n - 1] + c[n - 2] * x[n - 2];
+    for (i = 1; i < n - 1; i++) {
+      res[i] = a[i] * x[i + 1] + b[i] * x[i] + c[i - 1] * x[i - 1];
+    }
+    return new DoubleMatrix1D(res);
+  }
+
 }

@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
@@ -23,7 +22,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * A wrapper class for a AnnuityDefinition containing mainly CouponIborRatchetDefinition. The first coupon should be a CouponFixedDefinition or a CouponIborGearingDefinition.
@@ -56,23 +56,28 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
    * @param index The Ibor index.
    * @param isPayer The payer (true) / receiver (false) flag.
    * @param firstCouponFixedRate The rate of the first coupon.
-   * @param mainCoefficients The coefficients of the main payment (before floor and cap). Array of length 3.
-   * @param floorCoefficients The coefficients of the floor. Array of length 3.
-   * @param capCoefficients The coefficients of the cap. Array of length 3.
+   * @param mainCoefficients The coefficients of the main payment (before floor and cap). Array of length 3. The first coefficient is the previous coupon factor,
+   * the second is the Ibor factor and the third is the additive term.
+   * @param floorCoefficients The coefficients of the floor. Array of length 3. The first coefficient is the previous coupon factor,
+   * the second is the Ibor factor and the third is the additive term.
+   * @param capCoefficients The coefficients of the cap. Array of length 3. The first coefficient is the previous coupon factor,
+   * the second is the Ibor factor and the third is the additive term.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The annuity.
    */
   public static AnnuityCouponIborRatchetDefinition withFirstCouponFixed(final ZonedDateTime settlementDate, final Period annuityTenor, final double notional, final IborIndex index,
-      final boolean isPayer, final double firstCouponFixedRate, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients) {
-    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, annuityTenor, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(),
+      final boolean isPayer, final double firstCouponFixedRate, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients,
+      final Calendar calendar) {
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, annuityTenor, index.getTenor(), index.getBusinessDayConvention(), calendar,
         index.isEndOfMonth());
-    CouponDefinition[] coupons = new CouponDefinition[paymentDates.length];
-    double notionalSign = notional * (isPayer ? -1.0 : 1.0);
+    final CouponDefinition[] coupons = new CouponDefinition[paymentDates.length];
+    final double notionalSign = notional * (isPayer ? -1.0 : 1.0);
     coupons[0] = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0]),
         notionalSign, firstCouponFixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], index.getDayCount().getDayCountFraction(
-          paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), index.getCalendar()), index,
-          mainCoefficients, floorCoefficients, capCoefficients);
+          paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar), index,
+          mainCoefficients, floorCoefficients, capCoefficients, calendar);
     }
     return new AnnuityCouponIborRatchetDefinition(coupons);
   }
@@ -88,20 +93,21 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
    * @param mainCoefficients The coefficients of the main payment (before floor and cap). Array of length 3.
    * @param floorCoefficients The coefficients of the floor. Array of length 3.
    * @param capCoefficients The coefficients of the cap. Array of length 3.
+   * @param calendar The holiday calendar for the ibor leg.
    * @return The annuity.
    */
   public static AnnuityCouponIborRatchetDefinition withFirstCouponIborGearing(final ZonedDateTime settlementDate, final Period annuityTenor, final double notional, final IborIndex index,
-      final boolean isPayer, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients) {
-    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, annuityTenor, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(),
+      final boolean isPayer, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients, final Calendar calendar) {
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, annuityTenor, index.getTenor(), index.getBusinessDayConvention(), calendar,
         index.isEndOfMonth());
-    CouponDefinition[] coupons = new CouponDefinition[paymentDates.length];
-    double notionalSign = notional * (isPayer ? -1.0 : 1.0);
+    final CouponDefinition[] coupons = new CouponDefinition[paymentDates.length];
+    final double notionalSign = notional * (isPayer ? -1.0 : 1.0);
     coupons[0] = CouponIborGearingDefinition.from(settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0]), notionalSign, index, mainCoefficients[2],
-        mainCoefficients[1]);
+        mainCoefficients[1], calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], index.getDayCount().getDayCountFraction(
-          paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), index.getCalendar()), index,
-          mainCoefficients, floorCoefficients, capCoefficients);
+          paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar), index,
+          mainCoefficients, floorCoefficients, capCoefficients, calendar);
     }
     return new AnnuityCouponIborRatchetDefinition(coupons);
   }
@@ -109,9 +115,9 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
   @Override
   public AnnuityCouponIborRatchet toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    final List<Coupon> cpnList = new ArrayList<Coupon>();
-    final List<Double> fixedCpn = new ArrayList<Double>();
-    boolean[] isFixed = new boolean[getNumberOfPayments()];
+    final List<Coupon> cpnList = new ArrayList<>();
+    final List<Double> fixedCpn = new ArrayList<>();
+    final boolean[] isFixed = new boolean[getNumberOfPayments()];
 
     // List of fixing
     if (getPayments()[0] instanceof CouponFixedDefinition) { // CouponFixedDefinition
@@ -127,23 +133,23 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
       fixedCpn.add(((CouponFixedDefinition) getNthPayment(0)).getRate());
     } else { // CouponIborDefinition
       if (isFixed[0]) {
-        CouponIborGearingDefinition cpnIbor = (CouponIborGearingDefinition) getPayments()[0];
+        final CouponIborGearingDefinition cpnIbor = (CouponIborGearingDefinition) getPayments()[0];
         fixedCpn.add(indexFixingTS.getValue(cpnIbor.getFixingDate()) * cpnIbor.getFactor() + cpnIbor.getSpread());
       }
     }
     for (int loopcpn = 1; loopcpn < getNumberOfPayments(); loopcpn++) {
       if (isFixed[loopcpn]) {
-        CouponIborRatchetDefinition cpnRatchet = (CouponIborRatchetDefinition) getPayments()[loopcpn];
-        double ibor = indexFixingTS.getValue(cpnRatchet.getFixingDate());
-        double cpnMain = cpnRatchet.getMainCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getMainCoefficients()[1] * ibor + cpnRatchet.getMainCoefficients()[2];
-        double cpnFloor = cpnRatchet.getFloorCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getFloorCoefficients()[1] * ibor + cpnRatchet.getFloorCoefficients()[2];
-        double cpnCap = cpnRatchet.getCapCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getCapCoefficients()[1] * ibor + cpnRatchet.getCapCoefficients()[2];
-        double cpnActual = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
+        final CouponIborRatchetDefinition cpnRatchet = (CouponIborRatchetDefinition) getPayments()[loopcpn];
+        final double ibor = indexFixingTS.getValue(cpnRatchet.getFixingDate());
+        final double cpnMain = cpnRatchet.getMainCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getMainCoefficients()[1] * ibor + cpnRatchet.getMainCoefficients()[2];
+        final double cpnFloor = cpnRatchet.getFloorCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getFloorCoefficients()[1] * ibor + cpnRatchet.getFloorCoefficients()[2];
+        final double cpnCap = cpnRatchet.getCapCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getCapCoefficients()[1] * ibor + cpnRatchet.getCapCoefficients()[2];
+        final double cpnActual = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
         fixedCpn.add(cpnActual);
       }
     }
-    // Derivatives 
-    CouponDefinition cpn0 = getNthPayment(0);
+    // Derivatives
+    final CouponDefinition cpn0 = getNthPayment(0);
     if (!date.isAfter(cpn0.getPaymentDate())) {
       if (isFixed[0]) {
         cpnList.add(new CouponFixed(getCurrency(), TimeCalculator.getTimeBetween(date, cpn0.getPaymentDate()), yieldCurveNames[0], cpn0.getPaymentYearFraction(), cpn0.getNotional(), fixedCpn.get(0),
@@ -153,7 +159,7 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
       }
     }
     for (int loopcpn = 1; loopcpn < getNumberOfPayments(); loopcpn++) {
-      CouponDefinition cpn = getNthPayment(loopcpn);
+      final CouponDefinition cpn = getNthPayment(loopcpn);
       if (!date.isAfter(getNthPayment(loopcpn).getPaymentDate())) {
         if (isFixed[loopcpn]) {
           cpnList.add(new CouponFixed(getCurrency(), TimeCalculator.getTimeBetween(date, cpn.getPaymentDate()), yieldCurveNames[0], cpn.getPaymentYearFraction(), cpn.getNotional(), fixedCpn

@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,172 +15,193 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
+import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailability;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * Implementation of {@link MarketDataProvider} which sources its data from one of two {@link MarketDataProvider}s, 
- * choosing based on the availability of data.
+ * Implementation of {@link MarketDataProvider} which sources its data from one of two {@link MarketDataProvider}s, choosing based on the availability of data.
  */
 public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
+  private static final String PREFERRED_PROVIDER = "Preferred";
+  private static final String FALLBACK_PROVIDER = "Fallback";
+
   private final MarketDataProvider _preferred;
   private final MarketDataProvider _fallBack;
-  
-  private final CombinedMarketDataListener _preferredListener;
-  private final CombinedMarketDataListener _fallBackListener;
-  private final MarketDataAvailabilityProvider _availabilityProvider;
-  
-  private final Map<ValueRequirement, MarketDataProvider> _providerByRequirement = new ConcurrentHashMap<ValueRequirement, MarketDataProvider>();
 
-  private final Object _listenerLock = new Object();
+  private final class Listener implements MarketDataListener {
+
+    private final String _provider;
+
+    public Listener(final String provider) {
+      _provider = provider;
+    }
+
+    private ValueSpecification createValueSpecification(final ValueSpecification specification) {
+      return CombinedMarketDataProvider.this.createValueSpecification(specification, _provider);
+    }
+
+    private Collection<ValueSpecification> createValueSpecifications(final Collection<ValueSpecification> specifications) {
+      return CombinedMarketDataProvider.this.createValueSpecifications(specifications, _provider);
+    }
+
+    @Override
+    public void subscriptionsSucceeded(final Collection<ValueSpecification> specifications) {
+      CombinedMarketDataProvider.this.subscriptionsSucceeded(createValueSpecifications(specifications));
+    }
+
+    @Override
+    public void subscriptionFailed(final ValueSpecification specification, final String msg) {
+      CombinedMarketDataProvider.this.subscriptionFailed(createValueSpecification(specification), msg);
+    }
+
+    @Override
+    public void subscriptionStopped(final ValueSpecification specification) {
+      CombinedMarketDataProvider.this.subscriptionStopped(createValueSpecification(specification));
+    }
+
+    @Override
+    public void valuesChanged(final Collection<ValueSpecification> specifications) {
+      CombinedMarketDataProvider.this.valuesChanged(createValueSpecifications(specifications));
+    }
+
+  };
+
+  private final Listener _preferredListener = new Listener(PREFERRED_PROVIDER);
+  private final Listener _fallbackListener = new Listener(FALLBACK_PROVIDER);
+
   private boolean _listenerAttached;
 
-  public CombinedMarketDataProvider(MarketDataProvider preferred, MarketDataProvider fallBack) {
+  public CombinedMarketDataProvider(final MarketDataProvider preferred, final MarketDataProvider fallBack) {
     _preferred = preferred;
     _fallBack = fallBack;
-    _preferredListener = new CombinedMarketDataListener(this, _preferred);
-    _fallBackListener = new CombinedMarketDataListener(this, _fallBack);
-    _availabilityProvider = buildAvailabilityProvider();
   }
-  
+
   @Override
-  public void addListener(MarketDataListener listener) {
+  public void addListener(final MarketDataListener listener) {
     super.addListener(listener);
     checkListenerAttach();
   }
 
   @Override
-  public void removeListener(MarketDataListener listener) {
+  public void removeListener(final MarketDataListener listener) {
     super.removeListener(listener);
     checkListenerAttach();
   }
 
-  private void checkListenerAttach() { 
+  private void checkListenerAttach() {
     //TODO: dedupe with CombinedMarketDataProvider
-    synchronized (_listenerLock) {
-      boolean anyListeners = getListeners().size() > 0;
+    synchronized (_preferredListener) {
+      final boolean anyListeners = getListeners().size() > 0;
       if (anyListeners && !_listenerAttached) {
         _preferred.addListener(_preferredListener);
-        _fallBack.addListener(_fallBackListener);
+        _fallBack.addListener(_fallbackListener);
         _listenerAttached = true;
       } else if (!anyListeners && _listenerAttached) {
         _preferred.removeListener(_preferredListener);
-        _fallBack.removeListener(_fallBackListener);
+        _fallBack.removeListener(_fallbackListener);
         _listenerAttached = false;
       }
     }
   }
 
-  private class CombinedMarketDataListener implements MarketDataListener {
-    private final CombinedMarketDataProvider _combinedMarketDataProvider;
-    private final MarketDataProvider _provider;
-
-    public CombinedMarketDataListener(CombinedMarketDataProvider combinedMarketDataProvider, MarketDataProvider provider) {
-      _combinedMarketDataProvider = combinedMarketDataProvider;
-      _provider = provider;
+  private ValueSpecification createValueSpecification(final ValueSpecification underlying, final String provider) {
+    final ValueProperties.Builder properties = underlying.getProperties().copy();
+    final String dataProvider = underlying.getProperty(ValuePropertyNames.DATA_PROVIDER);
+    if (dataProvider != null) {
+      properties.withoutAny(ValuePropertyNames.DATA_PROVIDER).with(ValuePropertyNames.DATA_PROVIDER, dataProvider + "/" + provider);
+    } else {
+      properties.with(ValuePropertyNames.DATA_PROVIDER, provider);
     }
-
-    @Override
-    public void subscriptionSucceeded(ValueRequirement requirement) {
-      MarketDataProvider provider = _providerByRequirement.get(requirement);
-      if (provider == _provider) {
-        _combinedMarketDataProvider.subscriptionSucceeded(requirement);
-      }
-    }
-
-    @Override
-    public void subscriptionFailed(ValueRequirement requirement, String msg) {
-      MarketDataProvider provider = _providerByRequirement.get(requirement);
-      if (provider == _provider) {
-        _combinedMarketDataProvider.subscriptionFailed(requirement, msg);
-      }
-    }
-
-    @Override
-    public void subscriptionStopped(ValueRequirement requirement) {
-      MarketDataProvider provider = _providerByRequirement.get(requirement);
-      if (provider == _provider) {
-        _combinedMarketDataProvider.subscriptionStopped(requirement);
-      }
-    }
-
-    @Override
-    public void valuesChanged(Collection<ValueRequirement> requirements) {
-      Map<MarketDataProvider, Set<ValueRequirement>> grouped = groupByProvider(requirements);
-      Set<ValueRequirement> set = grouped.get(_provider);
-      if (set != null) {
-        _combinedMarketDataProvider.valuesChanged(set);
-      }
-    }
+    return new ValueSpecification(underlying.getValueName(), underlying.getTargetSpecification(), properties.get());
   }
 
-  @Override
-  public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    return _availabilityProvider;
+  private Collection<ValueSpecification> createValueSpecifications(final Collection<ValueSpecification> underlyings, final String provider) {
+    final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(underlyings.size());
+    for (ValueSpecification underlying : underlyings) {
+      result.add(createValueSpecification(underlying, provider));
+    }
+    return result;
   }
 
   /**
-   * Creates an availability provider that combines results from the two providers.
-   * The availability status is:
-   * <ul> 
-   *  <li>AVAILABLE if either provider reports AVAILABLE
-   *  <li>MISSING if neither provider reports AVAILABLE, and at least one reports MISSING
-   *  <li>NOT_AVAILABLE if both providers report NOT_AVAILABLE
+   * Creates an availability provider that combines results from the two providers. The returned specification is either:
+   * <ul>
+   * <li>The value specification from the preferred provider
+   * <li>The value specification from the non-preferred provider
+   * <li>Null if either provider returned null
+   * <li>{@link MarketDataNotSatisfiableException} being thrown if both providers do so
    * </ul>
+   * 
+   * @param marketDataSpec the market data specification, not null
+   * @return the provider, not null
    */
-  private MarketDataAvailabilityProvider buildAvailabilityProvider() {
+  @Override
+  public MarketDataAvailabilityProvider getAvailabilityProvider(final MarketDataSpecification marketDataSpec) {
     return new MarketDataAvailabilityProvider() {
 
-      private final MarketDataAvailabilityProvider _preferredProvider = _preferred.getAvailabilityProvider();
-      private final MarketDataAvailabilityProvider _fallbackProvider = _fallBack.getAvailabilityProvider();
+      private final MarketDataAvailabilityProvider _preferredProvider = _preferred.getAvailabilityProvider(marketDataSpec);
+      private final MarketDataAvailabilityProvider _fallbackProvider = _fallBack.getAvailabilityProvider(marketDataSpec);
 
       @Override
-      public ValueSpecification getAvailability(final ValueRequirement requirement) {
+      public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
         MarketDataNotSatisfiableException preferredMissing = null;
         try {
-          final ValueSpecification preferred = _preferredProvider.getAvailability(requirement);
+          final ValueSpecification preferred = _preferredProvider.getAvailability(targetSpec, target, desiredValue);
           if (preferred != null) {
             // preferred is available
-            _providerByRequirement.put(requirement, _preferred);
-            return preferred;
+            return createValueSpecification(preferred, PREFERRED_PROVIDER);
           }
-        } catch (MarketDataNotSatisfiableException e) {
+        } catch (final MarketDataNotSatisfiableException e) {
           preferredMissing = e;
         }
         try {
-          final ValueSpecification fallback = _fallbackProvider.getAvailability(requirement);
+          final ValueSpecification fallback = _fallbackProvider.getAvailability(targetSpec, target, desiredValue);
           if (fallback != null) {
             // fallback is available
-            _providerByRequirement.put(requirement, _fallBack);
-            return fallback;
+            return createValueSpecification(fallback, FALLBACK_PROVIDER);
           }
-        } catch (MarketDataNotSatisfiableException e) {
+        } catch (final MarketDataNotSatisfiableException e) {
           if (preferredMissing != null) {
             // both are not available - use preferred
-            _providerByRequirement.put(requirement, _preferred);
             throw preferredMissing;
           } else {
             // fallback is not available
-            _providerByRequirement.put(requirement, _fallBack);
             throw e;
           }
         }
         // preferred is either not available or missing
-        _providerByRequirement.put(requirement, _preferred);
         if (preferredMissing != null) {
           throw preferredMissing;
         } else {
           return null;
         }
+      }
+
+      @Override
+      public MarketDataAvailabilityFilter getAvailabilityFilter() {
+        return new UnionMarketDataAvailability.Filter(Arrays.asList(_preferredProvider.getAvailabilityFilter(), _fallbackProvider.getAvailabilityFilter()));
+      }
+
+      @Override
+      public Serializable getAvailabilityHintKey() {
+        final ArrayList<Serializable> key = new ArrayList<Serializable>(2);
+        key.add(_preferredProvider.getAvailabilityHintKey());
+        key.add(_fallbackProvider.getAvailabilityHintKey());
+        return key;
       }
 
     };
@@ -186,15 +210,14 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   @Override
   public MarketDataPermissionProvider getPermissionProvider() {
     return new MarketDataPermissionProvider() {
-      
-      @Override
-      public Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements) {
-        Map<MarketDataProvider, Set<ValueRequirement>> reqsByProvider = groupByProvider(requirements);
 
-        Set<ValueRequirement> failures = Sets.newHashSet();
-        for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : reqsByProvider.entrySet()) {
-          MarketDataPermissionProvider permissionProvider = entry.getKey().getPermissionProvider();
-          Set<ValueRequirement> failed = permissionProvider.checkMarketDataPermissions(user, entry.getValue());
+      @Override
+      public Set<ValueSpecification> checkMarketDataPermissions(final UserPrincipal user, final Set<ValueSpecification> specifications) {
+        final Map<MarketDataProvider, Set<ValueSpecification>> specsByProvider = getProviders(specifications);
+        final Set<ValueSpecification> failures = Sets.newHashSet();
+        for (final Entry<MarketDataProvider, Set<ValueSpecification>> entry : specsByProvider.entrySet()) {
+          final MarketDataPermissionProvider permissionProvider = entry.getKey().getPermissionProvider();
+          final Set<ValueSpecification> failed = permissionProvider.checkMarketDataPermissions(user, entry.getValue());
           failures.addAll(failed);
         }
         return failures;
@@ -203,75 +226,111 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public void subscribe(ValueRequirement valueRequirement) {
-    subscribe(Collections.singleton(valueRequirement));
+  public void subscribe(final ValueSpecification valueSpecification) {
+    subscribe(Collections.singleton(valueSpecification));
   }
 
   @Override
-  public void subscribe(Set<ValueRequirement> valueRequirements) {
-    Map<MarketDataProvider, Set<ValueRequirement>> reqsByProvider = groupByProvider(valueRequirements);
-    for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : reqsByProvider.entrySet()) {
+  public void subscribe(final Set<ValueSpecification> valueSpecification) {
+    final Map<MarketDataProvider, Set<ValueSpecification>> specificationsByProvider = getProviders(valueSpecification);
+    for (final Entry<MarketDataProvider, Set<ValueSpecification>> entry : specificationsByProvider.entrySet()) {
       entry.getKey().subscribe(entry.getValue());
     }
   }
 
   @Override
-  public void unsubscribe(ValueRequirement valueRequirement) {
-    unsubscribe(Collections.singleton(valueRequirement));
+  public void unsubscribe(final ValueSpecification valueSpecification) {
+    unsubscribe(Collections.singleton(valueSpecification));
   }
 
   @Override
-  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
-    Map<MarketDataProvider, Set<ValueRequirement>> reqsByProvider = groupByProvider(valueRequirements);
-    for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : reqsByProvider.entrySet()) {
+  public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
+    final Map<MarketDataProvider, Set<ValueSpecification>> specificationsByProvider = getProviders(valueSpecifications);
+    for (final Entry<MarketDataProvider, Set<ValueSpecification>> entry : specificationsByProvider.entrySet()) {
       entry.getKey().unsubscribe(entry.getValue());
     }
   }
-  
+
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-    CombinedMarketDataSpecification combinedSpec = (CombinedMarketDataSpecification) marketDataSpec;
-    Map<MarketDataProvider, MarketDataSnapshot> snapByProvider = new HashMap<MarketDataProvider, MarketDataSnapshot>();
+  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
+    final CombinedMarketDataSpecification combinedSpec = (CombinedMarketDataSpecification) marketDataSpec;
+    final Map<MarketDataProvider, MarketDataSnapshot> snapByProvider = new HashMap<MarketDataProvider, MarketDataSnapshot>();
     snapByProvider.put(_preferred, _preferred.snapshot(combinedSpec.getPreferredSpecification()));
     snapByProvider.put(_fallBack, _fallBack.snapshot(combinedSpec.getFallbackSpecification()));
-    MarketDataSnapshot preferredSnap = snapByProvider.get(_preferred);
+    final MarketDataSnapshot preferredSnap = snapByProvider.get(_preferred);
     return new CombinedMarketDataSnapshot(preferredSnap, snapByProvider, this);
   }
-  
+
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof CombinedMarketDataSpecification)) {
       return false;
     }
-    CombinedMarketDataSpecification combinedMarketDataSpec = (CombinedMarketDataSpecification) marketDataSpec;
+    final CombinedMarketDataSpecification combinedMarketDataSpec = (CombinedMarketDataSpecification) marketDataSpec;
     return _preferred.isCompatible(combinedMarketDataSpec.getPreferredSpecification())
         && _fallBack.isCompatible(combinedMarketDataSpec.getFallbackSpecification());
   }
 
-  public Map<MarketDataProvider, Set<ValueRequirement>> groupByProvider(Collection<ValueRequirement> requirements) {
-    Map<MarketDataProvider, Set<ValueRequirement>> reqsByProvider = new HashMap<MarketDataProvider, Set<ValueRequirement>>();
-    for (ValueRequirement valueRequirement : requirements) {
-      MarketDataProvider provider = getProvider(valueRequirement);
-      if (provider == null) {
-        throw new IllegalArgumentException("Don't know how to provide requirement " + valueRequirement);
-      }
-      Set<ValueRequirement> set = reqsByProvider.get(provider);
-      if (set == null) {
-        set = new HashSet<ValueRequirement>();
-        reqsByProvider.put(provider, set);
-      }
-      set.add(valueRequirement);
+  private MarketDataProvider getDataProvider(final ValueSpecification specification, final ValueProperties.Builder underlyingProperties) {
+    String dataProvider = specification.getProperty(ValuePropertyNames.DATA_PROVIDER);
+    if (dataProvider == null) {
+      throw new IllegalArgumentException("Don't know how to provide " + specification);
     }
-    return reqsByProvider;
+    underlyingProperties.withoutAny(ValuePropertyNames.DATA_PROVIDER);
+    final int slash = dataProvider.lastIndexOf('/');
+    if (slash > 0) {
+      underlyingProperties.with(ValuePropertyNames.DATA_PROVIDER, dataProvider.substring(0, slash));
+      dataProvider = dataProvider.substring(slash + 1);
+    }
+    if (PREFERRED_PROVIDER.equals(dataProvider)) {
+      return _preferred;
+    } else if (FALLBACK_PROVIDER.equals(dataProvider)) {
+      return _fallBack;
+    } else {
+      throw new IllegalArgumentException("Don't know how to provide " + specification);
+    }
   }
 
-  public MarketDataProvider getProvider(ValueRequirement valueRequirement) {
-    MarketDataProvider provider = _providerByRequirement.get(valueRequirement);
-    if (provider == null) {
-      getAvailabilityProvider().getAvailability(valueRequirement); //This populates the map
-      provider = _providerByRequirement.get(valueRequirement);
+  public Map<MarketDataProvider, Set<ValueSpecification>> getProviders(final Collection<ValueSpecification> specifications) {
+    final Map<MarketDataProvider, Set<ValueSpecification>> result = new HashMap<MarketDataProvider, Set<ValueSpecification>>();
+    for (final ValueSpecification specification : specifications) {
+      final ValueProperties.Builder underlyingProperties = specification.getProperties().copy();
+      final MarketDataProvider provider = getDataProvider(specification, underlyingProperties);
+      Set<ValueSpecification> set = result.get(provider);
+      if (set == null) {
+        set = new HashSet<ValueSpecification>();
+        result.put(provider, set);
+      }
+      set.add(new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
     }
-    return provider;
+    return result;
+  }
+
+  /**
+   * Returns the specifications per provider.
+   * 
+   * @param specifications the specification to convert
+   * @return the map of provider to specification. The specifications returned a
+   */
+  protected Map<MarketDataProvider, Map<ValueSpecification, ValueSpecification>> getProvidersAsMap(final Collection<ValueSpecification> specifications) {
+    final Map<MarketDataProvider, Map<ValueSpecification, ValueSpecification>> result = new HashMap<MarketDataProvider, Map<ValueSpecification, ValueSpecification>>();
+    for (final ValueSpecification specification : specifications) {
+      final ValueProperties.Builder underlyingProperties = specification.getProperties().copy();
+      final MarketDataProvider provider = getDataProvider(specification, underlyingProperties);
+      Map<ValueSpecification, ValueSpecification> map = result.get(provider);
+      if (map == null) {
+        map = new HashMap<ValueSpecification, ValueSpecification>();
+        result.put(provider, map);
+      }
+      map.put(new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()), specification);
+    }
+    return result;
+  }
+
+  protected Pair<MarketDataProvider, ValueSpecification> getProvider(final ValueSpecification specification) {
+    final ValueProperties.Builder underlyingProperties = specification.getProperties().copy();
+    final MarketDataProvider provider = getDataProvider(specification, underlyingProperties);
+    return Pair.of(provider, new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
   }
 
 }

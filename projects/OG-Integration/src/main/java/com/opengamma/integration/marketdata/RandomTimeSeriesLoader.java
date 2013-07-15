@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.util.BloombergDataUtils;
@@ -21,18 +21,20 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoaderRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoaderResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.historicaltimeseries.impl.AbstractHistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Loads random time-series to the time-series master for demo/testing purposes.
  */
-public class RandomTimeSeriesLoader implements HistoricalTimeSeriesLoader {
+public class RandomTimeSeriesLoader extends AbstractHistoricalTimeSeriesLoader {
 
   /** The data source name for the random data. */
   private static final String RANDOM_DATA_SOURCE_NAME = "RANDOM";
@@ -51,10 +53,15 @@ public class RandomTimeSeriesLoader implements HistoricalTimeSeriesLoader {
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<ExternalId, UniqueId> addTimeSeries(Set<ExternalId> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
-    ArgumentChecker.notEmpty(identifiers, "identifiers");
-    ArgumentChecker.notNull(dataField, "dataField");
+  protected HistoricalTimeSeriesLoaderResult doBulkLoad(HistoricalTimeSeriesLoaderRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getDataField(), "dataField");
     
+    Set<ExternalId> externalIds = request.getExternalIds();
+    LocalDate startDate = request.getStartDate();
+    LocalDate endDate = request.getEndDate();
+    String dataProvider = request.getDataProvider();
+    String dataField = request.getDataField();
     if (endDate == null) {
       endDate = DateUtils.previousWeekDay();
     }
@@ -64,12 +71,13 @@ public class RandomTimeSeriesLoader implements HistoricalTimeSeriesLoader {
     checkValidDateRange(startDate, endDate);
     
     Set<ExternalId> missingIdentifiers = Sets.newHashSet();
-    for (ExternalId identifier : identifiers) {
+    for (ExternalId identifier : externalIds) {
       if (!haveTimeSeries(identifier, dataProvider, dataField)) { 
         missingIdentifiers.add(identifier);
       }
     }
-    return addToMaster(missingIdentifiers, dataProvider, dataField, startDate, endDate);
+    Map<ExternalId, UniqueId> resultMap = addToMaster(missingIdentifiers, dataProvider, dataField, startDate, endDate);
+    return new HistoricalTimeSeriesLoaderResult(resultMap);
   }
 
   private Map<ExternalId, UniqueId> addToMaster(

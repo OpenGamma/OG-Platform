@@ -6,6 +6,7 @@
 package com.opengamma.web.valuerequirementname;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -36,6 +37,9 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(WebValueRequirementNamesResource.class);
 
+  /**
+   * Configuration key.
+   */
   public static final String VALUE_REQUIREMENT_NAME_CLASSES = "valueRequirementNameClasses";
 
   /**
@@ -43,34 +47,40 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
    */
   private final Set<String> _valueRequirementNames;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates the resource.
    */
-
   public WebValueRequirementNamesResource() {
     final List<String> list = new ArrayList<String>();
     for (Field field : ValueRequirementNames.class.getDeclaredFields()) {
       try {
         list.add((String) field.get(null));
-      } catch (Exception e) {
-        s_logger.warn("Could not read in value requirement names: " + e.getMessage());
+      } catch (Exception ex) {
+        s_logger.warn("Could not read in value requirement names: " + ex.getMessage());
       }
     }
     Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
     _valueRequirementNames = new LinkedHashSet<String>(list);
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param valueRequirementNameClasses  the classes, not null
+   */
   public WebValueRequirementNamesResource(String[] valueRequirementNameClasses) {
     ArgumentChecker.notEmpty(valueRequirementNameClasses, "valueRequirementNameClasses");
-
     final List<String> list = new ArrayList<String>();
     for (String className : valueRequirementNameClasses) {
       try {
         for (Field field : Class.forName(className.trim()).getDeclaredFields()) {
+          if (Modifier.isPublic(field.getModifiers())) {
             list.add((String) field.get(null));
+          }
         }
-      } catch (Exception e) {
-        s_logger.warn("Could not read in value requirement names: " + e.getMessage());
+      } catch (Exception ex) {
+        s_logger.info("Could not read in value requirement names: " + ex.getMessage());
       }
     }
     Collections.sort(list, String.CASE_INSENSITIVE_ORDER);

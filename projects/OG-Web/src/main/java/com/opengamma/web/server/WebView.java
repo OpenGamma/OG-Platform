@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.server;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -14,19 +16,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.time.Instant;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.cometd.Client;
-import org.cometd.Message;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ComputedValueResult;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
@@ -46,8 +52,8 @@ public class WebView {
   private static final String STARTED_DISPLAY_NAME = "Live";
   private static final String PAUSED_DISPLAY_NAME = "Paused";
 
-  private final Client _local;
-  private final Client _remote;
+  private final LocalSession _local;
+  private final ServerSession _remote;
   private final ViewClient _client;
   private final UniqueId _baseViewDefinitionId;
   private final String _aggregatorName;
@@ -62,7 +68,7 @@ public class WebView {
   private boolean _continueUpdateThread;
   private boolean _updateThreadRunning;
 
-  private AtomicBoolean _isInit = new AtomicBoolean(false);
+  private final AtomicBoolean _isInit = new AtomicBoolean(false);
 
   private final Map<String, WebViewGrid> _gridsByName;
   private RequirementBasedWebViewGrid _portfolioGrid;
@@ -70,7 +76,7 @@ public class WebView {
 
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
-  public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId baseViewDefinitionId,
+  public WebView(final LocalSession local, final ServerSession remote, final ViewClient client, final UniqueId baseViewDefinitionId,
                  final String aggregatorName, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
                  final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache, final ComputationTargetResolver computationTargetResolver) {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -94,13 +100,13 @@ public class WebView {
       }
 
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+      public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
         s_logger.info("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
       }
 
       @Override
-      public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionId());
         _updateLock.lock();
         try {
@@ -121,10 +127,11 @@ public class WebView {
   //-------------------------------------------------------------------------
   // Initialisation
 
-  private void initGrids(CompiledViewDefinition compiledViewDefinition) {
+  private void initGrids(final CompiledViewDefinition compiledViewDefinition) {
     _isInit.set(true);
 
-    RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
+    final RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(
+        getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
@@ -132,7 +139,8 @@ public class WebView {
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
 
-    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
+    final RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(
+        getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
@@ -187,36 +195,36 @@ public class WebView {
     return _executionOptions;
   }
 
-  public boolean matches(UniqueId baseViewDefinitionId, String aggregatorName, ViewExecutionOptions executionOptions) {
+  public boolean matches(final UniqueId baseViewDefinitionId, final String aggregatorName, final ViewExecutionOptions executionOptions) {
     return getBaseViewDefinitionId().equals(baseViewDefinitionId)
         && ObjectUtils.equals(getAggregatorName(), aggregatorName) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
   }
 
-  public WebViewGrid getGridByName(String name) {
+  public WebViewGrid getGridByName(final String name) {
     return _gridsByName.get(name);
   }
 
   @SuppressWarnings("unchecked")
-  public void triggerUpdate(Message message) {
-    Map<String, Object> dataMap = (Map<String, Object>) message.getData();
+  public void triggerUpdate(final ServerMessage message) {
+    final Map<String, Object> dataMap = (Map<String, Object>) message.getData();
     boolean immediateResponse = (Boolean) dataMap.get("immediateResponse");
 
     if (getPortfolioGrid() != null) {
-      Map<String, Object> portfolioViewport = (Map<String, Object>) dataMap.get("portfolioViewport");
+      final Map<String, Object> portfolioViewport = (Map<String, Object>) dataMap.get("portfolioViewport");
       getPortfolioGrid().setViewport(processViewportData(portfolioViewport));
     }
 
     if (getPrimitivesGrid() != null) {
-      Map<String, Object> primitiveViewport = (Map<String, Object>) dataMap.get("primitiveViewport");
+      final Map<String, Object> primitiveViewport = (Map<String, Object>) dataMap.get("primitiveViewport");
       getPrimitivesGrid().setViewport(processViewportData(primitiveViewport));
     }
-    
-    Map<String, Map<String, Object>> depGraphViewportMap = (Map<String, Map<String, Object>>) dataMap.get("depGraphViewport");
-    for (Map.Entry<String, Map<String, Object>> depGraphViewportEntry : depGraphViewportMap.entrySet()) {
-      Pair<RequirementBasedWebViewGrid, WebGridCell> depGraphCell = processCellId(depGraphViewportEntry.getKey());
-      SortedMap<Integer, Long> viewportMap = processViewportData(depGraphViewportEntry.getValue());
-      RequirementBasedWebViewGrid parentDepGraphGrid = depGraphCell.getFirst();
-      WebGridCell cellId = depGraphCell.getSecond();
+
+    final Map<String, Map<String, Object>> depGraphViewportMap = (Map<String, Map<String, Object>>) dataMap.get("depGraphViewport");
+    for (final Map.Entry<String, Map<String, Object>> depGraphViewportEntry : depGraphViewportMap.entrySet()) {
+      final Pair<RequirementBasedWebViewGrid, WebGridCell> depGraphCell = processCellId(depGraphViewportEntry.getKey());
+      final SortedMap<Integer, Long> viewportMap = processViewportData(depGraphViewportEntry.getValue());
+      final RequirementBasedWebViewGrid parentDepGraphGrid = depGraphCell.getFirst();
+      final WebGridCell cellId = depGraphCell.getSecond();
       parentDepGraphGrid.setDepGraphViewport(cellId, viewportMap);
     }
 
@@ -235,27 +243,27 @@ public class WebView {
     }
   }
 
-  private Pair<RequirementBasedWebViewGrid, WebGridCell> processCellId(String encodedCellId) {
-    String[] cellIdFields = encodedCellId.split("-");
-    String parentGridName = cellIdFields[0];
-    int rowId = Integer.parseInt(cellIdFields[1]);
-    int colId = Integer.parseInt(cellIdFields[2]);
+  private Pair<RequirementBasedWebViewGrid, WebGridCell> processCellId(final String encodedCellId) {
+    final String[] cellIdFields = encodedCellId.split("-");
+    final String parentGridName = cellIdFields[0];
+    final int rowId = Integer.parseInt(cellIdFields[1]);
+    final int colId = Integer.parseInt(cellIdFields[2]);
     return Pair.of((RequirementBasedWebViewGrid) getGridByName(parentGridName), new WebGridCell(rowId, colId));
   }
-  
-  private static SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
-    SortedMap<Integer, Long> result = new TreeMap<Integer, Long>();
+
+  private static SortedMap<Integer, Long> processViewportData(final Map<String, Object> viewportData) {
+    final SortedMap<Integer, Long> result = new TreeMap<Integer, Long>();
     if (viewportData.isEmpty()) {
       return result;
     }
-    Object[] ids = (Object[]) viewportData.get("rowIds");
-    Object[] lastTimes = (Object[]) viewportData.get("lastTimestamps");
+    final Object[] ids = (Object[]) viewportData.get("rowIds");
+    final Object[] lastTimes = (Object[]) viewportData.get("lastTimestamps");
     for (int i = 0; i < ids.length; i++) {
       if (ids[i] instanceof Number) {
-        long jsRowId = (Long) ids[i];
-        int rowId = (int) jsRowId;
+        final long jsRowId = (Long) ids[i];
+        final int rowId = (int) jsRowId;
         if (lastTimes[i] != null) {
-          Long lastTime = (Long) lastTimes[i];
+          final Long lastTime = (Long) lastTimes[i];
           result.put(rowId, lastTime);
         } else {
           result.put(rowId, null);
@@ -286,17 +294,17 @@ public class WebView {
       @Override
       public void run() {
         do {
-          ViewComputationResultModel update = getViewClient().getLatestResult();
+          final ViewComputationResultModel update = getViewClient().getLatestResult();
 
           getRemote().startBatch();
 
-          long valuationTimeMillis = update.getValuationTime().toEpochMillisLong();
-          long calculationDurationMillis = update.getCalculationDuration().toMillisLong();
+          final long valuationTimeMillis = update.getViewCycleExecutionOptions().getValuationTime().toEpochMilli();
+          final long calculationDurationMillis = update.getCalculationDuration().toMillis();
 
           sendStartMessage(valuationTimeMillis, calculationDurationMillis);
           try {
             processResult(update);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             s_logger.error("Error processing result from view cycle " + update.getViewCycleId(), e);
           }
           sendEndMessage();
@@ -322,19 +330,66 @@ public class WebView {
     }
   }
 
-  private void processResult(ViewComputationResultModel resultModel) {
-    long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
+  private void processResult(final ViewComputationResultModel resultModel) {
+    final long resultTimestamp = resultModel.getCalculationTime().toEpochMilli();
 
     if (getPrimitivesGrid() != null) {
-      for (ComputationTargetSpecification target : getPrimitivesGrid().getGridStructure().getTargets().keySet()) {
-        getPrimitivesGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+      final ComputationTargetSpecification[] targets = getPrimitivesGrid().getGridStructure().getTargets();
+      for (int i = 0; i < targets.length; i++) {
+        final ComputationTargetSpecification target = targets[i];
+        getPrimitivesGrid().processTargetResult(i, target, resultModel.getTargetResult(target), resultTimestamp);
       }
       getPrimitivesGrid().processDepGraphs(resultTimestamp);
     }
 
     if (getPortfolioGrid() != null) {
-      for (ComputationTargetSpecification target : getPortfolioGrid().getGridStructure().getTargets().keySet()) {
-        getPortfolioGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+      ComputationTargetSpecification nodeSpec = null;
+      // [PLAT-2286] This is a hack to almost support trivial nesting, e.g. for the PositionWeight function. Recognition of complex target types needs doing properly.
+      final ComputationTargetSpecification[] targets = getPortfolioGrid().getGridStructure().getTargets();
+      for (int i = 0; i < targets.length; i++) {
+        final ComputationTargetSpecification target = targets[i];
+        ViewTargetResultModel targetResult = resultModel.getTargetResult(target);
+        if (target.getType().isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
+          nodeSpec = target;
+        } else if ((nodeSpec != null) && target.getType().isTargetType(ComputationTargetType.POSITION)) {
+          final ViewTargetResultModel scopedResult = resultModel.getTargetResult(nodeSpec.containing(ComputationTargetType.POSITION, target.getUniqueId()));
+          if (scopedResult != null) {
+            if (targetResult != null) {
+              final Map<String, Collection<ComputedValueResult>> newResult = new HashMap<String, Collection<ComputedValueResult>>();
+              for (final String calcConfig : targetResult.getCalculationConfigurationNames()) {
+                newResult.put(calcConfig, new ArrayList<ComputedValueResult>(targetResult.getAllValues(calcConfig)));
+              }
+              for (final String calcConfig : scopedResult.getCalculationConfigurationNames()) {
+                final Collection<ComputedValueResult> scopedValues = scopedResult.getAllValues(calcConfig);
+                Collection<ComputedValueResult> values = newResult.get(calcConfig);
+                if (values == null) {
+                  values = new ArrayList<ComputedValueResult>(scopedValues.size());
+                  newResult.put(calcConfig, values);
+                }
+                for (final ComputedValueResult value : scopedValues) {
+                  values.add(new ComputedValueResult(new ValueSpecification(value.getSpecification().getValueName(), target, value.getSpecification().getProperties()), value.getValue(), value
+                      .getAggregatedExecutionLog()));
+                }
+              }
+              targetResult = new ViewTargetResultModel() {
+
+                @Override
+                public Collection<String> getCalculationConfigurationNames() {
+                  return newResult.keySet();
+                }
+
+                @Override
+                public Collection<ComputedValueResult> getAllValues(final String calcConfigurationName) {
+                  return newResult.get(calcConfigurationName);
+                }
+
+              };
+            } else {
+              targetResult = scopedResult;
+            }
+          }
+        }
+        getPortfolioGrid().processTargetResult(i, target, targetResult, resultTimestamp);
       }
       getPortfolioGrid().processDepGraphs(resultTimestamp);
     }
@@ -343,8 +398,8 @@ public class WebView {
   /**
    * Tells the remote client that updates are starting.
    */
-  private void sendStartMessage(long valuationTimeEpochMillis, long calculationDurationMillis) {
-    Map<String, Object> startMessage = new HashMap<String, Object>();
+  private void sendStartMessage(final long valuationTimeEpochMillis, final long calculationDurationMillis) {
+    final Map<String, Object> startMessage = new HashMap<String, Object>();
     startMessage.put("valuationTime", valuationTimeEpochMillis);
     startMessage.put("calculationDuration", calculationDurationMillis);
     getRemote().deliver(getLocal(), "/updates/control/start", startMessage, null);
@@ -357,8 +412,8 @@ public class WebView {
     getRemote().deliver(getLocal(), "/updates/control/end", new HashMap<String, Object>(), null);
   }
 
-  private void sendViewStatus(boolean isRunning, String status) {
-    Map<String, Object> output = new HashMap<String, Object>();
+  private void sendViewStatus(final boolean isRunning, final String status) {
+    final Map<String, Object> output = new HashMap<String, Object>();
     output.put("isRunning", isRunning);
     output.put("status", status);
     getRemote().deliver(getLocal(), "/status", output, null);
@@ -367,7 +422,7 @@ public class WebView {
   //-------------------------------------------------------------------------
 
   public Map<String, Object> getInitialJsonGridStructures() {
-    Map<String, Object> gridStructures = new HashMap<String, Object>();
+    final Map<String, Object> gridStructures = new HashMap<String, Object>();
     if (getPrimitivesGrid() != null) {
       gridStructures.put("primitives", getPrimitivesGrid().getInitialJsonGridStructure());
     }
@@ -377,12 +432,12 @@ public class WebView {
     return gridStructures;
   }
 
-  public void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
-    WebViewGrid parentGrid = getGridByName(parentGridName);
+  public void setIncludeDepGraph(final String parentGridName, final WebGridCell cell, final boolean includeDepGraph) {
+    final WebViewGrid parentGrid = getGridByName(parentGridName);
     if (parentGrid == null || !(parentGrid instanceof RequirementBasedWebViewGrid)) {
       throw new IllegalArgumentException("Invalid grid for dependency graph introspection: " + parentGridName);
     }
-    RequirementBasedWebViewGrid depGraphParentGrid = (RequirementBasedWebViewGrid) parentGrid;
+    final RequirementBasedWebViewGrid depGraphParentGrid = (RequirementBasedWebViewGrid) parentGrid;
     if (includeDepGraph) {
       if (_activeDepGraphCount.getAndIncrement() == 0) {
         getViewClient().setViewCycleAccessSupported(true);
@@ -392,7 +447,7 @@ public class WebView {
         getViewClient().setViewCycleAccessSupported(false);
       }
     }
-    WebViewGrid grid = depGraphParentGrid.setIncludeDepGraph(cell, includeDepGraph);
+    final WebViewGrid grid = depGraphParentGrid.setIncludeDepGraph(cell, includeDepGraph);
     if (grid != null) {
       if (includeDepGraph) {
         registerGrid(grid);
@@ -402,26 +457,26 @@ public class WebView {
     }
   }
 
-  public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
-    WebViewGrid grid = getGridByName(gridName);
+  public Pair<Instant, String> getGridContentsAsCsv(final String gridName) {
+    final WebViewGrid grid = getGridByName(gridName);
     if (grid == null) {
       throw new OpenGammaRuntimeException("Unknown grid '" + gridName + "'");
     }
-    ViewComputationResultModel latestResult = getViewClient().getLatestResult();
+    final ViewComputationResultModel latestResult = getViewClient().getLatestResult();
     if (latestResult == null) {
       return null;
     }
-    String csv = grid.dumpContentsToCsv(latestResult);
-    return Pair.of(latestResult.getValuationTime(), csv);
+    final String csv = grid.dumpContentsToCsv(latestResult);
+    return Pair.of(latestResult.getViewCycleExecutionOptions().getValuationTime(), csv);
   }
 
   //-------------------------------------------------------------------------
 
-  private void registerGrid(WebViewGrid grid) {
+  private void registerGrid(final WebViewGrid grid) {
     _gridsByName.put(grid.getName(), grid);
   }
 
-  private void unregisterGrid(String gridName) {
+  private void unregisterGrid(final String gridName) {
     _gridsByName.remove(gridName);
   }
 
@@ -443,11 +498,11 @@ public class WebView {
     return _client;
   }
 
-  private Client getLocal() {
+  private LocalSession getLocal() {
     return _local;
   }
 
-  private Client getRemote() {
+  private ServerSession getRemote() {
     return _remote;
   }
 

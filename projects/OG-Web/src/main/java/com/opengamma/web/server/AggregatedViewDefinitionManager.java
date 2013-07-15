@@ -29,9 +29,9 @@ import com.opengamma.financial.aggregation.AggregationFunction;
 import com.opengamma.financial.aggregation.PortfolioAggregator;
 import com.opengamma.financial.portfolio.save.SavePortfolio;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -46,8 +46,8 @@ public class AggregatedViewDefinitionManager {
 
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
-  private final ConfigSource _viewDefinitionRepository;
-  private final ConfigMaster _userViewDefinitionRepository;
+  private final ConfigSource _combinedConfigSource;
+  private final ConfigMaster _userConfigMaster;
   private final PortfolioMaster _userPortfolioMaster;
   private final Map<String, AggregationFunction<?>> _portfolioAggregators;
   private final SavePortfolio _portfolioSaver;
@@ -58,15 +58,15 @@ public class AggregatedViewDefinitionManager {
 
   public AggregatedViewDefinitionManager(PositionSource positionSource,
                                          SecuritySource securitySource,
-                                         ConfigSource viewDefinitionRepository,
-                                         ConfigMaster userViewDefinitionRepository,
+                                         ConfigSource combinedConfigSource,
+                                         ConfigMaster userConfigMaster,
                                          PortfolioMaster userPortfolioMaster,
                                          PositionMaster userPositionMaster,
                                          Map<String, AggregationFunction<?>> portfolioAggregators) {
     _positionSource = positionSource;
     _securitySource = securitySource;
-    _viewDefinitionRepository = viewDefinitionRepository;
-    _userViewDefinitionRepository = userViewDefinitionRepository;
+    _combinedConfigSource = combinedConfigSource;
+    _userConfigMaster = userConfigMaster;
     _userPortfolioMaster = userPortfolioMaster;
     _portfolioAggregators = portfolioAggregators;
     _portfolioSaver = new SavePortfolio(Executors.newSingleThreadExecutor(), userPortfolioMaster, userPositionMaster);
@@ -90,7 +90,7 @@ public class AggregatedViewDefinitionManager {
     // TODO: what about changes to the base view definition?
     ArgumentChecker.notNull(baseViewDefinitionId, "baseViewDefinitionId");
     ArgumentChecker.notNull(aggregatorNames, "aggregatorNames");
-    ViewDefinition baseViewDefinition = (ViewDefinition) _viewDefinitionRepository.get(baseViewDefinitionId).getValue();
+    ViewDefinition baseViewDefinition = (ViewDefinition) _combinedConfigSource.get(baseViewDefinitionId).getValue();
     if (baseViewDefinition == null) {
       throw new OpenGammaRuntimeException("Unknown view definition with unique ID " + baseViewDefinitionId);
     }
@@ -115,9 +115,12 @@ public class AggregatedViewDefinitionManager {
                                                                               aggregatedPortfolioReference.incrementReferenceCount(),
                                                                               baseViewDefinition.getMarketDataUser());
         
+        // Treat as a transient view definition that should not be persistent
+        //aggregatedViewDefinition.setPersistent(false);
+        
         ConfigItem<ViewDefinition> configItem = ConfigItem.of(aggregatedViewDefinition);
         configItem.setName(aggregatedViewDefinition.getName());
-        UniqueId viewDefinitionId = _userViewDefinitionRepository.add(new ConfigDocument(configItem)).getUniqueId();
+        UniqueId viewDefinitionId = _userConfigMaster.add(new ConfigDocument(configItem)).getUniqueId();
         aggregatedViewDefinitionReference = new ViewDefinitionReference(viewDefinitionId, aggregatedPortfolioReference);
         _aggregatedViewDefinitions.put(aggregatedViewDefinitionKey, aggregatedViewDefinitionReference);
       }
@@ -152,7 +155,7 @@ public class AggregatedViewDefinitionManager {
           Pair<UniqueId, List<String>> aggregatedPortfolioKey = Pair.of(portfolioReference.getBasePortfolioId(), aggregatorNames);
           _aggregatedPortfolios.remove(aggregatedPortfolioKey);
         }
-        _userViewDefinitionRepository.remove(viewDefinitionReference.getViewDefinitionId());
+        _userConfigMaster.remove(viewDefinitionReference.getViewDefinitionId());
         _aggregatedViewDefinitions.remove(aggregatedViewDefinitionKey);
       }
     } finally {
@@ -170,7 +173,7 @@ public class AggregatedViewDefinitionManager {
     // anything in the position master. We end up rewriting the positions even though there is no need, then we cannot
     // clean them up when the portfolio is no longer required in case other portfolios have now referenced the new
     // positions.
-    Portfolio basePortfolio = _positionSource.getPortfolio(basePortfolioId);
+    Portfolio basePortfolio = _positionSource.getPortfolio(basePortfolioId, VersionCorrection.LATEST);
     Portfolio resolvedPortfolio =
         PortfolioCompiler.resolvePortfolio(basePortfolio, Executors.newSingleThreadExecutor(), _securitySource);
     List<AggregationFunction<?>> aggregationFunctions = Lists.newArrayListWithCapacity(aggregatorNames.size());

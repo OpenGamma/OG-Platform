@@ -1,0 +1,152 @@
+/*
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-grid-options .og-icon-down {
+    top: -6px;
+    right: -5px;
+    cursor: default;
+}
+
+.OG-grid-options .og-menu {
+    background: #fff;
+    position: absolute;
+    top: 20px;
+    left: -6px;
+    border: 1px solid #ccc;
+    display: none;
+}
+
+.OG-grid-options .og-menu div {
+    padding: 0 5px 0 5px;
+    min-width: 70px;
+}
+
+.OG-grid-options .og-menu div:hover {
+    background-color: #80c696;
+    color: #fff;
+    text-shadow: none;
+}
+
+.OG-grid-options div {
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+
+/*
+ * Sparklines
+ */
+.OG-grid-options .og-sparklines {
+    border: 1px solid #e0e2e3;
+    background-color: #fff;
+    height: 13px;
+    line-height: 12px;
+    margin-right: 1px;
+    position: relative;
+    top: 2px;
+    float: left;
+}
+
+.OG-grid-options .og-icon-sparkline {
+    background-color: #555;
+    width: 12px;
+    height: 11px;
+    margin: 1px;
+    cursor: default;
+}
+
+.OG-grid-options .og-sparklines span {
+    display: inline-block;
+    margin-right: 2px;
+    min-width: 25px;
+    overflow: hidden;
+    float: right;
+    line-height: 13px;
+    text-align: center;
+}
+
+.OG-grid-options .og-sparklines.og-active .og-icon-sparkline {
+    background-color: #63b563;
+}
+
+/*
+ * CSV
+ */
+.OG-grid-options .og-csv {
+    border: 1px solid #e0e2e3;
+    background-color: #fff;
+    height: 13px;
+    line-height: 12px;
+    margin-right: 1px;
+    position: relative;
+    top: 2px;
+    float: left;
+}
+
+.OG-grid-options .og-icon-csv {
+    background-color: #555;
+    width: 12px;
+    height: 11px;
+    margin: 1px;
+    cursor: default;
+}
+
+.OG-grid-options .og-csv span {
+    display: inline-block;
+    margin-right: 2px;
+    min-width: 25px;
+    overflow: hidden;
+    float: right;
+    line-height: 13px;
+    text-align: center;
+}
+
+/*
+ * Divider
+ */
+.OG-grid-options .og-divider {
+    background-color: #d6d6d6;
+    width: 1px;
+    position: relative;
+    height: 18px;
+    margin: 0 5px 0 4px;
+    float: left;
+}
+
+/*
+ * Dropdown
+ */
+.OG-grid-options .og-expandable {
+    background-color: #fff;
+    border: 1px inset #eee;
+    float: left;
+    padding: 2px 15px 1px 5px;
+    line-height: 10px;
+    margin: 2px 0 0 0;
+}
+
+.OG-grid-options .og-expandable .og-menu {
+    margin:-5px 0 0 5px;
+    overflow: hidden;
+    right: 0;
+}
+
+.OG-grid-options .og-expandable .og-menu div{
+    padding: 3px 0 3px 5px;
+    min-width: 100px;
+}
+
+.ie8 .OG-grid-options .og-sparklines,
+.ie8 .OG-grid-options .og-divider {
+    display: none;
+}
+
+/*
+ * Buttons
+ */
+.OG-grid-options .og-buttons {
+    position: absolute;
+    right: 0;
+}

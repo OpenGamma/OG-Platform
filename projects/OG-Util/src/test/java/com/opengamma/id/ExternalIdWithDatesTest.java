@@ -7,22 +7,24 @@ package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import static org.threeten.bp.Month.DECEMBER;
+import static org.threeten.bp.Month.JANUARY;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link ExternalIdWithDates}. 
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class ExternalIdWithDatesTest {
 
   private static final ExternalScheme SCHEME = ExternalScheme.of("Scheme");
   private static final ExternalId IDENTIFIER = ExternalId.of(SCHEME, "value");
-  private static final LocalDate VALID_FROM = LocalDate.of(2010, MonthOfYear.JANUARY, 1);
-  private static final LocalDate VALID_TO = LocalDate.of(2010, MonthOfYear.DECEMBER, 1);
+  private static final LocalDate VALID_FROM = LocalDate.of(2010, JANUARY, 1);
+  private static final LocalDate VALID_TO = LocalDate.of(2010, DECEMBER, 1);
 
   public void test_factory_ExternalId_LocalDate_LocalDate() {
     ExternalIdWithDates test = ExternalIdWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);

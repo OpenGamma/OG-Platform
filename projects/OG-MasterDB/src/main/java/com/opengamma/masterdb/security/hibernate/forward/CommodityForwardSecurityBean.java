@@ -66,7 +66,7 @@ public abstract class CommodityForwardSecurityBean extends SecurityBean {
   /**
    * Visitor.
    */
-  public static interface Visitor<T> {
+  public interface Visitor<T> {
     T visitAgricultureForwardType(AgricultureForwardSecurityBean bean);
 
     T visitEnergyForwardType(EnergyForwardSecurityBean bean);
@@ -512,7 +512,7 @@ public abstract class CommodityForwardSecurityBean extends SecurityBean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "expiry",
         "currency",
         "unitAmount",

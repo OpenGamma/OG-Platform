@@ -10,29 +10,25 @@ import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.threeten.bp.temporal.ChronoUnit.HOURS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
 
 import java.sql.Types;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
-import javax.time.calendar.TimeZone;
 
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -40,14 +36,15 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbExchangeMasterWorker via DbExchangeMaster.
  */
-public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public abstract class AbstractDbExchangeMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbExchangeMasterWorkerTest.class);
 
@@ -55,32 +52,33 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalExchanges;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbExchangeMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _exgMaster = null;
   }
 
+  @Override
+  protected void doTearDownClass() {
+    _exgMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
   protected ObjectId setupTestData(Instant now) {
-    TimeSource origTimeSource = _exgMaster.getTimeSource();
+    Clock origClock = _exgMaster.getClock();
     try {
-      _exgMaster.setTimeSource(TimeSource.fixed(now));
+      _exgMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
 
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
@@ -91,27 +89,24 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
 
       ObjectId baseOid = initialDoc.getObjectId();
 
-      //------------------------------------------------------------------------------------------------------------------
       List<ExchangeDocument> firstReplacement = newArrayList();
       for (int i = 0; i < 5; i++) {
         ManageableExchange ex = new ManageableExchange(bundle, "setup_" + i, region, null);
         ExchangeDocument doc = new ExchangeDocument(ex);
-        doc.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(now.plus(i, MINUTES));
         firstReplacement.add(doc);
       }
-      _exgMaster.setTimeSource(TimeSource.fixed(now.plus(1, TimeUnit.HOURS)));
+      _exgMaster.setClock(Clock.fixed(now.plus(1, HOURS), ZoneOffset.UTC));
       _exgMaster.replaceVersions(baseOid, firstReplacement);
-
       return baseOid;
+      
     } finally {
-      _exgMaster.setTimeSource(origTimeSource);
+      _exgMaster.setClock(origClock);
     }
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _exgMaster = (DbExchangeMaster) context.getBean(getDatabaseType() + "DbExchangeMaster");
+  private void init() {
+    _exgMaster = new DbExchangeMaster(getDbConnector());
     
 //    id bigint not null,
 //    oid bigint not null,
@@ -123,19 +118,19 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
 //    time_zone varchar(255),
 //    detail blob not null,
     Instant now = Instant.now();
-    _exgMaster.setTimeSource(TimeSource.fixed(now));
+    _exgMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
     FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _exgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _exgMaster.getDbConnector().getJdbcOperations();
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UniqueId.of("DbExg", "101", "0"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     exchange.setName("TestExchange101");
-    exchange.setTimeZone(TimeZone.of("Europe/London"));
+    exchange.setTimeZone(ZoneId.of("Europe/London"));
     byte[] bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
     template.update("INSERT INTO exg_exchange VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
@@ -143,7 +138,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     exchange.setUniqueId(UniqueId.of("DbExg", "102", "0"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H")));
     exchange.setName("TestExchange102");
-    exchange.setTimeZone(TimeZone.of("Europe/Paris"));
+    exchange.setTimeZone(ZoneId.of("Europe/Paris"));
     bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
     template.update("INSERT INTO exg_exchange VALUES (?,?,?,?,?, ?,?,?,?)",
         102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
@@ -151,7 +146,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     exchange.setUniqueId(UniqueId.of("DbExg", "201", "0"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     exchange.setName("TestExchange201");
-    exchange.setTimeZone(TimeZone.of("Asia/Tokyo"));
+    exchange.setTimeZone(ZoneId.of("Asia/Tokyo"));
     bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
     template.update("INSERT INTO exg_exchange VALUES (?,?,?,?,?, ?,?,?,?)",
         201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
@@ -159,7 +154,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     exchange.setUniqueId(UniqueId.of("DbExg", "201", "1"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     exchange.setName("TestExchange202");
-    exchange.setTimeZone(TimeZone.of("Asia/Tokyo"));
+    exchange.setTimeZone(ZoneId.of("Asia/Tokyo"));
     bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
     template.update("INSERT INTO exg_exchange VALUES (?,?,?,?,?, ?,?,?,?)",
         202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP,
@@ -200,27 +195,6 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
         202, 3);
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _exgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _exgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
-  }
-
   //-------------------------------------------------------------------------
   protected void assert101(final ExchangeDocument test) {
     UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
@@ -234,7 +208,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
-    assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
+    assertEquals(ZoneId.of("Europe/London"), exchange.getTimeZone());
     assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
   }
 
@@ -250,7 +224,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange102", test.getName());
-    assertEquals(TimeZone.of("Europe/Paris"), exchange.getTimeZone());
+    assertEquals(ZoneId.of("Europe/Paris"), exchange.getTimeZone());
     assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H")), exchange.getExternalIdBundle());
   }
 
@@ -266,7 +240,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange201", test.getName());
-    assertEquals(TimeZone.of("Asia/Tokyo"), exchange.getTimeZone());
+    assertEquals(ZoneId.of("Asia/Tokyo"), exchange.getTimeZone());
     assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
   }
 
@@ -282,7 +256,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     assertNotNull(exchange);
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange202", test.getName());
-    assertEquals(TimeZone.of("Asia/Tokyo"), exchange.getTimeZone());
+    assertEquals(ZoneId.of("Asia/Tokyo"), exchange.getTimeZone());
     assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
   }
 

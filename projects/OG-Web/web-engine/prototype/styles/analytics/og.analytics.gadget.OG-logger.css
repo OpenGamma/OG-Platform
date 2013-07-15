@@ -1,0 +1,64 @@
+/*
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-logger {
+    background-color: #f8f8f8;
+    overflow: scroll;
+    height: 100%;
+}
+
+.OG-logger table {
+    width: 100%;
+}
+
+.OG-logger tr td:first-child {
+    white-space: nowrap;
+}
+
+.OG-logger td {
+    padding: 2px 5px;
+    vertical-align: top;
+}
+
+.OG-logger .og-head {
+    background-color: #e5e5e5;
+    font-weight: bold;
+}
+
+.OG-logger .og-ERROR {
+    color: #960505;
+}
+
+.OG-logger .og-WARN {
+    color: #e58600;
+}
+
+/* notification */
+.OG-logger .og-message {
+    background-color: #fdf080;
+    color: #656033;
+    display: none;
+    left: 0;
+    margin: 1px 0 1px 1px;
+    padding: 2px 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.OG-logger .og-message .og-link {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.OG-logger .og-nolog {
+    background: #f8f8f8;
+    padding: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}

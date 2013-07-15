@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -22,7 +22,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see InterestRateFutureOptionDefaultValuesFunction
+ * @see IRFutureOptionSABRDefaults
  */
 @Deprecated
 public class InterestRateFutureOptionDefaultValuesFunctionDeprecated extends DefaultPropertyFunction {
@@ -51,9 +51,6 @@ public class InterestRateFutureOptionDefaultValuesFunctionDeprecated extends Def
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     if (!(target.getTrade().getSecurity() instanceof IRFutureOptionSecurity)) {
       return false;
     }

@@ -8,8 +8,8 @@ package com.opengamma.web.analytics.formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.calcnode.MissingValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ClassMap;
 import com.opengamma.web.analytics.ValueTypes;
 
@@ -17,7 +17,25 @@ import com.opengamma.web.analytics.ValueTypes;
  * Formats analytics data for display in a grid in the user interface or for transmitting to the client as history.
  * Data structures bigger than a single value are encoded as JSON.
  */
+@SuppressWarnings("rawtypes")
 public class ResultsFormatter {
+
+  /**
+   * Marker value returned to indicate there is no formatted value available for a combination of value, formatter
+   * and inline key. This can happen for cells displaying inline values where the underlying value has no entry
+   * for the column's key. It is also possible for complex values (e.g. vectors) where the history is stored
+   * but can only be formatted when displayed inline as single values.
+   */
+  public static final Object VALUE_UNAVAILABLE = new Object() {
+
+    /**
+     * @return An empty string - this means the grid shows an empty cell for an unavailable value.
+     */
+    @Override
+    public String toString() {
+      return "";
+    }
+  };
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResultsFormatter.class);
 
@@ -26,7 +44,7 @@ public class ResultsFormatter {
   /** For formatting values with no specific formatter. */
   private final TypeFormatter _defaultFormatter = new DefaultFormatter();
   /** Formatters keyed on the type of value they can format. */
-  private final ClassMap<TypeFormatter<?>> _formatters = new ClassMap<TypeFormatter<?>>();
+  private final ClassMap<TypeFormatter<?>> _formatters = new ClassMap<>();
   /** Formatter for values whose type isn't know in advance or whose type can changes between calculation cycles. */
   private final UnknownTypeFormatter _unknownTypeFormatter = new UnknownTypeFormatter();
 
@@ -34,27 +52,35 @@ public class ResultsFormatter {
     BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter();
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
-
+    ZonedDateTimeFormatter zonedDateTimeFormatter = new ZonedDateTimeFormatter();
+    LocalDateDoubleTimeSeriesFormatter localDateDoubleTimeSeriesFormatter = new LocalDateDoubleTimeSeriesFormatter();
     addFormatters(doubleFormatter,
                   bigDecimalFormatter,
                   currencyAmountFormatter,
+                  zonedDateTimeFormatter,
+                  localDateDoubleTimeSeriesFormatter,
                   new YieldCurveFormatter(),
+                  new PriceIndexCurveFormatter(),
+                  new ISDADateCurveFormatter(),
+                  new HazardRateCurveFormatter(),
+                  new NodalObjectsCurveFormatter(), //TODO is not a general formatter - used only for (Tenor, Double) curves
                   new VolatilityCubeDataFormatter(),
                   new VolatilitySurfaceDataFormatter(),
                   new VolatilitySurfaceFormatter(),
                   new LabelledMatrix1DFormatter(doubleFormatter),
+                  new LocalDateLabelledMatrix1DFormatter(doubleFormatter),
                   new LabelledMatrix2DFormatter(),
                   new LabelledMatrix3DFormatter(),
+                  new TenorLabelledLocalDateDoubleTimeSeriesMatrix1DFormatter(localDateDoubleTimeSeriesFormatter),
                   new TenorFormatter(),
-                  new MultipleCurrencyAmountFormatter(),
-                  new MissingMarketDataSentinelFormatter(),
-                  new NotCalculatedSentinelFormatter(),
+                  new MultipleCurrencyAmountFormatter(doubleFormatter),
+                  new MissingInputFormatter(),
+                  new MissingOutputFormatter(),
                   new ForwardCurveFormatter(),
                   new BlackVolatilitySurfaceMoneynessFormatter(),
                   new LocalVolatilitySurfaceMoneynessFormatter(),
                   new BucketedGreekResultCollectionFormatter(),
                   new DoublesCurveFormatter(),
-                  new LocalDateDoubleTimeSeriesFormatter(),
                   new HistoricalTimeSeriesFormatter(),
                   new DoubleArrayFormatter(),
                   new DoubleObjectArrayFormatter(),
@@ -64,7 +90,16 @@ public class ResultsFormatter {
                   new InterpolatedYieldCurveSpecificationWithSecuritiesFormatter(),
                   new HistoricalTimeSeriesBundleFormatter(),
                   new VolatilitySurfaceSpecificationFormatter(),
-                  new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter());
+                  new CurrencyPairsFormatter(),
+                  new NodeTargetFormatter(),
+                  new PositionTargetFormatter(),
+                  new FungibleTradeTargetFormatter(),
+                  new OtcTradeTargetFormatter(),
+                  new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(),
+                  new FrequencyFormatter(),
+                  new FXAmountsFormatter(doubleFormatter),
+                  new ExpiryFormatter(zonedDateTimeFormatter),
+                  new ValuePropertiesFormatter());
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {
@@ -118,55 +153,24 @@ public class ResultsFormatter {
   }
 
   private static boolean isError(Object value) {
-    return value instanceof MissingInput;
+    return value instanceof MissingValue;
   }
 
   /**
-   * Returns a formatted version of a value suitable for display in a single cell in the UI. If the data is too big
-   * to fit in a single cell (e.g. a matrix) this method returns a summary value.
-   * @param value The value
-   * @param valueSpec The value's specification
-   * @return {@code null} if the value is {@code null}, otherwise a formatted version of a value suitable
-   * for display in the UI.
+   * Formats a value for conversion to JSON and sending to the client.
+   * @param value The value to be formatted, possibly null
+   * @param valueSpec The specification of the value, null if the value wasn't calculated by the engine
+   * @param format The type of formatting
+   * @param inlineKey The key for extracting a single value from the value, possibly null. This is used for values
+   * that can be displayed inline across multiple cells, e.g. vectors of doubles that are displayed across multiple
+   * columns of double values.
+   * @return The formatted value. Can be null (indicating an error) or {@link #VALUE_UNAVAILABLE} if the object
+   * can't be formatted as requested or if the value doesn't have an entry for the specified key.
    */
-/*
   @SuppressWarnings("unchecked")
-  public Object formatForDisplay(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value, valueSpec).formatForDisplay(value, valueSpec);
-  }
-*/
-
-  /**
-   * Returns a formatted version of a value including all information. This might not fit into a single grid cell in
-   * the UI, e.g. a matrix. If the value is a data structure it is encoded as JSON.
-   * @param value The value
-   * @param valueSpec The value's specification
-   * @return {@code null} if the value is {@code null}, otherwise a formatted version of a value suitable
-   * for display in the UI.
-   */
-/*
-  @SuppressWarnings("unchecked")
-  public Object formatForExpandedDisplay(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value, valueSpec).formatForExpandedDisplay(value, valueSpec);
-  }
-*/
-
-  /**
-   * Formats a single history value in a format suitable for embedding in a JSON object.
-   * @param value The value
-   * @param valueSpec The value's specification
-   * @return A formatted value suitable for embedding in a JSON object or null if the value is null
-   */
-/*
-  @SuppressWarnings("unchecked")
-  public Object formatForHistory(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value, valueSpec).formatForHistory(value, valueSpec);
-  }
-*/
-
-  @SuppressWarnings("unchecked")
-  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format) {
-    return getFormatter(value, valueSpec).format(value, valueSpec, format);
+  public Object format(Object value, ValueSpecification valueSpec, TypeFormatter.Format format, Object inlineKey) {
+    TypeFormatter formatter = getFormatter(value, valueSpec);
+    return formatter.format(value, valueSpec, format, inlineKey);
   }
   
   /**

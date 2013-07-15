@@ -1,15 +1,14 @@
 // Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+///CLOVER:OFF - CSOFF
 package com.opengamma.engine.marketdata.spec;
 public class FixedHistoricalMarketDataSpecification extends com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification implements java.io.Serializable {
-  private static final long serialVersionUID = -29285166859l;
-  private javax.time.calendar.LocalDate _snapshotDate;
+  private static final long serialVersionUID = -28582352211l;
+  private org.threeten.bp.LocalDate _snapshotDate;
   public static final String SNAPSHOT_DATE_KEY = "snapshotDate";
-  public FixedHistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate) {
+  public FixedHistoricalMarketDataSpecification (org.threeten.bp.LocalDate snapshotDate) {
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
-      _snapshotDate = snapshotDate.toLocalDate ();
+      _snapshotDate = snapshotDate;
     }
   }
   protected FixedHistoricalMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
@@ -18,17 +17,17 @@ public class FixedHistoricalMarketDataSpecification extends com.opengamma.engine
     fudgeField = fudgeMsg.getByName (SNAPSHOT_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FixedHistoricalMarketDataSpecification - field 'snapshotDate' is not present");
     try {
-      _snapshotDate = fudgeMsg.getFieldValue (javax.time.calendar.DateProvider.class, fudgeField).toLocalDate ();
+      _snapshotDate = fudgeMsg.getFieldValue (org.threeten.bp.LocalDate.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FixedHistoricalMarketDataSpecification - field 'snapshotDate' is not date", e);
     }
   }
-  public FixedHistoricalMarketDataSpecification (String timeSeriesResolverKey, javax.time.calendar.DateProvider snapshotDate) {
+  public FixedHistoricalMarketDataSpecification (String timeSeriesResolverKey, org.threeten.bp.LocalDate snapshotDate) {
     super (timeSeriesResolverKey);
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
-      _snapshotDate = snapshotDate.toLocalDate ();
+      _snapshotDate = snapshotDate;
     }
   }
   protected FixedHistoricalMarketDataSpecification (final FixedHistoricalMarketDataSpecification source) {
@@ -36,7 +35,7 @@ public class FixedHistoricalMarketDataSpecification extends com.opengamma.engine
     if (source == null) throw new NullPointerException ("'source' must not be null");
     if (source._snapshotDate == null) _snapshotDate = null;
     else {
-      _snapshotDate = source._snapshotDate.toLocalDate ();
+      _snapshotDate = source._snapshotDate;
     }
   }
   public FixedHistoricalMarketDataSpecification clone () {
@@ -68,13 +67,13 @@ public class FixedHistoricalMarketDataSpecification extends com.opengamma.engine
     }
     return new FixedHistoricalMarketDataSpecification (deserializer, fudgeMsg);
   }
-  public javax.time.calendar.LocalDate getSnapshotDate () {
+  public org.threeten.bp.LocalDate getSnapshotDate () {
     return _snapshotDate;
   }
-  public void setSnapshotDate (javax.time.calendar.DateProvider snapshotDate) {
+  public void setSnapshotDate (org.threeten.bp.LocalDate snapshotDate) {
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
-      _snapshotDate = snapshotDate.toLocalDate ();
+      _snapshotDate = snapshotDate;
     }
   }
   public boolean equals (final Object o) {
@@ -100,5 +99,4 @@ public class FixedHistoricalMarketDataSpecification extends com.opengamma.engine
     return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-///CLOVER:ON
-// CSON: Generated File
+///CLOVER:ON - CSON

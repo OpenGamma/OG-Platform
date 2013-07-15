@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,10 +22,12 @@ import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorF
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -42,13 +45,13 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesIntersector;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.TimeSeriesIntersector;
 
 /**
  * 
  */
-public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledInvoker {
+public class JensenAlphaFunction extends AbstractFunction.NonCompiledInvoker {
   private static final double DAYS_PER_YEAR = 365.25; //TODO
   private final String _resolutionKey;
 
@@ -58,25 +61,36 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
   }
 
   @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION);
+  }
+
+  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
-    final Object positionOrNode = getTarget(target);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final HistoricalTimeSeries marketTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket());
+    if (marketTS == null) {
+      throw new OpenGammaRuntimeException("Market value series was not availble");
+    }
     final HistoricalTimeSeries riskFreeRateTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate());
-    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
+    if (riskFreeRateTS == null) {
+      throw new OpenGammaRuntimeException("Risk free rate series was not available");
+    }
+    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L was null");
     }
-    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
     if (assetFairValueObject == null) {
       throw new OpenGammaRuntimeException("Asset fair value was null");
     }
-    final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode));
+    final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, targetSpec));
     if (betaObject == null) {
       throw new OpenGammaRuntimeException("Beta was null");
     }
@@ -93,12 +107,11 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
     final JensenAlphaCalculator calculator = getCalculator(constraints.getValues(ValuePropertyNames.EXCESS_RETURN_CALCULATOR));
     final double alpha = calculator.evaluate(assetReturnTS, riskFreeReturnTS, beta, marketReturnTS);
     final ValueProperties resultProperties = getResultProperties(desiredValues.iterator().next());
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.JENSENS_ALPHA, positionOrNode, resultProperties), getUniqueId()), alpha));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.JENSENS_ALPHA, targetSpec, resultProperties), alpha));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Object positionOrNode = getTarget(target);
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> samplingPeriodNames = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
@@ -146,9 +159,10 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName)
         .with(ValuePropertyNames.COVARIANCE_CALCULATOR, covarianceCalculatorNames.iterator().next())
         .with(ValuePropertyNames.VARIANCE_CALCULATOR, varianceCalculatorNames.iterator().next()).get();
-    result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, pnlSeriesProperties));
-    result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
-    result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode, betaProperties));
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, pnlSeriesProperties));
+    result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, targetSpec));
+    result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, targetSpec, betaProperties));
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
@@ -170,14 +184,8 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.JENSENS_ALPHA, positionOrNode, getResultProperties()), getUniqueId()));
-    }
-    return null;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.JENSENS_ALPHA, target.toSpecification(), getResultProperties()));
   }
-
-  public abstract Object getTarget(ComputationTarget target);
 
   private ValueProperties getResultProperties() {
     return createValueProperties()

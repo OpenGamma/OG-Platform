@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class PositionAttributeAggregationFunctionTest {
 
   public static final String ATTR_NAME = "ATTR_NAME";

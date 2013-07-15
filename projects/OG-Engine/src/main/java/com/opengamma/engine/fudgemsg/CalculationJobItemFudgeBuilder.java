@@ -16,9 +16,10 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.CalculationJobItem;
+import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 
 /**
  * Fudge message builder for {@code CalculationJobItem}.
@@ -55,10 +56,10 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
       } else {
         i = targets.size();
         targets.put(object.getComputationTargetSpecification(), i);
-        ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getComputationTargetSpecification());
+        ComputationTargetReferenceFudgeBuilder.buildMessageImpl(serializer, msg, object.getComputationTargetSpecification());
       }
     } else {
-      ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getComputationTargetSpecification());
+      ComputationTargetReferenceFudgeBuilder.buildMessageImpl(serializer, msg, object.getComputationTargetSpecification());
     }
     if (functions != null) {
       Integer i = functions.get(object.getFunctionUniqueIdentifier());
@@ -72,17 +73,19 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     } else {
       msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, object.getFunctionUniqueIdentifier());
     }
-    if (parameters != null) {
-      Integer i = parameters.get(object.getFunctionParameters());
-      if (i != null) {
-        msg.add(FUNCTION_PARAMETERS_FIELD_NAME, i);
+    if (!(object.getFunctionParameters() instanceof EmptyFunctionParameters)) {
+      if (parameters != null) {
+        Integer i = parameters.get(object.getFunctionParameters());
+        if (i != null) {
+          msg.add(FUNCTION_PARAMETERS_FIELD_NAME, i);
+        } else {
+          i = parameters.size();
+          parameters.put(object.getFunctionParameters(), i);
+          serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, object.getFunctionParameters(), FunctionParameters.class);
+        }
       } else {
-        i = parameters.size();
-        parameters.put(object.getFunctionParameters(), i);
         serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, object.getFunctionParameters(), FunctionParameters.class);
       }
-    } else {
-      serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, object.getFunctionParameters(), FunctionParameters.class);
     }
     msg.add(INPUT_IDENTIFIERS_FIELD_NAME, object.getInputIdentifiers());
     msg.add(OUTPUT_IDENTIFIERS_FIELD_NAME, object.getOutputIdentifiers());
@@ -102,7 +105,7 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     if (field != null) {
       computationTargetSpecification = targets.get(((Number) field.getValue()).intValue());
     } else {
-      computationTargetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(deserializer, message);
+      computationTargetSpecification = ComputationTargetReferenceFudgeBuilder.buildObjectImpl(deserializer, message).getSpecification();
       if (targets != null) {
         targets.put(targets.size(), computationTargetSpecification);
       }
@@ -117,15 +120,19 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
         functions.put(functions.size(), functionUniqueId);
       }
     }
-    field = message.getByName(FUNCTION_PARAMETERS_FIELD_NAME);
     final FunctionParameters functionParameters;
-    if (field.getValue() instanceof Number) {
-      functionParameters = parameters.get(((Number) field.getValue()).intValue());
-    } else {
-      functionParameters = deserializer.fieldValueToObject(FunctionParameters.class, field);
-      if (parameters != null) {
-        parameters.put(parameters.size(), functionParameters);
+    field = message.getByName(FUNCTION_PARAMETERS_FIELD_NAME);
+    if (field != null) {
+      if (field.getValue() instanceof Number) {
+        functionParameters = parameters.get(((Number) field.getValue()).intValue());
+      } else {
+        functionParameters = deserializer.fieldValueToObject(FunctionParameters.class, field);
+        if (parameters != null) {
+          parameters.put(parameters.size(), functionParameters);
+        }
       }
+    } else {
+      functionParameters = EmptyFunctionParameters.INSTANCE;
     }
     final long[] inputIdentifiers = message.getValue(long[].class, INPUT_IDENTIFIERS_FIELD_NAME);
     final long[] outputIdentifiers = message.getValue(long[].class, OUTPUT_IDENTIFIERS_FIELD_NAME);

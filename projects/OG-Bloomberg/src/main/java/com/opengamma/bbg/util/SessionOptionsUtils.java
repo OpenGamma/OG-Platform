@@ -32,7 +32,7 @@ public final class SessionOptionsUtils {
     sb.append(options.getServerHost());
     sb.append(",port=");
     sb.append(options.getServerPort());
-    sb.append(",clientMode");
+    sb.append(",clientMode=");
     sb.append(options.getClientMode());
     sb.append("]");
     return sb.toString();

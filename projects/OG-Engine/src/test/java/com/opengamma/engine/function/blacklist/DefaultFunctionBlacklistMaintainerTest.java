@@ -21,22 +21,24 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link DefaultFunctionBlacklistMaintainer} class.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class DefaultFunctionBlacklistMaintainerTest {
 
   private final String _functionIdentifier1 = "F1";
   private final String _functionIdentifier2 = "F2";
-  private final ComputationTarget _target = new ComputationTarget(UniqueId.of("Test", "Test"));
+  private final ComputationTarget _target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Test"));
   private final FunctionParameters _functionParameters = new EmptyFunctionParameters();
   private final ComputationTargetSpecification _targetSpecification = _target.toSpecification();
   private final Set<ValueSpecification> _inputs = Collections.<ValueSpecification>emptySet();

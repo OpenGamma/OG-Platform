@@ -26,7 +26,7 @@ public interface ViewProcessMBean {
    * 
    * @return the portfolio identifier
    */
-  String getPortfolioIdentifier();
+  String getPortfolioId();
   
   /**
    * Gets the name of the underlying view definition
@@ -41,6 +41,13 @@ public interface ViewProcessMBean {
    * @return the computation state of the view process, not null
    */
   ViewProcessState getState();
+  
+  /**
+   * Gets whether the view process is persistent. 
+   * 
+   * @return true if the view process is persistent, false otherwise
+   */
+  boolean isPersistent();
   
   /**
    * Terminates this view process, detaching any clients from it.

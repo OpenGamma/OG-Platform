@@ -3,7 +3,8 @@
  * Please see distribution for license.
  */
 
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
   border-radius: 2px;

@@ -5,16 +5,16 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
@@ -66,19 +66,19 @@ public class VolatilitySurfaceData<X, Y> {
     _definitionName = definitionName;
     _specificationName = specificationName;
     _target = target;
-    _values = new HashMap<Pair<X, Y>, Double>(values);
+    _values = Maps.newHashMap(values);
     _xs = xs;
     _xLabel = xLabel;
     _ys = ys;
     _yLabel = yLabel;
     _uniqueXs = new TreeSet<X>(); 
-    _strips = new HashMap<X, List<ObjectsPair<Y, Double>>>();
+    _strips = Maps.newHashMap();
     for (Map.Entry<Pair<X, Y>, Double> entries : values.entrySet()) {
       if (_strips.containsKey(entries.getKey().getFirst())) {
         _strips.get(entries.getKey().getFirst()).add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
       } else {
         _uniqueXs.add(entries.getKey().getFirst());
-        final List<ObjectsPair<Y, Double>> list = new ArrayList<ObjectsPair<Y, Double>>();
+        final List<ObjectsPair<Y, Double>> list = Lists.newArrayList();
         list.add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
         _strips.put(entries.getKey().getFirst(), list);
       }

@@ -10,20 +10,20 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDef
 /**
  * Custom JSON builder to convert VolatilitySurfaceDefinition to JSON object and back again
  */
-public final class VolatilitySurfaceDefinitionJSONBuilder extends AbstractJSONBuilder<VolatilitySurfaceDefinition> {
-  
+public final class VolatilitySurfaceDefinitionJSONBuilder extends AbstractJSONBuilder<VolatilitySurfaceDefinition<?, ?>> {
+
   /**
-   * Singleton
+   * Singleton.
    */
   public static final VolatilitySurfaceDefinitionJSONBuilder INSTANCE = new VolatilitySurfaceDefinitionJSONBuilder();
-  
+
   /**
-   * JSON template
+   * JSON template.
    */
   private static final String TEMPLATE = createTemplate();
-  
+
   /**
-   * Restricted constructor
+   * Restricted constructor.
    */
   private VolatilitySurfaceDefinitionJSONBuilder() {
   }
@@ -33,12 +33,12 @@ public final class VolatilitySurfaceDefinitionJSONBuilder extends AbstractJSONBu
   }
 
   @Override
-  public VolatilitySurfaceDefinition fromJSON(String json) {
+  public VolatilitySurfaceDefinition<?, ?> fromJSON(String json) {
     return fromJSON(VolatilitySurfaceDefinition.class, json);
   }
 
   @Override
-  public String toJSON(VolatilitySurfaceDefinition object) {
+  public String toJSON(VolatilitySurfaceDefinition<?, ?> object) {
     return fudgeToJson(object);
   }
 

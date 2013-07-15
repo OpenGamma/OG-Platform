@@ -13,13 +13,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
-import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using SABR volatility formula.
  */
-public final class PresentValueBlackSensitivityBlackCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, SurfaceValue> {
+public final class PresentValueBlackSensitivityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, SurfaceValue> {
 
   /**
    * The method unique instance.
@@ -44,13 +44,6 @@ public final class PresentValueBlackSensitivityBlackCalculator extends AbstractI
    * The methods used in the calculator.
    */
   private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_OPTIONFUTURESMARGIN_BLACK = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
-
-  @Override
-  public SurfaceValue visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
 
   @Override
   public SurfaceValue visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {

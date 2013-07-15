@@ -15,10 +15,12 @@ import org.testng.annotations.Test;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataResult;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests DbHistoricalTimeSeriesMaster.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class DbHistoricalTimeSeriesMasterWorkerMetaDataTest extends AbstractDbHistoricalTimeSeriesMasterWorkerTest {
   // superclass sets up dummy database
 

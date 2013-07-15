@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a generic swap with two legs. One should be payer and the other receiver. The two legs currencies can be different.
@@ -63,17 +64,19 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentD
    * @param trimTime The time.
    * @return The trimmed annuity.
    */
-  public Swap<P1, P2> trimAfter(double trimTime) {
+  public Swap<P1, P2> trimAfter(final double trimTime) {
     return new Swap<P1, P2>(_firstLeg.trimAfter(trimTime), _secondLeg.trimAfter(trimTime));
   }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwap(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwap(this);
   }
 

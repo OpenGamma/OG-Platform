@@ -33,7 +33,7 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
    */
   private final int _compoundingPeriodsPerYear;
 
-  /** 
+  /**
    * Constructor.
    * @param name The curve name.
    * @param compoundingPeriodsPerYear The number of composition periods per year for the storage curve (1 for annual, 2 for semi-annual, etc.).
@@ -67,26 +67,26 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
    * @return The periodic yield curve.
    */
   public static YieldPeriodicCurve fromYieldsInterpolated(final double[] nodePoints, final double[] yields, final int compoundingPeriodsPerYear, final Interpolator1D interpolator, final String name) {
-    int nbYields = yields.length;
+    final int nbYields = yields.length;
     ArgumentChecker.isTrue(nodePoints.length == nbYields, "Yields array of incorrect length");
-    double[] yieldPeriodic = new double[nbYields];
+    final double[] yieldPeriodic = new double[nbYields];
     for (int loopy = 0; loopy < nbYields; loopy++) {
-      InterestRate continous = new ContinuousInterestRate(yields[loopy]);
+      final InterestRate continous = new ContinuousInterestRate(yields[loopy]);
       yieldPeriodic[loopy] = continous.toPeriodic(compoundingPeriodsPerYear).getRate();
     }
-    InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, yieldPeriodic, interpolator, false);
+    final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(nodePoints, yieldPeriodic, interpolator, false);
     return new YieldPeriodicCurve(name, compoundingPeriodsPerYear, curve);
   }
 
   @Override
   public double getInterestRate(final Double time) {
-    double rate = _curve.getYValue(time);
+    final double rate = _curve.getYValue(time);
     return _compoundingPeriodsPerYear * Math.log(1 + rate / _compoundingPeriodsPerYear);
   }
 
   @Override
   public double getDiscountFactor(final double t) {
-    double rate = _curve.getYValue(t);
+    final double rate = _curve.getYValue(t);
     return Math.pow(1 + rate / _compoundingPeriodsPerYear, -_compoundingPeriodsPerYear * t);
   }
 
@@ -95,20 +95,20 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
     if (compoundingPeriodsPerYear == _compoundingPeriodsPerYear) {
       _curve.getYValue(t);
     }
-    InterestRate rc = new PeriodicInterestRate(_curve.getYValue(t), _compoundingPeriodsPerYear);
+    final InterestRate rc = new PeriodicInterestRate(_curve.getYValue(t), _compoundingPeriodsPerYear);
     // Implementation note: rate in the composition of the storage.
-    InterestRate rq = rc.toPeriodic(compoundingPeriodsPerYear);
+    final InterestRate rq = rc.toPeriodic(compoundingPeriodsPerYear);
     return rq.getRate();
   }
 
   @Override
-  public double[] getInterestRateParameterSensitivity(double t) {
-    double rp = _curve.getYValue(t);
+  public double[] getInterestRateParameterSensitivity(final double t) {
+    final double rp = _curve.getYValue(t);
     //    double rc = _compoundingPeriodsPerYear * Math.log(1 + rp / _compoundingPeriodsPerYear);
-    double rcBar = 1.0;
-    double rpBar = 1.0 / (1 + rp / _compoundingPeriodsPerYear) * rcBar;
-    Double[] drpdp = _curve.getYValueParameterSensitivity(t);
-    double[] pBar = new double[drpdp.length];
+    final double rcBar = 1.0;
+    final double rpBar = 1.0 / (1 + rp / _compoundingPeriodsPerYear) * rcBar;
+    final Double[] drpdp = _curve.getYValueParameterSensitivity(t);
+    final double[] pBar = new double[drpdp.length];
     for (int loopp = 0; loopp < drpdp.length; loopp++) {
       pBar[loopp] = drpdp[loopp] * rpBar;
     }
@@ -122,11 +122,11 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
 
   @Override
   public List<String> getUnderlyingCurvesNames() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
   /**
-   * Gets the underlying curve. 
+   * Gets the underlying curve.
    * @return The curve.
    */
   public Curve<Double, Double> getCurve() {

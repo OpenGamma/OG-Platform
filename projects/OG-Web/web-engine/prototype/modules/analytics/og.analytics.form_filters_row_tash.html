@@ -1,0 +1,24 @@
+<tr class="OG-dropmenu-options row">
+  <td class="number"><span>{{idx}}</span></td>
+  <td>
+    <label>
+      <input type="radio" name="{{name}}" {{#show_key}}checked="checked"{{/show_key}} value="keyval"> Key/Val
+    </label>
+    <label>
+      <input type="radio" name="{{name}}" {{#show_exp}}checked="checked"{{/show_exp}} value="exp"> Exp
+    </label>
+  </td>
+  {{#if show_key}}
+    <td class="filter">
+      <input type="text" class="key" value="{{key}}" style="width: 50px;"> =
+      <input type="text" class="value" value="{{value}}" style="width: 150px">
+    </td>
+  {{else}}
+    <td class="filter">
+      <input type="text" class="value" value="{{value}}" style="width: 100%">
+    </td>
+  {{/if}}
+  <td>
+    <div class="OG-icon og-icon-delete og-js-rem"></div>
+  </td>
+</tr>

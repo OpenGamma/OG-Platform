@@ -67,6 +67,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -151,7 +152,8 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     }
 
     @Override
-    public void preOrderOperation(final Position position) {
+    public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
+      // REVIEW 2012-09-17 Andrew -- [PLAT-2286] Should we check whether the position has already been visited?
       final Set<ValueRequirement> riskFactorRequirements = DefaultRiskFactorsGatherer.this.getPositionRiskFactors(position);
       _valueRequirements.addAll(riskFactorRequirements);
       if (_calcConfig != null) {
@@ -163,7 +165,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     }
 
     @Override
-    public void postOrderOperation(final Position position) {
+    public void postOrderOperation(final PortfolioNode parentNode, final Position position) {
     }
 
     @Override
@@ -396,6 +398,11 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   }
 
   @Override
+  public Set<Pair<String, ValueProperties>> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+    s_logger.warn("FX Future Option risk factors not implemented");
+    return Collections.emptySet();  }
+
+  @Override
   public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
     s_logger.warn("Equity index dividend future option risk factors not implemented");
     return Collections.emptySet();
@@ -601,6 +608,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
   }
 
+  //FIXME properties aren't correct
   private Pair<String, ValueProperties> getEquityValue(final String requirementName, final ExternalId underlying) {
     final com.opengamma.engine.value.ValueProperties.Builder builder = ValueProperties.builder().with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _configProvider.getEquityFundingCurve())
                              .with(ValuePropertyNames.SURFACE, _configProvider.getEquityIndexOptionVolatilitySurfaceName(underlying.getValue()))
@@ -713,7 +721,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   }
 
   private ValueRequirement getValueRequirement(final Position position, final String valueName, final ValueProperties constraints) {
-    return new ValueRequirement(valueName, new ComputationTargetSpecification(position), constraints);
+    return new ValueRequirement(valueName, ComputationTargetSpecification.of(position), constraints);
   }
 
   //-------------------------------------------------------------------------

@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.conversion;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -15,6 +16,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -23,7 +25,6 @@ public class EquityVarianceSwapConverter extends FinancialSecurityVisitorAdapter
   private final HolidaySource _holidaySource;
 
   /**
-   * This constructor will construct calendar based upon currency alone.
    * @param holidaySource Source for good business day information, not null
    */
   public EquityVarianceSwapConverter(final HolidaySource holidaySource) {
@@ -33,7 +34,8 @@ public class EquityVarianceSwapConverter extends FinancialSecurityVisitorAdapter
 
   @Override
   public EquityVarianceSwapDefinition visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, security.getCurrency()); // TODO CASE - Review. Holidays currently specified by currency alone
+    final Currency currency = security.getCurrency();
+    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, currency);
     final Frequency frequency = security.getObservationFrequency();
     final PeriodFrequency periodFrequency;
     if (frequency instanceof PeriodFrequency) {
@@ -45,15 +47,15 @@ public class EquityVarianceSwapConverter extends FinancialSecurityVisitorAdapter
     }
     if (security.isParameterizedAsVariance()) {
       return EquityVarianceSwapDefinition.fromVarianceParams(security.getFirstObservationDate(), security.getLastObservationDate(),
-                                          security.getSettlementDate(), periodFrequency,
-                                          security.getCurrency(), calendar, security.getAnnualizationFactor(),
-                                          security.getStrike(), security.getNotional(), true);
+          security.getSettlementDate(), periodFrequency,
+          security.getCurrency(), calendar, security.getAnnualizationFactor(),
+          security.getStrike(), security.getNotional(), true);
 
     }
     return EquityVarianceSwapDefinition.fromVegaParams(security.getFirstObservationDate(), security.getLastObservationDate(),
-                                        security.getSettlementDate(), periodFrequency,
-                                        security.getCurrency(), calendar, security.getAnnualizationFactor(),
-                                        security.getStrike(), security.getNotional(), true);
+        security.getSettlementDate(), periodFrequency,
+        security.getCurrency(), calendar, security.getAnnualizationFactor(),
+        security.getStrike(), security.getNotional(), true);
   }
 
 }

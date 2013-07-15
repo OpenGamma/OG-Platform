@@ -107,7 +107,6 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
    * The meta-bean for {@code PortfolioSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PortfolioSearchResult.Meta meta() {
     return PortfolioSearchResult.Meta.INSTANCE;
   }
@@ -161,7 +160,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

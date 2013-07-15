@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
@@ -33,25 +33,25 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
    * @return The trimmed annuity.
    */
   @Override
-  public AnnuityPaymentFixedDefinition trimBefore(ZonedDateTime trimDate) {
-    List<PaymentFixedDefinition> list = new ArrayList<PaymentFixedDefinition>();
-    for (PaymentFixedDefinition payment : getPayments()) {
+  public AnnuityPaymentFixedDefinition trimBefore(final ZonedDateTime trimDate) {
+    final List<PaymentFixedDefinition> list = new ArrayList<>();
+    for (final PaymentFixedDefinition payment : getPayments()) {
       if (payment.getPaymentDate().isAfter(trimDate)) {
         list.add(payment);
       }
     }
-    return new AnnuityPaymentFixedDefinition(list.toArray(new PaymentFixedDefinition[0]));
+    return new AnnuityPaymentFixedDefinition(list.toArray(new PaymentFixedDefinition[list.size()]));
   }
 
   @Override
   public AnnuityPaymentFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final List<PaymentFixed> resultList = new ArrayList<PaymentFixed>();
+    final List<PaymentFixed> resultList = new ArrayList<>();
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
       if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
         resultList.add(getNthPayment(loopcoupon).toDerivative(date, yieldCurveNames));
       }
     }
-    return new AnnuityPaymentFixed(resultList.toArray(new PaymentFixed[0]));
+    return new AnnuityPaymentFixed(resultList.toArray(new PaymentFixed[resultList.size()]));
   }
 
 }

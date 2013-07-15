@@ -10,14 +10,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class defining a spread curve, i.e. a curve that is the result of a mathematical operation (see {@link CurveSpreadFunction}) on two or more curves. 
- * For example, a simple spread curve could be <i>C = A - B</i>. As this curve is in the same hierarchy as the other curves, a spread curve can be 
- * defined on another spread curve, e.g. <i>E = C * D = D * (A - B)</i>.  
+ * Class defining a spread curve, i.e. a curve that is the result of a mathematical operation (see {@link CurveSpreadFunction}) on two or more curves.
+ * For example, a simple spread curve could be <i>C = A - B</i>. As this curve is in the same hierarchy as the other curves, a spread curve can be
+ * defined on another spread curve, e.g. <i>E = C * D = D * (A - B)</i>.
  */
 public class SpreadDoublesCurve extends DoublesCurve {
 
@@ -53,9 +53,9 @@ public class SpreadDoublesCurve extends DoublesCurve {
    */
   public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final DoublesCurve... curves) {
     super();
-    Validate.notNull(curves, "curves");
-    Validate.isTrue(curves.length > 1, "curves");
-    Validate.notNull(spreadFunction, "spread operator");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves.length > 1, "curves");
+    ArgumentChecker.notNull(spreadFunction, "spread operator");
     _curves = curves;
     _spreadFunction = spreadFunction;
     _f = spreadFunction.evaluate(curves);
@@ -69,9 +69,9 @@ public class SpreadDoublesCurve extends DoublesCurve {
    */
   public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final String name, final DoublesCurve... curves) {
     super(name);
-    Validate.notNull(curves, "curves");
-    Validate.isTrue(curves.length > 1, "curves");
-    Validate.notNull(spreadFunction, "spread operator");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves.length > 1, "curves");
+    ArgumentChecker.notNull(spreadFunction, "spread operator");
     _curves = curves;
     _spreadFunction = spreadFunction;
     _f = spreadFunction.evaluate(curves);
@@ -83,7 +83,7 @@ public class SpreadDoublesCurve extends DoublesCurve {
    * @return The set of underlying names
    */
   public Set<String> getUnderlyingNames() {
-    final Set<String> result = new HashSet<String>();
+    final Set<String> result = new HashSet<>();
     for (final Curve<Double, Double> curve : _curves) {
       if (curve instanceof SpreadDoublesCurve) {
         result.addAll(((SpreadDoublesCurve) curve).getUnderlyingNames());
@@ -146,12 +146,12 @@ public class SpreadDoublesCurve extends DoublesCurve {
 
   @Override
   public Double getYValue(final Double x) {
-    Validate.notNull(x, "x");
+    ArgumentChecker.notNull(x, "x");
     return _f.evaluate(x);
   }
 
   @Override
-  public Double[] getYValueParameterSensitivity(Double x) {
+  public Double[] getYValueParameterSensitivity(final Double x) {
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for SpreadDoublesCurve");
   }
 

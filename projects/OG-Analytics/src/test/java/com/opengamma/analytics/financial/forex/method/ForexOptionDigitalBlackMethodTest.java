@@ -10,11 +10,10 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Map;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
@@ -89,9 +88,35 @@ public class ForexOptionDigitalBlackMethodTest {
   private static final ForexOptionDigital FOREX_DIGITAL_CALL_DOM = FOREX_DIGITAL_CALL_DOM_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final ForexOptionDigitalDefinition FOREX_DIGITAL_CALL_FOR_DEFINITION = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG, false);
   private static final ForexOptionDigital FOREX_DIGITAL_CALL_FOR = FOREX_DIGITAL_CALL_FOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  private static final double TOLERANCE_PRICE = 1.0E-2;
+  private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_DELTA = 1.0E+2; // 0.01 currency unit for 1 bp
   private static final double TOLERANCE_TIME = 1.0E-6;
+
+  // USD/KRW test
+  private static final Currency KRW = Currency.of("KRW");
+  private static final double STRIKE_USD_KRW_1 = 1000.0;
+  private static final ZonedDateTime REFERENCE_DATE_2 = DateUtils.getUTCDate(2013, 6, 20);
+  private static final ZonedDateTime OPTION_PAY_DATE_2 = DateUtils.getUTCDate(2013, 10, 3);
+  private static final ZonedDateTime OPTION_EXP_DATE_2 = DateUtils.getUTCDate(2013, 10, 1);
+  private static final double NOTIONAL_USD = 1230000;
+  private static final ForexDefinition FOREX_USD_KRW_DEFINITION = new ForexDefinition(USD, KRW, OPTION_PAY_DATE_2, NOTIONAL_USD, STRIKE_USD_KRW_1);
+  private static final ForexOptionDigitalDefinition FOREX_DIGITAL_PUT_FOR_USD_KRW_DEFINITION = new ForexOptionDigitalDefinition(FOREX_USD_KRW_DEFINITION, OPTION_EXP_DATE_2, false, IS_LONG, false);
+  private static final ForexOptionDigital FOREX_DIGITAL_USD_KRW_PUT_FOR = FOREX_DIGITAL_PUT_FOR_USD_KRW_DEFINITION.toDerivative(REFERENCE_DATE_2, new String[] {"Discounting USD", "Discounting USD" });
+  private static final double SPOT_USD_KRW = 1123.4;
+  private static final double VOL_USD_KRW = 0.1234;
+  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT_USD_KRW = TestsDataSetsForex.smileFlat(REFERENCE_DATE_2, VOL_USD_KRW);
+
+  @Test
+  /**
+   * Tests the present value versus an hard-coded value.
+   */
+  public void persentValueHardCoded() {
+    final YieldCurveBundle curves = TestsDataSetsForex.createCurvesForexXXXYYY(USD, KRW, SPOT_USD_KRW);
+    final SmileDeltaTermStructureDataBundle curvesVol = new SmileDeltaTermStructureDataBundle(curves, SMILE_TERM_FLAT_USD_KRW, Pair.of(USD, KRW));
+    final MultipleCurrencyAmount pvComputed = METHOD_BLACK_DIGITAL.presentValue(FOREX_DIGITAL_USD_KRW_PUT_FOR, curvesVol);
+    final double pvHardCoded = 43312.895;
+    assertEquals("Forex Digital option: present value", pvHardCoded, pvComputed.getAmount(USD), TOLERANCE_PV);
+  }
 
   @Test
   /**
@@ -115,7 +140,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final int omega = isCall ? 1 : -1;
     final double pvExpected = Math.abs(forexOption.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (isLong ? 1.0 : -1.0);
     final MultipleCurrencyAmount pvComputed = METHOD_BLACK_DIGITAL.presentValue(forexOption, SMILE_BUNDLE);
-    assertEquals("Forex Digital option: present value", pvExpected, pvComputed.getAmount(USD), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: present value", pvExpected, pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
@@ -142,7 +167,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final int omega = isCall ? 1 : -1;
     final double pvExpected = Math.abs(forexOption.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (isLong ? 1.0 : -1.0);
     final MultipleCurrencyAmount pvComputed = METHOD_BLACK_DIGITAL.presentValue(forexOption, SMILE_BUNDLE);
-    assertEquals("Forex Digital option: present value", pvExpected, pvComputed.getAmount(USD), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: present value", pvExpected, pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test(enabled = false)
@@ -196,7 +221,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final double omega = isCall ? -1.0 : 1.0;
     final double pvExpected = Math.abs(forexOption.getUnderlyingForex().getPaymentCurrency1().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (isLong ? 1.0 : -1.0);
     final MultipleCurrencyAmount pvComputed = METHOD_BLACK_DIGITAL.presentValue(forexOption, SMILE_BUNDLE);
-    assertEquals("Forex Digital option: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test(enabled = false)
@@ -243,8 +268,8 @@ public class ForexOptionDigitalBlackMethodTest {
     final ForexOptionDigital put = putDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount pvCall = METHOD_BLACK_DIGITAL.presentValue(call, SMILE_BUNDLE);
     final MultipleCurrencyAmount pvPut = METHOD_BLACK_DIGITAL.presentValue(put, SMILE_BUNDLE);
-    final Double pvCash = PVC.visit(put.getUnderlyingForex().getPaymentCurrency2(), CURVES);
-    assertEquals("Forex Digital option: present value", pvCall.getAmount(USD) + pvPut.getAmount(USD), Math.abs(pvCash), TOLERANCE_PRICE);
+    final Double pvCash = put.getUnderlyingForex().getPaymentCurrency2().accept(PVC, CURVES);
+    assertEquals("Forex Digital option: present value", pvCall.getAmount(USD) + pvPut.getAmount(USD), Math.abs(pvCash), TOLERANCE_PV);
   }
 
   @Test
@@ -262,7 +287,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final ForexOptionDigitalDefinition forexOptionDefinition = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final InstrumentDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount pvMethod = METHOD_BLACK_DIGITAL.presentValue(forexOption, SMILE_BUNDLE);
-    final MultipleCurrencyAmount pvCalculator = PVC_BLACK.visit(forexOption, SMILE_BUNDLE);
+    final MultipleCurrencyAmount pvCalculator = forexOption.accept(PVC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex Digital option: present value Method vs Calculator", pvMethod.getAmount(USD), pvCalculator.getAmount(USD), 1E-2);
   }
 
@@ -333,9 +358,9 @@ public class ForexOptionDigitalBlackMethodTest {
     final MultipleCurrencyAmount pv = METHOD_BLACK_DIGITAL.presentValue(FOREX_DIGITAL_CALL_FOR, smileBundle);
     final MultipleCurrencyAmount pvP = METHOD_BLACK_DIGITAL.presentValue(FOREX_DIGITAL_CALL_FOR, smileBundleP);
     assertEquals("Forex Digital option: call spread method - currency exposure - PL EUR", pvP.getAmount(EUR) - pv.getAmount(EUR), ce.getAmount(USD) * (1.0 / (SPOT + shift) - 1 / SPOT),
-        TOLERANCE_PRICE);
+        TOLERANCE_PV);
     assertEquals("Forex Digital option: call spread method - currency exposure - PL USD", pvP.getAmount(EUR) * (SPOT + shift) - pv.getAmount(EUR) * SPOT, ce.getAmount(EUR) * (SPOT + shift - SPOT),
-        TOLERANCE_PRICE);
+        TOLERANCE_PV);
   }
 
   @Test
@@ -366,9 +391,9 @@ public class ForexOptionDigitalBlackMethodTest {
     final ForexOptionDigital forexOptionPut = forexOptionDefinitionPut.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount currencyExposureCall = METHOD_BLACK_DIGITAL.currencyExposure(forexOptionCall, SMILE_BUNDLE);
     final MultipleCurrencyAmount currencyExposurePut = METHOD_BLACK_DIGITAL.currencyExposure(forexOptionPut, SMILE_BUNDLE);
-    final Double pvCash = PVC.visit(forexOptionPut.getUnderlyingForex().getPaymentCurrency2(), CURVES);
-    assertEquals("Forex Digital option: currency exposure put/call parity foreign", 0, currencyExposureCall.getAmount(EUR) + currencyExposurePut.getAmount(EUR), TOLERANCE_PRICE);
-    assertEquals("Forex Digital option: currency exposure put/call parity domestic", Math.abs(pvCash), currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD), TOLERANCE_PRICE);
+    final Double pvCash = forexOptionPut.getUnderlyingForex().getPaymentCurrency2().accept(PVC, CURVES);
+    assertEquals("Forex Digital option: currency exposure put/call parity foreign", 0, currencyExposureCall.getAmount(EUR) + currencyExposurePut.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("Forex Digital option: currency exposure put/call parity domestic", Math.abs(pvCash), currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
@@ -386,7 +411,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final ForexOptionDigitalDefinition forexOptionDefinition = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final InstrumentDerivative forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount ceMethod = METHOD_BLACK_DIGITAL.currencyExposure(forexOption, SMILE_BUNDLE);
-    final MultipleCurrencyAmount ceCalculator = CEC_BLACK.visit(forexOption, SMILE_BUNDLE);
+    final MultipleCurrencyAmount ceCalculator = forexOption.accept(CEC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex Digital option: currency exposure Method vs Calculator", ceMethod.getAmount(EUR), ceCalculator.getAmount(EUR), 1E-2);
     assertEquals("Forex Digital option: currency exposure Method vs Calculator", ceMethod.getAmount(USD), ceCalculator.getAmount(USD), 1E-2);
   }
@@ -478,7 +503,7 @@ public class ForexOptionDigitalBlackMethodTest {
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_BLACK_DIGITAL.presentValueCurveSensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
-    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = PVCSC_BLACK.visit(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = FOREX_DIGITAL_CALL_DOM.accept(PVCSC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
 
@@ -508,7 +533,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final double dMMinus = Math.log(forward / strike) / sigmaRootTMinus - 0.5 * sigmaRootTMinus;
     final double pvMinus = Math.abs(FOREX_DIGITAL_CALL_DOM.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dMMinus)
         * (FOREX_DIGITAL_CALL_DOM.isLong() ? 1.0 : -1.0);
-    assertEquals("Forex Digital option: vega", (pvPlus - pvMinus) / (2 * shift), sensi.getVega().getMap().get(point), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: vega", (pvPlus - pvMinus) / (2 * shift), sensi.getVega().getMap().get(point), TOLERANCE_PV);
     final ForexOptionDigitalDefinition optionShortDefinition = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, !IS_LONG);
     final ForexOptionDigital optionShort = optionShortDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final PresentValueForexBlackVolatilitySensitivity sensiShort = METHOD_BLACK_DIGITAL.presentValueBlackVolatilitySensitivity(optionShort, SMILE_BUNDLE);
@@ -517,7 +542,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final ForexOptionDigitalDefinition optionShortPutDefinition = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, !IS_CALL, IS_LONG);
     final ForexOptionDigital optionShortPut = optionShortPutDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final PresentValueForexBlackVolatilitySensitivity sensiShortPut = METHOD_BLACK_DIGITAL.presentValueBlackVolatilitySensitivity(optionShortPut, SMILE_BUNDLE);
-    assertEquals("Forex Digital option: vega short", sensiShortPut.getVega().getMap().get(point) + sensi.getVega().getMap().get(point), 0.0, TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: vega short", sensiShortPut.getVega().getMap().get(point) + sensi.getVega().getMap().get(point), 0.0, TOLERANCE_PV);
   }
 
   @Test
@@ -526,7 +551,7 @@ public class ForexOptionDigitalBlackMethodTest {
    */
   public void volatilitySensitivityMethodVsCalculator() {
     final PresentValueForexBlackVolatilitySensitivity pvvsMethod = METHOD_BLACK_DIGITAL.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
-    final PresentValueForexBlackVolatilitySensitivity pvvsCalculator = PVVSC_BLACK.visit(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity pvvsCalculator = FOREX_DIGITAL_CALL_DOM.accept(PVVSC_BLACK, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvvsMethod, pvvsCalculator);
   }
 

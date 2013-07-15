@@ -11,10 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
@@ -31,11 +30,12 @@ import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link MasterRegionSource}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MasterRegionSourceTest {
 
   private static final ObjectId OID = ObjectId.of("A", "B");
@@ -178,7 +178,7 @@ public class MasterRegionSourceTest {
     region.setName("United Kingdom");
     region.setCurrency(Currency.GBP);
     region.setCountry(Country.GB);
-    region.setTimeZone(TimeZone.of("Europe/London"));
+    region.setTimeZone(ZoneId.of("Europe/London"));
     return region;
   }
 

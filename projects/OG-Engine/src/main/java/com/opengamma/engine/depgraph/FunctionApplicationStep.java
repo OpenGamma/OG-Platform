@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,9 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
+import com.opengamma.engine.depgraph.ResolvedValueProducer.Chain;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -30,16 +31,16 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
-/* package */class FunctionApplicationStep extends NextFunctionStep {
+/* package */class FunctionApplicationStep extends FunctionIterationStep {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationStep.class);
 
   private final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> _resolved;
   private final ValueSpecification _resolvedOutput;
 
-  public FunctionApplicationStep(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions,
+  public FunctionApplicationStep(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base,
       final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
-    super(task, functions);
+    super(task, base);
     _resolved = resolved;
     _resolvedOutput = resolvedOutput;
   }
@@ -64,21 +65,23 @@ import com.opengamma.util.tuple.Triple;
     return _resolvedOutput;
   }
 
-  private static class DelegateState extends NextFunctionStep implements ResolvedValueCallback {
+  @Override
+  protected ComputationTargetSpecification getTargetSpecification(final GraphBuildingContext context) {
+    return getResolvedOutput().getTargetSpecification();
+  }
+
+  private static class DelegateState extends FunctionIterationStep implements ResolvedValueCallback {
 
     private ResolutionPump _pump;
 
-    public DelegateState(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions) {
-      super(task, functions);
+    public DelegateState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base) {
+      super(task, base);
     }
 
     @Override
     public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
       s_logger.debug("Failed {} at {}", value, this);
       storeFailure(failure);
-      synchronized (this) {
-        _pump = null;
-      }
       context.run(getTask());
     }
 
@@ -91,16 +94,33 @@ import com.opengamma.util.tuple.Triple;
         }
         if (!pushResult(context, value, false)) {
           synchronized (this) {
-            assert _pump == pump;
+            if (_pump != pump) {
+              // A rogue pump occurred
+              return;
+            }
             _pump = null;
           }
           context.pump(pump);
         }
       } else {
-        if (!pushResult(context, value, true)) {
+        // The last result from the producer, but we can always reschedule ourselves
+        synchronized (this) {
+          _pump = ResolutionPump.Dummy.INSTANCE;
+        }
+        if (!pushResult(context, value, false)) {
+          synchronized (this) {
+            // Clear the pump so a rogue call can't also cause us to reschedule
+            _pump = null;
+          }
           context.failed(this, valueRequirement, null);
         }
       }
+    }
+
+    @Override
+    public void recursionDetected() {
+      s_logger.debug("Recursion detected in {}", this);
+      getTask().setRecursionDetected();
     }
 
     @Override
@@ -111,16 +131,20 @@ import com.opengamma.util.tuple.Triple;
         _pump = null;
       }
       if (pump == null) {
-        // Either pump called twice for a resolve, called before the first resolve, or after failed
-        throw new IllegalStateException();
-      } else {
+        // Rogue pump -- see PumpingState.finished for an explanation
+        return;
+      }
+      if (pump != ResolutionPump.Dummy.INSTANCE) {
         s_logger.debug("Pumping underlying delegate");
         context.pump(pump);
+      } else {
+        // Reschedule ourself
+        context.run(getTask());
       }
     }
 
     @Override
-    protected void onDiscard(final GraphBuildingContext context) {
+    protected void discard(final GraphBuildingContext context) {
       final ResolutionPump pump;
       synchronized (this) {
         pump = _pump;
@@ -132,33 +156,28 @@ import com.opengamma.util.tuple.Triple;
     }
 
     @Override
-    protected synchronized boolean isActive() {
-      // Only active if pump has been called
-      return _pump == null;
-    }
-
-    @Override
     public String toString() {
       return "Delegate" + getObjectId();
     }
 
   }
 
-  protected static final class PumpingState extends NextFunctionStep {
+  protected static final class PumpingState extends FunctionIterationStep {
 
     private final ParameterizedFunction _function;
     private final ValueSpecification _valueSpecification;
     private final Collection<ValueSpecification> _outputs;
+    // The worker reference is not ref-counted
     private final FunctionApplicationWorker _worker;
 
-    private PumpingState(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions,
-        final ValueSpecification valueSpecification, final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
-      super(task, functions);
+    private PumpingState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base, final ValueSpecification valueSpecification,
+        final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
+      super(task, base);
       assert outputs.contains(valueSpecification);
       _valueSpecification = valueSpecification;
       _outputs = outputs;
       _function = function;
-      worker.addRef();
+      // _worker is not ref-counted
       _worker = worker;
     }
 
@@ -178,6 +197,11 @@ import com.opengamma.util.tuple.Triple;
       return _worker;
     }
 
+    @Override
+    protected ComputationTargetSpecification getTargetSpecification(final GraphBuildingContext context) {
+      return getValueSpecification().getTargetSpecification();
+    }
+
     protected ResolutionFailure functionApplication(final GraphBuildingContext context) {
       return context.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
     }
@@ -192,8 +216,11 @@ import com.opengamma.util.tuple.Triple;
       ValueSpecification resolvedOutput = getValueSpecification();
       Set<ValueSpecification> newOutputValues = null;
       try {
+        //DebugUtils.getResults2_enter();
         newOutputValues = getFunction().getFunction().getResults(context.getCompilationContext(), getComputationTarget(context), inputs);
+        //DebugUtils.getResults2_leave();
       } catch (Throwable t) {
+        //DebugUtils.getResults2_leave();
         s_logger.warn("Exception thrown by getResults", t);
         context.exception(t);
       }
@@ -208,20 +235,11 @@ import com.opengamma.util.tuple.Triple;
       }
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
       final Set<ValueSpecification> resolvedOutputValues = Sets.newHashSetWithExpectedSize(newOutputValues.size());
-      resolvedOutput = null;
-      for (ValueSpecification outputValue : newOutputValues) {
-        if ((resolvedOutput == null) && getValueRequirement().isSatisfiedBy(outputValue)) {
-          resolvedOutput = outputValue.compose(getValueRequirement());
-          if (resolvedOutput != outputValue) {
-            resolvedOutput = MemoryUtils.instance(resolvedOutput);
-          }
-          s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
-          resolvedOutputValues.add(resolvedOutput);
-        } else {
-          resolvedOutputValues.add(MemoryUtils.instance(outputValue));
-        }
-      }
+      resolvedOutput = getIterationBase().getResolvedOutputs(context, newOutputValues, resolvedOutputValues);
       if (resolvedOutput == null) {
+        if (s_logger.isDebugEnabled() && getIterationBase() instanceof TargetDigestStep) {
+          s_logger.debug("Digest {} failed for {}", getIterationBase().getDesiredValue(), getValueRequirement());
+        }
         s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
         getWorker().storeFailure(functionApplication(context).requirements(inputs).lateResolutionFailure());
         return false;
@@ -266,9 +284,10 @@ import com.opengamma.util.tuple.Triple;
           }
         }
       };
-      setTaskState(delegate);
-      aggregate.addCallback(context, delegate);
-      aggregate.start(context);
+      if (setTaskState(delegate)) {
+        aggregate.addCallback(context, delegate);
+        aggregate.start(context);
+      }
       aggregate.release(context);
       return true;
     }
@@ -296,8 +315,9 @@ import com.opengamma.util.tuple.Triple;
             getWorker().pumpImpl(context);
           }
         };
-        setTaskState(delegate);
-        producer.addCallback(context, delegate);
+        if (setTaskState(delegate)) {
+          producer.addCallback(context, delegate);
+        }
         producer.release(context);
         return true;
       }
@@ -338,11 +358,21 @@ import com.opengamma.util.tuple.Triple;
             context.pump(pump);
           }
         } else {
-          getWorker().pushResult(context, resolvedValue, true);
-          if (!pushResult(context, resolvedValue, true)) {
+          // This is the last value from the producer, but we have a state to go to afterwards
+          synchronized (this) {
+            _pump = ResolutionPump.Dummy.INSTANCE;
+          }
+          getWorker().pushResult(context, resolvedValue, false);
+          if (!pushResult(context, resolvedValue, false)) {
             context.failed(this, valueRequirement, null);
           }
         }
+      }
+
+      @Override
+      public final void recursionDetected() {
+        s_logger.debug("Recursion detected in {}", this);
+        getTask().setRecursionDetected();
       }
 
       @Override
@@ -352,20 +382,29 @@ import com.opengamma.util.tuple.Triple;
           pump = _pump;
           _pump = null;
         }
-        if (pump != null) {
+        if (pump == null) {
+          // Rogue pump -- see PumpingState.finished for an explanation
+          return;
+        }
+        if (pump != ResolutionPump.Dummy.INSTANCE) {
           s_logger.debug("Pumping underlying delegate");
           context.pump(pump);
+        } else {
+          // Go back to the original state
+          if (setTaskState(PumpingState.this)) {
+            // Do the required action
+            failedImpl(context);
+          }
         }
       }
 
       @Override
-      protected final synchronized boolean isActive() {
-        // Only active if a resolve has been received, and there is no failure (i.e. it is waiting on the task to pump it)
-        return _pump == null;
+      public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+        return PumpingState.this.cancelLoopMembers(context, visited);
       }
 
       @Override
-      protected final void onDiscard(final GraphBuildingContext context) {
+      protected final void discard(final GraphBuildingContext context) {
         final ResolutionPump pump;
         synchronized (this) {
           pump = _pump;
@@ -374,7 +413,7 @@ import com.opengamma.util.tuple.Triple;
         if (pump != null) {
           context.close(pump);
         }
-        getWorker().abort(context);
+        getWorker().discard(context);
       }
 
       @Override
@@ -385,16 +424,21 @@ import com.opengamma.util.tuple.Triple;
     }
 
     @Override
-    protected void onDiscard(final GraphBuildingContext context) {
-      getWorker().abort(context);
+    protected void discard(final GraphBuildingContext context) {
+      getWorker().discard(context);
     }
 
     private boolean getAdditionalRequirementsAndPushResults(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker,
         final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
+      // the substituteWorker is not ref-counted from here
+      final ComputationTarget target = getComputationTarget(context);
       Set<ValueRequirement> additionalRequirements = null;
       try {
-        additionalRequirements = getFunction().getFunction().getAdditionalRequirements(context.getCompilationContext(), getComputationTarget(context), inputs.keySet(), resolvedOutputs);
+        //DebugUtils.getAdditionalRequirements_enter();
+        additionalRequirements = getFunction().getFunction().getAdditionalRequirements(context.getCompilationContext(), target, inputs.keySet(), resolvedOutputs);
+        //DebugUtils.getAdditionalRequirements_leave();
       } catch (Throwable t) {
+        //DebugUtils.getAdditionalRequirements_leave();
         s_logger.warn("Exception thrown by getAdditionalRequirements", t);
         context.exception(t);
       }
@@ -449,8 +493,13 @@ import com.opengamma.util.tuple.Triple;
         }
 
         @Override
-        public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
-          int result = getWorker().cancelLoopMembers(context, visited);
+        public void recursionDetected() {
+          // No-op
+        }
+
+        @Override
+        public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+          int result = PumpingState.this.cancelLoopMembers(context, visited);
           if (substituteWorker != null) {
             result += substituteWorker.cancelLoopMembers(context, visited);
           }
@@ -463,12 +512,29 @@ import com.opengamma.util.tuple.Triple;
         }
 
       };
-      final Set<FunctionExclusionGroup> functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
+      String functionExclusionValueName = getValueRequirement().getValueName();
+      Collection<FunctionExclusionGroup> functionExclusion = null;
       for (ValueRequirement inputRequirement : additionalRequirements) {
-        final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+        final ResolvedValueProducer inputProducer;
+        if ((inputRequirement.getValueName() == functionExclusionValueName) && inputRequirement.getTargetReference().equals(target.toSpecification())) {
+          if (functionExclusion == null) {
+            functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
+            if (functionExclusion == null) {
+              functionExclusionValueName = null;
+            }
+          }
+          inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+        } else {
+          inputProducer = context.resolveRequirement(inputRequirement, getTask(), null);
+        }
         lock.incrementAndGet();
-        inputProducer.addCallback(context, callback);
-        inputProducer.release(context);
+        if (inputProducer != null) {
+          inputProducer.addCallback(context, callback);
+          inputProducer.release(context);
+        } else {
+          getTask().setRecursionDetected();
+          callback.failed(context, inputRequirement, context.recursiveRequirement(inputRequirement));
+        }
       }
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
@@ -480,6 +546,7 @@ import com.opengamma.util.tuple.Triple;
 
     private boolean pushResult(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker, final Map<ValueSpecification, ValueRequirement> inputs,
         final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
+      // the substituteWorker is not ref-counted from here
       if (context.getCompilationContext().getGraphBuildingBlacklist().isBlacklisted(getFunction(), resolvedOutput.getTargetSpecification(), inputs.keySet(), resolvedOutputs)) {
         s_logger.info("Result {} for {} suppressed by blacklist", resolvedOutput, getValueRequirement());
         final ResolutionFailure failure = functionApplication(context).requirements(inputs).suppressed();
@@ -492,11 +559,13 @@ import com.opengamma.util.tuple.Triple;
         return false;
       }
       final ResolvedValue result = createResult(resolvedOutput, getFunction(), inputs.keySet(), resolvedOutputs);
-      s_logger.info("Result {} for {}", result, getValueRequirement());
+      // TODO: Control this with a flag? 
+      getIterationBase().reportResult();
       context.declareProduction(result);
       if (substituteWorker != null) {
         if (!substituteWorker.pushResult(context, result, true)) {
-          throw new IllegalStateException(result + " rejected by substitute worker");
+          // The substitute was created specifically for this result; it won't have already had a value pushed and the value must satisfy the requirement
+          throw new IllegalStateException();
         }
         context.discardTaskProducing(resolvedOutput, getTask());
       } else {
@@ -505,7 +574,7 @@ import com.opengamma.util.tuple.Triple;
       return pushResult(context, result, false);
     }
 
-    public void finished(final GraphBuildingContext context) {
+    public void finished(final GraphBuildingContext context, final int refCounts) {
       if (s_logger.isInfoEnabled()) {
         if (getWorker().getResults().length == 0) {
           s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
@@ -514,8 +583,14 @@ import com.opengamma.util.tuple.Triple;
         }
       }
       context.discardTaskProducing(getValueSpecification(), getTask());
-      // Become runnable again; the next function will then be considered
+      // Release any ref-counts held by the worker on the task
+      for (int i = 0; i < refCounts; i++) {
+        getTask().release(context);
+      }
+      // Become runnable again; the next function will then be considered.
       context.run(getTask());
+      // Note: We're effectively pumped ourselves, a consumer of the ResolveTask may also pump us and so we'll see a rogue call to
+      // pump here, or to one of the next states that this task adopts. The call to pump from there may even already be scheduled.
     }
 
     @Override
@@ -525,8 +600,8 @@ import com.opengamma.util.tuple.Triple;
     }
 
     @Override
-    protected boolean isActive() {
-      return getWorker().isActive();
+    public int cancelLoopMembers(final GraphBuildingContext context, final Map<Chain, Chain.LoopState> visited) {
+      return getWorker().cancelLoopMembers(context, visited);
     }
 
     @Override
@@ -545,10 +620,14 @@ import com.opengamma.util.tuple.Triple;
       // Populate the worker and position this task in the chain for pumping alternative resolutions to dependents
       s_logger.debug("Registered worker {} for {} production", worker, getResolvedOutput());
       final CompiledFunctionDefinition functionDefinition = getFunction().getFunction();
+      final ComputationTarget target = getComputationTarget(context);
       Set<ValueRequirement> inputRequirements = null;
       try {
-        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(context), getValueRequirement());
+        //DebugUtils.getRequirements_enter();
+        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), target, getIterationBase().getDesiredValue());
+        //DebugUtils.getRequirements_leave();
       } catch (Throwable t) {
+        //DebugUtils.getRequirements_leave();
         s_logger.warn("Exception thrown by getRequirements", t);
         context.exception(t);
       }
@@ -559,8 +638,8 @@ import com.opengamma.util.tuple.Triple;
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         worker.release(context);
+        setRunnableTaskState(getIterationBase(), context);
         return true;
       }
       final Collection<ValueSpecification> resolvedOutputValues;
@@ -578,38 +657,64 @@ import com.opengamma.util.tuple.Triple;
           }
         }
       }
-      final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
-      setTaskState(state);
-      if (inputRequirements.isEmpty()) {
-        s_logger.debug("Function {} requires no inputs", functionDefinition);
-        worker.setPumpingState(state, 0);
-        if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap(), true)) {
-          context.discardTaskProducing(getResolvedOutput(), getTask());
-          setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
-          worker.finished(context);
+      final PumpingState state = new PumpingState(getTask(), getIterationBase(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
+      if (setTaskState(state)) {
+        if (inputRequirements.isEmpty()) {
+          s_logger.debug("Function {} requires no inputs", functionDefinition);
+          worker.setPumpingState(state, 0);
+          if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap(), true)) {
+            context.discardTaskProducing(getResolvedOutput(), getTask());
+            state.setRunnableTaskState(getIterationBase(), context);
+            worker.finished(context);
+          }
+        } else {
+          s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
+          worker.setPumpingState(state, inputRequirements.size());
+
+          String functionExclusionValueName = getValueRequirement().getValueName();
+          Collection<FunctionExclusionGroup> functionExclusion = null;
+          for (ValueRequirement inputRequirement : inputRequirements) {
+            final ResolvedValueProducer inputProducer;
+            if ((inputRequirement.getValueName() == functionExclusionValueName) && inputRequirement.getTargetReference().equals(target.toSpecification())) {
+              if (functionExclusion == null) {
+                functionExclusion = getFunctionExclusion(context, functionDefinition);
+                if (functionExclusion == null) {
+                  functionExclusionValueName = null;
+                }
+              }
+              inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
+            } else {
+              inputProducer = context.resolveRequirement(inputRequirement, getTask(), null);
+            }
+            if (inputProducer != null) {
+              worker.addInput(context, inputProducer);
+              inputProducer.release(context);
+            } else {
+              worker.setRecursionDetected();
+              getTask().setRecursionDetected();
+            }
+          }
+          worker.start(context);
         }
-      } else {
-        s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
-        worker.setPumpingState(state, inputRequirements.size());
-        final Set<FunctionExclusionGroup> functionExclusion = getFunctionExclusion(context, functionDefinition);
-        for (ValueRequirement inputRequirement : inputRequirements) {
-          final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
-          worker.addInput(context, inputProducer);
-          inputProducer.release(context);
-        }
-        worker.start(context);
       }
       worker.release(context);
     } else {
       worker.release(context);
       // Another task is working on this, so delegate to it
       s_logger.debug("Delegating production of {} to worker {}", getResolvedOutput(), producer);
-      final DelegateState state = new DelegateState(getTask(), getFunctions());
-      setTaskState(state);
-      producer.addCallback(context, state);
+      final DelegateState state = new DelegateState(getTask(), getIterationBase());
+      if (setTaskState(state)) {
+        producer.addCallback(context, state);
+      }
       producer.release(context);
     }
     return true;
+  }
+
+  @Override
+  protected void pump(final GraphBuildingContext context) {
+    // No-op; happens if a worker "finishes" a function application PumpingState and it progresses to the next natural
+    // state in advance of the pump from the abstract value producer. See PumpingState.finished for an explanation
   }
 
   @Override

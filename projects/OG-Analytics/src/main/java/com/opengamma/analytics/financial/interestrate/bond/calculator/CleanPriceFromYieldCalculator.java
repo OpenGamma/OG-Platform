@@ -7,14 +7,15 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
- * 
+ * Bond clean price from the conventional yield-to-maturity function.
  */
-public final class CleanPriceFromYieldCalculator extends AbstractInstrumentDerivativeVisitor<Double, Double> {
+public final class CleanPriceFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+
   private static final CleanPriceFromYieldCalculator INSTANCE = new CleanPriceFromYieldCalculator();
 
   public static CleanPriceFromYieldCalculator getInstance() {

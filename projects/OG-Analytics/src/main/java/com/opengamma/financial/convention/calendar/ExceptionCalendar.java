@@ -8,7 +8,7 @@ package com.opengamma.financial.convention.calendar;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * Simple implementation of a calendar using sets of dates for exceptions.

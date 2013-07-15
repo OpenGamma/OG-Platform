@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -44,7 +43,7 @@ public class InterestRateInstrumentDefaultCurveNameFunctionDeprecated extends De
   private final String[] _applicableCurrencyNames;
 
   public InterestRateInstrumentDefaultCurveNameFunctionDeprecated(final String curveCalculationMethod, final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE, true);
     ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(forwardCurve, "forward curve name");
     ArgumentChecker.notNull(fundingCurve, "funding curve name");
@@ -58,9 +57,6 @@ public class InterestRateInstrumentDefaultCurveNameFunctionDeprecated extends De
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     if (security instanceof SwapSecurity) {
       final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
@@ -74,12 +70,10 @@ public class InterestRateInstrumentDefaultCurveNameFunctionDeprecated extends De
         }
       }
     }
-    if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
-      final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
-      for (final String applicableCurrencyName : _applicableCurrencyNames) {
-        if (currencyName.equals(applicableCurrencyName)) {
-          return true;
-        }
+    final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
+    for (final String applicableCurrencyName : _applicableCurrencyNames) {
+      if (currencyName.equals(applicableCurrencyName)) {
+        return true;
       }
     }
     return false;

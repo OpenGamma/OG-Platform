@@ -5,16 +5,14 @@
  */
 package com.opengamma.util.map;
 
-import java.util.AbstractSet;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicReference;
 
-import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.MapMaker;
 import com.opengamma.util.tuple.Pair;
 
@@ -27,74 +25,203 @@ import com.opengamma.util.tuple.Pair;
  */
 public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
 
-  // TODO: need a better implementation of this
+  /**
+   * Strategy pattern for dealing with the K1 key.
+   */
+  public abstract static class KeyStrategy {
 
-  private static final class Key {
+    protected abstract <K1, K2, V> ConcurrentMap<K1, ConcurrentMap<K2, V>> createBaseMap();
 
-    private Object _key1;
-    private Object _key2;
-    private Key _next;
+    protected abstract <K> K getKey(final Object reference);
 
-    private Key(final Object key1, final Object key2) {
-      _key1 = key1;
-      _key2 = key2;
-    }
-
-    @Override
-    public int hashCode() {
-      return _key1.hashCode() ^ _key2.hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-      final Key k = (Key) o;
-      return _key1.equals(k._key1) && _key2.equals(k._key2);
-    }
+    protected abstract <K> Object createReference(final K key);
 
   }
 
-  private final ConcurrentMap<Key, V> _data = mapMaker().makeMap();
-  private final AtomicReference<Key> _keys = new AtomicReference<Key>();
+  /**
+   * Use to hold key1 with strong references.
+   */
+  public static final KeyStrategy STRONG_KEYS = new KeyStrategy() {
 
-  protected MapMaker mapMaker() {
-    return new MapMaker();
+    @Override
+    protected <K1, K2, V> ConcurrentMap<K1, ConcurrentMap<K2, V>> createBaseMap() {
+      return new ConcurrentHashMap<K1, ConcurrentMap<K2, V>>();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <K> K getKey(final Object reference) {
+      return (K) reference;
+    }
+
+    @Override
+    protected <K> Object createReference(final K key) {
+      return key;
+    }
+
+  };
+
+  /**
+   * Use to hold key1 with weak references.
+   */
+  public static final KeyStrategy WEAK_KEYS = new KeyStrategy() {
+
+    @Override
+    protected <K1, K2, V> ConcurrentMap<K1, ConcurrentMap<K2, V>> createBaseMap() {
+      return new MapMaker().weakKeys().makeMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <K> K getKey(final Object reference) {
+      return ((Reference<K>) reference).get();
+    }
+
+    @Override
+    protected <K> Object createReference(final K key) {
+      return new WeakReference<K>(key);
+    }
+
+  };
+
+  private final KeyStrategy _key1Strategy;
+  private final ConcurrentMap<K1, ConcurrentMap<K2, V>> _values;
+
+  public HashMap2(final KeyStrategy key1Strategy) {
+    _key1Strategy = key1Strategy;
+    _values = key1Strategy.createBaseMap();
   }
 
-  private Key borrowKey(final K1 key1, final K2 key2) {
-    Key key = _keys.get();
-    if (key == null) {
-      return new Key(key1, key2);
+  protected ConcurrentMap<K2, V> newSubMap(final K1 key1) {
+    return new MapMaker().makeMap();
+  }
+
+  protected Object createKey1Reference(final K1 key1) {
+    return _key1Strategy.createReference(key1);
+  }
+
+  protected K1 getKey1(final Object opaqueReference) {
+    return _key1Strategy.getKey(opaqueReference);
+  }
+
+  protected ConcurrentMap<K2, V> createSubMap(final K1 key1, final K2 key2, final V value) {
+    final ConcurrentMap<K2, V> map = newSubMap(key1);
+    map.put(key2, value);
+    return map;
+  }
+
+  protected void housekeep() {
+  }
+
+  // Map2
+
+  @Override
+  public V get(final K1 key1, final K2 key2) {
+    final ConcurrentMap<K2, V> values = _values.get(key1);
+    if (values != null) {
+      return values.get(key2);
     } else {
-      do {
-        synchronized (key) {
-          if (_keys.compareAndSet(key, key._next)) {
-            key._key1 = key1;
-            key._key2 = key2;
-            return key;
-          }
-        }
-        key = _keys.get();
-      } while (key != null);
-      return new Key(key1, key2);
-    }
-  }
-
-  private void returnKey(final Key key) {
-    synchronized (key) {
-      key._next = _keys.get();
-      while (!_keys.compareAndSet(key._next, key)) {
-        key._next = _keys.get();
-      }
+      return null;
     }
   }
 
   @Override
-  public V get(final K1 key1, final K2 key2) {
-    final Key key = borrowKey(key1, key2);
-    final V result = _data.get(key);
-    returnKey(key);
+  public V put(final K1 key1, final K2 key2, final V value) {
+    V result;
+    do {
+      ConcurrentMap<K2, V> values = _values.get(key1);
+      if (values == null) {
+        values = createSubMap(key1, key2, value);
+        final ConcurrentMap<K2, V> existing = _values.putIfAbsent(key1, values);
+        if (existing == null) {
+          result = null;
+          break;
+        }
+        values = existing;
+      }
+      synchronized (values) {
+        if (!values.isEmpty()) {
+          result = values.put(key2, value);
+          break;
+        }
+      }
+    } while (true);
+    housekeep();
     return result;
   }
+
+  @Override
+  public boolean containsKey(final K1 key1, final K2 key2) {
+    final ConcurrentMap<K2, V> values = _values.get(key1);
+    if (values != null) {
+      return values.containsKey(key2);
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public V remove(final K1 key1, final K2 key2) {
+    housekeep();
+    do {
+      final ConcurrentMap<K2, V> values = _values.get(key1);
+      if (values == null) {
+        return null;
+      }
+      synchronized (values) {
+        if (!values.isEmpty()) {
+          final V result = values.remove(key2);
+          if (values.isEmpty()) {
+            _values.remove(key1, values);
+          }
+          return result;
+        }
+      }
+    } while (true);
+  }
+
+  protected void removeAllKey1NoHousekeep(final K1 key1) {
+    _values.remove(key1);
+  }
+
+  @Override
+  public void removeAllKey1(final K1 key1) {
+    removeAllKey1NoHousekeep(key1);
+    housekeep();
+  }
+
+  @Override
+  public void retainAllKey1(final Collection<K1> key1) {
+    _values.keySet().retainAll(key1);
+    housekeep();
+  }
+
+  @Override
+  public V putIfAbsent(final K1 key1, final K2 key2, final V value) {
+    V result;
+    do {
+      ConcurrentMap<K2, V> values = _values.get(key1);
+      if (values == null) {
+        values = createSubMap(key1, key2, value);
+        final ConcurrentMap<K2, V> existing = _values.putIfAbsent(key1, values);
+        if (existing == null) {
+          result = null;
+          break;
+        }
+        values = existing;
+      }
+      synchronized (values) {
+        if (!values.isEmpty()) {
+          result = values.putIfAbsent(key2, value);
+          break;
+        }
+      }
+    } while (true);
+    housekeep();
+    return result;
+  }
+
+  // Map
 
   @SuppressWarnings("unchecked")
   @Override
@@ -107,31 +234,24 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
   }
 
   @Override
-  public V put(final K1 key1, final K2 key2, final V value) {
-    return _data.put(new Key(key1, key2), value);
-  }
-
-  @Override
   public V put(final Pair<K1, K2> key, final V value) {
-    return put(key.getFirst(), key.getSecond(), value);
+    final V result = put(key.getFirst(), key.getSecond(), value);
+    housekeep();
+    return result;
   }
 
   @Override
   public int size() {
-    return _data.size();
+    int size = 0;
+    for (final ConcurrentMap<K2, V> map : _values.values()) {
+      size += map.size();
+    }
+    return size;
   }
 
   @Override
   public boolean isEmpty() {
-    return _data.isEmpty();
-  }
-
-  @Override
-  public boolean containsKey(final K1 key1, final K2 key2) {
-    final Key key = borrowKey(key1, key2);
-    final boolean result = _data.containsKey(key);
-    returnKey(key);
-    return result;
+    return _values.isEmpty();
   }
 
   @SuppressWarnings("unchecked")
@@ -146,22 +266,16 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
 
   @Override
   public boolean containsValue(final Object value) {
-    return _data.containsValue(value);
-  }
-
-  @Override
-  public V remove(final K1 key1, final K2 key2) {
-    final Key key = borrowKey(key1, key2);
-    final V result = _data.remove(key);
-    returnKey(key);
-    return result;
+    throw new UnsupportedOperationException();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public V remove(final Object key) {
     if (key instanceof Pair) {
-      return remove(((Pair<K1, K2>) key).getFirst(), ((Pair<K1, K2>) key).getSecond());
+      final V result = remove(((Pair<K1, K2>) key).getFirst(), ((Pair<K1, K2>) key).getSecond());
+      housekeep();
+      return result;
     } else {
       return null;
     }
@@ -169,162 +283,28 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
 
   @Override
   public void putAll(final Map<? extends Pair<K1, K2>, ? extends V> m) {
-    for (Map.Entry<? extends Pair<K1, K2>, ? extends V> entry : m.entrySet()) {
-      put(entry.getKey(), entry.getValue());
-    }
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void clear() {
-    _data.clear();
+    _values.clear();
+    housekeep();
   }
 
   @Override
   public Set<Pair<K1, K2>> keySet() {
-    return new AbstractSet<Pair<K1, K2>>() {
-      private final Iterator<Key> _it = _data.keySet().iterator();
-      @Override
-      public Iterator<Pair<K1, K2>> iterator() {
-        return new AbstractIterator<Pair<K1, K2>>() {
-          @SuppressWarnings("unchecked")
-          @Override
-          protected Pair<K1, K2> computeNext() {
-            if (_it.hasNext()) {
-              Key key = _it.next();
-              return Pair.of((K1) key._key1, (K2) key._key2);
-            }
-            return endOfData();
-          }
-        };
-      }
-      @Override
-      public int size() {
-        return _data.size();
-      }
-    };
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Collection<V> values() {
-    return _data.values();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public Set<Map.Entry<Pair<K1, K2>, V>> entrySet() {
-    return new Set<Map.Entry<Pair<K1, K2>, V>>() {
-
-      @Override
-      public int size() {
-        return _data.size();
-      }
-
-      @Override
-      public boolean isEmpty() {
-        return _data.isEmpty();
-      }
-
-      @Override
-      public boolean contains(Object o) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public Iterator<java.util.Map.Entry<Pair<K1, K2>, V>> iterator() {
-        final Iterator<Map.Entry<Key, V>> itr = _data.entrySet().iterator();
-        return new Iterator<Map.Entry<Pair<K1, K2>, V>>() {
-
-          @Override
-          public boolean hasNext() {
-            return itr.hasNext();
-          }
-
-          @Override
-          public java.util.Map.Entry<Pair<K1, K2>, V> next() {
-            final Map.Entry<Key, V> entry = itr.next();
-            return new Map.Entry<Pair<K1, K2>, V>() {
-
-              @SuppressWarnings("unchecked")
-              @Override
-              public Pair<K1, K2> getKey() {
-                return (Pair<K1, K2>) Pair.of(entry.getKey()._key1, entry.getKey()._key2);
-              }
-
-              @Override
-              public V getValue() {
-                return entry.getValue();
-              }
-
-              @Override
-              public V setValue(final V value) {
-                throw new UnsupportedOperationException();
-              }
-
-            };
-          }
-
-          @Override
-          public void remove() {
-          }
-
-        };
-      }
-
-      @Override
-      public Object[] toArray() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public <T> T[] toArray(T[] a) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean add(java.util.Map.Entry<Pair<K1, K2>, V> e) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean remove(Object o) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean containsAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean addAll(Collection<? extends java.util.Map.Entry<Pair<K1, K2>, V>> c) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean retainAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean removeAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public void clear() {
-        _data.clear();
-      }
-
-    };
-  }
-
-  @Override
-  public V putIfAbsent(final K1 key1, final K2 key2, final V value) {
-    final Key key = borrowKey(key1, key2);
-    final V result = _data.putIfAbsent(key, value);
-    if (result != null) {
-      returnKey(key);
-    }
-    return result;
+    throw new UnsupportedOperationException();
   }
 
 }

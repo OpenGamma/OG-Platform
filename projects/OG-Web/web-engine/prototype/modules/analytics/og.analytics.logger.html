@@ -1,0 +1,45 @@
+<div class="OG-logger">
+  <div class="og-message">New log data received (<span class="og-link">update</span>)</div>
+  <table>
+    {{#each obj}}
+    <tbody>
+      <tr class="og-head">
+        <td>Function:</td>
+        <td>{{functionName}}</td>
+      </tr>
+      <tr class="og-head">
+        <td>Target:</td>
+        <td>{{target}}</td>
+      </tr>
+      {{#if events}}{{#each events}}
+      <tr class="og-{{level}}">
+        <td>{{level}}:</td>
+        <td>{{message}}</td>
+      </tr>
+      {{/each}}{{/if}}
+      {{#if exceptionClass}}
+      <tr>
+        <td>Exception Class:</td>
+        <td>{{exceptionClass}}</td>
+      </tr>
+      {{/if}}
+      {{#if exceptionMessage}}
+      <tr>
+        <td>Exception Message:</td>
+        <td>{{exceptionMessage}}</td>
+      </tr>
+      {{/if}}
+      {{#if exceptionStackTrace}}
+      <tr>
+        <td>Stack trace:</td>
+        <td>
+          <pre>
+{{exceptionStackTrace}}
+          </pre>
+        </td>
+      </tr>
+      {{/if}}
+    </tbody>
+    {{/each}}
+  </table>
+</div>

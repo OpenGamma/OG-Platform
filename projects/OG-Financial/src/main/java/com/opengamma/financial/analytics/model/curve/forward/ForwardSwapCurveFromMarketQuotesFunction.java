@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.forward;
@@ -14,15 +14,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -33,12 +33,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -59,27 +60,26 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(ForwardSwapCurveFromMarketQuotesFunction.class);
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBForwardSwapCurveDefinitionSource curveDefinitionSource = new ConfigDBForwardSwapCurveDefinitionSource(configSource);
     final ConfigDBForwardSwapCurveSpecificationSource curveSpecificationSource = new ConfigDBForwardSwapCurveSpecificationSource(configSource);
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.CURRENCY;
       }
 
       @Override
@@ -90,7 +90,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
             .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
             .withAny(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardSwapCurveMarketDataFunction.FORWARD_SWAP_QUOTES).get();
+            .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardSwapCurveMarketDataFunction.FORWARD_SWAP_QUOTES).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(spec);
       }
@@ -129,22 +129,16 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
       }
 
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        final UniqueId uid = target.getUniqueId();
-        return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
-      }
-
-      @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
         final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
         final Clock snapshotClock = executionContext.getValuationClock();
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final ZonedDateTime now = snapshotClock.zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final DoubleArrayList expiries = new DoubleArrayList();
         final DoubleArrayList forwards = new DoubleArrayList();
-        final Currency currency = Currency.of(target.getUniqueId().getValue());
+        final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         final ForwardSwapCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currency.toString());
         if (definition == null) {
           throw new OpenGammaRuntimeException("Couldn't find a forward swap curve definition called " + curveName + " for target " + target);
@@ -180,7 +174,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
         final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
         final LocalDate localNow = now.toLocalDate();
         final Period forwardPeriod = Period.parse(forwardTenorName);
-        final Tenor forwardTenor = new Tenor(forwardPeriod);
+        final Tenor forwardTenor = Tenor.of(forwardPeriod);
         final LocalDate forwardStart = ScheduleCalculator.getAdjustedDate(localNow.plus(forwardPeriod), settlementDays, calendar); //TODO check adjustments
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(localNow, tenor, forwardTenor);
@@ -206,7 +200,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
             .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
             .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName)
             .with(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR, forwardTenor)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardSwapCurveMarketDataFunction.FORWARD_SWAP_QUOTES).get();
+            .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardSwapCurveMarketDataFunction.FORWARD_SWAP_QUOTES).get();
         return new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
       }
     };

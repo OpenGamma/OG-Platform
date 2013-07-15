@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -16,12 +15,13 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a OIS-like floating coupon. The description is simplified by not creating the full set of fixing dates. 
- * Only the start and the end of the fixing period are described. The description is enough to construct curves from OIS and to price forward OIS but not 
+ * Class describing a OIS-like floating coupon. The description is simplified by not creating the full set of fixing dates.
+ * Only the start and the end of the fixing period are described. The description is enough to construct curves from OIS and to price forward OIS but not
  * to describe and price OIS coupons for which some fixing already took place.
  */
 public class CouponOISSimplifiedDefinition extends CouponDefinition {
@@ -76,32 +76,34 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param settlementDate The coupon settlement date.
    * @param tenor The coupon tenor.
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
+   * @param settlementDays The number of days between last fixing and the payment (also called spot lag).
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
+   * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional,
-      final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
-    return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays);
+      final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar calendar) {
+    final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, calendar, isEOM);
+    return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays, calendar);
   }
 
   /**
-   * Builder from the financial details.  The accrual and fixing dates (start and end) are the same. The day count for the payment is the same as the one for the index. 
+   * Builder from the financial details.  The accrual and fixing dates (start and end) are the same. The day count for the payment is the same as the one for the index.
    * The payment date is computed from the endFixingPeriodDate by moving backward by one day (overnight), then forward by the index publication lag and finally by the settlementDays days.
    * @param index The OIS index.
    * @param settlementDate The coupon settlement date.
    * @param endFixingPeriodDate The end date of the fixing period (also used for the end accrual date).
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing date and the payment date (also called payment lag). 
+   * @param settlementDays The number of days between last fixing date and the payment date (also called payment lag).
+   * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate,
-      final double notional, final int settlementDays) {
-    ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1, index.getCalendar()); // Overnight
-    lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getPublicationLag(), index.getCalendar()); // Lag
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, settlementDays, index.getCalendar());
+      final double notional, final int settlementDays, final Calendar calendar) {
+    ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1, calendar); // Overnight
+    lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getPublicationLag(), calendar); // Lag
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, settlementDays, calendar);
     final double payementAccrualFactor = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
     return new CouponOISSimplifiedDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, payementAccrualFactor, notional, index,
         settlementDate, endFixingPeriodDate, payementAccrualFactor);
@@ -195,11 +197,13 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponOISSimplifiedDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponOISSimplifiedDefinition(this);
   }
 

@@ -30,4 +30,11 @@ public abstract interface PortfolioReader {
 
   void close();
 
+  /**
+   * Read the name of the portfolio from the source. Only some readers have this capability,
+   * those that don't will return a null value.
+   *
+   * @return the portfolio name if the reader supports it, null otherwise
+   */
+  String getPortfolioName();
 }

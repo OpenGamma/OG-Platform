@@ -23,8 +23,8 @@ import java.util.Set;
  */
 public class ClassMap<T> implements Map<Class<?>, T> {
 
-  private final Map<Class<?>, T> _map = new HashMap<Class<?>, T>();
-  private final Map<Class<?>, T> _cache = new HashMap<Class<?>, T>();
+  private final Map<Class<?>, T> _map = new HashMap<>();
+  private final Map<Class<?>, T> _cache = new HashMap<>();
   
   private boolean _cacheModified;
   

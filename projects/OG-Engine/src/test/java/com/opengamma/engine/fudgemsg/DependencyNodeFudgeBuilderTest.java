@@ -6,9 +6,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -16,10 +16,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link DependencyNodeFudgeBuilder}
  */
+@Test(groups = TestGroup.UNIT)
 public class DependencyNodeFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
   
   /**
@@ -29,44 +31,29 @@ public class DependencyNodeFudgeBuilderTest extends AbstractFudgeBuilderTestCase
    *        \ | /  |
    *          N2  N3
    *
-   * If not partitioned:
-   *    v20, v21, v24, v34 to go into private cache
-   *    v0x, v1x, v4x to go into shared cache
-   *    vx2, vx3 to go into shared cache
    */
   private DependencyNode[] _testNode;
   private DependencyGraph _testGraph;
-  private final ValueSpecification _testValue20 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "20"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue21 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "21"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue24 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "24"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "34"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-
-
+  private final ValueProperties _properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
+  private final ValueSpecification _testValue20 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "20"), _properties);
+  private final ValueSpecification _testValue21 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "21"), _properties);
+  private final ValueSpecification _testValue24 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "24"), _properties);
+  private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "34"), _properties);
   private final ValueRequirement _testRequirement0x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "0x"), ValueProperties.none());
-  private final ValueSpecification _testValue0x = new ValueSpecification(_testRequirement0x, "Mock");
-
+  private final ValueSpecification _testValue0x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "0x"), _properties);
   private final ValueRequirement _testRequirement1x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1x"), ValueProperties.none());
-  private final ValueSpecification _testValue1x = new ValueSpecification(_testRequirement1x, "Mock");
-
+  private final ValueSpecification _testValue1x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "1x"), _properties);
   private final ValueRequirement _testRequirement4x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4x"), ValueProperties.none());
-  private final ValueSpecification _testValue4x = new ValueSpecification(_testRequirement4x, "Mock");
-
-  private final ValueRequirement _testRequirementx2 = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2x"), ValueProperties.none());
-  private final ValueSpecification _testValuex2 = new ValueSpecification(_testRequirementx2, "LiveDataSourcingFunction");
-
-  private final ValueRequirement _testRequirementx3 = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "3x"), ValueProperties.none());
-  private final ValueSpecification _testValuex3 = new ValueSpecification(_testRequirementx3, "LiveDataSourcingFunction");
+  private final ValueSpecification _testValue4x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "4x"), _properties);
+  private final ValueSpecification _testValuex2 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "x2"), _properties);
+  private final ValueSpecification _testValuex3 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "x3"), _properties);
 
   @BeforeMethod
   public void createGraph() {
     _testGraph = new DependencyGraph("Default");
     _testNode = new DependencyNode[5];
     for (int i = 0; i < _testNode.length; i++) {
-      final ComputationTarget target = new ComputationTarget(Integer.toString(i));
+      final ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", Integer.toString(i)));
       _testNode[i] = new DependencyNode(target);
       _testNode[i].setFunction(MockFunction.getMockFunction(target, "foo"));
     }

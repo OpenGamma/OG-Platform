@@ -5,25 +5,30 @@
  */
 package com.opengamma.analytics.financial.timeseries.filter;
 
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Filter that partitions the time-series points based on maximum percentage moves.
  */
 public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SpikeDoubleTimeSeriesFilter.class);
-  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
+
   private double _maxPercentageMove;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param maxPercentageMove  the maximum percentage move, zero or greater
+   */
   public SpikeDoubleTimeSeriesFilter(final double maxPercentageMove) {
     if (maxPercentageMove < 0) {
       s_logger.info("Maximum percentage move must be positive; using absolute value");
@@ -31,6 +36,7 @@ public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
     _maxPercentageMove = Math.abs(maxPercentageMove);
   }
 
+  //-------------------------------------------------------------------------
   public void setMaxPercentageMove(final double maxPercentageMove) {
     if (maxPercentageMove < 0) {
       s_logger.info("Maximum percentage move must be positive; using absolute value");
@@ -38,43 +44,49 @@ public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
     _maxPercentageMove = Math.abs(maxPercentageMove);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public FilteredTimeSeries evaluate(final LocalDateDoubleTimeSeries ts) {
-    Validate.notNull(ts, "ts");
+    ArgumentChecker.notNull(ts, "ts");
     if (ts.isEmpty()) {
       s_logger.info("Time series was empty");
       return new FilteredTimeSeries(EMPTY_SERIES, EMPTY_SERIES);
     }
-    final FastIntDoubleTimeSeries x = (FastIntDoubleTimeSeries) ts.getFastSeries();
-    final int n = x.size();
+    final int n = ts.size();
     final int[] filteredDates = new int[n];
     final double[] filteredData = new double[n];
     final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
-    final int firstDate = x.getTimeAt(0);
-    final double firstDatum = x.getValueAt(0);
+    
+    LocalDateDoubleEntryIterator it = ts.iterator();
+    int firstDate = it.nextTimeFast();
+    double firstValue = it.currentValue();
+    int secondDate = 0;
+    double secondValue = 0;
     int i = 0, j = 0;
-    if (Math.abs(firstDatum / x.getValueAt(1) - 1) < _maxPercentageMove) {
-      filteredDates[i] = firstDate;
-      filteredData[i++] = firstDatum;
-    } else {
-      rejectedDates[j] = firstDate;
-      rejectedData[j++] = firstDatum;
-    }
-    final ObjectIterator<Int2DoubleMap.Entry> iter = x.iteratorFast();
-    Int2DoubleMap.Entry first = iter.next();
-    Int2DoubleMap.Entry second;
-    while (iter.hasNext()) {
-      second = iter.next();
-      if (Math.abs(second.getValue() / first.getValue() - 1) < _maxPercentageMove) {
-        filteredDates[i] = second.getKey();
-        filteredData[i++] = second.getValue();
+    // handle most pairs
+    while (it.hasNext()) {
+      secondDate = it.nextTimeFast();
+      secondValue = it.currentValue();
+      if (Math.abs(firstValue / secondValue - 1) < _maxPercentageMove) {
+        filteredDates[i] = firstDate;
+        filteredData[i++] = firstValue;
       } else {
-        rejectedDates[j] = second.getKey();
-        rejectedData[j++] = second.getValue();
+        rejectedDates[j] = firstDate;
+        rejectedData[j++] = firstValue;
       }
-      first = second;
+      firstDate = secondDate;
+      firstValue = secondValue;
+    }
+    // handle last pair
+    if (Math.abs(secondValue / firstValue - 1) < _maxPercentageMove) {
+      filteredDates[i] = secondDate;
+      filteredData[i++] = secondValue;
+    } else {
+      rejectedDates[j] = secondDate;
+      rejectedData[j++] = secondValue;
     }
     return getFilteredSeries(filteredDates, filteredData, i, rejectedDates, rejectedData, j);
   }
+
 }

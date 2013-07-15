@@ -30,10 +30,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.view.helper.AvailableOutput;
@@ -116,7 +116,7 @@ public abstract class AbstractDocumentation implements Runnable {
 
   private final CompiledFunctionRepository _functionRepository;
   private final FunctionExclusionGroups _functionExclusionGroups;
-  private final MarketDataAvailabilityProvider _availabilityProvider = new OptimisticMarketDataAvailabilityProvider();
+  private final MarketDataAvailabilityFilter _availabilityFilter = new OptimisticMarketDataAvailabilityFilter();
   private final SecurityTypePortfolioFilter _securityTypePortfolioFilter = new SecurityTypePortfolioFilter();
   private final Map<String, Set<AvailableOutput>> _availableOutputsBySecurityType = new HashMap<String, Set<AvailableOutput>>();
   private final Map<String, Set<AvailableOutput>> _availableOutputsByName = new HashMap<String, Set<AvailableOutput>>();
@@ -143,8 +143,8 @@ public abstract class AbstractDocumentation implements Runnable {
     return _functionExclusionGroups;
   }
 
-  protected MarketDataAvailabilityProvider getAvailabilityProvider() {
-    return _availabilityProvider;
+  protected MarketDataAvailabilityFilter getMarketDataAvailability() {
+    return _availabilityFilter;
   }
 
   public void setWikiPageHook(final WikiPageHook pageHook) {
@@ -185,10 +185,9 @@ public abstract class AbstractDocumentation implements Runnable {
   }
 
   /**
-   * Processes the portfolio against the function repository to determine typical properties and applicability of
-   * value requirement names to each asset class discovered. The portfolio is filtered so that only a small sample
-   * of each unique asset class is considered - this is to save time when there are many portfolios to consider.
-   *
+   * Processes the portfolio against the function repository to determine typical properties and applicability of value requirement names to each asset class discovered. The portfolio is filtered so
+   * that only a small sample of each unique asset class is considered - this is to save time when there are many portfolios to consider.
+   * 
    * @param portfolio a portfolio containing a sample of asset class instances
    */
   public void processAvailablePortfolioOutputs(final Portfolio portfolio) {
@@ -200,7 +199,7 @@ public abstract class AbstractDocumentation implements Runnable {
       s_logger.debug("Ignoring {} ({})", portfolio.getName(), portfolio.getUniqueId());
     } else {
       s_logger.info("Calculating available outputs from {} ({})", portfolio.getName(), portfolio.getUniqueId());
-      final AvailableOutputs outputs = new AvailablePortfolioOutputs(filtered, getFunctionRepository(), getFunctionExclusionGroups(), getAvailabilityProvider(), null);
+      final AvailableOutputs outputs = new AvailablePortfolioOutputs(filtered, getFunctionRepository(), getFunctionExclusionGroups(), getMarketDataAvailability(), null);
       synchronized (_availableOutputsBySecurityType) {
         for (final AvailableOutput output : outputs.getOutputs()) {
           for (final String securityType : output.getSecurityTypes()) {
@@ -220,10 +219,9 @@ public abstract class AbstractDocumentation implements Runnable {
   }
 
   /**
-   * Parse a source file that describes value requirement names complete with Javadoc. Note the parse
-   * is crude at best, so may not be able to handle arbitrary source inputs despite them being legal
+   * Parse a source file that describes value requirement names complete with Javadoc. Note the parse is crude at best, so may not be able to handle arbitrary source inputs despite them being legal
    * Java and Javadoc.
-   *
+   * 
    * @param sourceCodePath path to the Java source (e.g. ValueRequirementNames.java)
    */
   public void processValueRequirementNames(final String sourceCodePath) {
@@ -599,9 +597,9 @@ public abstract class AbstractDocumentation implements Runnable {
         int i = -1;
         for (final Pair<Pattern, String> description : _valuePropertyDescription) {
           i++;
-          final Matcher m = description.getKey().matcher(s);
+          final Matcher m = description.getFirst().matcher(s);
           if (m.matches()) {
-            sbDetail.append(description.getValue());
+            sbDetail.append(description.getSecond());
             s = null;
             _valuePropertyDescriptionUsed[i]++;
             break;
@@ -647,7 +645,7 @@ public abstract class AbstractDocumentation implements Runnable {
 
   /**
    * Creates an asset class page detailing the value requirements available and properties.
-   *
+   * 
    * @param securityType the security type
    */
   protected void emitSecurityTypePage(final String securityType) {

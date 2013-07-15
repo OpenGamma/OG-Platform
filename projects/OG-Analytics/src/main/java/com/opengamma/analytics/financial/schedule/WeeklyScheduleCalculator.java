@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -25,10 +25,10 @@ public class WeeklyScheduleCalculator extends Schedule {
   }
 
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
+    final List<LocalDate> dates = new ArrayList<>();
     if (fromEnd) {
       LocalDate date = endDate;
       while (!date.isBefore(startDate)) {
@@ -52,10 +52,10 @@ public class WeeklyScheduleCalculator extends Schedule {
   }
 
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final boolean fromEnd) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
+    final List<ZonedDateTime> dates = new ArrayList<>();
     if (fromEnd) {
       ZonedDateTime date = endDate;
       while (!date.isBefore(startDate)) {

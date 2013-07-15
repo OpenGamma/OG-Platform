@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.riskfactor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.greeks.Underlying;
@@ -17,6 +15,7 @@ import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -26,14 +25,14 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
 
   @Override
   public Map<ValueGreek, Double> evaluate(final GreekDataBundle data) {
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     final GreekResultCollection greeks = data.getGreekResults();
-    final Map<ValueGreek, Double> riskFactors = new HashMap<ValueGreek, Double>();
+    final Map<ValueGreek, Double> riskFactors = new HashMap<>();
     final Map<UnderlyingType, Double> underlyingData = data.getUnderlyingData();
     final OptionTradeData tradeData = data.getOptionTradeData();
     for (final Pair<Greek, Double> entry : greeks) {
-      final Greek key = entry.getKey();
-      final Double value = entry.getValue();
+      final Greek key = entry.getFirst();
+      final Double value = entry.getSecond();
       riskFactors.put(new ValueGreek(key), getValueGreek(key, value, underlyingData, tradeData));
     }
     return riskFactors;

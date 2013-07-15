@@ -24,7 +24,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class used to compute the price and sensitivity of a physical delivery swaption with SABR model and extrapolation to the right. 
+ * Class used to compute the price and sensitivity of a physical delivery swaption with SABR model and extrapolation to the right.
  * Implemented only for the SABRHaganVolatilityFunction.
  * OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
@@ -97,7 +97,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value curve sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
     final DayCount dayCountModification = sabrData.getSABRParameter().getDayCount();
@@ -110,7 +110,6 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final InterestRateCurveSensitivity forwardModifiedDr = new InterestRateCurveSensitivity(PRSC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData));
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
-    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
     final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
@@ -118,7 +117,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
     final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
     final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forwardModified, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
-    result = pvbpModifiedDr.multipliedBy(sabrExtrapolation.price(option));
+    InterestRateCurveSensitivity result = pvbpModifiedDr.multipliedBy(sabrExtrapolation.price(option));
     final double priceDF = sabrExtrapolation.priceDerivativeForward(option);
     result = result.plus(forwardModifiedDr.multipliedBy(pvbpModified * priceDF));
     if (!swaption.isLong()) {

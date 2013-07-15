@@ -96,26 +96,26 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
-    double forward1 = PRC.visit(cmsSpread.getUnderlyingSwap1(), sabrData);
-    double forward2 = PRC.visit(cmsSpread.getUnderlyingSwap2(), sabrData);
+    final double forward1 = cmsSpread.getUnderlyingSwap1().accept(PRC, sabrData);
+    final double forward2 = cmsSpread.getUnderlyingSwap2().accept(PRC, sabrData);
     CouponCMS cmsCoupon1 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap1(), cmsSpread.getSettlementTime());
     cmsCoupon1 = cmsCoupon1.withNotional(Math.abs(cmsCoupon1.getNotional()));
     CouponCMS cmsCoupon2 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap2(), cmsSpread.getSettlementTime());
     cmsCoupon2 = cmsCoupon2.withNotional(Math.abs(cmsCoupon2.getNotional()));
-    CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
-    CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
-    double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
-    double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
-    double cmsCap1Price = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
-    double cmsCap2Price = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
-    double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
-    NormalFunctionData dataCap1 = new NormalFunctionData(cmsCoupon1Price / (discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction()), discountFactorPayment
+    final CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
+    final CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
+    final double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
+    final double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
+    final double cmsCap1Price = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
+    final double cmsCap2Price = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
+    final double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
+    final NormalFunctionData dataCap1 = new NormalFunctionData(cmsCoupon1Price / (discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction()), discountFactorPayment
         * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction(), 0.0);
     final EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, cmsSpread.getFixingTime(), true);
     double cmsCap1ImpliedVolatility = 0;
     try {
       cmsCap1ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Price);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       //TODO 
     }
     final NormalFunctionData dataCap2 = new NormalFunctionData(cmsCoupon2Price / (discountFactorPayment * cmsCap2.getNotional() * cmsCap2.getPaymentYearFraction()), discountFactorPayment
@@ -124,7 +124,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     double cmsCap2ImpliedVolatility = 0;
     try {
       cmsCap2ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Price);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       //TODO 
     }
     final double cmsSpreadImpliedVolatility = Math.sqrt(cmsCap1ImpliedVolatility * cmsCap1ImpliedVolatility - 2 * _correlation.evaluate(cmsSpread.getStrike()) * cmsCap1ImpliedVolatility
@@ -132,9 +132,9 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     final NormalFunctionData dataSpread = new NormalFunctionData(
         (cmsCoupon1Price - cmsCoupon2Price) / (discountFactorPayment * Math.abs(cmsSpread.getNotional()) * cmsSpread.getPaymentYearFraction()), discountFactorPayment * cmsSpread.getNotional()
             * cmsSpread.getPaymentYearFraction(), cmsSpreadImpliedVolatility);
-    EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
-    Function1D<NormalFunctionData, Double> normalFunction = NORMAL_PRICE.getPriceFunction(optionSpread);
-    double cmsSpreadPrice = normalFunction.evaluate(dataSpread);
+    final EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
+    final Function1D<NormalFunctionData, Double> normalFunction = NORMAL_PRICE.getPriceFunction(optionSpread);
+    final double cmsSpreadPrice = normalFunction.evaluate(dataSpread);
     return CurrencyAmount.of(cmsSpread.getCurrency(), cmsSpreadPrice);
   }
 
@@ -168,83 +168,83 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
     // Forward sweep
-    double strike1 = PRC.visit(cmsSpread.getUnderlyingSwap1(), sabrData);
-    double strike2 = PRC.visit(cmsSpread.getUnderlyingSwap2(), sabrData);
+    final double strike1 = cmsSpread.getUnderlyingSwap1().accept(PRC, sabrData);
+    final double strike2 = cmsSpread.getUnderlyingSwap2().accept(PRC, sabrData);
     CouponCMS cmsCoupon1 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap1(), cmsSpread.getSettlementTime());
     cmsCoupon1 = cmsCoupon1.withNotional(Math.abs(cmsCoupon1.getNotional()));
     CouponCMS cmsCoupon2 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap2(), cmsSpread.getSettlementTime());
     cmsCoupon2 = cmsCoupon2.withNotional(Math.abs(cmsCoupon2.getNotional()));
-    CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, strike1, true); // ATM forward cap CMS
-    CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, strike2, true); // ATM forward cap CMS
-    double cmsCoupon1Pv = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
-    double cmsCoupon2Pv = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
-    double cmsCap1Pv = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
-    double cmsCap2Pv = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
-    double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
-    double factor = discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction();
-    double expectation1 = cmsCoupon1Pv / factor;
-    double expectation2 = cmsCoupon2Pv / factor;
+    final CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, strike1, true); // ATM forward cap CMS
+    final CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, strike2, true); // ATM forward cap CMS
+    final double cmsCoupon1Pv = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
+    final double cmsCoupon2Pv = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
+    final double cmsCap1Pv = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
+    final double cmsCap2Pv = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
+    final double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
+    final double factor = discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction();
+    final double expectation1 = cmsCoupon1Pv / factor;
+    final double expectation2 = cmsCoupon2Pv / factor;
     NormalFunctionData dataCap1 = new NormalFunctionData(expectation1, factor, 0.0);
-    EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(strike1, cmsSpread.getFixingTime(), true);
+    final EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(strike1, cmsSpread.getFixingTime(), true);
     double cmsCap1ImpliedVolatility = 0;
     try {
       cmsCap1ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Pv);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       //TODO 
     }
     NormalFunctionData dataCap2 = new NormalFunctionData(expectation2, factor, cmsCap1ImpliedVolatility);
-    EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(strike2, cmsSpread.getFixingTime(), true);
+    final EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(strike2, cmsSpread.getFixingTime(), true);
     double cmsCap2ImpliedVolatility = 0;
     try {
       cmsCap2ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Pv);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       //TODO 
     }
-    double rho = _correlation.evaluate(cmsSpread.getStrike());
-    double cmsSpreadImpliedVolatility = Math.sqrt(cmsCap1ImpliedVolatility * cmsCap1ImpliedVolatility - 2 * rho * cmsCap1ImpliedVolatility * cmsCap2ImpliedVolatility + cmsCap2ImpliedVolatility
+    final double rho = _correlation.evaluate(cmsSpread.getStrike());
+    final double cmsSpreadImpliedVolatility = Math.sqrt(cmsCap1ImpliedVolatility * cmsCap1ImpliedVolatility - 2 * rho * cmsCap1ImpliedVolatility * cmsCap2ImpliedVolatility + cmsCap2ImpliedVolatility
         * cmsCap2ImpliedVolatility);
-    NormalFunctionData dataSpread = new NormalFunctionData(expectation1 - expectation2, discountFactorPayment * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction(),
+    final NormalFunctionData dataSpread = new NormalFunctionData(expectation1 - expectation2, discountFactorPayment * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction(),
         cmsSpreadImpliedVolatility);
-    EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
-    double[] cmsSpreadPvDerivative = new double[3];
-    double cmsSpreadPv = NORMAL_PRICE.getPriceAdjoint(optionSpread, dataSpread, cmsSpreadPvDerivative);
+    final EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
+    final double[] cmsSpreadPvDerivative = new double[3];
+    final double cmsSpreadPv = NORMAL_PRICE.getPriceAdjoint(optionSpread, dataSpread, cmsSpreadPvDerivative);
     // Backward sweep
-    double cmsSpreadPvBar = 1.0;
-    double cmsSpreadImpliedVolatilityBar = cmsSpreadPvDerivative[1] * cmsSpreadPvBar;
-    double cmsCap2ImpliedVolatilityBar = (cmsCap2ImpliedVolatility - rho * cmsCap1ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar; // OK
-    double cmsCap1ImpliedVolatilityBar = (cmsCap1ImpliedVolatility - rho * cmsCap2ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar; // OK
+    final double cmsSpreadPvBar = 1.0;
+    final double cmsSpreadImpliedVolatilityBar = cmsSpreadPvDerivative[1] * cmsSpreadPvBar;
+    final double cmsCap2ImpliedVolatilityBar = (cmsCap2ImpliedVolatility - rho * cmsCap1ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar; // OK
+    final double cmsCap1ImpliedVolatilityBar = (cmsCap1ImpliedVolatility - rho * cmsCap2ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar; // OK
     dataCap2 = new NormalFunctionData(expectation2, factor, cmsCap2ImpliedVolatility);
-    double[] cmsCap2PriceNormalDerivative = new double[3];
+    final double[] cmsCap2PriceNormalDerivative = new double[3];
     NORMAL_PRICE.getPriceAdjoint(optionCap2, dataCap2, cmsCap2PriceNormalDerivative);
-    double expectation2Bar = -cmsSpreadPvDerivative[0] * cmsSpreadPvBar + -cmsCap2PriceNormalDerivative[0] / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar; // OK
+    final double expectation2Bar = -cmsSpreadPvDerivative[0] * cmsSpreadPvBar + -cmsCap2PriceNormalDerivative[0] / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar; // OK
     dataCap1 = new NormalFunctionData(expectation1, factor, cmsCap1ImpliedVolatility);
-    double[] cmsCap1PriceNormalDerivative = new double[3];
+    final double[] cmsCap1PriceNormalDerivative = new double[3];
     NORMAL_PRICE.getPriceAdjoint(optionCap1, dataCap1, cmsCap1PriceNormalDerivative);
-    double expectation1Bar = cmsSpreadPvDerivative[0] * cmsSpreadPvBar + -cmsCap1PriceNormalDerivative[0] / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar; // OK
-    double factorBar = -cmsCoupon1Pv / (factor * factor) * expectation1Bar + -cmsCoupon2Pv / (factor * factor) * expectation2Bar - cmsCap2Pv / factor / cmsCap2PriceNormalDerivative[1]
+    final double expectation1Bar = cmsSpreadPvDerivative[0] * cmsSpreadPvBar + -cmsCap1PriceNormalDerivative[0] / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar; // OK
+    final double factorBar = -cmsCoupon1Pv / (factor * factor) * expectation1Bar + -cmsCoupon2Pv / (factor * factor) * expectation2Bar - cmsCap2Pv / factor / cmsCap2PriceNormalDerivative[1]
         * cmsCap2ImpliedVolatilityBar - cmsCap1Pv / factor / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar; // OK
-    double discountFactorPaymentBar = cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction() * factorBar + cmsSpreadPv / discountFactorPayment * cmsSpreadPvBar;
-    double cmsCap2PvBar = 1.0 / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar; // OK
-    double cmsCap1PvBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar; // OK
-    double cmsCoupon2PvBar = expectation2Bar / factor; // OK
-    double cmsCoupon1PvBar = expectation1Bar / factor; // OK
+    final double discountFactorPaymentBar = cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction() * factorBar + cmsSpreadPv / discountFactorPayment * cmsSpreadPvBar;
+    final double cmsCap2PvBar = 1.0 / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar; // OK
+    final double cmsCap1PvBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar; // OK
+    final double cmsCoupon2PvBar = expectation2Bar / factor; // OK
+    final double cmsCoupon1PvBar = expectation1Bar / factor; // OK
     //Calibration strike dependency -- START
     double strike1Bar = -cmsCap1PriceNormalDerivative[2] / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
     double strike2Bar = -cmsCap2PriceNormalDerivative[2] / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
     strike1Bar += _methodCmsCap.presentValueStrikeSensitivity(cmsCap1, sabrData) * cmsCap1PvBar;
     strike2Bar += _methodCmsCap.presentValueStrikeSensitivity(cmsCap2, sabrData) * cmsCap2PvBar;
-    InterestRateCurveSensitivity forward1CurveSensitivity = new InterestRateCurveSensitivity(PRCSC.visit(cmsSpread.getUnderlyingSwap1(), sabrData));
-    InterestRateCurveSensitivity forward2CurveSensitivity = new InterestRateCurveSensitivity(PRCSC.visit(cmsSpread.getUnderlyingSwap2(), sabrData));
+    final InterestRateCurveSensitivity forward1CurveSensitivity = new InterestRateCurveSensitivity(cmsSpread.getUnderlyingSwap1().accept(PRCSC, sabrData));
+    final InterestRateCurveSensitivity forward2CurveSensitivity = new InterestRateCurveSensitivity(cmsSpread.getUnderlyingSwap2().accept(PRCSC, sabrData));
     //Calibration strike dependency -- END
-    InterestRateCurveSensitivity cmsCoupon1CurveSensitivity = _methodCmsCoupon.presentValueCurveSensitivity(cmsCoupon1, sabrData);
-    InterestRateCurveSensitivity cmsCoupon2CurveSensitivity = _methodCmsCoupon.presentValueCurveSensitivity(cmsCoupon2, sabrData);
-    InterestRateCurveSensitivity cmsCap1CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap1, sabrData);
-    InterestRateCurveSensitivity cmsCap2CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap2, sabrData);
+    final InterestRateCurveSensitivity cmsCoupon1CurveSensitivity = _methodCmsCoupon.presentValueCurveSensitivity(cmsCoupon1, sabrData);
+    final InterestRateCurveSensitivity cmsCoupon2CurveSensitivity = _methodCmsCoupon.presentValueCurveSensitivity(cmsCoupon2, sabrData);
+    final InterestRateCurveSensitivity cmsCap1CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap1, sabrData);
+    final InterestRateCurveSensitivity cmsCap2CurveSensitivity = _methodCmsCap.presentValueCurveSensitivity(cmsCap2, sabrData);
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cmsSpread.getPaymentTime(), -cmsSpread.getPaymentTime() * discountFactorPayment));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsSpread.getFundingCurveName(), list);
-    InterestRateCurveSensitivity dfCurveSensitivity = new InterestRateCurveSensitivity(resultMap);
+    final InterestRateCurveSensitivity dfCurveSensitivity = new InterestRateCurveSensitivity(resultMap);
     InterestRateCurveSensitivity result;
     result = dfCurveSensitivity.multipliedBy(discountFactorPaymentBar);
     result = result.plus(cmsCoupon1CurveSensitivity.multipliedBy(cmsCoupon1PvBar));
@@ -266,75 +266,75 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMSSpread cmsSpread, final SABRInterestRateDataBundle sabrData) {
     // Forward sweep
-    double forward1 = PRC.visit(cmsSpread.getUnderlyingSwap1(), sabrData);
-    double forward2 = PRC.visit(cmsSpread.getUnderlyingSwap2(), sabrData);
+    final double forward1 = cmsSpread.getUnderlyingSwap1().accept(PRC, sabrData);
+    final double forward2 = cmsSpread.getUnderlyingSwap2().accept(PRC, sabrData);
     CouponCMS cmsCoupon1 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap1(), cmsSpread.getSettlementTime());
     cmsCoupon1 = cmsCoupon1.withNotional(Math.abs(cmsCoupon1.getNotional()));
     CouponCMS cmsCoupon2 = CouponCMS.from(cmsSpread, cmsSpread.getUnderlyingSwap2(), cmsSpread.getSettlementTime());
     cmsCoupon2 = cmsCoupon2.withNotional(Math.abs(cmsCoupon2.getNotional()));
-    CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
-    CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
-    double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
-    double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
-    double cmsCap1Price = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
-    double cmsCap2Price = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
-    double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
-    double factor = discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction();
-    double expectation1 = cmsCoupon1Price / factor;
-    double expectation2 = cmsCoupon2Price / factor;
+    final CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
+    final CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
+    final double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
+    final double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
+    final double cmsCap1Price = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
+    final double cmsCap2Price = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
+    final double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
+    final double factor = discountFactorPayment * cmsCap1.getNotional() * cmsCap1.getPaymentYearFraction();
+    final double expectation1 = cmsCoupon1Price / factor;
+    final double expectation2 = cmsCoupon2Price / factor;
     NormalFunctionData dataCap1 = new NormalFunctionData(expectation1, factor, 0.0);
-    EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, cmsSpread.getFixingTime(), true);
+    final EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, cmsSpread.getFixingTime(), true);
     double cmsCap1ImpliedVolatility = 0;
     try {
       cmsCap1ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Price);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       //TODO 
     }
     NormalFunctionData dataCap2 = new NormalFunctionData(expectation2, factor, cmsCap1ImpliedVolatility);
-    EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(forward2, cmsSpread.getFixingTime(), true);
+    final EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(forward2, cmsSpread.getFixingTime(), true);
     double cmsCap2ImpliedVolatility = 0;
     try {
       cmsCap2ImpliedVolatility = NORMAL_IMPLIED_VOLATILITY.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Price);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       //TODO 
     }
-    double rho = _correlation.evaluate(cmsSpread.getStrike());
-    double cmsSpreadImpliedVolatility = Math.sqrt(cmsCap1ImpliedVolatility * cmsCap1ImpliedVolatility - 2 * rho * cmsCap1ImpliedVolatility * cmsCap2ImpliedVolatility + cmsCap2ImpliedVolatility
+    final double rho = _correlation.evaluate(cmsSpread.getStrike());
+    final double cmsSpreadImpliedVolatility = Math.sqrt(cmsCap1ImpliedVolatility * cmsCap1ImpliedVolatility - 2 * rho * cmsCap1ImpliedVolatility * cmsCap2ImpliedVolatility + cmsCap2ImpliedVolatility
         * cmsCap2ImpliedVolatility);
-    NormalFunctionData dataSpread = new NormalFunctionData(expectation1 - expectation2, discountFactorPayment * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction(),
+    final NormalFunctionData dataSpread = new NormalFunctionData(expectation1 - expectation2, discountFactorPayment * cmsSpread.getNotional() * cmsSpread.getPaymentYearFraction(),
         cmsSpreadImpliedVolatility);
-    EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
-    double[] cmsSpreadPriceDerivative = new double[3];
+    final EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(cmsSpread.getStrike(), cmsSpread.getFixingTime(), cmsSpread.isCap());
+    final double[] cmsSpreadPriceDerivative = new double[3];
     NORMAL_PRICE.getPriceAdjoint(optionSpread, dataSpread, cmsSpreadPriceDerivative);
     // Backward sweep
-    double cmsSpreadPriceBar = 1.0;
-    double cmsSpreadImpliedVolatilityBar = cmsSpreadPriceDerivative[1] * cmsSpreadPriceBar;
-    double cmsCap2ImpliedVolatilityBar = (cmsCap2ImpliedVolatility - rho * cmsCap1ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
-    double cmsCap1ImpliedVolatilityBar = (cmsCap1ImpliedVolatility - rho * cmsCap2ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
+    final double cmsSpreadPriceBar = 1.0;
+    final double cmsSpreadImpliedVolatilityBar = cmsSpreadPriceDerivative[1] * cmsSpreadPriceBar;
+    final double cmsCap2ImpliedVolatilityBar = (cmsCap2ImpliedVolatility - rho * cmsCap1ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
+    final double cmsCap1ImpliedVolatilityBar = (cmsCap1ImpliedVolatility - rho * cmsCap2ImpliedVolatility) / cmsSpreadImpliedVolatility * cmsSpreadImpliedVolatilityBar;
     dataCap2 = new NormalFunctionData(expectation2, factor, cmsCap2ImpliedVolatility);
-    double[] cmsCap2PriceNormalDerivative = new double[3];
+    final double[] cmsCap2PriceNormalDerivative = new double[3];
     NORMAL_PRICE.getPriceAdjoint(optionCap2, dataCap2, cmsCap2PriceNormalDerivative);
-    double expectation2Bar = -cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap2PriceNormalDerivative[0] / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
+    final double expectation2Bar = -cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap2PriceNormalDerivative[0] / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
     dataCap1 = new NormalFunctionData(expectation1, factor, cmsCap1ImpliedVolatility);
-    double[] cmsCap1PriceNormalDerivative = new double[3];
+    final double[] cmsCap1PriceNormalDerivative = new double[3];
     NORMAL_PRICE.getPriceAdjoint(optionCap1, dataCap1, cmsCap1PriceNormalDerivative);
-    double expectation1Bar = cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap1PriceNormalDerivative[0] / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
-    double cmsCap2PriceBar = 1.0 / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
-    double cmsCap1PriceBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
-    double cmsCoupon2PriceBar = expectation2Bar / factor;
-    double cmsCoupon1PriceBar = expectation1Bar / factor;
+    final double expectation1Bar = cmsSpreadPriceDerivative[0] * cmsSpreadPriceBar + -cmsCap1PriceNormalDerivative[0] / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
+    final double cmsCap2PriceBar = 1.0 / cmsCap2PriceNormalDerivative[1] * cmsCap2ImpliedVolatilityBar;
+    final double cmsCap1PriceBar = 1.0 / cmsCap1PriceNormalDerivative[1] * cmsCap1ImpliedVolatilityBar;
+    final double cmsCoupon2PriceBar = expectation2Bar / factor;
+    final double cmsCoupon1PriceBar = expectation1Bar / factor;
     PresentValueSABRSensitivityDataBundle cmsCoupon1SABRSensitivity = _methodCmsCoupon.presentValueSABRSensitivity(cmsCoupon1, sabrData);
     PresentValueSABRSensitivityDataBundle cmsCoupon2SABRSensitivity = _methodCmsCoupon.presentValueSABRSensitivity(cmsCoupon2, sabrData);
     PresentValueSABRSensitivityDataBundle cmsCap1SABRSensitivity = _methodCmsCap.presentValueSABRSensitivity(cmsCap1, sabrData);
     PresentValueSABRSensitivityDataBundle cmsCap2SABRSensitivity = _methodCmsCap.presentValueSABRSensitivity(cmsCap2, sabrData);
-    cmsCoupon1SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCoupon1SABRSensitivity, cmsCoupon1PriceBar);
-    cmsCoupon2SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCoupon2SABRSensitivity, cmsCoupon2PriceBar);
-    cmsCap1SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCap1SABRSensitivity, cmsCap1PriceBar);
-    cmsCap2SABRSensitivity = PresentValueSABRSensitivityDataBundle.multiplyBy(cmsCap2SABRSensitivity, cmsCap2PriceBar);
+    cmsCoupon1SABRSensitivity = cmsCoupon1SABRSensitivity.multiplyBy(cmsCoupon1PriceBar);
+    cmsCoupon2SABRSensitivity = cmsCoupon2SABRSensitivity.multiplyBy(cmsCoupon2PriceBar);
+    cmsCap1SABRSensitivity = cmsCap1SABRSensitivity.multiplyBy(cmsCap1PriceBar);
+    cmsCap2SABRSensitivity = cmsCap2SABRSensitivity.multiplyBy(cmsCap2PriceBar);
     PresentValueSABRSensitivityDataBundle result = cmsCoupon1SABRSensitivity;
-    result = PresentValueSABRSensitivityDataBundle.plus(result, cmsCoupon2SABRSensitivity);
-    result = PresentValueSABRSensitivityDataBundle.plus(result, cmsCap1SABRSensitivity);
-    result = PresentValueSABRSensitivityDataBundle.plus(result, cmsCap2SABRSensitivity);
+    result = result.plus(cmsCoupon2SABRSensitivity);
+    result = result.plus(cmsCap1SABRSensitivity);
+    result = result.plus(cmsCap2SABRSensitivity);
     return result;
   }
 
@@ -368,9 +368,9 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     }
 
     @Override
-    public Double evaluate(Double x) {
+    public Double evaluate(final Double x) {
       @SuppressWarnings("synthetic-access")
-      CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(new RealPolynomialFunction1D(new double[] {x}), _methodCmsCap, _methodCmsCoupon);
+      final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(new RealPolynomialFunction1D(new double[] {x }), _methodCmsCap, _methodCmsCoupon);
       return method.presentValue(_cmsSpread, _sabrData).getAmount() - _price;
     }
   }

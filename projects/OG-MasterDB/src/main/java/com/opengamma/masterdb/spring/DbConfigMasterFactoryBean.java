@@ -54,7 +54,6 @@ public class DbConfigMasterFactoryBean extends AbstractDbMasterFactoryBean<DbCon
    * The meta-bean for {@code DbConfigMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbConfigMasterFactoryBean.Meta meta() {
     return DbConfigMasterFactoryBean.Meta.INSTANCE;
   }
@@ -108,7 +107,7 @@ public class DbConfigMasterFactoryBean extends AbstractDbMasterFactoryBean<DbCon
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -27,7 +27,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.util.money.Currency;
 
 /**
  * Function to shift a yield curve, implemented using properties and constraints.
@@ -48,15 +47,7 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -72,7 +63,7 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
       return null;
     }
     final ValueProperties properties = desiredValue.getConstraints().copy().withoutAny(SHIFT).with(SHIFT, "0").withOptional(SHIFT).get();
-    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), properties));
+    return Collections.singleton(new ValueRequirement(desiredValue.getValueName(), target.toSpecification(), properties));
   }
 
   private ValueProperties.Builder createValueProperties(final ValueSpecification input) {
@@ -99,7 +90,7 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
       throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
     }
     s_logger.debug("Applying {} to yield curve {}", shift, curve);
-    final Object result = compiler.compile(shift).apply(desiredValue, curve);
+    final Object result = compiler.compile(shift, executionContext.getComputationTargetResolver()).apply(desiredValue, curve);
     s_logger.debug("Got result {}", result);
     return Collections.singleton(new ComputedValue(new ValueSpecification(inputSpec.getValueName(), inputSpec.getTargetSpecification(), properties.get()), result));
   }

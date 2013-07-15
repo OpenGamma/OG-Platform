@@ -112,11 +112,20 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigHistoryResult}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static ConfigHistoryResult.Meta meta() {
+    return ConfigHistoryResult.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code ConfigHistoryResult}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ConfigHistoryResult.Meta<R> meta() {
+  public static <R> ConfigHistoryResult.Meta<R> metaConfigHistoryResult(Class<R> cls) {
     return ConfigHistoryResult.Meta.INSTANCE;
   }
   static {
@@ -171,7 +180,7 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

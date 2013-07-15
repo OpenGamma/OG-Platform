@@ -41,6 +41,7 @@ public interface UserResolver extends LinkResolver<OGUser> {
    * @throws DataNotFoundException if the target could not be resolved
    * @throws RuntimeException if an error occurs
    */
+  @Override
   OGUser resolve(Link<OGUser> link);
 
   /**

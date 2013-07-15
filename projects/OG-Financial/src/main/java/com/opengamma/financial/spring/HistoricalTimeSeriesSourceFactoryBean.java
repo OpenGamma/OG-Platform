@@ -71,7 +71,6 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
    * The meta-bean for {@code HistoricalTimeSeriesSourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HistoricalTimeSeriesSourceFactoryBean.Meta meta() {
     return HistoricalTimeSeriesSourceFactoryBean.Meta.INSTANCE;
   }
@@ -241,7 +240,7 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "historicalTimeSeriesMaster",
         "historicalTimeSeriesResolver",
         "cacheManager");

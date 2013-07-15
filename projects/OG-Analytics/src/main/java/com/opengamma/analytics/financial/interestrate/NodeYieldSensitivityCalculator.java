@@ -21,14 +21,15 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * For an instrument, calculates the sensitivity of a value (often either the present value (PV) or par rate) to the yield at the knot points of the interpolated yield curves. 
- * The return format is a DoubleMatrix1D (i.e. a vector) with length equal to the total number of knots in all the curves, and ordered as sensitivity to knots of first curve, second curve etc. 
- * The change of a curve due to the movement of a single knot is interpolator-dependent, and can affect the entire curve, so an instrument can have sensitivity to knots at times (way)
- * beyond its maturity 
+ * For an instrument, calculates the sensitivity of a value (often either the present value (PV) or par rate) to the yield at the knot points of the interpolated yield curves.
+ * The return format is a DoubleMatrix1D (i.e. a vector) with length equal to the total number of nodes in all the curves, and ordered as sensitivity to nodes of first curve, second curve etc.
+ * The change of a curve due to the movement of a single knot is interpolator-dependent, and can affect the entire curve, so an instrument can have sensitivity to nodes at times (way)
+ * beyond its maturity
  */
 public abstract class NodeYieldSensitivityCalculator {
 
-  /* package */NodeYieldSensitivityCalculator() {
+  /* package */
+  NodeYieldSensitivityCalculator() {
   }
 
   public abstract DoubleMatrix1D calculateSensitivities(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves);
@@ -53,7 +54,7 @@ public abstract class NodeYieldSensitivityCalculator {
       }
       allCurves.addAll(fixedCurves);
     }
-    final Map<String, List<DoublesPair>> sensitivityMap = calculator.visit(derivative, allCurves);
+    final Map<String, List<DoublesPair>> sensitivityMap = derivative.accept(calculator, allCurves);
     return curveToNodeSensitivities(sensitivityMap, interpolatedCurves);
   }
 
@@ -64,10 +65,10 @@ public abstract class NodeYieldSensitivityCalculator {
    * @return The yield sensitivities to the node points.
    */
   public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
-    final List<Double> result = new ArrayList<Double>();
+    final List<Double> result = new ArrayList<>();
     for (final String name : interpolatedCurves.getAllNames()) { // loop over all curves (by name)
       final YieldAndDiscountCurve curve = interpolatedCurves.getCurve(name);
-      // Split between Yield and Discount    
+      // Split between Yield and Discount
       if (curve instanceof YieldCurve) {
         result.addAll(curveToNodeSensitivity(curveSensitivities.get(name), (YieldCurve) curve));
       } else if (curve instanceof DiscountCurve) {
@@ -76,7 +77,7 @@ public abstract class NodeYieldSensitivityCalculator {
         throw new IllegalArgumentException("Can only handle YieldCurve and DiscountCurve at the moment");
       }
     }
-    return new DoubleMatrix1D(result.toArray(new Double[0]));
+    return new DoubleMatrix1D(result.toArray(new Double[result.size()]));
   }
 
   /**
@@ -86,7 +87,7 @@ public abstract class NodeYieldSensitivityCalculator {
    * @return The node sensitivity.
    */
   private List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final YieldCurve curve) {
-    final List<Double> result = new ArrayList<Double>();
+    final List<Double> result = new ArrayList<>();
     if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
     }
@@ -123,7 +124,7 @@ public abstract class NodeYieldSensitivityCalculator {
    * @return The node sensitivity.
    */
   private List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final DiscountCurve curve) {
-    final List<Double> result = new ArrayList<Double>();
+    final List<Double> result = new ArrayList<>();
     if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
     }
@@ -172,7 +173,7 @@ public abstract class NodeYieldSensitivityCalculator {
    * @return The node sensitivity.
    */
   public DoubleMatrix1D curveToNodeSensitivities(final List<DoublesPair> curveSensitivities, final YieldAndDiscountCurve curve) {
-    final List<Double> result = new ArrayList<Double>();
+    final List<Double> result = new ArrayList<>();
     if (curve instanceof YieldCurve) {
       result.addAll(curveToNodeSensitivity(curveSensitivities, (YieldCurve) curve));
     } else if (curve instanceof DiscountCurve) {
@@ -180,7 +181,7 @@ public abstract class NodeYieldSensitivityCalculator {
     } else {
       throw new IllegalArgumentException("Can only handle YieldCurve and DiscountCurve at the moment");
     }
-    return new DoubleMatrix1D(result.toArray(new Double[0]));
+    return new DoubleMatrix1D(result.toArray(new Double[result.size()]));
   }
 
 }

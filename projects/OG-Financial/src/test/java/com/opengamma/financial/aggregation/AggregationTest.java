@@ -7,9 +7,12 @@ package com.opengamma.financial.aggregation;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test aggregation.
  */
+@Test(groups = TestGroup.UNIT)
 public class AggregationTest {
 //  private static final Logger s_logger = LoggerFactory.getLogger(AggregationTest.class);
 //  private List<Position> _equities;
@@ -25,7 +28,7 @@ public class AggregationTest {
 
   /*
   public Portfolio makeTestPortfolio() {
-    Expiry expiry = new Expiry(ZonedDateTime.fromInstant(Clock.system(TimeZone.UTC).instant(), TimeZone.UTC));
+    Expiry expiry = new Expiry(ZonedDateTime.fromInstant(Clock.systemUTC().instant(), ZoneOffset.UTC));
     
     EquitySecurity aaplSec = new EquitySecurity("AAPL US", "BLOOMBERG");
     aaplSec.setCurrency(Currency.getInstance("USD"));

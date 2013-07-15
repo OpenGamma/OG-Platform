@@ -8,7 +8,8 @@
   <!-- Global EH Cache Manager -->
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
-  </bean>
+    <property name="configLocation" value="default-ehcache.xml" />
+</bean>
 
   <!-- Source of slave threads -->  
   <bean id="slaveThreads" class="com.opengamma.util.ExecutorServiceFactoryBean">
@@ -98,7 +99,7 @@
     <constructor-arg ref="cacheManager" />
   </bean>
   
-  <!-- Config Source -->
+  <!-- Config Master and Config Source -->
   <!-- TODO: need a cache; not incredibly high priority as only fetched at function initialisation -->
   <bean id="configSource" class="com.opengamma.core.config.impl.RemoteConfigSource">
     <constructor-arg>
@@ -177,9 +178,9 @@
   <bean id="sharedComputationCacheEndPoint" class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
     <property name="uri" value="${opengamma.engine.configuration.url}/remoteCalcNode/cacheServer" />
   </bean>
-  <bean id="computationCache" class="com.opengamma.engine.view.cache.RemoteViewComputationCacheSource">
+  <bean id="computationCache" class="com.opengamma.engine.cache.RemoteViewComputationCacheSource">
     <constructor-arg>
-      <bean class="com.opengamma.engine.view.cache.RemoteCacheClient">
+      <bean class="com.opengamma.engine.cache.RemoteCacheClient">
         <constructor-arg>
           <bean class="com.opengamma.transport.FudgeConnectionFactoryBean">
             <property name="fudgeContext" ref="fudgeContext" />
@@ -197,14 +198,14 @@
       </bean>
     </constructor-arg>
     <constructor-arg>
-      <bean class="com.opengamma.engine.view.cache.DefaultFudgeMessageStoreFactory">
+      <bean class="com.opengamma.engine.cache.DefaultFudgeMessageStoreFactory">
         <constructor-arg>
           <!--
-          <bean class="com.opengamma.engine.view.cache.BerkeleyDBBinaryDataStoreFactoryFactoryBean">
+          <bean class="com.opengamma.engine.cache.BerkeleyDBBinaryDataStoreFactoryFactoryBean">
             <property name="dataStoreFolder" value="${opengamma.engine.calcnode.localdatastore}" />
           </bean>
           -->
-          <bean class="com.opengamma.engine.view.cache.InMemoryBinaryDataStoreFactory" />
+          <bean class="com.opengamma.engine.cache.InMemoryBinaryDataStoreFactory" />
         </constructor-arg>
         <constructor-arg ref="fudgeContext" />
       </bean>
@@ -213,32 +214,15 @@
   </bean>
 
   <!-- Target resolver -->
-  <bean id="targetResolver" class="com.opengamma.engine.DefaultCachingComputationTargetResolver">
-    <constructor-arg>
-      <bean class="com.opengamma.engine.DefaultComputationTargetResolver">
-        <constructor-arg ref="positionSource" />
-        <constructor-arg ref="securitySource" />
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="cacheManager" />
-  </bean>
-  
-  <!-- View processor query -->
-  <bean id="viewProcessorQuery" class="com.opengamma.engine.view.calcnode.ViewProcessorQuerySender">
-    <constructor-arg>
-      <bean class="com.opengamma.transport.FudgeRequestSenderFactoryBean">
-        <property name="fudgeContext" ref="fudgeContext" />
-        <property name="endPointDescription">
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/remoteCalcNode/queryServer" />
-          </bean>
-        </property>
-      </bean>
-    </constructor-arg>
+  <bean id="targetResolver" class="com.opengamma.component.factory.engine.TargetResolverComponentFactory">
+    <property name="cacheManager" ref="cacheManager" />
+    <property name="currencyMatrixSource" ref="currencyMatrixSource" />
+    <property name="positionSource" ref="positionSource" />
+    <property name="securitySource" ref="securitySource" />
   </bean>
   
   <!-- Execution statistics -->
-  <bean id="statisticsSender" class="com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSender">
+  <bean id="statisticsSender" class="com.opengamma.engine.calcnode.stats.FunctionInvocationStatisticsSender">
     <property name="serverScalingHint" value="${opengamma.engine.calcnode.scalinghint}" />
   </bean>
   
@@ -247,7 +231,6 @@
     <property name="computationTargetResolver" ref="targetResolver" />
     <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
-    <property name="currencyMatrixSource" ref="currencyMatrixSource" />
     <property name="exchangeSource" ref="exchangeSource" />
     <property name="holidaySource" ref="holidaySource" />
     <property name="historicalTimeSeriesSource" ref="historicalTimeSeriesSource" />
@@ -271,9 +254,9 @@
   </bean>
   <bean id="functionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
-      <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
-        <property name="repositoryConfigurationSource">
-          <bean class="com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource">
+      <bean class="com.opengamma.engine.function.config.FunctionRepositoryFactoryBean">
+        <property name="functionConfigurationSource">
+          <bean class="com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource">
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
                 <property name="uri" value="${opengamma.engine.configuration.url}/functionRepositoryConfiguration" />
@@ -291,29 +274,27 @@
   </bean>
   
   <!-- Calculation node(s) -->
-  <bean id="calcNodeFactory" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeFactory">
+  <bean id="calcNodeFactory" class="com.opengamma.engine.calcnode.SimpleCalculationNodeFactory">
     <property name="viewComputationCache" ref="computationCache" />
     <property name="functionCompilationService" ref="functionCompilation" />
     <property name="functionExecutionContext" ref="functionExecutionContext" />
-    <property name="computationTargetResolver" ref="targetResolver" />
-    <property name="viewProcessorQuery" ref="viewProcessorQuery" />
     <property name="executorService" ref="slaveThreads" />
     <property name="useWriteBehindSharedCache" value="true" />
     <property name="useAsynchronousTargetResolve" value="true" />
     <property name="statisticsGatherer" ref="statisticsSender" />
     <property name="maxJobItemExecution">
-      <bean class="com.opengamma.engine.view.calcnode.CalculationNodeProcess$JobItemExecutionWatchdog">
+      <bean class="com.opengamma.engine.calcnode.CalculationNodeProcess$JobItemExecutionWatchdog">
         <property name="maxJobItemExecutionTime" value="${opengamma.engine.calcnode.maxjobitemtime}" />
       </bean>
     </property>
   </bean>
-  <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
+  <bean id="calcNodes" class="com.opengamma.engine.calcnode.SimpleCalculationNodeSet">
     <property name="nodeFactory" ref="calcNodeFactory" />
     <property name="nodesPerCore" value="${opengamma.engine.calcnode.nodespercore}" />
   </bean>
   
   <!-- Job invoker -->
-  <bean id="jobInvoker" class="com.opengamma.engine.view.calcnode.RemoteNodeClient">
+  <bean id="jobInvoker" class="com.opengamma.engine.calcnode.RemoteNodeClient">
     <constructor-arg>
       <bean class="com.opengamma.transport.FudgeConnectionFactoryBean">
         <property name="fudgeContext" ref="fudgeContext" />
@@ -338,7 +319,7 @@
     <property name="locateExistingServerIfPossible" value="true" />
   </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="com.opengamma.engine.view.calcnode.jmx.SimpleCalculationNodeInvocationContainer.registerMBeans" />
+    <property name="staticMethod" value="com.opengamma.engine.calcnode.jmx.SimpleCalculationNodeInvocationContainer.registerMBeans" />
     <property name="arguments">
       <list>
         <ref bean="jobInvoker" />

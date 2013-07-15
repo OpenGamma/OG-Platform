@@ -21,11 +21,12 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link HistoricalTimeSeriesRating} Fudge.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class HistoricalTimeSeriesRatingFudgeEncodingTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();

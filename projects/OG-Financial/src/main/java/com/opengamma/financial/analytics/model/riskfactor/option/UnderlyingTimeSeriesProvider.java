@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.riskfactor.option;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.greeks.AbstractGreekVisitor;
 import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -55,7 +56,7 @@ public class UnderlyingTimeSeriesProvider {
   }
 
   public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security) {
-    return getSeriesRequirement(greek, security, DateConstraint.EARLIEST_START, DateConstraint.VALUATION_TIME);
+    return getSeriesRequirement(greek, security, DateConstraint.NULL, DateConstraint.VALUATION_TIME);
   }
 
   public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security, final DateConstraint startDate, final DateConstraint endDate) {
@@ -98,7 +99,11 @@ public class UnderlyingTimeSeriesProvider {
 
     @Override
     public ExternalIdBundle visitEquityOptionSecurity(final EquityOptionSecurity security) {
-      return _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())).getExternalIdBundle();
+      Security underlyingSecurity = _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+      if (underlyingSecurity == null) {
+        throw new NullPointerException("Unable to obtain underlying security for " + security.getUnderlyingId());
+      }
+      return underlyingSecurity.getExternalIdBundle();
     }
 
   }

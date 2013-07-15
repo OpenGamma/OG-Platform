@@ -9,12 +9,11 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -22,7 +21,8 @@ import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.sheet.reader.SheetReader;
 import com.opengamma.integration.copier.timeseries.TimeSeriesLoader;
 import com.opengamma.integration.copier.timeseries.writer.TimeSeriesWriter;
-import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 
 /**
  * Reads data points, possibly from multiple time series, from an single sheet
@@ -95,20 +95,21 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
   @Override
   public void writeTo(TimeSeriesWriter timeSeriesWriter) {
 
-    Map<String, String> rawRow;
+    Map<String, String> rawRow = null;
     do {
-      Map<String, MapLocalDateDoubleTimeSeries> tsData = new HashMap<String, MapLocalDateDoubleTimeSeries>();
+      Map<String, LocalDateDoubleTimeSeriesBuilder> tsData = new HashMap<String, LocalDateDoubleTimeSeriesBuilder>();
       int count = 0;
 
       // Get the next set of rows from the sheet up to the memory buffer limit
-      while (((rawRow = _sheet.loadNextRow()) != null) && (count < BUFFER_SIZE)) { // CSIGNORE
+      while ((count < BUFFER_SIZE) && ((rawRow = _sheet.loadNextRow()) != null)) { // CSIGNORE
         try {
           String ric = getWithException(rawRow, ID);
           if (!tsData.containsKey(ric)) {
-            tsData.put(ric, new MapLocalDateDoubleTimeSeries());
+            tsData.put(ric, ImmutableLocalDateDoubleTimeSeries.builder());
           }
-          tsData.get(ric).putDataPoint(getDateWithException(rawRow, DATE), 
-              Double.valueOf(getWithException(rawRow, VALUE)));
+          LocalDate date = getDateWithException(rawRow, DATE);
+          double value = Double.parseDouble(getWithException(rawRow, VALUE));
+          tsData.get(ric).put(date, value);
         } catch (Throwable e) {
           s_logger.warn("Could not parse time series row " + rawRow + "; " + e.toString());
         }
@@ -125,7 +126,7 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
               _dataProvider,
               _dataField,
               _observationTime,
-              tsData.get(key));
+              tsData.get(key).build());
         }
       }
 

@@ -7,9 +7,7 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import java.util.Arrays;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -17,27 +15,29 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a Ratchet on Ibor coupon. The coupon payment depends on the
  * previous coupon ($C_{i-1}$), the current Ibor fixing ($L_i$). The pay-off is:
  * $$
  * \begin{equation*}
- * \alpha^M_i C_{i-1} + \beta^M_i L_i + \gamma^M_i 
+ * \alpha^M_i C_{i-1} + \beta^M_i L_i + \gamma^M_i
  * \end{equation*}
- * $$ 
+ * $$
  * subject to the floor :
  * $$
  * \begin{equation*}
- * \alpha^F_i C_{i-1} + \beta^F_i L_i + \gamma^F_i 
+ * \alpha^F_i C_{i-1} + \beta^F_i L_i + \gamma^F_i
  * \end{equation*}
- * $$ 
+ * $$
  * and the cap:
  * $$
  * \begin{equation*}
- * \alpha^C_i C_{i-1} + \beta^C_i L_i + \gamma^C_i 
+ * \alpha^C_i C_{i-1} + \beta^C_i L_i + \gamma^C_i
  * \end{equation*}
  * $$
  */
@@ -86,24 +86,27 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
    * @param fixingDate The coupon fixing date.
    * @param index The coupon Ibor index. Should of the same currency as the payment.
    * @param mainCoefficients The coefficients of the main payment (before floor and cap). Array of length 3.
-   * @param floorCoefficients The coefficients of the floor. Array of length 3.
+   * @param floorCoefficients The coefficients of the floor. Array of length 3. The first coefficient is the previous coupon factor,
+   * the second is the Ibor factor and the third is the additive term.
    * @param capCoefficients The coefficients of the cap. Array of length 3.
+   * @param calendar The holiday calendar for the ibor index.
    */
   public CouponIborRatchetDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients) {
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients,
+      final Calendar calendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
-    Validate.notNull(index, "index");
-    Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     _index = index;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), _index.getCalendar());
-    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
     _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
-    Validate.notNull(mainCoefficients, "Main coefficients");
-    Validate.notNull(floorCoefficients, "Floor coefficients");
-    Validate.notNull(capCoefficients, "Cap coefficients");
-    Validate.isTrue(mainCoefficients.length == 3, "Requires 3 main coefficients");
-    Validate.isTrue(floorCoefficients.length == 3, "Requires 3 floor coefficients");
-    Validate.isTrue(capCoefficients.length == 3, "Requires 3 cap coefficients");
+    ArgumentChecker.notNull(mainCoefficients, "Main coefficients");
+    ArgumentChecker.notNull(floorCoefficients, "Floor coefficients");
+    ArgumentChecker.notNull(capCoefficients, "Cap coefficients");
+    ArgumentChecker.isTrue(mainCoefficients.length == 3, "Requires 3 main coefficients");
+    ArgumentChecker.isTrue(floorCoefficients.length == 3, "Requires 3 floor coefficients");
+    ArgumentChecker.isTrue(capCoefficients.length == 3, "Requires 3 cap coefficients");
     _mainCoefficients = mainCoefficients;
     _floorCoefficients = floorCoefficients;
     _capCoefficients = capCoefficients;
@@ -166,12 +169,14 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborRatchetDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborRatchetDefinition(this);
   }
 
@@ -186,7 +191,7 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -196,7 +201,7 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborRatchetDefinition other = (CouponIborRatchetDefinition) obj;
+    final CouponIborRatchetDefinition other = (CouponIborRatchetDefinition) obj;
     if (!Arrays.equals(_capCoefficients, other._capCoefficients)) {
       return false;
     }
@@ -211,11 +216,11 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
 
   @Override
   public CouponIborRatchet toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
@@ -227,7 +232,7 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public Payment toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
     return null;
     //TODO: coupon with fixing!
   }

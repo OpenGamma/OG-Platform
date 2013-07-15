@@ -7,11 +7,16 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
-@Test
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class TullettPrebonFXOptionVolatilitySurfaceInstrumentProviderTest {
+
   public void testFXOptionVolatilitySurfaceInstrumentProvider() {
     TullettPrebonFXOptionVolatilitySurfaceInstrumentProvider provider = new TullettPrebonFXOptionVolatilitySurfaceInstrumentProvider("FV", "USDZAR", "Market_Value");
     assertEquals(ExternalId.of(ExternalSchemes.SURF, "FV2DBUSDZAR02M"), provider.getInstrument(Tenor.ofMonths(2), Pair.of((Number)25, FXVolQuoteType.BUTTERFLY)));
@@ -26,4 +31,5 @@ public class TullettPrebonFXOptionVolatilitySurfaceInstrumentProviderTest {
     provider = new TullettPrebonFXOptionVolatilitySurfaceInstrumentProvider("FV", "USDILS", "Market_Value");
     assertEquals(ExternalId.of(ExternalSchemes.SURF, "FVAFVUSDILS03Y"), provider.getInstrument(Tenor.ofYears(3), Pair.of((Number)0, FXVolQuoteType.ATM)));
   }
+
 }

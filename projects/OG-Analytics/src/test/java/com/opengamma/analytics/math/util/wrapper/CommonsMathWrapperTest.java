@@ -41,7 +41,7 @@ public class CommonsMathWrapperTest {
 
   };
   private static final ComplexNumber OG_COMPLEX = new ComplexNumber(1, 2);
-  private static final FunctionND<Double, Double> OG_FUNCTION_ND = new FunctionND<Double, Double>(4) {
+  private static final FunctionND<Double, Double> OG_FUNCTION_ND = new FunctionND<Double, Double>() {
 
     @Override
     protected Double evaluateFunction(final Double[] x) {

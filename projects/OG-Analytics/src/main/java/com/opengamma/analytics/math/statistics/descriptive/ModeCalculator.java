@@ -8,10 +8,9 @@ package com.opengamma.analytics.math.statistics.descriptive;
 import java.util.Arrays;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * The mode of a series of data is the value that occurs more frequently in the data set.
@@ -26,14 +25,14 @@ public class ModeCalculator extends Function1D<double[], Double> {
    */
   @Override
   public Double evaluate(final double[] x) {
-    Validate.notNull(x, "x");
-    Validate.isTrue(x.length > 0, "x cannot be empty");
+    ArgumentChecker.notNull(x, "x");
+    ArgumentChecker.isTrue(x.length > 0, "x cannot be empty");
     if (x.length == 1) {
       return x[0];
     }
     final double[] x1 = Arrays.copyOf(x, x.length);
     Arrays.sort(x1);
-    final TreeMap<Integer, Double> counts = new TreeMap<Integer, Double>();
+    final TreeMap<Integer, Double> counts = new TreeMap<>();
     int count = 1;
     for (int i = 1; i < x1.length; i++) {
       if (Math.abs(x1[i] - x1[i - 1]) < EPS) {

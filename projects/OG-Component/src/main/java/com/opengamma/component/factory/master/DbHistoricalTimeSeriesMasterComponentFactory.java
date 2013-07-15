@@ -26,8 +26,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesMasterResource;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
-import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
  * Component factory for the database time-series master.
@@ -45,11 +45,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-  /**
-   * The database connector.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private DbConnector _dbConnector;
   /**
    * The JMS connector.
    */
@@ -78,6 +73,7 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
     
     // create
     DbHistoricalTimeSeriesMaster master = new DbHistoricalTimeSeriesMaster(getDbConnector());
+    master.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "DbHistoricalTimeSeriesMaster" + getClassifier());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
@@ -93,7 +89,7 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
       }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
-    checkSchemaVersion(master.getSchemaVersion(), "hts");
+    checkSchema(master.getSchemaVersion(), "hts");
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
@@ -132,8 +128,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
-      case 39794031:  // dbConnector
-        return getDbConnector();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
       case -758086398:  // jmsChangeManagerTopic
@@ -155,9 +149,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
         return;
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
         return;
@@ -177,7 +168,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
     super.validate();
   }
 
@@ -190,7 +180,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
       DbHistoricalTimeSeriesMasterComponentFactory other = (DbHistoricalTimeSeriesMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
@@ -205,7 +194,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
@@ -262,32 +250,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the database connector.
-   * @return the value of the property, not null
-   */
-  public DbConnector getDbConnector() {
-    return _dbConnector;
-  }
-
-  /**
-   * Sets the database connector.
-   * @param dbConnector  the new value of the property, not null
-   */
-  public void setDbConnector(DbConnector dbConnector) {
-    JodaBeanUtils.notNull(dbConnector, "dbConnector");
-    this._dbConnector = dbConnector;
-  }
-
-  /**
-   * Gets the the {@code dbConnector} property.
-   * @return the property, not null
-   */
-  public final Property<DbConnector> dbConnector() {
-    return metaBean().dbConnector().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -411,11 +373,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", DbHistoricalTimeSeriesMasterComponentFactory.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code dbConnector} property.
-     */
-    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
-        this, "dbConnector", DbHistoricalTimeSeriesMasterComponentFactory.class, DbConnector.class);
-    /**
      * The meta-property for the {@code jmsConnector} property.
      */
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
@@ -439,10 +396,9 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "dbConnector",
         "jmsConnector",
         "jmsChangeManagerTopic",
         "uniqueIdScheme",
@@ -461,8 +417,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
-        case 39794031:  // dbConnector
-          return _dbConnector;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
         case -758086398:  // jmsChangeManagerTopic
@@ -505,14 +459,6 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMast
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
-    }
-
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbConnector> dbConnector() {
-      return _dbConnector;
     }
 
     /**

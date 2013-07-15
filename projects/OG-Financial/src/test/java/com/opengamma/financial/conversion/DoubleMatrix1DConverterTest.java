@@ -13,10 +13,12 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleMatrix1DConverterTest {
   
   private final DoubleMatrix1DConverter _converter = new DoubleMatrix1DConverter();

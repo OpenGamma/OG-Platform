@@ -1,0 +1,74 @@
+<article>
+  <header class="OG-header-generic">
+    <div class="OG-tools"></div>
+    <h1>{{html name}}</h1>
+    <div class="OG-js-header-links"></div>
+  </header>
+  <section>
+    <div class="OG-details-content OG-js-details-panel">
+      <section class="og-js-identifiers"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>${securityType.lang()}</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Buy/Sell</span></td><td>${buy}</td></tr>
+            <tr><td><span>Protection Buyer</span></td><td>${protectionBuyer}</td></tr>
+            <tr><td><span>Protection Seller</span></td><td>${protectionSeller}</td></tr>
+            <tr><td><span>Reference Entity</span></td><td>${referenceEntity}</td></tr>
+            <tr><td><span>Debt Seniority</span></td><td>${debtSeniority}</td></tr>
+            <tr><td><span>Restructuring Clause</span></td><td>${restructuringClause}</td></tr>
+            <tr><td><span>Start Date</span></td><td>${startDate}</td></tr>
+            <tr><td><span>Effective Date</span></td><td>${effectiveDate}</td></tr>
+            <tr><td><span>Maturity Date</span></td><td>${maturityDate}</td></tr>
+            <tr><td><span>Stub Type</span></td><td>${stubType}</td></tr>
+            <tr><td><span>Coupon Frequency</span></td><td>${couponFrequency}</td></tr>
+            <tr><td><span>Business Day Convention</span></td><td>${businessDayConvention}</td></tr>
+            <tr><td><span>IMM Adjust Maturity Date</span></td><td>${immAdjustMaturityDate}</td></tr>
+            <tr><td><span>Adjust Effective Date</span></td><td>${adjustEffectiveDate}</td></tr>
+            <tr><td><span>Adjust Maturity Date</span></td><td>${adjustMaturityDate}</td></tr>
+            <tr><td><span>Notional</span></td><td>${notional}</td></tr>
+            <tr><td><span>Recovery Rate</span></td><td>${recoveryRate}</td></tr>
+            <tr><td><span>Include Accrued Premium</span></td><td>${includeAccruedPremium}</td></tr>
+            <tr><td><span>Protection Start</span></td><td>${protectionStart}</td></tr>
+            <tr><td><span>Quoted Spread</span></td><td>${quotedSpread}</td></tr>
+            <tr><td><span>Upfront Amount</span></td><td>${upfrontAmount}</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="OG-timeseries-container"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr><th colspan="2"><span><em>Attributes</em></span></th></tr>
+            <tr>
+              <th><div><em>Name</em></div></th>
+              <th><div><em>Value</em></div></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{if attributes}}
+              {{each(attribute_index, attribute_value) attributes}}
+              <tr>
+                <td><span>${attribute_index}</span></td>
+                <td><span>${attribute_value}</span></td>
+              </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="2"><span>(no values)</span></td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </section>
+</article>

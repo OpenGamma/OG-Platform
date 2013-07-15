@@ -2,6 +2,9 @@
 foo~
 *.class
 *.log
+.project
+.classpath
+.checkstyle
 /bin/
 /build/
 /dist/
@@ -9,6 +12,7 @@ foo~
 /lib/
 /ivy/
 /temp/
+/install/
 tests/classes/
 tests/output/
 .settings/
@@ -17,3 +21,4 @@ MANIFEST.MF
 build.number
 javadoc-data.json
 *.pyc
+*.iml

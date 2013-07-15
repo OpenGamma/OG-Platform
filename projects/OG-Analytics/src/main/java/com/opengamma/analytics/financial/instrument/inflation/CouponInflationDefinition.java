@@ -5,24 +5,26 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing inflation coupon.
  */
-public abstract class CouponInflationDefinition extends CouponDefinition {
+public abstract class CouponInflationDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The price index associated to the coupon.
    */
-  private final IndexPrice _priceIndex;
+  private final IndexPrice _indexPrice;
 
   /**
    * Constructor from the coupon details.
@@ -38,7 +40,7 @@ public abstract class CouponInflationDefinition extends CouponDefinition {
       IndexPrice priceIndex) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
-    this._priceIndex = priceIndex;
+    this._indexPrice = priceIndex;
   }
 
   /**
@@ -56,19 +58,19 @@ public abstract class CouponInflationDefinition extends CouponDefinition {
    * @return The price index.
    */
   public IndexPrice getPriceIndex() {
-    return _priceIndex;
+    return _indexPrice;
   }
 
   @Override
   public String toString() {
-    return super.toString() + ", price index=" + _priceIndex.toString();
+    return super.toString() + ", price index=" + _indexPrice.toString();
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _priceIndex.hashCode();
+    result = prime * result + _indexPrice.hashCode();
     return result;
   }
 
@@ -84,7 +86,7 @@ public abstract class CouponInflationDefinition extends CouponDefinition {
       return false;
     }
     CouponInflationDefinition other = (CouponInflationDefinition) obj;
-    if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {
+    if (!ObjectUtils.equals(_indexPrice, other._indexPrice)) {
       return false;
     }
     return true;

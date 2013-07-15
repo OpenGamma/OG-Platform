@@ -13,10 +13,14 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class LabelledMatrix1DTest {
+
   private static final Integer[] KEYS = new Integer[] {1, 2, 3, 4};
   private static final String[] LABELS1 = new String[] {"1", "2", "3", "4" };
   private static final String[] LABELS2 = new String[] {"A", "B", "C", "D" };

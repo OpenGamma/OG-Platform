@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * Test cases taken from the ISDA example C code and Excel sheet
@@ -21,9 +21,9 @@ public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTe
   @Test
   public void testISDAExampleMainC() {
     
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime stepinDate = ZonedDateTime.of(2008, 2, 9, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime settlementDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime pricingDate = LocalDateTime.of(2008, 2, 1, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
+    final ZonedDateTime stepinDate = LocalDateTime.of(2008, 2, 9, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
+    final ZonedDateTime settlementDate = LocalDateTime.of(2008, 2, 1, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
     
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleMainC();
     final ISDACurve hazardRateCurve = loadHazardRateCurve_ISDAExampleMainC();
@@ -48,7 +48,7 @@ public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTe
   @Test
   public void testISDAExcelExampleCalculator_FlatIRCurve() {
     
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime pricingDate = LocalDateTime.of(2008, 9, 18, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
     
     final ISDACDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor().toDerivative(pricingDate, "IR_CURVE", "HAZARD_RATE_CURVE");   
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleCDSExcelFlat();
@@ -68,7 +68,7 @@ public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTe
   @Test
   public void testISDAExcelExampleCalculator() {
     
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime pricingDate = LocalDateTime.of(2008, 9, 18, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
     
     final ISDACDSDerivative cds = loadCDS_ISDAExampleCDSCalcualtor().toDerivative(pricingDate, "IR_CURVE", "HAZARD_RATE_CURVE"); 
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleExcel();
@@ -88,9 +88,9 @@ public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTe
   @Test
   public void testISDAExcelCDSConverter() {
     
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime stepinDate = ZonedDateTime.of(2008, 9, 19, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime settlementDate = ZonedDateTime.of(2008, 9, 23, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime pricingDate = LocalDateTime.of(2008, 9, 18, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
+    final ZonedDateTime stepinDate = LocalDateTime.of(2008, 9, 19, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
+    final ZonedDateTime settlementDate = LocalDateTime.of(2008, 9, 23, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
     
     final ISDACDSDerivative cds = loadCDS_ISDAExampleUpfrontConverter().toDerivative(pricingDate, "IR_CURVE", "HAZARD_RATE_CURVE"); 
     final ISDACurve discountCurve = loadDiscountCurve_ISDAExampleExcel();

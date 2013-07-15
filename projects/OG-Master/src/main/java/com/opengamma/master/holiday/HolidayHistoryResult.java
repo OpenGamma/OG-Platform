@@ -95,7 +95,6 @@ public class HolidayHistoryResult extends AbstractHistoryResult<HolidayDocument>
    * The meta-bean for {@code HolidayHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HolidayHistoryResult.Meta meta() {
     return HolidayHistoryResult.Meta.INSTANCE;
   }
@@ -149,7 +148,7 @@ public class HolidayHistoryResult extends AbstractHistoryResult<HolidayDocument>
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

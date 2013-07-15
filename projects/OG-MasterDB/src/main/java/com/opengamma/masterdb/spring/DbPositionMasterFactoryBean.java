@@ -54,7 +54,6 @@ public class DbPositionMasterFactoryBean extends AbstractDbMasterFactoryBean<DbP
    * The meta-bean for {@code DbPositionMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbPositionMasterFactoryBean.Meta meta() {
     return DbPositionMasterFactoryBean.Meta.INSTANCE;
   }
@@ -108,7 +107,7 @@ public class DbPositionMasterFactoryBean extends AbstractDbMasterFactoryBean<DbP
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.CalendricalException;
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -35,6 +33,8 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DateTimeException;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
@@ -55,8 +55,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.analytics.rest.MasterType;
 import com.opengamma.web.analytics.rest.Subscribe;
@@ -101,7 +101,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
-    return getFreemarker().build("timeseries/alltimeseries.ftl", out);
+    return getFreemarker().build(HTML_DIR + "alltimeseries.ftl", out);
   }
 
   @GET
@@ -120,7 +120,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @Context UriInfo uriInfo) {
     PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     FlexiBean out = createSearchResultData(pr, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
-    return getFreemarker().build("timeseries/jsonalltimeseries.ftl", out);
+    return getFreemarker().build(JSON_DIR + "alltimeseries.ftl", out);
   }
 
   private FlexiBean createSearchResultData(PagingRequest pr, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, String name, UriInfo uriInfo) {
@@ -179,7 +179,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     if (start != null) {
       try {
         startDate = LocalDate.parse(start);
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         out.put("err_startInvalid", true);
         validStartDate = false;
       }
@@ -189,7 +189,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     if (end != null) {
       try {
         endDate = LocalDate.parse(end);
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         out.put("err_endInvalid", true);
         validEndDate = false;
       }
@@ -210,7 +210,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       if (idValue == null) {
         out.put("err_idvalueMissing", true);
       } 
-      String html = getFreemarker().build("timeseries/timeseries-add.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "timeseries-add.ftl", out);
       return Response.ok(html).build();
     }
     
@@ -260,7 +260,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       try {
         startDate = LocalDate.parse(start);
         validStartDate = true;
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         validStartDate = false;
       }
     }
@@ -270,7 +270,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       try {
         endDate = LocalDate.parse(end);
         validEndDate = true;
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         validEndDate = false;
       }
     }
@@ -284,7 +284,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     Map<ExternalId, UniqueId> added = addTimeSeries(dataProvider, dataField, identifiers, startDate, endDate);
 
     FlexiBean out = createPostJSONOutput(added, identifiers, scheme, dataProvider, dataField, startDate, endDate);    
-    Response response = Response.ok(getFreemarker().build("timeseries/jsontimeseries-added.ftl", out)).build();
+    Response response = Response.ok(getFreemarker().build(JSON_DIR + "timeseries-added.ftl", out)).build();
     return response;
   }
 
@@ -317,7 +317,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     HistoricalTimeSeriesLoader loader = data().getHistoricalTimeSeriesLoader();
     Map<ExternalId, UniqueId> added = Maps.newHashMap();
     if (!identifiers.isEmpty()) {
-      added = loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+      added = loader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
     return added;
   }
@@ -369,7 +369,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     } catch (DataNotFoundException ex) {
       // If not there, return an empty collection of data-points
       series = new ManageableHistoricalTimeSeries();
-      series.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+      series.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     }
     data().setTimeSeries(series);
     

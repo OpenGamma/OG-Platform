@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata;
@@ -10,13 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -25,35 +23,47 @@ import com.opengamma.id.UniqueId;
 public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVMarketDataSnapshot.class);
-  
+
   private final InMemoryLKVMarketDataProvider _provider;
   private Instant _snapshotTime;
-  private Map<ValueRequirement, ComputedValue> _snapshot;
-  
-  public InMemoryLKVMarketDataSnapshot(InMemoryLKVMarketDataProvider provider) {
+  private Map<ValueSpecification, Object> _snapshot;
+
+  public InMemoryLKVMarketDataSnapshot(final InMemoryLKVMarketDataProvider provider) {
     _provider = provider;
   }
 
   @Override
   public UniqueId getUniqueId() {
+    // REVIEW 2013-02-04 Andrew -- This is not a suitable unique id. It should be allocated by whatever stores/creates these snapshots
     return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "InMemoryLKVMarketDataSnapshot:" + getSnapshotTime());
   }
-  
+
   @Override
   public Instant getSnapshotTimeIndication() {
     return _snapshotTime != null ? _snapshotTime : Instant.now();
   }
-  
+
   @Override
   public void init() {
     init(null, 0, null);
   }
 
   @Override
-  public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
+  public void init(final Set<ValueSpecification> valuesRequired, final long timeout, final TimeUnit unit) {
     _snapshot = getProvider().doSnapshot();
     _snapshotTime = Instant.now();
     s_logger.debug("Snapshotted at {}", _snapshotTime);
+  }
+  
+  @Override
+  public boolean isInitialized() {
+    return _snapshot != null;
+  }
+  
+  @Override
+  public boolean isEmpty() {
+    assertInitialized();
+    return _snapshot.isEmpty();
   }
 
   @Override
@@ -62,23 +72,23 @@ public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
   }
 
   @Override
-  public ComputedValue query(ValueRequirement requirement) {
-    return getSnapshot().get(requirement);
+  public Object query(final ValueSpecification value) {
+    return getSnapshot().get(value);
   }
 
   //-------------------------------------------------------------------------
-  public Set<ValueRequirement> getAllValueKeys() {
+  public Set<ValueSpecification> getAllValueKeys() {
     return Collections.unmodifiableSet(getSnapshot().keySet());
   }
-  
+
   //-------------------------------------------------------------------------
-  private Map<ValueRequirement, ComputedValue> getSnapshot() {
+  private Map<ValueSpecification, Object> getSnapshot() {
     if (_snapshot == null) {
       throw new IllegalStateException("Snapshot has not been initialised");
     }
     return _snapshot;
   }
-  
+
   private InMemoryLKVMarketDataProvider getProvider() {
     return _provider;
   }

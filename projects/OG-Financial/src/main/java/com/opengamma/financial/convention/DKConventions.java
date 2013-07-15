@@ -1,16 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -21,14 +20,20 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Contains information used to construct standard versions of DKK instruments.
  */
 public class DKConventions {
 
+  /**
+   * Adds conventions for deposit, Libor and Cibor fixings, swaps and FRAs.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -40,29 +45,52 @@ public class DKConventions {
     final ExternalId dk = ExternalSchemes.financialRegionId("DK");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO01W Index"), simpleNameSecurityId("DKK CIBOR 1w")), "DKK CIBOR 1w", act360,
-        following, Period.ofDays(7), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO02W Index"), simpleNameSecurityId("DKK CIBOR 2w")), "DKK CIBOR 2w", act360,
-        following, Period.ofDays(14), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO01M Index"), simpleNameSecurityId("DKK CIBOR 1m")), "DKK CIBOR 1m", act360,
-        following, Period.ofMonths(1), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO02M Index"), simpleNameSecurityId("DKK CIBOR 2m")), "DKK CIBOR 2m", act360,
-        following, Period.ofMonths(2), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO03M Index"), simpleNameSecurityId("DKK CIBOR 3m")), "DKK CIBOR 3m", act360, 
-        following, Period.ofMonths(3), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO04M Index"), simpleNameSecurityId("DKK CIBOR 4m")), "DKK CIBOR 4m", act360,
-        following, Period.ofMonths(4), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO05M Index"), simpleNameSecurityId("DKK CIBOR 5m")), "DKK CIBOR 5m", act360,
-        following, Period.ofMonths(5), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO06M Index"), simpleNameSecurityId("DKK CIBOR 6m")), "DKK CIBOR 6m", act360, 
-        following, Period.ofMonths(6), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO07M Index"), simpleNameSecurityId("DKK CIBOR 7m")), "DKK CIBOR 7m", act360,
-        following, Period.ofMonths(7), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO08M Index"), simpleNameSecurityId("DKK CIBOR 8m")), "DKK CIBOR 8m", act360,
-        following, Period.ofMonths(8), 2, false, dk);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO09M Index"), simpleNameSecurityId("DKK CIBOR 9m")), "DKK CIBOR 9m", act360,
-        following, Period.ofMonths(9), 2, false, dk);
+
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO01W Index"), simpleNameSecurityId("DKK CIBOR 1w"),
+        tullettPrebonSecurityId("ASLIBDDK1WL")), "DKK CIBOR 1w", act360, following, Period.ofDays(7), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO02W Index"), simpleNameSecurityId("DKK CIBOR 2w"),
+        tullettPrebonSecurityId("ASLIBDDK2WL")), "DKK CIBOR 2w", act360, following, Period.ofDays(14), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO01M Index"), simpleNameSecurityId("DKK CIBOR 1m"),
+        tullettPrebonSecurityId("ASLIBDDK01L")), "DKK CIBOR 1m", act360, following, Period.ofMonths(1), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO02M Index"), simpleNameSecurityId("DKK CIBOR 2m"),
+        tullettPrebonSecurityId("ASLIBDDK02L")), "DKK CIBOR 2m", act360, following, Period.ofMonths(2), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO03M Index"), simpleNameSecurityId("DKK CIBOR 3m"),
+        tullettPrebonSecurityId("ASLIBDDK03L")), "DKK CIBOR 3m", act360, following, Period.ofMonths(3), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO04M Index"), simpleNameSecurityId("DKK CIBOR 4m"),
+        tullettPrebonSecurityId("ASLIBDDK04L")), "DKK CIBOR 4m", act360, following, Period.ofMonths(4), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO05M Index"), simpleNameSecurityId("DKK CIBOR 5m"),
+        tullettPrebonSecurityId("ASLIBDDK05L")), "DKK CIBOR 5m", act360, following, Period.ofMonths(5), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO06M Index"), simpleNameSecurityId("DKK CIBOR 6m"),
+        tullettPrebonSecurityId("ASLIBDDK06L")), "DKK CIBOR 6m", act360, following, Period.ofMonths(6), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO07M Index"), simpleNameSecurityId("DKK CIBOR 7m"),
+        tullettPrebonSecurityId("ASLIBDDK07L")), "DKK CIBOR 7m", act360, following, Period.ofMonths(7), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO08M Index"), simpleNameSecurityId("DKK CIBOR 8m"),
+        tullettPrebonSecurityId("ASLIBDDK08L")), "DKK CIBOR 8m", act360, following, Period.ofMonths(8), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO09M Index"), simpleNameSecurityId("DKK CIBOR 9m"),
+        tullettPrebonSecurityId("ASLIBDDK09L")), "DKK CIBOR 9m", act360, following, Period.ofMonths(9), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO09M Index"), simpleNameSecurityId("DKK CIBOR 10m"),
+        tullettPrebonSecurityId("ASLIBDDK10L")), "DKK CIBOR 10m", act360, following, Period.ofMonths(10), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO09M Index"), simpleNameSecurityId("DKK CIBOR 11m"),
+        tullettPrebonSecurityId("ASLIBDDK11L")), "DKK CIBOR 11m", act360, following, Period.ofMonths(11), 2, false, dk);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CIBO09M Index"), simpleNameSecurityId("DKK CIBOR 1y"),
+        tullettPrebonSecurityId("ASLIBDDK12L")), "DKK CIBOR 1y", act360, following, Period.ofYears(1), 2, false, dk);
+
+    for (int i = 1; i < 3; i++) {
+      final ExternalId tullett = tullettPrebonSecurityId("ASLIBDKK" + i + "WL");
+      final String name = "DKK LIBOR " + i + "w";
+      final ExternalId simple = simpleNameSecurityId(name);
+      utils.addConventionBundle(ExternalIdBundle.of(tullett, simple), name, act360, following, Period.ofDays(i * 7), 2, false, dk);
+    }
+
+    for (int i = 1; i < 12; i++) {
+      final ExternalId tullett = tullettPrebonSecurityId("ASLIBDKK" + (i < 10 ? "0" : "") + i + "L");
+      final String name = "DKK LIBOR " + i + "m";
+      final ExternalId simple = simpleNameSecurityId(name);
+      utils.addConventionBundle(ExternalIdBundle.of(tullett, simple), name, act360, following, Period.ofMonths(i), 2, false, dk);
+    }
+
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBDKK12L"), simpleNameSecurityId("DKK CIBOR 1y")),
+        "DKK CIBOR 1y", act360, following, Period.ofYears(1), 2, false, dk);
 
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("DKDR1T Curncy"), simpleNameSecurityId("DKK DEPOSIT 1d")), "DKK DEPOSIT 1d", act360,
         following, Period.ofDays(1), 0, false, dk);
@@ -137,7 +165,7 @@ public class DKConventions {
   //TODO all of the conventions named treasury need to be changed
   //TODO the ex-dividend days is wrong
   public static void addDKTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("DK_TREASURY_BOND_CONVENTION")), "DK_TREASURY_BOND_CONVENTION", true,
         true, 30, 3, true);
@@ -146,7 +174,7 @@ public class DKConventions {
   //TODO all of the conventions named treasury need to be changed
   //TODO the ex-dividend days is wrong
   public static void addDKCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("DK_CORPORATE_BOND_CONVENTION")), "DK_CORPORATE_BOND_CONVENTION", true,
         true, 30, 3, true);

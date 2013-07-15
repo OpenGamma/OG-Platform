@@ -5,17 +5,16 @@
  */
 package com.opengamma.analytics.financial.instrument.cash;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -38,9 +37,10 @@ public class DepositCounterpartDefinition extends CashDefinition {
    * @param accrualFactor The deposit accrual factor.
    * @param name The counterpart name.
    */
-  public DepositCounterpartDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, double notional, double rate, double accrualFactor, final String name) {
+  public DepositCounterpartDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final double notional, final double rate,
+      final double accrualFactor, final String name) {
     super(currency, startDate, endDate, notional, rate, accrualFactor);
-    Validate.notNull(name, "Name");
+    ArgumentChecker.notNull(name, "Name");
     _name = name;
   }
 
@@ -54,14 +54,14 @@ public class DepositCounterpartDefinition extends CashDefinition {
    * @param name The counterpart name.
    * @return The deposit.
    */
-  public static DepositCounterpartDefinition fromStart(final ZonedDateTime startDate, final Period tenor, final double notional, final double rate, final GeneratorDeposit generator, 
+  public static DepositCounterpartDefinition fromStart(final ZonedDateTime startDate, final Period tenor, final double notional, final double rate, final GeneratorDeposit generator,
       final String name) {
-    Validate.notNull(startDate, "Start date");
-    Validate.notNull(tenor, "Tenor");
-    Validate.notNull(generator, "Generator");
-    Validate.notNull(name, "Name");
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    ArgumentChecker.notNull(generator, "Generator");
+    ArgumentChecker.notNull(name, "Name");
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -75,11 +75,11 @@ public class DepositCounterpartDefinition extends CashDefinition {
    * @return The deposit.
    */
   public static DepositCounterpartDefinition fromStart(final ZonedDateTime startDate, final double notional, final double rate, final GeneratorDeposit generator, final String name) {
-    Validate.notNull(startDate, "Start date");
-    Validate.notNull(generator, "Generator");
-    Validate.notNull(name, "Name");
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(generator, "Generator");
+    ArgumentChecker.notNull(name, "Name");
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -93,15 +93,15 @@ public class DepositCounterpartDefinition extends CashDefinition {
    * @param name The counterpart name.
    * @return The deposit.
    */
-  public static DepositCounterpartDefinition fromTrade(final ZonedDateTime tradeDate, final Period tenor, final double notional, final double rate, final GeneratorDeposit generator, 
+  public static DepositCounterpartDefinition fromTrade(final ZonedDateTime tradeDate, final Period tenor, final double notional, final double rate, final GeneratorDeposit generator,
       final String name) {
-    Validate.notNull(tradeDate, "Start date");
-    Validate.notNull(tenor, "Tenor");
-    Validate.notNull(generator, "Generator");
-    Validate.notNull(name, "Name");
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, generator.getSpotLag(), generator.getCalendar());
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(tradeDate, "Start date");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    ArgumentChecker.notNull(generator, "Generator");
+    ArgumentChecker.notNull(name, "Name");
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, generator.getSpotLag(), generator.getCalendar());
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -116,12 +116,12 @@ public class DepositCounterpartDefinition extends CashDefinition {
    * @return The deposit.
    */
   public static DepositCounterpartDefinition fromTrade(final ZonedDateTime tradeDate, final int start, final double notional, final double rate, final GeneratorDeposit generator, final String name) {
-    Validate.notNull(tradeDate, "Trade date");
-    Validate.notNull(generator, "Generator");
-    Validate.notNull(name, "Name");
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, start, generator.getCalendar());
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    ArgumentChecker.notNull(tradeDate, "Trade date");
+    ArgumentChecker.notNull(generator, "Generator");
+    ArgumentChecker.notNull(name, "Name");
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, start, generator.getCalendar());
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -134,9 +134,9 @@ public class DepositCounterpartDefinition extends CashDefinition {
   }
 
   @Override
-  public DepositCounterpart toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.isTrue(!date.isAfter(getEndDate()), "date is after end date");
-    double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
+  public DepositCounterpart toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");
+    final double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
     if (startTime < 0) {
       return new DepositCounterpart(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _name, yieldCurveNames[0]);
     }
@@ -152,7 +152,7 @@ public class DepositCounterpartDefinition extends CashDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -162,7 +162,7 @@ public class DepositCounterpartDefinition extends CashDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DepositCounterpartDefinition other = (DepositCounterpartDefinition) obj;
+    final DepositCounterpartDefinition other = (DepositCounterpartDefinition) obj;
     if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
@@ -170,12 +170,14 @@ public class DepositCounterpartDefinition extends CashDefinition {
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositCounterpartDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositCounterpartDefinition(this);
   }
 

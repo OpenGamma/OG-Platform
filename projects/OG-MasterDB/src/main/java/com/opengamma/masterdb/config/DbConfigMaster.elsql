@@ -54,7 +54,8 @@
     cfg_config main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
-    main.@INCLUDE(:sort_order)
+    main.@INCLUDE(:sort_order),
+    main.id
 
 
 -- ==========================================================================
@@ -66,7 +67,8 @@
       cfg_config
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order)
+      @INCLUDE(:sort_order),
+      cfg_config.id
 
 
 -- ==========================================================================

@@ -2,7 +2,7 @@
  * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
-.OG-tooltip {
+.OG-tooltip.og-small {
   background: #313b44;
   color: #fff;
   display: none;
@@ -11,7 +11,7 @@
   z-index: 2;
 }
 
-.OG-tooltip:before {
+.OG-tooltip.og-small:before {
   background-position: 0 -10px;
   bottom: -3px;
   content: '';
@@ -27,7 +27,7 @@
   border-bottom: 5px solid #313b44;
 }
 
-.OG-tooltip.OG-disabled {
+.OG-tooltip.og-small.OG-disabled {
   opacity: 0.7;
   filter: alpha(opacity=70);
 }

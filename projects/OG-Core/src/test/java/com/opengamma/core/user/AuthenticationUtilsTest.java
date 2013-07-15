@@ -12,11 +12,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.user.impl.SimpleOGUser;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class AuthenticationUtilsTest {
 
   @Test

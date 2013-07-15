@@ -21,7 +21,7 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
   private static final int SOR_MAX = 5000;
 
   @Override
-  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, final BoundaryCondition2D xLowerBoundary, 
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, final BoundaryCondition2D xLowerBoundary,
       final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary) {
     return solve(pdeData, tSteps, xSteps, ySteps, tMax, xLowerBoundary, xUpperBoundary, yLowerBoundary, yUpperBoundary, null);
   }
@@ -84,27 +84,27 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
           vt[i][j] -= 0.25 * dtdy * f * (v[i][j + 1] - v[i][j - 1]);
         }
 
-        double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, tStar, x[i]);
+        double[] temp = yLowerBoundary.getRightMatrixCondition(tStar, x[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * v[i][k];
         }
-        sum += yLowerBoundary.getConstant(pdeData, tStar, x[i], dy);
+        sum += yLowerBoundary.getConstant(tStar, x[i], dy);
 
-        temp = yLowerBoundary.getLeftMatrixCondition(pdeData, tStar, x[i]);
+        temp = yLowerBoundary.getLeftMatrixCondition(tStar, x[i]);
         for (int k = 1; k < temp.length; k++) {
           sum -= temp[k] * vt[i][k];
         }
         vt[i][0] = sum / temp[0];
 
-        temp = yUpperBoundary.getRightMatrixCondition(pdeData, tStar, x[i]);
+        temp = yUpperBoundary.getRightMatrixCondition(tStar, x[i]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * v[i][ySteps - k];
         }
-        sum += yUpperBoundary.getConstant(pdeData, tStar, x[i], dy);
+        sum += yUpperBoundary.getConstant(tStar, x[i], dy);
 
-        temp = yUpperBoundary.getLeftMatrixCondition(pdeData, tStar, x[i]);
+        temp = yUpperBoundary.getLeftMatrixCondition(tStar, x[i]);
         for (int k = 1; k < temp.length; k++) {
           sum -= temp[k] * vt[i][ySteps - k];
         }
@@ -126,28 +126,28 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
           q[i] = vt[i][j];
         }
 
-        double[] temp = xLowerBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+        double[] temp = xLowerBoundary.getLeftMatrixCondition(t, y[j]);
         for (int k = 0; k < temp.length; k++) {
           mx[0][k] = temp[k];
         }
-        temp = xUpperBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+        temp = xUpperBoundary.getLeftMatrixCondition(t, y[j]);
         for (int k = 0; k < temp.length; k++) {
           mx[xSteps][xSteps - k] = temp[k];
         }
 
-        temp = xLowerBoundary.getRightMatrixCondition(pdeData, t, y[j]);
+        temp = xLowerBoundary.getRightMatrixCondition(t, y[j]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * v[k][j];
         }
-        q[0] = sum + xLowerBoundary.getConstant(pdeData, t, y[j], dx);
+        q[0] = sum + xLowerBoundary.getConstant(t, y[j], dx);
 
-        temp = xUpperBoundary.getRightMatrixCondition(pdeData, t, y[j]);
+        temp = xUpperBoundary.getRightMatrixCondition(t, y[j]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * v[xSteps - k][j];
         }
-        q[xSteps] = sum + xUpperBoundary.getConstant(pdeData, t, y[j], dx);
+        q[xSteps] = sum + xUpperBoundary.getConstant(t, y[j], dx);
 
         // SOR
         final double omega = 1.5;
@@ -193,27 +193,27 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
           v[i][j] -= 0.25 * dtdx * b * (vt[i + 1][j] - vt[i - 1][j]);
         }
 
-        double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, tStar, y[j]);
+        double[] temp = xLowerBoundary.getRightMatrixCondition(tStar, y[j]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * vt[k][j];
         }
-        sum += xLowerBoundary.getConstant(pdeData, tStar, y[j], dx);
+        sum += xLowerBoundary.getConstant(tStar, y[j], dx);
 
-        temp = xLowerBoundary.getLeftMatrixCondition(pdeData, tStar, y[j]);
+        temp = xLowerBoundary.getLeftMatrixCondition(tStar, y[j]);
         for (int k = 1; k < temp.length; k++) {
           sum -= temp[k] * v[k][j];
         }
         v[0][j] = sum / temp[0];
 
-        temp = xUpperBoundary.getRightMatrixCondition(pdeData, tStar, y[j]);
+        temp = xUpperBoundary.getRightMatrixCondition(tStar, y[j]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * vt[xSteps - k][j];
         }
-        sum += xUpperBoundary.getConstant(pdeData, tStar, y[j], dx);
+        sum += xUpperBoundary.getConstant(tStar, y[j], dx);
 
-        temp = xUpperBoundary.getLeftMatrixCondition(pdeData, tStar, y[j]);
+        temp = xUpperBoundary.getLeftMatrixCondition(tStar, y[j]);
         for (int k = 1; k < temp.length; k++) {
           sum -= temp[k] * v[xSteps - k][j];
         }
@@ -236,28 +236,28 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
           r[j] = v[i][j];
         }
 
-        double[] temp = yLowerBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
+        double[] temp = yLowerBoundary.getLeftMatrixCondition(t, x[i]);
         for (int k = 0; k < temp.length; k++) {
           my[0][k] = temp[k];
         }
-        temp = yUpperBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
+        temp = yUpperBoundary.getLeftMatrixCondition(t, x[i]);
         for (int k = 0; k < temp.length; k++) {
           my[ySteps][ySteps - k] = temp[k];
         }
 
-        temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        temp = yLowerBoundary.getRightMatrixCondition(t, x[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * vt[i][k];
         }
-        r[0] = sum + yLowerBoundary.getConstant(pdeData, t, x[i], dy);
+        r[0] = sum + yLowerBoundary.getConstant(t, x[i], dy);
 
-        temp = yUpperBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        temp = yUpperBoundary.getRightMatrixCondition(t, x[i]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * vt[i][ySteps - k];
         }
-        r[ySteps] = sum + yUpperBoundary.getConstant(pdeData, t, x[i], dy);
+        r[ySteps] = sum + yUpperBoundary.getConstant(t, x[i], dy);
 
         // SOR
         final double omega = 1.5;

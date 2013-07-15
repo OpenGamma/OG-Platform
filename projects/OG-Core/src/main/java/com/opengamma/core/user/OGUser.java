@@ -7,7 +7,7 @@ package com.opengamma.core.user;
 
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
@@ -73,7 +73,7 @@ public interface OGUser extends UniqueIdentifiable, ExternalBundleIdentifiable {
    * 
    * @return the time-zone, not null
    */
-  TimeZone getTimeZone();
+  ZoneId getTimeZone();
 
   /**
    * The primary email address associated with the account.

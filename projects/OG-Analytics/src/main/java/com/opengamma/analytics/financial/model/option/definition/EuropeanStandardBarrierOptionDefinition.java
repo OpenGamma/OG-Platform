@@ -17,7 +17,7 @@ import com.opengamma.util.time.Expiry;
  */
 
 public class EuropeanStandardBarrierOptionDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction;
   private final Barrier _barrier;
   private final double _rebate;

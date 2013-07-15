@@ -5,15 +5,13 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Instant;
 
-import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 
 /**
@@ -28,22 +26,24 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
   /**
    * The values.
    */
-  private UnstructuredMarketDataSnapshot _values;
+  private ManageableUnstructuredMarketDataSnapshot _values;
 
   /**
    * Gets the values.
    * 
    * @return the values
    */
-  public UnstructuredMarketDataSnapshot getValues() {
+  @Override
+  public ManageableUnstructuredMarketDataSnapshot getValues() {
     return _values;
   }
 
   /**
    * Sets the values.
-   * @param values  the values
+   * 
+   * @param values the values
    */
-  public void setValues(UnstructuredMarketDataSnapshot values) {
+  public void setValues(final ManageableUnstructuredMarketDataSnapshot values) {
     _values = values;
   }
 
@@ -52,6 +52,7 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
    * 
    * @return the valuation instant
    */
+  @Override
   public Instant getValuationTime() {
     return _valuationTime;
   }
@@ -59,14 +60,14 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
   /**
    * Sets the valuation instant.
    * 
-   * @param valuationTime  the valuation instant
+   * @param valuationTime the valuation instant
    */
-  public void setValuationTime(Instant valuationTime) {
+  public void setValuationTime(final Instant valuationTime) {
     _valuationTime = valuationTime;
   }
 
-  public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
-    MutableFudgeMsg ret = serializer.newMessage();
+  public org.fudgemsg.FudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg ret = serializer.newMessage();
     // TODO: this should not be adding its own class header; the caller should add it based on application knowledge about the receiving end
     FudgeSerializer.addClassHeader(ret, ManageableYieldCurveSnapshot.class);
     serializer.addToMessage(ret, "values", null, _values);
@@ -74,8 +75,8 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
     return ret;
   }
 
-  public static ManageableYieldCurveSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ManageableYieldCurveSnapshot ret = new ManageableYieldCurveSnapshot();
+  public static ManageableYieldCurveSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final ManageableYieldCurveSnapshot ret = new ManageableYieldCurveSnapshot();
     FudgeField field = msg.getByName("values");
     if (field != null) {
       ret.setValues(deserializer.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, field));

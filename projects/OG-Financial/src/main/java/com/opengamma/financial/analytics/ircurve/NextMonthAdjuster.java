@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 /**
- * A {@code DateAdjuster} that moves the date to the next March/June/September/December.
+ * A {@code TemporalAdjuster} that moves the date to the next March/June/September/December.
  */
-public class NextMonthAdjuster implements DateAdjuster {
+public class NextMonthAdjuster implements TemporalAdjuster {
+
   @Override
-  public LocalDate adjustDate(LocalDate date) {
-    LocalDate result = date;
-    result = result.plusMonths(1);
-    return result;
+  public Temporal adjustInto(Temporal temporal) {
+    return temporal.plus(1, MONTHS);
   }
+
 }

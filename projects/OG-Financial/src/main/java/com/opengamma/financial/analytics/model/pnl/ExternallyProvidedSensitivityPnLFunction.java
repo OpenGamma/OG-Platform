@@ -7,14 +7,14 @@ package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -29,11 +29,12 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -51,13 +52,13 @@ import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.RawSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.security.RawSecurity;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -81,10 +82,11 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
+    final ComputationTargetSpecification positionSpec = target.toSpecification();
     final RawSecurity security = (RawSecurity) position.getSecurity();
     final SecuritySource secSource = executionContext.getSecuritySource();
     //final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = MAGIC_DATE; //snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = MAGIC_DATE; //ZonedDateTime.now(snapshotClock).getDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -98,7 +100,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
     DoubleTimeSeries<?> result = getPnLSeries(security, secSource, timeSeries, inputs, startDate, now, schedule, samplingFunction);
     result = result.multiply(position.getQuantity().doubleValue());
     final ValueProperties resultProperties = getResultProperties(desiredValue, currencyString);
-    final ValueSpecification resultSpec = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, resultProperties), getUniqueId());
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, positionSpec, resultProperties);
     return Sets.newHashSet(new ComputedValue(resultSpec, result));
   }
 
@@ -126,7 +128,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .get();
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties), getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override
@@ -176,7 +178,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
         //throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
         continue;
       }
-      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      DateDoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       final Double sensitivity = (Double) inputs.getValue(getSensitivityRequirement(factor.getExposureExternalId()));
       if (sensitivity != null) {
@@ -196,7 +198,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
       dates.add(MAGIC_DATE);
       values.add(0d);
       values.add(0d);
-      pnlSeries = new ArrayLocalDateDoubleTimeSeries(dates, values);
+      pnlSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     }
     return pnlSeries;
   }
@@ -225,7 +227,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
   }
 
   protected ValueRequirement getSensitivityRequirement(final ExternalId externalId) {
-    return new ValueRequirement(/*ExternalDataRequirementNames.SENSITIVITY*/"EXPOSURE", ComputationTargetType.PRIMITIVE, UniqueId.of(externalId.getScheme().getName(), externalId.getValue()));
+    return new ValueRequirement(/*ExternalDataRequirementNames.SENSITIVITY*/"EXPOSURE", ComputationTargetType.PRIMITIVE, externalId);
   }
 
   protected ValueRequirement getTimeSeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final String samplingPeriod) {

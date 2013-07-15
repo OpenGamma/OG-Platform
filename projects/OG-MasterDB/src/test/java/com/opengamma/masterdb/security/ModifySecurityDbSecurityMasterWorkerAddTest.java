@@ -5,16 +5,17 @@
  */
 package com.opengamma.masterdb.security;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -22,10 +23,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecurityMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -51,7 +54,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
 
   @Test
   public void test_add_add() {
-    Instant now = Instant.now(_secMaster.getTimeSource());
+    Instant now = Instant.now(_secMaster.getClock());
     
     ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
@@ -88,6 +91,40 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     
     SecurityDocument test = _secMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingNameProperty() {
+    ManageableSecurity security = mock(ManageableSecurity.class);
+    when(security.getSecurityType()).thenReturn("MANAGEABLE");
+    when(security.getExternalIdBundle()).thenReturn(ExternalIdBundle.of("A", "B"));
+    SecurityDocument doc = new SecurityDocument(security);
+    _secMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingExternalIdBundleProperty() {
+    ManageableSecurity security = mock(ManageableSecurity.class);
+    when(security.getSecurityType()).thenReturn("MANAGEABLE");
+    when(security.getName()).thenReturn("Test");
+    SecurityDocument doc = new SecurityDocument(security);
+    _secMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingTypeProperty() {
+    ManageableSecurity security = mock(ManageableSecurity.class);
+    when(security.getName()).thenReturn("Test");
+    when(security.getExternalIdBundle()).thenReturn(ExternalIdBundle.of("A", "B"));
+    SecurityDocument doc = new SecurityDocument(security);
+    _secMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageableSecurity security = new ManageableSecurity();
+    SecurityDocument doc = new SecurityDocument(security);
+    _secMaster.add(doc);
   }
 
 }

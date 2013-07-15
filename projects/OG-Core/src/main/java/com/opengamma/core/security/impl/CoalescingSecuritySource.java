@@ -310,8 +310,18 @@ public class CoalescingSecuritySource implements SecuritySource {
   }
 
   @Override
+  public Map<ObjectId, Security> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
+    return getUnderlying().get(objectIds, versionCorrection);
+  }
+
+  @Override
   public Collection<Security> get(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     return getUnderlying().get(bundle, versionCorrection);
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Collection<Security>> getAll(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    return getUnderlying().getAll(bundles, versionCorrection);
   }
 
   @Override
@@ -327,6 +337,11 @@ public class CoalescingSecuritySource implements SecuritySource {
   @Override
   public Security getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     return getUnderlying().getSingle(bundle, versionCorrection);
+  }
+
+  @Override
+  public Map<ExternalIdBundle, Security> getSingle(final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
+    return getUnderlying().getSingle(bundles, versionCorrection);
   }
 
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.provider.security;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.core.security.Security;
@@ -28,7 +29,7 @@ import com.opengamma.util.PublicSPI;
 public interface SecurityProvider {
 
   /**
-   * Gets information about a collection of securities from the underlying data source.
+   * Gets information about a security from the underlying data source.
    * <p>
    * The security is specified by external identifier bundle.
    * 
@@ -49,7 +50,7 @@ public interface SecurityProvider {
    * @return the security information, not null
    * @throws RuntimeException if a problem occurs
    */
-  Map<ExternalIdBundle, Security> getSecurities(Iterable<ExternalIdBundle> externalIdBundles);
+  Map<ExternalIdBundle, Security> getSecurities(Collection<ExternalIdBundle> externalIdBundles);
 
   /**
    * Gets one or more security information objects from the underlying data source.
@@ -61,6 +62,6 @@ public interface SecurityProvider {
    * @return the security information result, not null
    * @throws RuntimeException if a problem occurs
    */
-  SecurityProviderGetResult getSecurities(SecurityProviderGetRequest request);
+  SecurityProviderResult getSecurities(SecurityProviderRequest request);
 
 }

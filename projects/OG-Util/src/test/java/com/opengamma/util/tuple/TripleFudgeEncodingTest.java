@@ -5,15 +5,15 @@
  */
 package com.opengamma.util.tuple;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.time.Tenor;
@@ -21,7 +21,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Test Fudge encoding.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class TripleFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_objectAndReducedNumber() {
@@ -35,7 +35,7 @@ public class TripleFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
-    Triple<Tenor, Tenor, Expiry> object = Triple.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH, new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR));
+    Triple<Tenor, Tenor, Expiry> object = Triple.of(Tenor.DAY, Tenor.TEN_MONTHS, new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR));
     assertEncodeDecodeCycle(Triple.class, object);
   }
 

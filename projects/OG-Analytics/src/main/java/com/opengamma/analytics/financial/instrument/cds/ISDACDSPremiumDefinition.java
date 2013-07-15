@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.instrument.cds;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.ISDACDSCoupon;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSPremium;
@@ -39,13 +39,13 @@ import com.opengamma.util.money.Currency;
  * @see AnnuityCouponFixedDefinition
  */
 public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
-  
-  public ISDACDSPremiumDefinition(ISDACDSCouponDefinition[] payments) {
+
+  public ISDACDSPremiumDefinition(final ISDACDSCouponDefinition[] payments) {
     super(payments);
   }
-  
+
   /**
-   * An ISDA-compliant annuity builder for a CDS contract 
+   * An ISDA-compliant annuity builder for a CDS contract
    * 
    * @param startDate The (original unadjusted) start of the CDS contract
    * @param maturity The (unadjusted) maturity date
@@ -59,56 +59,56 @@ public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
    * @return An ISDA-compliant definition for the CDS premium
    */
   public static ISDACDSPremiumDefinition from(final ZonedDateTime startDate, final ZonedDateTime maturity,
-    final Frequency frequency, final Convention convention, final StubType stubType, final boolean protectStart,
-    final double notional, final double spread, final Currency currency) {
-    
+      final Frequency frequency, final Convention convention, final StubType stubType, final boolean protectStart,
+      final double notional, final double spread, final Currency currency) {
+
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(startDate, "CDS start date");
     ArgumentChecker.notNull(maturity, "CDS maturity");
     ArgumentChecker.notNull(frequency, "frequency");
     ArgumentChecker.notNull(convention, "convention");
-    
+
     final DayCount dayCount = convention.getDayCount();
     ArgumentChecker.isTrue(!(dayCount instanceof ActualActualICMA) | !(dayCount instanceof ActualActualICMANormal), "Coupon per year required for Actual Actual ICMA");
-    
+
     // TODO: Handle stubType == StubType.NONE
     final boolean isStubShort = stubType == StubType.SHORT_START || stubType == StubType.SHORT_END;
     final boolean isStubAtEnd = stubType == StubType.SHORT_END || stubType == StubType.LONG_END;
-    
+
     // If the stub is at the end of the schedule, compute the schedule from the beginning, and vice versa
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(startDate, maturity, frequency,
-      isStubShort, !isStubAtEnd, convention.getBusinessDayConvention(), convention.getWorkingDayCalendar(), /* EOM */ false);
-    
+        isStubShort, !isStubAtEnd, convention.getBusinessDayConvention(), convention.getWorkingDayCalendar(), /* EOM */ false);
+
     final ZonedDateTime maturityWithOffset = protectStart ? maturity.plusDays(1) : maturity;
-    
-    ISDACDSCouponDefinition[] coupons = new ISDACDSCouponDefinition[paymentDates.length];
+
+    final ISDACDSCouponDefinition[] coupons = new ISDACDSCouponDefinition[paymentDates.length];
     final int maturityIndex = coupons.length - 1;
-    
+
     if (maturityIndex > 0) {
-    
+
       // accrual start date is not adjusted for the first coupon
       coupons[0] = new ISDACDSCouponDefinition(currency, paymentDates[0], startDate, paymentDates[0],
-        dayCount.getDayCountFraction(startDate, paymentDates[0]), notional, spread);
-      
+          dayCount.getDayCountFraction(startDate, paymentDates[0]), notional, spread);
+
       for (int i = 1; i < maturityIndex; i++) {
         coupons[i] = new ISDACDSCouponDefinition(currency, paymentDates[i], paymentDates[i - 1], paymentDates[i],
-          dayCount.getDayCountFraction(paymentDates[i - 1], paymentDates[i]), notional, spread);
+            dayCount.getDayCountFraction(paymentDates[i - 1], paymentDates[i]), notional, spread);
       }
-      
+
       // Accrual end date is not adjusted for the last coupon
       coupons[maturityIndex] =  new ISDACDSCouponDefinition(currency, paymentDates[maturityIndex], paymentDates[maturityIndex - 1], maturity,
-        dayCount.getDayCountFraction(paymentDates[maturityIndex - 1], maturityWithOffset), notional, spread);
-      
+          dayCount.getDayCountFraction(paymentDates[maturityIndex - 1], maturityWithOffset), notional, spread);
+
     } else {
-      
+
       // For a premium consisting of a single payment, neither the accrual start nor end date is adjusted
       coupons[0] = new ISDACDSCouponDefinition(currency, paymentDates[0], startDate, maturity,
-        dayCount.getDayCountFraction(startDate, maturityWithOffset), notional, spread);
+          dayCount.getDayCountFraction(startDate, maturityWithOffset), notional, spread);
     }
-    
+
     return new ISDACDSPremiumDefinition(coupons);
   }
-  
+
   @Override
   public ISDACDSPremium toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<ISDACDSCoupon> resultList = new ArrayList<ISDACDSCoupon>();
@@ -117,6 +117,6 @@ public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
         resultList.add(((ISDACDSCouponDefinition) getNthPayment(loopcoupon)).toDerivative(date, yieldCurveNames));
       }
     }
-    return new ISDACDSPremium(resultList.toArray(new ISDACDSCoupon[0]));
+    return new ISDACDSPremium(resultList.toArray(new ISDACDSCoupon[resultList.size()]));
   }
 }

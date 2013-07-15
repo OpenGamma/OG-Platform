@@ -11,19 +11,27 @@ import java.util.Collections;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -41,6 +49,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -53,31 +62,85 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * General utility method applying to Financial Securities
  */
 public class FinancialSecurityUtils {
+
+  private static ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>> s_getCurrencyConstraint = getCurrencyConstraint();
+
+  private static ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>> getCurrencyConstraint() {
+    final ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>> map = new ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>>();
+    map.put(ComputationTargetType.POSITION, new Function1<ComputationTarget, ValueProperties>() {
+      @Override
+      public ValueProperties execute(final ComputationTarget target) {
+        final Security security = target.getPosition().getSecurity();
+        final Currency ccy = getCurrency(security);
+        if (ccy != null) {
+          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+        } else {
+          return ValueProperties.none();
+        }
+      }
+    });
+    map.put(ComputationTargetType.SECURITY, new Function1<ComputationTarget, ValueProperties>() {
+      @Override
+      public ValueProperties execute(final ComputationTarget target) {
+        final Security security = target.getSecurity();
+        final Currency ccy = getCurrency(security);
+        if (ccy != null) {
+          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+        } else {
+          return ValueProperties.none();
+        }
+      }
+    });
+    map.put(ComputationTargetType.TRADE, new Function1<ComputationTarget, ValueProperties>() {
+      @Override
+      public ValueProperties execute(final ComputationTarget target) {
+        final Security security = target.getTrade().getSecurity();
+        final Currency ccy = getCurrency(security);
+        if (ccy != null) {
+          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+        } else {
+          return ValueProperties.none();
+        }
+      }
+    });
+    map.put(ComputationTargetType.CURRENCY, new Function1<ComputationTarget, ValueProperties>() {
+      @Override
+      public ValueProperties execute(final ComputationTarget target) {
+        return ValueProperties.with(ValuePropertyNames.CURRENCY, target.getUniqueId().getValue()).get();
+      }
+    });
+    return map;
+  }
 
   /**
    *
@@ -85,42 +148,12 @@ public class FinancialSecurityUtils {
    * @return ValueProperties containing a constraint of the CurrencyUnit or empty if not possible
    */
   public static ValueProperties getCurrencyConstraint(final ComputationTarget target) {
-    switch (target.getType()) {
-      case PORTFOLIO_NODE:
-        break;
-      case POSITION: {
-        final Security security = target.getPosition().getSecurity();
-        final Currency ccy = getCurrency(security);
-        if (ccy != null) {
-          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-        }
-      }
-        break;
-      case PRIMITIVE: {
-        final UniqueId uid = target.getUniqueId();
-        if (uid.getScheme().equals(Currency.OBJECT_SCHEME)) {
-          return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
-        }
-      }
-        break;
-      case SECURITY: {
-        final Security security = target.getSecurity();
-        final Currency ccy = getCurrency(security);
-        if (ccy != null) {
-          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-        }
-      }
-        break;
-      case TRADE: {
-        final Security security = target.getTrade().getSecurity();
-        final Currency ccy = getCurrency(security);
-        if (ccy != null) {
-          return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-        }
-      }
-        break;
+    final Function1<ComputationTarget, ValueProperties> operation = s_getCurrencyConstraint.get(target.getType());
+    if (operation != null) {
+      return operation.execute(target);
+    } else {
+      return ValueProperties.none();
     }
-    return ValueProperties.none();
   }
 
   /**
@@ -186,6 +219,16 @@ public class FinancialSecurityUtils {
         @Override
         public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
           return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+          return security.getRegionId();
+        }
+
+        @Override
+        public ExternalId visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          return security.getRegionId();
         }
       });
 
@@ -267,6 +310,11 @@ public class FinancialSecurityUtils {
         public ExternalId visitStockFutureSecurity(final StockFutureSecurity security) {
           return ExternalId.of(ExternalSchemes.ISO_MIC, security.getTradingExchange());
         }
+
+        @Override
+        public ExternalId visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
+          return ExternalId.of(ExternalSchemes.ISO_MIC, security.getExchange());
+        }
       });
       return regionId;
     }
@@ -300,6 +348,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitCashSecurity(final CashSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitCashFlowSecurity(final CashFlowSecurity security) {
           return security.getCurrency();
         }
 
@@ -373,8 +426,13 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
-          return commodityFutureOptionSecurity.getCurrency();
+        public Currency visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return security.getCurrency();
         }
 
         @Override
@@ -385,6 +443,11 @@ public class FinancialSecurityUtils {
         @Override
         public Currency visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return equityIndexDividendFutureOptionSecurity.getCurrency();
+        }
+
+        @Override
+        public Currency visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity equityIndexFutureOptionSecurity) {
+          return equityIndexFutureOptionSecurity.getCurrency();
         }
 
         @Override
@@ -542,6 +605,26 @@ public class FinancialSecurityUtils {
           return security.getNotional().getCurrency();
         }
 
+        @Override
+        public Currency visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitCreditDefaultSwapIndexDefinitionSecurity(final CreditDefaultSwapIndexDefinitionSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return security.getNotional().getCurrency();
+        }
+
+        @Override
+        public Currency visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return security.getCurrency();
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -562,6 +645,7 @@ public class FinancialSecurityUtils {
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
   public static Collection<Currency> getCurrencies(final Security security, final SecuritySource securitySource) {
+
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       final Collection<Currency> ccy = finSec.accept(new FinancialSecurityVisitor<Collection<Currency>>() {
@@ -582,6 +666,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitCashSecurity(final CashSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCashFlowSecurity(final CashFlowSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
 
@@ -674,7 +763,12 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
-          return null;
+          return Collections.singleton(commodityFutureOptionSecurity.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return Collections.singleton(security.getCurrency());
         }
 
         @Override
@@ -684,6 +778,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
 
@@ -856,6 +955,27 @@ public class FinancialSecurityUtils {
         public Collection<Currency> visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
           return Collections.singletonList(security.getNotional().getCurrency());
         }
+
+        @Override
+        public Collection<Currency> visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCreditDefaultSwapIndexDefinitionSecurity(final CreditDefaultSwapIndexDefinitionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return Collections.singletonList(security.getNotional().getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -888,7 +1008,9 @@ public class FinancialSecurityUtils {
           equityIndexOptionVisitor(true).
           equityOptionVisitor(true).
           equityBarrierOptionVisitor(true).
-          bondFutureOptionSecurityVisitor(true).create());
+          bondFutureOptionSecurityVisitor(true).
+          equityIndexFutureOptionVisitor(true).
+          create());
 
       result = isExchangeTraded == null ? false : isExchangeTraded;
     }
@@ -896,4 +1018,265 @@ public class FinancialSecurityUtils {
     return result;
   }
 
+  /**
+   * Returns the underlying id of a security (e.g. the id of the equity underlying an equity future).
+   * @param security The security, not null
+   * @return The id of the underlying of a security, where it is possible to identify this, or null
+   */
+  public static ExternalId getUnderlyingId(final Security security) {
+    if (security instanceof FinancialSecurity) {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final ExternalId id = finSec.accept(new FinancialSecurityVisitorAdapter<ExternalId>() {
+
+        @Override
+        public ExternalId visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitMetalForwardSecurity(final MetalForwardSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitStockFutureSecurity(final StockFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityFutureSecurity(final EquityFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitIndexFutureSecurity(final IndexFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitMetalFutureSecurity(final MetalFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityOptionSecurity(final EquityOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+          return security.getSpotUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+      });
+      return id;
+    }
+    return null;
+  }
+
+  public static CurrencyAmount getNotional(final Security security, final CurrencyPairs currencyPairs) {
+    if (security instanceof FinancialSecurity) {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final CurrencyAmount notional = finSec.accept(new FinancialSecurityVisitorAdapter<CurrencyAmount>() {
+
+        @Override
+        public CurrencyAmount visitSwapSecurity(final SwapSecurity security) {
+          final SwapLeg payNotional = security.getPayLeg();
+          final SwapLeg receiveNotional = security.getReceiveLeg();
+          if (payNotional.getNotional() instanceof InterestRateNotional && receiveNotional.getNotional() instanceof InterestRateNotional) {
+            final InterestRateNotional pay = (InterestRateNotional) payNotional.getNotional();
+            final InterestRateNotional receive = (InterestRateNotional) receiveNotional.getNotional();
+            if (Double.compare(pay.getAmount(), receive.getAmount()) == 0) {
+              return CurrencyAmount.of(pay.getCurrency(), pay.getAmount());
+            }
+          }
+          throw new OpenGammaRuntimeException("Can only handle interest rate notionals with the same amounts");
+        }
+
+        @Override
+        public CurrencyAmount visitFXOptionSecurity(final FXOptionSecurity security) {
+          final Currency currency1 = security.getPutCurrency();
+          final double amount1 = security.getPutAmount();
+          final Currency currency2 = security.getCallCurrency();
+          final double amount2 = security.getCallAmount();
+          final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(currency1, currency2);
+          if (currencyPair.getBase().equals(currency1)) {
+            return CurrencyAmount.of(currency1, amount1);
+          }
+          return CurrencyAmount.of(currency2, amount2);
+        }
+
+        @Override
+        public CurrencyAmount visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
+          final Currency currency = security.getDeliveryCurrency();
+          final double amount = security.getCallCurrency().equals(currency) ? security.getCallAmount() : security.getPutAmount();
+          return CurrencyAmount.of(currency, amount);
+        }
+
+        @Override
+        public CurrencyAmount visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+          final Currency currency1 = security.getPutCurrency();
+          final double amount1 = security.getPutAmount();
+          final Currency currency2 = security.getCallCurrency();
+          final double amount2 = security.getCallAmount();
+          final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(currency1, currency2);
+          if (currencyPair.getBase().equals(currency1)) {
+            return CurrencyAmount.of(currency1, amount1);
+          }
+          return CurrencyAmount.of(currency2, amount2);
+        }
+
+        @Override
+        public CurrencyAmount visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+          final Currency currency = security.getPaymentCurrency();
+          final double amount = security.getCallCurrency().equals(currency) ? security.getCallAmount() : security.getPutAmount();
+          return CurrencyAmount.of(currency, amount);
+        }
+
+        @Override
+        public CurrencyAmount visitFXForwardSecurity(final FXForwardSecurity security) {
+          final Currency currency1 = security.getPayCurrency();
+          final double amount1 = security.getPayAmount();
+          final Currency currency2 = security.getReceiveCurrency();
+          final double amount2 = security.getReceiveAmount();
+          final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(currency1, currency2);
+          if (currencyPair.getBase().equals(currency1)) {
+            return CurrencyAmount.of(currency1, amount1);
+          }
+          return CurrencyAmount.of(currency2, amount2);
+        }
+
+        @Override
+        public CurrencyAmount visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+          final InterestRateNotional notional = security.getNotional();
+          final int sign = security.isBuy() ? 1 : -1;
+          return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
+        }
+
+        @Override
+        public CurrencyAmount visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
+          final InterestRateNotional notional = security.getNotional();
+          final int sign = security.isBuy() ? 1 : -1;
+          return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
+        }
+
+        @Override
+        public CurrencyAmount visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getMinimumAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitCorporateBondSecurity(final CorporateBondSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getMinimumAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getMinimumAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getNotional();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getPointValue();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getUnitAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          final InterestRateNotional notional = security.getNotional();
+          return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
+        }
+
+        @Override
+        public CurrencyAmount visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getNotional();
+          return CurrencyAmount.of(currency, notional);
+        }
+      });
+      return notional;
+    }
+    return null;
+  }
 }

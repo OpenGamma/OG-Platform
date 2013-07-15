@@ -5,11 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.swaption;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -18,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -51,9 +50,9 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
    * @param isLong The long (true) / short (false) flag.
    */
   private SwaptionCashFixedIborDefinition(final ZonedDateTime expiryDate, final double strike, final SwapFixedIborDefinition underlyingSwap, final boolean isCall, final boolean isLong) {
-    Validate.notNull(expiryDate, "expiry date");
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
+    ArgumentChecker.notNull(expiryDate, "expiry date");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     //TODO do we need to check that the swaption expiry is consistent with the underlying swap?
     _underlyingSwap = underlyingSwap;
     _isLong = isLong;
@@ -69,8 +68,8 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
    * @return The swaption.
    */
   public static SwaptionCashFixedIborDefinition from(final ZonedDateTime expiryDate, final SwapFixedIborDefinition underlyingSwap, final boolean isLong) {
-    Validate.notNull(expiryDate, "expiry date");
-    Validate.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.notNull(expiryDate, "expiry date");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getRate();
     // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
     return new SwaptionCashFixedIborDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
@@ -78,10 +77,10 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
 
   @Override
   public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    Validate.notNull(dateTime, "date");
+    ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
-    Validate.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
@@ -130,11 +129,13 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionCashFixedIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionCashFixedIborDefinition(this);
   }
 

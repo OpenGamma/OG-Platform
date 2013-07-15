@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.analytics.volatility.cube;
 
 import java.util.Set;
@@ -9,10 +14,12 @@ import org.testng.annotations.Test;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BloombergVolatilityCubeInstrumentProviderTest {
 
   @Test

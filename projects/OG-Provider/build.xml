@@ -1,9 +1,0 @@
-<project name="og-provider" default="compile">
-	<property file="build.properties" />
-
-	<import file="${common.dir}/common.xml" />
-
-	<target name="publish" depends="common.publish" />
-
-	<target name="publish-local" depends="common.publish-local" />
-</project>

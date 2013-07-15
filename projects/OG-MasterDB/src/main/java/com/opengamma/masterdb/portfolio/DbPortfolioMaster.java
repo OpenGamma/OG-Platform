@@ -8,6 +8,7 @@ package com.opengamma.masterdb.portfolio;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -18,14 +19,13 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.Instant;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -58,12 +58,10 @@ import com.opengamma.util.tuple.LongObjectPair;
 /**
  * A portfolio master implementation using a database for persistence.
  * <p>
- * This is a full implementation of the portfolio master using an SQL database.
- * Full details of the API are in {@link PortfolioMaster}.
+ * This is a full implementation of the portfolio master using an SQL database. Full details of the API are in {@link PortfolioMaster}.
  * <p>
- * The SQL is stored externally in {@code DbPortfolioMaster.elsql}.
- * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbPortfolioMaster-MySpecialDB.elsql}.
+ * The SQL is stored externally in {@code DbPortfolioMaster.elsql}. Alternate databases or specific SQL requirements can be handled using database specific overrides, such as
+ * {@code DbPortfolioMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -91,11 +89,11 @@ public class DbPortfolioMaster
     ORDER_BY_MAP.put(PortfolioSearchSortOrder.NAME_ASC, "name ASC");
     ORDER_BY_MAP.put(PortfolioSearchSortOrder.NAME_DESC, "name DESC");
   }
- 
+
   /**
    * Creates an instance.
    * 
-   * @param dbConnector  the database connector, not null
+   * @param dbConnector the database connector, not null
    */
   public DbPortfolioMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
@@ -109,10 +107,10 @@ public class DbPortfolioMaster
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
-    
+
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final PortfolioSearchResult result = new PortfolioSearchResult(vc);
-    
+
     final List<ObjectId> portfolioObjectIds = request.getPortfolioObjectIds();
     final List<ObjectId> nodeObjectIds = request.getNodeObjectIds();
     if ((portfolioObjectIds != null && portfolioObjectIds.size() == 0) ||
@@ -120,11 +118,11 @@ public class DbPortfolioMaster
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    
+
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
+        .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+        .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
     if (request.getDepth() >= 0) {
       args.addValue("depth", request.getDepth());
     }
@@ -150,13 +148,13 @@ public class DbPortfolioMaster
     args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
-    
+
     if (request.isIncludePositions()) {
-      String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true, true), result);
+      String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args) };
+      doSearch(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true, true), result);
     } else {
-      String[] sql = {getElSqlBundle().getSql("SearchNoPositions", args), getElSqlBundle().getSql("SearchCount", args)};
-      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(false, true), result);
+      String[] sql = {getElSqlBundle().getSql("SearchNoPositions", args), getElSqlBundle().getSql("SearchCount", args) };
+      doSearch(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(false, true), result);
     }
     return result;
   }
@@ -193,36 +191,36 @@ public class DbPortfolioMaster
   /**
    * Inserts a new document.
    * 
-   * @param document  the document, not null
+   * @param document the document, not null
    * @return the new document, not null
    */
   @Override
   protected PortfolioDocument insert(final PortfolioDocument document) {
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
-    
+
     final Long portfolioId = nextId("prt_master_seq");
     final Long portfolioOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : portfolioId);
     final UniqueId portfolioUid = createUniqueId(portfolioOid, portfolioId);
-    
+
     // the arguments for inserting into the portfolio table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-      .addValue("portfolio_id", portfolioId)
-      .addValue("portfolio_oid", portfolioOid)
-      .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-      .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-      .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-      .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-      .addValue("name", StringUtils.defaultString(document.getPortfolio().getName()))
-      .addValue("visibility", document.getVisibility().getVisibilityLevel());
-    
+        .addValue("portfolio_id", portfolioId)
+        .addValue("portfolio_oid", portfolioOid)
+        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+        .addValue("name", StringUtils.defaultString(document.getPortfolio().getName()))
+        .addValue("visibility", document.getVisibility().getVisibilityLevel());
+
     // the arguments for inserting into the node table
     final List<DbMapSqlParameterSource> nodeList = new ArrayList<DbMapSqlParameterSource>(256);
     final List<DbMapSqlParameterSource> posList = new ArrayList<DbMapSqlParameterSource>(256);
     insertBuildArgs(portfolioUid, null, document.getPortfolio().getRootNode(), document.getUniqueId() != null,
         portfolioId, portfolioOid, null, null,
         new AtomicInteger(1), 0, nodeList, posList);
-    
+
     // the arguments for inserting into the portifolio_attribute table
     final List<DbMapSqlParameterSource> prtAttrList = Lists.newArrayList();
     for (Entry<String, String> entry : document.getPortfolio().getAttributes().entrySet()) {
@@ -235,7 +233,7 @@ public class DbPortfolioMaster
           .addValue("value", entry.getValue());
       prtAttrList.add(posAttrArgs);
     }
-    
+
     // insert
     final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
     final String sqlNode = getElSqlBundle().getSql("InsertNode");
@@ -245,7 +243,7 @@ public class DbPortfolioMaster
     getJdbcTemplate().batchUpdate(sqlNode, nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     getJdbcTemplate().batchUpdate(sqlPosition, posList.toArray(new DbMapSqlParameterSource[posList.size()]));
     getJdbcTemplate().batchUpdate(sqlAttributes, prtAttrList.toArray(new DbMapSqlParameterSource[prtAttrList.size()]));
-    
+
     // set the uniqueId
     document.getPortfolio().setUniqueId(portfolioUid);
     document.setUniqueId(portfolioUid);
@@ -255,18 +253,18 @@ public class DbPortfolioMaster
   /**
    * Recursively create the arguments to insert into the tree existing nodes.
    * 
-   * @param portfolioUid  the portfolio unique identifier, not null
-   * @param parentNodeUid  the parent node unique identifier, not null
-   * @param node  the root node, not null
-   * @param update  true if updating portfolio, false if adding new portfolio
-   * @param portfolioId  the portfolio id, not null
-   * @param portfolioOid  the portfolio oid, not null
-   * @param parentNodeId  the parent node id, null if root node
-   * @param parentNodeOid  the parent node oid, null if root node
-   * @param counter  the counter to create the node id, use {@code getAndIncrement}, not null
-   * @param depth  the depth of the node in the portfolio
-   * @param argsList  the list of arguments to build, not null
-   * @param posList  the list of arguments to for inserting positions, not null
+   * @param portfolioUid the portfolio unique identifier, not null
+   * @param parentNodeUid the parent node unique identifier, not null
+   * @param node the root node, not null
+   * @param update true if updating portfolio, false if adding new portfolio
+   * @param portfolioId the portfolio id, not null
+   * @param portfolioOid the portfolio oid, not null
+   * @param parentNodeId the parent node id, null if root node
+   * @param parentNodeOid the parent node oid, null if root node
+   * @param counter the counter to create the node id, use {@code getAndIncrement}, not null
+   * @param depth the depth of the node in the portfolio
+   * @param argsList the list of arguments to build, not null
+   * @param posList the list of arguments to for inserting positions, not null
    */
   protected void insertBuildArgs(
       final UniqueId portfolioUid, final UniqueId parentNodeUid,
@@ -281,28 +279,28 @@ public class DbPortfolioMaster
     node.setParentNodeId(parentNodeUid);
     node.setPortfolioId(portfolioUid);
     final DbMapSqlParameterSource treeArgs = new DbMapSqlParameterSource()
-      .addValue("node_id", nodeId)
-      .addValue("node_oid", nodeOid)
-      .addValue("portfolio_id", portfolioId)
-      .addValue("portfolio_oid", portfolioOid)
-      .addValue("parent_node_id", parentNodeId)
-      .addValue("parent_node_oid", parentNodeOid)
-      .addValue("depth", depth)
-      .addValue("name", StringUtils.defaultString(node.getName()));
+        .addValue("node_id", nodeId)
+        .addValue("node_oid", nodeOid)
+        .addValue("portfolio_id", portfolioId)
+        .addValue("portfolio_oid", portfolioOid)
+        .addValue("parent_node_id", parentNodeId, Types.BIGINT)
+        .addValue("parent_node_oid", parentNodeOid, Types.BIGINT)
+        .addValue("depth", depth)
+        .addValue("name", StringUtils.defaultString(node.getName()));
     argsList.add(treeArgs);
-    
+
     // store position links
     Set<ObjectId> positionIds = new LinkedHashSet<ObjectId>(node.getPositionIds());
     node.getPositionIds().clear();
     node.getPositionIds().addAll(positionIds);
     for (ObjectId positionId : positionIds) {
       final DbMapSqlParameterSource posArgs = new DbMapSqlParameterSource()
-        .addValue("node_id", nodeId)
-        .addValue("key_scheme", positionId.getScheme())
-        .addValue("key_value", positionId.getValue());
+          .addValue("node_id", nodeId)
+          .addValue("key_scheme", positionId.getScheme())
+          .addValue("key_value", positionId.getValue());
       posList.add(posArgs);
     }
-    
+
     // store the left/right before/after the child loop and back fill into stored args row
     treeArgs.addValue("tree_left", counter.getAndIncrement());
     for (ManageablePortfolioNode childNode : node.getChildNodes()) {
@@ -316,7 +314,7 @@ public class DbPortfolioMaster
   public ManageablePortfolioNode getNode(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
-    
+
     if (uniqueId.isVersioned()) {
       return getNodeById(uniqueId);
     } else {
@@ -327,46 +325,46 @@ public class DbPortfolioMaster
   /**
    * Gets a node by searching for the latest version of an object identifier.
    * 
-   * @param uniqueId  the unique identifier, not null
-   * @param versionAsOf  the instant to fetch, not null
-   * @param correctedTo  the instant to fetch, not null
+   * @param uniqueId the unique identifier, not null
+   * @param versionAsOf the instant to fetch, not null
+   * @param correctedTo the instant to fetch, not null
    * @return the node, null if not found
    */
   protected ManageablePortfolioNode getNodeByInstants(final UniqueId uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getNodeByLatest {}", uniqueId);
     final Instant now = now();
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("node_oid", extractOid(uniqueId))
-      .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
-      .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
+        .addValue("node_oid", extractOid(uniqueId))
+        .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
+        .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(true, false);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetNodeByOidInstants", args);
-    final List<PortfolioDocument> docs = namedJdbc.query(sql , args, extractor);
+    final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
-    return docs.get(0).getPortfolio().getRootNode();  // SQL loads desired node in place of the root node
+    return docs.get(0).getPortfolio().getRootNode(); // SQL loads desired node in place of the root node
   }
 
   /**
    * Gets a node by identifier.
    * 
-   * @param uniqueId  the unique identifier, not null
+   * @param uniqueId the unique identifier, not null
    * @return the node, null if not found
    */
   protected ManageablePortfolioNode getNodeById(final UniqueId uniqueId) {
     s_logger.debug("getNodeById {}", uniqueId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addValue("node_id", extractRowId(uniqueId));
+        .addValue("node_id", extractRowId(uniqueId));
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(true, false);
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetNodeById", args);
     final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
     }
-    return docs.get(0).getPortfolio().getRootNode();  // SQL loads desired node in place of the root node
+    return docs.get(0).getPortfolio().getRootNode(); // SQL loads desired node in place of the root node
   }
 
   //-------------------------------------------------------------------------
@@ -402,20 +400,19 @@ public class DbPortfolioMaster
           _lastNodeId = nodeId;
           buildNode(rs, nodeId);
         }
-        
+
         if (_includePosition) {
           final String posIdScheme = rs.getString("POS_KEY_SCHEME");
           final String posIdValue = rs.getString("POS_KEY_VALUE");
           if (posIdScheme != null && posIdValue != null) {
-            UniqueId id = UniqueId.of(posIdScheme, posIdValue);
-            if (!_nodePositionIds.contains(id.getObjectId())) {
+            ObjectId id = ObjectId.of(posIdScheme, posIdValue);
+            if (_nodePositionIds.add(id)) {
               _node.addPosition(id);
-              _nodePositionIds.add(id.getObjectId()); //have to add to both to maintain invariant
               assert (_nodePositionIds.size() == _node.getPositionIds().size());
             }
           }
         }
-        
+
         final String prtAttrKey = rs.getString("PRT_ATTR_KEY");
         final String prtAttrValue = rs.getString("PRT_ATTR_VALUE");
         if (prtAttrKey != null && prtAttrValue != null) {
@@ -477,7 +474,7 @@ public class DbPortfolioMaster
   }
 
   @Override
-  public AbstractHistoryResult<PortfolioDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+  protected AbstractHistoryResult<PortfolioDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
     PortfolioHistoryRequest historyRequest = new PortfolioHistoryRequest();
     historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
     historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
@@ -486,4 +483,5 @@ public class DbPortfolioMaster
     historyRequest.setObjectId(request.getObjectId());
     return history(historyRequest);
   }
+
 }

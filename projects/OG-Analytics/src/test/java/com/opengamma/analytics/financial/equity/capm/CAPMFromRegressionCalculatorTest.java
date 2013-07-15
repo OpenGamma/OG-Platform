@@ -11,9 +11,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
  * 
@@ -50,12 +49,12 @@ public class CAPMFromRegressionCalculatorTest {
       asset4[i] = asset1[i] + ALPHA1;
       asset5[i] = asset2[i] + ALPHA2;
     }
-    MARKET = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, market);
-    ASSET_1 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, asset1);
-    ASSET_2 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, asset2);
-    ASSET_3 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, asset3);
-    ASSET_4 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, asset4);
-    ASSET_5 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, asset5);
+    MARKET = ImmutableInstantDoubleTimeSeries.of(t, market);
+    ASSET_1 = ImmutableInstantDoubleTimeSeries.of(t, asset1);
+    ASSET_2 = ImmutableInstantDoubleTimeSeries.of(t, asset2);
+    ASSET_3 = ImmutableInstantDoubleTimeSeries.of(t, asset3);
+    ASSET_4 = ImmutableInstantDoubleTimeSeries.of(t, asset4);
+    ASSET_5 = ImmutableInstantDoubleTimeSeries.of(t, asset5);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -70,7 +69,7 @@ public class CAPMFromRegressionCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    CAPM.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    CAPM.evaluate(ImmutableInstantDoubleTimeSeries.EMPTY_SERIES, ImmutableInstantDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test

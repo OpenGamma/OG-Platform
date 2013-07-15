@@ -10,10 +10,11 @@ $.register_module({
             if (typeof selector !== 'string') throw new TypeError();
             selector = selector || 'body';
             /* Create a new tooltip if none already exists */
-            if (!$('.OG-tooltip').length) $('body').append('<span class="OG-tooltip OG-shadow"></span>');
-            var $tooltip = $('.OG-tooltip');
+            if (!$('.OG-tooltip.og-small').length)
+                $('body').append('<span class="OG-tooltip og-small OG-shadow"></span>');
+            var $tooltip = $('.OG-tooltip.og-small');
             /* Populate and display on hover */
-            $(selector).find('[data-tooltip]').hover(function (e) {
+            $(selector).find('[data-tooltip-type="small"]').hover(function (e) {
                 var $offset = $(this).offset(), $e_target = $(e.currentTarget), tip = $e_target.attr('data-tooltip');
                 $(e.currentTarget).hasClass('OG-disabled') ? $tooltip.addClass('OG-disabled') :
                     $tooltip.removeClass('OG-disabled');
@@ -22,7 +23,8 @@ $.register_module({
                     top: $offset.top + 30 + 'px'
                 }).show();
             });
-            $('[data-tooltip]').unbind('mouseleave').bind('mouseleave', function () {$tooltip.empty().hide();});
+            $('[data-tooltip-type="small"]')
+                .unbind('mouseleave').bind('mouseleave', function () {$tooltip.empty().hide();});
         };
     }
 });

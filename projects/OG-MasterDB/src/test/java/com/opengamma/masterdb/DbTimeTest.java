@@ -13,24 +13,26 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.springframework.jdbc.core.RowMapper;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests time in the database.
  */
-public class DbTimeTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbTimeTest extends AbstractDbTest {
   // TIMESTAMP WITHOUT TIME ZONE is consistent across Postgres and HSQL
   // it stores the visible field values from Timestamp (ignoring the Java and DB time zones)
   // TIMESTAMP WITH TIME ZONE is inconsistent across Postgres and HSQL
@@ -44,80 +46,86 @@ public class DbTimeTest extends DbTest {
   // with DST, the spring 'Gap' will cause it to go wrong
 
 //  private static final TimeZone  ORIGINAL_ZONE = TimeZone.getDefault();
-//  private static final javax.time.calendar.TimeZone TZ_LONDON = javax.time.calendar.TimeZone.of("Europe/London");
-  private static final Instant INSTANT1 = OffsetDateTime.of(2011, 1, 1, 12, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // winter
-  private static final Instant INSTANT2 = OffsetDateTime.of(2011, 7, 1, 12, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // summer
-  private static final Instant INSTANT3 = OffsetDateTime.of(2011, 3, 27, 1, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // Europe spring gap
-  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ssfnnnnnn");
+//  private static final org.threeten.bp.ZoneId TZ_LONDON = org.threeten.bp.ZoneId.of("Europe/London");
+  private static final Instant INSTANT1 = LocalDateTime.of(2011, 1, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // winter
+  private static final Instant INSTANT2 = LocalDateTime.of(2011, 7, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // summer
+  private static final Instant INSTANT3 = LocalDateTime.of(2011, 3, 27, 1, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // Europe spring gap
+  private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
   private ElSqlBundle _elSqlBundle;
-  
+
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbTimeTest(final String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
     _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_writeRead_timestamp() {
     try {
-    // create test table
-    String drop = _elSqlBundle.getSql("DropTstTimes"); // "DROP TABLE IF EXISTS tst_times";
-    getDbConnector().getJdbcTemplate().update(drop);
-    String create = _elSqlBundle.getSql("CreateTstTimes"); // "CREATE TABLE tst_times ( id bigint not null, ver timestamp without time zone not null )";
-    getDbConnector().getJdbcTemplate().update(create);
-    
-    // insert data
-    String insert = _elSqlBundle.getSql("InsertTstTimes"); // "INSERT INTO tst_times VALUES (?,?)";
-    final Timestamp tsOut1 = DbDateUtils.toSqlTimestamp(INSTANT1);
-    final Timestamp tsOut2 = DbDateUtils.toSqlTimestamp(INSTANT2);
-    final Timestamp tsOut3 = DbDateUtils.toSqlTimestamp(INSTANT3);
-    
-    getDbConnector().getJdbcTemplate().update(insert, 1, tsOut1);
-    getDbConnector().getJdbcTemplate().update(insert, 2, tsOut2);
-    getDbConnector().getJdbcTemplate().update(insert, 3, tsOut3);
-    
-    // pull back to check roundtripping
-    String select1 = _elSqlBundle.getSql("SelectTstTimes"); // "SELECT ver FROM tst_times WHERE id = ?";
-    
-    Map<String, Object> result1 = getDbConnector().getJdbcTemplate().queryForMap(select1, 1);
-    Map<String, Object> result2 = getDbConnector().getJdbcTemplate().queryForMap(select1, 2);
-    Map<String, Object> result3 = getDbConnector().getJdbcTemplate().queryForMap(select1, 3);
-    Timestamp tsIn1 = (Timestamp) result1.get("ver");
-    Timestamp tsIn2 = (Timestamp) result2.get("ver");
-    Timestamp tsIn3 = (Timestamp) result3.get("ver");
-    Instant retrieved1 = DbDateUtils.fromSqlTimestamp(tsIn1);
-    Instant retrieved2 = DbDateUtils.fromSqlTimestamp(tsIn2);
-    Instant retrieved3 = DbDateUtils.fromSqlTimestamp(tsIn3);
-    assertEquals(super.toString() + " Instant " + retrieved1, INSTANT1, retrieved1);
-    assertEquals(super.toString() + " Instant " + retrieved2, INSTANT2, retrieved2);
-    assertEquals(super.toString() + " Instant " + retrieved3, INSTANT3, retrieved3);
-    
-    // pull back the raw DB string form to ensure it actually stored UTC field values
-    String retrievedText1 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString("ver");
-      }
-    }, 1);
-    String retrievedText2 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString("ver");
-      }
-    }, 2);
-    String retrievedText3 = getDbConnector().getJdbcTemplate().queryForObject(select1, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getString("ver");
-      }
-    }, 3);
-    assertEquals(super.toString() + " Instant " + retrieved1, OffsetDateTime.ofInstant(INSTANT1, ZoneOffset.UTC).toString(FORMAT), retrievedText1);
-    assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT2, ZoneOffset.UTC).toString(FORMAT), retrievedText2);
-    assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT3, ZoneOffset.UTC).toString(FORMAT), retrievedText3);
-    
-    // tidy up
-    getDbConnector().getJdbcTemplate().update(drop);
+      // create test table
+      String drop = _elSqlBundle.getSql("DropTstTimes"); // "DROP TABLE IF EXISTS tst_times";
+      getDbConnector().getJdbcOperations().update(drop);
+      String create = _elSqlBundle.getSql("CreateTstTimes"); // "CREATE TABLE tst_times ( id bigint not null, ver timestamp without time zone not null )";
+      getDbConnector().getJdbcOperations().update(create);
+      
+      // insert data
+      String insert = _elSqlBundle.getSql("InsertTstTimes"); // "INSERT INTO tst_times VALUES (?,?)";
+      final Timestamp tsOut1 = DbDateUtils.toSqlTimestamp(INSTANT1);
+      final Timestamp tsOut2 = DbDateUtils.toSqlTimestamp(INSTANT2);
+      final Timestamp tsOut3 = DbDateUtils.toSqlTimestamp(INSTANT3);
+      
+      getDbConnector().getJdbcOperations().update(insert, 1, tsOut1);
+      getDbConnector().getJdbcOperations().update(insert, 2, tsOut2);
+      getDbConnector().getJdbcOperations().update(insert, 3, tsOut3);
+      
+      // pull back to check roundtripping
+      String select1 = _elSqlBundle.getSql("SelectTstTimes"); // "SELECT ver FROM tst_times WHERE id = ?";
+      
+      Map<String, Object> result1 = getDbConnector().getJdbcOperations().queryForMap(select1, 1);
+      Map<String, Object> result2 = getDbConnector().getJdbcOperations().queryForMap(select1, 2);
+      Map<String, Object> result3 = getDbConnector().getJdbcOperations().queryForMap(select1, 3);
+      Timestamp tsIn1 = (Timestamp) result1.get("ver");
+      Timestamp tsIn2 = (Timestamp) result2.get("ver");
+      Timestamp tsIn3 = (Timestamp) result3.get("ver");
+      Instant retrieved1 = DbDateUtils.fromSqlTimestamp(tsIn1);
+      Instant retrieved2 = DbDateUtils.fromSqlTimestamp(tsIn2);
+      Instant retrieved3 = DbDateUtils.fromSqlTimestamp(tsIn3);
+      assertEquals(super.toString() + " Instant " + retrieved1, INSTANT1, retrieved1);
+      assertEquals(super.toString() + " Instant " + retrieved2, INSTANT2, retrieved2);
+      assertEquals(super.toString() + " Instant " + retrieved3, INSTANT3, retrieved3);
+      
+      // pull back the raw DB string form to ensure it actually stored UTC field values
+      String retrievedText1 = getDbConnector().getJdbcOperations().queryForObject(select1, new RowMapper<String>() {
+        @Override
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return rs.getString("ver");
+        }
+      }, 1);
+      String retrievedText2 = getDbConnector().getJdbcOperations().queryForObject(select1, new RowMapper<String>() {
+        @Override
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return rs.getString("ver");
+        }
+      }, 2);
+      String retrievedText3 = getDbConnector().getJdbcOperations().queryForObject(select1, new RowMapper<String>() {
+        @Override
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return rs.getString("ver");
+        }
+      }, 3);
+      assertEquals(super.toString() + " Instant " + retrieved1, OffsetDateTime.ofInstant(INSTANT1, ZoneOffset.UTC).toString(FORMAT), retrievedText1);
+      assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT2, ZoneOffset.UTC).toString(FORMAT), retrievedText2);
+      assertEquals(super.toString() + " Instant " + retrieved2, OffsetDateTime.ofInstant(INSTANT3, ZoneOffset.UTC).toString(FORMAT), retrievedText3);
+      
+      // tidy up
+      getDbConnector().getJdbcOperations().update(drop);
     } catch (Exception ex) {
       fail(ex.getMessage());
     }
@@ -200,22 +208,22 @@ public class DbTimeTest extends DbTest {
 //      }
 //    });
 //    Calendar cal1 = new GregorianCalendar(TimeZone.getTimeZone("GMT-06:00"));
-//    cal1.setTimeInMillis(INSTANT1.toEpochMillisLong());
+//    cal1.setTimeInMillis(INSTANT1.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 10, cal1, cal1);
 //    Calendar cal11 = new GregorianCalendar(TimeZone.getTimeZone("GMT-06:00"));
-//    cal11.setTimeInMillis(INSTANT2.toEpochMillisLong());
+//    cal11.setTimeInMillis(INSTANT2.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 11, cal11, cal11);
 //    Calendar cal2 = new GregorianCalendar(TimeZone.getTimeZone("GMT+06:00"));
-//    cal2.setTimeInMillis(INSTANT1.toEpochMillisLong());
+//    cal2.setTimeInMillis(INSTANT1.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 12, cal2, cal2);
 //    Calendar cal21 = new GregorianCalendar(TimeZone.getTimeZone("GMT+06:00"));
-//    cal21.setTimeInMillis(INSTANT2.toEpochMillisLong());
+//    cal21.setTimeInMillis(INSTANT2.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 13, cal21, cal21);
 //    Calendar cal3 = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-//    cal3.setTimeInMillis(INSTANT1.toEpochMillisLong());
+//    cal3.setTimeInMillis(INSTANT1.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 14, cal3, cal3);
 //    Calendar cal31 = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-//    cal31.setTimeInMillis(INSTANT2.toEpochMillisLong());
+//    cal31.setTimeInMillis(INSTANT2.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 15, cal31, cal31);
 //    
 //    

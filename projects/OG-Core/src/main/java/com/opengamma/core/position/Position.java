@@ -8,7 +8,6 @@ package com.opengamma.core.position;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -25,15 +24,6 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface Position extends PositionOrTrade {
-
-  /**
-   * Gets the unique identifier of the parent node.
-   * <p>
-   * Positions are held within a portfolio by a node.
-   * 
-   * @return the unique identifier, null if not attached to a node
-   */
-  UniqueId getParentNodeId();
 
   /**
    * Gets the trades that are immediate children of this position.

@@ -19,10 +19,10 @@ import com.opengamma.analytics.math.rootfinding.VectorRootFinder;
  * 
  */
 public abstract class VectorRootFinderTest {
-  protected static final double EPS = 1e-6;
-  protected static final double TOLERANCE = 1e-8;
-  protected static final int MAXSTEPS = 100;
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> LINEAR = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  static final double EPS = 1e-6;
+  static final double TOLERANCE = 1e-8;
+  static final int MAXSTEPS = 100;
+  static final Function1D<DoubleMatrix1D, DoubleMatrix1D> LINEAR = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
@@ -36,7 +36,7 @@ public abstract class VectorRootFinderTest {
       return new DoubleMatrix1D(res);
     }
   };
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION2D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION2D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
@@ -50,7 +50,7 @@ public abstract class VectorRootFinderTest {
       return new DoubleMatrix1D(res);
     }
   };
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN2D = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN2D = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
@@ -71,7 +71,7 @@ public abstract class VectorRootFinderTest {
 
   };
 
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION3D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNCTION3D = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
@@ -85,7 +85,7 @@ public abstract class VectorRootFinderTest {
       return new DoubleMatrix1D(res);
     }
   };
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN3D = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN3D = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
@@ -109,8 +109,8 @@ public abstract class VectorRootFinderTest {
 
   };
 
-  protected static final double[] TIME_GRID = new double[] {0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0};
-  protected static final Function1D<Double, Double> DUMMY_YIELD_CURVE = new Function1D<Double, Double>() {
+  static final double[] TIME_GRID = new double[] {0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0};
+  static final Function1D<Double, Double> DUMMY_YIELD_CURVE = new Function1D<Double, Double>() {
 
     private static final double a = -0.03;
     private static final double b = 0.02;
@@ -122,7 +122,7 @@ public abstract class VectorRootFinderTest {
       return Math.exp(-x * ((a + b * x) * Math.exp(-c * x) + d));
     }
   };
-  protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SWAP_RATES = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  static final Function1D<DoubleMatrix1D, DoubleMatrix1D> SWAP_RATES = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     private final int n = TIME_GRID.length;
     private double[] _swapRates = null;

@@ -407,7 +407,7 @@ public class ConventionInstrumentTimeSeriesLoaderTool extends AbstractComponentF
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "historicalTimeSeriesSource",
         "historicalTimeSeriesLoader",
         "dataSource",

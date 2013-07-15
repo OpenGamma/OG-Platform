@@ -10,6 +10,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of transaction on an interest rate future option with up-front margin security.
@@ -36,7 +38,7 @@ public class InterestRateFutureOptionMarginTransaction implements InstrumentDeri
   * @param quantity The quantity of the transaction. Can be positive or negative.
   * @param referencePrice The reference price.
   */
-  public InterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginSecurity underlyingOption, int quantity, double referencePrice) {
+  public InterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginSecurity underlyingOption, final int quantity, final double referencePrice) {
     Validate.notNull(underlyingOption, "underlying option");
     this._underlyingOption = underlyingOption;
     this._quantity = quantity;
@@ -67,6 +69,14 @@ public class InterestRateFutureOptionMarginTransaction implements InstrumentDeri
     return _referencePrice;
   }
 
+  /**
+   * Returns the transaction currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _underlyingOption.getCurrency();
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -80,7 +90,7 @@ public class InterestRateFutureOptionMarginTransaction implements InstrumentDeri
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -90,7 +100,7 @@ public class InterestRateFutureOptionMarginTransaction implements InstrumentDeri
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionMarginTransaction other = (InterestRateFutureOptionMarginTransaction) obj;
+    final InterestRateFutureOptionMarginTransaction other = (InterestRateFutureOptionMarginTransaction) obj;
     if (_quantity != other._quantity) {
       return false;
     }
@@ -104,12 +114,14 @@ public class InterestRateFutureOptionMarginTransaction implements InstrumentDeri
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginTransaction(this);
   }
 

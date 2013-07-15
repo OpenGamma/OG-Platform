@@ -19,7 +19,7 @@ $.register_module({
                 var from = args.from,
                     to = args.to,
                     from_page = Math.floor(from / DEFAULT_PAGESIZE),
-                    to_page = Math.floor(to / DEFAULT_PAGESIZE),
+                    to_page = Math.ceil(to / DEFAULT_PAGESIZE),
                     request_page_size,
                     request_page_number,
                     data_cached = false,
@@ -93,8 +93,11 @@ $.register_module({
                         page: request_page_number + 1, // 0 and 1 are the same
                         search: true
                     }, (function () {
-                        var fields = ['name', 'type', 'data_source', 'identifier', 'data_provider',
-                            'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity'];
+                        var fields = [
+                            'name', 'type', 'data_source', 'identifier', 'data_provider',
+                            'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity',
+                            'obligor_red_code', 'obligor_ticker'
+                        ];
                         return fields.reduce(function (acc, val) {
                             if (!filters[val]) return acc;
                             if (val === 'type') return acc[val] = filters.type, acc;
@@ -106,9 +109,8 @@ $.register_module({
                                 if (/19|20[0-9]{2}-[01][0-9]-[0123][0-9]/.test(filters['ob_date']))
                                     return acc['observation_date'] = filters[val], acc;
                                 else return acc;
-                            if (val === 'ob_time') {
-                                return acc['observation_time'] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc
-                            }
+                            if (val === 'ob_time')
+                                return acc['observation_time'] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc;
                             return acc[val] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc;
                         }, {});
                     }())));

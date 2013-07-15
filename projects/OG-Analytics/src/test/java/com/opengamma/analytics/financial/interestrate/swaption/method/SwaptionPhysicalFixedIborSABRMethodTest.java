@@ -13,10 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -72,7 +71,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
   // Swap 5Y description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -92,10 +91,10 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //  Ibor leg: quarterly money
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, !FIXED_IS_PAYER);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, FIXED_IS_PAYER);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, !FIXED_IS_PAYER, CALENDAR);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, FIXED_IS_PAYER, CALENDAR);
   // Swaption construction: All combinations
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = new SwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new SwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
@@ -134,7 +133,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    SWAPTION_LONG_PAYER.accept(PVCSC_SABR, sabrBundle);
   }
 
   /**
@@ -146,15 +145,15 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption pricing.
-    final double priceLongPayer = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    final double priceShortPayer = PVC.visit(SWAPTION_SHORT_PAYER, sabrBundle);
-    final double priceLongReceiver = PVC.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
-    final double priceShortReceiver = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
+    final double priceLongPayer = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
+    final double priceShortPayer = SWAPTION_SHORT_PAYER.accept(PVC, sabrBundle);
+    final double priceLongReceiver = SWAPTION_LONG_RECEIVER.accept(PVC, sabrBundle);
+    final double priceShortReceiver = SWAPTION_SHORT_RECEIVER.accept(PVC, sabrBundle);
     // From previous run
     final double expectedPriceLongPayer = 4973866.250;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, curves.getCurve(FUNDING_CURVE_NAME));
-    final double forward = PRC.visit(SWAP_PAYER, curves);
+    final double forward = SWAP_PAYER.accept(PRC, curves);
     final double maturity = SWAP_PAYER.getFirstLeg().getNthPayment(SWAP_PAYER.getFirstLeg().getNumberOfPayments() - 1).getPaymentTime() - SWAPTION_LONG_PAYER.getSettlementTime();
     assertEquals(maturity, ANNUITY_TENOR_YEAR, 1E-2);
     final double volatility = sabrParameter.getVolatility(SWAPTION_LONG_PAYER.getTimeToExpiry(), maturity, RATE, forward);
@@ -166,8 +165,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     assertEquals(priceLongReceiver, -priceShortReceiver, 1E-2);
     // Payer/Receiver parity
-    final double priceSwapPayer = PVC.visit(SWAP_PAYER, curves);
-    final double priceSwapReceiver = PVC.visit(SWAP_RECEIVER, curves);
+    final double priceSwapPayer = SWAP_PAYER.accept(PVC, curves);
+    final double priceSwapReceiver = SWAP_RECEIVER.accept(PVC, curves);
     assertEquals(priceSwapPayer, priceLongPayer + priceShortReceiver, 1E-2);
     assertEquals(priceSwapReceiver, priceLongReceiver + priceShortPayer, 1E-2);
   }
@@ -181,17 +180,17 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double rate360 = 0.0360;
-    final IndexSwap index360 = new IndexSwap(FIXED_PAYMENT_PERIOD, DayCountFactory.INSTANCE.getDayCount("Actual/360"), IBOR_INDEX, ANNUITY_TENOR);
-    final SwapFixedIborDefinition swap360 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index360, NOTIONAL, rate360, FIXED_IS_PAYER);
+    final IndexSwap index360 = new IndexSwap(FIXED_PAYMENT_PERIOD, DayCountFactory.INSTANCE.getDayCount("Actual/360"), IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
+    final SwapFixedIborDefinition swap360 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index360, NOTIONAL, rate360, FIXED_IS_PAYER, CALENDAR);
     final SwaptionPhysicalFixedIborDefinition swaption360Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap360, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption360 = swaption360Definition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double rate365 = 0.0365;
-    final IndexSwap index365 = new IndexSwap(FIXED_PAYMENT_PERIOD, DayCountFactory.INSTANCE.getDayCount("Actual/365"), IBOR_INDEX, ANNUITY_TENOR);
-    final SwapFixedIborDefinition swap365 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index365, NOTIONAL, rate365, FIXED_IS_PAYER);
+    final IndexSwap index365 = new IndexSwap(FIXED_PAYMENT_PERIOD, DayCountFactory.INSTANCE.getDayCount("Actual/365"), IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
+    final SwapFixedIborDefinition swap365 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index365, NOTIONAL, rate365, FIXED_IS_PAYER, CALENDAR);
     final SwaptionPhysicalFixedIborDefinition swaption365Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap365, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption365 = swaption365Definition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final double price360 = PVC.visit(swaption360, sabrBundle);
-    final double price365 = PVC.visit(swaption365, sabrBundle);
+    final double price360 = swaption360.accept(PVC, sabrBundle);
+    final double price365 = swaption365.accept(PVC, sabrBundle);
     assertEquals(price360, price365, 1E-2);
   }
 
@@ -204,7 +203,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double pvMethod = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundle).getAmount();
-    final double pvCalculator = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final double pvCalculator = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
     assertEquals("Swaption physical SABR: present value : method and calculator", pvMethod, pvCalculator);
   }
 
@@ -217,7 +216,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
-    final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final Map<String, List<DoublesPair>> pvsCalculator = SWAPTION_LONG_PAYER.accept(PVCSC_SABR, sabrBundle);
     assertEquals("Swaption physical SABR: present value curve sensitivity: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
 
@@ -233,29 +232,29 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayer.multipliedBy(-1);
     assertEquals(pvsLongPayer.getSensitivities(), pvsShortPayer_1.getSensitivities());
     // PresentValueCalculator
-    final Map<String, List<DoublesPair>> pvscLongPayer = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final Map<String, List<DoublesPair>> pvscLongPayer = SWAPTION_LONG_PAYER.accept(PVCSC_SABR, sabrBundle);
     assertEquals(pvsLongPayer.getSensitivities(), pvscLongPayer);
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;
-    InterestRateCurveSensitivity pvsSwapPayer = new InterestRateCurveSensitivity(PVSC.visit(SWAP_PAYER, sabrBundle));
+    InterestRateCurveSensitivity pvsSwapPayer = new InterestRateCurveSensitivity(SWAP_PAYER.accept(PVSC, sabrBundle));
     pvsSwapPayer = pvsSwapPayer.cleaned();
     InterestRateCurveSensitivity sensi = new InterestRateCurveSensitivity(pvscLongPayer);
     sensi = sensi.cleaned();
-    final double pv = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final double pv = SWAPTION_LONG_PAYER.accept(PVC, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
     final SwaptionPhysicalFixedIbor swaptionBumpedForward = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
-    final Set<Double> timeForwardSet = new TreeSet<Double>();
+    final Set<Double> timeForwardSet = new TreeSet<>();
     for (final Payment pay : SWAPTION_LONG_PAYER.getUnderlyingSwap().getSecondLeg().getPayments()) {
       final CouponIbor coupon = (CouponIbor) pay;
       timeForwardSet.add(coupon.getFixingPeriodStartTime());
       timeForwardSet.add(coupon.getFixingPeriodEndTime());
     }
     final int nbForwardDate = timeForwardSet.size();
-    final List<Double> timeForwardList = new ArrayList<Double>(timeForwardSet);
+    final List<Double> timeForwardList = new ArrayList<>(timeForwardSet);
     Double[] timeForwardArray = new Double[nbForwardDate];
     timeForwardArray = timeForwardList.toArray(timeForwardArray);
     final double[] yieldsForward = new double[nbForwardDate + 1];
@@ -273,7 +272,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       curvesBumpedForward.addAll(curves);
       curvesBumpedForward.setCurve("Bumped Curve", bumpedCurveForward);
       final SABRInterestRateDataBundle sabrBundleBumped = new SABRInterestRateDataBundle(sabrParameter, curvesBumpedForward);
-      final double bumpedpv = PVC.visit(swaptionBumpedForward, sabrBundleBumped);
+      final double bumpedpv = swaptionBumpedForward.accept(PVC, sabrBundleBumped);
       final double res = (bumpedpv - pv) / deltaShift;
       final DoublesPair pair = tempForward.get(i);
       assertEquals("Node " + i, nodeTimesForward[i + 1], pair.getFirst(), 1E-8);
@@ -299,13 +298,12 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       curvesBumped.addAll(curves);
       curvesBumped.setCurve("Bumped Curve", bumpedCurve);
       final SABRInterestRateDataBundle sabrBundleBumped = new SABRInterestRateDataBundle(sabrParameter, curvesBumped);
-      final double bumpedpv = PVC.visit(swaptionBumpedFunding, sabrBundleBumped);
+      final double bumpedpv = swaptionBumpedFunding.accept(PVC, sabrBundleBumped);
       final double res = (bumpedpv - pv) / deltaShift;
       final DoublesPair pair = tempFunding.get(i);
       assertEquals("Node " + i, nodeTimesFunding[i + 1], pair.getFirst(), 1E-8);
       assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
     }
-
   }
 
   @Test
@@ -317,7 +315,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final PresentValueSABRSensitivityDataBundle pvsLongPayer = METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     PresentValueSABRSensitivityDataBundle pvsShortPayer = METHOD.presentValueSABRSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
     // Long/short parity
-    pvsShortPayer = PresentValueSABRSensitivityDataBundle.multiplyBy(pvsShortPayer, -1.0);
+    pvsShortPayer = pvsShortPayer.multiplyBy(-1.0);
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundle).getAmount();
@@ -355,7 +353,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    */
   public void presentValueSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_BUNDLE);
-    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = SWAPTION_LONG_PAYER.accept(PVSSC_SABR, SABR_BUNDLE);
     assertEquals("Swaption Physical SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 
@@ -364,9 +362,9 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    * Tests the present value of the Hull-White Monte-Carlo calibrated to SABR swaption.
    */
   public void presentValueSABRHullWhiteMonteCarlo() {
-    CurrencyAmount pvSABR = METHOD.presentValue(SWAPTION_LONG_PAYER, SABR_BUNDLE);
-    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
-    double pvMC = pvcSABRHWMC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    final CurrencyAmount pvSABR = METHOD.presentValue(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    final PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    final double pvMC = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_BUNDLE);
     assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(), pvMC, 2.5E+4);
   }
 
@@ -375,32 +373,32 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    * Analyzes the smoothness of sensitivities.
    */
   public void analysisSensitivities() {
-    IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
-    Period expiryTenor = Period.ofYears(5);
-    Period underlyingTenor = Period.ofYears(10);
-    ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiryTenor, USDLIBOR3M);
-    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, USDLIBOR3M.getSpotLag(), CALENDAR);
-    GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
-    double notional = 1000000; // 1m
-    double strikeRange = 0.1150;
-    double strikeStart = 0.0050;
-    int nbStrike = 50;
-    double[] strikes = new double[nbStrike + 1];
-    SwaptionPhysicalFixedIbor[] swaptions = new SwaptionPhysicalFixedIbor[nbStrike + 1];
-    double[] pv = new double[nbStrike + 1];
-    double[] pv01Dsc = new double[nbStrike + 1];
-    double[] pv01Fwd = new double[nbStrike + 1];
-    double[] alphaSensi = new double[nbStrike + 1];
-    double[] rhoSensi = new double[nbStrike + 1];
-    double[] nuSensi = new double[nbStrike + 1];
+    final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
+    final Period expiryTenor = Period.ofYears(5);
+    final Period underlyingTenor = Period.ofYears(10);
+    final ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiryTenor, USDLIBOR3M, CALENDAR);
+    final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, USDLIBOR3M.getSpotLag(), CALENDAR);
+    final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
+    final double notional = 1000000; // 1m
+    final double strikeRange = 0.1150;
+    final double strikeStart = 0.0050;
+    final int nbStrike = 50;
+    final double[] strikes = new double[nbStrike + 1];
+    final SwaptionPhysicalFixedIbor[] swaptions = new SwaptionPhysicalFixedIbor[nbStrike + 1];
+    final double[] pv = new double[nbStrike + 1];
+    final double[] pv01Dsc = new double[nbStrike + 1];
+    final double[] pv01Fwd = new double[nbStrike + 1];
+    final double[] alphaSensi = new double[nbStrike + 1];
+    final double[] rhoSensi = new double[nbStrike + 1];
+    final double[] nuSensi = new double[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
       strikes[loopstrike] = strikeStart + loopstrike * strikeRange / nbStrike;
-      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(settleDate, underlyingTenor, USD6MLIBOR3M, notional, strikes[loopstrike], true);
-      SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(expiryDate, swapDefinition, true);
+      final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(settleDate, underlyingTenor, USD6MLIBOR3M, notional, strikes[loopstrike], true);
+      final SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(expiryDate, swapDefinition, true);
       swaptions[loopstrike] = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
       pv[loopstrike] = METHOD.presentValue(swaptions[loopstrike], SABR_BUNDLE).getAmount();
-      PresentValueSABRSensitivityDataBundle sabrSensi = METHOD.presentValueSABRSensitivity(swaptions[loopstrike], SABR_BUNDLE);
-      Map<String, Double> pv01 = PV01C.visit(swaptions[loopstrike], SABR_BUNDLE);
+      final PresentValueSABRSensitivityDataBundle sabrSensi = METHOD.presentValueSABRSensitivity(swaptions[loopstrike], SABR_BUNDLE);
+      final Map<String, Double> pv01 = PV01C.visit(swaptions[loopstrike], SABR_BUNDLE);
       alphaSensi[loopstrike] = sabrSensi.getAlpha().toSingleValue();
       rhoSensi[loopstrike] = sabrSensi.getRho().toSingleValue();
       nuSensi[loopstrike] = sabrSensi.getNu().toSingleValue();
@@ -408,7 +406,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       pv01Fwd[loopstrike] = pv01.get(CURVES_NAME[1]);
     }
     @SuppressWarnings("unused")
-    double atm = PRC.visit(swaptions[0].getUnderlyingSwap(), CURVES);
+    final double atm = swaptions[0].getUnderlyingSwap().accept(PRC, CURVES);
   }
 
   @Test(enabled = false)
@@ -423,7 +421,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = PVC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE) + looptest;
+      pv[looptest] = SWAPTION_LONG_PAYER.accept(PVC, SABR_BUNDLE) + looptest;
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
@@ -431,30 +429,26 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = PVC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE) + looptest;
-      PVCSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
-      pvss[looptest] = PVSSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+      pv[looptest] = SWAPTION_LONG_PAYER.accept(PVC, SABR_BUNDLE) + looptest;
+      SWAPTION_LONG_PAYER.accept(PVCSC_SABR, SABR_BUNDLE);
+      pvss[looptest] = SWAPTION_LONG_PAYER.accept(PVSSC_SABR, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
     // Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 110 ms for 1000 swaptions.
 
     final int nbTest2 = 10;
-    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
-    double[] pvMC = new double[nbTest2];
+    final PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    final double[] pvMC = new double[nbTest2];
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest2; looptest++) {
-      pvMC[looptest] = pvcSABRHWMC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+      pvMC[looptest] = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 375 ms for 100 swaptions.
+    // Performance note: price: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 530 ms for 10 swaptions.
 
-    //    double sum = 0.0;
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      sum += pv[looptest];
-    //      sum += pvss[looptest].getAlpha().hashCode();
-    //    }
   }
 
   @Test(enabled = false)
@@ -465,14 +459,14 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
+    SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
     SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap, IS_LONG);
     SwaptionPhysicalFixedIbor swaption = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     long startTime, endTime;
     final int nbTest = 1000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      swap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
+      swap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
       swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap, IS_LONG);
     }
     endTime = System.currentTimeMillis();
@@ -485,9 +479,9 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     System.out.println(nbTest + " physical swaptions SABR (to derivatives): " + (endTime - startTime) + " ms");
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      PVC.visit(swaption, sabrBundle);
-      PVCSC_SABR.visit(swaption, sabrBundle);
-      PVSSC_SABR.visit(swaption, sabrBundle);
+      swaption.accept(PVC, sabrBundle);
+      swaption.accept(PVCSC_SABR, sabrBundle);
+      swaption.accept(PVSSC_SABR, sabrBundle);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (pv+delta+SABR vega): " + (endTime - startTime) + " ms");

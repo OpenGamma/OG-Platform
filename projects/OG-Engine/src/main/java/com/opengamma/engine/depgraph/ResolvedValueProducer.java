@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.opengamma.engine.value.ValueRequirement;
 
@@ -30,20 +30,20 @@ import com.opengamma.engine.value.ValueRequirement;
   ValueRequirement getValueRequirement();
 
   /**
-   * Register a callback for notification when the value is produced. If the value has already
-   * been produced it may be called immediately.
+   * Register a callback for notification when the value is produced. If the value has already been produced it may be called immediately.
    * 
    * @param context graph building context
    * @param callback callback object to receive the notifications, not null
-   * @return a handle for removing the callback, or null if there is nothing to cancel (e.g. a failure call was made
-   *         inline) or a cancellation can't be supported. 
+   * @return a handle for removing the callback, or null if there is nothing to cancel (e.g. a failure call was made inline) or a cancellation can't be supported.
    */
   Cancelable addCallback(GraphBuildingContext context, ResolvedValueCallback callback);
 
   /**
    * Increment the reference count on the object.
+   * 
+   * @return true if the reference count was incremented, false if the object has already been discarded
    */
-  void addRef();
+  boolean addRef();
 
   /**
    * Decrement the reference count on the object. An implementation may perform cleanup actions on the count reaching zero.
@@ -54,23 +54,28 @@ import com.opengamma.engine.value.ValueRequirement;
   int release(GraphBuildingContext context);
 
   /**
-   * Tests if there are active callbacks registered on the object that may hold a pump on the producer.
+   * Returns the current reference count.
    * 
-   * @return true if there are one or more callbacks active on the object, false if there are none
+   * @return the reference count
    */
-  boolean hasActiveCallbacks();
+  int getRefCount();
 
   interface Chain {
 
+    enum LoopState {
+      CHECKING,
+      IN_LOOP,
+      NOT_IN_LOOP
+    }
+
     /**
-     * Detects any recursion in the onward chain of callbacks, canceling one or more
-     * of them to break the recursion by allowing a failure to propagate outwards.
+     * Detects any recursion in the onward chain of callbacks, canceling one or more of them to break the recursion by allowing a failure to propagate outwards.
      * 
      * @param context the graph building context
-     * @param visited the set of visited callbacks
+     * @param visited the map of visited callbacks to their loop detection state, no entry in the map if not visited
      * @return the number of callbacks that were canceled
      */
-    int cancelLoopMembers(GraphBuildingContext context, Set<Object> visited);
+    int cancelLoopMembers(GraphBuildingContext context, Map<Chain, LoopState> visited);
 
   }
 

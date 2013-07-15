@@ -9,8 +9,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Year;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -22,6 +20,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Year;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -46,7 +46,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("holidays/holiday.ftl", out);
+    return getFreemarker().build(HTML_DIR + "holiday.ftl", out);
   }
 
   @GET
@@ -58,68 +58,9 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
       return builder.build();
     }
     FlexiBean out = createRootData();
-    String json = getFreemarker().build("holidays/jsonholiday.ftl", out);
+    String json = getFreemarker().build(JSON_DIR + "holiday.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
-
-  //-------------------------------------------------------------------------
-//  @PUT
-//  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-//  public Response put(
-//      @FormParam("name") String name,
-//      @FormParam("idscheme") String idScheme,
-//      @FormParam("idvalue") String idValue,
-//      @FormParam("regionscheme") String regionScheme,
-//      @FormParam("regionvalue") String regionValue) {
-//    if (data().getObject().isLatest() == false) {
-//      return Response.status(Status.FORBIDDEN).entity(get()).build();
-//    }
-//    
-//    name = StringUtils.trimToNull(name);
-//    idScheme = StringUtils.trimToNull(idScheme);
-//    idValue = StringUtils.trimToNull(idValue);
-//    if (name == null || idScheme == null || idValue == null) {
-//      FlexiBean out = createRootData();
-//      if (name == null) {
-//        out.put("err_nameMissing", true);
-//      }
-//      if (idScheme == null) {
-//        out.put("err_idschemeMissing", true);
-//      }
-//      if (idValue == null) {
-//        out.put("err_idvalueMissing", true);
-//      }
-//      if (regionScheme == null) {
-//        out.put("err_regionschemeMissing", true);
-//      }
-//      if (regionValue == null) {
-//        out.put("err_regionvalueMissing", true);
-//      }
-//      String html = getFreemarker().build("holidays/holiday-update.ftl", out);
-//      return Response.ok(html).build();
-//    }
-//    Holiday holiday = data().getObject().getObject().clone();
-//    holiday.setName(name);
-//    holiday.setIdentifiers(ExternalIdBundle.of(Identifier.of(idScheme, idValue)));
-//    holiday.setRegionId(Identifier.of(regionScheme, regionValue));
-//    HolidayDocument doc = new HolidayDocument(holiday);
-//    doc = data().getHolidayMaster().updateHoliday(doc);
-//    data().setHoliday(doc);
-//    URI uri = WebHolidayResource.uri(data());
-//    return Response.seeOther(uri).build();
-//  }
-//
-//  @DELETE
-//  public Response delete() {
-//    HolidayDocument doc = data().getObject();
-//    if (doc.isLatest() == false) {
-//      return Response.status(Status.FORBIDDEN).entity(get()).build();
-//    }
-//    
-//    data().getHolidayMaster().removeHoliday(doc.getHolidayId());
-//    URI uri = WebHolidayResource.uri(data());
-//    return Response.seeOther(uri).build();
-//  }
 
   //-------------------------------------------------------------------------
   /**

@@ -6,15 +6,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.0.0</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-engine</artifactId>
   <packaging>jar</packaging>
   <name>OG-Engine</name>
-  <description>OpenGamma platform calculation engine</description>
+  <description>OpenGamma Platform calculation engine</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Engine</url>
@@ -22,19 +22,18 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-livedata</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.sleepycat</groupId>
       <artifactId>je</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.testng</groupId>
@@ -42,5 +41,10 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <properties>
+    <fudge.proto.equals>false</fudge.proto.equals>
+    <fudge.proto.hashCode>false</fudge.proto.hashCode>
+  </properties>
 
 </project>

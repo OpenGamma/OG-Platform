@@ -26,7 +26,6 @@ import com.google.common.collect.Maps;
 import com.opengamma.bbg.referencedata.ReferenceData;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -73,8 +72,8 @@ public class EHValueCachingReferenceDataProvider extends AbstractValueCachingRef
     super(underlying, fudgeContext);
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _cacheManager = cacheManager;
-    EHCacheUtils.addCache(cacheManager, REFERENCE_DATA_CACHE);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, REFERENCE_DATA_CACHE);
+    _cacheManager.addCacheIfAbsent(REFERENCE_DATA_CACHE);
+    _cache = _cacheManager.getCache(REFERENCE_DATA_CACHE);
   }
 
   //-------------------------------------------------------------------------
@@ -129,7 +128,7 @@ public class EHValueCachingReferenceDataProvider extends AbstractValueCachingRef
       s_logger.debug("Have security data for des {} in cache", identifier);
       Object fromCache = element.getObjectValue();
       s_logger.debug("cachedObject={}", fromCache);
-      return parseCachedObject((CachedReferenceData) fromCache);
+      return parseCachedObject(fromCache);
     }
     return null;
   }

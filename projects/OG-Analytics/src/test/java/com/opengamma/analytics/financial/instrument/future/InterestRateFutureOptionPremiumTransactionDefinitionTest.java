@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
@@ -29,7 +28,7 @@ import com.opengamma.util.time.DateUtils;
 public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex IBOR_INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR3M", CALENDAR);
+  private static final IborIndex IBOR_INDEX = IndexIborMaster.getInstance().getIndex("EURIBOR3M");
 
   // Future option mid-curve 1Y
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
@@ -37,12 +36,12 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
   //  private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Refence Price here
-  private static final String NAME = "EDU2";
+  private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9895;
-  private static final InterestRateFutureDefinition EDU2 = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, 1, NAME);
+  private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final boolean IS_CALL = true;
-  private static final InterestRateFutureOptionPremiumSecurityDefinition OPTION_EDU2 = new InterestRateFutureOptionPremiumSecurityDefinition(EDU2, EXPIRATION_DATE, STRIKE, IS_CALL);
+  private static final InterestRateFutureOptionPremiumSecurityDefinition OPTION_EDU2 = new InterestRateFutureOptionPremiumSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE, IS_CALL);
   // Transaction
   private static final int QUANTITY = -123;
   private static final ZonedDateTime PREMIUM_DATE = DateUtils.getUTCDate(2011, 5, 12);
@@ -82,7 +81,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
    * Tests the equal and hashCode methods.
    */
   public void equalHash() {
-    InterestRateFutureOptionPremiumTransactionDefinition other = new InterestRateFutureOptionPremiumTransactionDefinition(OPTION_EDU2, QUANTITY, PREMIUM_DATE, TRADE_PRICE);
+    final InterestRateFutureOptionPremiumTransactionDefinition other = new InterestRateFutureOptionPremiumTransactionDefinition(OPTION_EDU2, QUANTITY, PREMIUM_DATE, TRADE_PRICE);
     assertTrue(OPTION_TRANSACTION.equals(other));
     assertTrue(OPTION_TRANSACTION.hashCode() == other.hashCode());
     InterestRateFutureOptionPremiumTransactionDefinition modifidOption;
@@ -99,10 +98,10 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
    * Tests the toDerivative method when the reference date is before the premium settlement.
    */
   public void toDerivativeBeforeSettlement() {
-    InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, CURVES);
-    InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(REFERENCE_DATE, CURVES);
-    double premiumTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PREMIUM_DATE);
-    InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
+    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, CURVES);
+    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(REFERENCE_DATE, CURVES);
+    final double premiumTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PREMIUM_DATE);
+    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
     assertEquals("Option on future: to derivative", transaction, transactionConverted);
   }
 
@@ -111,11 +110,11 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
    * Tests the toDerivative method when the reference date is on the premium settlement.
    */
   public void toDerivativeOnSettlement() {
-    ZonedDateTime referenceDate = PREMIUM_DATE;
-    InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
-    InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
-    double premiumTime = 0.0;
-    InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
+    final ZonedDateTime referenceDate = PREMIUM_DATE;
+    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
+    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
+    final double premiumTime = 0.0;
+    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
     assertEquals("Option on future: to derivative", transaction, transactionConverted);
   }
 
@@ -124,12 +123,12 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
    * Tests the toDerivative method when the reference date is after the premium settlement.
    */
   public void toDerivativeAfterSettlement() {
-    ZonedDateTime referenceDate = PREMIUM_DATE.plusDays(1);
-    InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
-    InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
-    double premiumTime = 0.0;
-    double price = 0.0; // The payment is in the past and is represented by a 0 payment today.
-    InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, price);
+    final ZonedDateTime referenceDate = PREMIUM_DATE.plusDays(1);
+    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
+    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
+    final double premiumTime = 0.0;
+    final double price = 0.0; // The payment is in the past and is represented by a 0 payment today.
+    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, price);
     assertEquals("Option on future: to derivative", transaction, transactionConverted);
   }
 

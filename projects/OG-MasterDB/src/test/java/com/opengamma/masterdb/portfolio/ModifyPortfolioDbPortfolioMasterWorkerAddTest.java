@@ -11,12 +11,11 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -25,10 +24,12 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
  */
+@Test(groups = TestGroup.UNIT_DB)
 public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPortfolioMasterWorkerTest {
   // superclass sets up dummy database
 
@@ -63,7 +64,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
 
   @Test
   public void test_add_add() {
-    Instant now = Instant.now(_prtMaster.getTimeSource());
+    Instant now = Instant.now(_prtMaster.getClock());
     
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode("Root");
     ManageablePortfolioNode childNode = new ManageablePortfolioNode("Child");
@@ -109,7 +110,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
   
   @Test
   public void test_addWithAttributes_add() {
-    Instant now = Instant.now(_prtMaster.getTimeSource());
+    Instant now = Instant.now(_prtMaster.getClock());
     
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode("Root");
     ManageablePortfolioNode childNode = new ManageablePortfolioNode("Child");

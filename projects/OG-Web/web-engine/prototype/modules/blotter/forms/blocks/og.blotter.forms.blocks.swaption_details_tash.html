@@ -1,0 +1,70 @@
+<section>
+  <table class="OG-table">
+    <colgroup>
+      <col style="width: 33%">              
+      <col style="width: 67%">              
+    </colgroup>
+    <tbody>
+      <tr>
+        <td>
+        </td>
+        <td class="og-double-cell">
+          <div><span><label><span>Pay</span><input type="radio" name="security.payer" value="true">
+          </label></span><span><label><span>Receive</span><input type="radio" name="security.payer" value="false"></label>
+          </span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span>Settlement</span>
+        </td>
+        <td class="og-double-cell">
+          <div><span><label><span>Cash</span><input type="radio" name="security.cashSettled" value="true">
+          </label></span><span><label><span>Swap</span><input type="radio" name="security.cashSettled" value="false"></label>
+          </span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Expiry</span>
+          </label>
+        </td>
+        <td>
+          <input class="blotter-date" name="security.expiry" type="text" value='{{expiry}}' />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Settlement</span>
+          </label>
+        </td>
+        <td>
+          <input class="blotter-date" name="security.settlementDate" type="text" value='{{settlement}}' />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Notional</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_0}}}</span><span><input name="security.notional" type="text" value="{{notional}}"/></span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Excercise Type</span>
+          </label>
+        </td>
+        <td>
+          {{{item_1}}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

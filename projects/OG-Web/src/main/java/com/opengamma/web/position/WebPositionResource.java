@@ -28,6 +28,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.google.common.base.Objects;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -54,14 +55,14 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("positions/position.ftl", out);
+    return getFreemarker().build(HTML_DIR + "position.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("positions/jsonposition.ftl", out);
+    return getFreemarker().build(JSON_DIR + "position.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -76,15 +77,14 @@ public class WebPositionResource extends AbstractWebPositionResource {
     }
     quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
     BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
-    if (quantityStr == null) {
+    if (quantity == null) {
       FlexiBean out = createRootData();
       if (quantityStr == null) {
         out.put("err_quantityMissing", true);
-      }
-      if (quantity == null) {
+      } else {
         out.put("err_quantityNotNumeric", true);
       }
-      String html = getFreemarker().build("positions/position-update.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "position-update.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = updatePosition(doc, quantity, null);
@@ -169,7 +169,8 @@ public class WebPositionResource extends AbstractWebPositionResource {
     // time-series information is in the wrong place.
     
     ObjectId tsObjectId = null;
-    if (doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource()) != null) {
+    Security security = doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource());
+    if (security != null && !security.getExternalIdBundle().isEmpty()) {
       // Get the last price HTS for the security
       HistoricalTimeSeriesSource htsSource = data().getHistoricalTimeSeriesSource();
       HistoricalTimeSeries series = htsSource.getHistoricalTimeSeries(

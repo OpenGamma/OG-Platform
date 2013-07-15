@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.user;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;

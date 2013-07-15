@@ -5,11 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -48,8 +46,8 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
    */
   public InterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginSecurityDefinition underlyingOption, final int quantity, final ZonedDateTime tradeDate,
       final double tradePrice) {
-    Validate.notNull(underlyingOption, "underlying option");
-    Validate.notNull(tradeDate, "trade date");
+    ArgumentChecker.notNull(underlyingOption, "underlying option");
+    ArgumentChecker.notNull(tradeDate, "trade date");
     this._underlyingOption = underlyingOption;
     this._quantity = quantity;
     this._tradeDate = tradeDate;
@@ -66,7 +64,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
 
   /**
    * Gets the quantity of the transaction. Can be positive or negative.
-   * @return The quantity of the transaction. 
+   * @return The quantity of the transaction.
    */
   public int getQuantity() {
     return _quantity;
@@ -117,11 +115,13 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this);
   }
 

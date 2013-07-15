@@ -13,11 +13,13 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveDefinitionAndSpecificationsTest {
 
   @Test

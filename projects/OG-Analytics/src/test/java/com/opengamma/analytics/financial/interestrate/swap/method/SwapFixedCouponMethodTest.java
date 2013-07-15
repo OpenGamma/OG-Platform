@@ -4,10 +4,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -37,7 +36,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class SwapFixedCouponMethodTest {
 
   // Swap 2Y description
-  private static final Currency CUR = Currency.USD;
+  private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -53,11 +52,11 @@ public class SwapFixedCouponMethodTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  // Swaption construction: 
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
-  private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
-  private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  // Swaption construction:
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER, CALENDAR);
   // to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
@@ -101,7 +100,7 @@ public class SwapFixedCouponMethodTest {
 
     // 2. Funding curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesName = {bumpedCurveName, CURVES_NAME[1]};
+    final String[] bumpedCurvesName = {bumpedCurveName, CURVES_NAME[1] };
     final SwapFixedCoupon<Coupon> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
     final double[] yieldsFunding = new double[nbPayDate + 1];
     final double[] nodeTimes = new double[nbPayDate + 1];
@@ -149,7 +148,7 @@ public class SwapFixedCouponMethodTest {
           * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001);
     }
     final AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
-    final SwapFixedCoupon<Coupon> swapStepup = new SwapFixedCoupon<Coupon>(annuityStepUp, SWAP_PAYER.getSecondLeg());
+    final SwapFixedCoupon<Coupon> swapStepup = new SwapFixedCoupon<>(annuityStepUp, SWAP_PAYER.getSecondLeg());
     couponEquiv = METHOD_SWAP.couponEquivalent(swapStepup, CURVES);
     double expectedCouponEquivalent = 0;
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
@@ -164,11 +163,11 @@ public class SwapFixedCouponMethodTest {
    * Tests the par rate calculator for the swaps.
    */
   public void parRate() {
-    double ratePayer = PRC.visit(SWAP_PAYER, CURVES);
-    double rateReceiver = PRC.visit(SWAP_RECEIVER, CURVES);
+    final double ratePayer = SWAP_PAYER.accept(PRC, CURVES);
+    final double rateReceiver = SWAP_RECEIVER.accept(PRC, CURVES);
     assertEquals("Par Rate swap", ratePayer, rateReceiver, TOLERANCE_RATE);
-    double ratePayer2 = PRC.visitFixedCouponSwap(SWAP_PAYER, FIXED_DAY_COUNT, CURVES);
-    double rateReceiver2 = PRC.visitFixedCouponSwap(SWAP_RECEIVER, FIXED_DAY_COUNT, CURVES);
+    final double ratePayer2 = PRC.visitFixedCouponSwap(SWAP_PAYER, FIXED_DAY_COUNT, CURVES);
+    final double rateReceiver2 = PRC.visitFixedCouponSwap(SWAP_RECEIVER, FIXED_DAY_COUNT, CURVES);
     assertEquals("Par Rate swap", ratePayer2, rateReceiver2, TOLERANCE_RATE);
     assertEquals("Par Rate swap", ratePayer2, rateReceiver, TOLERANCE_RATE);
   }

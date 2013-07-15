@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -25,6 +24,7 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
   private final boolean _zeroPadSwapMaturityTenor;
   private final boolean _zeroPadSwaptionExpiryTenor;
   private final String _dataFieldName; // expecting MarketDataRequirementNames.MARKET_VALUE or PX_LAST
+  private final String _scheme;
 
   public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadSwapMaturityTenor, final boolean zeroPadSwaptionExpiryTenor,
       final String postfix) {
@@ -33,15 +33,23 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
 
   public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadSwapMaturityTenor, final boolean zeroPadSwaptionExpiryTenor,
       final String postfix, final String dataFieldName) {
-    Validate.notNull(countryPrefix);
-    Validate.notNull(typePrefix);
-    Validate.notNull(postfix);
+    this(countryPrefix, typePrefix, zeroPadSwapMaturityTenor, zeroPadSwaptionExpiryTenor, postfix, dataFieldName, ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
+  }
+
+  public BloombergSwaptionVolatilitySurfaceInstrumentProvider(final String countryPrefix, final String typePrefix, final boolean zeroPadSwapMaturityTenor, final boolean zeroPadSwaptionExpiryTenor,
+      final String postfix, final String dataFieldName, final String scheme) {
+    ArgumentChecker.notNull(countryPrefix, "country prefix");
+    ArgumentChecker.notNull(typePrefix, "type prefix");
+    ArgumentChecker.notNull(postfix, "postfix");
+    ArgumentChecker.notNull(dataFieldName, "data field name");
+    ArgumentChecker.notNull(scheme, "scheme");
     _countryPrefix = countryPrefix;
     _typePrefix = typePrefix;
     _zeroPadSwapMaturityTenor = zeroPadSwapMaturityTenor;
     _zeroPadSwaptionExpiryTenor = zeroPadSwaptionExpiryTenor;
     _postfix = postfix;
     _dataFieldName = dataFieldName;
+    _scheme = scheme;
   }
 
   @Override
@@ -52,7 +60,7 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     ticker.append(tenorToCode(swaptionExpiryTenor, _zeroPadSwaptionExpiryTenor));
     ticker.append(tenorToCode(swapMaturityTenor, _zeroPadSwapMaturityTenor));
     ticker.append(_postfix);
-    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, ticker.toString());
+    return ExternalId.of(_scheme, ticker.toString());
   }
 
   @Override
@@ -143,11 +151,12 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
         getTypePrefix().equals(other.getTypePrefix()) &&
         isZeroPadSwapMaturityTenor() == other.isZeroPadSwapMaturityTenor() &&
         isZeroPadSwaptionExpiryTenor() == other.isZeroPadSwaptionExpiryTenor() &&
-        getDataFieldName().equals(other.getDataFieldName());
+        getDataFieldName().equals(other.getDataFieldName()) &&
+        _scheme.equals(other._scheme);
   }
 
   @Override
   public int hashCode() {
-    return getCountryPrefix().hashCode() + getTypePrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
+    return getCountryPrefix().hashCode() + getTypePrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode() + _scheme.hashCode();
   }
 }

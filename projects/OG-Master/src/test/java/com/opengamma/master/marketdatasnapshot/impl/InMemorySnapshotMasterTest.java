@@ -31,11 +31,12 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test {@link InMemorySnapshotMaster}.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class InMemorySnapshotMasterTest {
 
   // TODO Move the logical tests from here to the generic SnapshotMasterTestCase then we can just extend from that

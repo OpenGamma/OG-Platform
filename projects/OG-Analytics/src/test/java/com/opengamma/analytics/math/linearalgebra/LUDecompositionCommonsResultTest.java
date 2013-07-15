@@ -26,14 +26,14 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * 
  */
 public class LUDecompositionCommonsResultTest {
-  protected static final double DETERMINANT = 3;
-  protected static final int[] PIVOT = new int[] {1, 2, 3};
-  protected static final RealMatrix L = new Array2DRowRealMatrix(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
-  protected static final RealMatrix U = new Array2DRowRealMatrix(new double[][] {new double[] {10, 11, 12}, new double[] {13, 14, 15}, new double[] {16, 17, 18}});
-  protected static final RealMatrix P = new Array2DRowRealMatrix(new double[][] {new double[] {19, 20, 21}, new double[] {22, 23, 24}, new double[] {25, 26, 27}});
-  protected static final RealMatrix RESULT_2D = new Array2DRowRealMatrix(new double[][] {new double[] {1, 2}, new double[] {3, 4}});
-  protected static final RealVector RESULT_1D = new ArrayRealVector(new double[] {1, 2});
-  protected static final DecompositionSolver SOLVER = new MyDecompositionSolver();
+  static final double DETERMINANT = 3;
+  static final int[] PIVOT = new int[] {1, 2, 3};
+  static final RealMatrix L = new Array2DRowRealMatrix(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
+  static final RealMatrix U = new Array2DRowRealMatrix(new double[][] {new double[] {10, 11, 12}, new double[] {13, 14, 15}, new double[] {16, 17, 18}});
+  static final RealMatrix P = new Array2DRowRealMatrix(new double[][] {new double[] {19, 20, 21}, new double[] {22, 23, 24}, new double[] {25, 26, 27}});
+  static final RealMatrix RESULT_2D = new Array2DRowRealMatrix(new double[][] {new double[] {1, 2}, new double[] {3, 4}});
+  static final RealVector RESULT_1D = new ArrayRealVector(new double[] {1, 2});
+  static final DecompositionSolver SOLVER = new MyDecompositionSolver();
   private static final LUDecompositionResult LU = new LUDecompositionCommonsResult(new MyLUDecomposition());
 
   @Test(expectedExceptions = IllegalArgumentException.class)

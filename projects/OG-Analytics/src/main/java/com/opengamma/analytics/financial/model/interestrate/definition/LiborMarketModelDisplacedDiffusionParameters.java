@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.model.interestrate.definition;
 
 import java.util.Arrays;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;

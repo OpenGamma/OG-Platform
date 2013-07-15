@@ -25,11 +25,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test
+@Test(groups = TestGroup.INTEGRATION)
 public class MessageBatchingWriterTest {
 
   private static final class DelayingOutputStream extends OutputStream {

@@ -5,18 +5,17 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 
 /**
  * Generic class for instrument generators (deposit, ois, irs, ...).
+ * @param <ATTRIBUTE_TYPE> The type of attribute.
  */
-public abstract class GeneratorInstrument {
+public abstract class GeneratorInstrument<ATTRIBUTE_TYPE extends GeneratorAttribute> {
 
   /**
    * Name of the generator.
@@ -27,7 +26,7 @@ public abstract class GeneratorInstrument {
    * Constructor.
    * @param name The generator name.
    */
-  public GeneratorInstrument(String name) {
+  public GeneratorInstrument(final String name) {
     Validate.notNull(name, "Name");
     _name = name;
   }
@@ -43,26 +42,12 @@ public abstract class GeneratorInstrument {
   /**
    * Generate an instrument compatible with the generator from a reference date, one period and a market quote.
    * @param date The reference date. In general it is "today" or the trade date.
-   * @param tenor The instrument tenor. When only one tenor is provided, the instrument will be spot starting or something similar (instrument dependent).
    * @param marketQuote The instrument market quote.
    * @param notional The instrument notional.
-   * @param objects The instrument specific extra data (like FX rates, ...)
+   * @param attribute The instrument attributes, as given by a GenratorAttribute.
    * @return The instrument.
    */
-  public abstract InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote, final double notional, final Object... objects);
-
-  /**
-   * Generate an instrument compatible with the generator from a reference date, two periods and a market quote.
-   * @param date The reference date. In general it is "today" or the trade date.
-   * @param startTenor The instrument start tenor. The exact meaning is instrument dependent. In general it is the period from spot to the effective date.
-   * @param endTenor The instrument end tenor. The exact meaning is instrument dependent. In general it is the period from spot to the maturity date.
-   * @param marketQuote The instrument market quote.
-   * @param notional The instrument notional.
-   * @param objects The instrument specific extra data (like FX rates, ...)
-   * @return The instrument.
-   */
-  public abstract InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double marketQuote, final double notional,
-      final Object... objects);
+  public abstract InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final ATTRIBUTE_TYPE attribute);
 
   @Override
   public int hashCode() {
@@ -73,7 +58,7 @@ public abstract class GeneratorInstrument {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -83,7 +68,7 @@ public abstract class GeneratorInstrument {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorInstrument other = (GeneratorInstrument) obj;
+    final GeneratorInstrument<?> other = (GeneratorInstrument<?>) obj;
     if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }

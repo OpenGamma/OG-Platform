@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.time.Duration;
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -26,6 +22,9 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
@@ -38,11 +37,11 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.masterdb.AbstractDbMaster;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 
@@ -116,7 +115,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(filter.getEarliestDate()))
       .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(filter.getLatestDate()));
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     
     // Get version metadata from the data-points and set up a Manageable HTS accordingly
     // While the HTS doc itself might have been deleted, the data-points can still be retrieved here
@@ -128,7 +127,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       result = namedJdbc.query(sqlExists, args, new ManageableHTSExtractor(oid));
       if (result != null) {
         // The time series doc exists or existed at some point, it's just that there are no data-points
-        result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+        result.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
         return result;
       } else {
         // The time series with the supplied id never existed
@@ -150,7 +149,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       args.addValue("order", "DESC");
     } else {
       // Zero datapoints requested
-      result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+      result.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
       return result;
     }
 
@@ -161,7 +160,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       result.setTimeSeries(series);
     } else {
       //TODO: this is a hack, most of the places that call with this condition want some kind of metadata, which it would be cheaper for us to expose specifically
-      result.setTimeSeries(new ArrayLocalDateDoubleTimeSeries());
+      result.setTimeSeries(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     }
     return result;
   }
@@ -202,12 +201,12 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addTimestamp("ver_instant", vc.getVersionAsOf())
       .addTimestamp("corr_instant", vc.getCorrectedTo());
     final String sql = getElSqlBundle().getSql("SelectMaxPointDate", queryArgs);
-    Date result = getDbConnector().getJdbcTemplate().queryForObject(sql, Date.class, queryArgs);
+    Date result = getDbConnector().getJdbcTemplate().queryForObject(sql, queryArgs, Date.class);
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
-      if (series.getTimeAt(0).isAfter(maxDate) == false) {
+      if (series.getEarliestTime().isAfter(maxDate) == false) {
         throw new IllegalArgumentException("Unable to update data points of time-series " + uniqueId +
-            " as the update starts at " + series.getTimeAt(0) +
+            " as the update starts at " + series.getEarliestTime() +
             " which is before the latest data point in the database at " + maxDate);
       }
     }
@@ -404,7 +403,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addValue("doc_oid", oid)
       .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
       .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final UniqueIdExtractor extractor = new UniqueIdExtractor(oid);
     final String sql = getElSqlBundle().getSql("SelectUniqueIdByVersionCorrection", args);
     final UniqueId uniqueId = namedJdbc.query(sql, args, extractor);
@@ -438,7 +437,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
           throw new OpenGammaRuntimeException("Unexpected duplicate data point entry");
         }
       }
-      return new ArrayLocalDateDoubleTimeSeries(dates, values);
+      return ImmutableLocalDateDoubleTimeSeries.of(dates, values);
     }
   }
 

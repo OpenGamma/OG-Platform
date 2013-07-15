@@ -11,7 +11,7 @@ package com.opengamma.analytics.financial.model.volatility.smile.function;
  */
 public interface SmileModelData {
 
-  int getNumberOfparameters();
+  int getNumberOfParameters();
 
   double getParameter(final int index);
 

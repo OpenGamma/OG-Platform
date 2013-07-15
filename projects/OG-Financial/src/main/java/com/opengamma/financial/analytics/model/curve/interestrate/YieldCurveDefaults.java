@@ -8,12 +8,9 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -26,6 +23,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.YIELD_CURVE,
     ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+    ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX
   };
   private final String _absoluteTolerance;
   private final String _relativeTolerance;
@@ -36,7 +34,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
 
   public YieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
       final String useFiniteDifference, final String... applicableCurrencies) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(absoluteTolerance, "absolute tolerance");
     ArgumentChecker.notNull(relativeTolerance, "relative tolerance");
     ArgumentChecker.notNull(maxIterations, "max iterations");
@@ -73,20 +71,6 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
       defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
     }
-  }
-  
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
-      return super.getRequirements(context, target, desiredValue);
-    }
-    final String curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
-    if (!(curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING) || curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING))) {
-      return null;
-    }
-    return super.getRequirements(context, target, desiredValue);
   }
 
   @Override

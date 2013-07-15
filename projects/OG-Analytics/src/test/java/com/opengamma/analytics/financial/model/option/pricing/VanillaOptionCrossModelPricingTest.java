@@ -11,9 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -31,7 +30,7 @@ import com.opengamma.analytics.financial.model.option.definition.StandardOptionD
 import com.opengamma.analytics.financial.model.option.definition.TrinomialOptionModelDefinition;
 import com.opengamma.analytics.financial.model.option.definition.TrisgeorgisBinomialOptionModelDefinition;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModelDeprecated;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.analytics.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.analytics.financial.model.option.pricing.tree.TreeOptionModel;
@@ -98,7 +97,7 @@ public class VanillaOptionCrossModelPricingTest {
     final AmericanVanillaOptionDefinition put1 = new AmericanVanillaOptionDefinition(SPOT * .9, EXPIRY, false);
     final AmericanVanillaOptionDefinition call2 = new AmericanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, true);
     final AmericanVanillaOptionDefinition put2 = new AmericanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, false);
-    final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> bs = new BjerksundStenslandModel();
+    final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> bs = new BjerksundStenslandModelDeprecated();
     TreeOptionModel<OptionDefinition, StandardOptionDataBundle> treeModel = new BinomialOptionModel<StandardOptionDataBundle>(CRR, n, 5);
     assertGreeks(call1, treeModel, bs);
     assertGreeks(put1, treeModel, bs);

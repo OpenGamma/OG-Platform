@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -280,13 +280,13 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    */
   @Override
   public AnnuityCouponFixedDefinition trimBefore(final ZonedDateTime trimDate) {
-    final List<CouponFixedDefinition> list = new ArrayList<CouponFixedDefinition>();
+    final List<CouponFixedDefinition> list = new ArrayList<>();
     for (final CouponFixedDefinition payment : getPayments()) {
       if (payment.getPaymentDate().isAfter(trimDate)) {
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]));
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]));
   }
 
   /**
@@ -295,24 +295,24 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @return The trimmed annuity.
    */
   public AnnuityCouponFixedDefinition trimStart(final ZonedDateTime trimDate) {
-    final List<CouponFixedDefinition> list = new ArrayList<CouponFixedDefinition>();
+    final List<CouponFixedDefinition> list = new ArrayList<>();
     for (final CouponFixedDefinition payment : getPayments()) {
       if (!payment.getAccrualStartDate().isBefore(trimDate)) {
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]));
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]));
   }
 
   @Override
   public AnnuityCouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final List<CouponFixed> resultList = new ArrayList<CouponFixed>();
+    final List<CouponFixed> resultList = new ArrayList<>();
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
       if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
         resultList.add(getNthPayment(loopcoupon).toDerivative(date, yieldCurveNames));
       }
     }
-    return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[0]));
+    return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[resultList.size()]));
   }
 
 }

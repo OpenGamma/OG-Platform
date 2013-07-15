@@ -53,7 +53,6 @@ public class DbFunctionCostsMasterFactoryBean extends SpringFactoryBean<DbFuncti
    * The meta-bean for {@code DbFunctionCostsMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbFunctionCostsMasterFactoryBean.Meta meta() {
     return DbFunctionCostsMasterFactoryBean.Meta.INSTANCE;
   }
@@ -149,7 +148,7 @@ public class DbFunctionCostsMasterFactoryBean extends SpringFactoryBean<DbFuncti
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "dbConnector");
 
     /**

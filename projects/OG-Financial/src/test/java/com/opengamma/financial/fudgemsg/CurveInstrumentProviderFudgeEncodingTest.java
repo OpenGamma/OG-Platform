@@ -13,15 +13,24 @@ import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentP
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CurveInstrumentProviderFudgeEncodingTest extends FinancialTestBase {
 
   @Test
-  public void testCycle() {
+  public void testStaticCurveInstrumentProvider() {
     final CurveInstrumentProvider cip = new StaticCurveInstrumentProvider(ExternalId.of("JIM", "BO"));
-    final CurveInstrumentProvider cip2 = new BloombergFutureCurveInstrumentProvider("ED", "Curncy");
     assertEquals(cip, cycleObject(CurveInstrumentProvider.class, cip));
-    assertEquals(cip2, cycleObject(CurveInstrumentProvider.class, cip2));
+  }
+
+  @Test
+  public void testBloombergFutureCurveInstrumentProvider() {
+    final CurveInstrumentProvider cip = new BloombergFutureCurveInstrumentProvider("ED", "Curncy");
+    assertEquals(cip, cycleObject(CurveInstrumentProvider.class, cip));
   }
 
 }

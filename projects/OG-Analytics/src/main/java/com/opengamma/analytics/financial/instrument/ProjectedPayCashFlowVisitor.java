@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Returns all of the projected pay floating cash-flows of an instrument.
  */
-public final class ProjectedPayCashFlowVisitor extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, List<MultipleCurrencyAmount>> {
+public final class ProjectedPayCashFlowVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, List<MultipleCurrencyAmount>> {
   private static final ProjectedPayCashFlowVisitor INSTANCE = new ProjectedPayCashFlowVisitor();
 
   public static ProjectedPayCashFlowVisitor getInstance() {
@@ -74,7 +74,7 @@ public final class ProjectedPayCashFlowVisitor extends AbstractInstrumentDerivat
       return Collections.emptyList();
     }
     final YieldAndDiscountCurve forwardCurve = data.getCurve(coupon.getForwardCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingYearFraction();
+    final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingAccrualFactor();
     final double amount = -(coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount());
     return Collections.singletonList(MultipleCurrencyAmount.of(CurrencyAmount.of(coupon.getCurrency(), amount)));
   }

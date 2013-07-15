@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -24,13 +24,13 @@ public class DailyScheduleCalculator extends Schedule {
   }
 
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       return new LocalDate[] {startDate};
     }
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final List<LocalDate> dates = new ArrayList<>();
     LocalDate date = startDate;
     while (!date.isAfter(endDate)) {
       dates.add(date);
@@ -45,13 +45,13 @@ public class DailyScheduleCalculator extends Schedule {
   }
 
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate) {
-    Validate.notNull(startDate, "start date");
-    Validate.notNull(endDate, "end date");
-    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
+    ArgumentChecker.notNull(startDate, "start date");
+    ArgumentChecker.notNull(endDate, "end date");
+    ArgumentChecker.isFalse(startDate.isAfter(endDate), "start date must not be after end date");
     if (startDate.equals(endDate)) {
       return new ZonedDateTime[] {startDate};
     }
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    final List<ZonedDateTime> dates = new ArrayList<>();
     ZonedDateTime date = startDate;
     while (!date.isAfter(endDate)) {
       dates.add(date);

@@ -27,8 +27,8 @@ public class MixedOrderUnderlying implements Underlying {
     if (underlyings.size() < 2) {
       throw new IllegalArgumentException("Must have at least two underlying types to have mixed order");
     }
-    _orders = new ArrayList<NthOrderUnderlying>();
-    _underlyings = new ArrayList<UnderlyingType>();
+    _orders = new ArrayList<>();
+    _underlyings = new ArrayList<>();
     int totalOrder = 0;
     UnderlyingType underlying;
     for (final Entry<Integer, UnderlyingType> entry : underlyings.entrySet()) {
@@ -49,8 +49,8 @@ public class MixedOrderUnderlying implements Underlying {
     if (underlyings.size() < 2) {
       throw new IllegalArgumentException("Must have at least two nth order underlyings to have mixed order");
     }
-    _orders = new ArrayList<NthOrderUnderlying>(underlyings);
-    _underlyings = new ArrayList<UnderlyingType>();
+    _orders = new ArrayList<>(underlyings);
+    _underlyings = new ArrayList<>();
     int totalOrder = 0;
     for (final NthOrderUnderlying nth : underlyings) {
       if (nth.getOrder() < 1) {

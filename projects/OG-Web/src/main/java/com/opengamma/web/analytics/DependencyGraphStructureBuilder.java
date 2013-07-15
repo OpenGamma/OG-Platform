@@ -5,13 +5,9 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -19,16 +15,16 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
  * Builds the row and column structure of a dependency graph grid given the compiled view definition and the
  * target at the root of the graph.
  */
-/* package */ class DependencyGraphStructureBuilder {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureBuilder.class);
+/* package */ class  DependencyGraphStructureBuilder {
 
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs = Lists.newArrayList();
@@ -38,68 +34,91 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
   private final DependencyGraphGridStructure _structure;
 
   /** Mutable variable for keeping track of the index of the last row */
-  private int _lastRow = 0;
+  private int _lastRow;
 
   /**
    * @param compiledViewDef The compiled view definition containing the dependency graph
    * @param root Specificaion of the value whose dependency graph structure is being built
    * @param calcConfigName The calculation configuration used when calculating the value
    * @param targetResolver For looking up calculation targets given their specification
+   * @param cycle The most recent view cycle
+   * @param rootRowName Row name of the root of the dependency graph in the parent grid
    */
   /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
                                                 ValueSpecification root,
                                                 String calcConfigName,
-                                                ComputationTargetResolver targetResolver) {
-    // TODO see [PLAT-2478] this is a bit nasty but will work as long as the engine and web are running in the same VM
+                                                ComputationTargetResolver targetResolver,
+                                                ViewCycle cycle,
+                                                String rootRowName) {
+    // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
-    // it might be better to try to get the dep graph from the view cycle (which is the only non-hacky way to get it
-    // ATM) and only fall back on the hack if that fails. at least that way the dep graphs would mostly work if the
-    // engine and web back-end are deployed in different VMs. you'd only see a problem if the user opens a dep graph
-    // before the first set of results arrives
-    if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
-      s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
-                        " Dependency graphs not supported");
-      _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
-                                                    Collections.<ValueSpecification>emptyList(),
-                                                    Collections.<String>emptyList(),
-                                                    targetResolver);
+    // it only works if this class is runing in the same VM as the engine
+    //
+    // if the engine and the web components are in a different VM then compiledViewDef won't be an instance of
+    // CompiledViewDefinitionWithGraphs and the hack won't work. in that case the view cycle will be empty and the
+    // user won't see a dependency graph if this is called before the first set of results arrives.
+    // as soon as the first set of results arrives it will work the same as if all the components are in the same VM
+    CompiledViewDefinitionWithGraphs viewDef;
+    if (compiledViewDef instanceof CompiledViewDefinitionWithGraphs) {
+      viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
     } else {
-      CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
-      DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
-      DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
-      AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, _valueSpecs, _fnNames, targetResolver);
+      viewDef = cycle.getCompiledViewDefinition();
     }
+    DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
+    DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
+    AnalyticsNode node = createNode(root, depGraph, true);
+    ViewCalculationConfiguration calcConfig = compiledViewDef.getViewDefinition().getCalculationConfiguration(calcConfigName);
+    String rootColumnName = getRootColumnName(root, calcConfig.getColumns());
+    _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver,
+                                                  rootRowName, rootColumnName);
+  }
+
+  private static String getRootColumnName(ValueSpecification root, List<ViewCalculationConfiguration.Column> columns) {
+    for (ViewCalculationConfiguration.Column column : columns) {
+      if (column.getValueName().equals(root.getValueName()) && column.getProperties().equals(root.getProperties())) {
+        return column.getHeader();
+      }
+    }
+    return root.getValueName();
   }
 
   /**
    * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the
    * nodes it depends on. Recursively builds up the node structure representing whole the dependency graph.
    * @param valueSpec The value specification of the target that is the current root
-   * @param depGraph Dependency graph for the entire view definition
+   * @param depGraph Dependency graph for the entire view definition, possibly null
+   * @param rootNode Whether the value specification is for the root node of the dependency graph
    * @return Root node of the grid structure representing the dependency graph for the value
    */
-  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph) {
+  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph, boolean rootNode) {
+    if (depGraph == null) {
+      return null;
+    }
     DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
     String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
     _valueSpecs.add(valueSpec);
     _fnNames.add(fnName);
     int nodeStart = _lastRow;
-    List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
+    List<AnalyticsNode> nodes = Lists.newArrayList();
     Set<ValueSpecification> inputValues = targetNode.getInputValues();
     if (inputValues.isEmpty()) {
-      // don't create a node unless it has children
-      return null;
+      if (rootNode) {
+        // the root node should never be null even if it has no children
+        return new AnalyticsNode(nodeStart, _lastRow, Collections.<AnalyticsNode>emptyList(), false);
+      } else {
+        // non-root leaf nodes don't need a node of their own, their place in the structure is handled by their parent
+        return null;
+      }
     } else {
       for (ValueSpecification input : inputValues) {
         ++_lastRow;
-        AnalyticsNode newNode = createNode(input, depGraph);
+        AnalyticsNode newNode = createNode(input, depGraph, false);
         if (newNode != null) {
           nodes.add(newNode);
         }
       }
-      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), false);
     }
   }
 

@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -34,7 +35,7 @@ public class PDEUtilityTools {
     final int xNodes = res.getNumberSpaceNodes();
 
     final int n = xNodes * tNodes;
-    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+    final Map<DoublesPair, Double> out = new HashMap<>(n);
 
     for (int i = 0; i < tNodes; i++) {
       final double t = res.getTimeValue(i);
@@ -51,20 +52,19 @@ public class PDEUtilityTools {
   }
 
   /**
-   * Take the terminal result for a forward PDE (i.e. forward option prices) and returns a map between strikes and implied volatilities 
+   * Take the terminal result for a forward PDE (i.e. forward option prices) and returns a map between strikes and implied volatilities
    * @param forwardCurve The forward curve
-   * @param expiry The expiry of this option strip 
-   * @param prices The results from the PDE solver 
-   * @param minK The minimum strike to return 
-   * @param maxK The maximum strike to return 
-   * @param isCall true for call 
-   * @return A map between strikes and implied volatilities 
+   * @param expiry The expiry of this option strip
+   * @param prices The results from the PDE solver
+   * @param minK The minimum strike to return
+   * @param maxK The maximum strike to return
+   * @param isCall true for call
+   * @return A map between strikes and implied volatilities
    */
   public static Map<Double, Double> priceToImpliedVol(final ForwardCurve forwardCurve, final double expiry, final PDETerminalResults1D prices, final double minK, final double maxK,
       final boolean isCall) {
     final int n = prices.getNumberSpaceNodes();
-    final double fwd = forwardCurve.getForward(expiry);
-    final Map<Double, Double> out = new HashMap<Double, Double>(n);
+    final Map<Double, Double> out = new HashMap<>(n);
     for (int j = 0; j < n; j++) {
       final double k = prices.getSpaceValue(j);
       if (k >= minK && k <= maxK) {
@@ -98,7 +98,7 @@ public class PDEUtilityTools {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
-    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+    final Map<DoublesPair, Double> out = new HashMap<>(n);
 
     for (int i = 0; i < tNodes; i++) {
       final double t = prices.getTimeValue(i);
@@ -129,7 +129,7 @@ public class PDEUtilityTools {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
-    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+    final Map<DoublesPair, Double> out = new HashMap<>(n);
 
     for (int i = 0; i < tNodes; i++) {
       final double t = prices.getTimeValue(i);
@@ -172,7 +172,7 @@ public class PDEUtilityTools {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
-    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+    final Map<DoublesPair, Double> out = new HashMap<>(n);
 
     for (int i = 0; i < tNodes; i++) {
       final double t = prices.getTimeValue(i);
@@ -237,7 +237,7 @@ public class PDEUtilityTools {
     Validate.isTrue(xSteps > 0, "need xSteps > 0");
     Validate.isTrue(ySteps > 0, "need ySteps > 0");
 
-    StringBuffer result = new StringBuffer(name);
+    final StringBuffer result = new StringBuffer(name);
     result.append("\n");
     for (int i = 0; i <= ySteps; i++) {
       final double y = yMin + ((yMax - yMin) * i) / ySteps;
@@ -260,30 +260,70 @@ public class PDEUtilityTools {
     System.out.println(result);
   }
 
-  /** 
-   * This form takes vectors of x (typically expiry) and y (typically strike) 
+  /**
+   * This form takes vectors of x (typically expiry) and y (typically strike)
    *
    * @param name The name
    * @param surface The surface
    * @param x The x values
    * @param y The y values
    */
+
+  /**
+   * Prints out the values of the function f(x,y) where x takes the values x_1 to x_N and y takes the values y_1 to y_M, along with the x and y values, with x as the top row and
+   * y as the left column. This format can be used by the Excel 3D surface plotter.
+   * @param name Optional name for the output
+   * @param data The data
+   * @param x x-values
+   * @param y y-values
+   * @param out output
+   */
+  public static void printSurface(final String name, final double[][] data, final double[] x, final double[] y, final PrintStream out) {
+    ArgumentChecker.notNull(data, "null data");
+    ArgumentChecker.notNull(x, "null x");
+    ArgumentChecker.notNull(y, "null y");
+    ArgumentChecker.notNull(out, "null printStream");
+    final int n = data.length;
+    final int m = data[0].length;
+    ArgumentChecker.isTrue(n == y.length, "Size of data is {} {}, but length of y is {}", n, m, y.length);
+    ArgumentChecker.isTrue(m == x.length, "Size of data is {} {}, but length of x is {}", n, m, x.length);
+
+    out.println(name);
+    for (int j = 0; j < m; j++) {
+      out.print("\t" + x[j]);
+    }
+    out.print("\n");
+    for (int i = 0; i < n; i++) {
+      out.print(y[i]);
+      for (int j = 0; j < m; j++) {
+        out.print("\t" + data[i][j]);
+      }
+      out.print("\n");
+    }
+    out.print("\n");
+  }
+
+  /**
+   * This form takes vectors of x (typically expiry) and y (typically strike)
+   * @param name The name of the surface
+   * @param surface The surface
+   * @param x Sample x values
+   * @param y Sample y values
+   */
   public static void printSurface(final String name, final Surface<Double, Double, Double> surface, final double[] x, final double[] y) {
     Validate.isTrue(x.length > 0, "The x-array was empty");
     Validate.isTrue(y.length > 0, "The y-array was empty");
 
-    StringBuffer result = new StringBuffer(name);
+    final StringBuffer result = new StringBuffer(name);
     result.append("\n");
-    for (int i = 0; i < y.length; i++) {
+    for (final double element : y) {
       result.append("\t");
-      result.append(y[i]);
+      result.append(element);
     }
     result.append("\n");
-    for (int j = 0; j < x.length; j++) {
-      final double t = x[j];
+    for (final double t : x) {
       result.append(t);
-      for (int i = 0; i < y.length; i++) {
-        final double k = y[i];
+      for (final double k : y) {
         result.append("\t");
         result.append(surface.getZValue(t, k));
       }

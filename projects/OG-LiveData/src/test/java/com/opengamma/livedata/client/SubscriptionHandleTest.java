@@ -17,11 +17,12 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class SubscriptionHandleTest {
 
   private final UserPrincipal _user = new UserPrincipal("kirk", "127.0.0.1");

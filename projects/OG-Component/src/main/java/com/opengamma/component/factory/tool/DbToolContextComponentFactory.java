@@ -5,11 +5,6 @@
  */
 package com.opengamma.component.factory.tool;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -25,18 +20,12 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.springframework.core.io.Resource;
-import org.springframework.util.ResourceUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
-import com.opengamma.util.db.script.DbScriptDirectory;
-import com.opengamma.util.db.script.DbScriptReader;
-import com.opengamma.util.db.script.FileDbScriptDirectory;
-import com.opengamma.util.db.script.ZipFileDbScriptDirectory;
 import com.opengamma.util.db.tool.DbToolContext;
 
 /**
@@ -61,6 +50,11 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _jdbcUrl;
   /**
+   * The database schema, if different from the default.
+   */
+  @PropertyDefinition
+  private String _schema;
+  /**
    * The database management instance.
    */
   @PropertyDefinition
@@ -70,11 +64,6 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private String _schemaNamesList;
-  /**
-   * A resource pointing to the root of the database installation scripts.
-   */
-  @PropertyDefinition
-  private Resource _scriptsResource;
   
   //-------------------------------------------------------------------------
   @Override
@@ -92,38 +81,6 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
         throw new OpenGammaRuntimeException("JDBC URL must contain '/' before the database name");
       }
       dbToolContext.setCatalog(getJdbcUrl().substring(lastSlashIdx + 1));
-    }
-    if (getScriptsResource() != null) {
-      URL scriptsResourceUrl;
-      try {
-        scriptsResourceUrl = getScriptsResource().getURL();
-      } catch (IOException e) {
-        throw new OpenGammaRuntimeException("Unable to get scripts resource as URL", e);
-      }
-      DbScriptDirectory dbScriptDirectory;
-      if (ResourceUtils.isFileURL(scriptsResourceUrl)) {
-        try {
-          dbScriptDirectory = new FileDbScriptDirectory(ResourceUtils.getFile(scriptsResourceUrl));
-        } catch (FileNotFoundException e) {
-          throw new OpenGammaRuntimeException("Error resolving scripts resource to file from URL " + scriptsResourceUrl);
-        }
-      } else if (ResourceUtils.isJarURL(scriptsResourceUrl)) {
-        URL jarFileUrl;
-        try {
-          jarFileUrl = ResourceUtils.extractJarFileURL(scriptsResourceUrl);
-        } catch (MalformedURLException e) {
-          throw new OpenGammaRuntimeException("Error resolving JAR file from URL " + scriptsResourceUrl);
-        }
-        int jarPathSeparatorIdx = scriptsResourceUrl.getFile().indexOf("!/");
-        if (jarPathSeparatorIdx == -1) {
-          throw new OpenGammaRuntimeException("Could not find resource path in JAR URL " + scriptsResourceUrl);
-        }
-        String jarPath = scriptsResourceUrl.getFile().substring(jarPathSeparatorIdx + 2);
-        dbScriptDirectory = new ZipFileDbScriptDirectory(new File(jarFileUrl.getFile()), jarPath);
-      } else {
-        throw new OpenGammaRuntimeException("Unsupported scripts resource URL: " + scriptsResourceUrl);
-      }
-      dbToolContext.setScriptReader(new DbScriptReader(dbScriptDirectory));
     }
     if (getSchemaNamesList() != null) {
       Set<String> schemaGroups = new HashSet<String>();
@@ -162,12 +119,12 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
         return getDbConnector();
       case -1752402828:  // jdbcUrl
         return getJdbcUrl();
+      case -907987551:  // schema
+        return getSchema();
       case 209279841:  // dbManagement
         return getDbManagement();
       case 1541392229:  // schemaNamesList
         return getSchemaNamesList();
-      case 1948576054:  // scriptsResource
-        return getScriptsResource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -184,14 +141,14 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       case -1752402828:  // jdbcUrl
         setJdbcUrl((String) newValue);
         return;
+      case -907987551:  // schema
+        setSchema((String) newValue);
+        return;
       case 209279841:  // dbManagement
         setDbManagement((DbManagement) newValue);
         return;
       case 1541392229:  // schemaNamesList
         setSchemaNamesList((String) newValue);
-        return;
-      case 1948576054:  // scriptsResource
-        setScriptsResource((Resource) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -213,9 +170,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
+          JodaBeanUtils.equal(getSchema(), other.getSchema()) &&
           JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
           JodaBeanUtils.equal(getSchemaNamesList(), other.getSchemaNamesList()) &&
-          JodaBeanUtils.equal(getScriptsResource(), other.getScriptsResource()) &&
           super.equals(obj);
     }
     return false;
@@ -227,9 +184,9 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchema());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNamesList());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScriptsResource());
     return hash ^ super.hashCode();
   }
 
@@ -311,6 +268,31 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the database schema, if different from the default.
+   * @return the value of the property
+   */
+  public String getSchema() {
+    return _schema;
+  }
+
+  /**
+   * Sets the database schema, if different from the default.
+   * @param schema  the new value of the property
+   */
+  public void setSchema(String schema) {
+    this._schema = schema;
+  }
+
+  /**
+   * Gets the the {@code schema} property.
+   * @return the property, not null
+   */
+  public final Property<String> schema() {
+    return metaBean().schema().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the database management instance.
    * @return the value of the property
    */
@@ -361,31 +343,6 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets a resource pointing to the root of the database installation scripts.
-   * @return the value of the property
-   */
-  public Resource getScriptsResource() {
-    return _scriptsResource;
-  }
-
-  /**
-   * Sets a resource pointing to the root of the database installation scripts.
-   * @param scriptsResource  the new value of the property
-   */
-  public void setScriptsResource(Resource scriptsResource) {
-    this._scriptsResource = scriptsResource;
-  }
-
-  /**
-   * Gets the the {@code scriptsResource} property.
-   * @return the property, not null
-   */
-  public final Property<Resource> scriptsResource() {
-    return metaBean().scriptsResource().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code DbToolContextComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -410,6 +367,11 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _jdbcUrl = DirectMetaProperty.ofReadWrite(
         this, "jdbcUrl", DbToolContextComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code schema} property.
+     */
+    private final MetaProperty<String> _schema = DirectMetaProperty.ofReadWrite(
+        this, "schema", DbToolContextComponentFactory.class, String.class);
+    /**
      * The meta-property for the {@code dbManagement} property.
      */
     private final MetaProperty<DbManagement> _dbManagement = DirectMetaProperty.ofReadWrite(
@@ -420,21 +382,16 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _schemaNamesList = DirectMetaProperty.ofReadWrite(
         this, "schemaNamesList", DbToolContextComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code scriptsResource} property.
-     */
-    private final MetaProperty<Resource> _scriptsResource = DirectMetaProperty.ofReadWrite(
-        this, "scriptsResource", DbToolContextComponentFactory.class, Resource.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "dbConnector",
         "jdbcUrl",
+        "schema",
         "dbManagement",
-        "schemaNamesList",
-        "scriptsResource");
+        "schemaNamesList");
 
     /**
      * Restricted constructor.
@@ -451,12 +408,12 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
           return _dbConnector;
         case -1752402828:  // jdbcUrl
           return _jdbcUrl;
+        case -907987551:  // schema
+          return _schema;
         case 209279841:  // dbManagement
           return _dbManagement;
         case 1541392229:  // schemaNamesList
           return _schemaNamesList;
-        case 1948576054:  // scriptsResource
-          return _scriptsResource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -502,6 +459,14 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code schema} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> schema() {
+      return _schema;
+    }
+
+    /**
      * The meta-property for the {@code dbManagement} property.
      * @return the meta-property, not null
      */
@@ -515,14 +480,6 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> schemaNamesList() {
       return _schemaNamesList;
-    }
-
-    /**
-     * The meta-property for the {@code scriptsResource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Resource> scriptsResource() {
-      return _scriptsResource;
     }
 
   }

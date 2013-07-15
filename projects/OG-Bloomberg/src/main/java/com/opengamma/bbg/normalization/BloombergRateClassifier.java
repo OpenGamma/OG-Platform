@@ -96,6 +96,7 @@ public class BloombergRateClassifier {
         Integer bbgFwdScale = _fwdScaleResolver.getBloombergFXForwardScale(Collections.singleton(buidBundle)).get(buidBundle);
         return getForwardScale(bbgFwdScale);
       case BILL:
+      case BOND:
       case CASH:
       case CREDIT_DEFAULT_SWAP:
       case FRA:
@@ -108,6 +109,10 @@ public class BloombergRateClassifier {
       case VOLATILITY_QUOTE:
       case CD:
         return 100;
+      case EQUITY_FUTURE:
+        return 1;
+      case INDEX_FUTURE:
+        return 1;
       default:
         return 1;
     }

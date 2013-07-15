@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -34,16 +35,16 @@ public class BlackSwaptionParametersTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final InterpolatedDoublesSurface BLACK_SURFACE = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0}, new double[] {2, 2, 2, 10, 10, 10}, new double[] {0.35,
       0.34, 0.25, 0.30, 0.25, 0.20}, INTERPOLATOR_2D);
-  private static final BlackSwaptionParameters BLACK_SWAPTION = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR6M);
+  private static final BlackFlatSwaptionParameters BLACK_SWAPTION = new BlackFlatSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR6M);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBlack() {
-    new BlackSwaptionParameters(null, EUR1YEURIBOR6M);
+    new BlackFlatSwaptionParameters(null, EUR1YEURIBOR6M);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGenerator() {
-    new BlackSwaptionParameters(BLACK_SURFACE, null);
+    new BlackFlatSwaptionParameters(BLACK_SURFACE, null);
   }
 
   @Test
@@ -61,14 +62,14 @@ public class BlackSwaptionParametersTest {
    */
   public void equalHash() {
     assertTrue("Black Swaption Surface: equal and hash code", BLACK_SWAPTION.equals(BLACK_SWAPTION));
-    final BlackSwaptionParameters other = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR6M);
+    final BlackFlatSwaptionParameters other = new BlackFlatSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR6M);
     assertTrue("Black Swaption Surface: equal and hash code", BLACK_SWAPTION.equals(other));
     assertEquals("Black Swaption Surface: equal and hash code", BLACK_SWAPTION.hashCode(), other.hashCode());
-    BlackSwaptionParameters modified = new BlackSwaptionParameters(BLACK_SURFACE, GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", CALENDAR));
+    BlackFlatSwaptionParameters modified = new BlackFlatSwaptionParameters(BLACK_SURFACE, GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", CALENDAR));
     assertFalse("Black Swaption Surface: equal and hash code", BLACK_SWAPTION.equals(modified));
     InterpolatedDoublesSurface surface2 = InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0}, new double[] {2, 2, 2, 10, 10, 10}, new double[] {0.35, 0.34, 0.25, 0.31, 0.25,
         0.20}, INTERPOLATOR_2D);
-    modified = new BlackSwaptionParameters(surface2, EUR1YEURIBOR6M);
+    modified = new BlackFlatSwaptionParameters(surface2, EUR1YEURIBOR6M);
     assertFalse("Black Swaption Surface: equal and hash code", BLACK_SWAPTION.equals(modified));
   }
 

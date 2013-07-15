@@ -9,8 +9,8 @@ package com.opengamma.financial.analytics.model.volatility.surface.black;
  *
  */
 public class BlackVolatilitySurfacePropertyNamesAndValues {
-  /** The Black volatility surface method */
-  public static final String BLACK_SURFACE_METHOD = "BlackSurfaceMethod";
+  /** Property name indicating that an interpolated Black lognormal volatility surface was used*/
+  public static final String INTERPOLATED_BLACK_LOGNORMAL = "InterpolatedBlackLognormalSurface";
 
   // Properties and names for the time axis
   /** Property name for the time axis parameterization */
@@ -63,15 +63,19 @@ public class BlackVolatilitySurfacePropertyNamesAndValues {
   public static final String PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR = "SplineRightExtrapolator";
 
   // Properties and values for the spline smile extrapolation, which uses ShiftedLogNormalTailExtrapolationFitter
-  /** Property name for the choice of whether to throw an exception if the extrapolator fails
+  /** Property name for the choice of whether to (a) throw an exception if the extrapolator fails
    *  to fit a ShiftedLognormal model to the vol and gradient of the last strike,
-   * or to toss the failing strike and try the next interior strikes until satisfied. */
+   *  (b) to reduce the slope until a fit is found or
+   *  (c) to set slope to zero, such that exterior volatilities equal the last marked value 
+   */
   public static final String PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE = "SplineExtrapolatorFailure";
   /** Selection *Quiet* will throw away a volatility if ShiftedLogNormalTailExtrapolationFitter fails and try the next nearest strike until it fits */
   public static final String QUIET_SPLINE_EXTRAPOLATOR_FAILURE = "Quiet";
   /**  Selection *Exception* puts the onus of shepherding the data on whoever provides marks */
   public static final String EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE = "Exception";
-
+  /**  Selection *Flat* means that volatilities in the exterior will equal the vol at the nearest boundary*/
+  public static final String FLAT_SPLINE_EXTRAPOLATOR_FAILURE = "Flat";
+  
   // Properties for mixed log normal interpolation
   /** Property name for the weighting function to be used in mixed log-normal interpolation */
   public static final String PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION = "MixedLogNormalWeightingFunction";

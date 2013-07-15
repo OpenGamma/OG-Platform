@@ -12,12 +12,11 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
@@ -41,19 +40,7 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
 
   public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D interpolator,
       final Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
-    Validate.notNull(curveDate, "CurveDate");
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(interpolator, "Interpolator1D");
-    Validate.notNull(resolvedStrips, "ResolvedStrips");
-    // Name can be null.
-    _curveDate = curveDate;
-    _currency = currency;
-    _name = name;
-    _interpolator = interpolator;
-    _interpolateYield = true;
-    for (final FixedIncomeStripWithSecurity strip : resolvedStrips) {
-      addStrip(strip);
-    }
+    this(curveDate, name, currency, interpolator, true, resolvedStrips);
   }
 
   public InterpolatedYieldCurveSpecificationWithSecurities(final LocalDate curveDate, final String name, final Currency currency, final Interpolator1D interpolator,

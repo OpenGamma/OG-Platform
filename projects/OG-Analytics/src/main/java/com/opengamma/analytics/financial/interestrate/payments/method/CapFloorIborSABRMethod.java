@@ -65,7 +65,7 @@ public final class CapFloorIborSABRMethod implements PricingMethod {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = PRC.visit(cap, sabrData);
+    final double forward = cap.accept(PRC, sabrData);
     final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     // TODO: Improve maturity, using periods?
@@ -93,8 +93,8 @@ public final class CapFloorIborSABRMethod implements PricingMethod {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = PRC.visit(cap, sabrData);
-    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cap, sabrData));
+    final double forward = cap.accept(PRC, sabrData);
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(cap.accept(PRSC, sabrData));
     final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     final double dfDr = -cap.getPaymentTime() * df;
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
@@ -122,7 +122,7 @@ public final class CapFloorIborSABRMethod implements PricingMethod {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = PRC.visit(cap, sabrData);
+    final double forward = cap.accept(PRC, sabrData);
     final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);

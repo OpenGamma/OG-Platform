@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
@@ -35,24 +35,26 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
   /**
    * Get the derivative at a given fix time from the definition
    * @param date fixing time
-   * @param yieldCurveNames  
+   * @param yieldCurveNames not used
    * @return the fixed derivative
    */
   @Override
   public MetalFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
-    double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
+    final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     //timeToSettlement
-    return new MetalFutureOption(timeToFixing, getUnderlying(), getStrike(), getExerciseType(), isCall());
+    return new MetalFutureOption(timeToFixing, getUnderlying().toDerivative(date, yieldCurveNames), getStrike(), getExerciseType(), isCall());
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitMetalFutureOptionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitMetalFutureOptionDefinition(this);
   }
 
@@ -62,7 +64,7 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -71,6 +73,5 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
     }
     return super.equals(obj);
   }
-
 
 }

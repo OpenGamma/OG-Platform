@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -25,8 +24,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -46,12 +45,12 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
   private static final IborIndex EURIBOR3M = EUR1YEURIBOR3M.getIborIndex();
   //  private static final Currency EUR = EURIBOR3M.getCurrency();
-  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
+  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M, TARGET);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 31);
   private static final Period START_TENOR = Period.ofMonths(6);
   private static final Period SWAP_TENOR = Period.ofYears(5);
-  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
+  private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M, TARGET);
   private static final double NOTIONAL = 123000000;
   private static final double SPREAD = 0.0010;
   private static final double FIXED_RATE = 0.0250;
@@ -60,9 +59,9 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
   private static final boolean IS_LONG = false;
 
   private static final SwapFixedIborSpreadDefinition SWAP_SPREAD_EUR1Y3M_DEFINITION = SwapFixedIborSpreadDefinition
-      .from(START_DATE, SWAP_TENOR, EUR1YEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER);
+      .from(START_DATE, SWAP_TENOR, EUR1YEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final SwapFixedIborSpreadDefinition SWAP_SPREAD_EUR3M3M_DEFINITION = SwapFixedIborSpreadDefinition
-      .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER);
+      .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final SwapFixedIborDefinition SWAP_NOSPREAD_EUR3M3M_DEFINITION = SwapFixedIborDefinition.from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE - SPREAD, IS_PAYER);
   private static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_SPREAD_EUR1Y3M_DEFINITION = SwaptionPhysicalFixedIborSpreadDefinition.from(EXPIRY_DATE, SWAP_SPREAD_EUR1Y3M_DEFINITION,
       IS_LONG);
@@ -72,7 +71,7 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsBlack.createCurvesEUR();
   private static final String[] CURVE_NAMES = TestsDataSetsBlack.curvesEURNames();
-  private static final BlackSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR3();
+  private static final BlackFlatSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR3();
   private static final YieldCurveWithBlackSwaptionBundle BUNDLE = new YieldCurveWithBlackSwaptionBundle(BLACK, CURVES);
 
   private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR1Y3M = SWAP_SPREAD_EUR1Y3M_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
@@ -88,16 +87,16 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
 
   @Test
   public void presentValue() {
-    CurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR1Y3M, BUNDLE);
-    double pvbp = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR1Y3M, EUR1YEURIBOR3M.getFixedLegDayCount(), CURVES);
-    double forward = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, CURVES);
-    double strike = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, BUNDLE);
-    double volatility = BLACK.getVolatility(SWAPTION_SPREAD_EUR1Y3M.getTimeToExpiry(), SWAPTION_SPREAD_EUR1Y3M.getMaturityTime());
+    final CurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR1Y3M, BUNDLE);
+    final double pvbp = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR1Y3M, EUR1YEURIBOR3M.getFixedLegDayCount(), CURVES);
+    final double forward = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, CURVES);
+    final double strike = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, BUNDLE);
+    final double volatility = BLACK.getVolatility(SWAPTION_SPREAD_EUR1Y3M.getTimeToExpiry(), SWAPTION_SPREAD_EUR1Y3M.getMaturityTime());
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, SWAPTION_SPREAD_EUR1Y3M.getTimeToExpiry(), SWAPTION_SPREAD_EUR1Y3M.isCall());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
-    double pvExpected = func.evaluate(dataBlack) * (IS_LONG ? 1.0 : -1.0);
+    final double pvExpected = func.evaluate(dataBlack) * (IS_LONG ? 1.0 : -1.0);
     assertEquals("SwaptionPhysicalFixedIborSpreadBlackMethod: presentValue", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
   }
 
@@ -106,8 +105,8 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
    * Compare the present value of a swaption with spread to a swaption wihout spread and an adjusted strike.
    */
   public void presentValueNoSpread() {
-    CurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR3M3M, BUNDLE);
-    CurrencyAmount pvExpected = METHOD_SWAPTION.presentValue(SWAPTION_NOSPREAD_EUR3M3M, BUNDLE);
+    final CurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR3M3M, BUNDLE);
+    final CurrencyAmount pvExpected = METHOD_SWAPTION.presentValue(SWAPTION_NOSPREAD_EUR3M3M, BUNDLE);
     assertEquals("SwaptionPhysicalFixedIborSpreadBlackMethod: presentValue", pvExpected.getAmount(), pvComputed.getAmount(), TOLERANCE_PV);
   }
 

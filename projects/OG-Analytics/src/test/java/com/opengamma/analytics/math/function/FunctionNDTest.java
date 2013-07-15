@@ -1,46 +1,33 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.math.function;
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+/**
+ * 
+ */
 public class FunctionNDTest {
-  private static final FunctionND<Double, Double> F = new MyFunction(3);
-  
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeDimension() {
-    new MyFunction(-4);
-  }
- 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testTooFewArguments() {
-    F.evaluate(1., 2.);
-  }
-  
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testTooManyArguments() {
-    F.evaluate(1., 2., 3., 4., 5., 6.);
-  }
-  
-  @Test
-  public void test() {
-    assertEquals(3, F.getDimension());
-    MyFunction other = new MyFunction(3);
-    assertEquals(F, other);
-    assertEquals(F.hashCode(), other.hashCode());
-    other = new MyFunction(4);
-    assertFalse(other.equals(F));
-  }
-  
-  private static class MyFunction extends FunctionND<Double, Double> {
-    public MyFunction(int dimension) {
-      super(dimension);
-    }
+  private static final FunctionND<Double, Double> F = new FunctionND<Double, Double>() {
 
     @Override
-    protected Double evaluateFunction(Double[] x) {
-      return x[0] + x[1] * x[1] + x[2] * x[2] * x[3];
+    protected Double evaluateFunction(final Double[] x) {
+      return x[1] + x[2] * x[0];
     }
+
+  };
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullParameters() {
+    F.evaluate((Double[]) null);
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullParameter() {
+    F.evaluate(1., null, 2.);
+  }
+
 }

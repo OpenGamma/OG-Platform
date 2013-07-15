@@ -16,6 +16,8 @@ $.register_module({
             SCHM = 'scheme',
             STTY = 'stripType',
             INST = 'instrument',
+            TYFI = 'typeField',
+            DAFI = 'dataField',
             PRFX = 'prefix',
             INDX = '<INDEX>',
             INSP = /InstrumentProviders$/,
@@ -32,6 +34,8 @@ $.register_module({
                 [['*', '*', '0'].join('.'),     Form.type.STR],
                 [['*', '*', CURR].join('.'),    Form.type.STR],
                 [['*', '*', INST].join('.'),    Form.type.STR],
+                [['*', '*', TYFI].join('.'),    Form.type.STR],
+                [['*', '*', DAFI].join('.'),    Form.type.STR],
                 [['*', '*', MKTS].join('.'),    Form.type.STR],
                 [['*', '*', PRFX].join('.'),    Form.type.STR],
                 [['*', '*', SCHM].join('.'),    Form.type.STR],
@@ -49,9 +53,9 @@ $.register_module({
                 master = config.data.template_data.configJSON.data || {}, new_strip_item,
                 tenors = config.data.template_data.configJSON.tenors || [],
                 transposed = {}, has = 'hasOwnProperty', format, new_name = '',
-                popup_module = 'og.views.forms.curve-specification-builder-popup', update_cell,
+                popup_module = 'og.views.forms.curve-specification-builder-popup_tash', update_cell,
                 form = new Form({
-                    module: 'og.views.forms.curve-specification-builder',
+                    module: 'og.views.forms.curve-specification-builder_tash',
                     data: {0: master[0] || config_type},
                     selector: selector,
                     extras: {name: orig_name},
@@ -63,8 +67,10 @@ $.register_module({
                             if (!tenor) return true; // i.e. continue;
                             $row.find('input[type=hidden]').each(function (idx, val) {
                                 var value = JSON.parse($(val).val());
-                                if (!value) return true; // i.e. continue;
-                                value[0] = data_types[value.type.toLowerCase()];
+                                if (!value)
+                                    return true; // i.e. continue;
+                                if(value.type)
+                                    value[0] = data_types[value.type.toLowerCase()];
                                 (data[field_names[idx]] || (data[field_names[idx]] = {}))[tenor] = value;
                             });
                         });
@@ -85,147 +91,129 @@ $.register_module({
                     });
                 };
             og.api.text({module: popup_module, handler: $.noop}); // cache popup module so there is no initial delay
-            form.attach([
-                {type: 'form:load', handler: function () {
-                    var header = '\
-                        <header class="OG-header-generic">\
-                          <div class="OG-tools"></div>\
-                          <h1 class="og-js-name">' + orig_name + '</h1>\
-                          (Curve Specification Builder Configuration)\
-                        </header>',
-                        section_width = $(form_id + ' .og-js-cell:first').outerWidth() * (field_names.length + 1);
-                    section_width += 40; // padding + awesome list delete icon
-                    $('.OG-layout-admin-details-center .ui-layout-header').html(header);
-                    $(form_id + ' .og-js-section').width(section_width);
-                    setTimeout(load_handler.partial(form));
-                }},
-                {type: 'form:submit', handler: save_resource},
-                {type: 'keydown', selector: form_id + ' .og-js-popup input', handler: function (e) {
-                    if ((e.keyCode !== $.ui.keyCode.ESCAPE) &&
-                        (e.keyCode !== $.ui.keyCode.ENTER) &&
-                        (e.keyCode !== $.ui.keyCode.NUMPAD_ENTER)) return;
-                    if ((e.keyCode === $.ui.keyCode.ESCAPE)) {
-                        $(form_id + ' .og-js-popup').remove();
-                        $(form_id + ' .og-js-cell').removeClass('og-active');
-                        return;
+            form.on('form:load', function () {
+                var header = '\
+                    <header class="OG-header-generic">\
+                      <div class="OG-tools"></div>\
+                      <h1 class="og-js-name">' + orig_name + '</h1>\
+                      (Curve Specification Builder Configuration)\
+                    </header>',
+                    section_width = $(form_id + ' .og-js-cell:first').outerWidth() * (field_names.length + 1);
+                section_width += 40; // padding + awesome list delete icon
+                $('.OG-layout-admin-details-center .ui-layout-header').html(header);
+                $(form_id + ' .og-js-section').width(section_width);
+                setTimeout(load_handler.partial(form));
+            }).on('form:submit', save_resource).on('keydown', form_id + ' .og-js-popup input', function (event) {
+                if ((event.keyCode !== $.ui.keyCode.ESCAPE) &&
+                    (event.keyCode !== $.ui.keyCode.ENTER) &&
+                    (event.keyCode !== $.ui.keyCode.NUMPAD_ENTER)) return;
+                if ((event.keyCode === $.ui.keyCode.ESCAPE)) {
+                    $(form_id + ' .og-js-popup').remove();
+                    $(form_id + ' .og-js-cell').removeClass('og-active');
+                    return;
+                }
+                update_cell();
+            }).on('keyup', form_id + ' input[name=name]', function (event) {
+                $('.OG-layout-admin-details-center .og-js-name').text($(event.target).val());
+            }).on('click', form_id + ' .og-js-rem', function (event) {
+                $(event.target).parent('li').remove();
+            }).on('click', form_id + ' .og-js-popup .og-js-cancel', function (event) {
+                $(form_id + ' .og-js-popup').remove();
+                $(form_id + ' .og-js-cell').removeClass('og-active');
+            }).on('click', form_id + ' .og-js-popup .og-js-clear', function (event) {
+                var $cell = $(form_id + ' .og-js-cell.og-active');
+                $(form_id + ' .og-js-popup').remove();
+                $(form_id + ' .og-js-cell').removeClass('og-active');
+                $cell.replaceWith(format(null));
+            }).on('click', form_id + ' .og-js-popup .og-js-update', update_cell = function (event) {
+                var $cell = $(form_id + ' .og-js-cell.og-active'),
+                    $row = $cell.parents('.og-js-row:first'),
+                    $popup = $(form_id + ' .og-js-popup'),
+                    data_type = $popup.find('.og-js-type').val().toLowerCase();
+                $(form_id + ' .og-js-cell').removeClass('og-active');
+                if (data_type) ({
+                    'static': function () {
+                        var result = {type: 'Static'}, scheme = $popup.find('.og-js-scheme').val();
+                        if (scheme === 'other') scheme = $popup.find('.og-js-scheme-other').val();
+                        result[INST] = scheme + '~' + $popup.find('.og-js-identifier').val();
+                        $cell.replaceWith(format(result));
+                    },
+                    'future': function () {
+                        var result = {type: 'Future'};
+                        result[PRFX] = $popup.find('.og-js-prefix').val();
+                        result[MKTS] = $popup.find('.og-js-market-sector').val();
+                        $cell.replaceWith(format(result));
+                    },
+                    'synthetic': function () {
+                        var cell_index = $row.find('.og-js-cell').index($cell),
+                            result = {type: 'Synthetic', scheme: 'OG_SYNTHETIC_TICKER'};
+                        result[CURR] = $popup.find('.og-js-currency').val();
+                        result[STTY] = field_names[cell_index].replace(INSP, '') // unCamel + underscore + caps
+                            .replace(/([\d]+[A-Z]|[\d]+|[A-Z])/g, '_$1').toUpperCase();
+                        $cell.replaceWith(format(result));
                     }
-                    update_cell();
-                }},
-                {type: 'keyup', selector: form_id + ' input[name=name]', handler: function (e) {
-                    $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());
-                }},
-                {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) {
-                    $(e.target).parent('li').remove();
-                }},
-                {type: 'click', selector: form_id + ' .og-js-popup .og-js-cancel', handler: function (e) {
-                    $(form_id + ' .og-js-popup').remove();
-                    $(form_id + ' .og-js-cell').removeClass('og-active');
-                }},
-                {type: 'click', selector: form_id + ' .og-js-popup .og-js-clear', handler: function (e) {
-                    var $cell = $(form_id + ' .og-js-cell.og-active');
-                    $(form_id + ' .og-js-popup').remove();
-                    $(form_id + ' .og-js-cell').removeClass('og-active');
-                    $cell.replaceWith(format(null));
-                }},
-                {type: 'click', selector: form_id + ' .og-js-popup .og-js-update', handler: update_cell = function (e) {
-                    var $cell = $(form_id + ' .og-js-cell.og-active'),
-                        $row = $cell.parents('.og-js-row:first'),
-                        $popup = $(form_id + ' .og-js-popup'),
-                        data_type = $popup.find('.og-js-type').val().toLowerCase();
-                    $(form_id + ' .og-js-cell').removeClass('og-active');
+                })[data_type]();
+                $(form_id + ' .og-js-popup').remove();
+            }).on('click', form_id + ' .og-js-cell', function (event) {
+                var $cell = $(event.target).is('.og-js-cell') ? $(event.target) : $(event.target).parent('.og-js-cell:first'),
+                    $row = $cell.parents('.og-js-row:first'), $holder = $(form_id + ' .og-js-holder'),
+                    cell_offset = $cell.offset(), holder_offset = $holder.offset(),
+                    data = JSON.parse($cell.find('input[type=hidden]').val()) || {},
+                    block;
+                $(form_id + ' .og-js-popup').remove();
+                if ($cell.is('.og-active')) return $cell.removeClass('og-active');
+                $(form_id + ' .og-js-cell').removeClass('og-active');
+                $cell.addClass('og-active');
+                block = new form.Block({module: popup_module}).on('form:load', function () {
+                    var $popup = $(form_id + ' .og-js-popup'),
+                        last_offset = $row.find('.og-js-cell').index($cell) === 7 ?
+                            $popup.width() - $cell.width() + 3 : 0,
+                        top = Math.round(cell_offset.top - holder_offset.top) + $row.height(),
+                        left = Math.round(cell_offset.left - holder_offset.left - last_offset),
+                        data_type = data.type ? data.type.toLowerCase() : '';
+                    $popup.css({top: top + 'px', left: left + 'px'});
+                    $popup.find('.og-js-type').val(data.type);
+                    ['static', 'future', 'synthetic'].forEach(function (type) {
+                        $popup.find('.og-js-' + type)[data_type === type ? 'show' : 'hide']();
+                    });
                     if (data_type) ({
                         'static': function () {
-                            var result = {type: 'Static'}, scheme = $popup.find('.og-js-scheme').val();
-                            if (scheme === 'other') scheme = $popup.find('.og-js-scheme-other').val();
-                            result[INST] = scheme + '~' + $popup.find('.og-js-identifier').val();
-                            $cell.replaceWith(format(result));
+                            if (!data.instrument) return;
+                            var scheme_id = data[INST].split('~');
+                            if (!$popup.find('.og-js-scheme').val(scheme_id[0]).val()) {
+                                $popup.find('.og-js-scheme').val('other');
+                                $popup.find('.og-js-scheme-other').removeAttr('disabled').val(scheme_id[0]);
+                            };
+                            $popup.find('.og-js-identifier').val(scheme_id[1]).focus().select();
                         },
                         'future': function () {
-                            var result = {type: 'Future'};
-                            result[PRFX] = $popup.find('.og-js-prefix').val();
-                            result[MKTS] = $popup.find('.og-js-market-sector').val();
-                            $cell.replaceWith(format(result));
+                            $popup.find('.og-js-prefix').val(data[PRFX]);
+                            $popup.find('.og-js-market-sector').val(data[MKTS]).focus().select();
                         },
                         'synthetic': function () {
-                            var cell_index = $row.find('.og-js-cell').index($cell),
-                                result = {type: 'Synthetic', scheme: 'OG_SYNTHETIC_TICKER'};
-                            result[CURR] = $popup.find('.og-js-currency').val();
-                            result[STTY] = field_names[cell_index].replace(INSP, '') // unCamel + underscore + caps
-                                .replace(/([\d]+[A-Z]|[\d]+|[A-Z])/g, '_$1').toUpperCase();
-                            $cell.replaceWith(format(result));
+                            $popup.find('.og-js-currency').val(data[CURR]).focus().select();
                         }
                     })[data_type]();
-                    $(form_id + ' .og-js-popup').remove();
-                }},
-                {type: 'click', selector: form_id + ' .og-js-cell', handler: function (e) {
-                    var $cell = $(e.target).is('.og-js-cell') ? $(e.target) : $(e.target).parent('.og-js-cell:first'),
-                        $row = $cell.parents('.og-js-row:first'), $holder = $(form_id + ' .og-js-holder'),
-                        cell_offset = $cell.offset(), holder_offset = $holder.offset(),
-                        data = JSON.parse($cell.find('input[type=hidden]').val()) || {},
-                        block;
-                    $(form_id + ' .og-js-popup').remove();
-                    if ($cell.is('.og-active')) return $cell.removeClass('og-active');
-                    $(form_id + ' .og-js-cell').removeClass('og-active');
-                    $cell.addClass('og-active');
-                    block = new form.Block({
-                        module: popup_module,
-                        handlers: [
-                            {type: 'change', selector: form_id + ' .og-js-type', handler: function (e) {
-                                var $popup = $(form_id + ' .og-js-popup'), data_type = $(e.target).val().toLowerCase();
-                                ['static', 'future', 'synthetic'].forEach(function (type) {
-                                    $popup.find('.og-js-' + type)[data_type === type ? 'show' : 'hide']();
-                                });
-                            }},
-                            {type: 'change', selector: form_id + ' .og-js-scheme', handler: function (e) {
-                                var $popup = $(form_id + ' .og-js-popup'), $other = $popup.find('.og-js-scheme-other'),
-                                    scheme = $(e.target).val().toLowerCase();
-                                if (scheme !== 'other') return $other.val('').attr('disabled', 'disabled');
-                                $other.removeAttr('disabled');
-                            }},
-                            {type: 'form:load', handler: function () {
-                                var $popup = $(form_id + ' .og-js-popup'),
-                                    last_offset = $row.find('.og-js-cell').index($cell) === 7 ?
-                                        $popup.width() - $cell.width() + 3 : 0,
-                                    top = Math.round(cell_offset.top - holder_offset.top) + $row.height(),
-                                    left = Math.round(cell_offset.left - holder_offset.left - last_offset),
-                                    data_type = data.type ? data.type.toLowerCase() : '';
-                                $popup.css({top: top + 'px', left: left + 'px'});
-                                $popup.find('.og-js-type').val(data.type);
-                                ['static', 'future', 'synthetic'].forEach(function (type) {
-                                    $popup.find('.og-js-' + type)[data_type === type ? 'show' : 'hide']();
-                                });
-                                if (data_type) ({
-                                    'static': function () {
-                                        if (!data.instrument) return;
-                                        var scheme_id = data[INST].split('~');
-                                        if (!$popup.find('.og-js-scheme').val(scheme_id[0]).val()) {
-                                            $popup.find('.og-js-scheme').val('other');
-                                            $popup.find('.og-js-scheme-other').removeAttr('disabled').val(scheme_id[0]);
-                                        };
-                                        $popup.find('.og-js-identifier').val(scheme_id[1]).focus().select();
-                                    },
-                                    'future': function () {
-                                        $popup.find('.og-js-prefix').val(data[PRFX]);
-                                        $popup.find('.og-js-market-sector').val(data[MKTS]).focus().select();
-                                    },
-                                    'synthetic': function () {
-                                        $popup.find('.og-js-currency').val(data[CURR]).focus().select();
-                                    }
-                                })[data_type]();
-                            }}
-                        ]
+                }).on('change', form_id + ' .og-js-type', function (event) {
+                    var $popup = $(form_id + ' .og-js-popup'), data_type = $(event.target).val().toLowerCase();
+                    ['static', 'future', 'synthetic'].forEach(function (type) {
+                        $popup.find('.og-js-' + type)[data_type === type ? 'show' : 'hide']();
                     });
-                    block.html(function (html) {$holder.append($(html)), block.load();});
-                }},
-                {type: 'click', selector: form_id + ' .og-js-add', handler: function (e) {
-                    var strip_item = new_strip_item(field_names.reduce(function (acc, val) {
-                        return (acc[val] = null), acc;
-                    }, {tenor: ''}));
-                    strip_item.html(function (html) {
-                        $(form_id + ' .og-js-strip').append($(html)), strip_item.load();
-                    });
-                }}
-            ]);
+                }).on('change', form_id + ' .og-js-scheme', function (event) {
+                    var $popup = $(form_id + ' .og-js-popup'), $other = $popup.find('.og-js-scheme-other'),
+                        scheme = $(event.target).val().toLowerCase();
+                    if (scheme !== 'other') return $other.val('').attr('disabled', 'disabled');
+                    $other.removeAttr('disabled');
+                });
+                block.html(function (html) {$holder.append($(html)), block.load();});
+            }).on('click', form_id + ' .og-js-add', function (event) {
+                var strip_item = new_strip_item(field_names.reduce(function (acc, val) {
+                    return (acc[val] = null), acc;
+                }, {tenor: ''}));
+                strip_item.html(function (html) {
+                    $(form_id + ' .og-js-strip').append($(html)), strip_item.load();
+                });
+            });
             format = (function (dummy) {
                 return function (val) {
                     var json, formatted, title;
@@ -240,17 +228,17 @@ $.register_module({
             })($('<input type="hidden" />'));
             new_strip_item = function (val, idx) {
                 return new form.Block({
-                    wrap: '\
+                    template: '\
                         <li class="og-js-row">\
                           <div class="og-del og-js-rem"></div>\
                           <div class="og-strip">\
                             <div class="og-input">\
                                 <input value="' + val.tenor + '" class="og-js-tenor" type="text" />\
                             </div>\
-                            {{html html}}\
+                            {{{field_names}}}\
                           </div>\
                         </li>',
-                    children: field_names.map(function (field) {return format(val[field]);})
+                    extras: {field_names: field_names.map(function (field) {return format(val[field]);})}
                 });
             };
             transposed = field_names.reduce(function (acc, val) {
@@ -264,11 +252,13 @@ $.register_module({
             }, {});
             form.children = [
                 new form.Block({ // headers
-                    wrap: '<div class="og-a-list-header og-strip"><div>Tenor</div>{{html html}}</div>',
-                    children: field_names.map(function (val) {return '<div>' + val.replace(INSP, '') + '</div>';})
+                    template: '<div class="og-a-list-header og-strip"><div>Tenor</div>{{{headers}}}</div>',
+                    extras: {
+                        headers: field_names.map(function (val) {return '<div>' + val.replace(INSP, '') + '</div>';})
+                    }
                 }),
                 new form.Block({ // content
-                    wrap: '<ul class="og-awesome-list og-js-strip">{{html html}}</ul>',
+                    template: '<ul class="og-awesome-list og-js-strip">{{{children}}}</ul>',
                     children: tenors.map(function (tenor) {
                         return field_names.reduce(function (acc, val) {
                             return (acc[val] = transposed[val][tenor] || null), acc;

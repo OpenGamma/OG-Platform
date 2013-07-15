@@ -55,6 +55,7 @@ public class FXFutureLoader extends SecurityLoader {
       FIELD_FUT_LONG_NAME,
       FIELD_LAST_TRADEABLE_DT,
       FIELD_FUT_TRADING_HRS,
+      FIELD_FUTURES_CATEGORY,
       FIELD_CRNCY,
       FIELD_FUT_TRADING_UNITS,
       FIELD_QUOTE_UNITS,
@@ -134,6 +135,9 @@ public class FXFutureLoader extends SecurityLoader {
     }
     if (!isValidField(quotedCurrencyCode)) {
       logMissingData(FIELD_QUOTED_CRNCY, name);
+    }
+    if (!isValidField(category)) {
+      logMissingData(FIELD_FUTURES_CATEGORY, name);
     }
     
     Double unitAmount = UNIT_AMOUNT_MAP.get(quoteUnits);

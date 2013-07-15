@@ -55,7 +55,7 @@ public class BlackPriceFunctionTest {
   @Test
   public void testATMPrice() {
     final double sigmaRootT = ATM_DATA.getBlackVolatility() * Math.sqrt(ATM_CALL.getTimeToExpiry());
-    assertEquals(DF * F * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1), FUNCTION.getPriceFunction(ATM_CALL).evaluate(ATM_DATA), 1e-15);
+    assertEquals(DF * F * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1), FUNCTION.getPriceFunction(ATM_CALL).evaluate(ATM_DATA), 1e-14);
   }
 
   @Test
@@ -100,6 +100,37 @@ public class BlackPriceFunctionTest {
     double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
     assertEquals(derivativeV_FD, priceAdjoint[2], 1E-6);
+  }
+
+  @Test(enabled = false)
+  /**
+   * Tests the numerical stability of a finite difference approach to derivativ computation.
+   */
+  public void priceADStability() {
+    final double forward = 1.0;
+    final double df = 1.0; // 0 rate
+    final double sigma = 0.20;
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, sigma);
+    final double expiration = 7.0d / 365.0d; // 1 week
+    final EuropeanVanillaOption atmCall = new EuropeanVanillaOption(forward, expiration, true);
+    final double price = FUNCTION.getPriceFunction(atmCall).evaluate(dataBlack);
+    double startingShift = 1.0E-4;
+    double ratio = Math.sqrt(2.0);
+    final int nbShift = 75;
+    final double[] eps = new double[nbShift + 1];
+    final double[] priceAdjoint = FUNCTION.getPriceAdjoint(atmCall, dataBlack);
+    final double[] derivativeF_FD = new double[nbShift];
+    final double[] diff = new double[nbShift];
+    eps[0] = startingShift;
+    for (int loopshift = 0; loopshift < nbShift; loopshift++) {
+      final BlackFunctionData dataBlackShifted = new BlackFunctionData(forward + eps[loopshift], df, sigma);
+      final double priceShifted = FUNCTION.getPriceFunction(atmCall).evaluate(dataBlackShifted);
+      derivativeF_FD[loopshift] = (priceShifted - price) / eps[loopshift];
+      diff[loopshift] = derivativeF_FD[loopshift] - priceAdjoint[1];
+      eps[loopshift + 1] = eps[loopshift] / ratio;
+    }
+    //    int t = 0;
+    //    t++;
   }
 
   @Test

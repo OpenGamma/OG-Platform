@@ -5,12 +5,10 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -27,32 +25,29 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   private final List<Integer> _rows;
   /** Indices of columns in the viewport, not empty, sorted in ascending order. */
   private final List<Integer> _columns;
+  /** Format of all cells in the viewport */
+  private final TypeFormatter.Format _format;
 
   /**
    * @param version
    * @param rows Indices of rows in the viewport, not empty
    * @param columns Indices of columns in the viewport, not empty
    * @param format
+   * @param enableLogging
    */
   /* package */ RectangularViewportDefinition(int version,
                                               List<Integer> rows,
                                               List<Integer> columns,
-                                              TypeFormatter.Format format) {
-    super(version, format);
+                                              TypeFormatter.Format format,
+                                              Boolean enableLogging) {
+    super(version, enableLogging);
     ArgumentChecker.notEmpty(rows, "rows");
     ArgumentChecker.notEmpty(columns, "columns");
-    List<Integer> sortedColumns = Lists.newArrayList(columns);
-    List<Integer> sortedRows = Lists.newArrayList(rows);
-    Collections.sort(sortedColumns);
-    Collections.sort(sortedRows);
-    if (sortedRows.get(0) < 0) {
-      throw new IllegalArgumentException("All row indices must be non-negative: " + rows);
-    }
-    if (sortedColumns.get(0) < 0) {
-      throw new IllegalArgumentException("All column indices must be non-negative: " + sortedColumns);
-    }
-    _rows = ImmutableList.copyOf(sortedRows);
-    _columns = ImmutableList.copyOf(sortedColumns);
+    ArgumentChecker.notNull(format, "format");
+    _format = format;
+    // TODO bounds checking
+    _rows = ImmutableList.copyOf(rows);
+    _columns = ImmutableList.copyOf(columns);
   }
 
   @Override
@@ -77,6 +72,14 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     return true;
   }
 
+  /* package */ List<Integer> getColumns() {
+    return _columns;
+  }
+
+  /* package */ TypeFormatter.Format getFormat() {
+    return _format;
+  }
+
   @Override
   public String toString() {
     return "RectangularViewportDefinition [_rows=" + _rows + ", _columns=" + _columns + "]";
@@ -85,7 +88,7 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   /**
    * Iterator that returns the viewports cells by traversing rows followed by columns.
    */
-  private class CellIterator implements Iterator<GridCell> {
+  private final class CellIterator implements Iterator<GridCell> {
 
     private final Iterator<Integer> _rowIterator = _rows.iterator();
 
@@ -111,7 +114,7 @@ public class RectangularViewportDefinition extends ViewportDefinition {
       if (!_colIterator.hasNext()) {
         initRow();
       }
-      return new GridCell(_rowIndex, _colIterator.next());
+      return new GridCell(_rowIndex, _colIterator.next(), getFormat());
     }
 
     @Override

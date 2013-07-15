@@ -1,0 +1,32 @@
+/*
+ * Copyright 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-text {
+    background-color: #f8f8f8;
+    overflow: scroll;
+    height: 100%;
+}
+
+.OG-text .text-contents {
+    padding: 5px;
+}
+
+/* notification */
+.OG-text .og-message {
+    background-color: #fdf080;
+    color: #656033;
+    display: none;
+    left: 0;
+    margin: 1px 0 1px 1px;
+    padding: 2px 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.OG-text .og-message .og-link {
+    cursor: pointer;
+    text-decoration: underline;
+}

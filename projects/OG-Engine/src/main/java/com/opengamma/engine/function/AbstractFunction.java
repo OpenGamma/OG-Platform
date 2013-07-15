@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
@@ -20,17 +20,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 
 /**
- * The base class from which most {@link FunctionDefinition} implementations
- * should inherit.
- *
+ * The base class from which most {@link FunctionDefinition} implementations should inherit.
+ * 
  * @author kirk
  */
 @PublicSPI
 public abstract class AbstractFunction implements FunctionDefinition {
 
   /**
-   * The base class from which most {@link CompiledFunctionDefinition} implementations
-   * returned by a {@link AbstractFunction} derived class should inherit.
+   * The base class from which most {@link CompiledFunctionDefinition} implementations returned by a {@link AbstractFunction} derived class should inherit.
    */
   protected abstract class AbstractCompiledFunction implements CompiledFunctionDefinition {
 
@@ -43,10 +41,10 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Creates an instance.
      * 
-     * @param earliestInvocation  earliest time this metadata and invoker are valid, null to indicate no lower validity bound
-     * @param latestInvocation  latest time this metadata and invoker are valid, null to indicate no upper validity bound
+     * @param earliestInvocation earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+     * @param latestInvocation latest time this metadata and invoker are valid, null to indicate no upper validity bound
      */
-    protected AbstractCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
+    protected AbstractCompiledFunction(final Instant earliestInvocation, final Instant latestInvocation) {
       setEarliestInvocationTime(earliestInvocation);
       setLatestInvocationTime(latestInvocation);
     }
@@ -57,7 +55,20 @@ public abstract class AbstractFunction implements FunctionDefinition {
     }
 
     /**
+     * Default implementation always returns true - the function is applicable. Overload this if there is a cheap test that should suppress the call to {@link #getResults}.
+     * 
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target the Target for which capability is to be tests
+     * @return always true
+     */
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      return true;
+    }
+
+    /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
+     * 
      * @param context The compilation context with view-specific parameters and configurations.
      * @param target The target for which calculation is desired.
      * @param inputs The resolved inputs to the function.
@@ -77,19 +88,19 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Sets the earliest time that this metadata and invoker will be valid for.
      * 
-     * @param timestamp earliest time, null to indicate no lower validity bound
+     * @param timestamp the earliest time, null to indicate no lower validity bound
      */
-    public void setEarliestInvocationTime(final InstantProvider timestamp) {
-      _earliestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
+    public void setEarliestInvocationTime(final Instant timestamp) {
+      _earliestInvocationTime = timestamp;
     }
 
     /**
      * Sets the latest time that this metadata and invoker will be valid for.
      * 
-     * @param timestamp latest time, null to indicate no upper validity bound
+     * @param timestamp the latest time, null to indicate no upper validity bound
      */
-    public void setLatestInvocationTime(final InstantProvider timestamp) {
-      _latestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
+    public void setLatestInvocationTime(final Instant timestamp) {
+      _latestInvocationTime = timestamp;
     }
 
     @Override
@@ -104,6 +115,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
     /**
      * Returns false indicating the requirements to the function must be produced within the dependency graph.
+     * 
      * @return always false
      */
     @Override
@@ -114,8 +126,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   /**
-   * Extension to {@link AbstractCompiledFunction} that also implements the {@link FunctionInvoker}
-   * interface for functions that can be invoked directly at the local node.
+   * Extension to {@link AbstractCompiledFunction} that also implements the {@link FunctionInvoker} interface for functions that can be invoked directly at the local node.
    */
   protected abstract class AbstractInvokingCompiledFunction extends AbstractCompiledFunction implements FunctionInvoker {
 
@@ -126,15 +137,26 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Creates an instance.
      * 
-     * @param earliestInvocation  earliest time this metadata and invoker are valid, null to indicate no lower validity bound
-     * @param latestInvocation  latest time this metadata and invoker are valid, null to indicate no upper validity bound
+     * @param earliestInvocation earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+     * @param latestInvocation latest time this metadata and invoker are valid, null to indicate no upper validity bound
      */
-    protected AbstractInvokingCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
+    protected AbstractInvokingCompiledFunction(final Instant earliestInvocation, final Instant latestInvocation) {
       super(earliestInvocation, latestInvocation);
     }
 
     /**
+     * Creates an instance.
+     * 
+     * @param earliestInvocation earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+     * @param latestInvocation latest time this metadata and invoker are valid, null to indicate no upper validity bound
+     */
+    protected AbstractInvokingCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation) {
+      super(earliestInvocation.toInstant(), latestInvocation.toInstant());
+    }
+
+    /**
      * Returns this instance.
+     * 
      * @return this instance
      */
     @Override
@@ -160,12 +182,11 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   /**
-   * Sets the unique identifier for the function.
-   * Once set, the identifier cannot be changed.
+   * Sets the unique identifier for the function. Once set, the identifier cannot be changed.
    * 
-   * @param uniqueId  the unique identifier to set
+   * @param uniqueId the unique identifier to set
    */
-  public void setUniqueId(String uniqueId) {
+  public void setUniqueId(final String uniqueId) {
     if (_uniqueId != null) {
       throw new IllegalStateException("Function unique ID already set");
     }
@@ -182,10 +203,13 @@ public abstract class AbstractFunction implements FunctionDefinition {
   //-------------------------------------------------------------------------
   /**
    * Default implementation performs no initialization action.
+   * 
    * @param context the function compilation context
+   * @deprecated See [PLAT-2240]. Sub-classes should avoid overriding this function and use {@code compile} instead.
    */
+  @Deprecated
   @Override
-  public void init(FunctionCompilationContext context) {
+  public void init(final FunctionCompilationContext context) {
   }
 
   /**
@@ -213,11 +237,12 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
   /**
    * Default implementation indicates no parameters.
+   * 
    * @return an {@link EmptyFunctionParameters} instance
    */
   @Override
   public FunctionParameters getDefaultParameters() {
-    return new EmptyFunctionParameters();
+    return EmptyFunctionParameters.INSTANCE;
   }
 
   /**
@@ -238,17 +263,31 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
     /**
      * Returns this instance - there is no compile time state.
+     * 
      * @param context the function compilation context
      * @param atInstant the compilation time
      * @return this instance
      */
     @Override
-    public final CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+    public final CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
       return this;
     }
 
     /**
+     * Default implementation always returns true - the function is applicable. Overload this if there is a cheap test that should suppress the call to {@link #getResults}.
+     * 
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target the Target for which capability is to be tests
+     * @return always true
+     */
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      return true;
+    }
+
+    /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
+     * 
      * @param context The compilation context with view-specific parameters and configurations.
      * @param target The target for which calculation is desired.
      * @param inputs The resolved inputs to the function.
@@ -261,6 +300,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
     /**
      * Returns null indicating always valid.
+     * 
      * @return null always
      */
     @Override
@@ -270,6 +310,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
     /**
      * Returns null indicating always valid.
+     * 
      * @return null always
      */
     @Override
@@ -279,6 +320,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
     /**
      * Returns false indicating the requirements to the function must be produced within the dependency graph.
+     * 
      * @return always false
      */
     @Override
@@ -289,13 +331,13 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   /**
-   * Extension to {@link AbstractFunction} that does not require time based compilation and may invoke
-   * the underlying function.
+   * Extension to {@link AbstractFunction} that does not require time based compilation and may invoke the underlying function.
    */
   public abstract static class NonCompiledInvoker extends NonCompiled implements FunctionInvoker {
 
     /**
      * Returns this instance.
+     * 
      * @return this instance
      */
     @Override

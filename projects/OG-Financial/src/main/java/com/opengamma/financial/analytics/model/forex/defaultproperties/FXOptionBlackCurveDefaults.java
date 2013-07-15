@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -23,11 +22,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -40,6 +35,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VALUE_GAMMA_P,
@@ -53,27 +49,30 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VALUE_RHO,
     ValueRequirementNames.VALUE_PHI,
     ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA
+    ValueRequirementNames.VALUE_VANNA,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.FORWARD_DRIFTLESS_THETA
   };
-  private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
   /**
-   * @param priority The priority of the functions
    * @param currencyCurveConfigAndDiscountingCurveNames Values for the properties per currency: an array of strings where the <i>i<sup>th</sup></i> currency has properties:
-   * <ul>
-   * <li><i>i</i> = currency name,
-   * <li><i>i + 1</i> = curve configuration name
-   * <li><i>i + 2</i> = discounting curve name
-   * </ul>
+   *          <ul>
+   *          <li><i>i</i> = currency name,
+   *          <li><i>i + 1</i> = curve configuration name
+   *          <li><i>i + 2</i> = discounting curve name
+   *          </ul>
    */
-  public FXOptionBlackCurveDefaults(final String priority, final String... currencyCurveConfigAndDiscountingCurveNames) {
-    super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
+  public FXOptionBlackCurveDefaults(final String... currencyCurveConfigAndDiscountingCurveNames) {
+    super(FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY), true);
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyCurveConfigAndDiscountingCurveNames.length % 3 == 0, "Must have one curve config and discounting curve name per currency");
-    _priority = PriorityClass.valueOf(priority);
-    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
       _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
@@ -82,21 +81,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final boolean isFXOption = (security instanceof FXOptionSecurity
-        || target.getSecurity() instanceof FXBarrierOptionSecurity
-        || target.getSecurity() instanceof FXDigitalOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
-        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity);
-    if (!isFXOption) {
-      return false;
-    }
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
     return (_currencyCurveConfigAndDiscountingCurveNames.containsKey(putCurrency) && _currencyCurveConfigAndDiscountingCurveNames.containsKey(callCurrency));
@@ -148,16 +133,12 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_CURVE_DEFAULTS;
+    return OpenGammaFunctionExclusions.CURVE_DEFAULTS;
   }
 
   protected static String[] getRequirementNames() {
     return VALUE_REQUIREMENTS;
   }
+
 }

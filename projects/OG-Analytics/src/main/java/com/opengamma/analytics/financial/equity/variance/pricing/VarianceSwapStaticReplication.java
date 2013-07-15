@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.equity.variance.pricing;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -18,6 +17,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.integration.Integrator1D;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -29,28 +29,47 @@ import com.opengamma.util.tuple.DoublesPair;
  * Note: Forward variance (forward starting observations) is intended to consider periods beginning more than A_FEW_WEEKS from trade inception
  */
 public class VarianceSwapStaticReplication {
-
+  /** Calculates the expected annualised variance of an instrument with a log payoff */
   private final ExpectedVarianceStaticReplicationCalculator _cal;
 
+  /**
+   * Constructor that uses the default values for expected variance calculations.
+   */
   public VarianceSwapStaticReplication() {
     _cal = new ExpectedVarianceStaticReplicationCalculator();
   }
 
+  /**
+   * @param tolerance The tolerance of the expected variance calculations
+   */
   public VarianceSwapStaticReplication(final double tolerance) {
     _cal = new ExpectedVarianceStaticReplicationCalculator(tolerance);
   }
 
+  /**
+   * @param integrator The integrator to be used in expected variance calculations, not null
+   */
   public VarianceSwapStaticReplication(final Integrator1D<Double, Double> integrator) {
     _cal = new ExpectedVarianceStaticReplicationCalculator(integrator);
   }
 
+  /**
+   * @param integrator The integrator to be used in expected variance calculations, not null
+   * @param tolerance The tolerance of the expected variance calculations
+   */
   public VarianceSwapStaticReplication(final Integrator1D<Double, Double> integrator, final double tolerance) {
     _cal = new ExpectedVarianceStaticReplicationCalculator(integrator, tolerance);
   }
 
+  /**
+   * Calculates the present value of a variance swap using static replication
+   * @param deriv The variance swap, not null
+   * @param market Bundle containing market data, not null
+   * @return The present value
+   */
   public double presentValue(final VarianceSwap deriv, final StaticReplicationDataBundle market) {
-    Validate.notNull(deriv, "VarianceSwap deriv");
-    Validate.notNull(market, "EquityOptionDataBundle market");
+    ArgumentChecker.notNull(deriv, "VarianceSwap deriv");
+    ArgumentChecker.notNull(market, "EquityOptionDataBundle market");
 
     if (deriv.getTimeToSettlement() < 0) {
       return 0.0; // All payments have been settled
@@ -67,7 +86,7 @@ public class VarianceSwapStaticReplication {
     double nObsActual = 0;
 
     if (deriv.getTimeToObsStart() <= 0) {
-      Validate.isTrue(deriv.getObservations().length > 0, "presentValue requested after first observation date, yet no observations have been provided.");
+      ArgumentChecker.isTrue(deriv.getObservations().length > 0, "presentValue requested after first observation date, yet no observations have been provided.");
       nObsActual = deriv.getObservations().length - 1; // From observation start until valuation
     }
 
@@ -111,13 +130,13 @@ public class VarianceSwapStaticReplication {
   }
 
   private void validateData(final VarianceSwap deriv, final StaticReplicationDataBundle market) {
-    Validate.notNull(deriv, "VarianceSwap deriv");
-    Validate.notNull(market, "EquityOptionDataBundle market");
+    ArgumentChecker.notNull(deriv, "VarianceSwap deriv");
+    ArgumentChecker.notNull(market, "EquityOptionDataBundle market");
 
     final double timeToLastObs = deriv.getTimeToObsEnd();
     final double timeToFirstObs = deriv.getTimeToObsStart();
 
-    Validate.isTrue(timeToFirstObs < timeToLastObs, "timeToLastObs is not sufficiently longer than timeToFirstObs");
+    ArgumentChecker.isTrue(timeToFirstObs < timeToLastObs, "timeToLastObs is not sufficiently longer than timeToFirstObs");
   }
 
   /**
@@ -155,8 +174,9 @@ public class VarianceSwapStaticReplication {
    * depending on the type of BlackVolatilitySurface 
    */
   private class VarianceCalculator implements BlackVolatilitySurfaceVisitor<DoublesPair, Double> {
-
+    /** The time to expiry */
     private final double _t;
+    /** The forward */
     private final double _f;
 
     public VarianceCalculator(final double forward, final double expiry) {
@@ -172,7 +192,6 @@ public class VarianceSwapStaticReplication {
     // strike surfaces
     //********************************************
 
-    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitStrike(final BlackVolatilitySurfaceStrike surface, final DoublesPair data) {
       throw new NotImplementedException();
@@ -188,7 +207,6 @@ public class VarianceSwapStaticReplication {
     // delta surfaces
     //********************************************
 
-    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitDelta(final BlackVolatilitySurfaceDelta surface, final DoublesPair data) {
       throw new NotImplementedException();
@@ -222,7 +240,6 @@ public class VarianceSwapStaticReplication {
     /**
      * Only use if the integral limits have been calculated elsewhere, or you need the contribution from a specific range
      */
-    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface, final DoublesPair data) {
       throw new NotImplementedException();

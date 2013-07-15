@@ -40,6 +40,8 @@ public class EquitySecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   @PropertyDefinition
   private GICSCodeBean _gicsCode;
+  @PropertyDefinition
+  private boolean _preferred;
 
   public boolean equals(Object other) {
     if (!(other instanceof EquitySecurityBean)) {
@@ -95,6 +97,8 @@ public class EquitySecurityBean extends SecurityBean {
         return getCurrency();
       case 762040799:  // gicsCode
         return getGicsCode();
+      case -1294005119:  // preferred
+        return isPreferred();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -116,6 +120,9 @@ public class EquitySecurityBean extends SecurityBean {
         return;
       case 762040799:  // gicsCode
         setGicsCode((GICSCodeBean) newValue);
+        return;
+      case -1294005119:  // preferred
+        setPreferred((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -248,6 +255,31 @@ public class EquitySecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the preferred.
+   * @return the value of the property
+   */
+  public boolean isPreferred() {
+    return _preferred;
+  }
+
+  /**
+   * Sets the preferred.
+   * @param preferred  the new value of the property
+   */
+  public void setPreferred(boolean preferred) {
+    this._preferred = preferred;
+  }
+
+  /**
+   * Gets the the {@code preferred} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> preferred() {
+    return metaBean().preferred().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code EquitySecurityBean}.
    */
   public static class Meta extends SecurityBean.Meta {
@@ -282,15 +314,21 @@ public class EquitySecurityBean extends SecurityBean {
     private final MetaProperty<GICSCodeBean> _gicsCode = DirectMetaProperty.ofReadWrite(
         this, "gicsCode", EquitySecurityBean.class, GICSCodeBean.class);
     /**
+     * The meta-property for the {@code preferred} property.
+     */
+    private final MetaProperty<Boolean> _preferred = DirectMetaProperty.ofReadWrite(
+        this, "preferred", EquitySecurityBean.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "exchange",
         "shortName",
         "companyName",
         "currency",
-        "gicsCode");
+        "gicsCode",
+        "preferred");
 
     /**
      * Restricted constructor.
@@ -311,6 +349,8 @@ public class EquitySecurityBean extends SecurityBean {
           return _currency;
         case 762040799:  // gicsCode
           return _gicsCode;
+        case -1294005119:  // preferred
+          return _preferred;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -369,6 +409,14 @@ public class EquitySecurityBean extends SecurityBean {
      */
     public final MetaProperty<GICSCodeBean> gicsCode() {
       return _gicsCode;
+    }
+
+    /**
+     * The meta-property for the {@code preferred} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> preferred() {
+      return _preferred;
     }
 
   }

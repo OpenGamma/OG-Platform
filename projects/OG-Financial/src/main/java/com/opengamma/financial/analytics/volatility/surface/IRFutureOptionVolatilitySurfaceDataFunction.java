@@ -13,25 +13,26 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -42,9 +43,10 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.IRFutureAndFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -53,12 +55,13 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureOptionVolatilitySurfaceDataFunction.class);
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+    final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
     final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
@@ -89,7 +92,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     }
 
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
@@ -121,19 +124,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null, {}", target);
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -211,6 +202,13 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType,
       final Calendar calendar) {
     double callAboveStrike = 0;
+    SurfaceInstrumentProvider<?, ?> instrumentProvider = specification.getSurfaceInstrumentProvider();
+    ExchangeTradedInstrumentExpiryCalculator expiryRule;
+    if (instrumentProvider instanceof CallPutSurfaceInstrumentProvider) {
+      expiryRule = ((CallPutSurfaceInstrumentProvider<?, ?>) instrumentProvider).getExpiryRuleCalculator();
+    } else {
+      expiryRule = IRFutureAndFutureOptionExpiryCalculator.getInstance();
+    }
     if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
       callAboveStrike = ((CallPutSurfaceInstrumentProvider<?, ?>) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
     }
@@ -218,9 +216,9 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Number x : optionPrices.getXs()) {
-      // Loop over option expiries
-      final Double optionTtm = FutureOptionUtils.getIRFutureOptionTtm(x.intValue(), today, calendar);
+    for (final Number x : optionPrices.getXs()) { // Loop over option expiries
+      final LocalDate expiry = expiryRule.getExpiryDate(x.intValue(), today, calendar);
+      final Double optionTtm = TimeCalculator.getTimeBetween(today, expiry); 
       // Get the corresponding future, which may not share the same expiries as the option itself
       final Double[] futureExpiries = futurePrices.getXData();
       final int nFutures = futureExpiries.length;

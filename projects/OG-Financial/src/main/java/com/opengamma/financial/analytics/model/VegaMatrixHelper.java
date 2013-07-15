@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model;
@@ -11,9 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.ArrayUtils;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityQuoteSensitivityDataBundle;
@@ -21,11 +20,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class VegaMatrixHelper {
   private static final Tenor[] EMPTY_TENOR_ARRAY = new Tenor[0];
@@ -132,7 +132,7 @@ public class VegaMatrixHelper {
     return new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, values);
   }
 
-  private static String getFXVolatilityFormattedExpiry(final double expiry) {
+  public static String getFXVolatilityFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));
       return days + "D";
@@ -150,7 +150,7 @@ public class VegaMatrixHelper {
 
   private static double getTime(final Tenor tenor) { //TODO this should be moved into a utils class
     final Period period = tenor.getPeriod();
-    final double months = period.totalMonths();
+    final double months = period.toTotalMonths();
     return months / 12.;
   }
 }

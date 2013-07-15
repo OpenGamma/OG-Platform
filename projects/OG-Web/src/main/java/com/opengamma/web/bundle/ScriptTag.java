@@ -75,6 +75,7 @@ public class ScriptTag {
     buf.append("<script src=\"");
     WebBundlesUris uris = new WebBundlesUris(_data);
     buf.append(uris.bundle(DeployMode.PROD, bundle.getId()));
+    buf.append("?" + BuildData.getBuildStamp());
     buf.append("\"></script>");
     return buf.toString();
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
@@ -8,17 +8,27 @@ package com.opengamma.engine.view.compilation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyGraphExplorerImpl;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -27,94 +37,118 @@ import com.opengamma.util.tuple.Pair;
  */
 public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinitionImpl implements CompiledViewDefinitionWithGraphs {
 
-  private final Map<String, DependencyGraph> _graphsByConfiguration;
+  private final Map<String, DependencyGraphExplorer> _graphsByConfiguration;
   private final long _functionInitId;
+  private final Map<ComputationTargetReference, UniqueId> _resolutions;
 
   /**
    * Constructs an instance.
    * 
-   * @param viewDefinition  the view definition, not null
-   * @param graphsByConfiguration  the dependency graphs by calculation configuration name, not null
-   * @param portfolio  the portfolio, possibly null
-   * @param functionInitId  the function init ID that was used when creating the dependency graphs
+   * @param versionCorrection the resolver version/correction, not null
+   * @param identifier the compilation identifier, not null
+   * @param viewDefinition the view definition, not null
+   * @param graphs the dependency graphs, not null
+   * @param resolutions the resolution mappings used to create the dependency graphs, not null
+   * @param portfolio the portfolio, possibly null
+   * @param functionInitId the function init ID that was used when creating the dependency graphs
    */
-  public CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition,
-      Map<String, DependencyGraph> graphsByConfiguration,
-      Portfolio portfolio, long functionInitId) {
-    this(viewDefinition, portfolio, processCompiledCalculationConfigurations(graphsByConfiguration),
-        processValidityRange(graphsByConfiguration), graphsByConfiguration, functionInitId);
+  public CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition,
+      final Collection<DependencyGraph> graphs, final Map<ComputationTargetReference, UniqueId> resolutions, final Portfolio portfolio, final long functionInitId) {
+    this(versionCorrection, identifier, viewDefinition, portfolio, processCompiledCalculationConfigurations(graphs),
+        processValidityRange(graphs), graphs, resolutions, functionInitId);
   }
-  
-  private CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition, Portfolio portfolio,
-      Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      Pair<Instant, Instant> validityRange,
-      Map<String, DependencyGraph> graphsByConfiguration,
-      long functionInitId) {
-    super(viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
+
+  private CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition, final Portfolio portfolio,
+      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Pair<Instant, Instant> validityRange, final Collection<DependencyGraph> graphs,
+      final Map<ComputationTargetReference, UniqueId> resolutions, final long functionInitId) {
+    super(versionCorrection, identifier, viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
+    ArgumentChecker.notNull(resolutions, "resolutions");
     _functionInitId = functionInitId;
+    final Map<String, DependencyGraphExplorer> graphsByConfiguration = Maps.newHashMapWithExpectedSize(graphs.size());
+    for (DependencyGraph graph : graphs) {
+      graphsByConfiguration.put(graph.getCalculationConfigurationName(), new DependencyGraphExplorerImpl(graph));
+    }
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
+    _resolutions = Collections.unmodifiableMap(resolutions);
   }
-  
-  //--------------------------------------------------------------------------
-  /**
-   * Gets a map of dependency graphs by configuration name.
-   * 
-   * @return an unmodifiable map of dependency graphs by configuration name, not null
-   */
-  public Map<String, DependencyGraph> getDependencyGraphsByConfiguration() {
-    return Collections.unmodifiableMap(_graphsByConfiguration);
+
+  private CompiledViewDefinitionWithGraphsImpl(final CompiledViewDefinitionWithGraphsImpl copyFrom, final VersionCorrection versionCorrection) {
+    super(copyFrom, versionCorrection);
+    _graphsByConfiguration = copyFrom._graphsByConfiguration;
+    _functionInitId = copyFrom._functionInitId;
+    _resolutions = copyFrom._resolutions;
+  }
+
+  private CompiledViewDefinitionWithGraphsImpl(final CompiledViewDefinitionWithGraphsImpl copyFrom,
+                                              final Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+                                              Map<DependencyGraph, Map<DistinctMarketDataSelector,FunctionParameters>> paramsByGraph) {
+    super(copyFrom.getResolverVersionCorrection(), copyFrom.getCompilationIdentifier(), copyFrom.getViewDefinition(), copyFrom.getPortfolio(),
+          processCompiledCalculationConfigurations(copyFrom.getCompiledCalculationConfigurationsMap(), copyFrom._graphsByConfiguration, selectionsByGraph, paramsByGraph),
+          copyFrom.getValidFrom(), copyFrom.getValidTo());
+    _graphsByConfiguration = copyFrom._graphsByConfiguration;
+    _functionInitId = copyFrom._functionInitId;
+    _resolutions = copyFrom._resolutions;
+  }
+
+  @Override
+  public CompiledViewDefinitionWithGraphs withResolverVersionCorrection(final VersionCorrection versionCorrection) {
+    return new CompiledViewDefinitionWithGraphsImpl(this, versionCorrection);
+  }
+
+  @Override
+  public CompiledViewDefinitionWithGraphs withMarketDataManipulationSelections(
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
+    return new CompiledViewDefinitionWithGraphsImpl(this, selectionsByGraph, paramsByGraph);
+  }
+
+  @Override
+  public Collection<DependencyGraphExplorer> getDependencyGraphExplorers() {
+    return _graphsByConfiguration.values();
+  }
+
+  public static Collection<DependencyGraph> getDependencyGraphs(final CompiledViewDefinitionWithGraphs viewDefinition) {
+    final Collection<DependencyGraphExplorer> explorers = viewDefinition.getDependencyGraphExplorers();
+    final List<DependencyGraph> graphs = new ArrayList<DependencyGraph>(explorers.size());
+    for (DependencyGraphExplorer explorer : explorers) {
+      graphs.add(explorer.getWholeGraph());
+    }
+    return graphs;
   }
 
   /**
-   * Gets the dependency graphs for every calculation configuration.
-   * 
-   * @return  an unmodifiable collection of the dependency graphs for every calculation configuration, not null
-   */
-  public Collection<DependencyGraph> getAllDependencyGraphs() {
-    return Collections.unmodifiableCollection(_graphsByConfiguration.values());
-  }
-
-  /**
-   * Gets the dependency graph for a specified calculation configuration.
-   * 
-   * @param calcConfigName  the calculation configuration name, not null
-   * @return the dependency graph for the specified calculation configuration, or null if no dependency graph
-   *         was found.
-   */
-  public DependencyGraph getDependencyGraph(String calcConfigName) {
-    ArgumentChecker.notNull(calcConfigName, "calcConfigName");
-    return _graphsByConfiguration.get(calcConfigName);
-  }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the function init ID that was used when creating the dependency graphs 
-   * 
+   * Gets the function init ID that was used when creating the dependency graphs
+   *
    * @return the function init ID that was used when creating the dependency graphs
+   * @deprecated this needs to go
    */
+  @Deprecated
   public long getFunctionInitId() {
     return _functionInitId;
   }
 
-  //-------------------------------------------------------------------------
-  
   @Override
-  public DependencyGraphExplorer getDependencyGraphExplorer(String calcConfigName) {
-    ArgumentChecker.notNull(calcConfigName, "calcConfigName");
-    DependencyGraph dependencyGraph = getDependencyGraph(calcConfigName);
-    if (dependencyGraph == null) {
-      throw new OpenGammaRuntimeException("The calculation configuration name " + calcConfigName + " does not exist in the view definition");
-    }
-    return new DependencyGraphExplorerImpl(dependencyGraph);
+  public Map<ComputationTargetReference, UniqueId> getResolvedIdentifiers() {
+    return _resolutions;
   }
-  
-  //-------------------------------------------------------------------------- 
-  private static Pair<Instant, Instant> processValidityRange(Map<String, DependencyGraph> graphsByConfiguration) {
-    ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
+
+  @Override
+  public DependencyGraphExplorer getDependencyGraphExplorer(final String calcConfigName) {
+    ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+    final DependencyGraphExplorer dependencyGraph = _graphsByConfiguration.get(calcConfigName);
+    if (dependencyGraph == null) {
+      throw new DataNotFoundException("The calculation configuration name " + calcConfigName + " does not exist in the view definition");
+    }
+    return dependencyGraph;
+  }
+
+  //--------------------------------------------------------------------------
+  private static Pair<Instant, Instant> processValidityRange(final Collection<DependencyGraph> graphs) {
+    ArgumentChecker.notNull(graphs, "graphs");
     Instant earliest = null;
     Instant latest = null;
-    for (DependencyGraph graph : graphsByConfiguration.values()) {
-      for (DependencyNode node : graph.getDependencyNodes()) {
+    for (final DependencyGraph graph : graphs) {
+      for (final DependencyNode node : graph.getDependencyNodes()) {
         Instant time = node.getFunction().getFunction().getEarliestInvocationTime();
         if (time != null) {
           if (earliest != null) {
@@ -140,15 +174,64 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     return Pair.of(earliest, latest);
   }
 
-  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(Map<String, DependencyGraph> graphsByConfiguration) {
+  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(
+      Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
+      Map<String, DependencyGraphExplorer> graphsByConfiguration, Map<DependencyGraph,
+      Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph, Map<DependencyGraph,
+      Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
+
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
-    Collection<CompiledViewCalculationConfiguration> compiledViewCalculationConfigurations = new ArrayList<CompiledViewCalculationConfiguration>();
-    for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
-      DependencyGraph depGraph = entry.getValue();
-      CompiledViewCalculationConfigurationImpl compiledCalcConfig = new CompiledViewCalculationConfigurationImpl(depGraph);
+    ArgumentChecker.notNull(selectionsByGraph, "selectionsByGraph");
+
+    final Collection<CompiledViewCalculationConfiguration> compiledViewCalculationConfigurations = new ArrayList<>();
+
+    for (Map.Entry<String, DependencyGraphExplorer> entry : graphsByConfiguration.entrySet()) {
+
+      String configName = entry.getKey();
+      DependencyGraph graph = entry.getValue().getWholeGraph();
+      CompiledViewCalculationConfiguration cvcc = createCalculationConfiguration(configName, graph, selectionsByGraph, paramsByGraph, compiledCalculationConfigurations);
+      compiledViewCalculationConfigurations.add(cvcc);
+    }
+
+    return compiledViewCalculationConfigurations;
+  }
+
+  private static CompiledViewCalculationConfiguration createCalculationConfiguration(
+      String configName,
+      DependencyGraph graph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph,
+      Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations) {
+
+    // There is a market data selection in place, create a new configuration with it
+    if (selectionsByGraph.containsKey(graph)) {
+
+      // Function params will be a subset of the selections, so it is possible we have no entry
+      Map<DistinctMarketDataSelector, FunctionParameters> marketDataSelectionFunctionParameters =
+          paramsByGraph.containsKey(graph) ?
+              paramsByGraph.get(graph) :
+              ImmutableMap.<DistinctMarketDataSelector, FunctionParameters>of();
+
+      return new CompiledViewCalculationConfigurationImpl(
+          graph, selectionsByGraph.get(graph), marketDataSelectionFunctionParameters);
+
+    } else if (compiledCalculationConfigurations.containsKey(configName)) {
+      // No market data selection, but we have a compiled one already so use it
+      return compiledCalculationConfigurations.get(configName);
+    } else {
+      // Create a new configuration just from the graph
+      return new CompiledViewCalculationConfigurationImpl(graph);
+    }
+  }
+
+  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(final Collection<DependencyGraph> graphs) {
+    ArgumentChecker.notNull(graphs, "graphs");
+    final Collection<CompiledViewCalculationConfiguration> compiledViewCalculationConfigurations = new ArrayList<>();
+    for (DependencyGraph graph : graphs) {
+      final CompiledViewCalculationConfigurationImpl compiledCalcConfig = new CompiledViewCalculationConfigurationImpl(graph);
       compiledViewCalculationConfigurations.add(compiledCalcConfig);
     }
     return compiledViewCalculationConfigurations;
   }
-  
+
 }

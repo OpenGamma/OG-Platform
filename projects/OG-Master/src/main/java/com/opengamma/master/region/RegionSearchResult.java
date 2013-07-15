@@ -105,7 +105,6 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
    * The meta-bean for {@code RegionSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static RegionSearchResult.Meta meta() {
     return RegionSearchResult.Meta.INSTANCE;
   }
@@ -159,7 +158,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

@@ -7,7 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return {
-            READ_ONLY: false
+            READ_ONLY: false,
+            WEBGL: true
         };
     }
 });

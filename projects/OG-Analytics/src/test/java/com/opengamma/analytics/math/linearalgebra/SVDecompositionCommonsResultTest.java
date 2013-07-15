@@ -27,19 +27,19 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * 
  */
 public class SVDecompositionCommonsResultTest {
-  protected static final double CONDITION = 0.5;
-  protected static final double NORM = 0.2;
-  protected static final int RANK = 6;
-  protected static final RealMatrix S = new Array2DRowRealMatrix(new double[][] {new double[] {0.1, 0.2}, new double[] {0.3, 0.4}});
-  protected static final RealMatrix U = new Array2DRowRealMatrix(new double[][] {new double[] {1.1, 1.2}, new double[] {1.3, 1.4}});
-  protected static final RealMatrix UT = new Array2DRowRealMatrix(new double[][] {new double[] {1.1, 1.3}, new double[] {1.2, 1.4}});
-  protected static final RealMatrix V = new Array2DRowRealMatrix(new double[][] {new double[] {2.1, 2.2}, new double[] {2.3, 2.4}});
-  protected static final RealMatrix VT = new Array2DRowRealMatrix(new double[][] {new double[] {2.1, 2.3}, new double[] {2.2, 2.4}});
-  protected static final RealMatrix M = new Array2DRowRealMatrix(new double[][] {new double[] {3.1, 3.2}, new double[] {3.3, 3.4}});
-  protected static final double[] SINGULAR_VALUES = new double[] {6, 7};
-  protected static final RealMatrix RESULT_2D = new Array2DRowRealMatrix(new double[][] {new double[] {3.5, 4.5}, new double[] {5.5, 6.5}});
-  protected static final RealVector RESULT_1D = new ArrayRealVector(new double[] {7.5, 8.5});
-  protected static final DecompositionSolver SOLVER = new MyDecompositionSolver();
+  static final double CONDITION = 0.5;
+  static final double NORM = 0.2;
+  static final int RANK = 6;
+  static final RealMatrix S = new Array2DRowRealMatrix(new double[][] {new double[] {0.1, 0.2}, new double[] {0.3, 0.4}});
+  static final RealMatrix U = new Array2DRowRealMatrix(new double[][] {new double[] {1.1, 1.2}, new double[] {1.3, 1.4}});
+  static final RealMatrix UT = new Array2DRowRealMatrix(new double[][] {new double[] {1.1, 1.3}, new double[] {1.2, 1.4}});
+  static final RealMatrix V = new Array2DRowRealMatrix(new double[][] {new double[] {2.1, 2.2}, new double[] {2.3, 2.4}});
+  static final RealMatrix VT = new Array2DRowRealMatrix(new double[][] {new double[] {2.1, 2.3}, new double[] {2.2, 2.4}});
+  static final RealMatrix M = new Array2DRowRealMatrix(new double[][] {new double[] {3.1, 3.2}, new double[] {3.3, 3.4}});
+  static final double[] SINGULAR_VALUES = new double[] {6, 7};
+  static final RealMatrix RESULT_2D = new Array2DRowRealMatrix(new double[][] {new double[] {3.5, 4.5}, new double[] {5.5, 6.5}});
+  static final RealVector RESULT_1D = new ArrayRealVector(new double[] {7.5, 8.5});
+  static final DecompositionSolver SOLVER = new MyDecompositionSolver();
   private static final SVDecompositionResult SVD = new SVDecompositionCommonsResult(new MySingularValueDecomposition());
   private static final double EPS = 1e-15;
 

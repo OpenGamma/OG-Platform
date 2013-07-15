@@ -9,13 +9,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
+import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
 
 /**
- * 
+ * VolatilityTermStructure backed by a Curve<Double, Double>
  */
-public class VolatilityCurve implements VolatilityModel<Double> {
+public class VolatilityCurve implements VolatilityTermStructure {
   private final Curve<Double, Double> _curve;
 
   public VolatilityCurve(final Curve<Double, Double> curve) {

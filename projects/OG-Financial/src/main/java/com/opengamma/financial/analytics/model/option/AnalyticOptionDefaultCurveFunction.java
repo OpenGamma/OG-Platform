@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
@@ -18,7 +18,9 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
+ * @Deprecated
  */
+@Deprecated
 public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction {
 
   private final String _curveName;
@@ -30,7 +32,7 @@ public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction 
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (String valueName : AvailableGreeks.getAllGreekNames()) {
+    for (final String valueName : AvailableGreeks.getAllGreekNames()) {
       defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE);
     }
   }
@@ -45,11 +47,7 @@ public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction 
 
   @Override
   public PriorityClass getPriority() {
-    if ("SECONDARY".equals(_curveName)) {
-      return PriorityClass.BELOW_NORMAL;
-    } else {
-      return super.getPriority();
-    }
+    return PriorityClass.BELOW_NORMAL;
   }
 
 }

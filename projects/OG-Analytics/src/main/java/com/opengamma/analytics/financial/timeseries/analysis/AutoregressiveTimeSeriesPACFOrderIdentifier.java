@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.math.regression.LeastSquaresRegression;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

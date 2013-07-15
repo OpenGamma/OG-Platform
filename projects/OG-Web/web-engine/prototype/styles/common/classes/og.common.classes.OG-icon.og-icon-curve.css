@@ -1,0 +1,13 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-icon.og-icon-Curve:after {
+  display: inline-block;
+  background-position: -116px -92px;
+  background-color: transparent;
+  height: 16px;
+  width: 16px;
+  z-index: 2;
+  position: absolute;
+}

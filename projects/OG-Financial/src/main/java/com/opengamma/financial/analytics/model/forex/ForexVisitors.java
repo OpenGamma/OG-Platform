@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -16,6 +16,8 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -62,13 +64,19 @@ public class ForexVisitors {
     public Currency visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
       return security.getPayCurrency();
     }
+
+    @Override
+    // Marc
+    public Currency visitSwapSecurity(final SwapSecurity security) {
+      return ((InterestRateNotional) security.getPayLeg().getNotional()).getCurrency();
+    }
   }
 
   private static class ReceiveCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
 
     public ReceiveCurrencyVisitor() {
     }
-    
+
     @Override
     public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
       return security.getReceiveCurrency();
@@ -78,13 +86,19 @@ public class ForexVisitors {
     public Currency visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
       return security.getReceiveCurrency();
     }
+
+    @Override
+    // Marc
+    public Currency visitSwapSecurity(final SwapSecurity security) {
+      return ((InterestRateNotional) security.getReceiveLeg().getNotional()).getCurrency();
+    }
   }
 
   private static class CallCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
 
     public CallCurrencyVisitor() {
     }
-    
+
     @Override
     public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
       return security.getCallCurrency();
@@ -115,7 +129,7 @@ public class ForexVisitors {
 
     public PutCurrencyVisitor() {
     }
-    
+
     @Override
     public Currency visitFXOptionSecurity(final FXOptionSecurity security) {
       return security.getPutCurrency();
@@ -144,9 +158,9 @@ public class ForexVisitors {
 
   private static class ExpiryVisitor extends FinancialSecurityVisitorAdapter<ZonedDateTime> {
 
-    public ExpiryVisitor() {      
+    public ExpiryVisitor() {
     }
-    
+
     @Override
     public ZonedDateTime visitFXForwardSecurity(final FXForwardSecurity security) {
       return security.getForwardDate();
@@ -181,5 +195,6 @@ public class ForexVisitors {
     public ZonedDateTime visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return security.getExpiry().getExpiry();
     }
+
   }
 }

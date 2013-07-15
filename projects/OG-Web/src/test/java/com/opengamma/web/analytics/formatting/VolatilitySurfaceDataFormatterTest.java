@@ -16,9 +16,14 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class VolatilitySurfaceDataFormatterTest {
 
   @SuppressWarnings("unchecked")
@@ -35,9 +40,10 @@ public class VolatilitySurfaceDataFormatterTest {
     }
     String name = "test";
     UniqueIdentifiable target = Currency.USD;
-    VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<Tenor, Tenor>(name, name, target, xVals, yVals, vol);
+    VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<>(name, name, target, xVals, yVals, vol);
 
-    Map<String, Object> map = (Map<String, Object>) new VolatilitySurfaceDataFormatter().format(data, null, TypeFormatter.Format.EXPANDED);
+    Map<String, Object> map =
+        (Map<String, Object>) new VolatilitySurfaceDataFormatter().format(data, null, TypeFormatter.Format.EXPANDED, null);
     assertEquals(Lists.newArrayList("1D", "7D", "14D"), map.get(SurfaceFormatterUtils.X_LABELS));
     assertEquals(Lists.newArrayList("1Y", "2Y"), map.get(SurfaceFormatterUtils.Y_LABELS));
     assertEquals(Lists.newArrayList(10d, 11d, 12d, 13d, 14d, 15d), map.get(SurfaceFormatterUtils.VOL));
@@ -55,9 +61,10 @@ public class VolatilitySurfaceDataFormatterTest {
     }
     String name = "test";
     UniqueIdentifiable target = Currency.USD;
-    VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<Tenor, Tenor>(name, name, target, xs, ys, values);
+    VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<>(name, name, target, xs, ys, values);
 
-    Map<String, Object> map = (Map<String, Object>) new VolatilitySurfaceDataFormatter().format(data, null, TypeFormatter.Format.EXPANDED);
+    Map<String, Object> map =
+        (Map<String, Object>) new VolatilitySurfaceDataFormatter().format(data, null, TypeFormatter.Format.EXPANDED, null);
     assertEquals(Lists.newArrayList("1D", "7D", "14D", "1M"), map.get(SurfaceFormatterUtils.X_LABELS));
     assertEquals(Lists.newArrayList("1Y", "2Y"), map.get(SurfaceFormatterUtils.Y_LABELS));
     assertEquals(Lists.newArrayList(10d, 11d, 12d, null, null, null, 13d, 14d), map.get(SurfaceFormatterUtils.VOL));

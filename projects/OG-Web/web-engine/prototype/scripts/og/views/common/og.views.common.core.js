@@ -19,7 +19,7 @@ $.register_module({
             view.load = function (args) {
                 view.layout = og.views.common.layout;
                 view.check_state({args: args, conditions: [
-                    {new_page: function (args) {view.search(args), common.masthead.menu.set_tab(page_name);}}
+                    {new_page: function (args) {view.search(args), common.masthead.menu.set_tab('configs');}}
                 ]});
                 if (!args.id) view.default_details();
             };
@@ -39,7 +39,7 @@ $.register_module({
                 ]});
                 view.details(args);
             };
-            view.name = page_name[0].toUpperCase() + page_name.substring(1);
+            view.name = page_name.replace(/_/g, ' ').replace(/^(.)|\s(.)/g, function($1) {return $1.toUpperCase();});
             view.notify = function (message, duration) {
                 if (!message) return ui.message({location: '.OG-layout-admin-details-center', destroy: true});
                 ui.message({location: '.OG-layout-admin-details-center', css: {left: 0}, message: message});

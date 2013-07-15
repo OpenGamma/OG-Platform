@@ -26,12 +26,13 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the SocketFudgeConnection and ServerSocketFudgeConnectionReceiver classes
  */
-@Test(singleThreaded = true)
+@Test(groups = TestGroup.INTEGRATION, singleThreaded = true)
 public class SocketFudgeConnectionConduitTest {
   
   private final AtomicInteger _counter = new AtomicInteger();
@@ -187,7 +188,7 @@ public class SocketFudgeConnectionConduitTest {
     client.stop();
   }
   
-  public int[] parallelSendTest(final ExecutorService executorClient, final ExecutorService executorServer, final AtomicInteger concurrencyMax) throws Exception {
+  private int[] parallelSendTest(final ExecutorService executorClient, final ExecutorService executorServer, final AtomicInteger concurrencyMax) throws Exception {
     final FudgeConnectionReceiver serverReceiver = new FudgeConnectionReceiver() {
       @Override
       public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope envelope, final FudgeConnection connection) {

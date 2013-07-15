@@ -26,13 +26,13 @@ public class BondFutureOptionBlackVegaFunction extends BondFutureOptionBlackFunc
   private static final PresentValueBlackVegaCalculator CALCULATOR = PresentValueBlackVegaCalculator.getInstance();
 
   public BondFutureOptionBlackVegaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+    super(ValueRequirementNames.VALUE_VEGA);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final MultiCurveCalculationConfig curveCalculationConfig,
       final ValueSpecification spec, final FunctionInputs inputs, final Set<ValueRequirement> desiredValue, final BondFutureOptionSecurity security) {
-    final Double gamma = CALCULATOR.visit(bondFutureOption, data);
+    final Double gamma = bondFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, gamma));
   }
 

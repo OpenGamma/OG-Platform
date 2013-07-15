@@ -1,16 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -21,14 +20,20 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Contains information used to construct standard versions of SEK instruments.
  */
 public class SEConventions {
 
+  /**
+   * Adds conventions for deposit, Libor and Stibor fixings.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -85,6 +90,50 @@ public class SEConventions {
         following, Period.ofYears(4), 2, false, se);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SKDR5 Curncy"), simpleNameSecurityId("SEK DEPOSIT 5y")), "SEK DEPOSIT 5y", act360,
         following, Period.ofYears(5), 2, false, se);
+
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSDK1WL"), simpleNameSecurityId("SEK STIBOR 1w")), "SEK STIBOR 1w", act360,
+        following, Period.ofDays(7), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSDK01L"), simpleNameSecurityId("SEK STIBOR 1m")), "SEK STIBOR 1m", act360,
+        following, Period.ofMonths(1), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSDK02L"), simpleNameSecurityId("SEK STIBOR 2m")), "SEK STIBOR 2m", act360,
+        following, Period.ofMonths(2), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSDK03L"), simpleNameSecurityId("SEK STIBOR 3m")), "SEK STIBOR 3m", act360,
+        following, Period.ofMonths(3), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSDK06L"), simpleNameSecurityId("SEK STIBOR 6m")), "SEK STIBOR 6m", act360,
+        following, Period.ofMonths(6), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSDK09L"), simpleNameSecurityId("SEK STIBOR 9m")), "SEK STIBOR 9m", act360,
+        following, Period.ofMonths(9), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSDK12L"), simpleNameSecurityId("SEK STIBOR 1y")), "SEK STIBOR 1y", act360,
+        following, Period.ofMonths(12), 2, false, se);
+
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK1WL"), simpleNameSecurityId("SEK LIBOR 1w")), "SEK LIBOR 1w", act360,
+        following, Period.ofDays(7), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK2WL"), simpleNameSecurityId("SEK LIBOR 2w")), "SEK LIBOR 2w", act360,
+        following, Period.ofDays(14), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK01L"), simpleNameSecurityId("SEK LIBOR 1m")), "SEK LIBOR 1m", act360,
+        following, Period.ofMonths(1), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK02L"), simpleNameSecurityId("SEK LIBOR 2m")), "SEK LIBOR 2m", act360,
+        following, Period.ofMonths(2), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK03L"), simpleNameSecurityId("SEK LIBOR 3m")), "SEK LIBOR 3m", act360,
+        following, Period.ofMonths(3), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK04L"), simpleNameSecurityId("SEK LIBOR 4m")), "SEK LIBOR 4m", act360,
+        following, Period.ofMonths(4), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK05L"), simpleNameSecurityId("SEK LIBOR 5m")), "SEK LIBOR 5m", act360,
+        following, Period.ofMonths(5), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK06L"), simpleNameSecurityId("SEK LIBOR 6m")), "SEK LIBOR 6m", act360,
+        following, Period.ofMonths(6), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK07L"), simpleNameSecurityId("SEK LIBOR 7m")), "SEK LIBOR 7m", act360,
+        following, Period.ofMonths(7), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK08L"), simpleNameSecurityId("SEK LIBOR 8m")), "SEK LIBOR 8m", act360,
+        following, Period.ofMonths(8), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK09L"), simpleNameSecurityId("SEK LIBOR 9m")), "SEK LIBOR 9m", act360,
+        following, Period.ofMonths(9), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK10L"), simpleNameSecurityId("SEK LIBOR 10m")), "SEK LIBOR 10m", act360,
+        following, Period.ofMonths(10), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK11L"), simpleNameSecurityId("SEK LIBOR 11m")), "SEK LIBOR 11m", act360,
+        following, Period.ofMonths(11), 2, false, se);
+    utils.addConventionBundle(ExternalIdBundle.of(tullettPrebonSecurityId("ASLIBSEK12L"), simpleNameSecurityId("SEK LIBOR 1y")), "SEK LIBOR 1y", act360,
+        following, Period.ofMonths(12), 2, false, se);
 
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("SEK_SWAP")), "SEK_SWAP", thirty360, modified, annual, 1, se, act360,
         modified, quarterly, 1, simpleNameSecurityId("SEK DEPOSIT 3m"), se, true);

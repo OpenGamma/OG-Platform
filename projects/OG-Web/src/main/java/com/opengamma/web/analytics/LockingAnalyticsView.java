@@ -9,10 +9,13 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 
 /**
  * Wraps another {@link AnalyticsView} and protects it from concurrent access. The methods that can mutate the state of
@@ -33,10 +36,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition) {
+  public List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
     try {
       _lock.writeLock().lock();
-      return _delegate.updateStructure(compiledViewDefinition);
+      return _delegate.updateStructure(compiledViewDefinition, portfolio);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -171,4 +174,47 @@ import com.opengamma.util.ArgumentChecker;
       _lock.readLock().unlock();
     }
   }
+
+  @Override
+  public List<String> entityChanged(MasterChangeNotification<?> notification) {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.entityChanged(notification);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  @Override
+  public List<String> portfolioChanged() {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.portfolioChanged();
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  @Override
+  public ViewportResults getAllGridData(GridType gridType, Format format) {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getAllGridData(gridType, format);
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public UniqueId getViewDefinitionId() {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getViewDefinitionId();
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+  
+  
+  
 }

@@ -14,26 +14,29 @@ import java.util.LinkedHashMap;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultiCurveCalculationConfigTest extends FinancialTestBase {
+
   private static final String DEFAULT_USD_CONFIG_NAME = "Default";
   private static final String[] DEFAULT_USD_YIELD_CURVE_NAMES = new String[] {"FUNDING", "FORWARD_3M" };
-  private static final UniqueIdentifiable DEFAULT_USD_ID = Currency.USD;
+  private static final ComputationTargetSpecification DEFAULT_USD_ID = ComputationTargetSpecification.of(Currency.USD);
   private static final String DEFAULT_USD_CALCULATION_METHOD = "Present Value";
   private static final String EXTRA_USD_CONFIG_NAME = "Extra";
   private static final String[] EXTRA_USD_YIELD_CURVE_NAMES = new String[] {"FORWARD_6M", "FORWARD_12M", "FORWARD_1M" };
-  private static final UniqueIdentifiable EXTRA_USD_ID = Currency.USD;
+  private static final ComputationTargetSpecification EXTRA_USD_ID = ComputationTargetSpecification.of(Currency.USD);
   private static final String EXTRA_USD_CALCULATION_METHOD = "Par Rate";
   private static final String DEFAULT_INR_CONFIG_NAME = "Default";
   private static final String[] DEFAULT_INR_YIELD_CURVE_NAMES = new String[] {"FUNDING" };
-  private static final UniqueIdentifiable DEFAULT_INR_ID = Currency.of("INR");
+  private static final ComputationTargetSpecification DEFAULT_INR_ID = ComputationTargetSpecification.of(Currency.of("INR"));
   private static final String DEFAULT_INR_CALCULATION_METHOD = "FXImplied";
   private static final MultiCurveCalculationConfig DEFAULT_USD_CONFIG;
   private static final MultiCurveCalculationConfig EXTRA_USD_CONFIG;
@@ -60,14 +63,14 @@ public class MultiCurveCalculationConfigTest extends FinancialTestBase {
     assertFalse(DEFAULT_USD_CONFIG.equals(DEFAULT_INR_CONFIG));
     final String name = "Extra";
     final String[] curveNames = new String[] {"FORWARD_6M", "FORWARD_12M", "FORWARD_1M" };
-    final UniqueIdentifiable id = Currency.USD;
+    final ComputationTargetSpecification target = ComputationTargetSpecification.of(Currency.USD);
     final LinkedHashMap<String, String[]> exogenousCurves = new LinkedHashMap<String, String[]>();
     exogenousCurves.put(DEFAULT_USD_CONFIG_NAME, new String[] {"FUNDING" });
-    final MultiCurveCalculationConfig config = new MultiCurveCalculationConfig(name, curveNames, id, "Par Rate", CURVE_EXPOSURES, exogenousCurves);
+    final MultiCurveCalculationConfig config = new MultiCurveCalculationConfig(name, curveNames, target, "Par Rate", CURVE_EXPOSURES, exogenousCurves);
     assertEquals(EXTRA_USD_CONFIG, config);
     assertEquals(config.getCalculationMethod(), "Par Rate");
     assertEquals(config.getCalculationConfigName(), name);
-    assertEquals(config.getUniqueId(), id);
+    assertEquals(config.getTarget(), target);
     ArrayAsserts.assertArrayEquals(config.getYieldCurveNames(), curveNames);
     assertEquals(config.getExogenousConfigData(), exogenousCurves);
   }

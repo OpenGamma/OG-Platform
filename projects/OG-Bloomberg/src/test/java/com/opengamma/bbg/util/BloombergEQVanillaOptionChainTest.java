@@ -11,19 +11,19 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
-@Test(groups = "unit")
+@Test(groups = TestGroup.UNIT)
 public class BloombergEQVanillaOptionChainTest {
 
   // ------------ FIELDS ------------
@@ -202,7 +202,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 0;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.APRIL, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.APRIL, 16, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -211,7 +211,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 0;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(138, refDate, months, chain);
-    assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
+    assertExpiry(Month.MAY, 21, 2011, refDate, months, chain);
   }
 
   @Test(dependsOnMethods="preTest")
@@ -220,7 +220,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 1;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(138, refDate, months, chain);
-    assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
+    assertExpiry(Month.MAY, 21, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -229,7 +229,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 1;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(138, refDate, months, chain);
-    assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
+    assertExpiry(Month.MAY, 21, 2011, refDate, months, chain);
   }
 
   @Test(dependsOnMethods="preTest")
@@ -238,7 +238,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 2;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(120, refDate, months, chain);
-    assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
+    assertExpiry(Month.JUNE, 18, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -247,7 +247,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 2;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(120, refDate, months, chain);
-    assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
+    assertExpiry(Month.JUNE, 18, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -256,7 +256,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 3;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.JULY, 16, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -265,7 +265,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 3;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.JULY, 16, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -274,7 +274,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 4;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.JULY, 16, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -283,7 +283,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 4;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.JULY, 16, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -292,7 +292,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 5;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(152, refDate, months, chain);
-    assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
+    assertExpiry(Month.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -301,7 +301,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 5;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(152, refDate, months, chain);
-    assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
+    assertExpiry(Month.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -310,7 +310,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 6;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(152, refDate, months, chain);
-    assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
+    assertExpiry(Month.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -319,7 +319,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 6;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(152, refDate, months, chain);
-    assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
+    assertExpiry(Month.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -328,16 +328,16 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 100;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(144, refDate, months, chain);
-    assertExpiry(MonthOfYear.JANUARY, 19, 2013, refDate, months, chain);
+    assertExpiry(Month.JANUARY, 19, 2013, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
   public void testExpiry_Forward_0 () {
-    LocalDate refDate = LocalDate.of(2012, MonthOfYear.NOVEMBER, 11);
+    LocalDate refDate = LocalDate.of(2012, Month.NOVEMBER, 11);
     int months = 0;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(144, refDate, months, chain);
-    assertExpiry(MonthOfYear.JANUARY, 19, 2013, refDate, months, chain);
+    assertExpiry(Month.JANUARY, 19, 2013, refDate, months, chain);
   }
 
   @Test(dependsOnMethods="preTest")
@@ -346,7 +346,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = 0;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(152, refDate, months, chain);
-    assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
+    assertExpiry(Month.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -355,7 +355,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = -1;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(152, refDate, months, chain);
-    assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
+    assertExpiry(Month.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -364,7 +364,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = -2;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(152, refDate, months, chain);
-    assertExpiry(MonthOfYear.OCTOBER, 22, 2011, refDate, months, chain);
+    assertExpiry(Month.OCTOBER, 22, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -373,7 +373,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = -3;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.JULY, 16, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -382,7 +382,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = -4;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.JULY, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.JULY, 16, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -391,7 +391,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = -5;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(120, refDate, months, chain);
-    assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
+    assertExpiry(Month.JUNE, 18, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -400,7 +400,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = -6;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(138, refDate, months, chain);
-    assertExpiry(MonthOfYear.MAY, 21, 2011, refDate, months, chain);
+    assertExpiry(Month.MAY, 21, 2011, refDate, months, chain);
   }
   
   @Test(dependsOnMethods="preTest")
@@ -409,7 +409,7 @@ public class BloombergEQVanillaOptionChainTest {
     int months = -100;
     BloombergEQVanillaOptionChain chain = s_chain.narrowByExpiry(refDate, months);
     assertCount(156, refDate, months, chain);
-    assertExpiry(MonthOfYear.APRIL, 16, 2011, refDate, months, chain);
+    assertExpiry(Month.APRIL, 16, 2011, refDate, months, chain);
   }
 
   
@@ -423,7 +423,7 @@ public class BloombergEQVanillaOptionChainTest {
     BloombergEQVanillaOptionChain chain = 
       s_chain.narrowByExpiry(refDate, months).narrowByStrike(refPrice, strikeOffset).narrowByOptionType(OptionType.CALL);
     assertCount(1, chain);
-    assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
+    assertExpiry(Month.JUNE, 18, 2011, refDate, months, chain);
     assertStrike(170, refPrice, strikeOffset, chain);
   }
   
@@ -436,7 +436,7 @@ public class BloombergEQVanillaOptionChainTest {
     BloombergEQVanillaOptionChain chain = 
       s_chain.narrowByExpiry(refDate, months).narrowByStrike(refPrice, strikeOffset).narrowByOptionType(OptionType.PUT);
     assertCount(1, chain);
-    assertExpiry(MonthOfYear.JUNE, 18, 2011, refDate, months, chain);
+    assertExpiry(Month.JUNE, 18, 2011, refDate, months, chain);
     assertStrike(170, refPrice, strikeOffset, chain);
   }
   
@@ -498,7 +498,7 @@ public class BloombergEQVanillaOptionChainTest {
     }
   }
 
-  private void assertExpiry (MonthOfYear expected, int expectedDay, int expectedYear, 
+  private void assertExpiry (Month expected, int expectedDay, int expectedYear, 
                              LocalDate referenceDate, int monthsFromReferenceDate, 
                              BloombergEQVanillaOptionChain chain) {
     LocalDate expectedValue = LocalDate.of(expectedYear, expected, expectedDay);
@@ -523,9 +523,9 @@ public class BloombergEQVanillaOptionChainTest {
   // -------- SETUP --------
   @BeforeClass 
   public static void initTestData () {
-    s_referenceDatePreExpiration = LocalDate.of(2011, MonthOfYear.APRIL, 11);
-    s_referenceDatePostExpiration = LocalDate.of(2011, MonthOfYear.APRIL, 18);
-    s_referenceDateForTestingMinus = LocalDate.of(2011, MonthOfYear.NOVEMBER, 11);
+    s_referenceDatePreExpiration = LocalDate.of(2011, Month.APRIL, 11);
+    s_referenceDatePostExpiration = LocalDate.of(2011, Month.APRIL, 18);
+    s_referenceDateForTestingMinus = LocalDate.of(2011, Month.NOVEMBER, 11);
     
     s_identifiers = new ArrayList<ExternalId>(1024);
     s_identifiers.add(ExternalId.parse("BLOOMBERG_TICKER~AAPL US 04/16/11 C120 Equity"));

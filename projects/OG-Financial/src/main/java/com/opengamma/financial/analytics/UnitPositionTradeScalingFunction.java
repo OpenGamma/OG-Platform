@@ -17,11 +17,11 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -29,7 +29,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * Takes as input the result of a function that acts on ComputationTargetType.TRADE, applies unit scaling ( * 1.0 )
+ * and outputs the result for ComputationTargetType.POSITION. <p>
+ * Closely related to UnitPositionOrTradeScalingFunction but with different requirement target. 
  */
 public class UnitPositionTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -91,14 +93,12 @@ public class UnitPositionTradeScalingFunction extends AbstractFunction.NonCompil
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     ValueProperties common = null;
     Object scaledValue = null;
-    // TODO: What if there are multiple trades? The original function requested them all as inputs and chose an arbitrary one here. We process them all as the
-    // intersection of properties is required for the result
     for (ComputedValue value : inputs.getAllValues()) {
       common = SumUtils.addProperties(common, value.getSpecification().getProperties());
-      scaledValue = value.getValue();
+      scaledValue = SumUtils.addValue(scaledValue, value.getValue(), _requirementName);
     }
     common = common.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(_requirementName, target.toSpecification()), common);
+    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), common);
     return Sets.newHashSet(new ComputedValue(specification, scaledValue));
   }
 

@@ -1,7 +1,8 @@
 package com.opengamma.analytics.financial.credit.cds;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
@@ -44,8 +45,8 @@ public class ISDAApproxCDSPricingMethodTestData {
   
   protected ISDACDSDefinition loadCDS_ISDAExampleMainC(final double spreadBasisPoints) {
     
-    final ZonedDateTime startDate = ZonedDateTime.of(2008, 2, 8, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime maturity = ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime startDate = zdt(2008, 2, 8, 0, 0, 0, 0, ZoneOffset.UTC);
+    final ZonedDateTime maturity = zdt(2008, 2, 12, 0, 0, 0, 0, ZoneOffset.UTC);
     final int settlementDays = 0; // Overridden in test case
     
     final double notional = 1.0e7;
@@ -59,38 +60,38 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
 
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, premiumFrequency, convention, stubType);
   }
   
   protected ISDACurve loadDiscountCurve_ISDAExampleMainC() {
     
-    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime baseDate = zdt(2008, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC);
     
     double[] times = {
-        getTimeBetween(baseDate, ZonedDateTime.of(2008, 2, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2008, 3, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2008, 4, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2008, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2008, 10, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2009, 1, 5, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2009, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2010, 1, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2010, 7, 5, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2011, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2011, 7, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2012, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2012, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2013, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2013, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2014, 1, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2014, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2015, 1, 5, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2015, 7, 3, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2016, 1, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2016, 7, 4, 0, 0, 0, 0, TimeZone.UTC)),
-        getTimeBetween(baseDate, ZonedDateTime.of(2017, 1, 3, 0, 0, 0, 0, TimeZone.UTC))
+        getTimeBetween(baseDate, zdt(2008, 2, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2008, 3, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2008, 4, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2008, 7, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2008, 10, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2009, 1, 5, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2009, 7, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2010, 1, 4, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2010, 7, 5, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2011, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2011, 7, 4, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2012, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2012, 7, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2013, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2013, 7, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2014, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2014, 7, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2015, 1, 5, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2015, 7, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2016, 1, 4, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2016, 7, 4, 0, 0, 0, 0, ZoneOffset.UTC)),
+        getTimeBetween(baseDate, zdt(2017, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC))
       };
   
       double[] rates = {
@@ -123,10 +124,10 @@ public class ISDAApproxCDSPricingMethodTestData {
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleMainC() {
     
-    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 2, 1, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime baseDate = zdt(2008, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
     double[] times = {
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 2, 12, 0, 0, 0, 0, TimeZone.UTC))
+      s_act365.getDayCountFraction(baseDate, zdt(2008, 2, 12, 0, 0, 0, 0, ZoneOffset.UTC))
     };
     
     double[] rates = {
@@ -145,8 +146,8 @@ public class ISDAApproxCDSPricingMethodTestData {
   
   protected ISDACDSDefinition loadCDS_ISDAExampleCDSCalcualtor() {
     
-    final ZonedDateTime startDate = ZonedDateTime.of(2008, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime maturity = ZonedDateTime.of(2013, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime startDate = zdt(2008, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC);
+    final ZonedDateTime maturity = zdt(2013, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC);
     final int settlementDays = 3;
     final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.4;
     
@@ -157,15 +158,15 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
     
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }
   
   protected ISDACDSDefinition loadCDS_ISDAExampleUpfrontConverter() {
     
-    final ZonedDateTime startDate = ZonedDateTime.of(2007, 3, 20, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime maturity = ZonedDateTime.of(2013, 6, 20, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime startDate = zdt(2007, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC);
+    final ZonedDateTime maturity = zdt(2013, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC);
     final int settlementDays = 3;
     final double notional = 10000000, spread = 0.05 /* 500bp */, recoveryRate = 0.4;
     
@@ -176,20 +177,20 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.USD);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
     
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator() {
     
-    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime baseDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
     
     double[] times = {
       0.0,
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 06, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 06, 20, 0, 0, 0, 0, TimeZone.UTC))
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
     };
     
     double[] rates = {
@@ -204,13 +205,13 @@ public class ISDAApproxCDSPricingMethodTestData {
   
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator_FlatIRCurve() {
     
-    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime baseDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
     
     final double[] times = {
       0.0,
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 6, 20, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2015, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2018, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
     };
     
     final double ccRate = (new PeriodicInterestRate(0.09740867310916100000, 1)).toContinuous().getRate();
@@ -223,74 +224,74 @@ public class ISDAApproxCDSPricingMethodTestData {
   
   protected ISDACurve loadDiscountCurve_ISDAExampleExcel() {
     
-    final ZonedDateTime pricingDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
-    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 22, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime pricingDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
+    final ZonedDateTime baseDate = zdt(2008, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
   
     double[] times = { 
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 10, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 12, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 6, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2021, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2021, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2022, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2022, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2024, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2024, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2025, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2025, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2026, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2026, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2027, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2027, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2029, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2029, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2030, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2030, 9, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2031, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2031, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2032, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2032, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2034, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2034, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2035, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2035, 9, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2036, 3, 24, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2036, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2037, 3, 23, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2037, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 3, 22, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 9, 22, 0, 0, 0, 0, TimeZone.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2009, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2009, 6, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2009, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2010, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2010, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2011, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2011, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2012, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2012, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2015, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2015, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2016, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2016, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2017, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2017, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2018, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2018, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2019, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2019, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2020, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2020, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2021, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2021, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2022, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2022, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2023, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2023, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2024, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2024, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2025, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2025, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2026, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2026, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2027, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2027, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2028, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2028, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2029, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2029, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2030, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2030, 9, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2031, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2031, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2032, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2032, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2033, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2033, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2034, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2034, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2035, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2035, 9, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2036, 3, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2036, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2037, 3, 23, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2037, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
     };
     
     double[] rates = {
@@ -365,33 +366,38 @@ public class ISDAApproxCDSPricingMethodTestData {
   
   protected ISDACurve loadDiscountCurve_ISDAExampleCDSExcelFlat() {
     
-    final ZonedDateTime baseDate = ZonedDateTime.of(2008, 9, 18, 0, 0, 0, 0, TimeZone.UTC);
+    final ZonedDateTime baseDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
     
     double[] times = {
         0.0,
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2008, 11, 28, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 2, 27, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2009, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2010, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2011, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2023, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2028, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2033, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
-        s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2038, 5, 29, 0, 0, 0, 0, TimeZone.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 28, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2009, 2, 27, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2009, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2010, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2011, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2012, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2014, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2015, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2016, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2017, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2018, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2019, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2020, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2023, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2028, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2033, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
+        s_act365.getDayCountFraction(baseDate, zdt(2038, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
     };
     
     double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     
     return new ISDACurve("IR_CURVE", times, rates, 0.0);
+  }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneOffset offset) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(offset);
   }
 
 }

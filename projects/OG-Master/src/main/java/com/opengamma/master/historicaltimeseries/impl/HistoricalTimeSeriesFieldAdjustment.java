@@ -5,7 +5,7 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.util.ArgumentChecker;
 
 /**

@@ -65,7 +65,6 @@ public class ExchangeSourceFactoryBean extends SpringFactoryBean<ExchangeSource>
    * The meta-bean for {@code ExchangeSourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static ExchangeSourceFactoryBean.Meta meta() {
     return ExchangeSourceFactoryBean.Meta.INSTANCE;
   }
@@ -198,7 +197,7 @@ public class ExchangeSourceFactoryBean extends SpringFactoryBean<ExchangeSource>
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "exchangeMaster",
         "cacheManager");
 

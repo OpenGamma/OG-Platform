@@ -5,14 +5,19 @@
  */
 package com.opengamma.financial.conversion;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
-import javax.time.calendar.ZonedDateTime;
-
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
+import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -21,7 +26,9 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
+import com.opengamma.financial.security.cds.CDSIndexTerms;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
@@ -33,12 +40,11 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.VarianceSwapNotional;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Registers converters with Joda Beans for converting bean fields to and from strings.  The registration is
@@ -51,22 +57,22 @@ public final class JodaBeanConverters {
    */
   private static final JodaBeanConverters INSTANCE = new JodaBeanConverters();
 
+  // TODO map of MetaProperties to converters for fields that cant rely on the default conversion e.g.
+  // dates that are stored with time info and need the times setting to default values
+  // ZonedDateTime needs a default zone, based on OpenGammaClock.getTimeZone(), only for certain properties
+
   private JodaBeanConverters() {
     StringConvert stringConvert = JodaBeanUtils.stringConverter();
     stringConvert.register(Frequency.class, new FrequencyConverter());
-    stringConvert.register(Currency.class, new CurrencyConverter());
     stringConvert.register(DayCount.class, new DayCountConverter());
-    stringConvert.register(ExternalId.class, new ExternalIdConverter());
     stringConvert.register(ExternalIdBundle.class, new ExternalIdBundleConverter());
-    stringConvert.register(CurrencyPair.class, new CurrencyPairConverter());
-    stringConvert.register(ObjectId.class, new ObjectIdConverter());
-    stringConvert.register(UniqueId.class, new UniqueIdConverter());
     stringConvert.register(Expiry.class, new ExpiryConverter());
     stringConvert.register(ExerciseType.class, new ExerciseTypeConverter());
     stringConvert.register(Notional.class, new NotionalConverter());
     stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
     stringConvert.register(YieldConvention.class, new YieldConventionConverter());
     stringConvert.register(BondFutureDeliverable.class, new BondFutureDeliverableConverter());
+    stringConvert.register(CDSIndexTerms.class, new CDSIndexTermsConverter());
   }
   
   /**
@@ -85,7 +91,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class FrequencyConverter implements StringConverter<Frequency> {
+  public static class FrequencyConverter implements StringConverter<Frequency> {
 
     @Override
     public String convertToString(Frequency frequency) {
@@ -98,7 +104,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  /* package */ static class DayCountConverter implements StringConverter<DayCount> {
+  public static class DayCountConverter implements StringConverter<DayCount> {
 
     @Override
     public String convertToString(DayCount dayCount) {
@@ -111,23 +117,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class CurrencyConverter extends AbstractConverter<Currency> {
-    @Override
-    public Currency convertFromString(Class<? extends Currency> cls, String str) {
-      return Currency.of(str);
-    }
-  }
-  
-  private static class ExternalIdConverter extends AbstractConverter<ExternalId> {
-
-    @Override
-    public ExternalId convertFromString(Class<? extends ExternalId> cls, String str) {
-      return ExternalId.parse(str);
-    }
-    
-  }
-  
-  private static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
+  public static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
   
     @Override
     public String convertToString(ExternalIdBundle object) {
@@ -137,7 +127,10 @@ public final class JodaBeanConverters {
     
     @Override
     public ExternalIdBundle convertFromString(Class<? extends ExternalIdBundle> cls, String str) {
-      ArrayList<String> strings = new ArrayList<String>();
+      if (StringUtils.isEmpty(str)) {
+        return ExternalIdBundle.EMPTY;
+      }
+      List<String> strings = Lists.newArrayList();
       for (String s : str.split(",")) {
         strings.add(s.trim());
       }
@@ -145,45 +138,8 @@ public final class JodaBeanConverters {
     }
 
   }
-  
-  private static class ObjectIdConverter extends AbstractConverter<ObjectId> {
 
-    @Override
-    public ObjectId convertFromString(Class<? extends ObjectId> cls, String str) {
-      return ObjectId.parse(str);
-    }
-    
-  }
-
-  private static class UniqueIdConverter extends AbstractConverter<UniqueId> {
-
-    @Override
-    public UniqueId convertFromString(Class<? extends UniqueId> cls, String str) {
-      return UniqueId.parse(str);
-    }
-    
-    @Override
-    public String convertToString(UniqueId uniqueId) {
-      return uniqueId.toString();
-    }
-    
-  }
-
-  private static class CurrencyPairConverter implements StringConverter<CurrencyPair> {
-
-    @Override
-    public String convertToString(CurrencyPair object) {
-      return object.getName();
-    }
-
-    @Override
-    public CurrencyPair convertFromString(Class<? extends CurrencyPair> cls, String str) {
-      return CurrencyPair.parse(str);
-    }
-    
-  }
-
-  private static class ExpiryConverter extends AbstractConverter<Expiry> {
+  public static class ExpiryConverter extends AbstractConverter<Expiry> {
 
     @Override
     public String convertToString(Expiry expiry) {
@@ -196,7 +152,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class ExerciseTypeConverter extends AbstractConverter<ExerciseType> {
+  public static class ExerciseTypeConverter extends AbstractConverter<ExerciseType> {
 
     @Override
     public String convertToString(ExerciseType exType) {
@@ -205,16 +161,17 @@ public final class JodaBeanConverters {
 
     @Override
     public ExerciseType convertFromString(Class<? extends ExerciseType> cls, String str) {
-      if (str.equals("American")) {
-        return new AmericanExerciseType();
-      } else if (str.equals("Asian")) {
-        return new AsianExerciseType();
-      } else if (str.equals("Bermudan")) {
-        return new BermudanExerciseType();
-      } else if (str.equals("European")) {
-        return new EuropeanExerciseType();
-      } else {
-        return new EuropeanExerciseType();
+      switch (str) {
+        case "American":
+          return new AmericanExerciseType();
+        case "Asian":
+          return new AsianExerciseType();
+        case "Bermudan":
+          return new BermudanExerciseType();
+        case "European":
+          return new EuropeanExerciseType();
+        default:
+          return new EuropeanExerciseType();
       }
     }
   }
@@ -254,7 +211,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class BusinessDayConventionConverter extends AbstractConverter<BusinessDayConvention> {
+  public static class BusinessDayConventionConverter extends AbstractConverter<BusinessDayConvention> {
 
     @Override
     public String convertToString(BusinessDayConvention object) {
@@ -268,7 +225,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
+  public static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
 
     @Override
     public String convertToString(YieldConvention object) {
@@ -293,7 +250,7 @@ public final class JodaBeanConverters {
 
     @Override
     public BondFutureDeliverable convertFromString(Class<? extends BondFutureDeliverable> cls, String str) {
-      ArrayList<String> ids = new ArrayList<String>();
+      List<String> ids = Lists.newArrayList();
       for (String s : str.substring(str.indexOf('[') + 1, str.lastIndexOf(']')).trim().split(",")) {
         ids.add(s.trim());
       }
@@ -302,7 +259,48 @@ public final class JodaBeanConverters {
       result.setConversionFactor(Double.parseDouble(str.substring(str.indexOf(']') + 1).trim()));
       return result;
     }
+  }
+  
+  private static class CDSIndexTermsConverter extends AbstractConverter<CDSIndexTerms> {
+
+    @Override
+    public String convertToString(CDSIndexTerms object) {
+      Set<Tenor> tenors = object.getTenors();
+      return tenors.toString();
+    }
+    
+    @Override
+    public CDSIndexTerms convertFromString(Class<? extends CDSIndexTerms> cls, String str) {
+      String[] tenorStrs = str.split(",");
+      Tenor[] tenors = new Tenor[tenorStrs.length];
+      for (int i = 0; i < tenorStrs.length; i++) {
+        Tenor tenor = Tenor.parse(tenorStrs[i]);
+        tenors[i] = tenor;
+      }
+      return CDSIndexTerms.of(tenors);
+    }
     
   }
-
+  
+//  private static class CDSIndexComponentBundleConverter extends AbstractConverter<CDSIndexComponentBundle> {
+//
+//    @Override
+//    public String convertToString(CDSIndexComponentBundle object) {
+//      StringBuilder sb = new StringBuilder();
+//      Iterable<CreditDefaultSwapIndexComponent> components = object.getComponents();
+//      for (CreditDefaultSwapIndexComponent component : components) {
+//        sb.append(JodaBeanUtils.stringConverter().convertToString(component));
+//        sb.append(",");
+//      }
+//      if (sb.length() > 0) {
+//        sb.deleteCharAt(sb.length() - 1);
+//      }
+//      return sb.toString();
+//    }
+//    @Override
+//    public CDSIndexComponentBundle convertFromString(Class<? extends CDSIndexComponentBundle> cls, String str) {
+//      return null;
+//    }
+//    
+//  }
 }

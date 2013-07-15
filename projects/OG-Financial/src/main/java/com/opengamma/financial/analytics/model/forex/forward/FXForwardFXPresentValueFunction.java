@@ -25,6 +25,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * 
  */
 public class FXForwardFXPresentValueFunction extends FXForwardMultiValuedFunction {
+
   private static final PresentValueMCACalculator CALCULATOR = PresentValueMCACalculator.getInstance();
 
   public FXForwardFXPresentValueFunction() {
@@ -34,7 +35,7 @@ public class FXForwardFXPresentValueFunction extends FXForwardMultiValuedFunctio
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
       final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxForward, data);
+    final MultipleCurrencyAmount result = fxForward.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
 

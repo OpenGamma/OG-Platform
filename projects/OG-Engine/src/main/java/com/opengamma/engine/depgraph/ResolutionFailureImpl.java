@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.io.CharArrayWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,10 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   }
 
   protected static ResolutionFailure functionApplication(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification outputSpecification) {
+    return functionApplication(valueRequirement, function.getFunction().getFunctionDefinition().getUniqueId(), outputSpecification);
+  }
+
+  protected static ResolutionFailure functionApplication(final ValueRequirement valueRequirement, final String function, final ValueSpecification outputSpecification) {
     return new ResolutionFailureImpl(valueRequirement).appendEvent(function).appendEvent(outputSpecification);
   }
 
@@ -56,10 +61,6 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
 
   protected static ResolutionFailure marketDataMissing(final ValueRequirement valueRequirement) {
     return new ResolutionFailureImpl(valueRequirement).appendEvent(Status.MARKET_DATA_MISSING);
-  }
-
-  protected static ResolutionFailure suppressed(final ValueRequirement valueRequirement) {
-    return new ResolutionFailureImpl(valueRequirement).suppressed();
   }
 
   @Override
@@ -103,8 +104,7 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   }
 
   @Override
-  protected ResolutionFailure assertValueRequirement(final ValueRequirement valueRequirement) {
-    assert getValueRequirement().equals(valueRequirement);
+  protected ResolutionFailure checkFailure(final ValueRequirement valueRequirement) {
     return this;
   }
 
@@ -118,24 +118,28 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   public ValueRequirement getValueRequirement() {
     return _valueRequirement;
   }
+  
+  public List<Object> getEvents() {
+    return _events;
+  }
 
   @SuppressWarnings("unchecked")
   @Override
   public synchronized <T> Collection<T> accept(final ResolutionFailureVisitor<T> visitor) {
     final LinkedList<T> result = new LinkedList<T>();
     final Iterator<?> itr = _events.iterator();
-    ParameterizedFunction function = null;
+    String function = null;
     ValueSpecification outputSpecification = null;
     final Map<ValueSpecification, ValueRequirement> satisfied = new HashMap<ValueSpecification, ValueRequirement>();
     final Set<ResolutionFailure> unsatisfied = new HashSet<ResolutionFailure>();
     final Set<ResolutionFailure> unsatisfiedAdditional = new HashSet<ResolutionFailure>();
     while (itr.hasNext()) {
       final Object event = itr.next();
-      if (event instanceof ParameterizedFunction) {
+      if (event instanceof String) {
         if (function != null) {
           result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
         }
-        function = (ParameterizedFunction) event;
+        function = (String) event;
         outputSpecification = (ValueSpecification) itr.next();
         satisfied.clear();
         unsatisfied.clear();
@@ -157,7 +161,7 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
               result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
               function = null;
             }
-            visitor.visitCouldNotResolve(getValueRequirement());
+            result.add(visitor.visitCouldNotResolve(getValueRequirement()));
             break;
           case GET_ADDITIONAL_REQUIREMENTS_FAILED:
             assert function != null;
@@ -166,7 +170,7 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
             break;
           case GET_RESULTS_FAILED:
             assert function != null;
-            result.add(visitor.visitGetResultsFailed(getValueRequirement(), function, outputSpecification));
+            result.add(visitor.visitGetResultsFailed(getValueRequirement(), function, outputSpecification, satisfied));
             function = null;
             break;
           case GET_REQUIREMENTS_FAILED:
@@ -244,14 +248,14 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   @Override
   protected synchronized void merge(final ResolutionFailure failureRef) {
     final ResolutionFailureImpl failure = (ResolutionFailureImpl) failureRef;
-    assert getValueRequirement().getTargetSpecification().equals(failure.getValueRequirement().getTargetSpecification())
+    assert getValueRequirement().getTargetReference().equals(failure.getValueRequirement().getTargetReference())
         && getValueRequirement().getValueName().equals(failure.getValueRequirement().getValueName());
     synchronized (failure) {
       final Iterator<Object> itrNew = failure._events.iterator();
       Object eventNew = itrNew.next();
       do {
-        if (eventNew instanceof ParameterizedFunction) {
-          final ParameterizedFunction function = (ParameterizedFunction) eventNew;
+        if (eventNew instanceof String) {
+          final String function = (String) eventNew;
           final ValueSpecification outputSpecification = (ValueSpecification) itrNew.next();
           // Extract the events that correspond to this function application
           final List<Object> newEvents = new LinkedList<Object>();
@@ -260,7 +264,7 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
           // CSON
           do {
             eventNew = itrNew.next();
-            if (eventNew instanceof ParameterizedFunction) {
+            if (eventNew instanceof String) {
               break scan;
             } else if (eventNew instanceof Status) {
               switch ((Status) eventNew) {
@@ -295,7 +299,7 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
                 //CSON
                 while (itrThis.hasNext()) {
                   eventThis = itrThis.next();
-                  if (eventThis instanceof ParameterizedFunction) {
+                  if (eventThis instanceof String) {
                     itrThis.previous();
                     break scanFailureEvent;
                   } else if (eventThis instanceof Status) {
@@ -384,7 +388,9 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
 
   @Override
   public String toString() {
-    return "ResolutionFailure[" + _valueRequirement + "]";
+    final CharArrayWriter writer = new CharArrayWriter();
+    accept(new ResolutionFailurePrinter(writer));
+    return writer.toString();
   }
 
   @Override

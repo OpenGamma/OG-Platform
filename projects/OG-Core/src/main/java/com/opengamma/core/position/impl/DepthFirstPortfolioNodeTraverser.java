@@ -33,13 +33,13 @@ public class DepthFirstPortfolioNodeTraverser extends PortfolioNodeTraverser {
     }
     getCallback().preOrderOperation(portfolioNode);
     for (Position position : portfolioNode.getPositions()) {
-      getCallback().preOrderOperation(position);
+      getCallback().preOrderOperation(portfolioNode, position);
     }
     for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
       traverse(subNode);
     }
     for (Position position : portfolioNode.getPositions()) {
-      getCallback().postOrderOperation(position);
+      getCallback().postOrderOperation(portfolioNode, position);
     }
     getCallback().postOrderOperation(portfolioNode);
   }

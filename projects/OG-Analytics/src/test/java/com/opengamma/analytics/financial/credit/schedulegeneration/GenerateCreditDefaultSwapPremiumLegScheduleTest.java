@@ -5,23 +5,22 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Region;
-import com.opengamma.analytics.financial.credit.obligormodel.Sector;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.obligor.CreditRating;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.Sector;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -103,17 +102,17 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final Region referenceEntityRegion = Region.EUROPE;
   private static final String referenceEntityCountry = "United Kingdom";
 
-  private static final Currency currency = Currency.USD;
+  private static final Currency currency = Currency.EUR;
 
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
   private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
 
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 
-  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
-  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 21);
-  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
-  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
+  private static final ZonedDateTime startDate = DateUtils.getUTCDate(2013, 1, 30);
+  private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2013, 1, 31);
+  private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 9, 20);
+  private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 1, 30);
 
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
@@ -121,8 +120,8 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
   private static final boolean immAdjustMaturityDate = true;
-  private static final boolean adjustEffectiveDate = true;
-  private static final boolean adjustMaturityDate = true;
+  private static final boolean adjustEffectiveDate = false;
+  private static final boolean adjustMaturityDate = false;
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
@@ -180,8 +179,8 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract 
-  private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
+  // Construct a CDS contract
+  private static final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,
@@ -193,7 +192,6 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -204,7 +202,6 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 
@@ -217,11 +214,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Call the schedule generation method for the CDS contract
-    ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    final ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
     if (outputResults) {
-      for (int i = 0; i < schedule.length; i++) {
-        System.out.println(schedule[i]);
+      for (final ZonedDateTime element : schedule) {
+        System.out.println(element);
       }
     }
 

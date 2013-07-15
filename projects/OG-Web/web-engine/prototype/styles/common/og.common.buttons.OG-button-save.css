@@ -1,0 +1,36 @@
+/**
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-button-save {
+    background-color: #6abc6a;
+    border: 1px solid;
+    border-color: #76c976 #63b563 #63b563 #93ce93;
+    color: #fff;
+    cursor: pointer;
+    line-height: 13px;
+    margin-left: 15px;
+    padding: 0 5px;
+    text-shadow: none;
+}
+
+.OG-button-save:before {
+    background: url(/prototype/images/common/sprites/main-sprite-sheet.png) 0 -75px;
+    content: '';
+    height: 15px;
+    left: -16px;
+    position: absolute;
+    top: -1px;
+    width: 15px;
+}
+
+.OG-button-save:after {
+    background-color: #fff;
+    bottom: 50%;
+    content: '';
+    left: -14px;
+    opacity: 0.1;
+    position: absolute;
+    right: 0;
+    top: 0;
+}

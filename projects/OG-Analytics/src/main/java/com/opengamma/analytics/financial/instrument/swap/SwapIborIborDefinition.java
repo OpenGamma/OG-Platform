@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.swap;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -17,7 +15,8 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a Ibor+Spread for Ibor+Spread payments swap. The two legs should be in the same currency.
@@ -31,7 +30,7 @@ public class SwapIborIborDefinition extends SwapDefinition {
    */
   public SwapIborIborDefinition(final AnnuityCouponIborSpreadDefinition firstLeg, final AnnuityCouponIborSpreadDefinition secondLeg) {
     super(firstLeg, secondLeg);
-    Validate.isTrue(firstLeg.getCurrency() == secondLeg.getCurrency(), "legs should have the same currency");
+    ArgumentChecker.isTrue(firstLeg.getCurrency() == secondLeg.getCurrency(), "legs should have the same currency");
   }
 
   public static SwapIborIborDefinition from(final AnnuityCouponIborSpreadDefinition firstLeg, final AnnuityCouponIborSpreadDefinition secondLeg) {
@@ -62,11 +61,11 @@ public class SwapIborIborDefinition extends SwapDefinition {
    */
   public static SwapIborIborDefinition from(final ZonedDateTime settlementDate, final Period tenor, final GeneratorSwapIborIbor generator, final double notional, final double spread,
       final boolean isPayer) {
-    Validate.notNull(settlementDate, "settlement date");
-    Validate.notNull(tenor, "Tenor");
-    Validate.notNull(generator, "Swap generator");
-    final AnnuityCouponIborSpreadDefinition firstLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex1(), spread, isPayer);
-    final AnnuityCouponIborSpreadDefinition secondLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex2(), 0.0, !isPayer);
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    ArgumentChecker.notNull(generator, "Swap generator");
+    final AnnuityCouponIborSpreadDefinition firstLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex1(), spread, isPayer, generator.getCalendar1());
+    final AnnuityCouponIborSpreadDefinition secondLeg = AnnuityCouponIborSpreadDefinition.from(settlementDate, tenor, notional, generator.getIborIndex2(), 0.0, !isPayer, generator.getCalendar2());
     return new SwapIborIborDefinition(firstLeg, secondLeg);
   }
 
@@ -90,11 +89,13 @@ public class SwapIborIborDefinition extends SwapDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapIborIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapIborIborDefinition(this);
   }
 
@@ -104,17 +105,17 @@ public class SwapIborIborDefinition extends SwapDefinition {
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, firstLegCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, secondLegCurveNames);
-    return new Swap<Coupon, Coupon>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 
   @Override
-  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
-    Validate.notNull(indexDataTS, "index data time series array");
-    Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
-    return new Swap<Coupon, Coupon>(firstLeg, secondLeg);
+    return new Swap<>(firstLeg, secondLeg);
   }
 }

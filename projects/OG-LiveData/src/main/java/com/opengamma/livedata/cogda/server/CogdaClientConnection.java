@@ -6,6 +6,7 @@
 package com.opengamma.livedata.cogda.server;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -63,8 +64,11 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
   private final CogdaLiveDataServer _server;
   private final FudgeMessageSender _messageSender;
   
+  // REVIEW kirk 2013-03-27 -- The only reason why _subscriptions exists is to act as
+  // a quick pass on whether the client is subscribed to a specification.
+  // This is to avoid going into a locking state waiting for _valuesToSend. 
   private final ConcurrentMap<LiveDataSpecification, Boolean> _subscriptions = new ConcurrentHashMap<LiveDataSpecification, Boolean>();
-  private final ConcurrentMap<LiveDataSpecification, FudgeMsg> _valuesToSend = new ConcurrentHashMap<LiveDataSpecification, FudgeMsg>();
+  private final Map<LiveDataSpecification, FudgeMsg> _valuesToSend = new HashMap<LiveDataSpecification, FudgeMsg>();
   private final Lock _writerLock = new ReentrantLock();
   private final Lock _valuesToSendLock = new ReentrantLock();
   
@@ -140,7 +144,9 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
   public void connectionFailed(FudgeConnection connection, Exception cause) {
     // TODO kirk 2012-08-15 -- Fix this so that failed connections result in
     // torn down client connections.
-    s_logger.warn("Connection failed {}", cause);
+    // Cause may be null.
+    s_logger.warn("Connection failed \"{}\"", (cause != null) ? cause.getMessage() : "no cause");
+    s_logger.info("Connection failed", cause);
     getServer().removeClient(this);
   }
   
@@ -338,6 +344,7 @@ public class CogdaClientConnection implements FudgeConnectionStateListener, Fudg
       getMessageSender().send(msg);
     } catch (Exception e) {
       s_logger.info("Exception thrown; assuming socket closed and tearing down client.");
+      // Note that the actual connection state will be handled by the FudgeConnectionStateListener callback.
     }
   }
 

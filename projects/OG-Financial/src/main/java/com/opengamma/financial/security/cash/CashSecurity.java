@@ -7,8 +7,6 @@ package com.opengamma.financial.security.cash;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -76,7 +75,7 @@ public class CashSecurity extends FinancialSecurity {
   private double _amount;
 
   CashSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public CashSecurity(Currency currency, ExternalId region, ZonedDateTime start, ZonedDateTime maturity, DayCount dayCount, double rate, double amount) {
@@ -434,7 +433,7 @@ public class CashSecurity extends FinancialSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "currency",
         "regionId",
         "start",

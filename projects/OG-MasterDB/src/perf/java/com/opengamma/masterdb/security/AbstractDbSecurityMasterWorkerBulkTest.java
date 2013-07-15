@@ -10,9 +10,6 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -22,6 +19,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -29,12 +30,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbSecurityMasterWorker via DbSecurityMaster.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class AbstractDbSecurityMasterWorkerBulkTest extends DbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerBulkTest.class);
@@ -46,7 +48,7 @@ public abstract class AbstractDbSecurityMasterWorkerBulkTest extends DbTest {
   protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbSecurityMasterWorkerBulkTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }
@@ -79,7 +81,7 @@ public abstract class AbstractDbSecurityMasterWorkerBulkTest extends DbTest {
 //    name varchar(255) not null,
 //    sec_type varchar(255) not null,
     Instant now = Instant.now();
-    _secMaster.setTimeSource(TimeSource.fixed(now));
+    _secMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);

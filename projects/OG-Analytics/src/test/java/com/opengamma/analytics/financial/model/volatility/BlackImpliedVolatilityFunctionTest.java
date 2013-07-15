@@ -46,7 +46,7 @@ public class BlackImpliedVolatilityFunctionTest {
     DATA = new BlackFunctionData[N];
     OPTIONS = new EuropeanVanillaOption[N];
     for (int i = 0; i < 10; i++) {
-      STRIKES[i] = 50 + 2 * i;
+      STRIKES[i] = FORWARD - 20 + 40 / N * i;
       DATA[i] = new BlackFunctionData(FORWARD, DF, SIGMA);
       OPTIONS[i] = new EuropeanVanillaOption(STRIKES[i], T, true);
       PRICES[i] = FORMULA.getPriceFunction(OPTIONS[i]).evaluate(DATA[i]);

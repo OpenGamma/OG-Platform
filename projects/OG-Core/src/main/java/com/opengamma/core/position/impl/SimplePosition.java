@@ -7,7 +7,6 @@ package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -24,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.LinkUtils;
 import com.opengamma.core.position.Position;
@@ -53,11 +53,6 @@ public class SimplePosition extends DirectBean
   @PropertyDefinition(validate = "notNull")
   private UniqueId _uniqueId;
   /**
-   * The unique identifier of the parent node, null if no parent.
-   */
-  @PropertyDefinition
-  private UniqueId _parentNodeId;
-  /**
    * The number of units in the position.
    */
   @PropertyDefinition(validate = "notNull")
@@ -73,7 +68,7 @@ public class SimplePosition extends DirectBean
    * An empty list usually means that trade data is unavailable.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Collection<Trade> _trades = new ArrayList<Trade>();
+  private final Collection<Trade> _trades = Lists.newArrayList();
   /**
    * The general purpose position attributes.
    * These can be used to add arbitrary additional information to the object
@@ -171,12 +166,10 @@ public class SimplePosition extends DirectBean
   public SimplePosition(final Position copyFrom) {
     ArgumentChecker.notNull(copyFrom, "copyFrom");
     _uniqueId = copyFrom.getUniqueId();
-    _parentNodeId = copyFrom.getParentNodeId();
     _quantity = copyFrom.getQuantity();
     _securityLink = new SimpleSecurityLink(copyFrom.getSecurityLink());
     for (Trade trade : copyFrom.getTrades()) {
       SimpleTrade clonedTrade = new SimpleTrade(trade);
-      clonedTrade.setParentPositionId(_uniqueId);
       _trades.add(clonedTrade);
     }
     setAttributes(copyFrom.getAttributes());
@@ -277,8 +270,6 @@ public class SimplePosition extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 915246087:  // parentNodeId
-        return getParentNodeId();
       case -1285004149:  // quantity
         return getQuantity();
       case 807992154:  // securityLink
@@ -297,9 +288,6 @@ public class SimplePosition extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
-        return;
-      case 915246087:  // parentNodeId
-        setParentNodeId((UniqueId) newValue);
         return;
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
@@ -335,7 +323,6 @@ public class SimplePosition extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       SimplePosition other = (SimplePosition) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getParentNodeId(), other.getParentNodeId()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
@@ -348,7 +335,6 @@ public class SimplePosition extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentNodeId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
@@ -380,31 +366,6 @@ public class SimplePosition extends DirectBean
    */
   public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the unique identifier of the parent node, null if no parent.
-   * @return the value of the property
-   */
-  public UniqueId getParentNodeId() {
-    return _parentNodeId;
-  }
-
-  /**
-   * Sets the unique identifier of the parent node, null if no parent.
-   * @param parentNodeId  the new value of the property
-   */
-  public void setParentNodeId(UniqueId parentNodeId) {
-    this._parentNodeId = parentNodeId;
-  }
-
-  /**
-   * Gets the the {@code parentNodeId} property.
-   * @return the property, not null
-   */
-  public final Property<UniqueId> parentNodeId() {
-    return metaBean().parentNodeId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -539,11 +500,6 @@ public class SimplePosition extends DirectBean
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", SimplePosition.class, UniqueId.class);
     /**
-     * The meta-property for the {@code parentNodeId} property.
-     */
-    private final MetaProperty<UniqueId> _parentNodeId = DirectMetaProperty.ofReadWrite(
-        this, "parentNodeId", SimplePosition.class, UniqueId.class);
-    /**
      * The meta-property for the {@code quantity} property.
      */
     private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
@@ -571,7 +527,6 @@ public class SimplePosition extends DirectBean
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "parentNodeId",
         "quantity",
         "securityLink",
         "trades",
@@ -588,8 +543,6 @@ public class SimplePosition extends DirectBean
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case 915246087:  // parentNodeId
-          return _parentNodeId;
         case -1285004149:  // quantity
           return _quantity;
         case 807992154:  // securityLink
@@ -624,14 +577,6 @@ public class SimplePosition extends DirectBean
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
-    }
-
-    /**
-     * The meta-property for the {@code parentNodeId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueId> parentNodeId() {
-      return _parentNodeId;
     }
 
     /**

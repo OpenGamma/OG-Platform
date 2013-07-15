@@ -3,11 +3,12 @@
  * Please see distribution for license.
  */
 .OG-gadget-expanded-positions {
-    background-color: #fff;
+    background-color: #ecf5fa;
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
     overflow-y: scroll;
+    border: 1px solid #ddd;
 }

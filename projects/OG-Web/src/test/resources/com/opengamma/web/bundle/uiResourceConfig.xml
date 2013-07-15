@@ -1,0 +1,22 @@
+<uiResourceConfig>
+  <bundle id="cssBundleCommon.css">
+    <fragment>styles/common/og.common.buttons.css</fragment>
+    <fragment>styles/common/og.common.core.css</fragment>
+  </bundle>
+  <bundle id="cssUtil.css">
+    <fragment>styles/common/util/og.common.reset.css</fragment>
+    <fragment>styles/common/util/og.common.links.css</fragment>
+  </bundle>
+  <bundle id="jsBundleCommon.js">
+    <fragment>scripts/og/common/og.common.core.js</fragment>
+    <fragment>scripts/og/common/og.common.init.js</fragment>
+    <fragment>scripts/og/common/og.common.jquery.rest.js</fragment>
+  </bundle>
+  <bundle id="ogCommon.css">
+    <bundle idref="cssBundleCommon.css"/>
+    <bundle idref="cssUtil.css"/>
+  </bundle>
+  <bundle id="ogCommon.js">
+    <bundle idref="jsBundleCommon.js"/>
+  </bundle>
+</uiResourceConfig>

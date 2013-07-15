@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -33,7 +32,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 
 /**
- * @deprecated Use the version that uses CurrencyPairs {@see ForexSecurityConverter}
+ * @deprecated Use the version that uses CurrencyPairs {@link ForexSecurityConverter}
  */
 @Deprecated
 public class ForexSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {

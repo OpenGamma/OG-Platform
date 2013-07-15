@@ -9,9 +9,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -28,11 +30,13 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -42,9 +46,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
+import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
@@ -57,7 +62,6 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDef
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -65,193 +69,200 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  *
  */
-public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledInvoker {
+public class FXOptionBlackVegaPnLFunction extends AbstractFunction {
+
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final Object vegaMatrixObject = inputs.getValue(ValueRequirementNames.VEGA_QUOTE_MATRIX);
-    if (vegaMatrixObject == null) {
-      throw new OpenGammaRuntimeException("Could not get vega matrix");
-    }
-    final Object volatilityHTSObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES);
-    if (volatilityHTSObject == null) {
-      throw new OpenGammaRuntimeException("Could not get historical time series for volatilities");
-    }
-    final DoubleLabelledMatrix2D vegaMatrix = (DoubleLabelledMatrix2D) vegaMatrixObject;
-    final HistoricalTimeSeriesBundle timeSeriesBundle = (HistoricalTimeSeriesBundle) volatilityHTSObject;
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final Position position = target.getPosition();
-    final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(currencyPair, surfaceName, definitionSource);
-    final VolatilitySurfaceSpecification specification = getSurfaceSpecification(currencyPair, surfaceName, specificationSource);
-    final Period samplingPeriod = getSamplingPeriod(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD));
-    final LocalDate startDate = now.minus(samplingPeriod);
-    final String scheduleCalculatorName = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
-    final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
-    final String samplingFunctionName = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
-    final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
-    final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    DoubleTimeSeries<?> vegaPnL = getPnLSeries(definition, specification, timeSeriesBundle, vegaMatrix, now, schedule, samplingFunction);
-    vegaPnL = vegaPnL.multiply(position.getQuantity().doubleValue());
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    final CurrencyPair baseCounterPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
-    final String vegaResultCurrency = getResultCurrency(target, baseCounterPair);
-    final String currencyBase = baseCounterPair.getBase().getCode();
-    if (!currencyBase.equals(vegaResultCurrency)) {
-      final Object spotFXObject = inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-      if (spotFXObject == null) {
-        throw new OpenGammaRuntimeException("Could not get spot FX time series");
-      }
-      final DoubleTimeSeries<?> spotFX = ((HistoricalTimeSeries) spotFXObject).getTimeSeries();
-      vegaPnL = vegaPnL.multiply(spotFX);
-    }
-    final ValueProperties properties = getResultProperties(desiredValue, currencyBase);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, vegaPnL));
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final CurrencyPairs currencyPairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    return new Compiled(currencyPairs);
   }
 
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
-  }
+  /**
+   * The compiled form.
+   */
+  protected class Compiled extends AbstractInvokingCompiledFunction {
 
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Security security = target.getPosition().getSecurity();
-    return security instanceof FXOptionSecurity || security instanceof NonDeliverableFXOptionSecurity;
-  }
+    private final CurrencyPairs _currencyPairs;
 
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
-    final String currencyBase = currencyPair.getBase().getCode(); // The base currency
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .withAny(FXOptionBlackFunction.PUT_CURVE)
-        .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
-        .withAny(FXOptionBlackFunction.CALL_CURVE)
-        .withAny(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, currencyBase)
-        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.VEGA_QUOTE_MATRIX)
-        .get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
-  }
+    public Compiled(final CurrencyPairs currencyPairs) {
+      _currencyPairs = currencyPairs;
+    }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> putCurveNames = constraints.getValues(FXOptionBlackFunction.PUT_CURVE);
-    if (putCurveNames == null || putCurveNames.size() != 1) {
-      return null;
+    // CompiledFunctionDefinition
+
+    @Override
+    public ComputationTargetType getTargetType() {
+      return ComputationTargetType.POSITION;
     }
-    final Set<String> putCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-    if (putCurveCalculationConfigs == null || putCurveCalculationConfigs.size() != 1) {
-      return null;
+
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      final Security security = target.getPosition().getSecurity();
+      return security instanceof FXOptionSecurity || security instanceof NonDeliverableFXOptionSecurity;
     }
-    final Set<String> callCurveNames = constraints.getValues(FXOptionBlackFunction.CALL_CURVE);
-    if (callCurveNames == null || callCurveNames.size() != 1) {
-      return null;
+
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
+      final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+      final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+      final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+      final String currencyBase = currencyPair.getBase().getCode(); // The base currency
+      final ValueProperties properties = createValueProperties()
+          .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+          .withAny(FXOptionBlackFunction.PUT_CURVE)
+          .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+          .withAny(FXOptionBlackFunction.CALL_CURVE)
+          .withAny(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+          .withAny(ValuePropertyNames.SURFACE)
+          .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .with(ValuePropertyNames.CURRENCY, currencyBase)
+          .withAny(ValuePropertyNames.SAMPLING_PERIOD)
+          .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+          .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.VEGA_QUOTE_MATRIX)
+          .get();
+      return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     }
-    final Set<String> callCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
-    if (callCurveCalculationConfigs == null || callCurveCalculationConfigs.size() != 1) {
-      return null;
-    }
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      return null;
-    }
-    final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-    if (interpolatorNames == null || interpolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> samplingPeriods = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
-    if (samplingPeriods == null || samplingPeriods.size() != 1) {
-      return null;
-    }
-    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final UnorderedCurrencyPair currencies = UnorderedCurrencyPair.of(putCurrency, callCurrency);
-    final String surfaceName = Iterables.getOnlyElement(surfaceNames);
-    final String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
-    final CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
-    final String vegaResultCurrency = getResultCurrency(target, currencyPair);
-    final String currencyBase = currencyPair.getBase().getCode(); // The base currency
-    final ValueRequirement vegaMatrixRequirement = new ValueRequirement(ValueRequirementNames.VEGA_QUOTE_MATRIX, security,
-        ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .with(FXOptionBlackFunction.PUT_CURVE, Iterables.getOnlyElement(putCurveNames))
-        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, Iterables.getOnlyElement(putCurveCalculationConfigs))
-        .with(FXOptionBlackFunction.CALL_CURVE, Iterables.getOnlyElement(callCurveNames))
-        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, Iterables.getOnlyElement(callCurveCalculationConfigs))
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, Iterables.getOnlyElement(interpolatorNames))
-        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(leftExtrapolatorNames))
-        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(rightExtrapolatorNames))
-        .with(ValuePropertyNames.CURRENCY, vegaResultCurrency).get());
-    final ValueRequirement surfaceHTSRequirement = getVolatilitySurfaceHTSRequirement(currencies, surfaceName, samplingPeriod);
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(vegaMatrixRequirement);
-    requirements.add(surfaceHTSRequirement);
-    if (!currencyBase.equals(vegaResultCurrency)) {
-      final ExternalIdBundle spotIdentifier = ExternalIdBundle.of(security.accept(new BloombergFXSpotRateIdentifierVisitor(currencyPairs)));
-      final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(spotIdentifier, null, null, null,
-          MarketDataRequirementNames.MARKET_VALUE, null);
-      if (timeSeries == null) {
+
+    @Override
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      final ValueProperties constraints = desiredValue.getConstraints();
+      final Set<String> putCurveNames = constraints.getValues(FXOptionBlackFunction.PUT_CURVE);
+      if (putCurveNames == null || putCurveNames.size() != 1) {
         return null;
       }
-      final ValueRequirement spotFXRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
-          MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true);
-      requirements.add(spotFXRequirement);
+      final Set<String> putCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+      if (putCurveCalculationConfigs == null || putCurveCalculationConfigs.size() != 1) {
+        return null;
+      }
+      final Set<String> callCurveNames = constraints.getValues(FXOptionBlackFunction.CALL_CURVE);
+      if (callCurveNames == null || callCurveNames.size() != 1) {
+        return null;
+      }
+      final Set<String> callCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+      if (callCurveCalculationConfigs == null || callCurveCalculationConfigs.size() != 1) {
+        return null;
+      }
+      final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+      if (surfaceNames == null || surfaceNames.size() != 1) {
+        return null;
+      }
+      final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+      if (interpolatorNames == null || interpolatorNames.size() != 1) {
+        return null;
+      }
+      final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+      if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
+        return null;
+      }
+      final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+      if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
+        return null;
+      }
+      final Set<String> samplingPeriods = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
+      if (samplingPeriods == null || samplingPeriods.size() != 1) {
+        return null;
+      }
+      final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
+      final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+      final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+      final UnorderedCurrencyPair currencies = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+      final String surfaceName = Iterables.getOnlyElement(surfaceNames);
+      final String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
+      final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+      final String vegaResultCurrency = getResultCurrency(target, currencyPair);
+      final String currencyBase = currencyPair.getBase().getCode(); // The base currency
+      final ValueRequirement vegaMatrixRequirement = new ValueRequirement(ValueRequirementNames.VEGA_QUOTE_MATRIX, ComputationTargetSpecification.of(security),
+          ValueProperties.builder()
+              .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+              .with(FXOptionBlackFunction.PUT_CURVE, Iterables.getOnlyElement(putCurveNames))
+              .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, Iterables.getOnlyElement(putCurveCalculationConfigs))
+              .with(FXOptionBlackFunction.CALL_CURVE, Iterables.getOnlyElement(callCurveNames))
+              .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, Iterables.getOnlyElement(callCurveCalculationConfigs))
+              .with(ValuePropertyNames.SURFACE, surfaceName)
+              .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, Iterables.getOnlyElement(interpolatorNames))
+              .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(leftExtrapolatorNames))
+              .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(rightExtrapolatorNames))
+              .with(ValuePropertyNames.CURRENCY, vegaResultCurrency).get());
+      final ValueRequirement surfaceHTSRequirement = getVolatilitySurfaceHTSRequirement(currencies, surfaceName, samplingPeriod);
+      final Set<ValueRequirement> requirements = new HashSet<>();
+      requirements.add(vegaMatrixRequirement);
+      requirements.add(surfaceHTSRequirement);
+      if (!currencyBase.equals(vegaResultCurrency)) {
+        requirements.add(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(putCurrency, callCurrency));
+      }
+      return requirements;
     }
-    return requirements;
+
+    // FunctionInvoker
+
+    @Override
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+      final Object vegaMatrixObject = inputs.getValue(ValueRequirementNames.VEGA_QUOTE_MATRIX);
+      if (vegaMatrixObject == null) {
+        throw new OpenGammaRuntimeException("Could not get vega matrix");
+      }
+      final Object volatilityHTSObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_HISTORICAL_TIME_SERIES);
+      if (volatilityHTSObject == null) {
+        throw new OpenGammaRuntimeException("Could not get historical time series for volatilities");
+      }
+      final DoubleLabelledMatrix2D vegaMatrix = (DoubleLabelledMatrix2D) vegaMatrixObject;
+      final HistoricalTimeSeriesBundle timeSeriesBundle = (HistoricalTimeSeriesBundle) volatilityHTSObject;
+      final Clock snapshotClock = executionContext.getValuationClock();
+      final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
+      final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+      final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+      final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+      final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
+      final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
+      final Position position = target.getPosition();
+      final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
+      final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+      final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+      final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+      final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(currencyPair, surfaceName, definitionSource);
+      final VolatilitySurfaceSpecification specification = getSurfaceSpecification(currencyPair, surfaceName, specificationSource);
+      final Period samplingPeriod = getSamplingPeriod(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD));
+      final LocalDate startDate = now.minus(samplingPeriod);
+      final String scheduleCalculatorName = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
+      final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
+      final String samplingFunctionName = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
+      final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
+      final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
+      DoubleTimeSeries<?> vegaPnL = getPnLSeries(definition, specification, timeSeriesBundle, vegaMatrix, now, schedule, samplingFunction);
+      vegaPnL = vegaPnL.multiply(position.getQuantity().doubleValue());
+      final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+      final CurrencyPair baseCounterPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
+      final String vegaResultCurrency = getResultCurrency(target, baseCounterPair);
+      final String currencyBase = baseCounterPair.getBase().getCode();
+      if (!currencyBase.equals(vegaResultCurrency)) {
+        final Object spotFXObject = inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
+        if (spotFXObject == null) {
+          throw new OpenGammaRuntimeException("Could not get spot FX time series");
+        }
+        final DoubleTimeSeries<?> spotFX = ((HistoricalTimeSeries) spotFXObject).getTimeSeries();
+        vegaPnL = vegaPnL.multiply(spotFX);
+      }
+      final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
+      return Collections.singleton(new ComputedValue(spec, vegaPnL));
+    }
+
   }
 
   private ValueRequirement getVolatilitySurfaceHTSRequirement(final UnorderedCurrencyPair currencies, final String surfaceName, final String samplingPeriod) {
@@ -326,36 +337,6 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
       i++;
     }
     return vegaPnL;
-  }
-
-  private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currencyBase) {
-    final String putCurveName = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String putCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-    final String callCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
-    final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    final String samplingPeriod = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
-    final String scheduleCalculator = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
-    final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
-        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
-        .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
-        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(ValuePropertyNames.CURRENCY, currencyBase)
-        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod)
-        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculator)
-        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunction)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.VEGA_QUOTE_MATRIX)
-        .get();
   }
 
   private String getResultCurrency(final ComputationTarget target, final CurrencyPair currencyPair) {

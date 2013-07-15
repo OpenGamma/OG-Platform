@@ -12,21 +12,19 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.engine.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * Test DbFunctionCostsMaster.
+ * Test.
  */
-public class DbFunctionCostsMasterTest extends DbTest {
+@Test(groups = TestGroup.UNIT_DB)
+public class DbFunctionCostsMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbFunctionCostsMasterTest.class);
 
@@ -34,26 +32,19 @@ public class DbFunctionCostsMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbFunctionCostsMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _costsMaster = (DbFunctionCostsMaster) context.getBean(getDatabaseType() + "DbFunctionCostsMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _costsMaster = new DbFunctionCostsMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _costsMaster = null;
-    super.tearDown();
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
@@ -61,7 +52,7 @@ public class DbFunctionCostsMasterTest extends DbTest {
   public void test_basics() throws Exception {
     assertNotNull(_costsMaster);
     assertNotNull(_costsMaster.getDbConnector());
-    assertNotNull(_costsMaster.getTimeSource());
+    assertNotNull(_costsMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

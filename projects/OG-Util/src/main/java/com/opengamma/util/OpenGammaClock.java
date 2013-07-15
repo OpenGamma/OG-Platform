@@ -5,8 +5,8 @@
  */
 package com.opengamma.util;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZoneId;
 
 /**
  * Provides a shared singleton {@code Clock} for use throughout OpenGamma.
@@ -20,7 +20,7 @@ public final class OpenGammaClock {
   /**
    * Singleton instance.
    */
-  private static volatile Clock s_instance = Clock.system(TimeZone.UTC);
+  private static volatile Clock s_instance = Clock.systemUTC();
 
   /**
    * Restricted constructor.
@@ -52,7 +52,7 @@ public final class OpenGammaClock {
    * 
    * @return the zone, not null
    */
-  public static TimeZone getZone() {
+  public static ZoneId getZone() {
     return s_instance.getZone();
   }
 
@@ -61,7 +61,7 @@ public final class OpenGammaClock {
    * 
    * @param zone  the zone, not null
    */
-  public static void setZone(TimeZone zone) {
+  public static void setZone(ZoneId zone) {
     s_instance = s_instance.withZone(zone);
   }
 

@@ -8,11 +8,11 @@ package com.opengamma.financial.analytics.model.pnl;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -24,11 +24,11 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFact
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -40,10 +40,11 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -51,6 +52,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
+  private static final ComputationTargetType TYPE = FinancialSecurityTypes.FINANCIAL_SECURITY.or(FinancialSecurityTypes.RAW_SECURITY);
   private final String _resolutionKey;
   private final String _fieldName;
 
@@ -65,7 +67,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -73,7 +75,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Period samplingPeriod = getSamplingPeriod(samplingPeriodName);
     final LocalDate startDate = now.minus(samplingPeriod);
     final HistoricalTimeSeries hts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-    final DoubleTimeSeries<?> ts = hts.getTimeSeries();
+    final LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price series for security " + security);
     }
@@ -83,14 +85,13 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    final DoubleTimeSeries<?> resultTS = samplingFunction.getSampledTimeSeries(ts, schedule);
+    final LocalDateDoubleTimeSeries resultTS = samplingFunction.getSampledTimeSeries(ts, schedule);
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).get();
-    final ValueRequirement vr = new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security, resultProperties);
-    final ValueSpecification valueSpecification = new ValueSpecification(vr, getUniqueId());
+    final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.PRICE_SERIES, target.toSpecification(), resultProperties);
     final ComputedValue result = new ComputedValue(valueSpecification, resultTS);
     return Sets.newHashSet(result);
   }
@@ -127,12 +128,13 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity(), properties.get()), getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRICE_SERIES, target.toSpecification(), properties.get()));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    // REVIEW 2013-05-14 Andrew -- Instead of relying on "canApplyTo", putting only the classes for which "getCurrency" will return a happy value would be faster
+    return TYPE;
   }
 
   private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {

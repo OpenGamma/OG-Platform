@@ -6,9 +6,10 @@
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -19,18 +20,37 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Contains information used to construct standard versions of CLP instruments
  */
 public class CLConventions {
+  /** Following business day convention */
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  /** Act/360 day count convention */
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  /** The region */
   private static final ExternalId CL = ExternalSchemes.financialRegionId("CL");
+  /** Semi-annual frequency */
   private static final Frequency SEMI_ANNUAL = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
 
+  /**
+   * Adds conventions for OIS and implied deposits
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+
+    for (int i = 1; i < 12; i++) {
+      final String impliedDepositName = "CLP IMPLIED DEPOSIT " + i + "m";
+      final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("LMIDPCLPSPT" + (i < 10 ? "0" : "") + i + "M");
+      final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
+      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, ACT_360, FOLLOWING, Period.ofMonths(i), 0, false, CL);
+    }
+
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CHIBNOM Index"), simpleNameSecurityId("CLP DEPOSIT O/N")), "CLP DEPOSIT O/N", ACT_360,
         FOLLOWING, Period.ofDays(1), 0, false, CL);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CLICP Index"), simpleNameSecurityId("CLICP Index")), "CLICP Index", ACT_360,

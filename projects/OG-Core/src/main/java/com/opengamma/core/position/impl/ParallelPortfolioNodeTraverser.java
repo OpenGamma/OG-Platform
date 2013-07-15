@@ -6,9 +6,6 @@
 package com.opengamma.core.position.impl;
 
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -18,6 +15,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PoolExecutor;
 
 /**
  * A traverser that runs in parallel using a number of threads. The ordering is non-deterministic.
@@ -26,28 +24,33 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ParallelPortfolioNodeTraverser.class);
 
-  private final ExecutorService _executorService;
+  private final PoolExecutor _pool;
 
   /**
    * Creates a traverser.
-   *
+   * 
    * @param callback the callback to invoke, not null
    * @param executorService the executor service for parallel resolutions
    */
-  public ParallelPortfolioNodeTraverser(final PortfolioNodeTraversalCallback callback, final ExecutorService executorService) {
+  public ParallelPortfolioNodeTraverser(final PortfolioNodeTraversalCallback callback, final PoolExecutor executorService) {
     super(callback);
     ArgumentChecker.notNull(executorService, "executorService");
-    _executorService = executorService;
+    _pool = executorService;
   }
 
-  protected ExecutorService getExecutorService() {
-    return _executorService;
+  protected PoolExecutor.Service<?> createExecutorService() {
+    return _pool.createService(null);
   }
 
-  private final class Context {
+  private static final class Context {
 
-    private final AtomicInteger _count = new AtomicInteger();
-    private final Queue<Runnable> _work = new ConcurrentLinkedQueue<Runnable>();
+    private final PoolExecutor.Service<?> _executorService;
+    private final PortfolioNodeTraversalCallback _callback;
+
+    public Context(PoolExecutor.Service<?> executorService, PortfolioNodeTraversalCallback callback) {
+      _executorService = executorService;
+      _callback = callback;
+    }
 
     private final class NodeTraverser implements Runnable {
 
@@ -63,7 +66,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
       @Override
       public void run() {
-        getCallback().preOrderOperation(_node);
+        _callback.preOrderOperation(_node);
         final List<PortfolioNode> childNodes = _node.getChildNodes();
         final List<Position> positions = _node.getPositions();
         _count.addAndGet(childNodes.size() + positions.size());
@@ -72,7 +75,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             @Override
             public void run() {
               try {
-                getCallback().preOrderOperation(position);
+                _callback.preOrderOperation(_node, position);
               } finally {
                 childDone();
               }
@@ -88,7 +91,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
         if (_count.decrementAndGet() == 0) {
           if (_secondPass) {
             try {
-              getCallback().postOrderOperation(_node);
+              _callback.postOrderOperation(_node);
             } finally {
               if (_parent != null) {
                 _parent.childDone();
@@ -99,7 +102,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             final List<Position> positions = _node.getPositions();
             if (positions.isEmpty()) {
               try {
-                getCallback().postOrderOperation(_node);
+                _callback.postOrderOperation(_node);
               } finally {
                 if (_parent != null) {
                   _parent.childDone();
@@ -112,7 +115,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
                   @Override
                   public void run() {
                     try {
-                      getCallback().postOrderOperation(position);
+                      _callback.postOrderOperation(_node, position);
                     } finally {
                       childDone();
                     }
@@ -127,74 +130,13 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
     }
 
     private void submit(final Runnable runnable) {
-      _count.incrementAndGet();
-      if (_work.isEmpty()) {
-        synchronized (this) {
-          if (_work.isEmpty()) {
-            _work.add(runnable);
-            notify();
-            // Don't submit a job - there will be the caller to waitForCompletion
-            return;
-          } else {
-            _work.add(runnable);
-          }
-        }
-      } else {
-        _work.add(runnable);
-      }
-      getExecutorService().submit(new Runnable() {
-        @Override
-        public void run() {
-          // The original thread might have raced ahead so there might not be work for us in the queue
-          final Runnable underlying = _work.poll();
-          if (underlying != null) {
-            try {
-              underlying.run();
-            } catch (final Throwable t) {
-              s_logger.error("Error running work item {}", t.getMessage());
-              s_logger.warn("Caught exception", t);
-            } finally {
-              if (_count.decrementAndGet() == 0) {
-                // This was the last piece of work
-                synchronized (Context.this) {
-                  Context.this.notify();
-                }
-              }
-            }
-          }
-        }
-      });
+      _executorService.execute(runnable);
     }
 
     public void waitForCompletion() {
       try {
-        do {
-          Runnable work = _work.poll();
-          while (work != null) {
-            try {
-              work.run();
-            } catch (final Throwable t) {
-              s_logger.error("Error running work item {}", t.getMessage());
-              s_logger.warn("Caught exception", t);
-            }
-            if (_count.decrementAndGet() == 0) {
-              // This was the last piece of work - we're done
-              return;
-            }
-            work = _work.poll();
-          }
-          // Nothing in the queue but the background threads are busy
-          synchronized (this) {
-            if (_count.get() == 0) {
-              // We're done
-              return;
-            }
-            if (_work.isEmpty()) {
-              wait();
-            }
-          }
-        } while (true);
-      } catch (final InterruptedException e) {
+        _executorService.join();
+      } catch (InterruptedException e) {
         s_logger.info("Interrupted waiting for completion");
         throw new OpenGammaRuntimeException("interrupted", e);
       }
@@ -204,7 +146,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   /**
    * Traverse the nodes notifying using the callback.
-   *
+   * 
    * @param portfolioNode the node to start from, null does nothing
    */
   @Override
@@ -212,7 +154,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
     if (portfolioNode == null) {
       return;
     }
-    final Context context = new Context();
+    final Context context = new Context(createExecutorService(), getCallback());
     context.submit(context.new NodeTraverser(portfolioNode, null));
     context.waitForCompletion();
   }

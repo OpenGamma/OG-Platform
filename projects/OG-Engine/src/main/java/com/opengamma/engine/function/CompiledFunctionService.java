@@ -10,22 +10,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-import javax.time.InstantProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PoolExecutor;
+import com.opengamma.util.PoolExecutor.CompletionListener;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -41,8 +36,7 @@ public class CompiledFunctionService {
   private final FunctionCompilationContext _functionCompilationContext;
   private Set<FunctionDefinition> _reinitializingFunctionDefinitions;
   private Set<ObjectId> _reinitializingFunctionRequirements;
-  private boolean _localExecutorService;
-  private ExecutorService _executorService;
+  private PoolExecutor _executorService;
   private final FunctionReinitializer _reinitializer = new FunctionReinitializer() {
 
     @Override
@@ -62,35 +56,14 @@ public class CompiledFunctionService {
   };
 
   public CompiledFunctionService(final FunctionRepository functionRepository,
-                                 final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
+      final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
     _rawFunctionRepository = functionRepository;
     _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
-    _localExecutorService = true;
-    _executorService = createDefaultExecutorService();
-  }
-
-  protected ExecutorService createDefaultExecutorService() {
-    final int processors = Math.max(Runtime.getRuntime().availableProcessors(), 1);
-    final ThreadPoolExecutor executorService = new ThreadPoolExecutor(processors, processors, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-    executorService.allowCoreThreadTimeOut(true);
-    return executorService;
-  }
-
-  public void setExecutorService(final ExecutorService executorService) {
-    if (_localExecutorService) {
-      _executorService.shutdown();
-    }
-    if (executorService == null) {
-      _localExecutorService = true;
-      _executorService = createDefaultExecutorService();
-    } else {
-      _localExecutorService = false;
-      _executorService = executorService;
-    }
+    _executorService = new PoolExecutor(Math.max(Runtime.getRuntime().availableProcessors(), 1), "CFS");
   }
 
   private static final class StaticFunctionRepository implements FunctionRepository {
@@ -118,12 +91,33 @@ public class CompiledFunctionService {
 
   protected void initializeImpl(final long initId, final Collection<FunctionDefinition> functions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Initializing {} function definitions", functions.size());
-    final ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
-    final int nFunctions = functions.size();
-    getFunctionCompilationContext().setFunctionReinitializer(_reinitializer);
     final StaticFunctionRepository initialized = new StaticFunctionRepository(_initializedFunctionRepository);
+    final PoolExecutor.Service<FunctionDefinition> jobs = getExecutorService().createService(new CompletionListener<FunctionDefinition>() {
+
+      @Override
+      public void success(final FunctionDefinition function) {
+        if (function != null) {
+          synchronized (initialized) {
+            initialized.add(function);
+          }
+        }
+      }
+
+      @Override
+      public void failure(final Throwable error) {
+        s_logger.warn("Couldn't initialize function", error);
+        // Don't take any further action - the error has been logged and the function is not in the "initialized" set
+      }
+
+    });
+    getFunctionCompilationContext().setFunctionReinitializer(_reinitializer);
+    synchronized (initialized) {
+      for (final FunctionDefinition definition : functions) {
+        initialized.remove(definition);
+      }
+    }
     for (final FunctionDefinition definition : functions) {
-      completionService.submit(new Callable<FunctionDefinition>() {
+      jobs.execute(new Callable<FunctionDefinition>() {
         @Override
         public FunctionDefinition call() {
           try {
@@ -139,26 +133,13 @@ public class CompiledFunctionService {
           }
         }
       });
-      initialized.remove(definition);
     }
-    for (int i = 0; i < nFunctions; i++) {
-      Future<FunctionDefinition> future = null;
-      try {
-        future = completionService.take();
-      } catch (final InterruptedException e1) {
-        Thread.interrupted();
-        s_logger.warn("Interrupted while initializing function definitions.");
-        throw new OpenGammaRuntimeException("Interrupted while initializing function definitions. ViewProcessor not safe to use.");
-      }
-      try {
-        final FunctionDefinition function = future.get();
-        if (function != null) {
-          initialized.add(function);
-        }
-      } catch (final Exception e) {
-        s_logger.warn("Couldn't initialize function", e);
-        // Don't take any further action - the error has been logged and the function is not in the "initialized" set
-      }
+    try {
+      jobs.join();
+    } catch (final InterruptedException e) {
+      Thread.interrupted();
+      s_logger.warn("Interrupted while initializing function definitions.");
+      throw new OpenGammaRuntimeException("Interrupted while initializing function definitions. ViewProcessor not safe to use.");
     }
     _initializedFunctionRepository = initialized;
     getFunctionCompilationContext().setFunctionReinitializer(null);
@@ -168,7 +149,7 @@ public class CompiledFunctionService {
 
   /**
    * Initializes all functions.
-   *
+   * 
    * @return the set of object identifiers that should trigger re-initialization
    */
   public Set<ObjectId> initialize() {
@@ -184,7 +165,7 @@ public class CompiledFunctionService {
 
   /**
    * Initializes all functions.
-   *
+   * 
    * @param initId the initialization identifier
    * @return the set of object identifiers that should trigger re-initialization
    */
@@ -213,7 +194,7 @@ public class CompiledFunctionService {
 
   /**
    * Re-initializes functions that requested re-initialization during their previous initialization.
-   *
+   * 
    * @return the set of unique identifiers requested by any initialized functions that should trigger re-initialization
    */
   public synchronized Set<ObjectId> reinitialize() {
@@ -232,9 +213,9 @@ public class CompiledFunctionService {
   }
 
   /**
-   * Returns the underlying (raw) function repository. Definitions in the repository may or may not be properly initialized. If
-   * functions are needed that can be reliably used, use {@link #getInitializedFunctionRepository} instead.
-   *
+   * Returns the underlying (raw) function repository. Definitions in the repository may or may not be properly initialized. If functions are needed that can be reliably used, use
+   * {@link #getInitializedFunctionRepository} instead.
+   * 
    * @return the function repository, not null
    */
   public FunctionRepository getFunctionRepository() {
@@ -242,9 +223,8 @@ public class CompiledFunctionService {
   }
 
   /**
-   * Returns a repository of initialized functions. This may be a subset of the underlying (raw) repository if one or more threw
-   * exceptions during their {@link FunctionDefinition#init} calls.
-   *
+   * Returns a repository of initialized functions. This may be a subset of the underlying (raw) repository if one or more threw exceptions during their {@link FunctionDefinition#init} calls.
+   * 
    * @return the function repository, not null
    */
   public synchronized FunctionRepository getInitializedFunctionRepository() {
@@ -260,14 +240,20 @@ public class CompiledFunctionService {
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final long timestamp) {
-    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMillis(timestamp));
+    final FunctionCompilationContext context = getFunctionCompilationContext();
+    // TODO: [PLAT-2761] Temporary hack until the correct version/correction is passed in
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), context, getExecutorService(), Instant.ofEpochMilli(timestamp));
   }
 
-  public CompiledFunctionRepository compileFunctionRepository(final InstantProvider timestamp) {
-    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), timestamp);
+  public CompiledFunctionRepository compileFunctionRepository(final Instant timestamp) {
+    final FunctionCompilationContext context = getFunctionCompilationContext();
+    // TODO: [PLAT-2761] Temporary hack until the correct version/correction is passed in
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), context, getExecutorService(), timestamp);
   }
 
-  public ExecutorService getExecutorService() {
+  public PoolExecutor getExecutorService() {
     return _executorService;
   }
 

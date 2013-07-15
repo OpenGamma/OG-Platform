@@ -12,9 +12,8 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
@@ -73,15 +72,13 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
   }
 
   @Test
-  public void testPresentValue() {
+  public void presentValueYieldCurve() {
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = PresentValueCalculator.getInstance();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueCurveSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = NODE_CALCULATOR.calculateSensitivities(SWAP, senseCalculator, null, CURVE_BUNDLE_YIELD);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(SWAP, valueCalculator, null, CURVE_BUNDLE_YIELD);
-    assertArrayEquals(result.getData(), fdresult.getData(), TOLERANCE_SENSI);
+    final DoubleMatrix1D result = NODE_CALCULATOR.calculateSensitivities(getSwap(), senseCalculator, null, getYieldCurve());
+    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(getSwap(), valueCalculator, null, getYieldCurve());
+    assertArrayEquals(result.getData(), fdresult.getData(), getTolerance());
   }
-
-  //private static final ForexSwapDefinition FX_SWAP = ForexInstrumentsDescriptionDataSet.createForexSwapDefinition(); // EUR/USD - Near date: 2011-May26
 
   @Test
   /**
@@ -99,15 +96,15 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParam, curves);
     final DoubleMatrix1D resultCalculator = NODE_CALCULATOR.calculateSensitivities(swaption, pvcsc, null, sabrBundle);
     final DoubleMatrix1D resultFiniteDifference = finiteDiffNodeSensitivitiesYield(swaption, pvc, null, sabrBundle);
-    double notional = Math.abs(swaption.getUnderlyingSwap().getFirstLeg().getNthPayment(0).getNotional());
-    assertArrayEquals("Present Value Node Sensitivity", resultFiniteDifference.getData(), resultCalculator.getData(), notional * TOLERANCE_SENSI);
+    final double notional = Math.abs(swaption.getUnderlyingSwap().getFirstLeg().getNthPayment(0).getNotional());
+    assertArrayEquals("Present Value Node Sensitivity", resultFiniteDifference.getData(), resultCalculator.getData(), notional * getTolerance());
 
     final SwaptionPhysicalFixedIborSABRMethod method = SwaptionPhysicalFixedIborSABRMethod.getInstance();
     final InterestRateCurveSensitivity pvcsMethod = method.presentValueCurveSensitivity(swaption, sabrBundle);
     final DoubleMatrix1D resultMethod = NODE_CALCULATOR.curveToNodeSensitivities(pvcsMethod, sabrBundle);
     final DoubleMatrix1D resultMethod2 = NODE_CALCULATOR.curveToNodeSensitivities(pvcsMethod, curves);
-    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod.getData(), notional * TOLERANCE_SENSI);
-    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod2.getData(), notional * TOLERANCE_SENSI);
+    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod.getData(), notional * getTolerance());
+    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod2.getData(), notional * getTolerance());
   }
 
 }

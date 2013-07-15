@@ -18,11 +18,12 @@ import java.util.concurrent.Executors;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link RunQueue} implementations
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class RunQueueTest {
 
   private final ExecutorService _executor = Executors.newCachedThreadPool();

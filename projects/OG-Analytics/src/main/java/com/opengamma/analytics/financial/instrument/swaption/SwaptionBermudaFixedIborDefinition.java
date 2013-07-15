@@ -7,9 +7,7 @@ package com.opengamma.analytics.financial.instrument.swaption;
 
 import java.util.Arrays;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -18,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
@@ -25,7 +24,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<SwaptionBermudaFixedIbor> {
 
   /**
-   * The swaps underlying the swaption. There is one swap for each expiration date. 
+   * The swaps underlying the swaption. There is one swap for each expiration date.
    * The swap do not need to be identical; this allow to incorporate fees or changing margins in the description.
    */
   private final SwapFixedIborDefinition[] _underlyingSwap;
@@ -45,16 +44,16 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
    * @param expiryDate The swaption expiration dates.
    */
   public SwaptionBermudaFixedIborDefinition(final SwapFixedIborDefinition[] underlyingSwap, final boolean isLong, final ZonedDateTime[] expiryDate) {
-    Validate.notNull(expiryDate, "expiry date");
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.isTrue(underlyingSwap.length == expiryDate.length, "Number of swaps not in line with number of expiry dates");
+    ArgumentChecker.notNull(expiryDate, "expiry date");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(underlyingSwap.length == expiryDate.length, "Number of swaps not in line with number of expiry dates");
     this._underlyingSwap = underlyingSwap;
     this._isLong = isLong;
     this._expiryDate = expiryDate;
   }
 
   /**
-   * Creates a Bermudan swaption from a unique swap and the expiry dates. For each expiry dates, a exercise swap with the coupon that start on or 
+   * Creates a Bermudan swaption from a unique swap and the expiry dates. For each expiry dates, a exercise swap with the coupon that start on or
    * after the exercise date is created.
    * @param underlyingTotalSwap The underlying swap.
    * @param isLong Flag indicating if the option is long (true) or short (false).
@@ -62,9 +61,10 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
    * @return The Bermuda swaption.
    */
   public static SwaptionBermudaFixedIborDefinition from(final SwapFixedIborDefinition underlyingTotalSwap, final boolean isLong, final ZonedDateTime[] expiryDate) {
-    Validate.notNull(expiryDate, "expiry date");
-    Validate.notNull(underlyingTotalSwap, "underlying swap");
+    ArgumentChecker.notNull(expiryDate, "expiry date");
+    ArgumentChecker.notNull(underlyingTotalSwap, "underlying swap");
     final int nbExpiry = underlyingTotalSwap.getFixedLeg().getNumberOfPayments();
+    ArgumentChecker.isTrue(expiryDate.length == nbExpiry, "Number of expiries provided {} did not match the number of fixed payments of underlying swap {}", expiryDate.length, nbExpiry);
     final SwapFixedIborDefinition[] underlyingSwaps = new SwapFixedIborDefinition[nbExpiry];
     for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       underlyingSwaps[loopexp] = underlyingTotalSwap.trimStart(expiryDate[loopexp]);
@@ -74,7 +74,7 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
   }
 
   /**
-   * Gets the swaps underlying the swaption. There is one swap for each expiration date. 
+   * Gets the swaps underlying the swaption. There is one swap for each expiration date.
    * @return The underlying swaps.
    */
   public SwapFixedIborDefinition[] getUnderlyingSwap() {
@@ -98,9 +98,9 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
   }
 
   @Override
-  public SwaptionBermudaFixedIbor toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
+  public SwaptionBermudaFixedIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final int nbExpiry = _expiryDate.length;
     final double[] expiryTime = new double[nbExpiry];
     final double[] settleTime = new double[nbExpiry];
@@ -115,12 +115,14 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionBermudaFixedIborDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionBermudaFixedIborDefinition(this);
   }
 
@@ -135,7 +137,7 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -145,7 +147,7 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwaptionBermudaFixedIborDefinition other = (SwaptionBermudaFixedIborDefinition) obj;
+    final SwaptionBermudaFixedIborDefinition other = (SwaptionBermudaFixedIborDefinition) obj;
     if (!Arrays.equals(_expiryDate, other._expiryDate)) {
       return false;
     }

@@ -10,11 +10,11 @@ package com.opengamma.analytics.financial.model.finitedifference;
  */
 public interface BoundaryCondition2D {
 
-  double[] getLeftMatrixCondition(final ZZPDEDataBundle data, final double t, final double boundaryPosition);
+  double[] getLeftMatrixCondition(final double t, final double boundaryPosition);
 
-  double[] getRightMatrixCondition(final ZZPDEDataBundle data, final double t, final double boundaryPosition);
+  double[] getRightMatrixCondition(final double t, final double boundaryPosition);
 
-  double getConstant(final ZZPDEDataBundle data, final double t, final double boundaryPosition, final double gridSpacing);
+  double getConstant(final double t, final double boundaryPosition, final double gridSpacing);
 
   double getLevel();
 

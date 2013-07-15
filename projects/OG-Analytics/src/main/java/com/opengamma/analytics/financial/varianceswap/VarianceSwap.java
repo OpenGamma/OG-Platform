@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.varianceswap;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.equity.Derivative;
-import com.opengamma.analytics.financial.equity.DerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -20,7 +20,7 @@ import com.opengamma.util.money.Currency;
  * Because variance is additive in time, the value of a VarianceSwap can be decomposed at any point in time between realized and implied variance as
  * _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2 + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ]
  */
-public class VarianceSwap implements Derivative {
+public class VarianceSwap implements InstrumentDerivative {
   private final double _timeToObsStart;
   private final double _timeToObsEnd;
   private final double _timeToSettlement;
@@ -80,7 +80,7 @@ public class VarianceSwap implements Derivative {
    * @param other VarianceSwap to copy from
    */
   public VarianceSwap(final VarianceSwap other) {
-    ArgumentChecker.notNull(other, "null VarianceSwap to copy from");
+    ArgumentChecker.notNull(other, "variance swap to copy");
     _timeToObsStart = other._timeToObsStart;
     _timeToObsEnd = other._timeToObsEnd;
     _timeToSettlement = other._timeToSettlement;
@@ -114,7 +114,6 @@ public class VarianceSwap implements Derivative {
    * Gets the timeToSettlement.
    * @return the timeToSettlement
    */
-  @Override
   public double getTimeToSettlement() {
     return _timeToSettlement;
   }
@@ -159,10 +158,18 @@ public class VarianceSwap implements Derivative {
     return _varNotional;
   }
 
+  /**
+   * Gets the volStrike.
+   * @return the volStrike
+   */
   public double getVolStrike() {
     return Math.sqrt(_varStrike);
   }
 
+  /**
+   * Gets the volNotional.
+   * @return the volNotional
+   */
   public double getVolNotional() {
     return _varNotional * 2 * Math.sqrt(_varStrike);
   }
@@ -221,10 +228,7 @@ public class VarianceSwap implements Derivative {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof VarianceSwap)) {
       return false;
     }
     final VarianceSwap other = (VarianceSwap) obj;
@@ -269,12 +273,14 @@ public class VarianceSwap implements Derivative {
   }
 
   @Override
-  public <S, T> T accept(final DerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitVarianceSwap(this, data);
   }
 
   @Override
-  public <T> T accept(final DerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitVarianceSwap(this);
   }
 

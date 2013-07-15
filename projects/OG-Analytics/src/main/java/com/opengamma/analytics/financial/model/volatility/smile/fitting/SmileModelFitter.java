@@ -133,9 +133,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     };
   }
 
-  protected DoubleMatrix1D getMaximumStep() {
-    return null;
-  }
+  protected abstract DoubleMatrix1D getMaximumStep();
 
   protected abstract NonLinearParameterTransforms getTransform(final DoubleMatrix1D start);
 

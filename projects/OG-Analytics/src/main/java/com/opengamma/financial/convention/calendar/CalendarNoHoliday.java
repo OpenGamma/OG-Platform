@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.calendar;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * A calendar with no holiday (all days are working days).

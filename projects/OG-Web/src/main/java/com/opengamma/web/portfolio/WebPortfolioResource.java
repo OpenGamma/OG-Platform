@@ -47,14 +47,14 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
     FlexiBean out = createPortfolioData();
-    return getFreemarker().build("portfolios/portfolio.ftl", out);
+    return getFreemarker().build(HTML_DIR + "portfolio.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON() {
     FlexiBean out = createPortfolioData();
-    return Response.ok(getFreemarker().build("portfolios/jsonportfolio.ftl", out)).build();
+    return Response.ok(getFreemarker().build(JSON_DIR + "portfolio.ftl", out)).build();
   }
 
   private FlexiBean createPortfolioData() {
@@ -85,7 +85,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     if (name == null) {
       FlexiBean out = createRootData();
       out.put("err_nameMissing", true);
-      String html = getFreemarker().build("portfolios/portfolio-update.ftl", out);
+      String html = getFreemarker().build(HTML_DIR + "portfolio-update.ftl", out);
       return Response.ok(html).build();
     }
     URI uri = updatePortfolio(name, visibility, doc);

@@ -7,6 +7,7 @@ package com.opengamma.integration.masterdb;
 
 import static org.testng.AssertJUnit.assertNotNull;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -15,6 +16,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbPositionMaster.
@@ -25,9 +27,14 @@ public abstract class AbstractIntegrationDbPositionMasterTest extends AbstractLo
 
   private PositionMaster _posMaster;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.INTEGRATION)
   public void setUp() throws Exception {
     _posMaster = getTestHelper().getPositionMaster();
+  }
+
+  @AfterMethod(groups = TestGroup.INTEGRATION)
+  public void tearDown() throws Exception {
+    _posMaster = null;
   }
 
   protected PositionMaster getPositionMaster() {
@@ -35,7 +42,7 @@ public abstract class AbstractIntegrationDbPositionMasterTest extends AbstractLo
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(enabled = false, description = "Queries the entire database")
   public void test_queryAll() throws Exception {
     final PositionSearchRequest request = new PositionSearchRequest();
     request.setPagingRequest(PagingRequest.NONE);
