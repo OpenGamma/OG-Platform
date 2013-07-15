@@ -77,6 +77,19 @@ public class AnalyticCDSPricer {
   }
 
   /**
+   * The par spread par spread for a given yield and credit (hazard rate/survival) curve)
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @return the par spread
+   */
+  public double parSpread(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+    final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
+    return proLeg / rpv01;
+  }
+
+  /**
    * Sensitivity of the par spread (the fixed payment on the premium leg that make the PV of the CDS zero for a given yield
    * and credit (hazard rate/survival) curve) to the zero hazard rate of a given node (knot) of the credit curve. 
   * @param cds analytic description of a CDS traded at a certain time 

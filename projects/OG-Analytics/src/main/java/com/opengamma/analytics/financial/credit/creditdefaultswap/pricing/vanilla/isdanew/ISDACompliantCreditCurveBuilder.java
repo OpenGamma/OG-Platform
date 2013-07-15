@@ -25,6 +25,8 @@ public interface ISDACompliantCreditCurveBuilder {
    */
   ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double marketFractionalSpread, final ISDACompliantYieldCurve yieldCurve);
 
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double pointsUpfront);
+
   /**
    * Bootstrapper the credit curve, by making each market CDS in turn have zero clean price 
    * @param cds  The market CDSs - these are the reference instruments used to build the credit curve 
@@ -33,6 +35,8 @@ public interface ISDACompliantCreditCurveBuilder {
    * @return The credit curve 
    */
   ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] marketFractionalSpreads, final ISDACompliantYieldCurve yieldCurve);
+
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront);
 
   /**
    * Bootstrapper the credit curve from a single CDS, by making it have zero clean price. Obviously the resulting credit (hazard) curve will be flat.
