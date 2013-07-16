@@ -20,8 +20,6 @@ import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.jmx.support.MBeanServerFactoryBean;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.ServletContextAware;
@@ -185,23 +183,19 @@ public class ComponentRepositoryTest {
     assertEquals("forty-two", data.get("stringy"));
   }
 
-  @ManagedResource
   public static class TestMBean {
 
     private int answer = 42;
 
-    @ManagedAttribute(description = "the answer")
     public int getAnswer() {
       return answer;
     }
   }
 
-  @ManagedResource
   public static class TestMXBean implements TestMXInterface {
 
     private ComplexAttribute answer = new ComplexAttribute();
 
-    @ManagedAttribute(description = "the answer")
     public ComplexAttribute getAnswer() {
       return answer;
     }
