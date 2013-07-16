@@ -230,35 +230,40 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
   @Test
   public void linearDataTest() {
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8. };
-    //    final double[] yValues = new double[] {1., 3., 5., 7., 9., 11., 13., 15. };
-    final double[] yValues = new double[] {1., 1., 1., 1., 1., 1., 1., 1. };
+    final double[][] yValues = new double[][] { {0., 0., 0., 0., 0., 0., 0., 0. }, {1., 1., 1., 1., 1., 1., 1., 1. }, {1., 3., 5., 7., 9., 11., 13., 15. }, {19., 14., 9., 4., -1., -6., -11., -16. } };
     final int nData = xValues.length;
-    double[] yValuesUp = Arrays.copyOf(yValues, nData);
-    double[] yValuesDw = Arrays.copyOf(yValues, nData);
-    final double[] xKeys = new double[10 * nData];
-    final double xMin = xValues[0];
-    final double xMax = xValues[nData - 1];
-    for (int i = 0; i < 10 * nData; ++i) {
-      xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-    }
+    final int dim = yValues.length;
 
-    Interpolator1DDataBundle dataBund = INTERP1D_NAT.getDataBundleFromSortedArrays(xValues, yValues);
+    for (int l = 0; l < dim; ++l) {
 
-    for (int j = 1; j < nData; ++j) {
-      yValuesUp[j] = yValues[j] * (1. + EPS);
-      yValuesDw[j] = yValues[j] * (1. - EPS);
-      Interpolator1DDataBundle dataBundUp = INTERP1D_NAT.getDataBundle(xValues, yValuesUp);
-      Interpolator1DDataBundle dataBundDw = INTERP1D_NAT.getDataBundle(xValues, yValuesDw);
+      double[] yValuesUp = Arrays.copyOf(yValues[l], nData);
+      double[] yValuesDw = Arrays.copyOf(yValues[l], nData);
+      final double[] xKeys = new double[10 * nData];
+      final double xMin = xValues[0];
+      final double xMax = xValues[nData - 1];
       for (int i = 0; i < 10 * nData; ++i) {
-        double res0 = 0.5 * (INTERP1D_NAT.interpolate(dataBundUp, xKeys[i]) - INTERP1D_NAT.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        //        double res1 = (INTERP1D_NAT.interpolate(dataBundUp, xKeys[i]) - INTERP1D_NAT.interpolate(dataBund, xKeys[i])) / EPS / yValues[j];
-        //        double res2 = (INTERP1D_NAT.interpolate(dataBund, xKeys[i]) - INTERP1D_NAT.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        //        System.out.println(res0 + "\t" + res1 + "\t" + res2 + "\t" + INTERP1D_NAT.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j]);
-        assertEquals(res0, INTERP1D_NAT.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[j]) * EPS, EPS));
+        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
       }
-      yValuesUp[j] = yValues[j];
-      yValuesDw[j] = yValues[j];
-      //      System.out.println("\n");
+      final NonnegativityPreservingCubicSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK, INTERP1D_AKIMA };
+      final int nMethods = wrappedInterp.length;
+
+      for (int k = 0; k < nMethods; ++k) {
+        Interpolator1DDataBundle dataBund = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues[l]);
+
+        for (int j = 1; j < nData; ++j) {
+          final double den = Math.abs(yValues[l][j]) == 0. ? EPS : yValues[l][j] * EPS;
+          yValuesUp[j] = Math.abs(yValues[l][j]) == 0. ? EPS : yValues[l][j] * (1. + EPS);
+          yValuesDw[j] = Math.abs(yValues[l][j]) == 0. ? -EPS : yValues[l][j] * (1. - EPS);
+          Interpolator1DDataBundle dataBundUp = wrappedInterp[k].getDataBundle(xValues, yValuesUp);
+          Interpolator1DDataBundle dataBundDw = wrappedInterp[k].getDataBundle(xValues, yValuesDw);
+          for (int i = 0; i < 10 * nData; ++i) {
+            double res0 = 0.5 * (wrappedInterp[k].interpolate(dataBundUp, xKeys[i]) - wrappedInterp[k].interpolate(dataBundDw, xKeys[i])) / den;
+            assertEquals(res0, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[l][j]) * EPS, EPS));
+          }
+          yValuesUp[j] = yValues[l][j];
+          yValuesDw[j] = yValues[l][j];
+        }
+      }
     }
   }
 
