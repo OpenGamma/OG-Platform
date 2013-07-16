@@ -78,5 +78,5 @@ target/
 .idea/scopes/scope_settings.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/uiDesigner.xml
+.idea/checkstyle-idea.xml
 atlassian-ide-plugin.xml
-checkstyle-idea.xml
