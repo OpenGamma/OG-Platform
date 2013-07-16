@@ -113,7 +113,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
    * The name of an ER future portfolio.
    */
   public static final String ER_PORTFOLIO_NAME = "ER Portfolio";
-  /** 
+  /**
    * The name of a US Government bond portfolio.
    */
   public static final String US_GOVERNMENT_BOND_PORTFOLIO_NAME = "Government Bonds";
@@ -127,8 +127,8 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
@@ -246,9 +246,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
-    }    
+    }
   }
-  
+
   private void loadDefaultVolatilityCubeDefinition() {
     final Log log = new Log("Creating volatility cube definitions");
     try {
@@ -318,9 +318,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating example equity option portfolio");
     try {
       URL resource = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip");
-      final String file = unpackJar(resource); 
+      final String file = unpackJar(resource);
       final PortfolioLoader equityOptionLoader = new PortfolioLoader(getToolContext(), EQUITY_OPTION_PORTFOLIO_NAME, null,
-              file, true, true, true, true, false, true, false, null);
+          file, true, true, true, true, false, true, false, null);
       equityOptionLoader.execute();
       log.done();
     } catch (final RuntimeException t) {
@@ -332,9 +332,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     final Log log = new Log("Creating example future portfolio");
     try {
       URL resource = ExampleEquityPortfolioLoader.class.getResource("futures.zip");
-      final String file = unpackJar(resource); 
+      final String file = unpackJar(resource);
       final PortfolioLoader futureLoader = new PortfolioLoader(getToolContext(), FUTURE_PORTFOLIO_NAME, null,
-              file, true, true, true, true, false, true, false, null);
+          file, true, true, true, true, false, true, false, null);
       futureLoader.execute();
       log.done();
     } catch (final RuntimeException t) {
@@ -417,7 +417,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.fail(t);
     }
   }
-  
+
   private void loadFXForwardPortfolio() {
     Log log = new Log("Creating example FX forward portfolio");
     try {
@@ -437,7 +437,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       log.fail(t);
     }
   }
-  
+
   private void loadBondPortfolio() {
     final Log log = new Log("Creating example bond portfolio");
     try {
@@ -500,7 +500,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   private static String unpackJar(URL resource) {
     String file = resource.getPath();
     if (file.contains(".jar!/")) {
-      s_logger.info("Unpacking zip file located within a jar file: {}", resource);
+      s_logger.debug("Unpacking zip file located within a jar file: {}", resource);
       String jarFileName = StringUtils.substringBefore(file, "!/");
       if (jarFileName.startsWith("file:/")) {
         jarFileName = jarFileName.substring(5);
@@ -513,10 +513,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       jarFileName = StringUtils.replace(jarFileName, "%20", " ");
       String innerFileName = StringUtils.substringAfter(file, "!/");
       innerFileName = StringUtils.replace(innerFileName, "%20", " ");
-      s_logger.info("Unpacking zip file found jar file: {}", jarFileName);
-      s_logger.info("Unpacking zip file found zip file: {}", innerFileName);
-      try {
-        JarFile jar = new JarFile(jarFileName);
+      s_logger.debug("Unpacking zip file found jar file: {}", jarFileName);
+      s_logger.debug("Unpacking zip file found zip file: {}", innerFileName);
+      try (JarFile jar = new JarFile(jarFileName)) {
         JarEntry jarEntry = jar.getJarEntry(innerFileName);
         try (InputStream in = jar.getInputStream(jarEntry)) {
           File tempFile = File.createTempFile("simulated-examples-database-populator-", ".zip");
