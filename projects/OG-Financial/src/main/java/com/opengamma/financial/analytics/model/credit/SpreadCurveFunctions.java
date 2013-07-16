@@ -84,7 +84,6 @@ public class SpreadCurveFunctions {
     return dates;
   }
 
-
   public static final Tenor[] getBuckets(final String inputs) {
     if (inputs == null || inputs.isEmpty()) {
       return BUCKET_TENORS.toArray(new Tenor[BUCKET_TENORS.size()]);
@@ -185,7 +184,7 @@ public class SpreadCurveFunctions {
    * @return the spread curve for the given cds
    */
   public static double[] getSpreadCurve(final LegacyVanillaCreditDefaultSwapDefinition cds, final NodalTenorDoubleCurve spreadCurve, final ZonedDateTime[] bucketDates,
-                                        final StandardCDSQuotingConvention quoteConvention, final ZonedDateTime valuationDate, final ISDACompliantYieldCurve isdaCurve, final ZonedDateTime startDate) {
+      final StandardCDSQuotingConvention quoteConvention, final ZonedDateTime valuationDate, final ISDACompliantYieldCurve isdaCurve, final ZonedDateTime startDate) {
     ArgumentChecker.notNull(spreadCurve, "spread curve");
     ArgumentChecker.notNull(bucketDates, "bucket dates");
     ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
@@ -212,7 +211,7 @@ public class SpreadCurveFunctions {
           // can price type vary?
           //FIXME: Conversion to percentage should happen upstream or in analytics
           final CDSAnalytic analytic = CDSAnalyticConverter.create(cds, valuationDate.toLocalDate());
-          spreadRate = PUF_converter.parSpread(analytic, cds.getParSpread() * s_tenminus4, isdaCurve, spreadRate / 100.0);
+          spreadRate = PUF_converter.pufToQuotedSpread(analytic, cds.getParSpread() * s_tenminus4, isdaCurve, spreadRate / 100.0);
           break;
         default:
           throw new OpenGammaRuntimeException("Unknown quote convention " + quoteConvention);

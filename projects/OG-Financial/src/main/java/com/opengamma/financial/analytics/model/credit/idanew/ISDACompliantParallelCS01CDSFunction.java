@@ -29,9 +29,9 @@ public class ISDACompliantParallelCS01CDSFunction extends ISDACompliantCDSFuncti
 
   @Override
   protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
-                           final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final double[] spreads) {
-    final double cs01 = _pricer.parallelCS01FromParSpreads(analytic, cds.getParSpread() * s_tenminus4, yieldCurve, curveAnalytics, spreads,
-                                                   s_tenminus4, BumpType.ADDITIVE);
+      final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final double[] spreads) {
+    final double cs01 = _pricer.parallelCS01FromQuotedSpread(analytic, cds.getParSpread() * s_tenminus4, yieldCurve, spreads[0],
+        s_tenminus4, BumpType.ADDITIVE);
     return Double.valueOf(cs01 * cds.getNotional() * s_tenminus4);
   }
 
