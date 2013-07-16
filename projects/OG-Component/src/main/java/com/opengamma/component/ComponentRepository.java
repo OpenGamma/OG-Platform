@@ -488,6 +488,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       typeInfo.getInfoMap().put(info.getClassifier(), info);
       registeredComponent(info, instance);
 
+      // If the component being registered is also an MBean, then register it as such
+      if (JmxUtils.isMBean(instance.getClass())) {
+        registerMBean(instance);
+      }
     } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registration: " + key, ex);
