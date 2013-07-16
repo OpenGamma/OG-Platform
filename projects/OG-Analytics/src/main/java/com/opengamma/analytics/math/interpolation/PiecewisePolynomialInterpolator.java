@@ -47,11 +47,11 @@ public abstract class PiecewisePolynomialInterpolator {
     double res = 0.;
 
     int indicator = 0;
-    if (xKey <= knots[1]) {
+    if (xKey < knots[1]) {
       indicator = 0;
     } else {
       for (int i = 1; i < nKnots - 1; ++i) {
-        if (knots[i] < xKey) {
+        if (knots[i] <= xKey) {
           indicator = i;
         }
       }
@@ -88,11 +88,11 @@ public abstract class PiecewisePolynomialInterpolator {
 
     for (int j = 0; j < keyLength; ++j) {
       int indicator = 0;
-      if (xKeys[j] <= knots[1]) {
+      if (xKeys[j] < knots[1]) {
         indicator = 0;
       } else {
         for (int i = 1; i < nKnots - 1; ++i) {
-          if (knots[i] < xKeys[j]) {
+          if (knots[i] <= xKeys[j]) {
             indicator = i;
           }
         }
@@ -207,6 +207,14 @@ public abstract class PiecewisePolynomialInterpolator {
   public abstract PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues);
 
   /**
+   * Hyman filter modifies derivative values at knot points which are initially computed by a "primary" interpolator
+   * @return The primary interpolator for Hyman filter, interpolation method itself for other interpolators
+   */
+  public PiecewisePolynomialInterpolator getPrimaryMethod() {
+    return this;
+  }
+
+  /**
    * @param coefs {a_n,a_{n-1},...} of f(x) = a_n x^{n} + a_{n-1} x^{n-1} + ....
    * @param x 
    * @param leftknot Knot specifying underlying interpolation function
@@ -225,50 +233,4 @@ public abstract class PiecewisePolynomialInterpolator {
 
     return res;
   }
-
-  //  protected DoubleMatrix2D [] getSensitivityByFiniteDifference(final double [] xValues, final double [] yValues, final double eps) {
-  //    final int nData = yValues.length;
-  //    final double [][] yValuesUp = getUpValues(yValues, eps);
-  //    final double [][] yValuesDw = getUpValues(yValues, eps);
-  //    final DoubleMatrix2D [] res = new DoubleMatrix2D[nData-1];
-  //    
-  //    for (int i= 0;i<nData;++i) {
-  //    final DoubleMatrix2D coefUp = this.interpolate(xValues, yValuesUp[i]).getCoefMatrix();
-  //    final DoubleMatrix2D coefDw = this.interpolate(xValues, yValuesDw[i]).getCoefMatrix();
-  //    
-  //    final int nIntervals = coefUp.getNumberOfRows();
-  //    final int nCoefs = coefUp.getNumberOfColumns();
-  //    final double [][] tmp = new double[nIntervals][nCoefs];
-  //    
-  //    for (int j=0;j<nIntervals;++j) {
-  //      for(int k =0;k<nCoefs;++k) {
-  //        tmp[k][j]
-  //      }
-  //    }
-  //    }
-  //  }
-  //  
-  //  private double[][] getUpValues(final double[] values, final double eps) {
-  //    final int nData = values.length;
-  //    final double[][] res = new double[nData][nData];
-  //
-  //    for (int i = 0; i < nData; ++i) {
-  //      System.arraycopy(values, 0, res[i], 0, nData);
-  //      final double ref = values[i];
-  //      res[i][i] = ref == 0. ? eps : ref * (1. + eps);
-  //    }
-  //    return res;
-  //  }
-  //
-  //  private double[][] getDownValues(final double[] values, final double eps) {
-  //    final int nData = values.length;
-  //    final double[][] res = new double[nData][nData];
-  //
-  //    for (int i = 0; i < nData; ++i) {
-  //      System.arraycopy(values, 0, res[i], 0, nData);
-  //      final double ref = values[i];
-  //      res[i][i] = ref == 0. ? eps : ref * (1. - eps);
-  //    }
-  //    return res;
-  //  }
 }

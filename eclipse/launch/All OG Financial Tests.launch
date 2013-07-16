@@ -44,6 +44,7 @@
 <listEntry value="com.opengamma.financial.security"/>
 <listEntry value="com.opengamma.financial.security.cds"/>
 <listEntry value="com.opengamma.financial.security.equity"/>
+<listEntry value="com.opengamma.financial.security.swap"/>
 <listEntry value="com.opengamma.financial.view"/>
 <listEntry value="com.opengamma.financial.convention"/>
 </listAttribute>

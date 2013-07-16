@@ -59,7 +59,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
-import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderCalibrationEngine;
+import com.opengamma.analytics.financial.provider.method.CalibrationEngineWithCalculators;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderLMMDDCalibrationEngine;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderLMMDDCalibrationObjective;
 import com.opengamma.analytics.financial.provider.sensitivity.libormarket.ParameterSensitivityLMMDDDiscountInterpolatedFDCalculator;
@@ -86,7 +86,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
   private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
 
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", TARGET);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
@@ -136,7 +136,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final int NB_PATH = 12500;
   //  private static final LiborMarketModelMonteCarloMethod METHOD_LMM_MC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-  private static final double[] MONEYNESS = new double[] {-0.0100, 0, 0.0100};
+  private static final double[] MONEYNESS = new double[] {-0.0100, 0, 0.0100 };
   private static final SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod METHOD_SABR_LMM_ATBEST = new SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod(MONEYNESS, PARAMETERS_LMM);
   private static final SwaptionPhysicalFixedIborBasketMethod METHOD_BASKET = SwaptionPhysicalFixedIborBasketMethod.getInstance();
 
@@ -319,8 +319,8 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
    * Calibrate and price an amortized swaption.
    */
   public void calibrateExactPriceAmortized() {
-    final int[] swapTenorYear = {1, 2, 3, 4, 5};
-    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20}; // For 5Y amortization
+    final int[] swapTenorYear = {1, 2, 3, 4, 5 };
+    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20 }; // For 5Y amortization
     //    double[] amortization = new double[] {1.00, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10}; // For 10Y amortization
     final SwapFixedIborDefinition[] swapCalibrationDefinition = new SwapFixedIborDefinition[swapTenorYear.length];
     final SwaptionPhysicalFixedIborDefinition[] swaptionCalibrationDefinition = new SwaptionPhysicalFixedIborDefinition[swapTenorYear.length];
@@ -354,7 +354,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     final SuccessiveRootFinderLMMDDCalibrationObjective objective = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParameters, EUR);
-    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objective);
+    final CalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objective);
     calibrationEngine.addInstrument(swaptionCalibration2, PVSSC);
     calibrationEngine.calibrate(SABR_MULTICURVES);
     final LiborMarketModelDisplacedDiffusionProviderInterface lmm = new LiborMarketModelDisplacedDiffusionProvider(MULTICURVES, lmmParameters, EUR);
@@ -387,7 +387,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final LiborMarketModelDisplacedDiffusionParameters lmmParametersShift = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParametersDisplacementAngle(REFERENCE_DATE,
         swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     final SuccessiveRootFinderLMMDDCalibrationObjective objectiveShift = new SuccessiveRootFinderLMMDDCalibrationObjective(lmmParametersShift, EUR);
-    final SuccessiveRootFinderCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngineShift = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objectiveShift);
+    final CalibrationEngineWithCalculators<SABRSwaptionProviderInterface> calibrationEngineShift = new SuccessiveRootFinderLMMDDCalibrationEngine<>(objectiveShift);
     calibrationEngineShift.addInstrument(swaptionCalibration2, PVSSC);
     final LiborMarketModelDisplacedDiffusionProvider lmmBundleShift = new LiborMarketModelDisplacedDiffusionProvider(MULTICURVES, lmmParametersShift, EUR);
 
@@ -475,7 +475,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
    * Calibrate and price an amortized swaption.
    */
   public void calibrateAtBestPriceAmortized() {
-    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20}; // For 5Y amortization
+    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20 }; // For 5Y amortization
     final int nbPeriods = amortization.length;
     final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.ofYears(nbPeriods), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
     //    SwapFixedCoupon<Coupon> swap = swapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -496,9 +496,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
     // SABR parameters sensitivity (parallel shift check). The sensitivities are not exact; in the approximation a small "second order" term is ignored
     final PresentValueSABRSensitivityDataBundle pvss = METHOD_SABR_LMM_ATBEST.presentValueSABRSensitivity(swaptionAmortized, SABR_MULTICURVES);
-    final double[] shift = new double[] {0.0001, 0.0001, 0.0001};
-    final double[] toleranceSABRSensi = new double[] {5.0E+4, 5.0E+3, 1.0E+4};
-    final double[] sensiComputed = new double[] {pvss.getAlpha().toSingleValue(), pvss.getRho().toSingleValue(), pvss.getNu().toSingleValue()};
+    final double[] shift = new double[] {0.0001, 0.0001, 0.0001 };
+    final double[] toleranceSABRSensi = new double[] {5.0E+4, 5.0E+3, 1.0E+4 };
+    final double[] sensiComputed = new double[] {pvss.getAlpha().toSingleValue(), pvss.getRho().toSingleValue(), pvss.getNu().toSingleValue() };
     final double[] sensiExpected = new double[shift.length];
     SABRInterestRateParameters sabrParameterShift;
     SABRSwaptionProvider sabrBundleShift;

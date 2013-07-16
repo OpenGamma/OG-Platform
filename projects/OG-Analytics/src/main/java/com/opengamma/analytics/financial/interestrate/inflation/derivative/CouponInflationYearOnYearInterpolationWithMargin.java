@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 import java.util.Arrays;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.instrument.inflation.CouponInflationMargin;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationWithMargin;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  * The pay-off is paymentYearFraction*((final index / start index - 1)+Margin) * notional if the notional is not paid and final index / start index * notional if the notional is paid.
  */
-public class CouponInflationYearOnYearInterpolationWithMargin extends CouponInflation implements CouponInflationMargin {
+public class CouponInflationYearOnYearInterpolationWithMargin extends CouponInflation implements CouponInflationWithMargin {
 
   /**
    * The additive factor (margin).

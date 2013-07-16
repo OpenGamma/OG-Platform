@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -144,8 +144,8 @@ public class CurveNodeToDefinitionConverter {
           final BusinessDayConvention businessDayConvention = depositConvention.getBusinessDayConvention();
           final boolean isEOM = depositConvention.isIsEOM();
           final DayCount dayCount = depositConvention.getDayCount();
-          final int daysToSettle = depositConvention.getDaysToSettle();
-          final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, daysToSettle, calendar);
+          final int settlementDays = depositConvention.getSettlementDays();
+          final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, settlementDays, calendar);
           final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar);
           final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityPeriod, businessDayConvention, calendar, isEOM);
           final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
@@ -157,8 +157,8 @@ public class CurveNodeToDefinitionConverter {
           final BusinessDayConvention businessDayConvention = iborConvention.getBusinessDayConvention();
           final boolean isEOM = iborConvention.isIsEOM();
           final DayCount dayCount = iborConvention.getDayCount();
-          final int daysToSettle = iborConvention.getDaysToSettle();
-          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, startPeriod.plusDays(daysToSettle), businessDayConvention, calendar);
+          final int settlementDays = iborConvention.getSettlementDays();
+          final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(now, startPeriod.plusDays(settlementDays), businessDayConvention, calendar);
           final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityPeriod, businessDayConvention, calendar, isEOM);
           final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
           final int spotLag = 0; //TODO
@@ -213,7 +213,7 @@ public class CurveNodeToDefinitionConverter {
         final Currency currency = indexConvention.getCurrency();
         final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
         final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-        final int settlementDays = indexConvention.getDaysToSettle();
+        final int settlementDays = indexConvention.getSettlementDays();
         final int spotLag = 0; //TODO
         final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
         final DayCount dayCount = indexConvention.getDayCount();
@@ -255,10 +255,10 @@ public class CurveNodeToDefinitionConverter {
         final Tenor forwardTenor = fxForward.getMaturityTenor();
         final double payAmount = 1;
         final double receiveAmount = forwardRate;
-        final int daysToSettle = spotConvention.getDaysToSettle();
+        final int settlementDays = spotConvention.getSettlementDays();
         final ExternalId settlementRegion = forwardConvention.getSettlementRegion();
         final Calendar settlementCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, settlementRegion);
-        final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, daysToSettle, settlementCalendar);
+        final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, settlementDays, settlementCalendar);
         final ZonedDateTime exchangeDate = ScheduleCalculator.getAdjustedDate(spotDate, forwardTenor.getPeriod(), forwardConvention.getBusinessDayConvention(), settlementCalendar,
             forwardConvention.isIsEOM());
         return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, payAmount, -receiveAmount);
@@ -383,7 +383,7 @@ public class CurveNodeToDefinitionConverter {
           throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
         }
         final PriceIndexConvention priceIndexConvention = (PriceIndexConvention) convention;
-        final int settlementDays = fixedLegConvention.getDaysToSettle();
+        final int settlementDays = fixedLegConvention.getSettlementDays();
         final Period tenor = inflationNode.getTenor().getPeriod();
         final double notional = 1;
         //TODO business day convention and currency are in both conventions - should we enforce that they're the same or use
@@ -431,7 +431,7 @@ public class CurveNodeToDefinitionConverter {
         final DayCount dayCount = convention.getDayCount();
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
         final boolean eom = convention.isIsEOM();
-        final int settlementDays = convention.getDaysToSettle();
+        final int settlementDays = convention.getSettlementDays();
         final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
         final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
@@ -458,13 +458,13 @@ public class CurveNodeToDefinitionConverter {
         final int spotLag = 0; //TODO
         final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
         final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
-        final int settlementDays = indexConvention.getDaysToSettle();
+        final int settlementDays = convention.getSettlementDays();
         final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
         return AnnuityCouponIborDefinition.from(settlementDate, maturityTenor, 1, iborIndex, isPayer, calendar);
       }
 
       @SuppressWarnings("synthetic-access")
-      private AnnuityCouponOISSimplifiedDefinition getOISLeg(final OISLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
+      private AnnuityCouponONSimplifiedDefinition getOISLeg(final OISLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
         final OvernightIndexConvention indexConvention = (OvernightIndexConvention) _conventionSource.getConvention(convention.getOvernightIndexConvention());
         final Currency currency = indexConvention.getCurrency();
         final DayCount dayCount = indexConvention.getDayCount();
@@ -478,7 +478,7 @@ public class CurveNodeToDefinitionConverter {
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
         final int paymentLag = convention.getPaymentDelay();
         final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
-        return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention,
+        return AnnuityCouponONSimplifiedDefinition.from(settlementDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention,
             paymentPeriod, isEOM);
       }
 

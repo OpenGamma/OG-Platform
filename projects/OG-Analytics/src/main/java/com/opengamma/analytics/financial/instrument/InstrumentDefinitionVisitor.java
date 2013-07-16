@@ -90,8 +90,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
@@ -270,13 +271,17 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCapFloorIborDefinition(CapFloorIborDefinition payment);
 
-  RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponOISDefinition(CouponONDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponOISDefinition(CouponOISDefinition payment);
+  RESULT_TYPE visitCouponOISDefinition(CouponONDefinition payment);
 
-  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponONSimplifiedDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponOISSimplifiedDefinition payment);
+  RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponONSimplifiedDefinition payment);
+
+  RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment);
 
   RESULT_TYPE visitCouponCMSDefinition(CouponCMSDefinition payment, DATA_TYPE data);
 

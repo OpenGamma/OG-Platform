@@ -354,12 +354,12 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     return new MarketDataSelectionGraphManipulator(executionOptionsMarketDataSelector, specificSelectors);
   }
 
-  private Map<String, Map<DistinctMarketDataSelector,FunctionParameters>> extractSpecificSelectors(ViewDefinition viewDefinition) {
+  private Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> extractSpecificSelectors(ViewDefinition viewDefinition) {
 
     ConfigSource configSource = getProcessContext().getConfigSource();
     Collection<ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurations();
 
-    Map<String, Map<DistinctMarketDataSelector,FunctionParameters>> specificSelectors = new HashMap<>();
+    Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificSelectors = new HashMap<>();
 
     for (ViewCalculationConfiguration calcConfig : calculationConfigurations) {
 
@@ -367,8 +367,14 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
       UniqueId scenarioParametersId = calcConfig.getScenarioParametersId();
       if (scenarioId != null) {
         ScenarioDefinitionFactory scenarioDefinitionFactory = configSource.getConfig(ScenarioDefinitionFactory.class, scenarioId);
-        ScenarioParameters scenarioParameters = configSource.getConfig(ScenarioParameters.class, scenarioParametersId);
-        ScenarioDefinition scenarioDefinition = scenarioDefinitionFactory.create(scenarioParameters.getParameters());
+        Map<String, Object> parameters;
+        if (scenarioParametersId != null) {
+          ScenarioParameters scenarioParameters = configSource.getConfig(ScenarioParameters.class, scenarioParametersId);
+          parameters = scenarioParameters.getParameters();
+        } else {
+          parameters = null;
+        }
+        ScenarioDefinition scenarioDefinition = scenarioDefinitionFactory.create(parameters);
         specificSelectors.put(calcConfig.getName(), new HashMap<>(scenarioDefinition.getDefinitionMap()));
       } else {
         // Ensure we have an entry for each graph, even if selectors are empty
@@ -961,7 +967,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     // Map any nodes from the old portfolio structure to the new one
     final Map<UniqueId, UniqueId> mapped;
     if (newPortfolio != null) {
-      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(), newPortfolio.getRootNode());
+      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(),
+                                                             newPortfolio.getRootNode());
     } else {
       mapped = Collections.emptyMap();
     }

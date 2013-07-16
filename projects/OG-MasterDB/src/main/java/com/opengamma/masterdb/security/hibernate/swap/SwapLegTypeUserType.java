@@ -5,12 +5,14 @@
  */
 package com.opengamma.masterdb.security.hibernate.swap;
 
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
@@ -62,6 +64,18 @@ public class SwapLegTypeUserType extends EnumUserType<SwapLegType> {
       @Override
       public String visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
         return FLOATING_VARIANCE;
+      }
+
+      @Override
+      public String visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+        //TODO
+        throw new UnsupportedOperationException("Cannot handle inflation index swap legs");
+      }
+
+      @Override
+      public String visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+        //TODO
+        throw new UnsupportedOperationException("Cannot handle fixed inflation swap legs");
       }
     });
   }

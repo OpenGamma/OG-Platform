@@ -31,6 +31,8 @@ public final class Interpolator1DFactory {
   public static final String RATIONAL_FUNCTION = "RationalFunction";
   /** Step */
   public static final String STEP = "Step";
+  /** Step with the value in the interval equal to the value at the upper bound */
+  public static final String STEP_UPPER = "StepUpper";
   /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
   /**Monotonicity-Preserving-Cubic-Spline
@@ -64,6 +66,8 @@ public final class Interpolator1DFactory {
   public static final NaturalCubicSplineInterpolator1D NATURAL_CUBIC_SPLINE_INSTANCE = new NaturalCubicSplineInterpolator1D();
   /** Step instance */
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
+  /** Step-Upper instance */
+  public static final StepUpperInterpolator1D STEP_UPPER_INSTANCE = new StepUpperInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
   /** MonotonicityPreservingCubicSpline
@@ -104,6 +108,8 @@ public final class Interpolator1DFactory {
     instanceNames.put(NaturalCubicSplineInterpolator1D.class, NATURAL_CUBIC_SPLINE);
     staticInstances.put(STEP, STEP_INSTANCE);
     instanceNames.put(StepInterpolator1D.class, STEP);
+    staticInstances.put(STEP_UPPER, STEP_UPPER_INSTANCE);
+    instanceNames.put(StepUpperInterpolator1D.class, STEP_UPPER);
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(MONOTONIC_CUBIC, MONOTONIC_CUBIC_INSTANCE);

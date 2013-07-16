@@ -26,9 +26,9 @@ public abstract class CalibrationEngineWithPrices<DATA_TYPE extends ParameterPro
   private final List<InstrumentDerivative> _basket;
 
   /**
-   * The prices (usually market quotes or prices calculating with a simpler (than the one we wnat ot calibrate) models) on which we are doing the calibration.
+   * The prices (usually market quotes or prices calculating with a simpler (than the one we want to calibrate) models) on which we are doing the calibration.
    */
-  private final List<Double> _calibrationPrice;
+  private final List<Double> _calibrationPrices;
 
   /**
    * Constructor of the calibration engine. The basket and calculator list are empty.
@@ -37,7 +37,7 @@ public abstract class CalibrationEngineWithPrices<DATA_TYPE extends ParameterPro
    */
   public CalibrationEngineWithPrices(final FXMatrix fxMatrix, final Currency ccy) {
     _basket = new ArrayList<InstrumentDerivative>();
-    _calibrationPrice = new ArrayList<Double>();
+    _calibrationPrices = new ArrayList<Double>();
   }
 
   /**
@@ -47,7 +47,7 @@ public abstract class CalibrationEngineWithPrices<DATA_TYPE extends ParameterPro
    */
   public void addInstrument(final InstrumentDerivative instrument, final double calibrationPrice) {
     _basket.add(instrument);
-    _calibrationPrice.add(calibrationPrice);
+    _calibrationPrices.add(calibrationPrice);
   }
 
   /**
@@ -82,8 +82,8 @@ public abstract class CalibrationEngineWithPrices<DATA_TYPE extends ParameterPro
    * Gets the _calibrationPrice field.
    * @return the _calibrationPrice
    */
-  public List<Double> getCalibrationPrice() {
-    return _calibrationPrice;
+  public List<Double> getCalibrationPrices() {
+    return _calibrationPrices;
   }
 
 }

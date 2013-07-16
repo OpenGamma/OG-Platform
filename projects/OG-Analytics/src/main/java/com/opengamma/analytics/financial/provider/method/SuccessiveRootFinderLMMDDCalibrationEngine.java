@@ -22,7 +22,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Specific calibration engine for the Hull-White one factor model with cap/floor.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends SuccessiveRootFinderCalibrationEngine<DATA_TYPE> {
+public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
    * The list of the last index in the Ibor date for each instrument.
@@ -30,11 +30,17 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
   private final List<Integer> _instrumentIndex = new ArrayList<Integer>();
 
   /**
+   * The calibration objective.
+   */
+  private final SuccessiveRootFinderCalibrationObjectiveWithMultiCurves _calibrationObjective;
+
+  /**
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveRootFinderLMMDDCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
-    super(calibrationObjective);
+  public SuccessiveRootFinderLMMDDCalibrationEngine(SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
+    super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
+    _calibrationObjective = calibrationObjective;
     _instrumentIndex.add(0);
   }
 
@@ -48,10 +54,10 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
     ArgumentChecker.isTrue((instrument instanceof SwaptionPhysicalFixedIbor), "Instrument should be cap or swaption.");
     getBasket().add(instrument);
     getMethod().add(calculator);
-    getCalibrationPrice().add(0.0);
+    getCalibrationPrices().add(0.0);
     if (instrument instanceof SwaptionPhysicalFixedIbor) {
       SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
-      _instrumentIndex.add(Arrays.binarySearch(((SuccessiveRootFinderLMMDDCalibrationObjective) getCalibrationObjective()).getLMMParameters().getIborTime(), swaption.getUnderlyingSwap()
+      _instrumentIndex.add(Arrays.binarySearch(((SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective).getLMMParameters().getIborTime(), swaption.getUnderlyingSwap()
           .getSecondLeg().getNthPayment(swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments() - 1).getPaymentTime()));
     }
   }
@@ -79,19 +85,19 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
   @Override
   public void calibrate(DATA_TYPE data) {
     computeCalibrationPrice(data);
-    getCalibrationObjective().setMulticurves(data.getMulticurveProvider());
+    _calibrationObjective.setMulticurves(data.getMulticurveProvider());
     int nbInstruments = getBasket().size();
-    SuccessiveRootFinderLMMDDCalibrationObjective objective = (SuccessiveRootFinderLMMDDCalibrationObjective) getCalibrationObjective();
-    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(getCalibrationObjective().getFunctionValueAccuracy(), getCalibrationObjective().getVariableAbsoluteAccuracy());
+    SuccessiveRootFinderLMMDDCalibrationObjective objective = (SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective;
+    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(_calibrationObjective.getFunctionValueAccuracy(), _calibrationObjective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
       InstrumentDerivative instrument = getBasket().get(loopins);
-      getCalibrationObjective().setInstrument(instrument);
+      _calibrationObjective.setInstrument(instrument);
       objective.setStartIndex(_instrumentIndex.get(loopins));
       objective.setEndIndex(_instrumentIndex.get(loopins + 1) - 1);
-      getCalibrationObjective().setPrice(getCalibrationPrice().get(loopins));
-      final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), objective.getMinimumParameter(), objective.getMaximumParameter());
-      rootFinder.getRoot(getCalibrationObjective(), range[0], range[1]);
+      _calibrationObjective.setPrice(getCalibrationPrices().get(loopins));
+      final double[] range = bracketer.getBracketedPoints(_calibrationObjective, objective.getMinimumParameter(), objective.getMaximumParameter());
+      rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
     }
   }
 

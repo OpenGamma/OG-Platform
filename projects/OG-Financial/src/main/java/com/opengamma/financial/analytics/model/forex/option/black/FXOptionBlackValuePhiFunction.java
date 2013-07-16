@@ -50,7 +50,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class FXOptionBlackValuePhiFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackValuePhiFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackValueRhoFunction.class);
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,

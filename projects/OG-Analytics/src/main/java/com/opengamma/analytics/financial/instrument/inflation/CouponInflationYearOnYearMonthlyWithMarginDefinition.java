@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  * The pay-off is paymentYearFraction*(Index_End / Index_Start - X)+ Margin with X=0 for notional payment and X=1 for no notional payment.
  */
-public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends CouponInflationDefinition implements CouponInflationMargin {
+public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends CouponInflationDefinition implements CouponInflationWithMargin {
 
   /**
    * The weight on the first month index in the interpolation of the index at the coupon start.
@@ -213,7 +213,7 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
       final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
       if (fixedEndIndex != null) {
         final Double fixedStartIndex = priceIndexTimeSeries.getValue(getReferenceStartDate());
-        final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0));
+        final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0)) + _factor;
         return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
       }
     }

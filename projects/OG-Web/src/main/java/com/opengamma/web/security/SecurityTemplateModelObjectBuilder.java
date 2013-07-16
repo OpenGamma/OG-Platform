@@ -44,12 +44,14 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -301,6 +303,16 @@ import com.opengamma.util.time.Tenor;
     @Override
     public String visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
       return "FloatingVarianceLeg";
+    }
+
+    @Override
+    public String visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+      return "FixedInflationLeg";
+    }
+
+    @Override
+    public String visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+      return "InflationIndexLeg";
     }
   }
 }

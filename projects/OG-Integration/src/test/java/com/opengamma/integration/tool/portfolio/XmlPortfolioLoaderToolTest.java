@@ -10,10 +10,12 @@ import static org.testng.Assert.assertEquals;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.collections.Sets;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -410,6 +412,28 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 2);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
+  }
+
+  @Test
+  public void testMultitypePortfolioLoad() {
+
+    String fileLocation = "src/test/resources/xml_portfolios/multitype_portfolio.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
+    Set<ManageableTrade> tradeSet = extractTrades(_positionMaster);
+    assertEquals(tradeSet.size(), 2);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
+  }
+
+  private Set<ManageableTrade> extractTrades(PositionMaster positionMaster) {
+    Set<ManageableTrade> tradeSet = Sets.newHashSet();
+    for (ManageablePosition p : positionMaster.search(new PositionSearchRequest()).getPositions()) {
+      tradeSet.addAll(p.getTrades());
+    }
+    return tradeSet;
   }
 
   @Test

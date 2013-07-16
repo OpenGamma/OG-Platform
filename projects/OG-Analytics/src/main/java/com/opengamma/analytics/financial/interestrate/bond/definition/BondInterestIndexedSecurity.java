@@ -70,6 +70,7 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
     super(nominal, coupon, settlementTime, "Not used", issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     Validate.notNull(settlement, "Settlement");
+    Validate.notNull(priceIndex, "Price Index");
     _yieldConvention = yieldConvention;
     _accruedInterest = accruedInterest;
     _couponPerYear = couponPerYear;

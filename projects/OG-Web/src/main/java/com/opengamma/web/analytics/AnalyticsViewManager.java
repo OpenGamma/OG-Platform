@@ -27,6 +27,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionFlags;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -34,7 +35,6 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 import com.opengamma.web.analytics.push.ClientConnection;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
@@ -58,7 +58,7 @@ public class AnalyticsViewManager {
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<>();
   private final ComputationTargetResolver _targetResolver;
   private final NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
-  private final BlotterColumnMapper _blotterColumnMapper;
+  private final SecurityAttributeMapper _blotterColumnMapper;
   private final PositionSource _positionSource;
   private final ConfigSource _configSource;
   private final SecuritySource _securitySource;
@@ -71,7 +71,7 @@ public class AnalyticsViewManager {
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                               ComputationTargetResolver targetResolver,
                               NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
-                              BlotterColumnMapper blotterColumnMapper,
+                              SecurityAttributeMapper blotterColumnMapper,
                               PositionSource positionSource,
                               ConfigSource configSource,
                               SecuritySource securitySource,

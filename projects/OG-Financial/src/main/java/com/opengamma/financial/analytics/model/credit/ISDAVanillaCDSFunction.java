@@ -127,7 +127,7 @@ public abstract class ISDAVanillaCDSFunction extends NonCompiledInvoker {
     final ValueProperties properties = createValueProperties()
         .withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
-        .withAny(ISDAFunctionConstants.ISDA_IMPLEMENTATION)
+        .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_NATIVE)
         .withAny(ISDAFunctionConstants.CDS_QUOTE_CONVENTION)
         .withAny(ISDAFunctionConstants.ISDA_BUCKET_TENORS)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)

@@ -90,7 +90,7 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
     Options options = super.createOptions(contextProvided);
     
     Option filenameOption = new Option(
-        FILE_NAME_OPT, "filename", true, "The path to the file containing data to import (CSV, XLS or ZIP)");
+        FILE_NAME_OPT, "filename", true, "The path to the file containing data to import (CSV, XLS, XML or ZIP)");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
     

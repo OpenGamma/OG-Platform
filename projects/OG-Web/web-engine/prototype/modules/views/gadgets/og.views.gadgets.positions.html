@@ -6,17 +6,23 @@
       <tbody>
       <tr>
         <td>
-          {{if external_links}}
-            <a href="./admin.ftl#/securities/${template_data.security_unique_id}" target="_blank">
-          {{else}}
-            <a href="#/securities/${template_data.security_unique_id}">
-          {{/if}}
+        {{if external_links}}
           {{if template_data.security_name}}
             ${template_data.security_name}
-          {{else}}
-            (no value)
+            <br/>
           {{/if}}
-        </a></td>
+          <a href="./admin.ftl#/securities/${template_data.security_unique_id}" target="_blank">Security</a> -
+          <a href="./admin.ftl#/positions/${template_data.object_id}" target="_blank">Position</a>
+        {{else}}
+          <a href="#/securities/${template_data.security_unique_id}">
+            {{if template_data.security_name}}
+              ${template_data.security_name}
+            {{else}}
+              (no value)
+            {{/if}}
+           </a>
+        {{/if}}
+        </td>
         <td>
           <strong class="og-quantity"
             {{if editable}}data-og-editable="quantity" data-og-id="${template_data.object_id}"{{/if}}

@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.provider.method;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.money.Currency;
 
@@ -172,11 +171,5 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
   public double getVariableAbsoluteAccuracy() {
     return _variableAbsoluteAccuracy;
   }
-
-  /**
-   * The data used in the calibration.
-   * @param multicurves The multi-curves provider.
-   */
-  public abstract void setMulticurves(MulticurveProviderInterface multicurves);
 
 }

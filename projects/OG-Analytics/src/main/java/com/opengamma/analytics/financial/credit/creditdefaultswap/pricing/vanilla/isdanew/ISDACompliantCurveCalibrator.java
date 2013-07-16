@@ -5,15 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
-import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.toZoneDateTime;
-
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -21,7 +17,6 @@ import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
-
 
 /**
  * This should be viewed as "proof of concept" code, since it used the code that has date logic mixed with the analytics (this was to
@@ -122,7 +117,8 @@ public class ISDACompliantCurveCalibrator {
     public Double evaluate(Double x) {
       // TODO this direct access is unpleasant
       ISDACompliantDateCreditCurve hazardCurve = (ISDACompliantDateCreditCurve) _hazardCurve.withRate(x, _index);
-      final double rpv01 = PRICER.pvPremiumLegPerUnitSpread(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart, PriceType.CLEAN);
+      final double rpv01 = PRICER.pvPremiumLegPerUnitSpread(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart,
+          PriceType.CLEAN);
       final double protectLeg = PRICER.calculateProtectionLeg(_today, _stepinDate, _valueDate, _startDate, _endDate, _yieldCurve, hazardCurve, _rr, _protectStart);
       final double pv = protectLeg - _couponRate * rpv01;
       return pv;

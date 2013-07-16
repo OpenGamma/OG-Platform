@@ -31,6 +31,46 @@ public class ISDACompliantYieldCurveBuild {
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder(); // new BrentSingleRootFinder(); // TODO get gradient and use Newton
   private static final BracketRoot BRACKETER = new BracketRoot();
 
+  /**
+   *  Build a ISDA-Compliant yield curve (i.e. one with piecewise flat forward rate) from money market rates and par swap rates.
+   *  Note if today is different from spotDate, the curve is adjusted accordingly 
+   * @param today The 'observation' date 
+   * @param spotDate The spot date of the instruments
+   * @param instrumentTypes List of instruments - these are  MoneyMarket or Swap
+   * @param tenors The length of the instruments (e.g. a 5y swap would be  Period.ofYears(5))
+   * @param rates the par rates (as fractions) of the instruments 
+   * @param moneyMarketDCC The day count convention for money market instruments 
+   * @param swapDCC The day count convention for swap fixed payments 
+   * @param swapInterval Time between fixed payments (e.g. 3M fixed is Period.ofMonths(3))
+   * @param curveDCC The day count convention used by the yield/discount curve - normally this is ACT/365 
+   * @param convention Specification of non-business days 
+   * @return A yield curve observed from today
+   */
+  public ISDACompliantYieldCurve build(final LocalDate today, final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, Period[] tenors, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
+    // ArgumentChecker.isFalse(spotDate.isAfter(today), "Cannot build a curve with spot date in the futrue (i.e. after today");
+    ISDACompliantYieldCurve baseCurve = build(spotDate, instrumentTypes, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
+    if (spotDate.isEqual(today)) {
+      return baseCurve;
+    }
+
+    final double offset = today.isAfter(spotDate) ? -curveDCC.getDayCountFraction(spotDate, today) : curveDCC.getDayCountFraction(today, spotDate);
+    return new ISDACompliantYieldCurve(baseCurve.getKnotTimes(), baseCurve.getKnotZeroRates(), offset);
+  }
+
+  /**
+   * Build a ISDA-Compliant yield curve (i.e. one with piecewise flat forward rate) from money market rates and par swap rates.
+   * @param spotDate The spot date of the instruments (note is curve is assumed to be observed from this date)
+   * @param instrumentTypes List of instruments - these are  MoneyMarket or Swap
+   * @param tenors The length of the instruments (e.g. a 5y swap would be  Period.ofYears(5))
+   * @param rates the par rates (as fractions) of the instruments 
+   * @param moneyMarketDCC The day count convention for money market instruments 
+   * @param swapDCC The day count convention for swap fixed payments 
+   * @param swapInterval Time between fixed payments (e.g. 3M fixed is Period.ofMonths(3))
+   * @param curveDCC The day count convention used by the yield/discount curve - normally this is ACT/365 
+   * @param convention Specification of non-business days 
+   * @return A yield curve 
+   */
   public ISDACompliantYieldCurve build(final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, Period[] tenors, final double[] rates, final DayCount moneyMarketDCC,
       final DayCount swapDCC, Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
 

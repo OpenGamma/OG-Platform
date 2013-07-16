@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
@@ -59,7 +60,7 @@ import com.opengamma.util.tuple.Pair;
 public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
-
+  /** The supported schemes */
   private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.ACTIVFEED_TICKER);
 
   @Override
@@ -87,8 +88,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
     @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
-
+    final VolatilitySurfaceData<Object, Object> rawSurface = (VolatilitySurfaceData<Object, Object>) rawSurfaceObject;
     final VolatilitySurfaceData<Double, Double> stdVolSurface;
     if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
       stdVolSurface = getSurfaceFromVolatilityQuote(valDate, rawSurface);
@@ -182,15 +182,15 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     requirements.add(specificationReq);
     if (quoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
       // We require forward and discount curves to imply the volatility
-      final Set<String> curveNameValues = constraints.getValues(ValuePropertyNames.CURVE); 
+      final Set<String> curveNameValues = constraints.getValues(ValuePropertyNames.CURVE);
       if (curveNameValues == null || curveNameValues.size() != 1) {
         return null;
       }
-      final Set<String> curveCalculationValues = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG); 
+      final Set<String> curveCalculationValues = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       if (curveCalculationValues == null || curveCalculationValues.size() != 1) {
         return null;
       }
-      final Set<String> curveCurrencyValues = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY); 
+      final Set<String> curveCurrencyValues = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
       if (curveCurrencyValues == null || curveCurrencyValues.size() != 1) {
         return null;
       }
@@ -240,18 +240,25 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties.get()));
   }
 
-  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final LocalDate valDate, final VolatilitySurfaceData<Number, Double> rawSurface) {
+  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final LocalDate valDate, final VolatilitySurfaceData<Object, Object> rawSurface) {
     // Remove empties, convert expiries from number to years, and scale vols
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    Number[] xAsNumbers = getXs(rawSurface.getXs()); 
-    for (final Number nthExpiry : xAsNumbers) {
-      final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
+    final Object[] xs = rawSurface.getXs();
+    for (final Object x : xs) {
+      Double t;
+      if (x instanceof Number) {
+        t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(((Number) x).intValue(), valDate);
+      } else if (x instanceof LocalDate) {
+        t = TimeCalculator.getTimeBetween((LocalDate) x, valDate);
+      } else {
+        throw new OpenGammaRuntimeException("Cannot not handle surfaces with x-axis type " + x.getClass());
+      }
       if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
-        Double[] ysAsDoubles = getYs(rawSurface.getYs());
+        final Double[] ysAsDoubles = getYs(rawSurface.getYs());
         for (final Double strike : ysAsDoubles) {
-          final Double vol = rawSurface.getVolatility(nthExpiry, strike);
+          final Double vol = rawSurface.getVolatility(x, strike);
           if (vol != null) {
             tList.add(t);
             kList.add(strike);
@@ -265,7 +272,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     return stdVolSurface;
   }
 
-  private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final LocalDate valDate, final VolatilitySurfaceData<Number, Double> rawSurface,
+  @SuppressWarnings("deprecation")
+  private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final LocalDate valDate, final VolatilitySurfaceData<Object, Object> rawSurface,
       final ForwardCurve forwardCurve, final YieldCurve discountCurve, final VolatilitySurfaceSpecification specification) {
     // quote type
     final String surfaceQuoteType = specification.getSurfaceQuoteType();
@@ -283,26 +291,32 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
     }
     // exercise type
+    //TODO REVIEW emcleod 9-7-2013 why is this not using specification.getExerciseType() instanceof AmericanExerciseType?
     final boolean isAmerican = (specification.getExerciseType()).getName().startsWith("A");
-//    BaroneAdesiWhaleyModel americanModel = null;
     BjerksundStenslandModel americanModel = null;
     final double spot = forwardCurve.getSpot();
     if (isAmerican) {
-//      americanModel = new BaroneAdesiWhaleyModel();
       americanModel = new BjerksundStenslandModel();
     }
     // Main loop: Remove empties, convert expiries from number to years, and imply vols
     final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
-    Number[] xAsNumbers = getXs(rawSurface.getXs()); 
-    for (final Number nthExpiry : xAsNumbers) {
-      final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
+    final Object[] xs = rawSurface.getXs();
+    for (final Object x : xs) {
+      Double t;
+      if (x instanceof Number) {
+        t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(((Number) x).intValue(), valDate);
+      } else if (x instanceof LocalDate) {
+        t = TimeCalculator.getTimeBetween((LocalDate) x, valDate);
+      } else {
+        throw new OpenGammaRuntimeException("Cannot not handle surfaces with x-axis type " + x.getClass());
+      }
       final double forward = forwardCurve.getForward(t);
       final double zerobond = discountCurve.getDiscountFactor(t);
-      Double[] ysAsDoubles = getYs(rawSurface.getYs());
+      final Double[] ysAsDoubles = getYs(rawSurface.getYs());
       for (final Double strike : ysAsDoubles) {
-        final Double price = rawSurface.getVolatility(nthExpiry, strike);
+        final Double price = rawSurface.getVolatility(x, strike);
         if (price != null) {
           try {
             if (quoteTypeIsCallPutStrike) {
@@ -318,9 +332,15 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
             tList.add(t);
             kList.add(strike);
             volValues.put(Pair.of(t, strike), vol);
-          } catch (Exception e) {
-            s_logger.info("Liquidity problem: input price, forward and zero bond imply negative volatility at strike, {}, and expiry, {}", 
-                strike, FutureOptionExpiries.EQUITY.getFutureOptionExpiry(nthExpiry.intValue(), valDate));
+          } catch (final Exception e) {
+            LocalDate expiry = null;
+            if (x instanceof Number) {
+              expiry = FutureOptionExpiries.EQUITY.getFutureOptionExpiry(((Number) x).intValue(), valDate);
+            } else if (x instanceof LocalDate) {
+              expiry = (LocalDate) x;
+            }
+            s_logger.info("Liquidity problem: input price, forward and zero bond imply negative volatility at strike, {}, and expiry, {}",
+                strike, expiry);
           }
         }
       }
@@ -329,25 +349,12 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
         tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
     return stdVolSurface;
   }
-  
-  //TODO 
-  private static Number[] getXs(Object xs) {
-    if (xs instanceof Number[]) {
-      return (Number[]) xs;
-    }
-    Object[] tempArray = (Object[]) xs;
-    final Number[] result = new Number[tempArray.length];
-    for (int i = 0; i < tempArray.length; i++) {
-      result[i] = (Number) tempArray[i];
-    }
-    return result;
-  }
 
-  private static Double[] getYs(Object ys) {
+  private static Double[] getYs(final Object ys) {
     if (ys instanceof Double[]) {
       return (Double[]) ys;
     }
-    Object[] tempArray = (Object[]) ys;
+    final Object[] tempArray = (Object[]) ys;
     final Double[] result = new Double[tempArray.length];
     for (int i = 0; i < tempArray.length; i++) {
       result[i] = (Double) tempArray[i];

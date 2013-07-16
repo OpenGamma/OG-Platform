@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorSameValueAdapter;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 
@@ -47,7 +47,7 @@ public final class OvernightIndexVisitor extends InstrumentDefinitionVisitorSame
   }
 
   @Override
-  public Collection<IndexON> visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition definition) {
+  public Collection<IndexON> visitCouponOISSimplifiedDefinition(final CouponONSimplifiedDefinition definition) {
     return Collections.singleton(definition.getIndex());
   }
 

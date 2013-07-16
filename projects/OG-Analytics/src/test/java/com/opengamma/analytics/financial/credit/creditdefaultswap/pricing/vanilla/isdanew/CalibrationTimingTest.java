@@ -164,6 +164,8 @@ public class CalibrationTimingTest {
 
   @Test(enabled=false)
   public void yieldCurvePeturbTest() {
+    System.out.println("CalibrationTimingTest - set enabled=false before push");
+    
     DoubleMatrix1D base = new DoubleMatrix1D(YC_MARKET_RATES);
     final int nSims = 50000;
 
@@ -193,6 +195,7 @@ public class CalibrationTimingTest {
 
   @Test(enabled=false)
   public void creditCurvePeturbTest() {
+    System.out.println("CalibrationTimingTest - set enabled=false before push");
     final ISDACompliantYieldCurve yieldCurve = YIELD_CURVE_BUILDER.build(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, YC_MARKET_RATES, ACT360, D30360, SWAP_INTERVAL, ACT365, MOD_FOLLOWING);
     final Period tenor = Period.ofMonths(3);
     final StubType stubType = StubType.FRONTSHORT;

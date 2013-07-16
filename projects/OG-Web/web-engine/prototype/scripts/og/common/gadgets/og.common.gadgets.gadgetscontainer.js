@@ -38,11 +38,13 @@ $.register_module({
                 return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0);
             };
             var inplace_header = function (id) {
+
                 if (!gadgets[0]) return;
                 var $header = $(header), val = gadgets[0], config = val.config,
                     depgraph = config.options.source.depgraph,
                     tmpl_data = mapping.available_types(config.data_type, depgraph, config.gadget_type),
-                    template_obj = {'row_name': config.row_name,'col_name': config.col_name, menu: tmpl_data};
+                    template_obj = {'row_name': config.row_name, 'col_name': config.col_name, menu: tmpl_data,
+                        'first_col' : !config.options.col};
                 gadgets[0].active = true;
                 $header.html(inplace_template(template_obj))
                     .off('mousedown').on('mousedown', '.og-js-icon', function () {

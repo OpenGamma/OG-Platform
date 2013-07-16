@@ -33,7 +33,11 @@
         </td>
         <td class="og-label og-tab-inplace">
           <div>
-            {{#if this.col_name}}{{this.col_name}}<span>&nbsp;on&nbsp;</span>{{this.row_name}}{{/if}}
+            {{#if this.first_col}}
+              {{this.row_name}}
+            {{else}}
+              {{#if this.col_name}}{{this.col_name}}<span>&nbsp;on&nbsp;</span>{{this.row_name}}{{/if}}
+            {{/if}}
           </div>
         </td>
       </tr>

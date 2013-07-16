@@ -12,35 +12,12 @@ import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResultsWith
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Data bundle for PiecewisePolynomialInterpolator1D
  */
 public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1DDataBundle {
 
-  //  private static final PiecewisePolynomialFunction1D FUNC = new PiecewisePolynomialFunction1D();
-  //
-  //  private final PiecewisePolynomialResult _poly;
   private final PiecewisePolynomialResultsWithSensitivity _poly;
   private final Interpolator1DDataBundle _underlyingData;
-
-  //  public Interpolator1DPiecewisePoynomialDataBundle(final PiecewisePolynomialResult polyRes) {
-  //    ArgumentChecker.notNull(polyRes, "null polyRes");
-  //    _poly = polyRes;
-  //
-  //    // TODO don't really need to back this data back out of PiecewisePolynomialResult. Do this to quickly satisfy the existing interpolator API 
-  //    double[] knots = polyRes.getKnots().getData();
-  //    final int n = knots.length;
-  //    DoubleMatrix2D mat = polyRes.getCoefMatrix();
-  //    ArgumentChecker.isTrue((n - 1) == mat.getNumberOfRows(), "Coef matrix wrong size");
-  //    final int order = mat.getNumberOfColumns();
-  //    double[] values = new double[n];
-  //    for (int i = 0; i < (n - 1); i++) {
-  //      values[i] = mat.getEntry(i, order - 1);
-  //    }
-  //    values[n - 1] = FUNC.evaluate(polyRes, knots[n - 1]).getEntry(0);
-  //
-  //    _underlyingData = new ArrayInterpolator1DDataBundle(knots, values, true);
-  //
-  //  }
 
   /**
    * Constructor where coefficients for interpolant and its node sensitivity are computed 
@@ -75,10 +52,6 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
 
     _poly = method.interpolateWithSensitivity(underlyingData.getKeys(), yValuesMod);
   }
-
-  //  public PiecewisePolynomialResult getPiecewisePolynomialResult() {
-  //    return _poly;
-  //  }
 
   /**
    * Access PiecewisePolynomialResultsWithSensitivity

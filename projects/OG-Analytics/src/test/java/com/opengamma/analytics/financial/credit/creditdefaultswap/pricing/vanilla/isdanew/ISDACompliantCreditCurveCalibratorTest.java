@@ -104,8 +104,8 @@ public class ISDACompliantCreditCurveCalibratorTest {
       assertEquals(0.0, pv2, 1e-7); // we drop a slight bit of accuracy here
     }
 
-    final int warmup = 200;
-    final int benchmark = 1000;
+    final int warmup = 1;
+    final int benchmark = 0;
 
     for (int k = 0; k < warmup; k++) {
       ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE,

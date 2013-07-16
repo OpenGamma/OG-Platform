@@ -33,6 +33,11 @@ public class ISDAFunctionConstants {
   public static final String ISDA_IMPLEMENTATION_NATIVE = "NATIVE";
 
   /**
+   * Value property to require using the original native (external C code) implementation of the ISDA model
+   */
+  public static final String ISDA_IMPLEMENTATION_NEW = "NEW";
+
+  /**
    * Value property name describing how the hazard rate should be modelled
    */
   public static final String ISDA_HAZARD_RATE_STRUCTURE = "ISDA Hazard Rate Structure";

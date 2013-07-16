@@ -177,6 +177,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
+    final ValueProperties otherProperties = ValueProperties.builder().get();
     final String putCurveName = Iterables.getOnlyElement(putCurveNames);
     final String callCurveName = Iterables.getOnlyElement(callCurveNames);
     final String putCurveCalculationConfig = Iterables.getOnlyElement(putCurveCalculationConfigs);
@@ -188,9 +189,9 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement putFundingCurve = getCurveRequirementForFXOption(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfig, true,
-        ValueProperties.builder().get());
+        otherProperties);
     final ValueRequirement callFundingCurve = getCurveRequirementForFXOption(ComputationTargetSpecification.of(callCurrency), callCurveName, callCurveCalculationConfig, false,
-        ValueProperties.builder().get());
+        otherProperties);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final ValueRequirement spotRequirements = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(callCurrency, putCurrency);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);

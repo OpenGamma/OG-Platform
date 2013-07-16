@@ -48,7 +48,7 @@ public class AnalyticCDSPricer {
   }
 
   /**
-   * Present value (clean price)(for the payer of premiums (i.e. the buyer of protection) 
+   * Present value (clean price) for the payer of premiums (i.e. the buyer of protection) 
   * @param cds analytic description of a CDS traded at a certain time 
    * @param yieldCurve The yield (or discount) curve  
    * @param creditCurve the credit (or survival) curve 
@@ -57,6 +57,54 @@ public class AnalyticCDSPricer {
    */
   public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread) {
     return pv(cds, yieldCurve, creditCurve, fractionalSpread, PriceType.CLEAN);
+  }
+
+  /**
+   * Sensitivity of the present value (for the payer of premiums, i.e. the buyer of protection) to the zero hazard rate
+   *  of a given node (knot) of the credit curve. This is per unit of notional 
+  * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param fractionalSpread The <b>fraction</b> spread 
+   * @param creditCurveNode The credit curve node 
+   * @return PV sensitivity to one node (knot) on the credit (hazard rate/survival) curve
+   */
+  public double pvCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread,
+      final int creditCurveNode) {
+    final double rpv01Sense = pvPremiumLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
+    final double proLegSense = protectionLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
+    return proLegSense - fractionalSpread * rpv01Sense;
+  }
+
+  /**
+   * The par spread par spread for a given yield and credit (hazard rate/survival) curve)
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @return the par spread
+   */
+  public double parSpread(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+    final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
+    return proLeg / rpv01;
+  }
+
+  /**
+   * Sensitivity of the par spread (the fixed payment on the premium leg that make the PV of the CDS zero for a given yield
+   * and credit (hazard rate/survival) curve) to the zero hazard rate of a given node (knot) of the credit curve. 
+  * @param cds analytic description of a CDS traded at a certain time 
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit (or survival) curve 
+   * @param creditCurveNode The credit curve node 
+   * @return Par spread sensitivity to one node (knot) on the credit (hazard rate/survival) curve
+   */
+  public double parSpreadCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+    double a = protectionLeg(cds, yieldCurve, creditCurve);
+    double b = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    double spread = a / b;
+    double dadh = protectionLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
+    double dbdh = pvPremiumLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
+    return spread * (dadh / a - dbdh / b);
   }
 
   /**
@@ -101,7 +149,7 @@ public class AnalyticCDSPricer {
     pv /= df;
 
     if (cleanOrDirty == PriceType.CLEAN) {
-      pv -= cds.getAccrued();
+      pv -= cds.getAccruedPremiumPerUnitSpread();
     }
     return pv;
   }
@@ -194,7 +242,6 @@ public class AnalyticCDSPricer {
         }
         t0 = t1;
       }
-      // TODO the Taylor expansions
 
       pv += tPV;
       ht0 = ht1;
