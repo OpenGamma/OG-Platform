@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="og-platform">
+  <!-- Ant build that performs tasks not well suited to Maven -->
+
+  <property environment="env" />
+  <property file="build.properties" />
+
+  <property name="version" value="2.0.0" />
+  <property name="git.branch" value="dev/v2.0.x" />
+
+  <property name="apidocs.public.dir" value="target/apidocs-public" />
+  <property name="apidocs.public.temp.dir" value="target/apidocs-public-temp" />
+  <property name="projects.dir" value="projects" />
+
+  
+  <property name="javadoc.public.windowtitle" value="OpenGamma public API" />
+  <property name="javadoc.public.doctitle" value="OpenGamma public API" />
+  <property name="javadoc.public.bottom">
+    <![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i>]]>
+  </property>
+
+  <!-- ================================================================== -->
+  <target name="javadoc-public">
+    <delete dir="${apidocs.public.temp.dir}" />
+    <mkdir dir="${apidocs.public.temp.dir}" />
+    <copy toDir="${apidocs.public.temp.dir}">
+      <fileset dir="${projects.dir}/OG-Engine/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Engine/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Util/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Util/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Core/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Core/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Provider/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Provider/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Master/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes" />
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Master/src/main/java" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes" />
+      </fileset>
+    </copy>
+    <delete dir="${apidocs.public.dir}" />
+    <mkdir dir="${apidocs.public.dir}" />
+    <javadoc sourcepath="${apidocs.public.temp.dir}" destdir="${apidocs.public.dir}" classpath="${maven.compile.classpath}"
+        author="false" windowtitle="${javadoc.public.windowtitle}" doctitle="${javadoc.public.doctitle}" bottom="${javadoc.public.bottom}">
+      <link href="http://docs.oracle.com/javase/7/docs/api/" />
+      <link href="http://dist.fudgemsg.org/java/javadoc/0.3/" />
+      <link href="http://threeten.github.io/threetenbp/apidocs/" />
+      <link href="http://joda-beans.sourceforge.net/apidocs/" />
+    </javadoc>
+    <delete dir="${apidocs.public.temp.dir}" />
+  </target>
+
+  <!-- ================================================================== -->
+  <macrodef name="git">
+    <attribute name="command" />
+    <attribute name="dir" default="" />
+    <attribute name="failonerror" default="true" />
+    <element name="args" optional="true" />
+    <sequential>
+      <echo message="git @{command}" />
+      <exec executable="git" dir="@{dir}" osfamily="unix" failonerror="@{failonerror}">
+        <arg value="@{command}" />
+        <args />
+      </exec>
+      <!-- On Windows, you want to execute git.cmd, not git.exe.  -->
+      <exec executable="cmd" dir="@{dir}" osfamily="windows">
+        <arg value="/c" />
+        <arg value="git" />
+        <arg value="@{command}" />
+        <args />
+      </exec>
+    </sequential>
+  </macrodef>
+  <target name="dist-src">
+    <delete dir="target/dist-src" />
+    <mkdir dir="target/dist-src" />
+    <git command="clone">
+      <args>
+        <arg value="-b" />
+        <arg value="${git.branch}" />
+        <arg value="https://github.com/OpenGamma/OG-Platform.git" />
+        <arg value="target/dist-src/OG-Platform" />
+      </args>
+    </git>
+
+    <delete file="target/dist-src/OG-Platform/gitstats.sh" />
+	  <delete file="target/dist-src/OG-Platform/README.md" />
+    
+    <delete file="target/opengamma-platform-${version}-src.zip" />
+    <zip destfile="target/opengamma-platform-${version}-src.zip" basedir="target/dist-src" />
+    
+    <delete file="target/opengamma-platform-${version}-src.tar" />
+    <delete file="target/opengamma-platform-${version}-src.tar.bz2" />
+    <delete file="target/opengamma-platform-${version}-src.tar.gz" />
+    <tar destfile="target/opengamma-platform-${version}-src.tar" longfile="gnu" basedir="target/dist-src" />
+    <bzip2 destfile="target/opengamma-platform-${version}-src.tar.bz2" src="target/opengamma-platform-${version}-src.tar" />
+    <gzip destfile="target/opengamma-platform-${version}-src.tar.gz" src="target/opengamma-platform-${version}-src.tar" />
+    <delete file="target/opengamma-platform-${version}-src.tar" />
+  </target>
+
+</project>

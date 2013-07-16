@@ -79,12 +79,15 @@ public class SecurityAttributeMapperTest {
    */
   @Test
   public void inheritSuperclassMappings() {
-    @SuppressWarnings("serial")
-    class A extends ManageableSecurity {}
-    @SuppressWarnings("serial")
-    class B extends A {}
-    @SuppressWarnings("serial")
-    class C extends B {}
+    class A extends ManageableSecurity {
+      private static final long serialVersionUID = 1L;
+    }
+    class B extends A {
+      private static final long serialVersionUID = 1L;
+    }
+    class C extends B {
+      private static final long serialVersionUID = 1L;
+    }
     SecurityAttributeMapper mapper = new SecurityAttributeMapper();
     String aType = "A type";
     String bProduct = "B product";

@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -18,6 +17,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
+/**
+ * Provides access to a remote {@link OrganizationSource} via a RESTful API.
+ */
 public class RemoteOrganizationSource extends AbstractRemoteSource<Organization> implements OrganizationSource {
 
   /**

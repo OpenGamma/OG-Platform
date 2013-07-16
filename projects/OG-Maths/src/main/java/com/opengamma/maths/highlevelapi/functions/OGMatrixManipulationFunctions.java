@@ -681,10 +681,10 @@ public class OGMatrixManipulationFunctions {
     return new double[thisArray.getNumberOfRows()][thisArray.getNumberOfColumns()];
   }
 
-  // allocs an array that is the same size in memory as thisArray
-  private static double[] allocFlatNewBasedOnSizeOf(OGArrayType thisArray) {
-    return new double[thisArray.getNumberOfRows() * thisArray.getNumberOfColumns()];
-  }
+//  // allocs an array that is the same size in memory as thisArray
+//  private static double[] allocFlatNewBasedOnSizeOf(OGArrayType thisArray) {
+//    return new double[thisArray.getNumberOfRows() * thisArray.getNumberOfColumns()];
+//  }
 
   //catches nulls else throws pain
   private static void catchNull(OGArrayType thisArray) {
@@ -698,10 +698,10 @@ public class OGMatrixManipulationFunctions {
     return new int[thisArray.getNumberOfRows()][thisArray.getNumberOfColumns()];
   }
 
-  // allocs an array that is the same size in memory as thisArray
-  private static int[] allocFlatNewBasedOnSizeOf(OGIndexType thisArray) {
-    return new int[thisArray.getNumberOfRows() * thisArray.getNumberOfColumns()];
-  }
+//  // allocs an array that is the same size in memory as thisArray
+//  private static int[] allocFlatNewBasedOnSizeOf(OGIndexType thisArray) {
+//    return new int[thisArray.getNumberOfRows() * thisArray.getNumberOfColumns()];
+//  }
 
   //catches nulls else throws pain
   private static void catchNull(OGIndexType thisArray) {

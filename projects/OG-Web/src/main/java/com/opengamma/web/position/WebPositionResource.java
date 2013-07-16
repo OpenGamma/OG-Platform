@@ -77,12 +77,11 @@ public class WebPositionResource extends AbstractWebPositionResource {
     }
     quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
     BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
-    if (quantityStr == null) {
+    if (quantity == null) {
       FlexiBean out = createRootData();
       if (quantityStr == null) {
         out.put("err_quantityMissing", true);
-      }
-      if (quantity == null) {
+      } else {
         out.put("err_quantityNotNumeric", true);
       }
       String html = getFreemarker().build(HTML_DIR + "position-update.ftl", out);

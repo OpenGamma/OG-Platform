@@ -35,7 +35,7 @@ import com.opengamma.util.tuple.Pair;
 /* package */abstract class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
 
   /** Row and column structure of the grid. */
-  protected final MainGridStructure _gridStructure;
+  private final MainGridStructure _gridStructure;
   /** Type of data in the grid, portfolio or primitives. */
   private final AnalyticsView.GridType _gridType;
   /** Dependency graph grids for cells in this grid, keyed by grid ID. */
@@ -44,7 +44,7 @@ import com.opengamma.util.tuple.Pair;
   private final ComputationTargetResolver _targetResolver;
 
   /** The calculation cycle used to calculate the most recent set of results. */
-  protected ViewCycle _cycle = EmptyViewCycle.INSTANCE;
+  private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
   /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
                                  MainGridStructure gridStructure,
@@ -137,7 +137,7 @@ import com.opengamma.util.tuple.Pair;
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
   /* package */void closeDependencyGraph(int graphId) {
-    AnalyticsGrid grid = _depGraphs.remove(graphId);
+    AnalyticsGrid<?> grid = _depGraphs.remove(graphId);
     if (grid == null) {
       throw new DataNotFoundException("No dependency graph found with ID " + graphId + " for " + _gridType + " grid");
     }
@@ -157,12 +157,12 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Creates a viewport on a dependency graph grid.
    *
-   * @param graphId ID of the dependency graph
-   * @param viewportId ID of the viewport, can be any unique value
-   * @param callbackId ID passed to listeners when the viewport's data changes, can be any unique value
-   * @param viewportDefinition Definition of the viewport
-   * @param cache
-   * @return {@code true} if there is data available for the new viewport
+   * @param graphId  the ID of the dependency graph
+   * @param viewportId  the ID of the viewport, can be any unique value
+   * @param callbackId  the ID passed to listeners when the viewport's data changes, can be any unique value
+   * @param viewportDefinition  the definition of the viewport
+   * @param cache  the cache
+   * @return true if there is data available for the new viewport
    */
   /* package */boolean createViewport(int graphId,
                                       int viewportId,
@@ -180,11 +180,11 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Updates an existing viewport on a dependency graph grid
    *
-   * @param graphId ID of the dependency graph
-   * @param viewportId ID of the viewport
-   * @param viewportDefinition Definition of the viewport
-   * @param cache
-   * @return The viewport's callback ID if it has data available, {@code null} if not.
+   * @param graphId  the ID of the dependency graph
+   * @param viewportId  the ID of the viewport, can be any unique value
+   * @param viewportDefinition  the definition of the viewport
+   * @param cache  the cache
+   * @return the viewport's callback ID if it has data available, null if not
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
   /* package */String updateViewport(int graphId,
@@ -222,7 +222,7 @@ import com.opengamma.util.tuple.Pair;
    */
   /* package */List<String> getDependencyGraphCallbackIds() {
     List<String> gridIds = Lists.newArrayList();
-    for (AnalyticsGrid grid : _depGraphs.values()) {
+    for (AnalyticsGrid<?> grid : _depGraphs.values()) {
       gridIds.add(grid.getCallbackId());
     }
     return gridIds;

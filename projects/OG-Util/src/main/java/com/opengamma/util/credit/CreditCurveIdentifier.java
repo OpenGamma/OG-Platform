@@ -26,6 +26,9 @@ public final class CreditCurveIdentifier implements UniqueIdentifiable, ObjectId
   private final String _redCode;
   private final String _seniority;
   private final Currency _currency;
+  /**
+   * @deprecated no longer used
+   */
   @Deprecated
   private final String _term;
   private final String _restructuringClause;

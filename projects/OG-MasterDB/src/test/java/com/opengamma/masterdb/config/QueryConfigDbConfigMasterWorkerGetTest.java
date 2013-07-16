@@ -90,7 +90,6 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     assert202(test);
   }
   
-  @SuppressWarnings("unchecked")
   @Test
   public void test_get_noType() {
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");

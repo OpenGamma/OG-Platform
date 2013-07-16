@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -50,6 +49,7 @@ public class SeniorityAggregationFunction implements AggregationFunction<String>
     _securitySource = securitySource;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Collection<String> getRequiredEntries() {
     return ImmutableList.of();
@@ -57,9 +57,7 @@ public class SeniorityAggregationFunction implements AggregationFunction<String>
 
   @Override
   public String classifyPosition(final Position position) {
-
     final Security security = resolveSecurity(position);
-
     if (security instanceof CreditDefaultSwapOptionSecurity) {
       final CreditDefaultSwapOptionSecurity cdsOption = (CreditDefaultSwapOptionSecurity) security;
       final ExternalId underlyingId = cdsOption.getUnderlyingId();
@@ -81,7 +79,6 @@ public class SeniorityAggregationFunction implements AggregationFunction<String>
   }
 
   private Security resolveSecurity(final Position position) {
-
     final Security security = position.getSecurityLink().getTarget();
     return security != null ? security : position.getSecurityLink().resolveQuiet(_securitySource);
   }
@@ -100,4 +97,5 @@ public class SeniorityAggregationFunction implements AggregationFunction<String>
   public int compare(final String sector1, final String sector2) {
     return sector1.compareTo(sector2);
   }
+
 }

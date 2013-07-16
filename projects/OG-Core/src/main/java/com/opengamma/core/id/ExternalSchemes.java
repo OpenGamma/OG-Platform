@@ -245,7 +245,7 @@ public class ExternalSchemes {
   /**
    * Creates a Synthetic ticker.
    * <p>
-   * This is the ticker used mainly by OG-Examples
+   * This is the ticker used mainly by Examples-Simulated.
    * 
    * @param ticker  the OG-Synthetic ticker, not null
    * @return the security identifier, not null

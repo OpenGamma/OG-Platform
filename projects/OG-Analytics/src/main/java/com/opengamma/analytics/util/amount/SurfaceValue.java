@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 

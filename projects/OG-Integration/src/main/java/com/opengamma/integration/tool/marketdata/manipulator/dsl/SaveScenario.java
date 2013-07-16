@@ -20,7 +20,7 @@ import com.opengamma.integration.marketdata.manipulator.dsl.Scenario;
 import com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Creates a scenario from a Groovy script and saves it the the config database.

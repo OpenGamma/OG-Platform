@@ -12,13 +12,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -29,48 +23,53 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
+import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbSecurityMasterWorker via DbSecurityMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
+public abstract class AbstractDbSecurityMasterWorkerTest extends AbstractDbSecurityTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerTest.class);
 
+  private static DbConnector _dbConnector;  // local cache for Hibernate reasons, closed in DbTest
   protected DbSecurityMaster _secMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalSecurities;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbSecurityMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _secMaster = null;
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
+  @Override
+  protected void doTearDownClass() {
+    _secMaster = null;
+    _dbConnector = null;
+  }
+
+  //-------------------------------------------------------------------------
+  private void init() {
+    if (_dbConnector == null) {
+      _dbConnector = getDbConnector();
+    }
+    _secMaster = new DbSecurityMaster(_dbConnector);
+    _secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
     
 //    id bigint not null,
 //    oid bigint not null,
@@ -86,7 +85,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _secMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _secMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestSecurity101", "EQUITY", "D");
     template.update("INSERT INTO sec_security VALUES (?,?,?,?,?, ?,?,?,?)",
@@ -129,27 +128,6 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
         202, 2);
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
         202, 3);
-  }
-
-  @AfterMethod(alwaysRun = true)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _secMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(alwaysRun = true)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _secMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

@@ -7,7 +7,7 @@ package com.opengamma.util.mongo;
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Connector;
 
@@ -25,7 +25,7 @@ public class MongoConnector implements Connector {
   /**
    * The Mongo instance.
    */
-  private final Mongo _mongo;
+  private final MongoClient _mongo;
   /**
    * The database.
    */
@@ -43,7 +43,7 @@ public class MongoConnector implements Connector {
    * @param database  the Mongo database, not null
    * @param collectionSuffix  the collection suffix, not null
    */
-  public MongoConnector(String name, Mongo mongo, DB database, String collectionSuffix) {
+  public MongoConnector(String name, MongoClient mongo, DB database, String collectionSuffix) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(mongo, "mongo");
     ArgumentChecker.notNull(database, "database");
@@ -73,7 +73,7 @@ public class MongoConnector implements Connector {
    * 
    * @return the main Mongo instance, not null
    */
-  public Mongo getMongo() {
+  public MongoClient getMongo() {
     return _mongo;
   }
 

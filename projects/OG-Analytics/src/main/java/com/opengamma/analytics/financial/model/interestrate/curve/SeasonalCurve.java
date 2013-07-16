@@ -65,8 +65,7 @@ class SeasonalFunction extends Function1D<Double, Double> {
     for (int loopmonth = 1; loopmonth < NB_MONTH; loopmonth++) {
       if (isAdditive) {
         cumulativeFactors[loopmonth] = cumulativeFactors[loopmonth - 1] + monthlyFactors[loopmonth - 1];
-      }
-      else {
+      } else {
         cumulativeFactors[loopmonth] = cumulativeFactors[loopmonth - 1] * monthlyFactors[loopmonth - 1];
       }
     }

@@ -62,7 +62,7 @@ public final class AsynchronousOperation<T> {
    * @param <T> the type within the set
    * @return the new instance, never null
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public static <T> AsynchronousOperation<Set<T>> createSet() {
     return new AsynchronousOperation(Set.class);
   }

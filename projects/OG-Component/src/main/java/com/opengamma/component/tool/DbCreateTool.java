@@ -10,9 +10,9 @@ import java.io.File;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.db.tool.DbCreateOperation;
 import com.opengamma.util.db.tool.DbToolContext;
-import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Tool for creating database objects using the installation scripts.

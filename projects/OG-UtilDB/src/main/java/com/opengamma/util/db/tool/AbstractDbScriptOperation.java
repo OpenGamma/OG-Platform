@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.util.db.script.DbScript;
+import com.opengamma.util.db.script.DbScriptUtils;
 
 /**
  * Abstract representation of a database operation on master database schemas using the database installation scripts.
@@ -20,7 +21,6 @@ public abstract class AbstractDbScriptOperation<T extends DbToolContext> extends
   
   protected AbstractDbScriptOperation(T dbToolContext, boolean write, File outputFile) {
     super(dbToolContext, write, outputFile);
-    contextNotNull(getDbToolContext().scriptReader());
     contextNotNull(getDbToolContext().dbManagement());
   }
   
@@ -30,7 +30,7 @@ public abstract class AbstractDbScriptOperation<T extends DbToolContext> extends
   }
   
   protected DbScript getCreationScript(String groupName) {
-    return getDbToolContext().getScriptReader().getCreationScript(getDatabaseName(), groupName);
+    return DbScriptUtils.getDbSchemaGroupMetadata(groupName).getCreateScript(getDatabaseName());
   }
   
   protected List<DbScript> getMigrationScripts(String groupName) {
@@ -38,11 +38,11 @@ public abstract class AbstractDbScriptOperation<T extends DbToolContext> extends
     if (currentGroupVersion == null) {
       return null;
     }
-    return getDbToolContext().getScriptReader().getMigrationScripts(getDatabaseName(), groupName, currentGroupVersion);
+    return DbScriptUtils.getDbSchemaGroupMetadata(groupName).getMigrateScripts(getDatabaseName(), (int) currentGroupVersion);
   }
   
   protected Set<String> getAllSchemaNames() {
-    return getDbToolContext().getScriptReader().getAllSchemaNames(getDatabaseName());
+    return DbScriptUtils.getAllSchemaNames();
   }
   
   /**

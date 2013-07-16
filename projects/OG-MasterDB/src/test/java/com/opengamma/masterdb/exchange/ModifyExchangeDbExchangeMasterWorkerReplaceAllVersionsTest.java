@@ -173,8 +173,7 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends 
       ObjectId baseOid = setupTestData(now);
       _exgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ExchangeDocument latestDoc = _exgMaster.get(baseOid, VersionCorrection.LATEST);
-      Instant latestFrom = latestDoc.getVersionFromInstant();
-
+      
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
       List<ExchangeDocument> replacement = newArrayList();
@@ -257,8 +256,7 @@ public class ModifyExchangeDbExchangeMasterWorkerReplaceAllVersionsTest extends 
       ObjectId baseOid = setupTestData(now);
       _exgMaster.setClock(Clock.fixed(now.plus(2, HOURS), ZoneOffset.UTC));
       ExchangeDocument latestDoc = _exgMaster.get(baseOid, VersionCorrection.LATEST);
-      Instant latestFrom = latestDoc.getVersionFromInstant();
-
+      
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       final ExternalIdBundle region = ExternalIdBundle.of("R", "R0");
       List<ExchangeDocument> replacement = newArrayList();

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.LogUtils;
+import com.opengamma.util.StartupUtils;
 
 /**
  * Abstract class for command line tools which do not require access to a ToolContext
@@ -35,6 +36,10 @@ public abstract class AbstractToolWithoutContext {
   private static final String HELP_OPTION = "h";
   /** Logging command line option. */
   private static final String LOGBACK_RESOURCE_OPTION = "l";
+  
+  static {
+    StartupUtils.init();
+  }
 
   /**
    * The command line.
@@ -129,11 +134,11 @@ public abstract class AbstractToolWithoutContext {
     return init(logbackResource) && run();
   }
 
-
   /**
-    * Runs the tool, calling {@code doRun}.
-    */
-  @SuppressWarnings("unchecked")
+   * Runs the tool, calling {@code doRun}.
+   * 
+   * @return true if successful
+   */
   public final boolean run() {
     try {
       s_logger.info("Running " + getClass().getSimpleName());

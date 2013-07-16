@@ -84,8 +84,11 @@ public class FXOptionBlackValueRhoFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY);
+    return FinancialSecurityTypes.FX_OPTION_SECURITY
+        .or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY);
   }
 
   @Override

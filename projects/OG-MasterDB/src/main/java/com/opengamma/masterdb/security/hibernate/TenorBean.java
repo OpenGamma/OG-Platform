@@ -26,7 +26,7 @@ public class TenorBean extends EnumBean {
   /* package */ Tenor toFrequency() {
     try {
       final Period period = Period.parse(getName());
-      return new Tenor(period);
+      return Tenor.of(period);
     } catch (DateTimeParseException dpe) {
       throw new OpenGammaRuntimeException("Bad value for tenorBean (" + getName() + ")");
     }

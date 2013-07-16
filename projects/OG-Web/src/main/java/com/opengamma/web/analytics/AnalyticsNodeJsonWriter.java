@@ -17,8 +17,10 @@ import java.util.List;
 public class AnalyticsNodeJsonWriter {
 
   /**
-   * @param node The node
-   * @return Nested JSON array of the node structure
+   * Gets the JSON structure.
+   * 
+   * @param node  the node
+   * @return the nested JSON array of the node structure
    */
   public static Object[] getJsonStructure(AnalyticsNode node) {
     return createNodeArray(node);
@@ -31,7 +33,8 @@ public class AnalyticsNodeJsonWriter {
    * <pre>
    *   [startRow,endRow,[childNode1,childNode2,...],isFungiblePosition]
    * </pre>
-   * @param node The grid node
+   * 
+   * @param node  the grid node, null returns an empty array
    * @return <pre>[startRow,endRow,[childNode1,childNode2,...],isFungiblePosition]</pre>
    */
   private static Object[] createNodeArray(AnalyticsNode node) {
@@ -56,4 +59,5 @@ public class AnalyticsNodeJsonWriter {
     nodeArray[2] = childArray;
     return nodeArray;
   }
+
 }

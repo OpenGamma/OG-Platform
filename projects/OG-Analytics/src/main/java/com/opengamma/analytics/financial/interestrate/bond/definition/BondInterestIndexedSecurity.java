@@ -165,29 +165,39 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
-    BondInterestIndexedSecurity other = (BondInterestIndexedSecurity) obj;
-    if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest))
+    }
+    BondInterestIndexedSecurity<?, ?> other = (BondInterestIndexedSecurity<?, ?>) obj;
+    if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
       return false;
-    if (_couponPerYear != other._couponPerYear)
+    }
+    if (_couponPerYear != other._couponPerYear) {
       return false;
-    if (Double.doubleToLongBits(_factorToNextCoupon) != Double.doubleToLongBits(other._factorToNextCoupon))
+    }
+    if (Double.doubleToLongBits(_factorToNextCoupon) != Double.doubleToLongBits(other._factorToNextCoupon)) {
       return false;
+    }
     if (_settlement == null) {
-      if (other._settlement != null)
+      if (other._settlement != null) {
         return false;
-    } else if (!_settlement.equals(other._settlement))
+      }
+    } else if (!_settlement.equals(other._settlement)) {
       return false;
+    }
     if (_yieldConvention == null) {
-      if (other._yieldConvention != null)
+      if (other._yieldConvention != null) {
         return false;
-    } else if (!_yieldConvention.equals(other._yieldConvention))
+      }
+    } else if (!_yieldConvention.equals(other._yieldConvention)) {
       return false;
+    }
     return true;
   }
 

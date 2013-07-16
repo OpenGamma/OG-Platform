@@ -16,7 +16,7 @@
   </class>
   
   <query name="ComputeHost.one.byHostName">
-  	from ComputeHost as a where 
-  	a.hostName = :hostName</query>  
+    from ComputeHost as a where 
+    a.hostName = :hostName</query>  
   
 </hibernate-mapping>

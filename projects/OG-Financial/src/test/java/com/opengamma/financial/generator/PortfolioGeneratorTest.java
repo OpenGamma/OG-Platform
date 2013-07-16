@@ -77,11 +77,11 @@ public class PortfolioGeneratorTest {
 
   public void testMultiplePosition() {
     final InMemorySecuritySource source = new InMemorySecuritySource();
-    final PortfolioGenerator generator = new PortfolioGenerator(new LeafPortfolioNodeGenerator(new StaticNameGenerator("NODE"), createSimplePositionGenerator(source), 100), new StaticNameGenerator(
+    final PortfolioGenerator generator = new PortfolioGenerator(new LeafPortfolioNodeGenerator(new StaticNameGenerator("NODE"), createSimplePositionGenerator(source), 20), new StaticNameGenerator(
         "PORTFOLIO"));
     final Portfolio portfolio = generator.createPortfolio();
     assertEquals(portfolio.getRootNode().getChildNodes().size(), 0);
-    assertEquals(portfolio.getRootNode().getPositions().size(), 100);
+    assertEquals(portfolio.getRootNode().getPositions().size(), 20);
     testPositions(portfolio.getRootNode().getPositions(), source);
     assertEquals(portfolio.getRootNode().getName(), "NODE");
     assertEquals(portfolio.getName(), "PORTFOLIO");

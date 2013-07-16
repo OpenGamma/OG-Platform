@@ -18,7 +18,8 @@ import com.opengamma.id.UniqueId;
  * subscription is created for the calling client.  When the entity changes the client will be notified.
  * The notification will contain the REST URL used to invoke the method.  This is to allow clients to re-request
  * stale data.
- */@Target(ElementType.PARAMETER)
+ */
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Subscribe {
 }

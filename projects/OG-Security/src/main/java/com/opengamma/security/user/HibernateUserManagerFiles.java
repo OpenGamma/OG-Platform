@@ -8,7 +8,7 @@ package com.opengamma.security.user;
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
- * HibernateSecurityMaster configuration.
+ * Hibernate UserManager configuration.
  */
 public final class HibernateUserManagerFiles implements HibernateMappingFiles {
 

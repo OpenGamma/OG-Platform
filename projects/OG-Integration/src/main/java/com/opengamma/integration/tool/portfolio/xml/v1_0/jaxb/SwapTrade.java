@@ -107,7 +107,6 @@ public class SwapTrade extends Trade {
   public static SwapTrade.Meta meta() {
     return SwapTrade.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(SwapTrade.Meta.INSTANCE);
   }

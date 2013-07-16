@@ -126,7 +126,6 @@ public class DbBatchWriter extends AbstractDbMaster {
   private final Map<Long, Map<Pair<Long, Long>, StatusEntry>> _statusCacheByRunId = newConcurrentMap();
   private final Map<Long, Map<ComputeFailureKey, ComputeFailure>> _computeFailureCacheByRunId = newConcurrentMap();
 
-
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchWriter.class);
 
@@ -368,6 +367,7 @@ public class DbBatchWriter extends AbstractDbMaster {
    *
    * @return a new, empty {@code ConcurrentMap}
    */
+  @SuppressWarnings("deprecation")
   private static <K, V> Map<K, Collection<V>> newHashMapWithDefaultCollection() {
     return (new MapMaker()).makeComputingMap(new Function<K, Collection<V>>() {
       @Override
@@ -376,7 +376,6 @@ public class DbBatchWriter extends AbstractDbMaster {
       }
     });
   }
-
 
   protected void populateRiskValueRequirements(ViewCycleMetadata cycleMetadata) {
     populateRiskValueSpecifications(cycleMetadata);
@@ -871,8 +870,11 @@ public class DbBatchWriter extends AbstractDbMaster {
       marketDataValuesInserts.toArray(new DbMapSqlParameterSource[marketDataValuesInserts.size()])
     );
 
-    getJdbcTemplate().update(getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
-    getJdbcTemplate().update("DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
+    String sqlUpdate = getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", "));
+    getJdbcTemplate().getJdbcOperations().update(sqlUpdate);
+    
+    String sqlDelete = "DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", "));
+    getJdbcTemplate().getJdbcOperations().update(sqlDelete);
   }
 
   //-------------------------------------------------------------------------
@@ -1080,9 +1082,12 @@ public class DbBatchWriter extends AbstractDbMaster {
    * STAGE 1. Populate error information in the cache.
    * This is done for all items and will populate table rsk_compute_failure.
    * 
+   * @param computeFailureCache  the cache
+   * @param results  the results
    * @return the error cache, not null
    */
-  protected Map<ValueSpecification, BatchResultWriterFailure> populateErrorCache(Map<ComputeFailureKey, ComputeFailure> computeFailureCache, Collection<ViewResultEntry> results) {
+  protected Map<ValueSpecification, BatchResultWriterFailure> populateErrorCache(
+      Map<ComputeFailureKey, ComputeFailure> computeFailureCache, Collection<ViewResultEntry> results) {
     Map<ValueSpecification, BatchResultWriterFailure> errorCache = Maps.newHashMap();
     for (ViewResultEntry result : results) {
       populateErrorCache(computeFailureCache, errorCache, result);
@@ -1090,6 +1095,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     return errorCache;
   }
 
+  @SuppressWarnings("unchecked")
   protected void updateStatusEntries(
     Map<Pair<Long, Long>, StatusEntry> statusCache,
     String calcConfName,
@@ -1136,7 +1142,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     }
 
-    s_logger.info("Inserting {} and updating {} {} status entries", newArray(inserts.size(), updates.size(), status));
+    s_logger.info("Inserting {} and updating {} {} status entries", (Object[]) newArray(inserts.size(), updates.size(), status));
 
     SqlParameterSource[] batchArgsArray = inserts.toArray(new DbMapSqlParameterSource[inserts.size()]);
     int[] counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertFromRunStatus"), batchArgsArray);
@@ -1146,7 +1152,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("UpdateFromRunStatus"), batchArgsArray);
     checkCount(status + " update", batchArgsArray, counts);
 
-    s_logger.info("Inserted {} and updated {} {} status entries", newArray(inserts.size(), updates.size(), status));
+    s_logger.info("Inserted {} and updated {} {} status entries", (Object[]) newArray(inserts.size(), updates.size(), status));
   }
 
   private int checkCount(String rowType, SqlParameterSource[] batchArgsArray, int[] counts) {
@@ -1214,8 +1220,8 @@ public class DbBatchWriter extends AbstractDbMaster {
     try {
       StatusEntry statusEntry = getJdbcTemplate().queryForObject(
         getElSqlBundle().getSql("SelectStatusEntry"),
-        StatusEntry.ROW_MAPPER,
-        args);
+        args,
+        StatusEntry.ROW_MAPPER);
 
       // status entry in db found.
       statusCache.put(key, statusEntry);
@@ -1300,7 +1306,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       return computeFailure;
     }
     try {
-      int id = getJdbcTemplate().queryForInt(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource());
+      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource(), Integer.class);
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
       computeFailure.setFunctionId(computeFailureKey.getFunctionId());

@@ -83,7 +83,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       final InstrumentHandler handler = getInstrumentHandler(strip);
       final Security security = handler.getSecurity(this, curveSpecification, marketValues, strip);
       final ZonedDateTime maturity = handler.getMaturity(this, curveDate, strip, security);
-      final Tenor resolvedTenor = new Tenor(Period.between(curveDate, maturity.toLocalDate()));
+      final Tenor resolvedTenor = Tenor.of(Period.between(curveDate, maturity.toLocalDate()));
       securityStrips.add(new FixedIncomeStripWithSecurity(strip.getStrip(), resolvedTenor, maturity, strip.getSecurity(), security));
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(),

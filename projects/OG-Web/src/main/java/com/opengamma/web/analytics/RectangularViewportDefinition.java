@@ -88,7 +88,7 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   /**
    * Iterator that returns the viewports cells by traversing rows followed by columns.
    */
-  private class CellIterator implements Iterator<GridCell> {
+  private final class CellIterator implements Iterator<GridCell> {
 
     private final Iterator<Integer> _rowIterator = _rows.iterator();
 

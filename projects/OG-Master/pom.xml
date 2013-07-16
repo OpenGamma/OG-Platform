@@ -6,15 +6,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.1.0-M1-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-master</artifactId>
   <packaging>jar</packaging>
   <name>OG-Master</name>
-  <description>OpenGamma platform master concepts</description>
+  <description>OpenGamma Platform master concepts</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Master</url>
@@ -22,7 +22,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -34,8 +34,6 @@
   </dependencies>
 
   <properties>
-    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
   </properties>
 
 </project>

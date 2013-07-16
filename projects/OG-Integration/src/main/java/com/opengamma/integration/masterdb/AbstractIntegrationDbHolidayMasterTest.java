@@ -16,6 +16,7 @@ import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbHolidayMaster.
@@ -26,12 +27,12 @@ public abstract class AbstractIntegrationDbHolidayMasterTest extends AbstractLoc
 
   private HolidayMaster _holMaster;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.INTEGRATION)
   public void setUp() throws Exception {
     _holMaster = getTestHelper().getHolidayMaster();
   }
 
-  @AfterMethod
+  @AfterMethod(groups = TestGroup.INTEGRATION)
   public void tearDown() throws Exception {
     _holMaster = null;
   }
@@ -41,7 +42,7 @@ public abstract class AbstractIntegrationDbHolidayMasterTest extends AbstractLoc
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(enabled = false, description = "Queries the entire database")
   public void test_queryAll() throws Exception {
     final HolidaySearchRequest request = new HolidaySearchRequest();
     request.setPagingRequest(PagingRequest.NONE);

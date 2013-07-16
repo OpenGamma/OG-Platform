@@ -19,6 +19,7 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
+@SuppressWarnings("deprecation")
 public class CreditCurveIdentifierTest {
 
   private static final String RED_CODE = "ABC";

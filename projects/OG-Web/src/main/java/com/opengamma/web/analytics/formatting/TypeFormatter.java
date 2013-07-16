@@ -8,27 +8,36 @@ package com.opengamma.web.analytics.formatting;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * @param <T> Type of object formatted by the formatter
+ * Formatter.
+ * 
+ * @param <T> the type of object formatted by the formatter
  */
 public interface TypeFormatter<T> {
 
-  public static final String FORMATTING_ERROR = "Formatting Error";
+  /**
+   * Constant used for formatting errors.
+   */
+  String FORMATTING_ERROR = "Formatting Error";
 
+  /**
+   * Defines the types of format.
+   */
   enum Format {
     CELL,
     EXPANDED,
     HISTORY,
   }
-  
+
   Object formatCell(T value, ValueSpecification valueSpec, Object inlineKey);
 
   Object format(T value, ValueSpecification valueSpec, Format format, Object inlineKey);
 
   Class<T> getType();
-  
+
   /**
    * If all values of type {@link T} can be formatted the same this method returns the common format type. If
    * different instances of {@link T} require different formatting this method should return {@link DataType#UNKNOWN}.
+   * 
    * @return The format type for {@link T} or {@link DataType#UNKNOWN} if different instances require different 
    * formatting
    */
@@ -38,8 +47,10 @@ public interface TypeFormatter<T> {
    * Returns the format type for a value. If all values of a type can be formatted using the same formatter this
    * should always return the same type as {@link #getDataType()}. This method should never return
    * {@link DataType#UNKNOWN}
-   * @param value The value
-   * @return The format type for the value
+   * 
+   * @param value  the value
+   * @return the format type for the value
    */
   DataType getDataTypeForValue(T value);
+
 }

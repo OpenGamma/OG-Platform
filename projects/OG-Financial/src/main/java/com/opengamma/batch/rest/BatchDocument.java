@@ -114,7 +114,7 @@ public class BatchDocument extends DirectBean {
   /**
    * Creates an instance specifying a unique identifier.
    * 
-   * @param uniqueId  the batch unique identifier, not null
+   * @param batchId  the batch unique identifier, not null
    */
   public BatchDocument(ObjectId batchId) {
     ArgumentChecker.notNull(batchId, "batchId");

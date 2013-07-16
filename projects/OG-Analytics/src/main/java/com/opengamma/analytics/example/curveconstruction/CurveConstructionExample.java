@@ -32,7 +32,11 @@ import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.money.Currency;
 
+/**
+ * Example for curve construction.
+ */
 public class CurveConstructionExample {
+// CSOFF
 
   // @export "matrixDemo"
   public static void matrixDemo(final PrintStream out) {
@@ -157,6 +161,7 @@ public class CurveConstructionExample {
   static CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator("NaturalCubicSpline", "LinearExtrapolator",
       "FlatExtrapolator");
 
+  @SuppressWarnings({"unused", "rawtypes" })
   public static void yieldPoints(final PrintStream out) {
     final Currency currency = Currency.EUR;
     final String curveName = "onlyThis";

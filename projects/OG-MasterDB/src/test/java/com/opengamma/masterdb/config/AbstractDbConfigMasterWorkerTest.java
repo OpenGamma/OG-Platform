@@ -20,17 +20,11 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -42,16 +36,15 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbConfigMasterWorker via DbConfigMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
+public abstract class AbstractDbConfigMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigMasterWorkerTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
@@ -64,28 +57,29 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   protected int _totalConfigs;
   protected int _totalExternalIds;
   protected int _totalBundles;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbConfigMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _cfgMaster = null;
   }
 
+  @Override
+  protected void doTearDownClass() {
+    _cfgMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
   protected ObjectId setupTestData(Instant now) {
     Clock origClock = _cfgMaster.getClock();
     try {
@@ -97,7 +91,6 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
 
       ObjectId baseOid = initial.getObjectId();
 
-      //------------------------------------------------------------------------------------------------------------------
       List<ConfigDocument> firstReplacement = newArrayList();
       for (int i = 0; i < 5; i++) {
         String val = "setup_" + i;
@@ -108,18 +101,15 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
       }
       _cfgMaster.setClock(Clock.fixed(now.plus(1, HOURS), ZoneOffset.UTC));
       _cfgMaster.replaceVersions(baseOid.getObjectId(), firstReplacement);
-
       return baseOid;
+      
     } finally {
       _cfgMaster.setClock(origClock);
     }
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _cfgMaster = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
-    
+  private void init() {
+    _cfgMaster = new DbConfigMaster(getDbConnector());
     Instant now = Instant.now();
     _cfgMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
     _version1aInstant = now.minusSeconds(102);
@@ -136,7 +126,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     String cls = ExternalId.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _cfgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _cfgMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         101, 101, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, "TestConfig101", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
@@ -157,7 +147,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     String cls = ExternalIdBundle.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _cfgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _cfgMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         301, 301, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, "TestConfig301", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
@@ -171,27 +161,6 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
         402, 401, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestConfig402", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
     _totalBundles = 3;
-  }
-
-  @AfterMethod(alwaysRun = true)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _cfgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(alwaysRun = true)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _cfgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

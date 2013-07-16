@@ -20,6 +20,8 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
@@ -28,8 +30,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.rest.RestUtils;
-
-import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * RESTful resource for a historical time-series.

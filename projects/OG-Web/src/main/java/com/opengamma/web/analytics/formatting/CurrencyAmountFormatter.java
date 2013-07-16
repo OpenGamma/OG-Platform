@@ -74,7 +74,7 @@ import com.opengamma.util.money.CurrencyAmount;
 
   /**
    * @param value A double value, not null
-   * @return The value converted to a {@link BigDecimal} or {@code null} if the value is infinite or not a number
+   * @return The value converted to a {@link BigDecimal}, null if the value is infinite or not a number
    */
   private static BigDecimal convertToBigDecimal(Double value) {
     if (Double.isInfinite(value) || Double.isNaN(value)) {

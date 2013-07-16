@@ -6,21 +6,24 @@
 package com.opengamma.util.annotation;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.fudgemsg.AnnotationReflector;
 import org.fudgemsg.FudgeRuntimeException;
-import org.scannotation.AnnotationDB;
+import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.MethodParameterScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 import org.threeten.bp.Instant;
-
-import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Scans the class path for classes that contain the given annotations.
@@ -102,29 +105,36 @@ public final class ClasspathScanner {
    * 
    * @return the cache, not null
    */
+  @SuppressWarnings("rawtypes")
   public AnnotationCache scan(Class<? extends Annotation> annotationClass) {
-    final AnnotationDB annoDb = new AnnotationDB();
-    annoDb.setScanClassAnnotations(_scanClassAnnotations);
-    annoDb.setScanFieldAnnotations(_scanFieldAnnotations);
-    annoDb.setScanMethodAnnotations(_scanMethodAnnotations);
-    annoDb.setScanParameterAnnotations(_scanParameterAnnotations);
-    try {
-      annoDb.scanArchives(_urls);
-    } catch (IOException ex) {
-      throw new OpenGammaRuntimeException("Couldn't scan archives", ex);
+    AnnotationReflector reflector = new AnnotationReflector(null, null,
+        new TypeAnnotationsScanner(), new FieldAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner());
+    Set<String> classNames = reflector.getReflector().getStore().getTypesAnnotatedWith(annotationClass.getName());
+    Set<Field> fields = reflector.getReflector().getFieldsAnnotatedWith(annotationClass);
+    for (Field field : fields) {
+      classNames.add(field.getDeclaringClass().getName());
     }
-    Set<String> classNames = annoDb.getAnnotationIndex().get(annotationClass.getName());
-    if (classNames == null) {
-      classNames = Collections.emptySet();
+    Set<Method> methods = reflector.getReflector().getMethodsAnnotatedWith(annotationClass);
+    for (Method method : methods) {
+      classNames.add(method.getDeclaringClass().getName());
     }
-    final AnnotationCache cache = AnnotationCache.create(getTimestamp(), annotationClass, classNames);
-    return cache;
+    Set<Constructor> constructors = reflector.getReflector().getConstructorsAnnotatedWith(annotationClass);
+    for (Constructor constructor : constructors) {
+      classNames.add(constructor.getDeclaringClass().getName());
+    }
+    Set<Method> paramMethods = reflector.getReflector().getMethodsWithAnyParamAnnotated(annotationClass);
+    for (Method method : paramMethods) {
+      classNames.add(method.getDeclaringClass().getName());
+    }
+    return AnnotationCache.create(getTimestamp(), annotationClass, classNames);
   }
 
   /**
    * Gets the scanClassAnnotations.
    * @return the scanClassAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public boolean isScanClassAnnotations() {
     return _scanClassAnnotations;
   }
@@ -132,7 +142,9 @@ public final class ClasspathScanner {
   /**
    * Sets the scanClassAnnotations.
    * @param scanClassAnnotations  the scanClassAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public void setScanClassAnnotations(boolean scanClassAnnotations) {
     _scanClassAnnotations = scanClassAnnotations;
   }
@@ -140,7 +152,9 @@ public final class ClasspathScanner {
   /**
    * Gets the scanMethodAnnotations.
    * @return the scanMethodAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public boolean isScanMethodAnnotations() {
     return _scanMethodAnnotations;
   }
@@ -148,7 +162,9 @@ public final class ClasspathScanner {
   /**
    * Sets the scanMethodAnnotations.
    * @param scanMethodAnnotations  the scanMethodAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public void setScanMethodAnnotations(boolean scanMethodAnnotations) {
     _scanMethodAnnotations = scanMethodAnnotations;
   }
@@ -156,7 +172,9 @@ public final class ClasspathScanner {
   /**
    * Gets the scanParameterAnnotations.
    * @return the scanParameterAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public boolean isScanParameterAnnotations() {
     return _scanParameterAnnotations;
   }
@@ -164,7 +182,9 @@ public final class ClasspathScanner {
   /**
    * Sets the scanParameterAnnotations.
    * @param scanParameterAnnotations  the scanParameterAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public void setScanParameterAnnotations(boolean scanParameterAnnotations) {
     _scanParameterAnnotations = scanParameterAnnotations;
   }
@@ -172,7 +192,9 @@ public final class ClasspathScanner {
   /**
    * Gets the scanFieldAnnotations.
    * @return the scanFieldAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public boolean isScanFieldAnnotations() {
     return _scanFieldAnnotations;
   }
@@ -180,7 +202,9 @@ public final class ClasspathScanner {
   /**
    * Sets the scanFieldAnnotations.
    * @param scanFieldAnnotations  the scanFieldAnnotations
+   * @deprecated Unused
    */
+  @Deprecated
   public void setScanFieldAnnotations(boolean scanFieldAnnotations) {
     _scanFieldAnnotations = scanFieldAnnotations;
   }

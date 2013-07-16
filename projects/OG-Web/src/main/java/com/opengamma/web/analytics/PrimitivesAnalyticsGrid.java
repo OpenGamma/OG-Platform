@@ -8,7 +8,6 @@ package com.opengamma.web.analytics;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
-
 /**
  * A grid for displaying primitives analytics data.
  */
@@ -40,7 +39,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   protected MainGridViewport createViewport(ViewportDefinition viewportDefinition,
                                             String callbackId,
                                             ResultsCache cache) {
-    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, cache);
+    return new MainGridViewport((MainGridStructure) getGridStructure(), callbackId, viewportDefinition, getViewCycle(), cache);
   }
 
   /**
@@ -53,4 +52,5 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
                                        new DummyTargetResolver(),
                                        new NoOpViewportListener());
   }
+
 }

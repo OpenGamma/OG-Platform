@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
@@ -39,6 +40,30 @@ public class CurrencyAmountTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_nullCurrency() {
     CurrencyAmount.of((String) null, A1);
+  }
+
+  //-------------------------------------------------------------------------
+  // parse(String)
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parse_String() {
+    assertEquals(CurrencyAmount.of(Currency.AUD, 100.001), CurrencyAmount.parse("AUD 100.001"));
+    assertEquals(CurrencyAmount.of(Currency.AUD, 123.3), CurrencyAmount.parse("AUD 123.3"));
+    assertEquals(CCY_AMOUNT, CurrencyAmount.parse(CCY_AMOUNT.toString()));
+  }
+
+  @DataProvider(name = "badParse")
+  Object[][] data_badParse() {
+    return new Object[][] {
+      {"AUD"},
+      {"AUD aa"},
+      {"123"},
+      {null},
+    };
+  }
+  @Test(dataProvider = "badParse", expectedExceptions = IllegalArgumentException.class)
+  public void test_parse_String_bad(String input) {
+    CurrencyAmount.parse(input);
   }
 
   //-------------------------------------------------------------------------

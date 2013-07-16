@@ -37,6 +37,7 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.StartupUtils;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
@@ -47,6 +48,10 @@ public class BatchJobRunner {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BatchJobRunner.class);
+  
+  static {
+    StartupUtils.init();
+  }
 
   /**
    * Date-time format: yyyyMMdd

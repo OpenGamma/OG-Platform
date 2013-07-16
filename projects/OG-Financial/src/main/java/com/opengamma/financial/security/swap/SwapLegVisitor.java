@@ -54,17 +54,17 @@ public interface SwapLegVisitor<T> {
    */
   T visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg);
 
-  //  /**
-  //   * Visits a fixed inflation swap leg.
-  //   * @param swapLeg The swap leg, not null
-  //   * @return The return value
-  //   */
-  //  T visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg);
+  /**
+   * Visits a fixed inflation swap leg.
+   * @param swapLeg The swap leg, not null
+   * @return The return value
+   */
+  T visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg);
 
-  //  /**
-  //   * Visits a index-linked inflation swap leg.
-  //   * @param swapLeg The swap leg, not null
-  //   * @return The return value
-  //   */
-  //  T visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg);
+  /**
+   * Visits a index-linked inflation swap leg.
+   * @param swapLeg The swap leg, not null
+   * @return The return value
+   */
+  T visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg);
 }

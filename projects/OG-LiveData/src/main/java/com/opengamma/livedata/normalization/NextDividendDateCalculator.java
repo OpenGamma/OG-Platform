@@ -7,27 +7,26 @@ package com.opengamma.livedata.normalization;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.types.FudgeDate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.livedata.server.FieldHistoryStore;
-/** Returns the next dividend date of an equity security */
+
+/**
+ * Returns the next dividend date of an equity security.
+ */
 public class NextDividendDateCalculator implements NormalizationRule {
-  
+
   @Override
   public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
     Object dateObject = msg.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE);
-    if (dateObject == null) { 
+    if (dateObject == null) {
       // fall back to last known value. This is expected as this value does not tick. 
       FudgeMsg lkv = fieldHistory.getLastKnownValues();
       dateObject = lkv.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE);
       if (dateObject != null) {
         msg.add(MarketDataRequirementNames.NEXT_DIVIDEND_DATE, dateObject);
       }
-    } 
+    }
     return msg;
   }
 }

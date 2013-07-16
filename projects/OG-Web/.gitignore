@@ -2,6 +2,9 @@
 foo~
 *.class
 *.log
+.project
+.classpath
+.checkstyle
 /bin/
 /build/
 /dist/
@@ -18,3 +21,4 @@ tests/output/
 .clover/
 .DS_Store
 build.number
+*.iml

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<document>
+
+ <properties>
+  <title>OpenGamma platform - Home</title>
+ </properties>
+
+ <body>
+<section name="OpenGamma Platform">
+<p>
+The OpenGamma platform produces a number of reports to aid understanding.
+</p>
+<p>
+<ul>
+<li>The main public platform <a href="platform/index.html">site</a></li>
+<li>The latest <a href="platform/apidocs/index.html">Javadoc</a></li>
+<li>The coding standards report from <a href="platform/checkstyle-aggregate.html">Checkstyle</a></li>
+<li>The <a href="platform/xref/index.html">source code</a> cross-reference</li>
+</ul>
+</p>
+<p>
+See also the individual module reports.
+</p>
+</section>
+</body>
+</document>

@@ -8,7 +8,7 @@ package com.opengamma.integration.coppclark;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Loads the holiday data from the Copp-Clark data source.

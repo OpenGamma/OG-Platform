@@ -104,6 +104,10 @@ public abstract class EquityInstrumentDefaultValues {
     
     Builder useForwardCurveCalculationMethodNames();
     
+    /**
+     * @return the builder
+     * @deprecated See useForwardCurveCalculationMethodNames
+     */
     @Deprecated
     Builder useForwardCurveCalculationConfigNames();
     

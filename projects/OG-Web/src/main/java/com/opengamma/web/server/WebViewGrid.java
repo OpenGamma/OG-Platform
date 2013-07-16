@@ -15,7 +15,8 @@ import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.cometd.Client;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +45,8 @@ public abstract class WebViewGrid {
   
   private final ResultConverterCache _resultConverterCache;
   private final ViewClient _viewClient;
-  private final Client _local;
-  private final Client _remote;
+  private final LocalSession _local;
+  private final ServerSession _remote;
   
   // Row-based state
   private final AtomicReference<SortedMap<Integer, Long>> _viewportMap = new AtomicReference<SortedMap<Integer, Long>>();
@@ -55,7 +56,7 @@ public abstract class WebViewGrid {
   
   private final Map<WebGridCell, SortedMap<Long, Object>> _cellValueHistory = new HashMap<WebGridCell, SortedMap<Long, Object>>();
   
-  protected WebViewGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache, Client local, Client remote) {
+  protected WebViewGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache, LocalSession local, ServerSession remote) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
@@ -122,12 +123,12 @@ public abstract class WebViewGrid {
     return _resultConverterCache;
   }
   
-  protected Client getRemoteClient() {
-    return _remote;
+  protected LocalSession getLocalSession() {
+    return _local;
   }
   
-  protected Client getLocalClient() {
-    return _local;
+  protected ServerSession getRemoteSession() {
+    return _remote;
   }
   
   protected ViewClient getViewClient() {

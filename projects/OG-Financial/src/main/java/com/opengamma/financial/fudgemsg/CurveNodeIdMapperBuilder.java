@@ -116,7 +116,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
       final Map<Tenor, CurveInstrumentProvider> nodeIds = new HashMap<>();
       final FudgeMsg idsMessage = message.getMessage(fieldName);
       for (final FudgeField field : idsMessage.getAllFields()) {
-        nodeIds.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        nodeIds.put(Tenor.of(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
       return nodeIds;
     }

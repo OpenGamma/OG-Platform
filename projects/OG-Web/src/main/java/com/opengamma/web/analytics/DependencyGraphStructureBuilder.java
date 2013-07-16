@@ -34,7 +34,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
   private final DependencyGraphGridStructure _structure;
 
   /** Mutable variable for keeping track of the index of the last row */
-  private int _lastRow = 0;
+  private int _lastRow;
 
   /**
    * @param compiledViewDef The compiled view definition containing the dependency graph

@@ -13,7 +13,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
- *
+ * A renderer for analytics.
  */
 /* package */ class AnalyticsRenderer implements GridColumn.CellRenderer {
 

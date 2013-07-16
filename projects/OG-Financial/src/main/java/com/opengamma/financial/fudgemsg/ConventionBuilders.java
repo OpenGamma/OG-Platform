@@ -86,7 +86,7 @@ public final class ConventionBuilders {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_INDEX_ID_FIELD));
-      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
+      final Tenor paymentTenor = Tenor.of(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final boolean isAdvanceFixing = message.getBoolean(ADVANCE_FIXING_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final CMSLegConvention convention = new CMSLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, isAdvanceFixing);
@@ -129,7 +129,7 @@ public final class ConventionBuilders {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IBOR_INDEX_ID_FIELD));
-      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
+      final Tenor paymentTenor = Tenor.of(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
@@ -422,7 +422,7 @@ public final class ConventionBuilders {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final ExternalId overnightIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(OVERNIGHT_INDEX_CONVENTION_FIELD));
-      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
+      final Tenor paymentTenor = Tenor.of(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final int paymentDelay = message.getInt(PAYMENT_DELAY_FIELD);
       final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
       final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
@@ -602,7 +602,7 @@ public final class ConventionBuilders {
     public SwapFixedLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
-      final Tenor paymentTenor = new Tenor(Period.parse(message.getString(PAYMENT_TENOR)));
+      final Tenor paymentTenor = Tenor.of(Period.parse(message.getString(PAYMENT_TENOR)));
       final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
       final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
       final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
@@ -703,7 +703,7 @@ public final class ConventionBuilders {
       final boolean isAdvanceFixing = message.getBoolean(ADVANCE_FIXING_FIELD);
       final StubType stubType = StubType.valueOf(message.getString(STUB_TYPE_FIELD));
       final String interpolatorName = message.getString(INTERPOLATOR_NAME_FIELD);
-      final Tenor resetTenor = new Tenor(Period.parse(message.getString(RESET_TENOR_FIELD)));
+      final Tenor resetTenor = Tenor.of(Period.parse(message.getString(RESET_TENOR_FIELD)));
       final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);

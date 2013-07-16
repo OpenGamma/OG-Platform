@@ -19,7 +19,7 @@
   </class>
   
   <query name="ComputeNode.one.byNodeName">
-  	from ComputeNode as a where 
-  	a.nodeName = :nodeName</query>  
+    from ComputeNode as a where 
+    a.nodeName = :nodeName</query>  
   
 </hibernate-mapping>

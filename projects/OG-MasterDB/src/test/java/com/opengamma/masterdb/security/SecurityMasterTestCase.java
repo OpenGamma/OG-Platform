@@ -172,15 +172,15 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     // retrieve with original uniqueId - gets original
     sec = getSecurity(uniqueId);
     assertNotNull(sec);
-    assertEquals(originalName, sec.getName());
+    assertEquals("Get by original failed: Old UID: " + uniqueId + " New UID: " + newUniqueId, originalName, sec.getName());
     // retrieve with new uniqueId - gets updated
     sec = getSecurity(newUniqueId);
     assertNotNull(sec);
-    assertEquals(newName, sec.getName());
+    assertEquals("Get by UID failed: Old UID: " + uniqueId + " New UID: " + newUniqueId, newName, sec.getName());
     // retrieve with a "latest" uniqueId - gets updated
     sec = getSecurity(uniqueId.toLatest());
     assertNotNull(sec);
-    assertEquals(newName, sec.getName());
+    assertEquals("Get by latest failed: Old UID: " + uniqueId + " New UID: " + newUniqueId, newName, sec.getName());
     // retrieving by the earlier bundle - gets updated
     if (bundle != null) {
       sec = getSecurity(bundle);

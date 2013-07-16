@@ -21,16 +21,16 @@ public class MainGridViewportResource extends AbstractViewportResource {
 
   @Override
   public void update(ViewportDefinition viewportSpec) {
-    _view.updateViewport(_gridType, _viewportId, viewportSpec);
+    getView().updateViewport(getGridType(), getViewportId(), viewportSpec);
   }
 
   @Override
   public void delete() {
-    _view.deleteViewport(_gridType, _viewportId);
+    getView().deleteViewport(getGridType(), getViewportId());
   }
 
   @Override
   public ViewportResults getData() {
-    return _view.getData(_gridType, _viewportId);
+    return getView().getData(getGridType(), getViewportId());
   }
 }

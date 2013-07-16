@@ -9,6 +9,8 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Abstract integration test accessing local masters.
  */
@@ -17,7 +19,7 @@ public abstract class AbstractLocalMastersTest {
 
   private static LocalMastersTestUtils s_testUtils;
 
-  @BeforeClass
+  @BeforeClass(groups = TestGroup.INTEGRATION)
   public static synchronized void setupSuite() {
     System.out.println("Setup LocalMastersTestUtils");
     if (s_testUtils == null) {
@@ -34,7 +36,7 @@ public abstract class AbstractLocalMastersTest {
     return testUtils;
   }
 
-  @AfterSuite
+  @AfterSuite(groups = TestGroup.INTEGRATION)
   public static final void cleanupTestUtils() throws Exception {
     s_testUtils.tearDown();
   }

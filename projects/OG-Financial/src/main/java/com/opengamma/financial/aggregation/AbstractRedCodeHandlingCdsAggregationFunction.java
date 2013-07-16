@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,7 +11,6 @@ import java.util.Comparator;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
 
@@ -25,11 +23,6 @@ import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
 public abstract class AbstractRedCodeHandlingCdsAggregationFunction<T> extends AbstractCdsAggregationFunction<T> {
 
   /**
-   * Classification indicating that this aggregation does not apply to the security.
-   */
-  private static final String NOT_APPLICABLE = "N/A";
-
-  /**
    * Creates the aggregation function.
    *
    * @param name the name to be used for this aggregation, not null
@@ -38,7 +31,7 @@ public abstract class AbstractRedCodeHandlingCdsAggregationFunction<T> extends A
    */
   public AbstractRedCodeHandlingCdsAggregationFunction(String name, SecuritySource securitySource, final RedCodeHandler<T> redCodeHandler) {
     super(name, securitySource, new CdsValueExtractor<T>() {
-      final CdsRedCodeExtractor<T> _redCodeExtractor = new CdsRedCodeExtractor<>(redCodeHandler);
+      private final CdsRedCodeExtractor<T> _redCodeExtractor = new CdsRedCodeExtractor<>(redCodeHandler);
 
       @Override
       public T extract(AbstractCreditDefaultSwapSecurity cds) {
@@ -47,15 +40,10 @@ public abstract class AbstractRedCodeHandlingCdsAggregationFunction<T> extends A
     });
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Collection<String> getRequiredEntries() {
     return ImmutableList.of();
-  }
-
-  private Security resolveSecurity(Position position) {
-
-    Security security = position.getSecurityLink().getTarget();
-    return security != null ? security : position.getSecurityLink().resolveQuiet(getSecuritySource());
   }
 
   @Override
@@ -67,4 +55,5 @@ public abstract class AbstractRedCodeHandlingCdsAggregationFunction<T> extends A
   public int compare(String sector1, String sector2) {
     return sector1.compareTo(sector2);
   }
+
 }

@@ -12,19 +12,16 @@ import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.batch.RunCreationMode;
 import com.opengamma.batch.SnapshotMode;
 import com.opengamma.batch.domain.RiskRun;
@@ -38,7 +35,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -48,7 +44,7 @@ import com.opengamma.util.tuple.Pair;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbBatchMasterTest extends DbTest {
+public class DbBatchMasterTest extends AbstractDbBatchTest {
 
   private DbBatchMaster _batchMaster;
   private ViewCycleMetadata _cycleMetadataStub;
@@ -58,15 +54,13 @@ public class DbBatchMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbBatchMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _batchMaster = (DbBatchMaster) context.getBean(getDatabaseType() + "DbBatchMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _batchMaster = new DbBatchMaster(getDbConnector());
 
     final String calculationConfigName = "config_1";
 
@@ -98,11 +92,9 @@ public class DbBatchMasterTest extends DbTest {
 
       @Override
       public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs(String configurationName) {
-        return new HashMap<ValueSpecification, Set<ValueRequirement>>() {{
-          put(_specification, new HashSet<ValueRequirement>() {{
-            add(_requirement);
-          }});
-        }};
+        Map<ValueSpecification, Set<ValueRequirement>> map = Maps.newHashMap();
+        map.put(_specification, Sets.newHashSet(_requirement));
+        return map;
       }
 
       @Override
@@ -126,9 +118,9 @@ public class DbBatchMasterTest extends DbTest {
       }
 
     };
-
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void searchAllBatches() {
     final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                

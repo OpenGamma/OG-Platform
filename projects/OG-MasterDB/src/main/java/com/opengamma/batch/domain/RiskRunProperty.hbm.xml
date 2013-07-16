@@ -12,9 +12,7 @@
       	<param name="increment_size">10000</param>
       </generator>
     </id>
-    <many-to-one name="riskRun" 
-    	column="run_id" 
-    	not-null="true"/>
+    <many-to-one name="riskRun" column="run_id" not-null="true"/>
     <property name="propertyKey" column="property_key" not-null="true"/>
     <property name="propertyValue" column="property_value" not-null="true"/>
   </class>

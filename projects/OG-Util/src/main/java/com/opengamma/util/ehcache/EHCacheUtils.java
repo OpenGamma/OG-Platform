@@ -74,6 +74,7 @@ public final class EHCacheUtils {
       InputStream configStream = getTestEhCacheConfig();
       Configuration config = ConfigurationFactory.parseConfiguration(configStream);
       config.setName(uniqueName);
+      config.setUpdateCheck(false);
       return CacheManager.newInstance(config);
     } catch (CacheException ex) {
       throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
@@ -134,7 +135,7 @@ public final class EHCacheUtils {
     }
   }
 
-  private static synchronized InputStream getEhCacheConfig() {
+  private static synchronized Configuration getEhCacheConfig() {
     String ehcacheConfigFile = DEFAULT_EHCACHE_CONFIG_FILE;
     String overrideEhcacheConfigFile = System.getProperty("ehcache.config"); // passed in by Ant
     if (overrideEhcacheConfigFile != null) {
@@ -143,21 +144,16 @@ public final class EHCacheUtils {
     } else {
       System.err.println("Using default ehcache.config file name: " + ehcacheConfigFile);
     }
-    return EHCacheUtils.class.getResourceAsStream(ehcacheConfigFile);
+    try (InputStream resource = EHCacheUtils.class.getResourceAsStream(ehcacheConfigFile)) {
+      Configuration config = ConfigurationFactory.parseConfiguration(resource);
+      config.setUpdateCheck(false);
+      return config;
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("Unable to read ehcache file", ex);
+    }
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Clears the contents of all caches (without deleting the caches themselves). Should be called e.g. between tests.
-   *
-   * @deprecated  This method is not thread-safe, affects the entire singleton CacheManager, and is likely to cause
-   *              problems if used in concurrently-running tests.
-   */
-  @Deprecated
-  public static void clearAll() {
-    CacheManager.create().clearAll();
-  }
-
   /**
    * Clears the contents of a cache manager.
    *

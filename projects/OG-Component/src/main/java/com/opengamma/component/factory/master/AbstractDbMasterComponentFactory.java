@@ -5,9 +5,6 @@
  */
 package com.opengamma.component.factory.master;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -30,12 +27,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
-import com.opengamma.util.db.script.DbScriptDirectory;
-import com.opengamma.util.db.script.DbScriptReader;
-import com.opengamma.util.db.script.FileDbScriptDirectory;
-import com.opengamma.util.db.script.ZipFileDbScriptDirectory;
+import com.opengamma.util.db.script.DbScriptUtils;
 import com.opengamma.util.db.tool.DbCreateOperation;
-import com.opengamma.util.db.tool.DbSchemaVersionUtils;
 import com.opengamma.util.db.tool.DbToolContext;
 import com.opengamma.util.db.tool.DbUpgradeOperation;
 
@@ -44,8 +37,6 @@ import com.opengamma.util.db.tool.DbUpgradeOperation;
  */
 @BeanDefinition
 public abstract class AbstractDbMasterComponentFactory extends AbstractComponentFactory {
-  
-  private static final String SCHEMA_VERSION_PATH = "com/opengamma/masterdb/schema";
   
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterComponentFactory.class);
   
@@ -87,7 +78,7 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     
     // REVIEW jonathan 2013-05-14 -- don't look at this :-)
     if (!(getDbConnector().getDataSource() instanceof BoneCPDataSource)) {
-      s_logger.warn("Unable to obtain database management instance. Database objects will not be managed automatically.");
+      s_logger.warn("Unable to obtain database management instance. Database objects cannot be inspected or modified, and may be missing or out-of-date.");
       return; 
     }
     BoneCPDataSource dataSource = (BoneCPDataSource) getDbConnector().getDataSource();
@@ -112,29 +103,16 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     String password = dataSource.getPassword();
     dbManagement.initialise(dbServerHost, user, password);
     
-    Integer expectedSchemaVersion = DbSchemaVersionUtils.readVersion(SCHEMA_VERSION_PATH, schemaName);
+    Integer expectedSchemaVersion = DbScriptUtils.getCurrentVersion(schemaName);
     if (expectedSchemaVersion == null) {
-      s_logger.warn("Unable to find schema version information for {}. Database objects cannot be managed.", schemaName);
-      return;
+      throw new OpenGammaRuntimeException("Unable to find schema version information for " + schemaName + ". Database objects cannot be managed.");
     }
-    
-    DbScriptReader dbScriptReader = getDbScriptReader();
-    if (dbScriptReader == null) {
-      s_logger.warn("Unable to find database scripts on classpath. Database objects will not be managed automatically.");
-      if (actualSchemaVersion == null) {
-        throw new OpenGammaRuntimeException(schemaName + " schema appears to be missing and unable to find database scripts on classpath to create it automatically");
-      }
-      return;
-    }
-    
     // DbToolContext should not be closed as DbConnector needs to remain started
     DbToolContext dbToolContext = new DbToolContext();
     dbToolContext.setDbConnector(getDbConnector());
     dbToolContext.setDbManagement(dbManagement);
     dbToolContext.setCatalog(catalog);
     dbToolContext.setSchemaNames(ImmutableSet.of(schemaName));
-    dbToolContext.setScriptReader(dbScriptReader);
-    
     if (actualSchemaVersion == null) {
       // Assume empty database, so attempt to create tables
       DbCreateOperation createOperation = new DbCreateOperation(dbToolContext, true, null, false);
@@ -150,39 +128,12 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     }
   }
 
-  protected DbScriptReader getDbScriptReader() {
-    try {
-      // REVIEW jonathan 2013-05-14 -- temporary solution to locate the scripts resource pending PLAT-3442
-      String knownScriptResource = "db/create/postgres/sec_db/V_43__create_security.sql";
-      URL knownResourceUrl = getClass().getClassLoader().getResource(knownScriptResource);
-      if (knownResourceUrl == null) {
-        return null;
-      }
-      String knownResourcePath = knownResourceUrl.getPath();
-      int separatorIdx = knownResourcePath.indexOf("/" + knownScriptResource);
-      DbScriptDirectory dbScriptDirectory;
-      if (knownResourcePath.charAt(separatorIdx - 1) == '!') {
-        // JAR
-        String jarPath = knownResourcePath.substring(0, separatorIdx - 1);
-        File jarFile = new File(URI.create(jarPath));
-        dbScriptDirectory = new ZipFileDbScriptDirectory(jarFile, "db");
-      } else {
-        // Directory
-        File directory = new File(knownResourcePath.substring(0, separatorIdx) + "/db");
-        dbScriptDirectory = new FileDbScriptDirectory(directory);
-      }
-      return new DbScriptReader(dbScriptDirectory);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-  
   private void checkSchemaVersion(Integer actualSchemaVersion, String schemaName) {
     ArgumentChecker.notNull(schemaName, "schemaName");
     if (actualSchemaVersion == null) {
       throw new OpenGammaRuntimeException("Unable to find current " + schemaName + " schema version in database");
     }
-    Integer expectedSchemaVersion = DbSchemaVersionUtils.readVersion(SCHEMA_VERSION_PATH, schemaName);
+    Integer expectedSchemaVersion = DbScriptUtils.getCurrentVersion(schemaName);
     if (expectedSchemaVersion == null) {
       s_logger.info("Unable to find schema version information for {}. The database schema may differ from the required version.", schemaName);
       return;

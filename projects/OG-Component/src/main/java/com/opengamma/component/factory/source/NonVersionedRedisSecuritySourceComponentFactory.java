@@ -22,7 +22,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.DataSecuritySourceResource;
 import com.opengamma.core.security.impl.NonVersionedRedisSecuritySource;
 import com.opengamma.core.security.impl.RemoteSecuritySource;
@@ -59,12 +59,17 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     NonVersionedRedisSecuritySource source = new NonVersionedRedisSecuritySource(getRedisConnector().getJedisPool(), getRedisPrefix());
     
-    ComponentInfo info = new ComponentInfo(MarketDataSnapshotSource.class, getClassifier());
-    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteSecuritySource.class);
-    repo.registerComponent(info, source);
+    ComponentInfo sourceInfo = new ComponentInfo(SecuritySource.class, getClassifier());
+    sourceInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    sourceInfo.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteSecuritySource.class);
+    repo.registerComponent(sourceInfo, source);
+
+    ComponentInfo redisInfo = new ComponentInfo(NonVersionedRedisSecuritySource.class, getClassifier());
+    redisInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    repo.registerComponent(redisInfo, source);
+    
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataSecuritySourceResource(source));
+      repo.getRestComponents().publish(sourceInfo, new DataSecuritySourceResource(source));
     }
   }
 

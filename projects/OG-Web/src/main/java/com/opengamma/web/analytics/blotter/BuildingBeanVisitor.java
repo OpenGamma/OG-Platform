@@ -23,7 +23,6 @@ import com.opengamma.util.ArgumentChecker;
  * TODO a MUCH better name is required, this and BeanBuildingVisitor are too similar
  * @param <T> Type of object built by this visitor's sink
  */
-@SuppressWarnings("unchecked")
 /* package */ class BuildingBeanVisitor<T> implements BeanVisitor<T> {
 
   /** The bean that is the source of the data. */

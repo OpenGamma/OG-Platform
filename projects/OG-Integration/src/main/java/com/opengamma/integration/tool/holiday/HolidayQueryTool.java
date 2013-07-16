@@ -17,7 +17,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 /**

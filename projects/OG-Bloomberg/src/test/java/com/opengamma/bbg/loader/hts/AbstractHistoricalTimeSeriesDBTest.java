@@ -18,8 +18,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
@@ -48,15 +46,14 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.MapUtils;
-import com.opengamma.util.test.DbTest;
-import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
+public abstract class AbstractHistoricalTimeSeriesDBTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalTimeSeriesDBTest.class);
   
@@ -80,13 +77,13 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
    * @param databaseVersion  the database version
    */
   public AbstractHistoricalTimeSeriesDBTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.debug("running test for database = {}", databaseType);
   }
 
-  @BeforeMethod(groups = TestGroup.UNIT_DB)
-  public void setUp() throws Exception {
-    super.setUp();
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
     DataSourceTransactionManager transactionManager = getTransactionManager();
 
     _htsMaster = setUpTimeSeriesMaster(transactionManager);
@@ -103,12 +100,12 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends DbTest {
     return ts;
   }
 
-  @AfterMethod(groups = TestGroup.UNIT_DB)
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _htsMaster = null;
-    super.tearDown();
   }
 
+  //-------------------------------------------------------------------------
   private static class UnitTestHistoricalTimeSeriesProvider extends AbstractHistoricalTimeSeriesProvider {
     //keep track of start date to use the same for reloading
     Map<ExternalIdBundle, LocalDate> _startDateMap = new HashMap<ExternalIdBundle, LocalDate>();

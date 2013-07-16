@@ -14,10 +14,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -30,7 +26,7 @@ import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -38,33 +34,26 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbUserMasterTest extends DbTest {
+public class DbUserMasterTest extends AbstractDbTest {
   private static final Logger s_logger = LoggerFactory.getLogger(DbUserMasterTest.class);
 
   private DbUserMaster _userMaster;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbUserMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _userMaster = (DbUserMaster) context.getBean(getDatabaseType() + "DbUserMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _userMaster = new DbUserMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _userMaster = null;
-    super.tearDown();
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
@@ -129,6 +118,7 @@ public class DbUserMasterTest extends DbTest {
     UserDocument doc6 = addUser("user-6", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), "E-4", "E-5", "E-6", "E-7", "E-8");
 
     UserDocument user = _userMaster.get(UniqueId.of("DbUsr", "1006"));
+    assertNotNull(user);
     
     Collection<? extends OGUser> users = findUsers(ExternalIdBundle.of(ExternalId.of("A", "1")), VersionCorrection.LATEST);
     assertNotNull(users);

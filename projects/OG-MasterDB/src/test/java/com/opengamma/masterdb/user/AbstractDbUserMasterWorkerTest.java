@@ -17,13 +17,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -36,15 +30,14 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbUserMasterWorker via DbUserMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
+public abstract class AbstractDbUserMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbUserMasterWorkerTest.class);
 
@@ -52,28 +45,32 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalUsers;
-  protected boolean _readOnly;  // attempt to speed up tests
+  protected final boolean _readOnly;  // attempt to speed up tests
+  protected boolean _initialized;  // attempt to speed up tests
 
   public AbstractDbUserMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _usrMaster = null;
   }
 
+  @Override
+  protected void doTearDownClass() {
+    _usrMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
   protected ObjectId setupTestData(Instant now) {
     Clock origClock = _usrMaster.getClock();
     try {
@@ -88,7 +85,6 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
 
       ObjectId baseOid = initialDoc.getObjectId();
 
-      //------------------------------------------------------------------------------------------------------------------
       List<UserDocument> firstReplacement = newArrayList();
       for (int i = 0; i < 5; i++) {
         ManageableOGUser ex = new ManageableOGUser("setup_" + i);
@@ -105,10 +101,8 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     }
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _usrMaster = (DbUserMaster) context.getBean(getDatabaseType() + "DbUserMaster");
+  private void init() {
+    _usrMaster = new DbUserMaster(getDbConnector());
     
 //    id bigint NOT NULL,
 //    oid bigint NOT NULL,
@@ -127,7 +121,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _usrMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _usrMaster.getDbConnector().getJdbcOperations();
     ManageableOGUser user = new ManageableOGUser("101");
     user.setUniqueId(UniqueId.of("DbUsr", "101", "0"));
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));
@@ -195,27 +189,6 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
         202, 2);
     template.update("INSERT INTO usr_oguser2idkey VALUES (?,?)",
         202, 3);
-  }
-
-  @AfterMethod(alwaysRun = true)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _usrMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(alwaysRun = true)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _usrMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

@@ -8,7 +8,7 @@ package com.opengamma.web.bundle;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * The type of a bundle or fragment, either CSS, SCSS or Javascript.
+ * The type of a bundle or fragment, either CSS or Javascript.
  */
 public enum BundleType {
 
@@ -19,11 +19,7 @@ public enum BundleType {
   /**
    * The CSS type.
    */
-  CSS("css"),
-  /**
-   * The SCSS type
-   */
-  SCSS("scss");
+  CSS("css");
 
   /**
    * The file suffix.
@@ -61,8 +57,6 @@ public enum BundleType {
         return JS;
       } else if (fileName.toLowerCase().endsWith("." + CSS.getSuffix())) {
         return CSS;
-      } else if (fileName.toLowerCase().endsWith("." + SCSS.getSuffix())) {
-        return SCSS;
       }
     }
     return null;

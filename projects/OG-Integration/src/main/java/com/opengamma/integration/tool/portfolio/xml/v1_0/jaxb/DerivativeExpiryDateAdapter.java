@@ -14,14 +14,16 @@ import com.opengamma.util.jaxb.AbstractDateAdapter;
  */
 public class DerivativeExpiryDateAdapter extends AbstractDateAdapter<YearMonth> {
 
-  @Override
-  protected String getDatePattern() {
-    return "MMMyy";
+  /**
+   * Creates an instance.
+   */
+  public DerivativeExpiryDateAdapter() {
+    super("MMMyy");
   }
 
   @Override
   public YearMonth unmarshal(String v) throws Exception {
-    return _formatter.parse(v, YearMonth.class);
+    return getFormatter().parse(v, YearMonth.class);
   }
 
 }

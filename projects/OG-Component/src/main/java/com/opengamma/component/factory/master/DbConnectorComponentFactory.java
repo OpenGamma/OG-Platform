@@ -19,7 +19,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -83,7 +83,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   
   protected DbConnector initDbConnector(ComponentRepository repo) {
     DbDialect dialect = createDialect();
-    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(getDataSource());
+    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
     TransactionTemplate transactionTemplate = createTransactionTemplate();
     DbConnector dbConnector = new DbConnector(getName(), dialect, getDataSource(), jdbcTemplate, null, transactionTemplate);
     

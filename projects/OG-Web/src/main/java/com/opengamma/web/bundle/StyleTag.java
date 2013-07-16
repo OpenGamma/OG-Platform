@@ -89,7 +89,7 @@ public class StyleTag {
     buf.append("<style type=\"text/css\" media=\"");
     buf.append(media);
     buf.append("\">\n");
-    buf.append(BundleUtils.readBundleSource(bundle, _data.getSassCompiler()));
+    buf.append(BundleUtils.readBundleSource(bundle));
     buf.append("</style>");
     return buf.toString();
   }

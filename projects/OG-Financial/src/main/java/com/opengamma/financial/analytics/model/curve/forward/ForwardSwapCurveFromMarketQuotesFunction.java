@@ -174,7 +174,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
         final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
         final LocalDate localNow = now.toLocalDate();
         final Period forwardPeriod = Period.parse(forwardTenorName);
-        final Tenor forwardTenor = new Tenor(forwardPeriod);
+        final Tenor forwardTenor = Tenor.of(forwardPeriod);
         final LocalDate forwardStart = ScheduleCalculator.getAdjustedDate(localNow.plus(forwardPeriod), settlementDays, calendar); //TODO check adjustments
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(localNow, tenor, forwardTenor);

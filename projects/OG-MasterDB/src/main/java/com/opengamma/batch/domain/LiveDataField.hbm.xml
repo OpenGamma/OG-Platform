@@ -16,7 +16,7 @@
   </class>
   
   <query name="LiveDataField.one.byName">
-  	from LiveDataField as a where 
-  	a.name = :name</query>
+    from LiveDataField as a where 
+    a.name = :name</query>
   
 </hibernate-mapping>
