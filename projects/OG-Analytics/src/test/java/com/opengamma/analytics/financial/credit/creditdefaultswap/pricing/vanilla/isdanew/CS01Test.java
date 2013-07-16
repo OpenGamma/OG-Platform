@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.financial.model.BumpType;
@@ -60,11 +59,11 @@ public class CS01Test {
       44.49, 46.92, 49.2, 51.36, 53.5, 55.58, 57.59, 59.49, 61.4, 62.76, 64.11, 65.35, 66.55, 67.58, 68.81, 69.81, 70.79, 71.65, 72.58, 73.58, 74.2};
 
   // These numbers come from The ISDA excel plugin
-  private static final double[] PARELLEL_CS01_FLAT = new double[] {4.44275669542324, 30.0292310963296, 55.3868828464654, 80.4711784871091, 106.115178267918, 131.768346646544, 157.154795933765,
-      182.274611106283, 207.957754964565, 233.488139351017, 258.616674295747, 283.692918485109, 308.9181603095, 334.009883131127, 358.675097865475, 382.992574496952, 407.651615499056,
-      431.854306207759, 455.571341165587, 478.807345690023, 502.320875404118, 525.221886681367, 547.56958798809, 569.366146839778, 591.319055971737, 612.907283712702, 633.900434684163,
-      654.581372006954, 675.104344433526, 695.667761357141, 715.649374946677, 735.150221910334, 754.800017771881, 774.265323151377, 792.955421728157, 811.335431749015, 829.837914594809,
-      848.145638350457, 865.827578890886, 882.881604614791, 900.543748901181};
+  private static final double[] PARELLEL_CS01_FLAT = new double[] {4.44388460893843, 30.033640328983, 55.3853989749605, 80.4665679983788, 106.113611507615, 131.76855171026, 157.157114109902,
+      182.279368810202, 207.956446565041, 233.488342547238, 258.618042600828, 283.695469500717, 308.916298196751, 334.008749654446, 358.675305840658, 382.994684077393, 407.64905916453,
+      431.852151546102, 455.57043360692, 478.808476009465, 502.318585908348, 525.220273167086, 547.569648624322, 569.368808982763, 591.319501611551, 612.909785294567, 633.906026965003,
+      654.590133161596, 675.110290122106, 695.67623150317, 715.659552150048, 735.161267994736, 754.81254765758, 774.280598999456, 792.972762570697, 811.353868713068, 829.858325115361,
+      848.167780637912, 865.852406503755, 882.910014941368, 900.572909625516};
 
   private static final double[] PARELLEL_CS01_TS = new double[] {4.44270353942497, 30.0278505776398, 55.3868828464654, 80.4734104513718, 106.127260703191, 131.794539837356, 157.209927186215,
       182.372358231722, 208.12006951847, 233.7275289487, 258.987409407063, 284.178525610287, 309.575849697874, 334.809534792469, 359.644785347887, 384.086200723836, 408.946037869194,
@@ -222,6 +221,57 @@ public class CS01Test {
   }
 
   @Test
+  public void debugTest() {
+    final FastCreditCurveBuilder bob = new FastCreditCurveBuilder();
+    final PointsUpFrontConverter pufConverter = new PointsUpFrontConverter();
+
+    final int m = PAR_SPREAD_DATES.length;
+    final double[] parSpreads = new double[m];
+    final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
+    for (int i = 0; i < m; i++) {
+      curveCDSs[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, TODAY, PAR_SPREAD_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      parSpreads[i] = PAR_SPREADS[m - 1] / 10000;
+    }
+    ISDACompliantCreditCurve curve1 = bob.calibrateCreditCurve(curveCDSs, parSpreads, YIELD_CURVE);
+
+    double[] quotedSpreads = pufConverter.parSpreadsToQuotedSpreads(curveCDSs, 0.01, YIELD_CURVE, parSpreads);
+    double[] debug = pufConverter.quotedSpreadToParSpreads(curveCDSs, 0.01, YIELD_CURVE, parSpreads);
+    // double[] puf = pufConverter.quotedSpreadsToPUF(curveCDSs, 0.01, YIELD_CURVE, quotedSpreads);
+
+    ISDACompliantCreditCurve curve2 = bob.calibrateCreditCurve(curveCDSs, quotedSpreads, YIELD_CURVE);
+
+    for (int i = 0; i < m; i++) {
+      ISDACompliantCreditCurve curve3 = bob.calibrateCreditCurve(curveCDSs[i], quotedSpreads[i], YIELD_CURVE);
+      ISDACompliantCreditCurve curve4 = bob.calibrateCreditCurve(curveCDSs[i], parSpreads[i], YIELD_CURVE);
+      ISDACompliantCreditCurve curve5 = bob.calibrateCreditCurve(curveCDSs[i], debug[i], YIELD_CURVE);
+
+      final double t = ACT365.getDayCountFraction(TODAY, PAR_SPREAD_DATES[i]);
+      final double dp1 = 1 - curve1.getSurvivalProbability(t);
+      final double dp2 = 1 - curve2.getSurvivalProbability(t);
+      final double dp3 = 1 - curve3.getSurvivalProbability(t);
+      final double dp4 = 1 - curve4.getSurvivalProbability(t);
+      final double dp5 = 1 - curve5.getSurvivalProbability(t);
+      System.out.println(PAR_SPREAD_DATES[i] + "\t" + t + "\t" + dp1 * 100 + "%\t" + dp2 * 100 + "%\t" + dp3 * 100 + "%\t" + dp4 * 100 + "%\t" + dp5 * 100 + "%");
+    }
+  }
+
+  @Test
+  public void parellelCS01FromQuotedSpreadsTest() {
+    final double bumpAmount = 1e-4; // 1pb
+
+    final double coupon = DEAL_SPREAD / 10000;
+    final double scale = NOTIONAL / 10000;
+
+    final int n = MATURITIES.length;
+    for (int i = 0; i < n; i++) {
+      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      double cs01 = scale * CS01_CAL.parallelCS01FromQuotedSpread(cds, coupon, YIELD_CURVE, FLAT_SPREADS[i] / 10000, bumpAmount, BumpType.ADDITIVE);
+      assertEquals(MATURITIES[i].toString(), PARELLEL_CS01_FLAT[i], cs01, 1e-14 * NOTIONAL);
+    //  System.out.println(cs01);
+    }
+  }
+
+  @Test
   public void parellelCS01FlatTest() {
     final double bumpAmount = 1e-4; // 1pb
 
@@ -239,12 +289,18 @@ public class CS01Test {
       final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
       final double[] flatSpreads = new double[m];
       Arrays.fill(flatSpreads, FLAT_SPREADS[i] / 10000);
-      double cs01 = scale * CS01_CAL.parallelCreditDV01(cds, fracSpread, PriceType.DIRTY, YIELD_CURVE, curveCDSs, flatSpreads, bumpAmount, BumpType.ADDITIVE);
-    //   System.out.println(MATURITIES[i].toString() + "\t" + cs01);
-    assertEquals(MATURITIES[i].toString(), PARELLEL_CS01_FLAT[i], cs01, 1e-14 * NOTIONAL);
+      final double temp = FLAT_SPREADS[i] / 10000;
+      final double[] quotedSpread = new double[] {temp};
+      double cs01 = scale * CS01_CAL.parallelCS01FromParSpreads(cds, fracSpread, YIELD_CURVE, curveCDSs, flatSpreads, bumpAmount, BumpType.ADDITIVE);
+      // System.out.println(MATURITIES[i].toString() + "\t" + cs01);
+      assertEquals(MATURITIES[i].toString(), PARELLEL_CS01_FLAT[i], cs01, 1e-14 * NOTIONAL);
+
+      // debug
+      double debug1 = scale * CS01_CAL.parallelCS01FromParSpreads(cds, fracSpread, YIELD_CURVE, new CDSAnalytic[] {cds}, quotedSpread, bumpAmount, BumpType.ADDITIVE);
+      System.out.println(debug1);
     }
   }
-  
+
   @Test
   public void parellelCS01TermStructureTest() {
     final double bumpAmount = 1e-4; // 1pb
@@ -264,7 +320,7 @@ public class CS01Test {
     for (int i = 0; i < n; i++) {
       final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
 
-      double cs01 = scale * CS01_CAL.parallelCreditDV01(cds, fracSpread, PriceType.DIRTY, YIELD_CURVE, curveCDSs, parSpreads, bumpAmount, BumpType.ADDITIVE);
+      double cs01 = scale * CS01_CAL.parallelCS01FromParSpreads(cds, fracSpread, YIELD_CURVE, curveCDSs, parSpreads, bumpAmount, BumpType.ADDITIVE);
       // System.out.println(MATURITIES[i].toString() + "\t" + cs01);
       assertEquals(MATURITIES[i].toString(), PARELLEL_CS01_TS[i], cs01, 1e-14 * NOTIONAL);
     }
@@ -288,7 +344,7 @@ public class CS01Test {
       final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
       final double[] flatSpreads = new double[m];
       Arrays.fill(flatSpreads, FLAT_SPREADS[i] / 10000);
-      double[] cs01 = CS01_CAL.bucketedCreditDV01(cds, fracSpread, PriceType.DIRTY, YIELD_CURVE, curveCDSs, flatSpreads, bumpAmount, BumpType.ADDITIVE);
+      double[] cs01 = CS01_CAL.bucketedCS01FromParSpreads(cds, fracSpread, YIELD_CURVE, curveCDSs, flatSpreads, bumpAmount, BumpType.ADDITIVE);
 
       for (int j = 0; j < m; j++) {
         cs01[j] *= scale;
@@ -316,7 +372,7 @@ public class CS01Test {
     for (int i = 0; i < n; i++) {
       final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
 
-      double[] cs01 = CS01_CAL.bucketedCreditDV01(cds, fracSpread, PriceType.DIRTY, YIELD_CURVE, curveCDSs, parSpreads, bumpAmount, BumpType.ADDITIVE);
+      double[] cs01 = CS01_CAL.bucketedCS01FromParSpreads(cds, fracSpread, YIELD_CURVE, curveCDSs, parSpreads, bumpAmount, BumpType.ADDITIVE);
 
       for (int j = 0; j < m; j++) {
         cs01[j] *= scale;

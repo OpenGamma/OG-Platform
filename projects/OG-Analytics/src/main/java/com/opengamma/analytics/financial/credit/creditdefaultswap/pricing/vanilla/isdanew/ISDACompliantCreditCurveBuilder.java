@@ -17,26 +17,43 @@ import com.opengamma.analytics.financial.credit.StubType;
 public interface ISDACompliantCreditCurveBuilder {
 
   /**
-   * Bootstrapper the credit curve from a single market CDS quote. Obviously the resulting credit (hazard) curve will be flat
+   * Bootstrapper the credit curve from a single market CDS quote given as a par spread. Obviously the resulting credit (hazard)
+   *  curve will be flat.
    * @param cds  The single market CDS - this is the reference instruments used to build the credit curve 
-   * @param marketFractionalSpread The <b>fractional</b> spread of the market CDS   
+   * @param parSpread The <b>fractional</b> par spread of the market CDS   
    * @param yieldCurve The yield (or discount) curve  
+   * @return The credit curve  
+   */
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double parSpread, final ISDACompliantYieldCurve yieldCurve);
+
+  /**
+   * Bootstrapper the credit curve from a single market CDS quote given as points up-front (PUF) and a standard premium.
+   * @param cds The single market CDS - this is the reference instruments used to build the credit curve 
+   * @param premium The standard premium (coupon) as a fraction (these are 0.01 or 0.05 in North America)
+   * @param yieldCurve The yield (or discount) curve
+   * @param pointsUpfront points up-front as a fraction of notional 
    * @return The credit curve 
    */
-  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double marketFractionalSpread, final ISDACompliantYieldCurve yieldCurve);
-
   ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double pointsUpfront);
 
   /**
-   * Bootstrapper the credit curve, by making each market CDS in turn have zero clean price 
-   * @param cds  The market CDSs - these are the reference instruments used to build the credit curve 
-   * @param marketFractionalSpreads The <b>fractional</b> spreads of the market CDSs    
+   * Bootstrapper the credit curve from a set of reference/calibration CDSs quoted with par spreads. 
+   * @param calibrationCDSs  The market CDSs - these are the reference instruments used to build the credit curve 
+   * @param parSpreads The <b>fractional</b> par spreads of the market CDSs    
    * @param yieldCurve The yield (or discount) curve  
    * @return The credit curve 
    */
-  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] marketFractionalSpreads, final ISDACompliantYieldCurve yieldCurve);
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] calibrationCDSs, final double[] parSpreads, final ISDACompliantYieldCurve yieldCurve);
 
-  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront);
+  /**
+   * Bootstrapper the credit curve from a set of reference/calibration CDSs quoted with points up-front and standard premiums 
+   * @param calibrationCDSs The market CDSs - these are the reference instruments used to build the credit curve 
+   * @param premiums The standard premiums (coupons) as fractions (these are 0.01 or 0.05 in North America) 
+   * @param yieldCurve  The yield (or discount) curve  
+   * @param pointsUpfront points up-front as fractions of notional 
+   * @return The credit curve
+   */
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] calibrationCDSs, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront);
 
   /**
    * Bootstrapper the credit curve from a single CDS, by making it have zero clean price. Obviously the resulting credit (hazard) curve will be flat.

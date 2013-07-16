@@ -145,10 +145,14 @@ public class PointsUpFrontConverterTest {
       cds[i] = new CDSAnalytic(TODAY, STEPIN_DATE, CASH_SETTLE_DATE, START_DATE, MATURITIES[i], payAccOnDefault, tenor, stubType, protectionStart, recovery);
     }
 
-    double[] parSpreadsF = PUF.pufToQuotedSpreads(cds, permium, YIELD_CURVE, pointsUpFront);
+    double[] quotedSpreads = PUF.pufToQuotedSpreads(cds, permium, YIELD_CURVE, pointsUpFront);
     double[] parSpreads = PUF.pufToParSpreads(cds, permium, YIELD_CURVE, pointsUpFront);
 
-    final double[] derivedPUF = PUF.quotedSpreadsToPUF(cds, permium, YIELD_CURVE, parSpreadsF);
+//    for (int i = 0; i < n; i++) {
+//      System.out.println(quotedSpreads[i] * 10000 + "\t" + parSpreads[i] * 10000);
+//    }
+
+    final double[] derivedPUF = PUF.quotedSpreadsToPUF(cds, permium, YIELD_CURVE, quotedSpreads);
     final double[] derivedPUF2 = PUF.parSpreadsToPUF(cds, permium, YIELD_CURVE, parSpreads);
     for (int i = 0; i < n; i++) {
       assertEquals("PUF1", pointsUpFront[i], derivedPUF[i], 1e-15);

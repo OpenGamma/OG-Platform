@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
@@ -20,11 +22,52 @@ import com.opengamma.util.ArgumentChecker;
 public class SpreadSensitivityCalculator {
 
   // private static final ISDACompliantCreditCurveBuild BUILDER = new ISDACompliantCreditCurveBuild();
+  private static final PointsUpFrontConverter PUF_CONVERTER = new PointsUpFrontConverter();
   private static final ISDACompliantCreditCurveBuilder BUILDER = new FastCreditCurveBuilder();
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
 
   /**
-   * The credit DV01 by a parallel shift of the market spreads (CDS spread curve). This takes an extraneous yield curve, a set of reference CDSs 
+   * The CS01 (or credit DV01) by a shift of the quoted spread of the CDS. This finds two flat credit/hazard curves from  
+   * the CDS with its original quoted spread and with the spread bumped. The traded CDS is then priced off both curves, using its coupon,
+   * and the difference (divided by the bump size) is the credit DV01 
+   * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
+   * @param coupon the of the traded CDS  (expressed as <b>fractions not basis points</b>)
+   * @param yieldCurve  The yield (or discount) curve 
+   * @param quotedSpread the quoted spread of the reference CDS
+   * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
+   * @param bumpType ADDITIVE or MULTIPLICATIVE
+   * @return The credit DV01
+   */
+  public double parallelCS01FromQuotedSpread(final CDSAnalytic cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final double quotedSpread, final double fracBumpAmount,
+      final BumpType bumpType) {
+    return parallelCS01FromParSpreads(cds, coupon, yieldCurve, new CDSAnalytic[] {cds}, new double[] {quotedSpread}, fracBumpAmount, bumpType);
+  }
+
+  /**
+   * The CS01 (or credit DV01) by a shift of the quoted spread of the reference CDS. This finds two flat credit/hazard curves from  
+   * a reference CDS with its original quoted spread and with the spread bumped. The traded CDS is then priced off both curves, using its coupon, 
+   * and the difference (divided by the bump size) is the credit DV01 
+   * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
+   * @param coupon the of the traded CDS  (expressed as <b>fractions not basis points</b>)
+   * @param yieldCurve  The yield (or discount) curve 
+   * @param referenceCDS the reference CDS use to find the flat credit/hazard curve (this is often the same as the traded CDS)
+   * @param quotedSpread the quoted spread of the reference CDS
+   * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
+   * @param bumpType ADDITIVE or MULTIPLICATIVE
+   * @return The credit DV01
+   */
+  public double parallelCS01FromQuotedSpread(final CDSAnalytic cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic referenceCDS, final double quotedSpread,
+      final double fracBumpAmount, final BumpType bumpType) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(referenceCDS, "referanceCDS");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(bumpType, "bumpType");
+    ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
+    return parallelCS01FromParSpreads(cds, coupon, yieldCurve, new CDSAnalytic[] {referenceCDS}, new double[] {quotedSpread}, fracBumpAmount, bumpType);
+  }
+
+  /**
+   * The CS01 (or credit DV01) by a parallel shift of the market par spreads (CDS par spread curve). This takes an extraneous yield curve, a set of reference CDSs 
    * (marketCDSs) and their par-spreads (expressed as <b>fractions not basis points</b>) and bootstraps a credit (hazard) curve - 
    * the target CDS is then priced with this credit curve. This is then repeated with the market spreads bumped in parallel by 
    * some amount. The result is the difference (bumped minus base price) is divided by the bump amount.<br>
@@ -32,32 +75,30 @@ public class SpreadSensitivityCalculator {
    * Credit DV01 is (often) defined as -( V(S + 1bp) - V(s)) - to achieve this use fracBumpAmount = 1e-4 and bumpType ADDITIVE
    * @param cds analytic description of a CDS traded at a certain time 
    * @param cdsFracSpread The <b>fraction</b> spread of the CDS
-   * @param priceType Clean or dirty price
    * @param yieldCurve The yield (or discount) curve  
    * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
-   * @param marketFracSpreads The <b>fractional</b> spreads of the market CDSs 
+   * @param parSpreads The <b>fractional</b> spreads of the market CDSs 
    * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
    * @param bumpType ADDITIVE or MULTIPLICATIVE
    * @return The credit DV01
    */
-  public double parallelCreditDV01(final CDSAnalytic cds, final double cdsFracSpread, final PriceType priceType, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
-      final double[] marketFracSpreads, final double fracBumpAmount, final BumpType bumpType) {
+  public double parallelCS01FromParSpreads(final CDSAnalytic cds, final double cdsFracSpread, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs, final double[] parSpreads,
+      final double fracBumpAmount, final BumpType bumpType) {
     ArgumentChecker.notNull(cds, "cds");
     ArgumentChecker.noNulls(marketCDSs, "curvePoints");
-    ArgumentChecker.notEmpty(marketFracSpreads, "spreads");
+    ArgumentChecker.notEmpty(parSpreads, "spreads");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
-    ArgumentChecker.notNull(priceType, "priceType");
     ArgumentChecker.notNull(bumpType, "bumpType");
     ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
     final int n = marketCDSs.length;
-    ArgumentChecker.isTrue(n == marketFracSpreads.length, "speads length does not match curvePoints");
-    final double[] bumpedSpreads = makeBumpedSpreads(marketFracSpreads, fracBumpAmount, bumpType);
-    final double diff = fdCreditDV01(cds, cdsFracSpread, marketCDSs, bumpedSpreads, marketFracSpreads, yieldCurve, priceType);
+    ArgumentChecker.isTrue(n == parSpreads.length, "speads length does not match curvePoints");
+    final double[] bumpedSpreads = makeBumpedSpreads(parSpreads, fracBumpAmount, bumpType);
+    final double diff = fdCreditDV01(cds, cdsFracSpread, marketCDSs, bumpedSpreads, parSpreads, yieldCurve, PriceType.DIRTY);
     return diff / fracBumpAmount;
   }
 
   /**
-   * The bucked credit DV01 by shifting each  market spread in turn. This takes an extraneous yield curve, a set of reference CDSs 
+   * The bucked CS01 (or credit DV01) by shifting each  market par-spread in turn. This takes an extraneous yield curve, a set of reference CDSs 
    * (marketCDSs) and their par-spreads (expressed as <b>fractions not basis points</b>) and bootstraps a credit (hazard) curve - 
    * the target CDS is then priced with this credit curve. This is then repeated with each market spreads bumped in turn. 
    * The result is the vector of differences (bumped minus base price) divided by the bump amount.<br>
@@ -65,7 +106,6 @@ public class SpreadSensitivityCalculator {
    * market CDS<br>
    * @param cds analytic description of a CDS traded at a certain time 
    * @param cdsFracSpread The <b>fraction</b> spread of the CDS
-   * @param priceType Clean or dirty price
    * @param yieldCurve The yield (or discount) curve  
    * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
    * @param marketFracSpreads The <b>fractional</b> spreads of the market CDSs 
@@ -74,17 +114,17 @@ public class SpreadSensitivityCalculator {
    * @return The credit DV01
    * @return
    */
-  public double[] bucketedCreditDV01(final CDSAnalytic cds, final double cdsFracSpread, final PriceType priceType, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
+  public double[] bucketedCS01FromParSpreads(final CDSAnalytic cds, final double cdsFracSpread, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
       final double[] marketFracSpreads, final double fracBumpAmount, final BumpType bumpType) {
     ArgumentChecker.notNull(cds, "cds");
     ArgumentChecker.noNulls(marketCDSs, "curvePoints");
     ArgumentChecker.notEmpty(marketFracSpreads, "spreads");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
-    ArgumentChecker.notNull(priceType, "priceType");
     ArgumentChecker.notNull(bumpType, "bumpType");
     ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
     final int n = marketCDSs.length;
     ArgumentChecker.isTrue(n == marketFracSpreads.length, "speads length does not match curvePoints");
+    final PriceType priceType = PriceType.DIRTY;
 
     final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(marketCDSs, marketFracSpreads, yieldCurve);
     final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, cdsFracSpread, priceType);
@@ -101,48 +141,106 @@ public class SpreadSensitivityCalculator {
   }
 
   /**
-   * The bucked credit DV01 by pricing off a flat curve using each market spread in turn. This takes an extraneous yield curve,
-   *  a set of reference CDSs (marketCDSs) and their par-spreads (expressed as <b>fractions not basis points</b>) and
+   * The bucked CS01 (or credit DV01) by bumping each quoted spread in turn. This takes an extraneous yield curve,
+   *  a set of reference CDSs (marketCDSs) and their quoted spreads (expressed as <b>fractions not basis points</b>) and
    *  bootstraps a credit (hazard) curve - 
    * the target CDS is then priced with this credit curve. This is then repeated with each market spreads bumped in turn. 
    * The result is the vector of differences (bumped minus base price) divided by the bump amount.<br>
    * For small bumps (<1e-4) this approximates $$\frac{\partial V}{\partial S_i}$$ for a flat curve where $$S_i$$ 
    * is the spread of the $$1^{th}$$ market CDS
    * @param cds analytic description of a CDS traded at a certain time 
-   * @param cdsFracSpread The <b>fraction</b> spread of the CDS
-   * @param priceType Clean or dirty price
+   * @param dealSpread The <b>fraction</b> spread of the CDS
    * @param yieldCurve The yield (or discount) curve  
    * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
-   * @param marketFracSpreads The <b>fractional</b> spreads of the market CDSs 
+   * @param quotedSpreads The <b>fractional</b> spreads of the market CDSs 
    * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
    * @param bumpType ADDITIVE or MULTIPLICATIVE
-   * @return The credit DV01
-   * @return
+   * @return The bucked CS01 for a single CDS 
    */
-  public double[] bucketedFlatCreditDV01(final CDSAnalytic cds, final double cdsFracSpread, final PriceType priceType, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
-      final double[] marketFracSpreads, final double fracBumpAmount, final BumpType bumpType) {
+  public double[] bucketedCS01FromQuotedSpreads(final CDSAnalytic cds, final double dealSpread, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs, final double[] quotedSpreads,
+      final double fracBumpAmount, final BumpType bumpType) {
     ArgumentChecker.notNull(cds, "cds");
     ArgumentChecker.noNulls(marketCDSs, "curvePoints");
-    ArgumentChecker.notEmpty(marketFracSpreads, "spreads");
+    ArgumentChecker.notEmpty(quotedSpreads, "spreads");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
-    ArgumentChecker.notNull(priceType, "priceType");
     ArgumentChecker.notNull(bumpType, "bumpType");
     ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
     final int n = marketCDSs.length;
-    ArgumentChecker.isTrue(n == marketFracSpreads.length, "speads length does not match curvePoints");
+    ArgumentChecker.isTrue(n == quotedSpreads.length, "speads length does not match curvePoints");
+    final PriceType priceType = PriceType.DIRTY;
+    final double[] premiums = new double[n];
+    Arrays.fill(premiums, dealSpread); // assume the premiums of all CDS are equal
 
+    final double[] puf = PUF_CONVERTER.quotedSpreadsToPUF(marketCDSs, premiums, yieldCurve, quotedSpreads);
+    final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(marketCDSs, premiums, yieldCurve, puf);
+    final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, dealSpread, priceType);
+
+    final double[] bumpedPUF = new double[n];
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      final CDSAnalytic[] tempCDSs = new CDSAnalytic[] {marketCDSs[i]};
-      final double[] tempSpread = new double[] {marketFracSpreads[i]};
-      final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(tempCDSs, tempSpread, yieldCurve);
-      final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, cdsFracSpread, priceType);
-      final double[] bumpedSpreads = makeBumpedSpreads(tempSpread, fracBumpAmount, bumpType);
-      final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(tempCDSs, bumpedSpreads, yieldCurve);
-      final double price = PRICER.pv(cds, yieldCurve, bumpedCurve, cdsFracSpread, priceType);
+      System.arraycopy(puf, 0, bumpedPUF, 0, n);
+      final double bumpedSpread = bumpedSpread(quotedSpreads[i], fracBumpAmount, bumpType);
+      bumpedPUF[i] = PUF_CONVERTER.quotedSpreadToPUF(marketCDSs[i], premiums[i], yieldCurve, bumpedSpread);
+      // TODO a lot of unnecessary recalibration here
+      final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(marketCDSs, premiums, yieldCurve, bumpedPUF);
+      final double price = PRICER.pv(cds, yieldCurve, bumpedCurve, dealSpread, priceType);
       res[i] = (price - basePrice) / fracBumpAmount;
     }
+    return res;
+  }
 
+  /**
+   * The bucked CS01 (or credit DV01) on a set of CDSS by bumping each quoted spread in turn. This takes an extraneous yield curve,
+   *  a set of reference CDSs (marketCDSs) and their quoted spreads (expressed as <b>fractions not basis points</b>) and
+   *  bootstraps a credit (hazard) curve - 
+   * the target CDS is then priced with this credit curve. This is then repeated with each market spreads bumped in turn. 
+   * The result is the vector of differences (bumped minus base price) divided by the bump amount.<br>
+   * For small bumps (<1e-4) this approximates $$\frac{\partial V}{\partial S_i}$$ for a flat curve where $$S_i$$ 
+   * @param cds a set of analytic description of  CDSs traded at a certain times 
+   * @param dealSpread The <b>fraction</b> spread of the CDS
+   * @param yieldCurve The yield (or discount) curve  
+   * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
+   * @param quotedSpreads The <b>fractional</b> spreads of the market CDSs 
+   * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
+   * @param bumpType ADDITIVE or MULTIPLICATIVE
+   * @return The bucked CS01 for a set of  CDSs
+   */
+  public double[][] bucketedCS01FromQuotedSpreads(final CDSAnalytic[] cds, final double dealSpread, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
+      final double[] quotedSpreads, final double fracBumpAmount, final BumpType bumpType) {
+    ArgumentChecker.noNulls(cds, "cds");
+    ArgumentChecker.noNulls(marketCDSs, "curvePoints");
+    ArgumentChecker.notEmpty(quotedSpreads, "spreads");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(bumpType, "bumpType");
+    ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
+    final int n = marketCDSs.length;
+    ArgumentChecker.isTrue(n == quotedSpreads.length, "speads length does not match curvePoints");
+    final PriceType priceType = PriceType.DIRTY;
+    final double[] premiums = new double[n];
+    Arrays.fill(premiums, dealSpread); // assume the premiums of all CDS are equal
+
+    final int m = cds.length;
+
+    final double[] puf = PUF_CONVERTER.quotedSpreadsToPUF(marketCDSs, premiums, yieldCurve, quotedSpreads);
+    final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(marketCDSs, premiums, yieldCurve, puf);
+    final double[] basePrices = new double[m];
+    for (int j = 0; j < m; j++) {
+      basePrices[j] = PRICER.pv(cds[j], yieldCurve, baseCurve, dealSpread, priceType);
+    }
+
+    final double[] bumpedPUF = new double[n];
+    double[][] res = new double[m][n];
+    for (int i = 0; i < n; i++) {
+      System.arraycopy(puf, 0, bumpedPUF, 0, n);
+      final double bumpedSpread = bumpedSpread(quotedSpreads[i], fracBumpAmount, bumpType);
+      bumpedPUF[i] = PUF_CONVERTER.quotedSpreadToPUF(marketCDSs[i], premiums[i], yieldCurve, bumpedSpread);
+      // TODO a lot of unnecessary recalibration here
+      final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(marketCDSs, premiums, yieldCurve, bumpedPUF);
+      for (int j = 0; j < m; j++) {
+        final double price = PRICER.pv(cds[j], yieldCurve, bumpedCurve, dealSpread, priceType);
+        res[i][j] = (price - basePrices[j]) / fracBumpAmount;
+      }
+    }
     return res;
   }
 
@@ -243,6 +341,16 @@ public class SpreadSensitivityCalculator {
     final double down = PRICER.pv(pricingCDS, yieldCurve, curveDown, cdsSpread, priceType);
 
     return mid - down;
+  }
+
+  private double bumpedSpread(final double spread, final double amount, final BumpType bumpType) {
+    if (bumpType == BumpType.ADDITIVE) {
+      return spread + amount;
+    } else if (bumpType == BumpType.MULTIPLICATIVE) {
+      return spread * (1 + amount);
+    } else {
+      throw new IllegalArgumentException("BumpType " + bumpType + " is not supported");
+    }
   }
 
   private double[] makeBumpedSpreads(final double[] spreads, final double amount, final BumpType bumpType) {

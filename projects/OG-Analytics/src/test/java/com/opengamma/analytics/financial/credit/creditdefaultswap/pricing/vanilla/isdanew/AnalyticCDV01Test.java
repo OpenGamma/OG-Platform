@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder.Pricer;
 import com.opengamma.analytics.financial.model.BumpType;
@@ -118,7 +117,7 @@ public class AnalyticCDV01Test {
     
     // compare with bump and reprice
     final SpreadSensitivityCalculator bumpCal = new SpreadSensitivityCalculator();
-    final double[] fd = bumpCal.bucketedCreditDV01(CDS, dealSpread, PriceType.CLEAN, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-7, BumpType.ADDITIVE);
+    final double[] fd = bumpCal.bucketedCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-7, BumpType.ADDITIVE);
     DoubleMatrix1D fd_dVdS = new DoubleMatrix1D(fd);
     if (print) {
       System.out.println(dVdS);
