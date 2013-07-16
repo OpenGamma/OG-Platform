@@ -17,6 +17,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioDocumentConverter;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioPosition;
 import com.opengamma.integration.tool.portfolio.xml.VersionedPortfolioHandler;
+import com.opengamma.integration.tool.portfolio.xml.XmlExternalIdValidator;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Portfolio;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.PortfolioDocumentV1_0;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
@@ -86,6 +87,8 @@ public class PortfolioDocumentConverterV1_0  // CSIGNORE underscore in class nam
    */
   private static class PortfolioExtractor implements Function<Portfolio, VersionedPortfolioHandler> {
 
+    private XmlExternalIdValidator _xmlExternalIdValidator = new XmlExternalIdValidator();
+
     /**
      * Extracts the details from the supplied portfolio.
      *
@@ -95,7 +98,7 @@ public class PortfolioDocumentConverterV1_0  // CSIGNORE underscore in class nam
     @Override
     public VersionedPortfolioHandler apply(final Portfolio portfolio) {
       try {
-        Iterable<PortfolioPosition> positions = new PortfolioConverter(portfolio).getPositions();
+        Iterable<PortfolioPosition> positions = new PortfolioConverter(portfolio, _xmlExternalIdValidator).getPositions();
         return new VersionedPortfolioHandler(
             portfolio.getName(),
             positions);

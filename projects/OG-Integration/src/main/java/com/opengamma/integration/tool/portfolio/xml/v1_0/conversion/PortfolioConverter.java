@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.core.security.Security;
+import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.xml.PortfolioPosition;
+import com.opengamma.integration.tool.portfolio.xml.XmlExternalIdValidator;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.AdditionalCashflow;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.IdWrapper;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.ListedSecurityDefinition;
@@ -40,8 +42,12 @@ public class PortfolioConverter {
    */
   private final Portfolio _portfolio;
 
-  public PortfolioConverter(Portfolio portfolio) {
+  private final XmlExternalIdValidator _xmlExternalIdValidator;
+
+  public PortfolioConverter(Portfolio portfolio, XmlExternalIdValidator xmlExternalIdValidator) {
     _portfolio = portfolio;
+    _xmlExternalIdValidator = xmlExternalIdValidator;
+
   }
 
   /**
@@ -228,7 +234,11 @@ public class PortfolioConverter {
                                                           null,
                                                           trade.getCounterparty().toExternalId());
 
-    manageableTrade.setProviderId(trade.getExternalSystemId().toExternalId());
+    ExternalId externalId = trade.getExternalSystemId().toExternalId();
+
+    _xmlExternalIdValidator.validateExternalId(externalId, trade.getId());
+
+    manageableTrade.setProviderId(externalId);
 
     for (AdditionalCashflow cashflow : nullCheckIterable(trade.getAdditionalCashflows())) {
 
