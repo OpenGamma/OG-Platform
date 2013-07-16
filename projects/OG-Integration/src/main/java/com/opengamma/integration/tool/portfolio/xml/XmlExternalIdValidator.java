@@ -8,9 +8,11 @@ package com.opengamma.integration.tool.portfolio.xml;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.helpers.MessageFormatter;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.portfolio.PortfolioLoader;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Checks that a given xmlId to externalSystemId combination is valid. This is important
@@ -35,12 +37,17 @@ public final class XmlExternalIdValidator {
    */
   public synchronized void validateExternalId(ExternalId externalSystemId, String tradeId) {
     if (_existingMappings.containsKey(externalSystemId)) {
-      ArgumentChecker.isTrue(
-          _existingMappings.get(externalSystemId).equals(tradeId),
-          "External id '{}' already allocated to a different trade when processing this file. Previous trade id: '{}', this trade id: '{}'",
-          externalSystemId, _existingMappings.get(externalSystemId), tradeId);
+      String previousTradeId = _existingMappings.get(externalSystemId);
+      if (!previousTradeId.equals(tradeId)) {
+        String message = MessageFormatter.arrayFormat(
+            "External id '{}' already allocated to a different trade when processing this file. Previous trade id: '{}', this trade id: '{}'",
+            new Object[] {externalSystemId, previousTradeId, tradeId })
+          .getMessage();
+        
+        throw new OpenGammaRuntimeException(message);
+      }
     }
-    
+
     _existingMappings.put(externalSystemId, tradeId);
 
   }

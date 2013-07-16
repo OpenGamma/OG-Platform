@@ -81,6 +81,13 @@ public class XmlPortfolioLoaderToolTest {
     new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
   }
 
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testDuplicateExternalIds() {
+    String fileLocation = "src/test/resources/xml_portfolios/duplicate_external_ids.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+  }
+
   @Test
   public void testEmptyPortfolio() {
 
@@ -428,6 +435,23 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
   }
 
+  @Test
+  public void testMultitypePortfolioWithResusedItemsLoad() {
+
+    String fileLocation = "src/test/resources/xml_portfolios/multitype_portfolio_with_reused_items.xml";
+    File file = new File(fileLocation);
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+
+    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 3);
+    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
+    Set<ManageableTrade> tradeSet = extractTrades(_positionMaster);
+    assertEquals(tradeSet.size(), 2);
+    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
+  }
+
+  
+  
+  
   private Set<ManageableTrade> extractTrades(PositionMaster positionMaster) {
     Set<ManageableTrade> tradeSet = Sets.newHashSet();
     for (ManageablePosition p : positionMaster.search(new PositionSearchRequest()).getPositions()) {
