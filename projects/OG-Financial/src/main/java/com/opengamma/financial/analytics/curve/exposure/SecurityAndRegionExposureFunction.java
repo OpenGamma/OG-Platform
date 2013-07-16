@@ -68,6 +68,8 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -416,6 +418,34 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     final ExternalId regionId = underlyingCDS.getRegionId();
     final String securityType = security.getSecurityType();
     return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + regionId.getValue()));
+  }
+
+  @Override
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    final List<ExternalId> result = new ArrayList<>();
+    final SwapLeg payLeg = security.getPayLeg();
+    final SwapLeg receiveLeg = security.getReceiveLeg();
+    final String securityType = security.getSecurityType();
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    }
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + receiveLeg.getRegionId().getValue()));
+    return result;
+  }
+
+  @Override
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+    final List<ExternalId> result = new ArrayList<>();
+    final SwapLeg payLeg = security.getPayLeg();
+    final SwapLeg receiveLeg = security.getReceiveLeg();
+    final String securityType = security.getSecurityType();
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    }
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + payLeg.getRegionId().getValue()));
+    result.add(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + receiveLeg.getRegionId().getValue()));
+    return result;
   }
 
 }

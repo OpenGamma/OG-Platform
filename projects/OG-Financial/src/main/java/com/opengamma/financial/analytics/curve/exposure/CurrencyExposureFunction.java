@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -69,13 +69,15 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class CurrencyExposureFunction implements ExposureFunction {
   private final SecuritySource _securitySource;
@@ -377,6 +379,16 @@ public class CurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    return getExternalIds(security);
+  }
+
+  @Override
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+    return getExternalIds(security);
+  }
+
+  @Override
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     return getExternalIds(security);
   }
 

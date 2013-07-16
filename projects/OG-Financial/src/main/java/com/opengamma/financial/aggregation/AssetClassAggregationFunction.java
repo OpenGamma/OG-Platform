@@ -72,6 +72,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.master.security.RawSecurity;
 
@@ -116,6 +118,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String DELIVERABLE_SWAP_FUTURES = "Deliverable Swap Futures";
   /* package */static final String CDX = "CDS Indices";
   /* package */static final String CREDIT_DEFAULT_SWAP_OPTIONS = "CDS Options";
+  /* package */static final String INFLATION_SWAPS = "Inflation Swaps";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -123,7 +126,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
-      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS,
+      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS,
       UNKNOWN);
 
   private final boolean _includeEmptyCategories;
@@ -422,6 +425,16 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return CREDIT_DEFAULT_SWAP_OPTIONS;
+        }
+
+        @Override
+        public String visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+          return INFLATION_SWAPS;
+        }
+
+        @Override
+        public String visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+          return INFLATION_SWAPS;
         }
       });
     } else {

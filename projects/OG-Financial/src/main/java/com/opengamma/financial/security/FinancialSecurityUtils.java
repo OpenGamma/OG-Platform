@@ -80,6 +80,8 @@ import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.lambdava.functions.Function1;
@@ -96,7 +98,7 @@ public class FinancialSecurityUtils {
   private static ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>> s_getCurrencyConstraint = getCurrencyConstraint();
 
   private static ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>> getCurrencyConstraint() {
-    final ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>> map = new ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>>();
+    final ComputationTargetTypeMap<Function1<ComputationTarget, ValueProperties>> map = new ComputationTargetTypeMap<>();
     map.put(ComputationTargetType.POSITION, new Function1<ComputationTarget, ValueProperties>() {
       @Override
       public ValueProperties execute(final ComputationTarget target) {
@@ -625,6 +627,30 @@ public class FinancialSecurityUtils {
           return security.getCurrency();
         }
 
+        @Override
+        public Currency visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+          if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
+            final InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+              return payLeg.getCurrency();
+            }
+          }
+          return null;
+        }
+
+        @Override
+        public Currency visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+          if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
+            final InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+              return payLeg.getCurrency();
+            }
+          }
+          return null;
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -974,6 +1000,38 @@ public class FinancialSecurityUtils {
         @Override
         public Collection<Currency> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+          if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
+            final InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+              return Collections.singletonList(payLeg.getCurrency());
+            }
+            final Collection<Currency> collection = new ArrayList<Currency>();
+            collection.add(payLeg.getCurrency());
+            collection.add(receiveLeg.getCurrency());
+            return collection;
+          }
+          return null;
+        }
+
+        @Override
+        public Collection<Currency> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+          if (security.getPayLeg().getNotional() instanceof InterestRateNotional && security.getReceiveLeg().getNotional() instanceof InterestRateNotional) {
+            final InterestRateNotional payLeg = (InterestRateNotional) security.getPayLeg().getNotional();
+            final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
+            if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+              return Collections.singletonList(payLeg.getCurrency());
+            }
+            final Collection<Currency> collection = new ArrayList<Currency>();
+            collection.add(payLeg.getCurrency());
+            collection.add(receiveLeg.getCurrency());
+            return collection;
+          }
+          return null;
         }
 
       });

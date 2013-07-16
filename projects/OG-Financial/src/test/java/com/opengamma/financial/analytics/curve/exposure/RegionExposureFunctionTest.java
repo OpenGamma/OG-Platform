@@ -69,6 +69,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
@@ -508,4 +510,35 @@ public class RegionExposureFunctionTest {
     assertTrue(ids.containsAll(Arrays.asList(ExternalId.of(SCHEME, "DE"), ExternalId.of(SCHEME, "US"))));
   }
 
+  @Test
+  public void testPayYoYInflationSwapSecurity() {
+    YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
+    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "US"), ids.get(0));
+  }
+  
+  @Test
+  public void testReceiveYoYInflationSwapSecurity() {
+    YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
+    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "US"), ids.get(0));
+  }
+  
+  @Test
+  public void testPayZeroCouponInflationSwapSecurity() {
+    ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getPayZeroCouponInflationSwapSecurity();
+    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "US"), ids.get(0));
+  }
+  
+  @Test
+  public void testReceiveZeroCouponInflationSwapSecurity() {
+    ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getReceiveZeroCouponInflationSwapSecurity();
+    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "US"), ids.get(0));
+  }
 }

@@ -61,6 +61,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
 /**
  * Adapter for visiting all concrete asset classes.
@@ -352,6 +354,16 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     return _value;
   }
 }

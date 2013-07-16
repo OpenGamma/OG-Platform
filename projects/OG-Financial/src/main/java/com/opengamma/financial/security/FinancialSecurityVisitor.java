@@ -47,6 +47,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
 /**
  * General visitor for top level asset classes.
@@ -153,5 +155,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
 
   T visitSwaptionSecurity(SwaptionSecurity security);
 
+  T visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security);
+  
+  T visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security);
 }
 
