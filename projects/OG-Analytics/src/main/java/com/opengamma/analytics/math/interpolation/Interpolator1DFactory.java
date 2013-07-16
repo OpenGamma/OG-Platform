@@ -67,7 +67,7 @@ public final class Interpolator1DFactory {
   /** Step instance */
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Step-Upper instance */
-  public static final StepInterpolator1D STEP_UPPER_INSTANCE = new StepInterpolator1D();
+  public static final StepUpperInterpolator1D STEP_UPPER_INSTANCE = new StepUpperInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
   /** MonotonicityPreservingCubicSpline
@@ -109,7 +109,7 @@ public final class Interpolator1DFactory {
     staticInstances.put(STEP, STEP_INSTANCE);
     instanceNames.put(StepInterpolator1D.class, STEP);
     staticInstances.put(STEP_UPPER, STEP_UPPER_INSTANCE);
-    instanceNames.put(StepInterpolator1D.class, STEP_UPPER);
+    instanceNames.put(StepUpperInterpolator1D.class, STEP_UPPER);
     staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
     instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(MONOTONIC_CUBIC, MONOTONIC_CUBIC_INSTANCE);
