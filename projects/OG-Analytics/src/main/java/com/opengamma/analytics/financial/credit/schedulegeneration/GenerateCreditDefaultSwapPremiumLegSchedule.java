@@ -183,9 +183,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
     if (protectStart) {
       tempBDACashflowSchedule[cashflowSchedule.length - 1][2] = prevDate.plusDays(1);
-    }
-    else
-    {
+    } else {
       tempBDACashflowSchedule[cashflowSchedule.length - 1][2] = prevDate;
     }
 

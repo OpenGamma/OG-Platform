@@ -58,7 +58,7 @@ import com.opengamma.util.ArgumentChecker;
       return null;
     }
     Map<String, Object> map = Maps.newHashMap();
-    for (Iterator it = jsonObject.keys(); it.hasNext(); ) {
+    for (Iterator<?> it = jsonObject.keys(); it.hasNext(); ) {
       String key = (String) it.next();
       map.put(key, jsonObject.opt(key));
     }

@@ -5,6 +5,22 @@
  */
 package com.opengamma.component.factory.source;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
+
+import redis.clients.jedis.JedisPool;
+
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -18,67 +34,50 @@ import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesRe
 import com.opengamma.master.historicaltimeseries.impl.RedisSimulationSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
-import redis.clients.jedis.JedisPool;
-import org.apache.commons.pool.impl.GenericObjectPool.Config;
-import redis.clients.jedis.Protocol;
+import com.opengamma.util.redis.RedisConnector;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
+/**
+ * A component factory to build {@code RedisSimulationSeriesSource} instances.
+ */
 @BeanDefinition
 public class RedisSimulationSeriesSourceComponentFactory extends AbstractComponentFactory {
-  private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSourceComponentFactory.class);
 
+  /**
+   * The classifier that the factory should publish under.
+   */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
+  /**
+   * Connector to the Redis server.
+   */
   @PropertyDefinition
-  private String _redisServer;
-
-  @PropertyDefinition
-  private Integer _redisPort;
-
+  private RedisConnector _redisConnector;
   /**
    * prefix to append to redis keys when stored
    */
   @PropertyDefinition
-  private String _redisPrefix;
-
+  private String _redisPrefix = "";
   /**
    * The redis database to connect to
    */
   @PropertyDefinition
   private Integer _database;
-
   /**
    * The initial value to use for the simulation date - this may be modified later during runtime.
    */
   @PropertyDefinition
   private LocalDate _simulationDate;
-
   /**
    * The flag determining whether the component should be published by REST (default true).
    */
   @PropertyDefinition
   private boolean _publishRest = true;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    final  Config config = new Config();
-    final JedisPool jedisPool = new JedisPool(config, _redisServer, _redisPort, Protocol.DEFAULT_TIMEOUT, null, _database);
-    final RedisSimulationSeriesSource  instance = new RedisSimulationSeriesSource(jedisPool, _redisPrefix);
+    final JedisPool jedisPool = getRedisConnector().getJedisPool();
+    final RedisSimulationSeriesSource  instance = new RedisSimulationSeriesSource(jedisPool, getRedisPrefix());
     if (_simulationDate != null) {
       instance.setCurrentSimulationExecutionDate(_simulationDate);
     }
@@ -92,23 +91,16 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     infoSource.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     infoSource.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesSource.class);
     repo.registerComponent(infoSource, instance);
+    ComponentInfo infoRedis = new ComponentInfo(RedisSimulationSeriesSource.class, getClassifier());
+    infoRedis.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    repo.registerComponent(infoRedis, instance);
 
     // Is caching needed? assume no for now
-
     if (_publishRest) {
       repo.getRestComponents().publish(infoResolver, new DataHistoricalTimeSeriesResolverResource(resolver, OpenGammaFudgeContext.getInstance()));
       repo.getRestComponents().publish(infoSource, new DataHistoricalTimeSeriesSourceResource(instance));
     }
-//
-//
-//    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-//
-//    //TODO: REST
-//    //TODO: Caching?
-//
-//    repo.registerComponent(info, instance);
   }
-
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
@@ -133,10 +125,8 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
-      case -1950631778:  // redisServer
-        return getRedisServer();
-      case 1709620380:  // redisPort
-        return getRedisPort();
+      case -745461486:  // redisConnector
+        return getRedisConnector();
       case -2024915987:  // redisPrefix
         return getRedisPrefix();
       case 1789464955:  // database
@@ -155,11 +145,8 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case -1950631778:  // redisServer
-        setRedisServer((String) newValue);
-        return;
-      case 1709620380:  // redisPort
-        setRedisPort((Integer) newValue);
+      case -745461486:  // redisConnector
+        setRedisConnector((RedisConnector) newValue);
         return;
       case -2024915987:  // redisPrefix
         setRedisPrefix((String) newValue);
@@ -191,8 +178,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     if (obj != null && obj.getClass() == this.getClass()) {
       RedisSimulationSeriesSourceComponentFactory other = (RedisSimulationSeriesSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getRedisServer(), other.getRedisServer()) &&
-          JodaBeanUtils.equal(getRedisPort(), other.getRedisPort()) &&
+          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
           JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
           JodaBeanUtils.equal(getDatabase(), other.getDatabase()) &&
           JodaBeanUtils.equal(getSimulationDate(), other.getSimulationDate()) &&
@@ -206,8 +192,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisServer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDatabase());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSimulationDate());
@@ -217,7 +202,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the classifier.
+   * Gets the classifier that the factory should publish under.
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -225,7 +210,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   }
 
   /**
-   * Sets the classifier.
+   * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {
@@ -243,52 +228,27 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the redisServer.
+   * Gets connector to the Redis server.
    * @return the value of the property
    */
-  public String getRedisServer() {
-    return _redisServer;
+  public RedisConnector getRedisConnector() {
+    return _redisConnector;
   }
 
   /**
-   * Sets the redisServer.
-   * @param redisServer  the new value of the property
+   * Sets connector to the Redis server.
+   * @param redisConnector  the new value of the property
    */
-  public void setRedisServer(String redisServer) {
-    this._redisServer = redisServer;
+  public void setRedisConnector(RedisConnector redisConnector) {
+    this._redisConnector = redisConnector;
   }
 
   /**
-   * Gets the the {@code redisServer} property.
+   * Gets the the {@code redisConnector} property.
    * @return the property, not null
    */
-  public final Property<String> redisServer() {
-    return metaBean().redisServer().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the redisPort.
-   * @return the value of the property
-   */
-  public Integer getRedisPort() {
-    return _redisPort;
-  }
-
-  /**
-   * Sets the redisPort.
-   * @param redisPort  the new value of the property
-   */
-  public void setRedisPort(Integer redisPort) {
-    this._redisPort = redisPort;
-  }
-
-  /**
-   * Gets the the {@code redisPort} property.
-   * @return the property, not null
-   */
-  public final Property<Integer> redisPort() {
-    return metaBean().redisPort().createProperty(this);
+  public final Property<RedisConnector> redisConnector() {
+    return metaBean().redisConnector().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -407,15 +367,10 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", RedisSimulationSeriesSourceComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code redisServer} property.
+     * The meta-property for the {@code redisConnector} property.
      */
-    private final MetaProperty<String> _redisServer = DirectMetaProperty.ofReadWrite(
-        this, "redisServer", RedisSimulationSeriesSourceComponentFactory.class, String.class);
-    /**
-     * The meta-property for the {@code redisPort} property.
-     */
-    private final MetaProperty<Integer> _redisPort = DirectMetaProperty.ofReadWrite(
-        this, "redisPort", RedisSimulationSeriesSourceComponentFactory.class, Integer.class);
+    private final MetaProperty<RedisConnector> _redisConnector = DirectMetaProperty.ofReadWrite(
+        this, "redisConnector", RedisSimulationSeriesSourceComponentFactory.class, RedisConnector.class);
     /**
      * The meta-property for the {@code redisPrefix} property.
      */
@@ -442,8 +397,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "redisServer",
-        "redisPort",
+        "redisConnector",
         "redisPrefix",
         "database",
         "simulationDate",
@@ -460,10 +414,8 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -1950631778:  // redisServer
-          return _redisServer;
-        case 1709620380:  // redisPort
-          return _redisPort;
+        case -745461486:  // redisConnector
+          return _redisConnector;
         case -2024915987:  // redisPrefix
           return _redisPrefix;
         case 1789464955:  // database
@@ -501,19 +453,11 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
     }
 
     /**
-     * The meta-property for the {@code redisServer} property.
+     * The meta-property for the {@code redisConnector} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> redisServer() {
-      return _redisServer;
-    }
-
-    /**
-     * The meta-property for the {@code redisPort} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Integer> redisPort() {
-      return _redisPort;
+    public final MetaProperty<RedisConnector> redisConnector() {
+      return _redisConnector;
     }
 
     /**

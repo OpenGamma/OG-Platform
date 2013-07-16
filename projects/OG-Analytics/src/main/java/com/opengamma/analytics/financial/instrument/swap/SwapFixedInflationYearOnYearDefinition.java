@@ -69,7 +69,7 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
    * @param calendar The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month convention used to compute the payment date.
    * @param fixedLegDayCount The day counter of the fixed leg.
-   * @param conventionalMonthLag TODO
+   * @param conventionalMonthLag The month lag
    * @param monthLag The price index fixing lag in months.
    * @param payNotional flag if the notional is paid or not (false is the standard case).
    * @return The year on year inflation swap.
@@ -124,7 +124,7 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
    * @param calendar The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month convention used to compute the payment date.
    * @param fixedLegDayCount The day counter of the fixed leg.
-   * @param conventionalMonthLag TODO
+   * @param conventionalMonthLag The month lag
    * @param monthLag The price index fixing lag in months.
    * @param payNotional flag if the notional is paid or not (false is the standard case).
    * @return The year on year inflation swap.

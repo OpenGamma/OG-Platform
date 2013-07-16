@@ -76,11 +76,12 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     }
   }
 
-  /* package */ static List<String> getAxisLabels(Collection values) {
+  /* package */ static List<String> getAxisLabels(Collection<?> values) {
     List<String> labels = Lists.newArrayListWithCapacity(values.size());
     for (Object value : values) {
       labels.add(LabelFormatter.format(value));
     }
     return labels;
   }
+
 }

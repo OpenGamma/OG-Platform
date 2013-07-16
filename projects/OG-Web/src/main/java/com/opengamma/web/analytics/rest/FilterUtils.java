@@ -19,7 +19,7 @@ import com.sun.jersey.spi.container.ContainerRequest;
 /**
  * Helper methods for the subscription filters.
  */
-/* package */ class FilterUtils {
+/* package */ final class FilterUtils {
 
   private FilterUtils() {
   }

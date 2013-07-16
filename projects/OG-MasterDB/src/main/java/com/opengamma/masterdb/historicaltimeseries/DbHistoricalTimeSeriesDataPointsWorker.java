@@ -115,7 +115,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(filter.getEarliestDate()))
       .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(filter.getLatestDate()));
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     
     // Get version metadata from the data-points and set up a Manageable HTS accordingly
     // While the HTS doc itself might have been deleted, the data-points can still be retrieved here
@@ -201,7 +201,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addTimestamp("ver_instant", vc.getVersionAsOf())
       .addTimestamp("corr_instant", vc.getCorrectedTo());
     final String sql = getElSqlBundle().getSql("SelectMaxPointDate", queryArgs);
-    Date result = getDbConnector().getJdbcTemplate().queryForObject(sql, Date.class, queryArgs);
+    Date result = getDbConnector().getJdbcTemplate().queryForObject(sql, queryArgs, Date.class);
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
       if (series.getEarliestTime().isAfter(maxDate) == false) {
@@ -403,7 +403,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addValue("doc_oid", oid)
       .addTimestamp("version_as_of_instant", versionCorrection.getVersionAsOf())
       .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());
-    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
+    final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final UniqueIdExtractor extractor = new UniqueIdExtractor(oid);
     final String sql = getElSqlBundle().getSql("SelectUniqueIdByVersionCorrection", args);
     final UniqueId uniqueId = namedJdbc.query(sql, args, extractor);

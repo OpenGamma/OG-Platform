@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 
 import javax.servlet.ServletContext;
 
-import org.cometd.Bayeux;
+import org.cometd.bayeux.server.BayeuxServer;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.PositionSource;
@@ -28,7 +28,7 @@ import com.opengamma.master.position.PositionMaster;
  */
 public class LiveResultsServiceBean {
 
-  private Bayeux _bayeux;
+  private BayeuxServer _bayeux;
   private ViewProcessor _viewProcessor;
   private PositionSource _positionSource;
   private SecuritySource _securitySource;
@@ -126,11 +126,11 @@ public class LiveResultsServiceBean {
     _user = user;
   }
 
-  protected void setBayeux(final Bayeux bayeux) {
+  protected void setBayeux(final BayeuxServer bayeux) {
     _bayeux = bayeux;
   }
   
-  protected Bayeux getBayeux() {
+  protected BayeuxServer getBayeux() {
     return _bayeux;
   }
   
@@ -161,7 +161,7 @@ public class LiveResultsServiceBean {
    * @param servletContext  the servlet context, not null
    */
   public void init(ServletContext servletContext) {
-    setBayeux((Bayeux) servletContext.getAttribute(Bayeux.ATTRIBUTE));
+    setBayeux((BayeuxServer) servletContext.getAttribute(BayeuxServer.ATTRIBUTE));
     init();
   }
 
@@ -170,7 +170,7 @@ public class LiveResultsServiceBean {
    * 
    * @param bayeux  the bayeux instance, not null
    */
-  public void init(Bayeux bayeux) {
+  public void init(BayeuxServer bayeux) {
     setBayeux(bayeux);
     init();
   }

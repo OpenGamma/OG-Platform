@@ -31,7 +31,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the {@link MaximumJobItemExecutionWatchdogTest}.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class MaximumJobItemExecutionWatchdogTest {
 
   private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,

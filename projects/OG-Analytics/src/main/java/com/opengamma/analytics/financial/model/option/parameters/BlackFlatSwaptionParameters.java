@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
 
   /**
-   * The volatility surface. The first dimension is the expiration and the second the tenor.
+   * The volatility surface. The first dimension is the expiration and the second the underlying swap tenor.
    */
   private final Surface<Double, Double, Double> _volatility;
   /**
@@ -28,8 +28,8 @@ public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
   private final GeneratorSwapFixedIbor _generatorSwap;
 
   /**
-   * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
-   * @param volatility The Black volatility surface.
+   * Constructor from the parameter surfaces.
+   * @param volatility The Black volatility surface. The first dimension is the expiration and the second the underlying swap tenor.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
   public BlackFlatSwaptionParameters(final Surface<Double, Double, Double> volatility, final GeneratorSwapFixedIbor generatorSwap) {

@@ -7,10 +7,14 @@ package com.opengamma.util.i18n;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.google.common.collect.Iterables;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -189,6 +193,16 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
 
   //-----------------------------------------------------------------------
   /**
+   * Lists the available countries.
+   * 
+   * @return an immutable set containing all registered countries, not null
+   */
+  public static Set<Country> getAvailableCountries() {
+    return ImmutableSet.copyOf(s_instanceMap.values());
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Obtains an instance of {@code Country} for the specified ISO-3166
    * three letter currency code dynamically creating an instance if necessary.
    * <p>
@@ -199,6 +213,7 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
    * @return the singleton instance, not null
    * @throws IllegalArgumentException if the country code is not two letters
    */
+  @FromString
   public static Country of(String countryCode) {
     ArgumentChecker.notNull(countryCode, "countryCode");
     if (countryCode.matches("[A-Z][A-Z]") == false) {
@@ -248,6 +263,7 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
    * 
    * @return the two letter ISO code, not null
    */
+  @ToString
   public String getCode() {
     return _code;
   }
@@ -329,10 +345,4 @@ public final class Country implements ObjectIdentifiable, UniqueIdentifiable, Co
     return _code;
   }
 
-  /**
-   * @return A read-only {@link Iterable} of all registered {@link Country} instances.
-   */
-  public static Iterable<Country> getAvailableCountries() {
-    return Iterables.unmodifiableIterable(s_instanceMap.values());
-  }
 }

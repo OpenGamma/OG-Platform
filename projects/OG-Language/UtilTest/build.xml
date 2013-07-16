@@ -1,3 +1,0 @@
-<project name="UtilTest">
-	<import file="${basedir}/../build-core-cpp.xml" />
-</project>

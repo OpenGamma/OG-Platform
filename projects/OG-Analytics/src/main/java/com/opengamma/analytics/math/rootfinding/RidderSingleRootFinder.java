@@ -19,7 +19,9 @@ import com.opengamma.analytics.math.util.wrapper.CommonsMathWrapper;
  * <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/analysis/solvers/RiddersSolver.html">Commons Math library implementation</a>
  * of Ridder's method.
  */
+@SuppressWarnings("deprecation")
 public class RidderSingleRootFinder extends RealSingleRootFinder {
+
   private static final int MAX_ITER = 10000;
   private final RiddersSolver _ridder = new RiddersSolver();
 

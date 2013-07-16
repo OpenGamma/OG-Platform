@@ -48,7 +48,7 @@ import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMasterUtils;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 

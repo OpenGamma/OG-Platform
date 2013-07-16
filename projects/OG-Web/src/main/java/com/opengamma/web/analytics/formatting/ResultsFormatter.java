@@ -17,6 +17,7 @@ import com.opengamma.web.analytics.ValueTypes;
  * Formats analytics data for display in a grid in the user interface or for transmitting to the client as history.
  * Data structures bigger than a single value are encoded as JSON.
  */
+@SuppressWarnings("rawtypes")
 public class ResultsFormatter {
 
   /**

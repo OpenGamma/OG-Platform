@@ -23,12 +23,11 @@
   </class>
   
   <query name="ComputationTargetSpecification.one.byTypeAndUid">
-  	from HbComputationTargetSpecification as a where 
-  	a.type = :type and
+    from HbComputationTargetSpecification as a where 
+    a.type = :type and
     a.uidScheme = :uidScheme and
     a.uidValue = :uidValue and
     ((:uidVersion is NULL and a.uidVersion is NULL) OR (a.uidVersion = :uidVersion))
   </query>
-  	
-  
+    
 </hibernate-mapping>

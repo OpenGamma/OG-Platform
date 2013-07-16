@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.credit.idanew;
 import org.apache.commons.lang.ArrayUtils;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
@@ -30,15 +29,14 @@ public class ISDACompliantBucketedCS01CDSFunction extends ISDACompliantCDSFuncti
 
   @Override
   protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
-                           final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final double[] spreads) {
-    final double[] cs01 = _pricer.bucketedCreditDV01(analytic,
-                                                     cds.getParSpread() * s_tenminus4,
-                                                     PriceType.CLEAN,
-                                                     yieldCurve,
-                                                     curveAnalytics,
-                                                     spreads,
-                                                     s_tenminus4,
-                                                     BumpType.ADDITIVE);
+      final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final double[] spreads) {
+    final double[] cs01 = _pricer.bucketedCS01FromQuotedSpreads(analytic,
+        cds.getParSpread() * s_tenminus4,
+        yieldCurve,
+        curveAnalytics,
+        spreads,
+        s_tenminus4,
+        BumpType.ADDITIVE);
     for (int i = 0; i < cs01.length; i++) {
       cs01[i] *= cds.getNotional() * s_tenminus4;
     }

@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.model.credit.idanew;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
@@ -30,9 +29,9 @@ public class ISDACompliantParallelCS01CDSFunction extends ISDACompliantCDSFuncti
 
   @Override
   protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
-                           final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final double[] spreads) {
-    final double cs01 = _pricer.parallelCreditDV01(analytic, cds.getParSpread() * s_tenminus4, PriceType.DIRTY, yieldCurve, curveAnalytics,
-                                                   spreads, s_tenminus4, BumpType.ADDITIVE);
+      final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final double[] spreads) {
+    final double cs01 = _pricer.parallelCS01FromQuotedSpread(analytic, cds.getParSpread() * s_tenminus4, yieldCurve, spreads[0],
+        s_tenminus4, BumpType.ADDITIVE);
     return Double.valueOf(cs01 * cds.getNotional() * s_tenminus4);
   }
 

@@ -177,15 +177,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
-    final ValueProperties otherProperties = ValuePropertiesUtils.removeAll(constraints,
-        PUT_CURVE,
-        CALL_CURVE,
-        PUT_CURVE_CALC_CONFIG,
-        CALL_CURVE_CALC_CONFIG,
-        SURFACE,
-        InterpolatedDataProperties.X_INTERPOLATOR_NAME,
-        InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME,
-        InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
+    final ValueProperties otherProperties = ValueProperties.builder().get();
     final String putCurveName = Iterables.getOnlyElement(putCurveNames);
     final String callCurveName = Iterables.getOnlyElement(callCurveNames);
     final String putCurveCalculationConfig = Iterables.getOnlyElement(putCurveCalculationConfigs);
@@ -210,17 +202,6 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     requirements.add(fxVolatilitySurface);
     requirements.add(pairQuoteRequirement);
     return requirements;
-  }
-
-
-  @Override
-  public boolean canHandleMissingRequirements() {
-    return true;
-  }
-
-  @Override
-  public boolean canHandleMissingInputs() {
-    return true;
   }
 
   @Override

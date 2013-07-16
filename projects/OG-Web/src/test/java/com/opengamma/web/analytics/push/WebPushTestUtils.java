@@ -17,7 +17,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -150,9 +149,7 @@ public class WebPushTestUtils {
     context.setContextPath("/");
     context.setResourceBase("build/classes");
     context.setDescriptor("web-push/WEB-INF/web.xml");
-    final Map<String, String> params = new HashMap<String, String>();
-    params.put("contextConfigLocation", springXml);
-    context.setInitParams(params);
+    context.setInitParameter("contextConfigLocation", springXml);
     context.addEventListener(new ContextLoaderListener());
     final Server server = new Server();
     server.setHandler(context);

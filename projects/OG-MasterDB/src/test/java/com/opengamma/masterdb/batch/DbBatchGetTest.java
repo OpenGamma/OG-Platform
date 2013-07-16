@@ -22,7 +22,7 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbBatchGetTest extends AbstractDbBatchMasterTest {
+public class DbBatchGetTest extends AbstractDbBatchMasterWorkerTest {
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchGetTest.class);

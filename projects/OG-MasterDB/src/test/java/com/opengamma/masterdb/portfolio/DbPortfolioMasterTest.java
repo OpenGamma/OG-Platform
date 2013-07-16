@@ -10,10 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -22,7 +18,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -30,7 +26,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbPortfolioMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbPortfolioMasterTest extends DbTest {
+public class DbPortfolioMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMasterTest.class);
 
@@ -38,26 +34,19 @@ public class DbPortfolioMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbPortfolioMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _prtMaster = (DbPortfolioMaster) context.getBean(getDatabaseType() + "DbPortfolioMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _prtMaster = new DbPortfolioMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _prtMaster = null;
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

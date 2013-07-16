@@ -8,15 +8,11 @@ package com.opengamma.masterdb.org;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+
 import com.opengamma.core.obligor.CreditRating;
 import com.opengamma.core.obligor.CreditRatingFitch;
 import com.opengamma.core.obligor.CreditRatingMoodys;
@@ -25,8 +21,8 @@ import com.opengamma.core.obligor.Region;
 import com.opengamma.core.obligor.Sector;
 import com.opengamma.master.orgs.ManageableOrganization;
 import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.masterdb.orgs.DbOrganizationMaster;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -34,7 +30,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbOrganizationMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbOrganizationMasterTest extends DbTest {
+public class DbOrganizationMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbOrganizationMasterTest.class);
 
@@ -42,29 +38,22 @@ public class DbOrganizationMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbOrganizationMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _orgMaster = (DbOrganizationMaster) context.getBean(getDatabaseType() + "DbOrganizationMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _orgMaster = new DbOrganizationMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _orgMaster = null;
   }
 
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
-  }
-
-
+  //-------------------------------------------------------------------------
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_orgMaster);

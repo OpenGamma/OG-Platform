@@ -823,8 +823,8 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
     s_logger.info("Last latency was {} ms, Average latency is {} ms",
-                  durationNanos / NANOS_PER_MILLISECOND,
-                  (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
+        durationNanos / NANOS_PER_MILLISECOND,
+        (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
 
   private void jobCompleted() {

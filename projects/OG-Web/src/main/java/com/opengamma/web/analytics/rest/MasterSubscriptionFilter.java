@@ -41,7 +41,7 @@ public class MasterSubscriptionFilter implements ResourceFilter {
   }
 
   /**
-   * @return {@code null}
+   * @return null
    */
   @Override
   public ContainerRequestFilter getRequestFilter() {

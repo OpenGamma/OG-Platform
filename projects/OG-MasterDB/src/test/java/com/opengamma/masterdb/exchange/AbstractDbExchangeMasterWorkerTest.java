@@ -19,17 +19,11 @@ import java.util.List;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -42,16 +36,15 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbExchangeMasterWorker via DbExchangeMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
+public abstract class AbstractDbExchangeMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbExchangeMasterWorkerTest.class);
 
@@ -59,28 +52,29 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalExchanges;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbExchangeMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    init();
   }
 
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
-    if (_readOnly == false) {
-      init();
-    }
+  @Override
+  protected void doTearDown() {
+    _exgMaster = null;
   }
 
+  @Override
+  protected void doTearDownClass() {
+    _exgMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
   protected ObjectId setupTestData(Instant now) {
     Clock origClock = _exgMaster.getClock();
     try {
@@ -95,7 +89,6 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
 
       ObjectId baseOid = initialDoc.getObjectId();
 
-      //------------------------------------------------------------------------------------------------------------------
       List<ExchangeDocument> firstReplacement = newArrayList();
       for (int i = 0; i < 5; i++) {
         ManageableExchange ex = new ManageableExchange(bundle, "setup_" + i, region, null);
@@ -105,17 +98,15 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
       }
       _exgMaster.setClock(Clock.fixed(now.plus(1, HOURS), ZoneOffset.UTC));
       _exgMaster.replaceVersions(baseOid, firstReplacement);
-
       return baseOid;
+      
     } finally {
       _exgMaster.setClock(origClock);
     }
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _exgMaster = (DbExchangeMaster) context.getBean(getDatabaseType() + "DbExchangeMaster");
+  private void init() {
+    _exgMaster = new DbExchangeMaster(getDbConnector());
     
 //    id bigint not null,
 //    oid bigint not null,
@@ -134,7 +125,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
     s_logger.debug("test data later: {}", _version2Instant);
     FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     LobHandler lobHandler = new DefaultLobHandler();
-    final SimpleJdbcTemplate template = _exgMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _exgMaster.getDbConnector().getJdbcOperations();
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UniqueId.of("DbExg", "101", "0"));
     exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));
@@ -202,27 +193,6 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
         202, 2);
     template.update("INSERT INTO exg_exchange2idkey VALUES (?,?)",
         202, 3);
-  }
-
-  @AfterMethod
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _exgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _exgMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

@@ -51,19 +51,19 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(CDSAnalytic cds, double marketFractionalSpread, ISDACompliantYieldCurve yieldCurve) {
-    return calibrateCreditCurve(new CDSAnalytic[] {cds}, new double[] {marketFractionalSpread}, yieldCurve, new double[1]);
+  public ISDACompliantCreditCurve calibrateCreditCurve(CDSAnalytic cds, double parSpread, ISDACompliantYieldCurve yieldCurve) {
+    return calibrateCreditCurve(new CDSAnalytic[] {cds}, new double[] {parSpread}, yieldCurve, new double[1]);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] fractionalSpreads, final ISDACompliantYieldCurve yieldCurve) {
+  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] parSpreads, final ISDACompliantYieldCurve yieldCurve) {
     ArgumentChecker.notNull(cds, "null CDS");
     final int n = cds.length;
     final double[] pointsUpfront = new double[n];
-    return calibrateCreditCurve(cds, fractionalSpreads, yieldCurve, pointsUpfront);
+    return calibrateCreditCurve(cds, parSpreads, yieldCurve, pointsUpfront);
   }
 
   /**
@@ -286,7 +286,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
       pv /= _valuationDF;
 
       if (cleanOrDirty == PriceType.CLEAN) {
-        pv -= _cds.getAccrued();
+        pv -= _cds.getAccruedPremiumPerUnitSpread();
       }
       return pv;
     }

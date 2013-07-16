@@ -190,7 +190,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test
@@ -201,7 +201,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -211,7 +211,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test
@@ -222,7 +222,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -232,7 +232,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test
@@ -243,7 +243,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -253,7 +253,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test
@@ -264,7 +264,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -274,7 +274,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument doc = new HolidayDocument();
     doc.setName("Test");
     doc.setHoliday(holiday);
-    HolidayDocument added = _holMaster.add(doc);
+    _holMaster.add(doc);
   }
 
 }

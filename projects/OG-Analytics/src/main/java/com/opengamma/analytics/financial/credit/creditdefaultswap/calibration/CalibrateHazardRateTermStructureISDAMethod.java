@@ -235,22 +235,17 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
     final double[] secantSearch = secant(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, numIterations, xacc, facc, boundLo, boundHi, xPoints, yPoints);
 
-    if (secantSearch[1] == 1.0)
-    {
+    if (secantSearch[1] == 1.0) {
       // Found the root
       return secantSearch[2];
-    }
-    else if (secantSearch[0] == 1.0)
-    {
+    } else if (secantSearch[0] == 1.0) {
       // Didn't find the root, but it was bracketed
 
       // Do we pass in the modifiedHazardRateCurve ?
       final double root = brentMethod(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, numIterations, xacc, facc, xPoints, yPoints);
 
       return root;
-    }
-    else
-    {
+    } else {
       // Root was not found or bracketed, now try at the bounds
 
       modifiedHazardRateCurve = modifyHazardRateCurve(hazardRateCurve, boundLo);
@@ -261,16 +256,13 @@ public class CalibrateHazardRateTermStructureISDAMethod {
         return boundLo;
       }
 
-      if (yPoints[0] * fLo < 0)
-      {
+      if (yPoints[0] * fLo < 0) {
         xPoints[2] = xPoints[0];
         xPoints[0] = boundLo;
 
         yPoints[2] = yPoints[0];
         yPoints[0] = fLo;
-      }
-      else
-      {
+      } else {
         modifiedHazardRateCurve = modifyHazardRateCurve(hazardRateCurve, boundHi);
 
         final double fHi = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, priceType);
@@ -280,13 +272,10 @@ public class CalibrateHazardRateTermStructureISDAMethod {
           return boundHi;
         }
 
-        if (yPoints[0] * fHi < 0)
-        {
+        if (yPoints[0] * fHi < 0) {
           xPoints[2] = boundHi;
           yPoints[2] = fHi;
-        }
-        else
-        {
+        } else {
           // If the algorithm gets here the root has not been found, need to make sure it reports its failure and falls over
           throw new OpenGammaRuntimeException("Could not calibrate hazard rate curve");
         }
@@ -344,8 +333,7 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
     for (j = 1; j <= numIterations; j++) {
 
-      if (f2 * f1 > 0.0)
-      {
+      if (f2 * f1 > 0.0) {
         final double tempX = x1;
         final double tempF = f1;
 
@@ -364,13 +352,10 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
       ratio = (x3 - x1) / (x2 - x1);
 
-      if (f3 * f31 < ratio * f2 * f21 || f21 == 0. || f31 == 0. || f32 == 0.)
-      {
+      if (f3 * f31 < ratio * f2 * f21 || f21 == 0. || f31 == 0. || f32 == 0.) {
         x3 = x2;
         f3 = f2;
-      }
-      else
-      {
+      } else {
         xm = x1 - (f1 / f21) * x21 + ((f1 * f2) / (f31 * f32)) * x31 - ((f1 * f2) / (f21 * f32)) * x21;
 
         HazardRateCurve modifiedHazardRateCurve = modifyHazardRateCurve(hazardRateCurve, xm);
@@ -378,18 +363,14 @@ public class CalibrateHazardRateTermStructureISDAMethod {
         // NOTE : Passing in the PriceType variable to this calculation
         fm = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, PriceType.CLEAN);
 
-        if (fm == 0.0 || (Math.abs(fm) <= facc && Math.abs(xm - x1) <= xacc))
-        {
+        if (fm == 0.0 || (Math.abs(fm) <= facc && Math.abs(xm - x1) <= xacc)) {
           return xm;
         }
 
-        if (fm * f1 < 0.0)
-        {
+        if (fm * f1 < 0.0) {
           x3 = xm;
           f3 = fm;
-        }
-        else
-        {
+        } else {
           x1 = xm;
           f1 = fm;
           x3 = x2;
@@ -404,8 +385,7 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
       f2 = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, PriceType.CLEAN);
 
-      if (f2 == 0.0 || (Math.abs(f2) <= facc && Math.abs(x2 - x1) <= xacc))
-      {
+      if (f2 == 0.0 || (Math.abs(f2) <= facc && Math.abs(x2 - x1) <= xacc)) {
         return x2;
       }
 
@@ -457,19 +437,13 @@ public class CalibrateHazardRateTermStructureISDAMethod {
         yPoints[2] = tempY;
       }
 
-      if (Math.abs(yPoints[0] - yPoints[2]) <= facc)
-      {
-        if (yPoints[0] - yPoints[2] > 0)
-        {
+      if (Math.abs(yPoints[0] - yPoints[2]) <= facc) {
+        if (yPoints[0] - yPoints[2] > 0) {
           dx = -yPoints[0] * (xPoints[0] - xPoints[2]) / facc;
-        }
-        else
-        {
+        } else {
           dx = yPoints[0] * (xPoints[0] - xPoints[2]) / facc;
         }
-      }
-      else
-      {
+      } else {
         dx = (xPoints[2] - xPoints[0]) * yPoints[0] / (yPoints[0] - yPoints[2]);
       }
 
@@ -498,28 +472,20 @@ public class CalibrateHazardRateTermStructureISDAMethod {
       }
 
       if ((yPoints[0] < 0 && yPoints[1] < 0 && yPoints[2] < 0) ||
-          (yPoints[0] > 0 && yPoints[1] > 0 && yPoints[2] > 0))
-      {
-        if (Math.abs(yPoints[0]) > Math.abs(yPoints[1]))
-        {
+          (yPoints[0] > 0 && yPoints[1] > 0 && yPoints[2] > 0)) {
+        if (Math.abs(yPoints[0]) > Math.abs(yPoints[1])) {
           xPoints[2] = xPoints[0];
           yPoints[2] = yPoints[0];
           xPoints[0] = xPoints[1];
           yPoints[0] = yPoints[1];
-        }
-        else
-        {
+        } else {
           xPoints[2] = xPoints[1];
           yPoints[2] = yPoints[1];
         }
         continue;
-      }
-      else
-      {
-        if (yPoints[0] * yPoints[2] > 0)
-        {
-          if (xPoints[1] < xPoints[0])
-          {
+      } else {
+        if (yPoints[0] * yPoints[2] > 0) {
+          if (xPoints[1] < xPoints[0]) {
             double tempX = xPoints[0];
             double tempY = yPoints[0];
 
@@ -528,9 +494,7 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
             yPoints[0] = yPoints[1];
             yPoints[1] = tempY;
-          }
-          else
-          {
+          } else {
             double tempX = xPoints[1];
             double tempY = yPoints[1];
 

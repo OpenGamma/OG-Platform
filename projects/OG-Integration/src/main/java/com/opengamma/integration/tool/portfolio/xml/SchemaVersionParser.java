@@ -73,7 +73,7 @@ public class SchemaVersionParser {
     s_logger.debug("Attempting to find root element for document");
 
     // Work through the elements in the document until we hit a start element
-    for (XMLEventReader eventReader = createXmlEventReader(); eventReader.hasNext();) {
+    for (XMLEventReader eventReader = createXmlEventReader(); eventReader.hasNext(); ) {
       XMLEvent event = eventReader.nextEvent();
       if (event.isStartElement()) {
 
@@ -101,8 +101,7 @@ public class SchemaVersionParser {
     Attribute schemaVersion = element.getAttributeByName(SCHEMA_VERSION_QNAME);
     if (schemaVersion != null) {
       return new SchemaVersion(schemaVersion.getValue());
-    }
-    else {
+    } else {
       throw new OpenGammaRuntimeException("No schema version was found - unable to parse file");
     }
   }

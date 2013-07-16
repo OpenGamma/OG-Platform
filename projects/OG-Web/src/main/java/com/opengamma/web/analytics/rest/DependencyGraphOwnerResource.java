@@ -20,11 +20,12 @@ public interface DependencyGraphOwnerResource {
 
   @POST
   @Path("depgraphs")
-  public abstract Response openDependencyGraph(@Context UriInfo uriInfo,
+  Response openDependencyGraph(@Context UriInfo uriInfo,
                                                @FormParam("requestId") int requestId,
                                                @FormParam("row") int row,
                                                @FormParam("col") int col);
 
   @Path("depgraphs/{graphId}")
-  public AbstractGridResource getDependencyGraph(@PathParam("graphId") int graphId);
+  AbstractGridResource getDependencyGraph(@PathParam("graphId") int graphId);
+
 }

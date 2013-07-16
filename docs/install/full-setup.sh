@@ -66,8 +66,7 @@ ant clone-or-pull
 ant build
 
 ### @export "start-server"
-cd projects/OG-Examples
-ant new-hsqldb
-ant init-database
-ant jetty
+cd examples/examples-simulated
+mvn opengamma:server-init -Dconfig=fullstack
+mvn opengamma:server-start -Dconfig=fullstack
 cd ../..

@@ -13,13 +13,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
@@ -31,15 +25,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DbTest;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbPortfolioMasterWorker via DbPortfolioMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
+public abstract class AbstractDbPortfolioMasterWorkerTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbPortfolioMasterWorkerTest.class);
 
@@ -51,33 +44,32 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   protected int _totalPositions;
   protected OffsetDateTime _now;
   private boolean _includePositions = true;
-  protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion, databaseVersion);
-    _readOnly = readOnly;
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeClass(alwaysRun = true)
-  public void setUpClass() throws Exception {
-    if (_readOnly) {
-      init();
-    }
-  }
-
-  @BeforeMethod(alwaysRun = true)
-  public void setUp() throws Exception {
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
     _includePositions = true;
-    if (_readOnly == false) {
-      init();
-    }
+    init();
   }
 
-  private void init() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _prtMaster = (DbPortfolioMaster) context.getBean(getDatabaseType() + "DbPortfolioMaster");
+  @Override
+  protected void doTearDown() {
+    _prtMaster = null;
+  }
+
+  @Override
+  protected void doTearDownClass() {
+    _prtMaster = null;
+  }
+
+  //-------------------------------------------------------------------------
+  private void init() {
+    _prtMaster = new DbPortfolioMaster(getDbConnector());
     
     _now = OffsetDateTime.now();
     _prtMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
@@ -85,7 +77,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     _version2Instant = _now.toInstant().minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
-    final SimpleJdbcTemplate template = _prtMaster.getDbConnector().getJdbcTemplate();
+    final JdbcOperations template = _prtMaster.getDbConnector().getJdbcOperations();
     template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, "TestPortfolio101", 25);
     template.update("INSERT INTO prt_portfolio VALUES (?,?,?,?,?, ?,?,?)",
@@ -137,27 +129,6 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
         13, 102, 102, "K102b", "V102b");
     
     _totalPositions = 6;
-  }
-
-  @AfterMethod(alwaysRun = true)
-  public void tearDown() throws Exception {
-    if (_readOnly == false) {
-      _prtMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterClass(alwaysRun = true)
-  public void tearDownClass() throws Exception {
-    if (_readOnly) {
-      _prtMaster = null;
-      super.tearDown();
-    }
-  }
-
-  @AfterSuite(alwaysRun = true)
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

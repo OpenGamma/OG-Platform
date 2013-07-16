@@ -23,7 +23,7 @@ public class CreditFunctionUtils {
       if (xs[i] instanceof Tenor) {
         tenors[i] = (Tenor) xs[i];
       } else {
-        tenors[i] = new Tenor(Period.parse((String) xs[i]));
+        tenors[i] = Tenor.of(Period.parse((String) xs[i]));
       }
     }
     return tenors;

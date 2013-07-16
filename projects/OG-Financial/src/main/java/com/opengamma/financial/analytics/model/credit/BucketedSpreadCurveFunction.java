@@ -82,7 +82,7 @@ public class BucketedSpreadCurveFunction extends AbstractFunction {
           if (period == null) {
             throw new IllegalArgumentException(dataEntry.toString());
           }
-          times.add(new Tenor(period));
+          times.add(Tenor.of(period));
           rates.add(dataEntry.getValue());
         }
         final NodalTenorDoubleCurve curve = new NodalTenorDoubleCurve(times.toArray(new Tenor[times.size()]), rates.toArray(new Double[rates.size()]), false);

@@ -12,8 +12,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 
 /**
- *
+ * Formatter.
  */
+@SuppressWarnings("rawtypes")
 /* package */ class LabelledMatrix2DFormatter extends AbstractFormatter<LabelledMatrix2D> {
 
   /* package */ static final String X_LABELS = "xLabels";

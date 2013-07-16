@@ -327,15 +327,20 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CouponInflationYearOnYearInterpolationWithMarginDefinition other = (CouponInflationYearOnYearInterpolationWithMarginDefinition) obj;
-    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor))
+    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
       return false;
+    }
     return true;
   }
+
 }

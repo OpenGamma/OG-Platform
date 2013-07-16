@@ -17,8 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.cometd.Client;
-import org.cometd.Message;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
@@ -51,8 +52,8 @@ public class WebView {
   private static final String STARTED_DISPLAY_NAME = "Live";
   private static final String PAUSED_DISPLAY_NAME = "Paused";
 
-  private final Client _local;
-  private final Client _remote;
+  private final LocalSession _local;
+  private final ServerSession _remote;
   private final ViewClient _client;
   private final UniqueId _baseViewDefinitionId;
   private final String _aggregatorName;
@@ -75,7 +76,7 @@ public class WebView {
 
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
-  public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId baseViewDefinitionId,
+  public WebView(final LocalSession local, final ServerSession remote, final ViewClient client, final UniqueId baseViewDefinitionId,
                  final String aggregatorName, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
                  final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache, final ComputationTargetResolver computationTargetResolver) {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -129,7 +130,8 @@ public class WebView {
   private void initGrids(final CompiledViewDefinition compiledViewDefinition) {
     _isInit.set(true);
 
-    final RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
+    final RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(
+        getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
@@ -137,7 +139,8 @@ public class WebView {
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
 
-    final RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
+    final RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(
+        getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
@@ -202,7 +205,7 @@ public class WebView {
   }
 
   @SuppressWarnings("unchecked")
-  public void triggerUpdate(final Message message) {
+  public void triggerUpdate(final ServerMessage message) {
     final Map<String, Object> dataMap = (Map<String, Object>) message.getData();
     boolean immediateResponse = (Boolean) dataMap.get("immediateResponse");
 
@@ -495,11 +498,11 @@ public class WebView {
     return _client;
   }
 
-  private Client getLocal() {
+  private LocalSession getLocal() {
     return _local;
   }
 
-  private Client getRemote() {
+  private ServerSession getRemote() {
     return _remote;
   }
 

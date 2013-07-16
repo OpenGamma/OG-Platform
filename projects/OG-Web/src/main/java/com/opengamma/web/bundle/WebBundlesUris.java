@@ -53,8 +53,4 @@ public class WebBundlesUris {
     }
   }
   
-  public URI sassfragment(String fragmentPath) {
-    return WebDevSassFragmentResource.uri(_data, fragmentPath);
-  }
-
 }

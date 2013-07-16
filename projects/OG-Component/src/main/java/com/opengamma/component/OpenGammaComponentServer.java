@@ -19,6 +19,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.StartupUtils;
 
 /**
  * Main entry point for OpenGamma component-based servers.
@@ -60,6 +61,10 @@ public class OpenGammaComponentServer {
    * The logger in use.
    */
   private ComponentLogger _logger = ComponentLogger.Console.VERBOSE;
+
+  static {
+    StartupUtils.init();
+  }
 
   /**
    * Main method to start an OpenGamma JVM process.

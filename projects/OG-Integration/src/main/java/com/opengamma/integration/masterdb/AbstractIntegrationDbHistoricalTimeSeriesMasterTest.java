@@ -16,6 +16,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test DbExchangeMaster.
@@ -25,12 +26,12 @@ public abstract class AbstractIntegrationDbHistoricalTimeSeriesMasterTest extend
   private static final int PAGE_SIZE = 1000;
   private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
 
-  @BeforeMethod
+  @BeforeMethod(groups = TestGroup.INTEGRATION)
   public void setUp() throws Exception {
     _historicalTimeSeriesMaster = getTestHelper().getHistoricalTimeSeriesMaster();
   }
 
-  @AfterMethod
+  @AfterMethod(groups = TestGroup.INTEGRATION)
   public void tearDown() throws Exception {
     _historicalTimeSeriesMaster = null;
   }
@@ -40,7 +41,7 @@ public abstract class AbstractIntegrationDbHistoricalTimeSeriesMasterTest extend
   }
 
   //-------------------------------------------------------------------------
-  @Test(groups="full")
+  @Test(enabled = false, description = "Queries the entire database")
   public void test_queryAll() throws Exception {
     final HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setPagingRequest(PagingRequest.NONE);

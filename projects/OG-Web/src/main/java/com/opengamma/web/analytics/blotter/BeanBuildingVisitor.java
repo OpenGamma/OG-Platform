@@ -39,7 +39,6 @@ import com.opengamma.util.ArgumentChecker;
   /** The builder for the instance being built */
   private BeanBuilder<T> _builder;
 
-  @SuppressWarnings("unchecked")
   /* package */ BeanBuildingVisitor(BeanDataSource data, MetaBeanFactory metaBeanFactory, Converters converters) {
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.notNull(metaBeanFactory, "metaBeanFactory");
@@ -55,7 +54,6 @@ import com.opengamma.util.ArgumentChecker;
     _builder = (BeanBuilder<T>) metaBean.builder();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
     visitProperty(property, traverser);
@@ -98,7 +96,6 @@ import com.opengamma.util.ArgumentChecker;
     return _builder;
   }
 
-  @SuppressWarnings("unchecked")
   private Object convert(Object value, MetaProperty<?> property, Class<?> expectedType, BeanTraverser traverser) {
     Object convertedValue = _converters.convert(value, property, expectedType);
     if (convertedValue != Converters.CONVERSION_FAILED) {

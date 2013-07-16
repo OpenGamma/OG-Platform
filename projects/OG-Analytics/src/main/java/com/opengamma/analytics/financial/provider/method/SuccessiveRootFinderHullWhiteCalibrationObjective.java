@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Specific objective function for Hull-White model calibration with cap/floor.
  */
-public class SuccessiveRootFinderHullWhiteCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
+public class SuccessiveRootFinderHullWhiteCalibrationObjective extends SuccessiveRootFinderCalibrationObjectiveWithMultiCurves {
 
   /**
    * The pricing method used to price the cap/floor.

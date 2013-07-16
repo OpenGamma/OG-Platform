@@ -33,7 +33,6 @@ import com.opengamma.web.bundle.EHCachingBundleCompressor;
 import com.opengamma.web.bundle.WebBundlesResource;
 import com.opengamma.web.bundle.YUIBundleCompressor;
 import com.opengamma.web.bundle.YUICompressorOptions;
-import com.opengamma.web.sass.WebJRubySassCompiler;
 
 /**
  * Component factory for the main website.
@@ -97,7 +96,6 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   
   //-------------------------------------------------------------------------
   static final class WebResourceBundleInitializer implements ServletContextAware {
-    private WebJRubySassCompiler _sassCompiler;
     private YUICompressorOptions _compressorOptions;
     private BundleManagerFactory _bundleManagerFactory;
     private CacheManager _cacheManager;
@@ -115,10 +113,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
     
     @Override
     public void setServletContext(ServletContext servletContext) {
-      WebJRubySassCompiler.init(servletContext);
-      _sassCompiler = WebJRubySassCompiler.of(servletContext);
-      
-      BundleCompressor compressor = new YUIBundleCompressor(_compressorOptions, _sassCompiler);
+      BundleCompressor compressor = new YUIBundleCompressor(_compressorOptions);
       if (_cacheManager != null) {
         compressor = new EHCachingBundleCompressor(compressor, _cacheManager);
       } else {

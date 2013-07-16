@@ -160,7 +160,7 @@ final class MathCurve {
       final String[] tenorStrings = deserializer.fieldValueToObject(String[].class, message.getByName(X_DATA_FIELD_NAME));
       final ArrayList<Tenor> tenors = new ArrayList<>();
       for (final String tenorString : tenorStrings) {
-        tenors.add(new Tenor(Period.parse(tenorString)));
+        tenors.add(Tenor.of(Period.parse(tenorString)));
       }
       final double[] y = deserializer.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
       final Double[] yObjects = ArrayUtils.toObject(y);

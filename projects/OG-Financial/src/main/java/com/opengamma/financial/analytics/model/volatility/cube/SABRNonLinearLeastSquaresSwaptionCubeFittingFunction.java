@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.cube;
@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
@@ -47,16 +45,14 @@ import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class);
   private static final double ERROR = 0.001;
   private static final BitSet FIXED = new BitSet();
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
@@ -97,9 +93,9 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final DoubleArrayList nuList = new DoubleArrayList();
     final DoubleArrayList rhoList = new DoubleArrayList();
     final DoubleArrayList chiSqList = new DoubleArrayList();
-    final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
-    final Map<Pair<Tenor, Tenor>, ExternalId[]> fittedSmileIds = new HashMap<Pair<Tenor, Tenor>, ExternalId[]>();
-    final Map<Pair<Tenor, Tenor>, Double[]> fittedRelativeStrikes = new HashMap<Pair<Tenor, Tenor>, Double[]>();
+    final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<>();
+    final Map<Pair<Tenor, Tenor>, ExternalId[]> fittedSmileIds = new HashMap<>();
+    final Map<Pair<Tenor, Tenor>, Double[]> fittedRelativeStrikes = new HashMap<>();
     for (final Map.Entry<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> swapMaturityEntry : smiles.entrySet()) {
       final double maturity = getTime(swapMaturityEntry.getKey());
       for (final Map.Entry<Tenor, Pair<double[], double[]>> swaptionExpiryEntry : swapMaturityEntry.getValue().entrySet()) {

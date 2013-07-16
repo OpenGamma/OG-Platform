@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;

@@ -30,17 +30,17 @@ public class DependencyGraphResource extends AbstractGridResource {
 
   @Override
   public GridStructure getGridStructure() {
-    return _view.getGridStructure(_gridType, _graphId);
+    return getView().getGridStructure(getGridType(), _graphId);
   }
 
   @Override
   /* package */ void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    _view.createViewport(requestId, _gridType, _graphId, viewportId, callbackId, viewportDefinition);
+    getView().createViewport(requestId, getGridType(), _graphId, viewportId, callbackId, viewportDefinition);
   }
 
   @Override
   public AbstractViewportResource getViewport(int viewportId) {
-    return new DependencyGraphViewportResource(_gridType, _view, _graphId, viewportId);
+    return new DependencyGraphViewportResource(getGridType(), getView(), _graphId, viewportId);
   }
 
   /**
@@ -48,6 +48,6 @@ public class DependencyGraphResource extends AbstractGridResource {
    */
   @DELETE
   public void close() {
-    _view.closeDependencyGraph(_gridType, _graphId);
+    getView().closeDependencyGraph(getGridType(), _graphId);
   }
 }

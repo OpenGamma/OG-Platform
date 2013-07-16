@@ -1,0 +1,16 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="ehcache.xsd"
+    updateCheck="false">
+  <diskStore path="${java.io.tmpdir}/${user.name}-ehcache-bbg-tests"/>
+  <defaultCache
+    maxElementsInMemory="0"
+    eternal="true"
+    timeToIdleSeconds="0"
+    timeToLiveSeconds="0"
+    overflowToDisk="true"
+    maxElementsOnDisk="0"
+    diskPersistent="true"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+</ehcache>

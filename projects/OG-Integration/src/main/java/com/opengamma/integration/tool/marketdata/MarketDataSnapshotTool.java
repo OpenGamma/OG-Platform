@@ -59,7 +59,7 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * The entry point for running OpenGamma batches.

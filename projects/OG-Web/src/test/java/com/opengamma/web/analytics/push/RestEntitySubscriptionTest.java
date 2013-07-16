@@ -32,7 +32,6 @@ public class RestEntitySubscriptionTest {
   private final String _uidStr = "Tst~101";
   private final UniqueId _uid = UniqueId.parse(_uidStr);
   private final UniqueId _uidV1 = _uid.withVersion("1");
-  private final UniqueId _uidV2 = _uid.withVersion("2");
 
   private Server _server;
   private TestChangeManager _changeManager;
@@ -81,7 +80,6 @@ public class RestEntitySubscriptionTest {
     String uid2Str = "Tst~102";
     UniqueId uid2 = UniqueId.parse(uid2Str);
     UniqueId uid2V1 = uid2.withVersion("1");
-    UniqueId uid2V2 = uid2.withVersion("2");
     String restUrl2 = "/jax/test/" + uid2Str;
     _webPushTestUtils.readFromPath(restUrl1, clientId);
     _webPushTestUtils.readFromPath(restUrl2, clientId);

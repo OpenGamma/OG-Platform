@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -58,7 +56,6 @@ import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -67,7 +64,7 @@ import com.opengamma.util.test.TestGroup;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbBatchWriterTest extends DbTest {
+public class DbBatchWriterTest extends AbstractDbBatchTest {
 
   private DbBatchMaster _batchMaster;
   private DbBatchWriter _batchWriter;
@@ -78,16 +75,13 @@ public class DbBatchWriterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbBatchWriterTest(final String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-
-    final ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _batchMaster = (DbBatchMaster) context.getBean(getDatabaseType() + "DbBatchMaster");
+  protected void doSetUp() {
+    _batchMaster = new DbBatchMaster(getDbConnector());
     _batchWriter = new DbBatchWriter(_batchMaster.getDbConnector());
 
     final String calculationConfigName = "config_1";
@@ -150,8 +144,6 @@ public class DbBatchWriterTest extends DbTest {
   }
 
   //-------------------------------------------------------------------------
-
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addValuesToNonexistentSnapshot() {
     _batchMaster.addValuesToMarketData(ObjectId.of("nonexistent", "nonexistent"), ImmutableSet.of(new MarketDataValue()));

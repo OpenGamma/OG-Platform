@@ -2,18 +2,18 @@
 <og-portfolio schemaVersion="1.0" xmlns="http://www.opengamma.com/portfolios"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.opengamma.com/portfolios">
-  
+
   <trades>
-    
+
     <!--
     TRADES SECTION
     A list of trades. Each element can be a trade of any type and must declare an id attribute.
     -->
-    
+
     <!-- a xccy swap -->
     <swapTrade id="t1">
       <externalSystemId>
-        <id scheme="External">IdFromExternalSystem</id>
+        <id scheme="External">swap1</id>
       </externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
       <maturityDate>2018-01-31</maturityDate>
@@ -21,7 +21,7 @@
         <id scheme="Cpty">GOLDMAN</id>
       </counterparty>
       <effectiveDate>2013-02-01</effectiveDate>
-      
+
       <legs>
         <floatingLeg>
           <payReceive>Pay</payReceive>
@@ -54,7 +54,7 @@
             <rateType>IBOR</rateType>
           </fixingIndex>
         </floatingLeg>
-        
+
         <floatingLeg>
           <payReceive>Receive</payReceive>
           <currency>EUR</currency>
@@ -89,14 +89,14 @@
           <gearing>-3</gearing>
         </floatingLeg>
       </legs>
-      
-      
+
+
     </swapTrade>
-    
+
     <!-- an fx option -->
     <fxOptionTrade id="t2">
       <externalSystemId>
-        <id scheme="External">IdFromExternalSystem</id>
+        <id scheme="External">fxOption1</id>
       </externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
       <maturityDate>2018-01-31</maturityDate>
@@ -135,11 +135,11 @@
       <notionalCurrency>EUR</notionalCurrency>
       <settlementType>CashSettled</settlementType>
       <settlementCurrency>USD</settlementCurrency>
-      
+
       <exerciseType>European</exerciseType>
     </fxOptionTrade>
   </trades>
-  
+
   <!--
   POSITIONS SECTION
   A list of positions. Each references the id of a trade declared above.
@@ -152,14 +152,14 @@
       </trades>
     </position>
   </positions>
-  
-  
+
+
   <!--
   PORTFOLIOS SECTION
   A list of portfolios. Each can include a subset of the trades and positions declared above.
   -->
   <portfolios>
-    
+
     <portfolio name="FX trades">
       <positions>
         <position ref="p1"/>
@@ -168,7 +168,7 @@
         <trade ref="t1"/>
       </trades>
     </portfolio>
-    
+
   </portfolios>
-  
+
 </og-portfolio>

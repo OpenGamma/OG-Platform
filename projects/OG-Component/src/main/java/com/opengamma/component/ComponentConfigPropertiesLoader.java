@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ResourceUtils;
 
 /**
  * Loads configuration from the properties format file.
@@ -114,7 +115,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
     // find resource
     Resource include;
     try {
-      include = ComponentManager.createResource(includeFile);
+      include = ResourceUtils.createResource(includeFile);
     } catch (Exception ex) {
       try {
         include = baseResource.createRelative(includeFile);

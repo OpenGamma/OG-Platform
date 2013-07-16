@@ -23,16 +23,16 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
 
   @Override
   public void update(ViewportDefinition viewportDefinition) {
-    _view.updateViewport(_gridType, _graphId, _viewportId, viewportDefinition);
+    getView().updateViewport(getGridType(), _graphId, getViewportId(), viewportDefinition);
   }
 
   @Override
   public void delete() {
-    _view.deleteViewport(_gridType, _graphId, _viewportId);
+    getView().deleteViewport(getGridType(), _graphId, getViewportId());
   }
 
   @Override
   public ViewportResults getData() {
-    return _view.getData(_gridType, _graphId, _viewportId);
+    return getView().getData(getGridType(), _graphId, getViewportId());
   }
 }

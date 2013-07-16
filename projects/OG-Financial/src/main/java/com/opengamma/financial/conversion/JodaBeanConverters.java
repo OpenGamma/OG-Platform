@@ -6,6 +6,8 @@
 package com.opengamma.financial.conversion;
 
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
@@ -13,7 +15,9 @@ import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -22,7 +26,9 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
+import com.opengamma.financial.security.cds.CDSIndexTerms;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
@@ -34,12 +40,11 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.VarianceSwapNotional;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Registers converters with Joda Beans for converting bean fields to and from strings.  The registration is
@@ -59,19 +64,15 @@ public final class JodaBeanConverters {
   private JodaBeanConverters() {
     StringConvert stringConvert = JodaBeanUtils.stringConverter();
     stringConvert.register(Frequency.class, new FrequencyConverter());
-    stringConvert.register(Currency.class, new CurrencyConverter());
     stringConvert.register(DayCount.class, new DayCountConverter());
-    stringConvert.register(ExternalId.class, new ExternalIdConverter());
     stringConvert.register(ExternalIdBundle.class, new ExternalIdBundleConverter());
-    stringConvert.register(CurrencyPair.class, new CurrencyPairConverter());
-    stringConvert.register(ObjectId.class, new ObjectIdConverter());
-    stringConvert.register(UniqueId.class, new UniqueIdConverter());
     stringConvert.register(Expiry.class, new ExpiryConverter());
     stringConvert.register(ExerciseType.class, new ExerciseTypeConverter());
     stringConvert.register(Notional.class, new NotionalConverter());
     stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
     stringConvert.register(YieldConvention.class, new YieldConventionConverter());
     stringConvert.register(BondFutureDeliverable.class, new BondFutureDeliverableConverter());
+    stringConvert.register(CDSIndexTerms.class, new CDSIndexTermsConverter());
   }
   
   /**
@@ -116,22 +117,6 @@ public final class JodaBeanConverters {
     }
   }
 
-  public static class CurrencyConverter extends AbstractConverter<Currency> {
-    @Override
-    public Currency convertFromString(Class<? extends Currency> cls, String str) {
-      return Currency.of(str);
-    }
-  }
-  
-  public static class ExternalIdConverter extends AbstractConverter<ExternalId> {
-
-    @Override
-    public ExternalId convertFromString(Class<? extends ExternalId> cls, String str) {
-      return ExternalId.parse(str);
-    }
-    
-  }
-  
   public static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
   
     @Override
@@ -152,43 +137,6 @@ public final class JodaBeanConverters {
       return ExternalIdBundle.parse(strings);
     }
 
-  }
-  
-  public static class ObjectIdConverter extends AbstractConverter<ObjectId> {
-
-    @Override
-    public ObjectId convertFromString(Class<? extends ObjectId> cls, String str) {
-      return ObjectId.parse(str);
-    }
-    
-  }
-
-  public static class UniqueIdConverter extends AbstractConverter<UniqueId> {
-
-    @Override
-    public UniqueId convertFromString(Class<? extends UniqueId> cls, String str) {
-      return UniqueId.parse(str);
-    }
-    
-    @Override
-    public String convertToString(UniqueId uniqueId) {
-      return uniqueId.toString();
-    }
-    
-  }
-
-  public static class CurrencyPairConverter implements StringConverter<CurrencyPair> {
-
-    @Override
-    public String convertToString(CurrencyPair object) {
-      return object.getName();
-    }
-
-    @Override
-    public CurrencyPair convertFromString(Class<? extends CurrencyPair> cls, String str) {
-      return CurrencyPair.parse(str);
-    }
-    
   }
 
   public static class ExpiryConverter extends AbstractConverter<Expiry> {
@@ -312,4 +260,47 @@ public final class JodaBeanConverters {
       return result;
     }
   }
+  
+  private static class CDSIndexTermsConverter extends AbstractConverter<CDSIndexTerms> {
+
+    @Override
+    public String convertToString(CDSIndexTerms object) {
+      Set<Tenor> tenors = object.getTenors();
+      return tenors.toString();
+    }
+    
+    @Override
+    public CDSIndexTerms convertFromString(Class<? extends CDSIndexTerms> cls, String str) {
+      String[] tenorStrs = str.split(",");
+      Tenor[] tenors = new Tenor[tenorStrs.length];
+      for (int i = 0; i < tenorStrs.length; i++) {
+        Tenor tenor = Tenor.parse(tenorStrs[i]);
+        tenors[i] = tenor;
+      }
+      return CDSIndexTerms.of(tenors);
+    }
+    
+  }
+  
+//  private static class CDSIndexComponentBundleConverter extends AbstractConverter<CDSIndexComponentBundle> {
+//
+//    @Override
+//    public String convertToString(CDSIndexComponentBundle object) {
+//      StringBuilder sb = new StringBuilder();
+//      Iterable<CreditDefaultSwapIndexComponent> components = object.getComponents();
+//      for (CreditDefaultSwapIndexComponent component : components) {
+//        sb.append(JodaBeanUtils.stringConverter().convertToString(component));
+//        sb.append(",");
+//      }
+//      if (sb.length() > 0) {
+//        sb.deleteCharAt(sb.length() - 1);
+//      }
+//      return sb.toString();
+//    }
+//    @Override
+//    public CDSIndexComponentBundle convertFromString(Class<? extends CDSIndexComponentBundle> cls, String str) {
+//      return null;
+//    }
+//    
+//  }
 }

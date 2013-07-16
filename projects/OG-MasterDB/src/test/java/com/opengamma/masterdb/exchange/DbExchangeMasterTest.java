@@ -10,10 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneId;
@@ -22,7 +18,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -30,7 +26,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbExchangeMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbExchangeMasterTest extends DbTest {
+public class DbExchangeMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMasterTest.class);
 
@@ -38,26 +34,19 @@ public class DbExchangeMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbExchangeMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _exgMaster = (DbExchangeMaster) context.getBean(getDatabaseType() + "DbExchangeMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _exgMaster = new DbExchangeMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
+  @Override
+  protected void doTearDown() {
     _exgMaster = null;
-    super.tearDown();
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

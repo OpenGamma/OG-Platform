@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectCodeStyleSettingsManager">
+    <option name="PER_PROJECT_SETTINGS">
+      <value>
+        <option name="OTHER_INDENT_OPTIONS">
+          <value>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+            <option name="USE_TAB_CHARACTER" value="false" />
+            <option name="SMART_TABS" value="false" />
+            <option name="LABEL_INDENT_SIZE" value="0" />
+            <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+            <option name="USE_RELATIVE_INDENTS" value="false" />
+          </value>
+        </option>
+        <option name="FIELD_NAME_PREFIX" value="_" />
+        <option name="STATIC_FIELD_NAME_PREFIX" value="s_" />
+        <option name="USE_FQ_CLASS_NAMES_IN_JAVADOC" value="false" />
+        <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="6000" />
+        <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="3000" />
+        <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
+          <value />
+        </option>
+        <option name="IMPORT_LAYOUT_TABLE">
+          <value>
+            <package name="" withSubpackages="true" static="true" />
+            <emptyLine />
+            <package name="java" withSubpackages="true" static="false" />
+            <emptyLine />
+            <package name="javax" withSubpackages="true" static="false" />
+            <emptyLine />
+            <package name="org" withSubpackages="true" static="false" />
+            <emptyLine />
+            <package name="com" withSubpackages="true" static="false" />
+            <emptyLine />
+            <package name="" withSubpackages="true" static="false" />
+          </value>
+        </option>
+        <option name="JD_ALIGN_PARAM_COMMENTS" value="false" />
+        <option name="JD_ALIGN_EXCEPTION_COMMENTS" value="false" />
+        <option name="JD_DO_NOT_WRAP_ONE_LINE_COMMENTS" value="true" />
+        <option name="JD_PRESERVE_LINE_FEEDS" value="true" />
+        <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
+        <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
+        <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
+        <option name="CALL_PARAMETERS_WRAP" value="5" />
+        <option name="METHOD_PARAMETERS_WRAP" value="5" />
+        <option name="WRAP_COMMENTS" value="true" />
+        <option name="IF_BRACE_FORCE" value="3" />
+        <option name="DOWHILE_BRACE_FORCE" value="3" />
+        <option name="WHILE_BRACE_FORCE" value="3" />
+        <option name="FOR_BRACE_FORCE" value="3" />
+        <XML>
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
+        </XML>
+        <codeStyleSettings language="CoffeeScript">
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+        </codeStyleSettings>
+        <codeStyleSettings language="Groovy">
+          <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
+          <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
+          <option name="CALL_PARAMETERS_WRAP" value="5" />
+          <option name="METHOD_PARAMETERS_WRAP" value="5" />
+          <option name="IF_BRACE_FORCE" value="3" />
+          <option name="DOWHILE_BRACE_FORCE" value="3" />
+          <option name="WHILE_BRACE_FORCE" value="3" />
+          <option name="FOR_BRACE_FORCE" value="3" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JAVA">
+          <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
+          <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
+          <option name="CALL_PARAMETERS_WRAP" value="5" />
+          <option name="METHOD_PARAMETERS_WRAP" value="5" />
+          <option name="IF_BRACE_FORCE" value="3" />
+          <option name="DOWHILE_BRACE_FORCE" value="3" />
+          <option name="WHILE_BRACE_FORCE" value="3" />
+          <option name="FOR_BRACE_FORCE" value="3" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JavaScript">
+          <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
+          <option name="CALL_PARAMETERS_WRAP" value="5" />
+          <option name="METHOD_PARAMETERS_WRAP" value="5" />
+          <option name="IF_BRACE_FORCE" value="3" />
+          <option name="DOWHILE_BRACE_FORCE" value="3" />
+          <option name="WHILE_BRACE_FORCE" value="3" />
+          <option name="FOR_BRACE_FORCE" value="3" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+        </codeStyleSettings>
+        <codeStyleSettings language="Python">
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+        </codeStyleSettings>
+        <codeStyleSettings language="Scala">
+          <option name="BLANK_LINES_AFTER_CLASS_HEADER" value="1" />
+          <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
+          <option name="CALL_PARAMETERS_WRAP" value="5" />
+          <option name="METHOD_PARAMETERS_WRAP" value="5" />
+          <option name="IF_BRACE_FORCE" value="3" />
+          <option name="DOWHILE_BRACE_FORCE" value="3" />
+          <option name="WHILE_BRACE_FORCE" value="3" />
+          <option name="FOR_BRACE_FORCE" value="3" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
+        </codeStyleSettings>
+        <codeStyleSettings language="XML">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+            <option name="TAB_SIZE" value="2" />
+          </indentOptions>
+        </codeStyleSettings>
+      </value>
+    </option>
+    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
+  </component>
+</project>
+

@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -82,7 +81,7 @@ public class SpreadSensitivityTest {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000;
     }
 
-    final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
+    final double cdv01 = NOTIONAL / 10000 * CDV01_CAL.parallelCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
     // System.out.println(cdv01);
     assertEquals("", fromExcel, cdv01, 1e-13 * NOTIONAL);
   }
@@ -124,7 +123,7 @@ public class SpreadSensitivityTest {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000;
     }
 
-    final double[] bucketCdv01 = CDV01_CAL.bucketedCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
+    final double[] bucketCdv01 = CDV01_CAL.bucketedCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
     for (int i = 0; i < NUM_MARKET_CDS; i++) {
       System.out.println(bucketCdv01[i] * NOTIONAL / 10000);
     }
@@ -139,7 +138,7 @@ public class SpreadSensitivityTest {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000;
     }
 
-    final double[] bucketCdv01 = CDV01_CAL.bucketedFlatCreditDV01(CDS, dealSpread, PriceType.DIRTY, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
+    final double[] bucketCdv01 = CDV01_CAL.bucketedCS01FromQuotedSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-4, BumpType.ADDITIVE);
     for (int i = 0; i < NUM_MARKET_CDS; i++) {
       System.out.println(bucketCdv01[i] * NOTIONAL / 10000);
     }

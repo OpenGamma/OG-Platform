@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * This class is for debugging.
  */
-@SuppressWarnings("UnusedDeclaration")
 /* package */ class ViewportResultsUtils {
 
   /* package */ static String dumpResults(ViewportResults viewportResults, int startRow, int rowCount) {
@@ -36,4 +35,5 @@ import java.util.List;
     sb.setLength(sb.length() - 2);
     return sb.toString();
   }
+
 }

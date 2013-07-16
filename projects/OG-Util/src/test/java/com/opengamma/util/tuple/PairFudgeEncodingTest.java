@@ -7,7 +7,6 @@ package com.opengamma.util.tuple;
 
 import static org.testng.Assert.assertEquals;
 
-import com.opengamma.util.tuple.*;
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;

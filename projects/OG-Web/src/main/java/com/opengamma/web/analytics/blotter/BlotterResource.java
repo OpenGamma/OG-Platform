@@ -61,11 +61,8 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
-import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -425,6 +422,7 @@ public class BlotterResource {
   public void updateTrade(@FormParam("trade") String jsonStr, @PathParam("tradeIdStr") String tradeIdStr) {
     try {
       // TODO what should happen to this? the ID is also in the JSON. check they match?
+      @SuppressWarnings("unused")
       UniqueId tradeId = UniqueId.parse(tradeIdStr);
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");

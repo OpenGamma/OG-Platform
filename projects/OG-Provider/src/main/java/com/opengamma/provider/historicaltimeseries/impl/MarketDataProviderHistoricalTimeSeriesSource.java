@@ -42,12 +42,10 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
    * The id supplier service.
    */
   private final UniqueIdSupplier _uniqueIdSupplier;
-
   /**
    * The provider.
    */
-  protected final HistoricalTimeSeriesProvider _provider;
-
+  private final HistoricalTimeSeriesProvider _provider;
   /**
    * The name of the provider.
    */

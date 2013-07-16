@@ -7,7 +7,6 @@ package com.opengamma.component.factory.source;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.io.Files;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -55,20 +53,24 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   @PropertyDefinition
   private boolean _publishRest = true;
   /**
-   * The path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * Gets the path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist.
+   * If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    */
   @PropertyDefinition
   private String _path;
   /**
-   * The URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * The URI of a remote repository to be used.
+   * When this is set, {@link #_publishRest} should normally be set to false
+   * - it is normally inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    */
   @PropertyDefinition
-  private String _remote;
+  private URI _remote;
   /**
    * The cache manager to use if the raw repository should be cached.
    * <p>
@@ -99,11 +101,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   protected TempTargetRepository createRemoteRepository(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    try {
-      return new RemoteTempTargetRepository(new URI(getRemote()));
-    } catch (final URISyntaxException ex) {
-      throw new OpenGammaRuntimeException("Bad configuration", ex);
-    }
+    return new RemoteTempTargetRepository(getRemote());
   }
 
   protected TempTargetRepository createLocalRepository(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
@@ -187,7 +185,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
         setPath((String) newValue);
         return;
       case -934610874:  // remote
-        setRemote((String) newValue);
+        setRemote((URI) newValue);
         return;
       case -1452875317:  // cacheManager
         setCacheManager((CacheManager) newValue);
@@ -283,8 +281,10 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * Gets gets the path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist.
+   * If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @return the value of the property
@@ -294,8 +294,10 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   }
 
   /**
-   * Sets the path to use for storage if required and created locally. The folder will be created if it doesn't exist. If it does exist, any files or folders within it may be destroyed. If omitted a folder
-   * will be created with {@link Files#createTempDir}.
+   * Sets gets the path to use for storage if required and created locally.
+   * The folder will be created if it doesn't exist.
+   * If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @param path  the new value of the property
@@ -306,7 +308,9 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code path} property.
-   * will be created with {@link Files#createTempDir}.
+   * The folder will be created if it doesn't exist.
+   * If it does exist, any files or folders within it may be destroyed.
+   * If omitted a folder will be created with {@link Files#createTempDir}.
    * <p>
    * Ignored if {@link #_remoteURL} is specified.
    * @return the property, not null
@@ -317,32 +321,38 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * Gets the URI of a remote repository to be used.
+   * When this is set, {@link #_publishRest} should normally be set to false
+   * - it is normally inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    * @return the value of the property
    */
-  public String getRemote() {
+  public URI getRemote() {
     return _remote;
   }
 
   /**
-   * Sets the URI of a remote repository to be used. When this is set, {@link #_publishRest} should normally be set to false - it is normally inefficient to "republish" a REST resource this way.
+   * Sets the URI of a remote repository to be used.
+   * When this is set, {@link #_publishRest} should normally be set to false
+   * - it is normally inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    * @param remote  the new value of the property
    */
-  public void setRemote(String remote) {
+  public void setRemote(URI remote) {
     this._remote = remote;
   }
 
   /**
    * Gets the the {@code remote} property.
+   * When this is set, {@link #_publishRest} should normally be set to false
+   * - it is normally inefficient to "republish" a REST resource this way.
    * <p>
    * If omitted, a local repository will be created.
    * @return the property, not null
    */
-  public final Property<String> remote() {
+  public final Property<URI> remote() {
     return metaBean().remote().createProperty(this);
   }
 
@@ -405,8 +415,8 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
     /**
      * The meta-property for the {@code remote} property.
      */
-    private final MetaProperty<String> _remote = DirectMetaProperty.ofReadWrite(
-        this, "remote", TempTargetRepositoryComponentFactory.class, String.class);
+    private final MetaProperty<URI> _remote = DirectMetaProperty.ofReadWrite(
+        this, "remote", TempTargetRepositoryComponentFactory.class, URI.class);
     /**
      * The meta-property for the {@code cacheManager} property.
      */
@@ -490,7 +500,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
      * The meta-property for the {@code remote} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> remote() {
+    public final MetaProperty<URI> remote() {
       return _remote;
     }
 

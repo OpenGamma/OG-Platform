@@ -31,14 +31,16 @@ public class DependencyGraphViewport implements Viewport {
   private State _state = State.STALE_DATA;
 
   /**
-   * @param calcConfigName Calculation configuration used to calculate the dependency graph
-   * @param gridStructure Row and column structure of the grid
-   * @param callbackId ID that's passed to listeners when the viewport's data changes
-   * @param viewportDefinition The viewport definition
-   * @param cycle The view cycle from the previous calculation cycle
-   * @param cache The current results TODO should this be a new cache?
-   * if all depgraphs share the main cache it won't get cleaned up when they close. is there a good reason to share
-   * the cache? could this just be a new instance?
+   * Creates an instance.
+   * 
+   * @param calcConfigName  the calculation configuration used to calculate the dependency graph
+   * @param gridStructure  the row and column structure of the grid
+   * @param callbackId  the ID that's passed to listeners when the viewport's data changes
+   * @param viewportDefinition  the viewport definition
+   * @param cycle  the view cycle from the previous calculation cycle
+   * @param cache  the current results TODO should this be a new cache?
+   *  if all depgraphs share the main cache it won't get cleaned up when they close. is there a good reason to share
+   *  the cache? could this just be a new instance?
    */
   /* package */ DependencyGraphViewport(String calcConfigName,
                                         DependencyGraphGridStructure gridStructure,
@@ -57,8 +59,10 @@ public class DependencyGraphViewport implements Viewport {
 
   /**
    * Updates the viewport, e.g. in response to the user scrolling the grid.
-   * @param cycle The cycle used to calculate the latest set of results
-   * @param cache Cache of results for the grid
+   * 
+   * @param viewportDefinition  the definition of the viewport, not null
+   * @param cycle  the cycle used to calculate the latest set of results, not null
+   * @param cache  the cache of results for the grid, not null
    */
   @Override
   public void update(ViewportDefinition viewportDefinition, ViewCycle cycle, ResultsCache cache) {
@@ -75,7 +79,9 @@ public class DependencyGraphViewport implements Viewport {
 
   /**
    * Updates the data in the viewport when a new set of results arrives from the calculation engine.
-   * @param cache Cache of results
+   * 
+   * @param cycle  the view cycle, not null
+   * @param cache  the cache of results, not null
    */
   /* package */void updateResults(ViewCycle cycle, ResultsCache cache) {
     ComputationCycleQuery query = new ComputationCycleQuery();
@@ -107,4 +113,5 @@ public class DependencyGraphViewport implements Viewport {
   public State getState() {
     return _state;
   }
+
 }

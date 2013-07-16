@@ -422,7 +422,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   public void test_add_addWithMissingQuantityProperty() {
     ManageablePosition position = new ManageablePosition();
     PositionDocument doc = new PositionDocument(position);
-    PositionDocument added = _posMaster.add(doc);
+    _posMaster.add(doc);
   }
 
   @Test
@@ -430,7 +430,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     ManageablePosition position = new ManageablePosition();
     position.setQuantity(BigDecimal.ONE);
     PositionDocument doc = new PositionDocument(position);
-    PositionDocument added = _posMaster.add(doc);
+    _posMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -442,7 +442,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     trade.setQuantity(BigDecimal.ONE);
     position.addTrade(trade);
     PositionDocument doc = new PositionDocument(position);
-    PositionDocument added = _posMaster.add(doc);
+    _posMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -454,7 +454,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     trade.setQuantity(BigDecimal.ONE);
     position.addTrade(trade);
     PositionDocument doc = new PositionDocument(position);
-    PositionDocument added = _posMaster.add(doc);
+    _posMaster.add(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -466,7 +466,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
     position.addTrade(trade);
     PositionDocument doc = new PositionDocument(position);
-    PositionDocument added = _posMaster.add(doc);
+    _posMaster.add(doc);
   }
 
   @Test
@@ -479,7 +479,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     trade.setQuantity(BigDecimal.ONE);
     position.addTrade(trade);
     PositionDocument doc = new PositionDocument(position);
-    PositionDocument added = _posMaster.add(doc);
+    _posMaster.add(doc);
   }
 
 }

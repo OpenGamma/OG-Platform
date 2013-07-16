@@ -10,14 +10,10 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -25,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
  * Test DbPositionMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbPositionMasterTest extends DbTest {
+public class DbPositionMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMasterTest.class);
 
@@ -33,26 +29,19 @@ public class DbPositionMasterTest extends DbTest {
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbPositionMasterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
-    ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    _posMaster = (DbPositionMaster) context.getBean(getDatabaseType() + "DbPositionMaster");
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doSetUp() {
+    _posMaster = new DbPositionMaster(getDbConnector());
   }
 
-  @AfterMethod
-  public void tearDown() throws Exception {
-    super.tearDown();
+  @Override
+  protected void doTearDown() {
     _posMaster = null;
-  }
-
-  @AfterSuite
-  public static void closeAfterSuite() {
-    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

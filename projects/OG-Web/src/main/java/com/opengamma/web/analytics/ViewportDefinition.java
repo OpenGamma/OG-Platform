@@ -42,6 +42,8 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
    * Creates a viewport definition from row and column indices <em>or</em> a list of cells. If row and column indices
    * are specified they must both be non-empty and cells must be empty. If specifying cells the row and column indices
    * must be empty.
+   * 
+   * @param version  the version
    * @param rows Indices of rows in the viewport. Must be non-empty if columns is non-empty. Must be empty if cells
    * is non-empty
    * @param columns Indices of columns in the viewport. Must be non-empty if columns is non-empty. Must be empty if

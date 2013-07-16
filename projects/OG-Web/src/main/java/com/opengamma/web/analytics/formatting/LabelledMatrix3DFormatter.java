@@ -9,8 +9,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
 
 /**
- *
+ * Formatter.
  */
+@SuppressWarnings("rawtypes")
 /* package */ class LabelledMatrix3DFormatter extends AbstractFormatter<LabelledMatrix3D> {
 
   /* package */ LabelledMatrix3DFormatter() {

@@ -1453,6 +1453,48 @@ public final class ValueRequirementNames {
    */
   public static final String QUANTITY = "Quantity";
 
+  /**
+   * The quantity of a position or trade.
+   */
+  public static final String PAY_REC = "Pay/Receive";
+
+  /**
+   * Frequency of a position or trade.
+   */
+  public static final String FREQUENCY = "Frequency";
+
+  /**
+   * Float frequency of a position or trade.
+   */
+  public static final String FLOAT_FREQUENCY = "Float Frequency";
+
+  /**
+   * Index of a position or trade.
+   */
+  public static final String INDEX = "Index";
+
+  /**
+   * Maturity date of a position or trade
+   */
+  public static final String MATURITY = "Maturity Date";
+
+  /**
+   * Product of a position or trade.
+   */
+  public static final String PRODUCT = "Product";
+  /**
+   * Rate of a position or trade.
+   */
+  public static final String RATE = "Rate";
+  /**
+   * Start date of a position or trade.
+   */
+  public static final String START = "Start Date";
+  /**
+   * Type of a position or trade.
+   */
+  public static final String TYPE = "Type";
+  
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.

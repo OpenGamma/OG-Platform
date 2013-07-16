@@ -19,11 +19,14 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.currency.CurrencyPair;
 
 /**
  *
@@ -67,4 +70,26 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
     throw new OpenGammaRuntimeException("Can only calculate vega matrix for surfaces with smiles");
   }
 
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    final ValueProperties.Builder properties = super.getResultProperties(target);
+    properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+    return properties;
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String putCurve, final String putCurveCalculationConfig,
+      final String callCurve, final String callCurveCalculationConfig, final CurrencyPair baseQuotePair, final ValueProperties optionalProperties) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair,
+        optionalProperties);
+    properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+    return properties;
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue, final CurrencyPair baseQuotePair) {
+    final ValueProperties.Builder properties = super.getResultProperties(target, desiredValue, baseQuotePair);
+    properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+    return properties;
+  }
 }

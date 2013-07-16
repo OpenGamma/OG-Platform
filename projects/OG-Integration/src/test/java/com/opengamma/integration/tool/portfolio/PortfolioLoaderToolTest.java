@@ -15,10 +15,6 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
@@ -28,7 +24,10 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.masterdb.portfolio.DbPortfolioMaster;
+import com.opengamma.masterdb.position.DbPositionMaster;
+import com.opengamma.masterdb.security.DbSecurityMaster;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -37,11 +36,10 @@ import com.opengamma.util.test.TestGroup;
  * inserted into the correct database masters.
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class PortfolioLoaderToolTest extends DbTest{
+public class PortfolioLoaderToolTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderToolTest.class);
 
-  private ConfigurableApplicationContext _context;
   private ToolContext _toolContext;
   private PortfolioMaster _portfolioMaster;
   private PositionMaster _positionMaster;
@@ -49,41 +47,27 @@ public class PortfolioLoaderToolTest extends DbTest{
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public PortfolioLoaderToolTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion, databaseVersion);
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  @BeforeMethod
-  public void setUp() throws Exception {
-    super.setUp();
+  public void doSetUp() throws Exception {
     _tempFile = File.createTempFile("portfolio-", ".csv");
     s_logger.info("Created temp file: " + _tempFile.getAbsolutePath());
 
-    _context = new FileSystemXmlApplicationContext("config/test-master-context.xml");
-    _context.start();
-
-    _portfolioMaster = getDbMaster("DbPortfolioMaster", PortfolioMaster.class);
-    _positionMaster = getDbMaster("DbPositionMaster", PositionMaster.class);
+    _portfolioMaster = new DbPortfolioMaster(getDbConnector());
+    _positionMaster = new DbPositionMaster(getDbConnector());
 
     _toolContext = new ToolContext();
     _toolContext.setPortfolioMaster(_portfolioMaster);
     _toolContext.setPositionMaster(_positionMaster);
-    _toolContext.setSecurityMaster(getDbMaster("DbSecurityMaster", SecurityMaster.class));
-  }
-
-  private <T> T getDbMaster(final String master, final Class<T> requiredType) {
-    return _context.getBean(getDatabaseType() + master, requiredType);
+    _toolContext.setSecurityMaster(new DbSecurityMaster(getDbConnector()));
   }
 
   @Override
-  @AfterMethod
-  public void tearDown() throws Exception {
-    if (_context != null) {
-      _context.stop();
-      _context.close();
-      _context = null;
-    }
+  public void doTearDown() {
     _toolContext = null;
     _positionMaster = null;
     _portfolioMaster = null;
@@ -93,10 +77,9 @@ public class PortfolioLoaderToolTest extends DbTest{
       s_logger.info("Removing file: " + _tempFile.getAbsolutePath());
       _tempFile.delete();
     }
-
-    super.tearDown();
   }
 
+  //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToolContextMustBeProvided() {
     new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,
@@ -153,8 +136,8 @@ public class PortfolioLoaderToolTest extends DbTest{
   public void testLoadCashFlowPortfolio() throws IOException {
 
     String data = "\"amount\",\"currency\",\"settlement\",\"externalIdBundle\",\"position:quantity\",\"securityType\",\"shortName\",\"trade:counterpartyExternalId\",\"trade:deal\",\"trade:premium\",\"trade:premiumCurrency\",\"trade:premiumDate\",\"trade:premiumTime\",\"trade:quantity\",\"trade:tradeDate\",\"trade:tradeTime\"\n" +
-        "150000,\"USD\",\"2014-01-01T00:00:00+00:00[Europe/London]\",\"SOME_ID~CF001\",\"4\",\"CASHFLOW\",\"CPID~123\",,,,,,,,\n" +
-        "60000,\"EUR\",\"2014-02-02T00:00:00+00:00[Europe/London]\",\"SOME_ID~CF002\",\"2\",\"CASHFLOW\",\"CPID~234\",,,,,,,,\n";
+        "150000,\"USD\",\"2014-01-01T00:00:00+00:00[Europe/London]\",\"SOME_ID~CF001\",\"4\",\"CASHFLOW\",,\"CPID~123\",,,,,,,,\n" +
+        "60000,\"EUR\",\"2014-02-02T00:00:00+00:00[Europe/London]\",\"SOME_ID~CF002\",\"2\",\"CASHFLOW\",,\"CPID~234\",,,,,,,,\n";
 
     doPortfolioLoadTest("Cashflow Portfolio", "CashFlow", data, 1, 2);
   }

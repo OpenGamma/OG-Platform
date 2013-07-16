@@ -20,8 +20,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SubscribeMaster {
 
-  /**
-   * @return The masters whose data is returned by the annotated method.
-   */
   MasterType[] value();
+
 }

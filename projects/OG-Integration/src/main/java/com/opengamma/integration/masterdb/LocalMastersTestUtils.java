@@ -41,7 +41,7 @@ public final class LocalMastersTestUtils extends MastersTestUtils {
    */
   LocalMastersTestUtils() {
     PlatformConfigUtils.configureSystemProperties();
-    _toolContext = ToolContextUtils.getToolContext("classpath:toolcontext/toolcontext-tests.properties",
+    _toolContext = ToolContextUtils.getToolContext("classpath:/toolcontext/toolcontext-tests.properties",
         ToolContext.class);
   }
 

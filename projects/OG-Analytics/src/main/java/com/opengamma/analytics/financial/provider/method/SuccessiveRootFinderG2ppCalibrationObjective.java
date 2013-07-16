@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Specific objective function for Hull-White model calibration with cap/floor.
  */
-public class SuccessiveRootFinderG2ppCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
+public class SuccessiveRootFinderG2ppCalibrationObjective extends SuccessiveRootFinderCalibrationObjectiveWithMultiCurves {
 
   /**
    * The pricing method used to price the cap/floor.
@@ -99,7 +99,7 @@ public class SuccessiveRootFinderG2ppCalibrationObjective extends SuccessiveRoot
 
   @Override
   public Double evaluate(Double x) {
-    _g2Provider.getG2ppParameters().setLastVolatilities(new double[] {x, x / _ratio});
+    _g2Provider.getG2ppParameters().setLastVolatilities(new double[] {x, x / _ratio });
     return _g2Provider.getMulticurveProvider().getFxRates().convert(getInstrument().accept(PVG2C, _g2Provider), _ccyG2).getAmount() - getPrice();
   }
 

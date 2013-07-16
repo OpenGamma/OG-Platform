@@ -2,6 +2,9 @@
 foo~
 *.class
 *.log
+.project
+.classpath
+.checkstyle
 /bin/
 /build/
 /dist/
@@ -19,3 +22,4 @@ MANIFEST.MF
 ivy/
 build.number
 test-output/
+*.iml

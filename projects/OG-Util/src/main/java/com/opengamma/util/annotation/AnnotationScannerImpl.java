@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Implementation of {@link AnnotationScanner} using the Scannotation library
+ * Implementation of {@link AnnotationScanner} that caches and uses Reflections.
  */
 public class AnnotationScannerImpl implements AnnotationScanner {
   

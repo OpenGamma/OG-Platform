@@ -46,12 +46,12 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     final String creditCurveName = desiredValue.getConstraint(PROPERTY_CREDIT_CURVE);
     final String riskFreeCurveConfig = desiredValue.getConstraint(PROPERTY_RISK_FREE_CURVE_CONFIG);
     final String creditCurveConfig = desiredValue.getConstraint(PROPERTY_CREDIT_CURVE_CONFIG);
-    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, riskFreeCurveConfig, creditCurveConfig);
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, riskFreeCurveConfig, creditCurveConfig, target);
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
     final BondFixedSecurity bond = definition.toDerivative(date, creditCurveName, riskFreeCurveName);
     return Sets.newHashSet(new ComputedValue(resultSpec, bond.accept(getCalculator(), data)));
-    // Remark: MH - 9-May-2013: factor 100 removed. 
+    // Remark: MH - 9-May-2013: factor 100 removed.
   }
 
   @Override
@@ -169,7 +169,8 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     }
     assert riskFreeCurveName != null;
     assert creditCurveName != null;
-    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, riskFreeCurveConfig, creditCurveConfig);
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, riskFreeCurveConfig, creditCurveConfig,
+        target);
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
@@ -177,7 +178,7 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
 
   protected abstract String getValueRequirementName();
 
-  private ValueProperties.Builder getResultProperties() {
+  protected ValueProperties.Builder getResultProperties() {
     return createValueProperties()
         .withAny(PROPERTY_RISK_FREE_CURVE)
         .withAny(PROPERTY_CREDIT_CURVE)
@@ -186,8 +187,8 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
         .with(ValuePropertyNames.CALCULATION_METHOD, FROM_CURVES_METHOD);
   }
 
-  private ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final String riskFreeCurveConfig,
-      final String creditCurveConfig) {
+  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final String riskFreeCurveConfig,
+      final String creditCurveConfig, final ComputationTarget target) {
     return createValueProperties()
         .with(PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
         .with(PROPERTY_CREDIT_CURVE, creditCurveName)

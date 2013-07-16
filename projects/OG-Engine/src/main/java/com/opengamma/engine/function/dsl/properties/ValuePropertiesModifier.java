@@ -7,7 +7,8 @@ package com.opengamma.engine.function.dsl.properties;
 
 import com.opengamma.engine.value.ValueProperties;
 
-abstract public class ValuePropertiesModifier {
+public abstract class ValuePropertiesModifier {
+
   private String _propertyName;
 
   protected ValuePropertiesModifier(String propertyName) {
@@ -19,4 +20,5 @@ abstract public class ValuePropertiesModifier {
   }
 
   public abstract ValueProperties.Builder modify(ValueProperties.Builder builder);
+
 }

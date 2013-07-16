@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.export.MBeanExporter;
-import org.springframework.jmx.support.JmxUtils;
 import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -766,10 +766,13 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       }
 
       // JMX managed resources
-      final MBeanExporter exporter = new MBeanExporter();
-      exporter.setServer(JmxUtils.locateMBeanServer());
-      for (final Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
-        exporter.registerManagedResource(resourceEntry.getValue(), resourceEntry.getKey());
+      final MBeanServer jmxServer = findInstance(MBeanServer.class);
+      if (jmxServer != null) {
+        final MBeanExporter exporter = new MBeanExporter();
+        exporter.setServer(jmxServer);
+        for (final Map.Entry<ObjectName, Object> resourceEntry : _managedResources.entrySet()) {
+          exporter.registerManagedResource(resourceEntry.getValue(), resourceEntry.getKey());
+        }
       }
 
       _status.set(Status.RUNNING);

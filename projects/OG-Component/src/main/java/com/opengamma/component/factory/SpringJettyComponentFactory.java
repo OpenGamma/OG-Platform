@@ -8,6 +8,9 @@ package com.opengamma.component.factory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.management.MBeanServer;
+
+import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Server;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -48,7 +51,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   /**
    * The flag indicating if the component is active.
-   * This can be used from configuration to disable the jetty server.
+   * This can be used from configuration to disable the Jetty server.
    * True by default.
    */
   @PropertyDefinition
@@ -56,7 +59,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     if (isActive() == false) {
       return;
     }
@@ -70,6 +73,24 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     repo.registerComponent(Server.class, "jetty", server);
     repo.registerLifecycle(new ServerLifecycle(server));
     
+    // JMX
+    final MBeanServer jmxServer = repo.findInstance(MBeanServer.class);
+    if (jmxServer != null) {
+      MBeanContainer jettyJmx = new MBeanContainer(jmxServer);
+      server.getContainer().addEventListener(jettyJmx);
+      server.addBean(jettyJmx);
+    }
+    
+    // basic RESTful helpers
+    registerJettyRestBasics(repo);
+  }
+
+  /**
+   * Registers the basic RESTful helpers.
+   * 
+   * @param repo  the component repository, not null
+   */
+  protected void registerJettyRestBasics(ComponentRepository repo) {
     RestComponents restComponents = repo.getRestComponents();
     restComponents.publishHelper(new FudgeObjectJSONConsumer());
     restComponents.publishHelper(new FudgeObjectJSONProducer());
@@ -180,7 +201,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
   //-----------------------------------------------------------------------
   /**
    * Gets the flag indicating if the component is active.
-   * This can be used from configuration to disable the jetty server.
+   * This can be used from configuration to disable the Jetty server.
    * True by default.
    * @return the value of the property
    */
@@ -190,7 +211,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   /**
    * Sets the flag indicating if the component is active.
-   * This can be used from configuration to disable the jetty server.
+   * This can be used from configuration to disable the Jetty server.
    * True by default.
    * @param active  the new value of the property
    */
@@ -200,7 +221,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   /**
    * Gets the the {@code active} property.
-   * This can be used from configuration to disable the jetty server.
+   * This can be used from configuration to disable the Jetty server.
    * True by default.
    * @return the property, not null
    */

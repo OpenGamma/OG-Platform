@@ -47,7 +47,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * @param businessDayConvention The business day convention used to compute the payment date.
    * @param calendar The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month convention used to compute the payment date.
-   * @param conventionalMonthLag TODO
+   * @param conventionalMonthLag The month lag
    * @param monthLag The price index fixing lag in months.
    * @param priceIndexTimeSeries The time series with the relevant price index values.
    * @return The zero coupon inflation swap.
@@ -106,7 +106,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * @param businessDayConvention The business day convention used to compute the payment date.
    * @param calendar The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month convention used to compute the payment date.
-   * @param conventionalMonthLag
+   * @param conventionalMonthLag The month lag
    * @param monthLag The price index fixing lag in months.
    * @param priceIndexTimeSeries The time series with the relevant price index values.
    * @return The zero coupon inflation swap.

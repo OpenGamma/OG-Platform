@@ -20,6 +20,8 @@ import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.volatility.VolatilityFunctions;
+import com.opengamma.financial.security.function.DefaultSecurityAttributeFunction;
+import com.opengamma.financial.security.lookup.SecurityAttribute;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -96,9 +98,21 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(CurrencyPairsFunction.class));
     functions.add(functionConfiguration(DV01Function.class));
     functions.add(functionConfiguration(NotionalFunction.class));
-    functions.add(functionConfiguration(QuantityFunction.class));
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
+
+    //security attribute functions
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.DIRECTION.name(), ValueRequirementNames.PAY_REC));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.FLOAT_FREQUENCY.name(), ValueRequirementNames.FLOAT_FREQUENCY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.FREQUENCY.name(), ValueRequirementNames.FREQUENCY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.INDEX.name(), ValueRequirementNames.INDEX));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.MATURITY.name(), ValueRequirementNames.MATURITY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.PRODUCT.name(), ValueRequirementNames.PRODUCT));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.QUANTITY.name(), ValueRequirementNames.QUANTITY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.RATE.name(), ValueRequirementNames.RATE));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.START.name(), ValueRequirementNames.START));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.TYPE.name(), ValueRequirementNames.TYPE));
+
     addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
     addUnitScalingFunction(functions, ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);

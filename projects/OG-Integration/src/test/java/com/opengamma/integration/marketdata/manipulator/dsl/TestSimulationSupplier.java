@@ -21,7 +21,7 @@ import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Provdes simulation data for testing with the OG-Examples server, a few currencuy pairs and scaling factors to
+ * Provdes simulation data for testing with the Examples-Simulated server, a few currency pairs and scaling factors to
  * apply to them.
  */
 public class TestSimulationSupplier implements SimulationSupplier {

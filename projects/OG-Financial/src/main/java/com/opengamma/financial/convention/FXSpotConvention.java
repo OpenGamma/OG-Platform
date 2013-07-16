@@ -30,10 +30,10 @@ public class FXSpotConvention extends Convention {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The number of days to settle.
+   * The number of settlement days.
    */
   @PropertyDefinition
-  private int _daysToSettle;
+  private int _settlementDays;
 
   /**
    * The settlement region.
@@ -50,12 +50,12 @@ public class FXSpotConvention extends Convention {
   /**
    * @param name The convention name, not null
    * @param externalIdBundle The external identifiers for this convention, not null
-   * @param daysToSettle The number of days to settle
+   * @param settlementDays The number of settlement days
    * @param settlementRegion The settlement region, not null
    */
-  public FXSpotConvention(final String name, final ExternalIdBundle externalIdBundle, final int daysToSettle, final ExternalId settlementRegion) {
+  public FXSpotConvention(final String name, final ExternalIdBundle externalIdBundle, final int settlementDays, final ExternalId settlementRegion) {
     super(name, externalIdBundle);
-    setDaysToSettle(daysToSettle);
+    setSettlementDays(settlementDays);
     setSettlementRegion(settlementRegion);
   }
 
@@ -80,8 +80,8 @@ public class FXSpotConvention extends Convention {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 379523357:  // daysToSettle
-        return getDaysToSettle();
+      case -295948000:  // settlementDays
+        return getSettlementDays();
       case -534226563:  // settlementRegion
         return getSettlementRegion();
     }
@@ -91,8 +91,8 @@ public class FXSpotConvention extends Convention {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 379523357:  // daysToSettle
-        setDaysToSettle((Integer) newValue);
+      case -295948000:  // settlementDays
+        setSettlementDays((Integer) newValue);
         return;
       case -534226563:  // settlementRegion
         setSettlementRegion((ExternalId) newValue);
@@ -114,7 +114,7 @@ public class FXSpotConvention extends Convention {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FXSpotConvention other = (FXSpotConvention) obj;
-      return JodaBeanUtils.equal(getDaysToSettle(), other.getDaysToSettle()) &&
+      return JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
           JodaBeanUtils.equal(getSettlementRegion(), other.getSettlementRegion()) &&
           super.equals(obj);
     }
@@ -124,34 +124,34 @@ public class FXSpotConvention extends Convention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementRegion());
     return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of days to settle.
+   * Gets the number of settlement days.
    * @return the value of the property
    */
-  public int getDaysToSettle() {
-    return _daysToSettle;
+  public int getSettlementDays() {
+    return _settlementDays;
   }
 
   /**
-   * Sets the number of days to settle.
-   * @param daysToSettle  the new value of the property
+   * Sets the number of settlement days.
+   * @param settlementDays  the new value of the property
    */
-  public void setDaysToSettle(int daysToSettle) {
-    this._daysToSettle = daysToSettle;
+  public void setSettlementDays(int settlementDays) {
+    this._settlementDays = settlementDays;
   }
 
   /**
-   * Gets the the {@code daysToSettle} property.
+   * Gets the the {@code settlementDays} property.
    * @return the property, not null
    */
-  public final Property<Integer> daysToSettle() {
-    return metaBean().daysToSettle().createProperty(this);
+  public final Property<Integer> settlementDays() {
+    return metaBean().settlementDays().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -191,10 +191,10 @@ public class FXSpotConvention extends Convention {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code daysToSettle} property.
+     * The meta-property for the {@code settlementDays} property.
      */
-    private final MetaProperty<Integer> _daysToSettle = DirectMetaProperty.ofReadWrite(
-        this, "daysToSettle", FXSpotConvention.class, Integer.TYPE);
+    private final MetaProperty<Integer> _settlementDays = DirectMetaProperty.ofReadWrite(
+        this, "settlementDays", FXSpotConvention.class, Integer.TYPE);
     /**
      * The meta-property for the {@code settlementRegion} property.
      */
@@ -205,7 +205,7 @@ public class FXSpotConvention extends Convention {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "daysToSettle",
+        "settlementDays",
         "settlementRegion");
 
     /**
@@ -217,8 +217,8 @@ public class FXSpotConvention extends Convention {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 379523357:  // daysToSettle
-          return _daysToSettle;
+        case -295948000:  // settlementDays
+          return _settlementDays;
         case -534226563:  // settlementRegion
           return _settlementRegion;
       }
@@ -242,11 +242,11 @@ public class FXSpotConvention extends Convention {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code daysToSettle} property.
+     * The meta-property for the {@code settlementDays} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> daysToSettle() {
-      return _daysToSettle;
+    public final MetaProperty<Integer> settlementDays() {
+      return _settlementDays;
     }
 
     /**

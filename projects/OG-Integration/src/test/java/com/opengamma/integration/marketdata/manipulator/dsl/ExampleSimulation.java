@@ -26,9 +26,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Demonstration of the most straightforward way to run a simulation. Assumes the OG-Examples server is running
- * locally with the default configuration and data.
- * TODO move to OG-Examples?
+ * Demonstration of the most straightforward way to run a simulation.
+ * Assumes the examples-simulated server is running locally with the default configuration and data.
+ * TODO move to examples-simulated?
  */
 /* package */ class ExampleSimulation {
 

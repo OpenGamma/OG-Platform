@@ -72,32 +72,25 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
   
 }
 
+//-------------------------------------------------------------------------
 /* package */ class ColumnMeta implements Comparable<ColumnMeta> {
 
-  private final Comparable _key;
+  private final Comparable<Object> _key;
   private final String _header;
 
   private final Class<?> _type;
   private final Class<?> _underlyingType;
 
-  /* package */ ColumnMeta(Comparable key, String header, Class<?> type, Class<?> underlyingType) {
-    _key = key;
+  @SuppressWarnings("unchecked")
+  /* package */ <T> ColumnMeta(Comparable<? super T> key, String header, Class<?> type, Class<?> underlyingType) {
+    _key = (Comparable<Object>) key;
     _header = header;
     _type = type;
     _underlyingType = underlyingType;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public int compareTo(ColumnMeta meta) {
-    if (!meta._key.getClass().equals(_key.getClass())) {
-      return 0;
-    } else {
-      return _key.compareTo(meta._key);
-    }
-  }
-
-  /* package */ Comparable getKey() {
+  //-------------------------------------------------------------------------
+  /* package */ Comparable<Object> getKey() {
     return _key;
   }
 
@@ -111,6 +104,16 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
   /* package */ Class<?> getUnderlyingType() {
     return _underlyingType;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int compareTo(ColumnMeta meta) {
+    if (!meta._key.getClass().equals(_key.getClass())) {
+      return 0;
+    } else {
+      return _key.compareTo(meta._key);
+    }
   }
 
   @Override
@@ -133,4 +136,5 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
   public int hashCode() {
     return _key.hashCode();
   }
+
 }

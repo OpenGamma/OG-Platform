@@ -34,7 +34,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * The conventions for JPY. 
+ * The conventions for JPY.
  * FIXME: This is a temporary in-code convention master. This should be moved to database before going to production.
  */
 public class JPConventions {
@@ -61,11 +61,11 @@ public class JPConventions {
     final Convention onIndex = new OvernightIndexConvention(onIndexName, getIds(Currency.JPY, OVERNIGHT), ACT_365, 1, Currency.JPY, JP);
     final String liborIndexName = getConventionName(Currency.JPY, LIBOR);
     final Convention liborIndex = new IborIndexConvention(liborIndexName, getIds(Currency.JPY, LIBOR), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.JPY,
-        LocalTime.of(11, 00), JPGB, JP, "");
+        LocalTime.of(11, 00), "JP", JPGB, JP, "");
     final Convention tiborJPIndex = new IborIndexConvention(liborIndexName, getIds(Currency.JPY, TIBOR_JAPANESE), ACT_365, MODIFIED_FOLLOWING, 2, true, Currency.JPY,
-        LocalTime.of(11, 00), JP, JP, "");
+        LocalTime.of(11, 00), "JP", JP, JP, "");
     final Convention tiborEuIndex = new IborIndexConvention(liborIndexName, getIds(Currency.JPY, TIBOR_EUROYEN), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.JPY,
-        LocalTime.of(11, 00), JP, JP, "");
+        LocalTime.of(11, 00), "JP", JP, JP, "");
     // Deposit
     final String depositONConventionName = getConventionName(Currency.JPY, DEPOSIT_ON);
     final DepositConvention depositONConvention = new DepositConvention(depositONConventionName, getIds(Currency.JPY, DEPOSIT_ON), ACT_365, FOLLOWING, 0, false, Currency.JPY, JP);
@@ -73,13 +73,13 @@ public class JPConventions {
     final String oisFixedLegConventionName = getConventionName(Currency.JPY, OIS_FIXED_LEG);
     final String oisFloatLegConventionName = getConventionName(Currency.JPY, OIS_ON_LEG);
     final Convention oisFixedLegConvention = new SwapFixedLegConvention(oisFixedLegConventionName, getIds(Currency.JPY, OIS_FIXED_LEG),
-        Tenor.ONE_YEAR, ACT_365, MODIFIED_FOLLOWING, 2, true, Currency.JPY, JP, StubType.SHORT_START);
+        Tenor.ONE_YEAR, ACT_365, MODIFIED_FOLLOWING, Currency.JPY, JP, 2, true, StubType.SHORT_START, false);
     final Convention oisFloatLegConvention = new OISLegConvention(oisFloatLegConventionName, getIds(Currency.JPY, OIS_ON_LEG), onIndexId,
-        Tenor.ONE_YEAR, 2, 2, MODIFIED_FOLLOWING, true);
+        Tenor.ONE_YEAR, 2, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false);
     // Ibor swap legs
     // X-Ccy OIS
     final Convention oisXCcyUSDLegConvention = new OISLegConvention(OIS_USD_JPY_ON_LEG, getIds(OIS_USD_JPY_ON_LEG), onIndexId,
-        Tenor.THREE_MONTHS, 2, 2, MODIFIED_FOLLOWING, true);
+        Tenor.THREE_MONTHS, 2, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false);
     conventionMaster.add(oisXCcyUSDLegConvention);
     // Convention add
     conventionMaster.add(onIndex);

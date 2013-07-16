@@ -16,7 +16,7 @@
   </class>
   
   <query name="CalculationConfiguration.one.byName">
-  	from CalculationConfiguration as a where 
-  	a.name = :name</query>  
+    from CalculationConfiguration as a where 
+    a.name = :name</query>  
   
 </hibernate-mapping>

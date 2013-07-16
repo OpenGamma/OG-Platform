@@ -7,7 +7,8 @@ package com.opengamma.web.server;
 
 import java.util.Map;
 
-import org.cometd.Client;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerSession;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -23,7 +24,9 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
  */
 public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
 
-  protected WebViewPrimitivesGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote,
+  protected WebViewPrimitivesGrid(
+      ViewClient viewClient, CompiledViewDefinition compiledViewDefinition,
+      ResultConverterCache resultConverterCache, LocalSession local, ServerSession remote,
       ComputationTargetResolver computationTargetResolver) {
     super("primitives", viewClient, compiledViewDefinition, null, ImmutableSet.of(ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR),
         resultConverterCache, local, remote, "", computationTargetResolver);

@@ -5,8 +5,8 @@
  */
 package com.opengamma.master.cache;
 
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.when;
 
 import org.mockito.ArgumentMatcher;
@@ -22,8 +22,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Common properties and methods for testing EHCaching masters. This abstract class declares document variables of
@@ -72,7 +70,7 @@ public abstract class AbstractEHCachingMasterTest<M extends AbstractChangeProvid
    * Creates a fresh mock master and configures it to respond as though it contains the above documents
    * @return the mock master
    */
-  protected AbstractChangeProvidingMaster populateMockMaster(M mockUnderlyingMaster) {
+  protected AbstractChangeProvidingMaster<D> populateMockMaster(M mockUnderlyingMaster) {
 
     ChangeManager changeManager = new BasicChangeManager();
     when(mockUnderlyingMaster.changeManager()).thenReturn(changeManager);
@@ -181,17 +179,6 @@ public abstract class AbstractEHCachingMasterTest<M extends AbstractChangeProvid
               (_fromCorrection == null || vc.getCorrectedTo() == null || vc.getCorrectedTo().isAfter(_fromCorrection)) &&
               (_toCorrection == null || vc.getCorrectedTo() != null && vc.getCorrectedTo().isBefore(_toCorrection));
     }
-  }
-
-  /**
-   * Returns an empty cache manager
-   * @return the cache manager
-   */
-  protected CacheManager getCleanCacheManager() {
-    CacheManager cacheManager = CacheManager.getInstance();
-    cacheManager.clearAll();
-    cacheManager.removalAll();
-    return cacheManager;
   }
 
 }

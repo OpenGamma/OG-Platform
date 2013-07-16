@@ -30,30 +30,8 @@ public class ClampedCubicSplineInterpolator1D extends PiecewisePolynomialInterpo
     return new Interpolator1DPiecewisePoynomialDataBundle(new ArrayInterpolator1DDataBundle(x, y, false), new CubicSplineInterpolator(), 0., 0.);
   }
 
-  /**
-   * @param x X values of data
-   * @param y Y values of data
-   * @param leftCond First derivative value at left endpoint 
-   * @param rightCond First derivative value at right endpoint 
-   * @return {@link Interpolator1DPiecewisePoynomialDataBundle} 
-   */
-  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y, final double leftCond, final double rightCond) {
-    return new Interpolator1DPiecewisePoynomialDataBundle(new ArrayInterpolator1DDataBundle(x, y, false), new CubicSplineInterpolator(), leftCond, rightCond);
-  }
-
   @Override
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new Interpolator1DPiecewisePoynomialDataBundle(new ArrayInterpolator1DDataBundle(x, y, true), new CubicSplineInterpolator(), 0., 0.);
-  }
-
-  /**
-   * @param x X values of data
-   * @param y Y values of data
-   * @param leftCond First derivative value at left endpoint 
-   * @param rightCond First derivative value at right endpoint 
-   * @return {@link Interpolator1DPiecewisePoynomialDataBundle} 
-   */
-  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y, final double leftCond, final double rightCond) {
-    return new Interpolator1DPiecewisePoynomialDataBundle(new ArrayInterpolator1DDataBundle(x, y, true), new CubicSplineInterpolator(), leftCond, rightCond);
   }
 }

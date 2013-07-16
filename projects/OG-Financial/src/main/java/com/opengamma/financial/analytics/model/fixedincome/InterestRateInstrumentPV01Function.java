@@ -72,4 +72,5 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCu
     return Collections.singleton(new ComputedValue(resultSpec, pv01.get(curveName)));
   }
 
+
 }

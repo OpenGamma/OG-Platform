@@ -42,17 +42,17 @@ public class MainGridResource extends AbstractGridResource implements Dependency
 
   @Override
   public GridStructure getGridStructure() {
-    return _view.getGridStructure(_gridType);
+    return getView().getGridStructure(getGridType());
   }
 
   @Override
   /* package */ void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    _view.createViewport(requestId, _gridType, viewportId, callbackId, viewportDefinition);
+    getView().createViewport(requestId, getGridType(), viewportId, callbackId, viewportDefinition);
   }
 
   @Override
   public AbstractViewportResource getViewport(int viewportId) {
-    return new MainGridViewportResource(_gridType, _view, viewportId);
+    return new MainGridViewportResource(getGridType(), getView(), viewportId);
   }
 
   @Override
@@ -61,13 +61,13 @@ public class MainGridResource extends AbstractGridResource implements Dependency
     String graphIdStr = Integer.toString(graphId);
     URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
     String callbackId = graphUri.getPath();
-    _view.openDependencyGraph(requestId, _gridType, graphId, callbackId, row, col);
+    getView().openDependencyGraph(requestId, getGridType(), graphId, callbackId, row, col);
     return Response.status(Response.Status.CREATED).build();
   }
 
   @Override
   public AbstractGridResource getDependencyGraph(int graphId) {
-    return new DependencyGraphResource(_gridType, _view, graphId);
+    return new DependencyGraphResource(getGridType(), getView(), graphId);
   }
   
   /**
@@ -82,12 +82,12 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   public ViewportResults getViewportResultAsCsv(@Context HttpServletResponse response) {
     ArgumentChecker.notNull(response, "response");
     
-    ViewportResults result = _view.getAllGridData(_gridType, Format.CELL);
+    ViewportResults result = getView().getAllGridData(getGridType(), Format.CELL);
     Instant valuationTime = result.getValuationTime() == null ? OpenGammaClock.getInstance().instant() : result.getValuationTime();
     LocalDateTime time = LocalDateTime.ofInstant(valuationTime, OpenGammaClock.getZone());
     
-    String filename = String.format("%s-%s-%s.csv", _view.getViewDefinitionId(), _gridType.name().toLowerCase(), time.toString(CSV_TIME_FORMAT));
+    String filename = String.format("%s-%s-%s.csv", getView().getViewDefinitionId(), getGridType().name().toLowerCase(), time.toString(CSV_TIME_FORMAT));
     response.addHeader("content-disposition", "attachment; filename=\"" + filename + "\"");
-    return _view.getAllGridData(_gridType, Format.CELL);
+    return getView().getAllGridData(getGridType(), Format.CELL);
   }
 }

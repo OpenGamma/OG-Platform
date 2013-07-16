@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.scripts.Scriptable;
 
 /**
  * Tool to delete positions that are not currently in a portfolio

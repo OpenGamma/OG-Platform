@@ -8,6 +8,9 @@ package com.opengamma.web.server;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetSpecification;
 
+/**
+ * A row in the portfolio.
+ */
 public class PortfolioRow {
 
   private final int _depth;
@@ -43,4 +46,5 @@ public class PortfolioRow {
   public String getAggregateName() {
     return _aggregateName;
   }
+
 }

@@ -8,7 +8,7 @@ package com.opengamma.util.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -34,7 +34,7 @@ public class DbConnectorTest {
   public void test_basics() {
     BoneCPDataSource ds = new BoneCPDataSource();
     HSQLDbDialect dialect = HSQLDbDialect.INSTANCE;
-    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
+    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();
     TransactionTemplate transTemplate = new TransactionTemplate(transMgr, transDefn);
@@ -43,6 +43,7 @@ public class DbConnectorTest {
     assertSame(ds, test.getDataSource());
     assertSame(dialect, test.getDialect());
     assertSame(jdbcTemplate, test.getJdbcTemplate());
+    assertSame(jdbcTemplate.getJdbcOperations(), test.getJdbcOperations());
     assertEquals(null, test.getHibernateSessionFactory());
     assertEquals(null, test.getHibernateTemplate());
     assertSame(transMgr, test.getTransactionManager());
@@ -54,7 +55,7 @@ public class DbConnectorTest {
   public void test_toString() {
     BoneCPDataSource ds = new BoneCPDataSource();
     HSQLDbDialect dialect = HSQLDbDialect.INSTANCE;
-    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
+    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
     DataSourceTransactionManager transMgr = new DataSourceTransactionManager();
     TransactionTemplate transTemplate = new TransactionTemplate(transMgr, transDefn);

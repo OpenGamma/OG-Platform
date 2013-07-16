@@ -16,8 +16,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.fudgemsg.FudgeMsg;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import com.opengamma.bbg.referencedata.MockReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceData;
@@ -31,6 +29,8 @@ import com.opengamma.util.tuple.Pair;
  * Test.
  */
 public abstract class AbstractValueCachingReferenceDataProviderTestCase {
+  // Abstract class didn't work well with TestNG groups and Maven
+  // All annotations and local variables moved to subclasses to make it work
 
   private static final String CISCO_TICKER = "CSCO US Equity";
   private static final String FIELD_ID_ISIN = "ID_ISIN";
@@ -39,42 +39,27 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
   private static final String FIELD_ID_BB_UNIQUE = "ID_BB_UNIQUE";
   private static final String AAPL_TICKER = "AAPL US Equity";
 
-  private MockReferenceDataProvider _underlyingProvider;
-  private UnitTestingReferenceDataProvider _unitProvider;
-  private ReferenceDataProvider _cachingProvider;
+  //-------------------------------------------------------------------------
+  protected abstract MockReferenceDataProvider getUnderlyingProvider();
 
-  @BeforeMethod
-  public void setUp() {
-    _underlyingProvider = new MockReferenceDataProvider();
-    _unitProvider = new UnitTestingReferenceDataProvider(_underlyingProvider);
-    _cachingProvider = createCachingProvider();
-  }
+  protected abstract UnitTestingReferenceDataProvider getUnitProvider();
 
-  protected final ReferenceDataProvider getUnderlyingProvider() {
-    return _unitProvider;
-  }
-
-  protected final ReferenceDataProvider getCachingProvider() {
-    return _cachingProvider;
-  }
-
-  protected abstract ReferenceDataProvider createCachingProvider();
+  protected abstract ReferenceDataProvider getProvider();
 
   //-------------------------------------------------------------------------
-  @Test
-  public void numberOfReturnedFields() {
-    _underlyingProvider.addExpectedField(FIELD_ID_BB_UNIQUE);
-    _underlyingProvider.addExpectedField(FIELD_TICKER);
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
+  protected void numberOfReturnedFields() {
+    getUnderlyingProvider().addExpectedField(FIELD_ID_BB_UNIQUE);
+    getUnderlyingProvider().addExpectedField(FIELD_TICKER);
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
     
     Set<String> fields = new TreeSet<String>();
     fields.add(FIELD_ID_BB_UNIQUE);
     fields.add(FIELD_TICKER);
     String securityDes = AAPL_TICKER;
     Set<String> securities = Collections.singleton(securityDes);
-    _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    getUnitProvider().addAcceptableRequest(securities, fields);
+    ReferenceDataProviderGetResult result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     ReferenceData perSecurity = result.getReferenceData(securityDes);
@@ -85,8 +70,8 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     
     fields.clear();
     fields.add(FIELD_TICKER);
-    _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    getUnitProvider().clearAcceptableRequests();
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     perSecurity = result.getReferenceData(securityDes);
@@ -96,53 +81,51 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     assertEquals(1, fieldData.getNumFields());
   }
 
-  @Test
-  public void singleSecurityEscalatingFields() {
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_CUSIP, "CUSIP");
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_ISIN, "ISIN");
+  protected void singleSecurityEscalatingFields() {
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_TICKER, "TICKER");
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_CUSIP, "CUSIP");
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_ISIN, "ISIN");
     
     Set<String> fields = new TreeSet<String>();
     fields.add(FIELD_ID_BB_UNIQUE);
     fields.add(FIELD_TICKER);
     String securityDes = AAPL_TICKER;
     Set<String> securities = Collections.singleton(securityDes);
-    _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    getUnitProvider().addAcceptableRequest(securities, fields);
+    ReferenceDataProviderGetResult result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(securityDes));
 
-    _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    getUnitProvider().clearAcceptableRequests();
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(securityDes));
     
     fields.add(FIELD_ID_CUSIP);
     fields.add(FIELD_ID_ISIN);
-    _unitProvider.clearAcceptableRequests();
+    getUnitProvider().clearAcceptableRequests();
     Set<String> expectedFields = new TreeSet<String>();
     expectedFields.add(FIELD_ID_CUSIP);
     expectedFields.add(FIELD_ID_ISIN);
-    _unitProvider.addAcceptableRequest(securities, expectedFields);
-    result = getCachingProvider().getReferenceData(
+    getUnitProvider().addAcceptableRequest(securities, expectedFields);
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(securityDes));
   }
 
-  @Test
-  public void fieldNotAvailable() {
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
-    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD1", null);
-    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD2", null);
-    _underlyingProvider.addResult(AAPL_TICKER, "INVALID_FIELD3", null);
-    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
-    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD1", null);
-    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD2", null);
-    _underlyingProvider.addResult(CISCO_TICKER, "INVALID_FIELD3", null);
+  protected void fieldNotAvailable() {
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    getUnderlyingProvider().addResult(AAPL_TICKER, "INVALID_FIELD1", null);
+    getUnderlyingProvider().addResult(AAPL_TICKER, "INVALID_FIELD2", null);
+    getUnderlyingProvider().addResult(AAPL_TICKER, "INVALID_FIELD3", null);
+    getUnderlyingProvider().addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "BUID");
+    getUnderlyingProvider().addResult(CISCO_TICKER, "INVALID_FIELD1", null);
+    getUnderlyingProvider().addResult(CISCO_TICKER, "INVALID_FIELD2", null);
+    getUnderlyingProvider().addResult(CISCO_TICKER, "INVALID_FIELD3", null);
     
     Set<String> fields = new TreeSet<String>();
     fields.add(FIELD_ID_BB_UNIQUE);
@@ -154,8 +137,8 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     securities.add(AAPL_TICKER);
     securities.add(CISCO_TICKER);
     
-    _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    getUnitProvider().addAcceptableRequest(securities, fields);
+    ReferenceDataProviderGetResult result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     ReferenceData aaplResult = result.getReferenceData(AAPL_TICKER);
@@ -163,8 +146,8 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     ReferenceData ciscoResult = result.getReferenceData(CISCO_TICKER);
     assertNotNull(ciscoResult);
     
-    _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    getUnitProvider().clearAcceptableRequests();
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     ReferenceData aaplCachedResult = result.getReferenceData(AAPL_TICKER);
@@ -179,9 +162,8 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     assertEquals(ciscoResult.getFieldValues(), ciscoCachedResult.getFieldValues());
   }
 
-  @Test
-  public void securityNotAvailable() {
-    _underlyingProvider.addResult("INVALID", FIELD_ID_BB_UNIQUE, null);
+  protected void securityNotAvailable() {
+    getUnderlyingProvider().addResult("INVALID", FIELD_ID_BB_UNIQUE, null);
     
     String invalidSec = "INVALID";
     
@@ -190,30 +172,29 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     
     Set<String> securities = Collections.singleton(invalidSec);
     
-    _unitProvider.addAcceptableRequest(securities, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    getUnitProvider().addAcceptableRequest(securities, fields);
+    ReferenceDataProviderGetResult result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(invalidSec));
     
-    _unitProvider.clearAcceptableRequests();
+    getUnitProvider().clearAcceptableRequests();
     
-    result = getCachingProvider().getReferenceData(
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(securities, fields, true));
     assertNotNull(result);
     assertNotNull(result.getReferenceData(invalidSec));
   }
 
-  @Test
-  public void multipleSecuritiesSameEscalatingFields() {
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "A");
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_TICKER, "B");
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_CUSIP, "C");
-    _underlyingProvider.addResult(AAPL_TICKER, FIELD_ID_ISIN, "D");
-    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "A");
-    _underlyingProvider.addResult(CISCO_TICKER, FIELD_TICKER, "B");
-    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_CUSIP, "C");
-    _underlyingProvider.addResult(CISCO_TICKER, FIELD_ID_ISIN, "D");
+  protected void multipleSecuritiesSameEscalatingFields() {
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_BB_UNIQUE, "A");
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_TICKER, "B");
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_CUSIP, "C");
+    getUnderlyingProvider().addResult(AAPL_TICKER, FIELD_ID_ISIN, "D");
+    getUnderlyingProvider().addResult(CISCO_TICKER, FIELD_ID_BB_UNIQUE, "A");
+    getUnderlyingProvider().addResult(CISCO_TICKER, FIELD_TICKER, "B");
+    getUnderlyingProvider().addResult(CISCO_TICKER, FIELD_ID_CUSIP, "C");
+    getUnderlyingProvider().addResult(CISCO_TICKER, FIELD_ID_ISIN, "D");
     
     Set<String> fields = new TreeSet<String>();
     fields.add(FIELD_ID_BB_UNIQUE);
@@ -224,30 +205,30 @@ public abstract class AbstractValueCachingReferenceDataProviderTestCase {
     bothSecurities.addAll(aaplOnly);
     bothSecurities.addAll(cscoOnly);
     
-    _unitProvider.addAcceptableRequest(aaplOnly, fields);
-    ReferenceDataProviderGetResult result = getCachingProvider().getReferenceData(
+    getUnitProvider().addAcceptableRequest(aaplOnly, fields);
+    ReferenceDataProviderGetResult result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(aaplOnly, fields, true));
     assertNotNull(result);
     
-    _unitProvider.clearAcceptableRequests();
-    _unitProvider.addAcceptableRequest(cscoOnly, fields);
-    result = getCachingProvider().getReferenceData(
+    getUnitProvider().clearAcceptableRequests();
+    getUnitProvider().addAcceptableRequest(cscoOnly, fields);
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(cscoOnly, fields, true));
     assertNotNull(result);
 
-    _unitProvider.clearAcceptableRequests();
-    result = getCachingProvider().getReferenceData(
+    getUnitProvider().clearAcceptableRequests();
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(bothSecurities, fields, true));
     assertNotNull(result);
     
     fields.add(FIELD_ID_CUSIP);
     fields.add(FIELD_ID_ISIN);
-    _unitProvider.clearAcceptableRequests();
+    getUnitProvider().clearAcceptableRequests();
     Set<String> expectedFields = new TreeSet<String>();
     expectedFields.add(FIELD_ID_CUSIP);
     expectedFields.add(FIELD_ID_ISIN);
-    _unitProvider.addAcceptableRequest(bothSecurities, expectedFields);
-    result = getCachingProvider().getReferenceData(
+    getUnitProvider().addAcceptableRequest(bothSecurities, expectedFields);
+    result = getProvider().getReferenceData(
         ReferenceDataProviderGetRequest.createGet(bothSecurities, fields, true));
     assertNotNull(result);
   }

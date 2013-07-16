@@ -35,13 +35,11 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.conversion.JodaBeanConverters;
-import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexDefinitionSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
@@ -51,7 +49,6 @@ import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
@@ -75,12 +72,8 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.i18n.Country;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -175,13 +168,8 @@ import com.opengamma.util.time.Expiry;
     s_stringConvert.register(Double.class, new DoubleConverter());
     s_stringConvert.register(Double.TYPE, new DoubleConverter());
     s_stringConvert.register(Frequency.class, new JodaBeanConverters.FrequencyConverter());
-    s_stringConvert.register(Currency.class, new JodaBeanConverters.CurrencyConverter());
     s_stringConvert.register(DayCount.class, new JodaBeanConverters.DayCountConverter());
-    s_stringConvert.register(ExternalId.class, new JodaBeanConverters.ExternalIdConverter());
     s_stringConvert.register(ExternalIdBundle.class, new JodaBeanConverters.ExternalIdBundleConverter());
-    s_stringConvert.register(CurrencyPair.class, new JodaBeanConverters.CurrencyPairConverter());
-    s_stringConvert.register(ObjectId.class, new JodaBeanConverters.ObjectIdConverter());
-    s_stringConvert.register(UniqueId.class, new JodaBeanConverters.UniqueIdConverter());
     s_stringConvert.register(Expiry.class, new ExpiryConverter());
     s_stringConvert.register(ExerciseType.class, new JodaBeanConverters.ExerciseTypeConverter());
     s_stringConvert.register(BusinessDayConvention.class, new JodaBeanConverters.BusinessDayConventionConverter());
@@ -192,10 +180,8 @@ import com.opengamma.util.time.Expiry;
     s_stringConvert.register(SamplingFrequency.class, new EnumConverter<SamplingFrequency>());
     s_stringConvert.register(LongShort.class, new EnumConverter<LongShort>());
     s_stringConvert.register(OptionType.class, new EnumConverter<OptionType>());
-    s_stringConvert.register(GICSCode.class, new GICSCodeConverter());
     s_stringConvert.register(ZonedDateTime.class, new ZonedDateTimeConverter());
     s_stringConvert.register(OffsetTime.class, new OffsetTimeConverter());
-    s_stringConvert.register(Country.class, new CountryConverter());
     s_stringConvert.register(DebtSeniority.class, new EnumConverter<DebtSeniority>());
     s_stringConvert.register(StubType.class, new EnumConverter<StubType>());
 
@@ -299,6 +285,7 @@ import com.opengamma.util.time.Expiry;
  * and capitalizing them and replacing underscores with spaces.
  * @param <T> Type of the enum
  */
+@SuppressWarnings({"rawtypes", "unchecked" })
 /* package */ class EnumConverter<T extends Enum> implements StringConverter<T> {
 
   @Override
@@ -311,22 +298,6 @@ import com.opengamma.util.time.Expiry;
   @Override
   public String convertToString(T e) {
     return WordUtils.capitalize(e.name().toLowerCase().replace('_', ' '));
-  }
-}
-
-/**
- * For converting between strings and {@link GICSCode}.
- */
-/* package */ class GICSCodeConverter implements StringConverter<GICSCode> {
-
-  @Override
-  public GICSCode convertFromString(Class<? extends GICSCode> cls, String code) {
-    return GICSCode.of(code);
-  }
-
-  @Override
-  public String convertToString(GICSCode code) {
-    return code.getCode();
   }
 }
 
@@ -383,22 +354,6 @@ import com.opengamma.util.time.Expiry;
   @Override
   public String convertToString(Expiry expiry) {
     return expiry.getExpiry().toLocalDate().toString();
-  }
-}
-
-/**
- * Converts between an {@link Expiry} and a local date string (e.g. 2011-03-08).
- */
-/* package */ class CountryConverter implements StringConverter<Country> {
-
-  @Override
-  public Country convertFromString(Class<? extends Country> cls, String countryCode) {
-    return Country.of(countryCode);
-  }
-
-  @Override
-  public String convertToString(Country country) {
-    return country.getCode();
   }
 }
 

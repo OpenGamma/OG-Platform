@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 /* package */ class MasterNotificationListener<D extends AbstractDocument,
-                                               M extends AbstractMaster<D> & ChangeProvider>
+                                               M extends AbstractMaster<D> & ChangeProvider>  // CSIGNORE
     implements ChangeListener, AutoCloseable {
 
   private final M _master;

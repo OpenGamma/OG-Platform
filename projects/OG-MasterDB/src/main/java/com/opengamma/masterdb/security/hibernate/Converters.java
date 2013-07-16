@@ -148,7 +148,7 @@ public final class Converters {
     if (tenorBean == null) {
       return null;
     }
-    return new Tenor(Period.parse(tenorBean.getName()));
+    return Tenor.of(Period.parse(tenorBean.getName()));
   }
 
   public static void validateFrequency(final String name) {

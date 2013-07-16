@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.Pair;
  * Test.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public class DbBatchSearchTest extends AbstractDbBatchMasterTest {
+public class DbBatchSearchTest extends AbstractDbBatchMasterWorkerTest {
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchSearchTest.class);

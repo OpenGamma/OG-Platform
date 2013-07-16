@@ -16,6 +16,10 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
+/**
+ * Formatter.
+ */
+@SuppressWarnings("rawtypes")
 /* package */ class LabelledMatrix1DFormatter extends AbstractFormatter<LabelledMatrix1D> {
 
   private static final String DATA = "data";

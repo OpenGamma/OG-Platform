@@ -6,15 +6,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.opengamma</groupId>
-    <artifactId>og-parent</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-    <relativePath>../OG-Parent</relativePath>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform-public</artifactId>
+    <version>2.1.0-M1-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>og-financial</artifactId>
   <packaging>jar</packaging>
   <name>OG-Financial</name>
-  <description>OpenGamma platform financial calculations</description>
+  <description>OpenGamma Platform financial calculations</description>
 
   <scm>
     <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Financial</url>
@@ -22,22 +22,22 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-master</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-provider</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.opengamma</groupId>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-analytics</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -48,17 +48,27 @@
     </dependency>
     <dependency>
       <groupId>de.odysseus.juel</groupId>
-      <artifactId>juel</artifactId>
+      <artifactId>juel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>de.odysseus.juel</groupId>
+      <artifactId>juel-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
+    </dependency>
   </dependencies>
 
   <properties>
-    <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration, unitdb, unitslow</tests.testng.excludedgroups>
   </properties>
 
 </project>

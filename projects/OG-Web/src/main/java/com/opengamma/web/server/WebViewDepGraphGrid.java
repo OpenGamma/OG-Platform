@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.cometd.Client;
+import org.cometd.bayeux.server.LocalSession;
+import org.cometd.bayeux.server.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +76,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   }
 
   protected WebViewDepGraphGrid(final String name, final ViewClient viewClient, final ResultConverterCache resultConverterCache,
-      final Client local, final Client remote, final WebGridCell parentGridCell, final String parentCalcConfigName,
+      final LocalSession local, final ServerSession remote, final WebGridCell parentGridCell, final String parentCalcConfigName,
       final ValueSpecification parentValueSpecification, final ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache, local, remote);
     _parentGridCell = parentGridCell;
