@@ -78,3 +78,4 @@ target/
 .idea/scopes/scope_settings.xml
 .idea/uiDesigner.xml
 atlassian-ide-plugin.xml
+checkstyle-idea.xml
