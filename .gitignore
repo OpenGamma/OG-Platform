@@ -76,7 +76,7 @@ target/
 .idea/inspectionProfiles
 .idea/validation.xml
 .idea/scopes/scope_settings.xml
-.idea/profiles_settings.xml
+.idea/inspectionProfiles/profiles_settings.xml
 .idea/uiDesigner.xml
 atlassian-ide-plugin.xml
 checkstyle-idea.xml
