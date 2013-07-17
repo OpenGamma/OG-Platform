@@ -349,36 +349,12 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     final double[] newFirst = new double[nDataPts];
 
     for (int i = 1; i < nDataPts - 1; ++i) {
-      //      final double tau = Math.signum(yValues[i]);
-      //      final double[] tmp = new double[nDataPts];
-      //      if (tau == 0.) {
-      //        newFirst[i] = initialFirst[i];
-      //        System.arraycopy(initialFirstSense[i].getData(), 0, tmp, 0, nDataPts);
-      //      } else {
-      //        final double lower = -5. * tau * yValues[i] / intervals[i];
-      //        final double upper = 5. * tau * yValues[i] / intervals[i - 1];
-      //        final double ref = tau * initialFirst[i];
-      //        Arrays.fill(tmp, 0.);
-      //        if (ref < lower) {
-      //          newFirst[i] = lower / tau;
-      //          tmp[i] = -5. / intervals[i];
-      //        } else {
-      //          if (ref > upper) {
-      //            newFirst[i] = upper / tau;
-      //            tmp[i] = 5. / intervals[i - 1];
-      //          } else {
-      //            newFirst[i] = initialFirst[i];
-      //            System.arraycopy(initialFirstSense[i].getData(), 0, tmp, 0, nDataPts);
-      //          }
-      //        }
-      //      }
       final double tau = Math.signum(yValues[i]);
       final double lower = -5. * tau * yValues[i] / intervals[i];
       final double upper = 5. * tau * yValues[i] / intervals[i - 1];
       final double ref = tau * initialFirst[i];
       final double[] tmp = new double[nDataPts];
       Arrays.fill(tmp, 0.);
-      //      System.out.println(lower + "\t" + upper + "\t" + initialFirst[i]);
       if (Math.abs(ref - lower) < SMALL && tau != 0.) {
         newFirst[i] = ref >= lower ? initialFirst[i] : lower / tau;
         for (int k = 0; k < nDataPts; ++k) {
@@ -410,29 +386,6 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
       }
       res[i + 1] = new DoubleMatrix1D(tmp);
     }
-    //    final double tauIni = Math.signum(yValues[0]);
-    //    final double[] tmpIni = new double[nDataPts];
-    //    if (tauIni == 0.) {
-    //      newFirst[0] = initialFirst[0];
-    //      System.arraycopy(initialFirstSense[0].getData(), 0, tmpIni, 0, nDataPts);
-    //    } else {
-    //      final double lowerIni = -5. * tauIni * yValues[0] / intervals[0];
-    //      final double upperIni = 5. * tauIni * yValues[0] / intervals[0];
-    //      final double refIni = tauIni * initialFirst[0];
-    //      Arrays.fill(tmpIni, 0.);
-    //      if (refIni < lowerIni) {
-    //        newFirst[0] = lowerIni / tauIni;
-    //        tmpIni[0] = -5. / intervals[0];
-    //      } else {
-    //        if (refIni > upperIni) {
-    //          newFirst[0] = upperIni / tauIni;
-    //          tmpIni[0] = 5. / intervals[0];
-    //        } else {
-    //          newFirst[0] = initialFirst[0];
-    //          System.arraycopy(initialFirstSense[0].getData(), 0, tmpIni, 0, nDataPts);
-    //        }
-    //      }
-    //    }
     final double tauIni = Math.signum(yValues[0]);
     final double lowerIni = -5. * tauIni * yValues[0] / intervals[0];
     final double upperIni = 5. * tauIni * yValues[0] / intervals[0];
@@ -470,29 +423,7 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
       }
     }
     res[1] = new DoubleMatrix1D(tmpIni);
-    //    final double[] tmpFin = new double[nDataPts];
-    //    final double tauFin = Math.signum(yValues[nDataPts - 1]);
-    //    if (tauFin == 0.) {
-    //      newFirst[nDataPts - 1] = initialFirst[nDataPts - 1];
-    //      System.arraycopy(initialFirstSense[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
-    //    } else {
-    //      final double lowerFin = -5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
-    //      final double upperFin = 5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
-    //      final double refFin = tauFin * initialFirst[nDataPts - 1];
-    //      Arrays.fill(tmpFin, 0.);
-    //      if (refFin < lowerFin) {
-    //        newFirst[nDataPts - 1] = lowerFin / tauFin;
-    //        tmpFin[nDataPts - 1] = -5. / intervals[nDataPts - 2];
-    //      } else {
-    //        if (refFin > upperFin) {
-    //          newFirst[nDataPts - 1] = upperFin / tauFin;
-    //          tmpFin[nDataPts - 1] = 5. / intervals[nDataPts - 2];
-    //        } else {
-    //          newFirst[nDataPts - 1] = initialFirst[nDataPts - 1];
-    //          System.arraycopy(initialFirstSense[nDataPts - 1].getData(), 0, tmpFin, 0, nDataPts);
-    //        }
-    //      }
-    //    }
+
     final double tauFin = Math.signum(yValues[nDataPts - 1]);
     final double lowerFin = -5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
     final double upperFin = 5. * tauFin * yValues[nDataPts - 1] / intervals[nDataPts - 2];
@@ -531,9 +462,7 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     }
     res[nDataPts] = new DoubleMatrix1D(tmpFin);
     res[0] = new DoubleMatrix1D(newFirst);
-    //    for (int i = 0; i < nDataPts; ++i) {
-    //      System.out.println("first: " + res[i + 1]);
-    //    }
+
     return res;
   }
 
@@ -637,18 +566,8 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
       }
     }
     res[nDataPts] = new DoubleMatrix1D(tmpFin);
-    //    newSecond[0] = tauIni == 0. ? 0. : Math.max(initialSecond[0] * tauIni,
-    //        tauIni * Math.max(8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0], -8. * first[0] / intervals[0] - 20. * yValues[0] / intervals[0] / intervals[0])) /
-    //        tauIni;
-    //    newSecond[nDataPts - 1] = tauFin == 0. ? 0. : Math.max(
-    //        initialSecond[0] * tauFin,
-    //        tauFin *
-    //            Math.max(8. * first[nDataPts - 1] / intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2], -8. * first[nDataPts - 1] /
-    //                intervals[nDataPts - 2] - 20. * yValues[nDataPts - 1] / intervals[nDataPts - 2] / intervals[nDataPts - 2])) / tauFin;
     res[0] = new DoubleMatrix1D(newSecond);
-    //    for (int i = 0; i < nDataPts; ++i) {
-    //      System.out.println("second: " + res[i + 1]);
-    //    }
+
     return res;
   }
 
