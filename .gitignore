@@ -79,4 +79,5 @@ target/
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/uiDesigner.xml
 .idea/checkstyle-idea.xml
+.idea/copyright/profiles_settings.xml
 atlassian-ide-plugin.xml
