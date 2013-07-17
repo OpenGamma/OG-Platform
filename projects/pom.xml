@@ -38,7 +38,6 @@
     <module>OG-LiveData</module>
     <module>OG-Master</module>
     <module>OG-MasterDB</module>
-    <module>OG-Maths</module>
     <module>OG-Provider</module>
     <module>OG-Security</module>
     <module>OG-Server</module>
