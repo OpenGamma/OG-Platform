@@ -13,7 +13,7 @@
     <!-- a xccy swap -->
     <swapTrade id="t1">
       <externalSystemId>
-        <id scheme="External">swap1</id>
+        <id scheme="External">someid</id>
       </externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
       <maturityDate>2018-01-31</maturityDate>
@@ -96,7 +96,7 @@
     <!-- an fx option -->
     <fxOptionTrade id="t2">
       <externalSystemId>
-        <id scheme="External">fxOption1</id>
+        <id scheme="External">someid</id>
       </externalSystemId>
       <tradeDate>2013-01-20</tradeDate>
       <maturityDate>2018-01-31</maturityDate>

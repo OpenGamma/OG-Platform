@@ -93,7 +93,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3493088:  // rate
         return getRate();
@@ -104,7 +104,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 3493088:  // rate
         setRate((Double) newValue);
@@ -117,12 +117,12 @@ public class FixedInflationSwapLeg extends InflationLeg {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final FixedInflationSwapLeg other = (FixedInflationSwapLeg) obj;
+      FixedInflationSwapLeg other = (FixedInflationSwapLeg) obj;
       return JodaBeanUtils.equal(getRate(), other.getRate()) &&
           JodaBeanUtils.equal(isIsExchangeNotional(), other.isIsExchangeNotional()) &&
           super.equals(obj);
@@ -151,7 +151,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
    * Sets the rate.
    * @param rate  the new value of the property
    */
-  public void setRate(final double rate) {
+  public void setRate(double rate) {
     this._rate = rate;
   }
 
@@ -176,7 +176,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
    * Sets whether to exchange notional.
    * @param isExchangeNotional  the new value of the property
    */
-  public void setIsExchangeNotional(final boolean isExchangeNotional) {
+  public void setIsExchangeNotional(boolean isExchangeNotional) {
     this._isExchangeNotional = isExchangeNotional;
   }
 
@@ -223,7 +223,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 3493088:  // rate
           return _rate;

@@ -64,15 +64,14 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 
 /**
  * 
  */
 public class SecurityAndSettlementExchangeExposureFunction implements ExposureFunction {
-
-  public SecurityAndSettlementExchangeExposureFunction() {
-  }
 
   @Override
   public List<ExternalId> visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
@@ -391,6 +390,16 @@ public class SecurityAndSettlementExchangeExposureFunction implements ExposureFu
 
   @Override
   public List<ExternalId> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
     return null;
   }
 

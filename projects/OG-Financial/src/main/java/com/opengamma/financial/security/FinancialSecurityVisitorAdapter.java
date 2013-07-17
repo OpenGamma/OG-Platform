@@ -61,6 +61,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -72,12 +74,12 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @SuppressWarnings("synthetic-access")
   public static <T> Builder<T> builder() {
-    return new Builder<T>();
+    return new Builder<>();
   }
 
   @SuppressWarnings("synthetic-access")
   public static <T> Builder<T> builder(final FinancialSecurityVisitor<T> visitor) {
-    return new Builder<T>(visitor);
+    return new Builder<>(visitor);
   }
 
   @Override
@@ -305,6 +307,18 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
+  @Override
+  public T visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+
+
   /**
    * Generic message for unsupported methods in FinancialSecurityVisitor implementations
    *
@@ -326,7 +340,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
   public static final class Builder<T> {
 
     private Builder() {
-      _visitor = new FinancialSecurityVisitorAdapter<T>();
+      _visitor = new FinancialSecurityVisitorAdapter<>();
     }
 
     private Builder(final FinancialSecurityVisitor<T> visitor) {
@@ -1092,6 +1106,46 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> zeroCouponInflationSwapSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+          return visitor.visitZeroCouponInflationSwapSecurity(security);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> yearOnYearInflationSwapSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+          return visitor.visitYearOnYearInflationSwapSecurity(security);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> zeroCouponInflationSwapSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> yearOnYearInflationSwapSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public Builder<T> bondFutureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
@@ -1663,12 +1717,23 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         public T visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
           return value;
         }
+
+        @Override
+        public T visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+          return value;
+        }
+
       };
       return this;
     }
 
     public FinancialSecurityVisitor<T> create() {
-      return new FinancialSecurityVisitorDelegate<T>(_visitor);
+      return new FinancialSecurityVisitorDelegate<>(_visitor);
     }
   }
 

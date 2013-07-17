@@ -58,7 +58,7 @@ public class FraTradeSecurityExtractor extends TradeSecurityExtractor<FraTrade> 
                   underlyingIdentifier, 
                   convertLocalDate(fraTrade.getFixingDate()));
     
-    return securityArray(fraSecurity);
+    return securityArray(addIdentifier(fraSecurity));
   }
 
   /**

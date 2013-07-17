@@ -65,6 +65,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -72,10 +74,7 @@ import com.opengamma.id.ExternalId;
  */
 public class SecurityTypeExposureFunction implements ExposureFunction {
 
-  public SecurityTypeExposureFunction() {
-  }
-
-  private List<ExternalId> getSecurityType(final Security security) {
+  private static List<ExternalId> getSecurityType(final Security security) {
     return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, security.getSecurityType()));
   }
 
@@ -356,6 +355,16 @@ public class SecurityTypeExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    return getSecurityType(security);
+  }
+
+  @Override
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    return getSecurityType(security);
+  }
+
+  @Override
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
     return getSecurityType(security);
   }
 

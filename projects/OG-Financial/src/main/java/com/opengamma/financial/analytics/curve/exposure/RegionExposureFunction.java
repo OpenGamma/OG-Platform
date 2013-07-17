@@ -67,6 +67,8 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -377,6 +379,26 @@ public class RegionExposureFunction implements ExposureFunction {
   public List<ExternalId> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
     final CreditDefaultSwapSecurity underlyingCDS = (CreditDefaultSwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId())); //TODO version
     return Arrays.asList(underlyingCDS.getRegionId());
+  }
+
+  @Override
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    final SwapLeg payLeg = security.getPayLeg();
+    final SwapLeg receiveLeg = security.getReceiveLeg();
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(payLeg.getRegionId());
+    }
+    return Arrays.asList(payLeg.getRegionId(), receiveLeg.getRegionId());
+  }
+
+  @Override
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+    final SwapLeg payLeg = security.getPayLeg();
+    final SwapLeg receiveLeg = security.getReceiveLeg();
+    if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
+      return Arrays.asList(payLeg.getRegionId());
+    }
+    return Arrays.asList(payLeg.getRegionId(), receiveLeg.getRegionId());
   }
 
 }

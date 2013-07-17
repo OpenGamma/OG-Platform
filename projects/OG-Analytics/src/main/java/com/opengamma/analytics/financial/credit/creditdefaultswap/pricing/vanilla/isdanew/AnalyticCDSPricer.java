@@ -23,10 +23,19 @@ public class AnalyticCDSPricer {
 
   private final boolean _useCorrectAccOnDefaultFormula;
 
+  /**
+   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
+   * has been reproduced.   
+   */
   public AnalyticCDSPricer() {
     _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
   }
 
+  /**
+   *  For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
+   * has been reproduced.  
+   * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
+   */
   public AnalyticCDSPricer(final boolean useCorrectAccOnDefaultFormula) {
     _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
   }
@@ -99,11 +108,11 @@ public class AnalyticCDSPricer {
    * @return Par spread sensitivity to one node (knot) on the credit (hazard rate/survival) curve
    */
   public double parSpreadCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
-    double a = protectionLeg(cds, yieldCurve, creditCurve);
-    double b = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
-    double spread = a / b;
-    double dadh = protectionLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
-    double dbdh = pvPremiumLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
+    final double a = protectionLeg(cds, yieldCurve, creditCurve);
+    final double b = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double spread = a / b;
+    final double dadh = protectionLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
+    final double dbdh = pvPremiumLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
     return spread * (dadh / a - dbdh / b);
   }
 
@@ -137,8 +146,8 @@ public class AnalyticCDSPricer {
 
       double accPV = 0.0;
       for (int i = 0; i < n; i++) {
-        double offsetAccStart = cds.getAccStart(i) + offset;
-        double offsetAccEnd = cds.getAccEnd(i) + offset;
+        final double offsetAccStart = cds.getAccStart(i) + offset;
+        final double offsetAccEnd = cds.getAccEnd(i) + offset;
         final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
         accPV += calculateSinglePeriodAccrualOnDefault(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve);
       }
@@ -182,8 +191,8 @@ public class AnalyticCDSPricer {
 
       double accPVSense = 0.0;
       for (int i = 0; i < n; i++) {
-        double offsetAccStart = cds.getAccStart(i) + offset;
-        double offsetAccEnd = cds.getAccEnd(i) + offset;
+        final double offsetAccStart = cds.getAccStart(i) + offset;
+        final double offsetAccEnd = cds.getAccEnd(i) + offset;
         final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
         accPVSense += calculateSinglePeriodAccrualOnDefaultSensitivity(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve, creditCurveNode);
       }
@@ -198,11 +207,11 @@ public class AnalyticCDSPricer {
   private double calculateSinglePeriodAccrualOnDefault(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
       final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
 
-    double start = Math.max(accStart, stepin);
+    final double start = Math.max(accStart, stepin);
     if (start >= accEnd) {
       return 0.0;
     }
-    double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
+    final double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
 
     double t = knots[0];
     double ht0 = creditCurve.getRT(t);
@@ -214,9 +223,9 @@ public class AnalyticCDSPricer {
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
       t = knots[j];
-      double ht1 = creditCurve.getRT(t);
-      double rt1 = yieldCurve.getRT(t);
-      double b1 = Math.exp(-rt1 - ht1);
+      final double ht1 = creditCurve.getRT(t);
+      final double rt1 = yieldCurve.getRT(t);
+      final double b1 = Math.exp(-rt1 - ht1);
 
       final double dt = knots[j] - knots[j - 1];
 
@@ -254,11 +263,11 @@ public class AnalyticCDSPricer {
   private double calculateSinglePeriodAccrualOnDefaultSensitivity(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
       final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
 
-    double start = Math.max(accStart, stepin);
+    final double start = Math.max(accStart, stepin);
     if (start >= accEnd) {
       return 0.0;
     }
-    double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
+    final double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
 
     double t = knots[0];
     double ht0 = creditCurve.getRT(t);
@@ -413,8 +422,8 @@ public class AnalyticCDSPricer {
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
     ArgumentChecker.isTrue(creditCurveNode >= 0 && creditCurveNode < creditCurve.getNumberOfKnots(), "creditCurveNode out of range");
-    if ((creditCurveNode != 0 && cds.getProtectionEnd() <= creditCurve.getTimeAtIndex(creditCurveNode - 1))
-        || (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
+    if ((creditCurveNode != 0 && cds.getProtectionEnd() <= creditCurve.getTimeAtIndex(creditCurveNode - 1)) ||
+        (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
       return 0.0; // can't have any sensitivity in this case
     }
 

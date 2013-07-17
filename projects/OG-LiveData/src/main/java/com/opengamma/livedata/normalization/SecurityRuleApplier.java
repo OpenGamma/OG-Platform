@@ -27,15 +27,21 @@ public class SecurityRuleApplier implements NormalizationRule {
   
   @Override
   public MutableFudgeMsg apply(MutableFudgeMsg msg, String securityUniqueId, FieldHistoryStore fieldHistory) {
+    NormalizationRule rule;
     try {
-      NormalizationRule rule = _ruleProvider.getRule(securityUniqueId);
+      rule = _ruleProvider.getRule(securityUniqueId);
       if (rule == null) {
         return msg;
       }
+    } catch (Exception e) {
+      s_logger.warn("Failed to get normalization rule for security id {} : {}", securityUniqueId, e.getMessage());
+      return null;
+    }
+    
+    try {
       return rule.apply(msg, securityUniqueId, fieldHistory);
     } catch (Exception e) {
-      NormalizationRule rule = _ruleProvider.getRule(securityUniqueId);
-      s_logger.debug("Rule {} rejected message with exception {}", rule != null ? rule.toString() : null, e.getMessage());
+      s_logger.debug("Rule {} rejected message with exception {}", rule.toString(), e.getMessage());
       // Interpret an exception as a rejection of the message
       return null;
     }

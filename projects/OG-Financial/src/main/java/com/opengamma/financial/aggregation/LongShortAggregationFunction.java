@@ -72,6 +72,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -446,6 +448,16 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     @Override
     public String visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
       throw new UnsupportedOperationException(FinancialSecurityVisitorAdapter.getUnsupportedOperationMessage(getClass(), security));
+    }
+
+    @Override
+    public String visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+      return NOT_LONG_SHORT;
     }
   }
 

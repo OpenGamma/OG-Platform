@@ -11,9 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.Stack;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -363,7 +361,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     SecuritySearchResult searchResult = _securityMaster.search(searchReq);
     if (_overwrite) {
       for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
-        _securityMaster.remove(foundSecurity.getUniqueId());
+        removeSecurityAndPosition(foundSecurity, idSearch);
       }
     } else {
       for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
@@ -404,6 +402,20 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     } catch (Exception e) {
       s_logger.error("Failed to write security " + security + " to the security master");
       return null;
+    }
+  }
+
+  private void removeSecurityAndPosition(ManageableSecurity foundSecurity, ExternalIdSearch idSearch) {
+    _securityMaster.remove(foundSecurity.getUniqueId());
+    PositionSearchRequest positionSearchRequest = new PositionSearchRequest();
+    positionSearchRequest.setSecurityIdSearch(idSearch);
+    positionSearchRequest.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
+    PositionSearchResult positionSearchResult = _positionMaster.search(positionSearchRequest);
+    List<ManageablePosition> positions = positionSearchResult.getPositions();
+    if (!positions.isEmpty()) {
+      for (ManageablePosition position : positions) {
+        _positionMaster.remove(position.getUniqueId());
+      }
     }
   }
 

@@ -169,6 +169,18 @@
       </trades>
     </portfolio>
 
+    <portfolio name="OTC FX trades">
+      <trades>
+        <trade ref="t1"/>
+      </trades>
+    </portfolio>
+    
+    <portfolio name="Exchange FX trades">
+      <positions>
+        <position ref="p1"/>
+      </positions>
+    </portfolio>
+
   </portfolios>
 
 </og-portfolio>

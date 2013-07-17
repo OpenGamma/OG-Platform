@@ -92,10 +92,10 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
-    if (!(target.getValue () instanceof ExternalIdentifiable)) {
+    if (!(target.getValue() instanceof ExternalIdentifiable)) {
       return false;
     }
-    ExternalId id = ((ExternalIdentifiable)target.getValue()).getExternalId();
+    ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
     final String equityId = EquitySecurityUtils.getIndexOrEquityName(id);
     if (equityId == null) {
       return false;

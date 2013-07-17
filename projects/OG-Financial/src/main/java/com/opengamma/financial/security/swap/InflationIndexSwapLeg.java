@@ -109,7 +109,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1943291277:  // indexId
         return getIndexId();
@@ -124,7 +124,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1943291277:  // indexId
         setIndexId((ExternalId) newValue);
@@ -150,12 +150,12 @@ public class InflationIndexSwapLeg extends InflationLeg {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final InflationIndexSwapLeg other = (InflationIndexSwapLeg) obj;
+      InflationIndexSwapLeg other = (InflationIndexSwapLeg) obj;
       return JodaBeanUtils.equal(getIndexId(), other.getIndexId()) &&
           JodaBeanUtils.equal(getLag(), other.getLag()) &&
           JodaBeanUtils.equal(getInterpolationMethod(), other.getInterpolationMethod()) &&
@@ -188,7 +188,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
    * Sets the external id of the index.
    * @param indexId  the new value of the property, not null
    */
-  public void setIndexId(final ExternalId indexId) {
+  public void setIndexId(ExternalId indexId) {
     JodaBeanUtils.notNull(indexId, "indexId");
     this._indexId = indexId;
   }
@@ -214,7 +214,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
    * Sets the lag.
    * @param lag  the new value of the property
    */
-  public void setLag(final int lag) {
+  public void setLag(int lag) {
     this._lag = lag;
   }
 
@@ -239,7 +239,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
    * Sets the interpolation method.
    * @param interpolationMethod  the new value of the property, not null
    */
-  public void setInterpolationMethod(final InterpolationMethod interpolationMethod) {
+  public void setInterpolationMethod(InterpolationMethod interpolationMethod) {
     JodaBeanUtils.notNull(interpolationMethod, "interpolationMethod");
     this._interpolationMethod = interpolationMethod;
   }
@@ -265,7 +265,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
    * Sets should the notional be exchanged
    * @param isExchangeNotional  the new value of the property
    */
-  public void setIsExchangeNotional(final boolean isExchangeNotional) {
+  public void setIsExchangeNotional(boolean isExchangeNotional) {
     this._isExchangeNotional = isExchangeNotional;
   }
 
@@ -324,7 +324,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1943291277:  // indexId
           return _indexId;
