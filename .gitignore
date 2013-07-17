@@ -78,5 +78,6 @@ target/
 .idea/validation.xml
 .idea/scopes/scope_settings.xml
 .idea/inspectionProfiles/profiles_settings.xml
+.idea/inspectionProfiles/Project_Default.xml
 .idea/copyright/profiles_settings.xml
 atlassian-ide-plugin.xml
