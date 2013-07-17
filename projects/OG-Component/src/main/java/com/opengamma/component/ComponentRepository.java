@@ -24,6 +24,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.export.MBeanExporter;
+import org.springframework.jmx.support.JmxUtils;
 import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.OpenGammaRuntimeException;
