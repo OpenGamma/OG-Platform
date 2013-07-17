@@ -21,26 +21,28 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class for calculating a term structure of hazard rates calibrated to a 
  * set of SNCDS calibration instruments using the ISDA methodology
+ * @deprecated See FastCreditCurveBuilder and CreditCurveCalibrationTest.
  */
+@Deprecated
 public class CalibrateHazardRateTermStructureISDAMethod {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
-  private static final PresentValueCreditDefaultSwap cdsCalculator = new PresentValueCreditDefaultSwap();
+  private static final PresentValueCreditDefaultSwap s_cdsCalculator = new PresentValueCreditDefaultSwap();
 
   // Constants associated with the ISDA root finder
-  private static final int numIterations = 100;
+  private static final int s_numIterations = 100;
 
-  private static final double boundLo = 0.0;
-  private static final double boundHi = 1e10;
+  private static final double BOUNDLO = 0.0;
+  private static final double BOUNDHI = 1e10;
 
-  private static double initialXstep = 0.0005;
-  private static final double initialFDeriv = 0;
+  private static final double INITIALXSTEP = 0.0005;
+//  private static final double INITIALFDERIV = 0;
 
-  private static final double xacc = 1e-10;
-  private static final double facc = 1e-10;
+  private static final double XACC = 1e-10;
+  private static final double FACC = 1e-10;
 
   private static final double ONE_PER_CENT = 0.01;
 
@@ -55,8 +57,17 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // The ISDA calibration routine (this is the equivalent of the 'CdsBootstrap' function in the ISDA code)
-
+  /** 
+   * ISDA calibration routine .this is the equivalent of the 'CdsBootstrap' function in the ISDA code. <p>
+   * @deprecated See FastCreditCurveBuilder and CreditCurveCalibrationTest.
+   * @param valuationDate ZonedDateTime
+   * @param cds LegacyVanillaCreditDefaultSwapDefinition
+   * @param marketTenors ZonedDateTime[]
+   * @param marketSpreads double[]
+   * @param yieldCurve ISDADateCurve
+   * @return HazardRateCurve
+   */
+  @Deprecated
   public HazardRateCurve isdaCalibrateHazardRateCurve(
       final ZonedDateTime valuationDate,
       final LegacyVanillaCreditDefaultSwapDefinition cds,
@@ -165,54 +176,55 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    if (boundLo >= boundHi) {
-      throw new OpenGammaRuntimeException("Could not calibrate hazard rate curve");
-    }
+//    if (BOUNDLO >= BOUNDHI) {
+//      throw new OpenGammaRuntimeException("Could not calibrate hazard rate curve");
+//    }
 
-    if (xPoints[0] < boundLo || xPoints[0] > boundHi) {
+    if (xPoints[0] < BOUNDLO || xPoints[0] > BOUNDHI) {
       throw new OpenGammaRuntimeException("Could not calibrate hazard rate curve");
     }
 
     // Calc the value of the objective function at the initial hazard rate guess i.e. using the hazard rate curve as input
     yPoints[0] = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, hazardRateCurve, priceType);
 
-    if (yPoints[0] == 0.0 || (Math.abs(yPoints[0]) <= facc && (Math.abs(boundLo - xPoints[0]) <= xacc || Math.abs(boundHi - xPoints[0]) <= xacc))) {
+    if (yPoints[0] == 0.0 || (Math.abs(yPoints[0]) <= FACC && (Math.abs(BOUNDLO - xPoints[0]) <= XACC || Math.abs(BOUNDHI - xPoints[0]) <= XACC))) {
       return xPoints[0];
     }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    double boundSpread = boundHi - boundLo;
+    double boundSpread = BOUNDHI - BOUNDLO;
 
-    if (initialXstep == 0.0) {
-      initialXstep = ONE_PER_CENT * boundSpread;
-    }
+//    if (INITXSTEP == 0.0) {
+//      INITXSTEP = ONE_PER_CENT * boundSpread;
+//    }
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    if (initialFDeriv == 0.0) {
-      xPoints[2] = xPoints[0] + initialXstep;
-    } else {
-      xPoints[2] = xPoints[0] - yPoints[0] / initialFDeriv;
-    }
+    xPoints[2] = xPoints[0] + INITIALXSTEP;
+//    if (INITIALFDERIV == 0.0) {
+//      xPoints[2] = xPoints[0] + INITXSTEP;
+//    } else {
+//      xPoints[2] = xPoints[0] - yPoints[0] / INITIALFDERIV;
+//    }
 
     // Begin if
-    if (xPoints[2] < boundLo || xPoints[2] > boundHi) {
+    if (xPoints[2] < BOUNDLO || xPoints[2] > BOUNDHI) {
 
-      xPoints[2] = xPoints[0] - initialXstep;
+      xPoints[2] = xPoints[0] - INITIALXSTEP;
 
-      if (xPoints[2] < boundLo) {
-        xPoints[2] = boundLo;
+      if (xPoints[2] < BOUNDLO) {
+        xPoints[2] = BOUNDLO;
       }
-      if (xPoints[2] > boundHi) {
-        xPoints[2] = boundHi;
+      if (xPoints[2] > BOUNDHI) {
+        xPoints[2] = BOUNDHI;
       }
 
       if (xPoints[2] == xPoints[0]) {
-        if (xPoints[2] == boundLo) {
-          xPoints[2] = boundLo + ONE_PER_CENT * boundSpread;
+        if (xPoints[2] == BOUNDLO) {
+          xPoints[2] = BOUNDLO + ONE_PER_CENT * boundSpread;
         } else {
-          xPoints[2] = boundHi - ONE_PER_CENT * boundSpread;
+          xPoints[2] = BOUNDHI - ONE_PER_CENT * boundSpread;
         }
       }
     }
@@ -224,7 +236,7 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
     yPoints[2] = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, priceType);
 
-    if (yPoints[2] == 0.0 || (Math.abs(yPoints[2]) <= facc && Math.abs(xPoints[2] - xPoints[0]) <= xacc)) {
+    if (yPoints[2] == 0.0 || (Math.abs(yPoints[2]) <= FACC && Math.abs(xPoints[2] - xPoints[0]) <= XACC)) {
       return xPoints[2];
     }
 
@@ -233,7 +245,7 @@ public class CalibrateHazardRateTermStructureISDAMethod {
     // This is terrible code, but it has to be absolutely comparable with the ISDA model calcs otherwise  
     // we will get small differences in the calibrated hazard rates
 
-    final double[] secantSearch = secant(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, numIterations, xacc, facc, boundLo, boundHi, xPoints, yPoints);
+    final double[] secantSearch = secant(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, s_numIterations, XACC, FACC, BOUNDLO, BOUNDHI, xPoints, yPoints);
 
     if (secantSearch[1] == 1.0) {
       // Found the root
@@ -242,38 +254,38 @@ public class CalibrateHazardRateTermStructureISDAMethod {
       // Didn't find the root, but it was bracketed
 
       // Do we pass in the modifiedHazardRateCurve ?
-      final double root = brentMethod(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, numIterations, xacc, facc, xPoints, yPoints);
+      final double root = brentMethod(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, s_numIterations, XACC, FACC, xPoints, yPoints);
 
       return root;
     } else {
       // Root was not found or bracketed, now try at the bounds
 
-      modifiedHazardRateCurve = modifyHazardRateCurve(hazardRateCurve, boundLo);
+      modifiedHazardRateCurve = modifyHazardRateCurve(hazardRateCurve, BOUNDLO);
 
       final double fLo = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, priceType);
 
-      if (fLo == 0.0 || (Math.abs(fLo) <= facc && Math.abs(boundLo - xPoints[0]) <= xacc)) {
-        return boundLo;
+      if (fLo == 0.0 || (Math.abs(fLo) <= FACC && Math.abs(BOUNDLO - xPoints[0]) <= XACC)) {
+        return BOUNDLO;
       }
 
       if (yPoints[0] * fLo < 0) {
         xPoints[2] = xPoints[0];
-        xPoints[0] = boundLo;
+        xPoints[0] = BOUNDLO;
 
         yPoints[2] = yPoints[0];
         yPoints[0] = fLo;
       } else {
-        modifiedHazardRateCurve = modifyHazardRateCurve(hazardRateCurve, boundHi);
+        modifiedHazardRateCurve = modifyHazardRateCurve(hazardRateCurve, BOUNDHI);
 
         final double fHi = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, priceType);
 
-        if (fHi == 0.0 || (Math.abs(fHi) <= facc && Math.abs(boundHi - xPoints[0]) <= xacc))
+        if (fHi == 0.0 || (Math.abs(fHi) <= FACC && Math.abs(BOUNDHI - xPoints[0]) <= XACC))
         {
-          return boundHi;
+          return BOUNDHI;
         }
 
         if (yPoints[0] * fHi < 0) {
-          xPoints[2] = boundHi;
+          xPoints[2] = BOUNDHI;
           yPoints[2] = fHi;
         } else {
           // If the algorithm gets here the root has not been found, need to make sure it reports its failure and falls over
@@ -287,7 +299,7 @@ public class CalibrateHazardRateTermStructureISDAMethod {
 
       yPoints[1] = cdsBootstrapPointFunction(valuationDate, cds, yieldCurve, modifiedHazardRateCurve, priceType);
 
-      if (yPoints[1] == 0.0 || (Math.abs(yPoints[1]) <= facc && Math.abs(xPoints[1] - xPoints[0]) <= xacc))
+      if (yPoints[1] == 0.0 || (Math.abs(yPoints[1]) <= FACC && Math.abs(xPoints[1] - xPoints[0]) <= XACC))
       {
         return xPoints[1];
       }
@@ -551,10 +563,10 @@ public class CalibrateHazardRateTermStructureISDAMethod {
     // NOTE : routine because we require a unit notional (so that the comparison with the accuracy variables are meaningful)
 
     // Compute the PV of the premium leg
-    final double presentValuePremiumLeg = (cds.getParSpread() / 10000) * cdsCalculator.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, PriceType.CLEAN) / cds.getNotional();
+    final double presentValuePremiumLeg = (cds.getParSpread() / 10000) * s_cdsCalculator.calculatePremiumLeg(valuationDate, cds, yieldCurve, hazardRateCurve, PriceType.CLEAN) / cds.getNotional();
 
     // Compute the PV of the contingent leg
-    final double presentValueContingentLeg = cdsCalculator.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve) / cds.getNotional();
+    final double presentValueContingentLeg = s_cdsCalculator.calculateContingentLeg(valuationDate, cds, yieldCurve, hazardRateCurve) / cds.getNotional();
 
     // Compute the CDS PV
     final double presentValue = presentValueContingentLeg - presentValuePremiumLeg;
