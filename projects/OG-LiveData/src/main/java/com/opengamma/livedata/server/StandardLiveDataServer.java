@@ -1203,11 +1203,8 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
             distributor.isPersistent(),
             distributor.getNumMessagesSent()));
       }
-
       return new SubscriptionTrace(identifier, instant.toString(), distributors);
-    }
-    else {
-
+    } else {
       return new SubscriptionTrace(identifier, "N/A");
     }
   }
