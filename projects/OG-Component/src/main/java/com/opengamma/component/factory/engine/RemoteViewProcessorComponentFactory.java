@@ -5,7 +5,6 @@
  */
 package com.opengamma.component.factory.engine;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.Executors;
 

@@ -56,6 +56,7 @@ import com.opengamma.util.metric.OpenGammaMetricRegistry;
  * Component definition for the view processor defined in Spring extended to produce RESTful artifacts.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class SpringViewProcessorComponentFactory extends AbstractSpringComponentFactory {
 
   /**

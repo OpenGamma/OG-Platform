@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.swap;
@@ -19,7 +19,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class SwapLegFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
@@ -57,13 +57,13 @@ public class SwapLegFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void testFixedInflationSwapLeg() {
-    final FixedInflationSwapLeg leg = new FixedInflationSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, 0.002, true);
+    final FixedInflationSwapLeg leg = new FixedInflationSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, 0.002);
     assertEncodeDecodeCycle(FixedInflationSwapLeg.class, leg);
   }
 
   @Test
   public void testInflationIndexSwapLeg() {
-    final InflationIndexSwapLeg leg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, true, ExternalId.of("Test", "SDF"),
+    final InflationIndexSwapLeg leg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, ExternalId.of("Test", "SDF"),
         2, InterpolationMethod.MONTH_START_LINEAR);
     assertEncodeDecodeCycle(InflationIndexSwapLeg.class, leg);
   }

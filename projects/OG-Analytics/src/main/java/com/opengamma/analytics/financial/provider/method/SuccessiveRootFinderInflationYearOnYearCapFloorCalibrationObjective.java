@@ -12,10 +12,11 @@ import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapIn
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueBlackSmileInflationYearOnYearCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProvider;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.util.money.Currency;
 
 /**
- * Specific objective function for Hull-White model calibration with cap/floor.
+ * Specific objective function for cap floor year on year in price index model  model calibration.
  */
 public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective extends SuccessiveRootFinderCalibrationObjectivewithInflation {
 
@@ -24,11 +25,11 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
    */
   private static final PresentValueBlackSmileInflationYearOnYearCalculator PVIC = PresentValueBlackSmileInflationYearOnYearCalculator.getInstance();
   /**
-   * The Hull-White parameters before calibration. The calibration is done on the last volatility.
+   * The cap floor year on year in price index model parameters before calibration. The calibration is done on the last volatility.
    */
   private final InflationYearOnYearCapFloorParameters _inflationCapYearOnYearParameters;
   /**
-   * The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
+   * The currency for which the cap floor year on year in price index model  parameters are valid (Hull-White on the discounting curve).
    */
   private final Currency _ccyInflationcapYearOnYear;
   /**
@@ -52,7 +53,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
   private final double[][] _volatilityInit;
 
   /**
-   * Constructor of the objective function with the Hull-White parameters. The parameters range and accuracy are set at some default value 
+   * Constructor of the objective function with the  year on year cap/floor parameters. The parameters range and accuracy are set at some default value 
    * (minimum: 1.0E-6; maximum: 1.0, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
    * @param parameters The Hull-White parameters.
    * @param ccy The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
@@ -65,8 +66,8 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
     setMaximumParameter(1.0);
     setFunctionValueAccuracy(1.0E-4);
     setVariableAbsoluteAccuracy(1.0E-9);
-    _volatilityInit = new double[parameters.getNumberOfExpiryTime()][parameters.getNumberOfStrikes()];
-    for (int loopperiod = 0; loopperiod < parameters.getNumberOfExpiryTime(); loopperiod++) {
+    _volatilityInit = new double[parameters.getNumberOfExpiryTimes()][parameters.getNumberOfStrikes()];
+    for (int loopperiod = 0; loopperiod < parameters.getNumberOfExpiryTimes(); loopperiod++) {
       for (int loopfact = 0; loopfact < parameters.getNumberOfStrikes(); loopfact++) {
         _volatilityInit[loopperiod][loopfact] = parameters.getVolatility()[loopperiod][loopfact];
       }
@@ -74,7 +75,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
   }
 
   /**
-   * Sets the Hull-White curve bundle using the Hull-White parameters and a given set of curves.
+   * Sets the year on year cap/floor curve bundle using the Hull-White parameters and a given set of curves.
    * @param inflation The multi-curves provider.
    */
   @Override
@@ -144,8 +145,16 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
 
   @Override
   public Double evaluate(Double x) {
+
+    // setting the volatility in the volatility matrix
     _inflationCapYearOnYearParameters.setVolatility(x, _expiryIndex, _strikeIndex);
-    return _inflationCapYearOnYearProvider.getMulticurveProvider().getFxRates().convert(getInstrument().accept(PVIC, _inflationCapYearOnYearProvider), _ccyInflationcapYearOnYear).getAmount()
+    // creating the new volatility surface using the new volatility matrix
+    Interpolator2D interpolator = _inflationCapYearOnYearProvider.getBlackParameters().getVolatilitySurface().getInterpolator();
+    BlackSmileCapInflationYearOnYearParameters blackSmileCapInflationYearOnYearParameters = new BlackSmileCapInflationYearOnYearParameters(_inflationCapYearOnYearParameters, interpolator);
+    BlackSmileCapInflationYearOnYearProvider blackSmileCapInflationYearOnYearProvider = new BlackSmileCapInflationYearOnYearProvider(_inflationCapYearOnYearProvider.getInflationProvider(),
+        blackSmileCapInflationYearOnYearParameters);
+
+    return _inflationCapYearOnYearProvider.getMulticurveProvider().getFxRates().convert(getInstrument().accept(PVIC, blackSmileCapInflationYearOnYearProvider), _ccyInflationcapYearOnYear).getAmount()
         - getPrice();
   }
 }

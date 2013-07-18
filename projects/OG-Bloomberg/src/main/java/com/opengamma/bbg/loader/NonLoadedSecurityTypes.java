@@ -70,6 +70,7 @@ public final class NonLoadedSecurityTypes {
   private static final String BLOOMBERG_FX_ONSHORE_FORWARD_TYPE = "ONSHORE FORWARD";
   private static final String BLOOMBERG_FX_NDF = "NON-DELIVERABLE FORWARD";
   private static final String BLOOMBERG_CD = "CD";
+  private static final String BLOOMBERG_INFLATION_SWAP_TYPE = "INFLATION SWAP";
 
   /**
    * CDS rates
@@ -123,4 +124,9 @@ public final class NonLoadedSecurityTypes {
    * The valid Bloomberg security types for CDS
    */
   public static final Set<String> VALID_CDS_TYPES = ImmutableSet.of(BLOOMBERG_CDS_TYPE);
+  
+  /**
+   * The valid Bloomberg security types for inflation swaps.
+   */
+  public static final Set<String> VALID_INFLATION_SWAP_TYPES = ImmutableSet.of(BLOOMBERG_INFLATION_SWAP_TYPE);
 }

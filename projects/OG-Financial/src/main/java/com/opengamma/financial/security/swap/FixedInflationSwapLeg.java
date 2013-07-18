@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.swap;
@@ -39,12 +39,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
   private double _rate;
 
   /**
-   * Whether to exchange notional.
-   */
-  @PropertyDefinition
-  private boolean _isExchangeNotional;
-
-  /**
    * For the builder.
    */
   /* package */ FixedInflationSwapLeg() {
@@ -59,13 +53,11 @@ public class FixedInflationSwapLeg extends InflationLeg {
    * @param notional The notional, not null
    * @param isEOM True if dates follow the EOM convention
    * @param rate The fixed rate
-   * @param isExchangeNotional True if notionals are exchanged
    */
   public FixedInflationSwapLeg(final DayCount dayCount, final Frequency frequency, final ExternalId regionId, final BusinessDayConvention businessDayConvention,
-      final Notional notional, final boolean isEOM, final double rate, final boolean isExchangeNotional) {
+      final Notional notional, final boolean isEOM, final double rate) {
     super(dayCount, frequency, regionId, businessDayConvention, notional, isEOM);
     setRate(rate);
-    setIsExchangeNotional(isExchangeNotional);
   }
 
   @Override
@@ -97,8 +89,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
     switch (propertyName.hashCode()) {
       case 3493088:  // rate
         return getRate();
-      case 348962765:  // isExchangeNotional
-        return isIsExchangeNotional();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -108,9 +98,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
     switch (propertyName.hashCode()) {
       case 3493088:  // rate
         setRate((Double) newValue);
-        return;
-      case 348962765:  // isExchangeNotional
-        setIsExchangeNotional((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -124,7 +111,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedInflationSwapLeg other = (FixedInflationSwapLeg) obj;
       return JodaBeanUtils.equal(getRate(), other.getRate()) &&
-          JodaBeanUtils.equal(isIsExchangeNotional(), other.isIsExchangeNotional()) &&
           super.equals(obj);
     }
     return false;
@@ -134,7 +120,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
     return hash ^ super.hashCode();
   }
 
@@ -165,31 +150,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether to exchange notional.
-   * @return the value of the property
-   */
-  public boolean isIsExchangeNotional() {
-    return _isExchangeNotional;
-  }
-
-  /**
-   * Sets whether to exchange notional.
-   * @param isExchangeNotional  the new value of the property
-   */
-  public void setIsExchangeNotional(boolean isExchangeNotional) {
-    this._isExchangeNotional = isExchangeNotional;
-  }
-
-  /**
-   * Gets the the {@code isExchangeNotional} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> isExchangeNotional() {
-    return metaBean().isExchangeNotional().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code FixedInflationSwapLeg}.
    */
   public static class Meta extends InflationLeg.Meta {
@@ -204,17 +164,11 @@ public class FixedInflationSwapLeg extends InflationLeg {
     private final MetaProperty<Double> _rate = DirectMetaProperty.ofReadWrite(
         this, "rate", FixedInflationSwapLeg.class, Double.TYPE);
     /**
-     * The meta-property for the {@code isExchangeNotional} property.
-     */
-    private final MetaProperty<Boolean> _isExchangeNotional = DirectMetaProperty.ofReadWrite(
-        this, "isExchangeNotional", FixedInflationSwapLeg.class, Boolean.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "rate",
-        "isExchangeNotional");
+        "rate");
 
     /**
      * Restricted constructor.
@@ -227,8 +181,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
       switch (propertyName.hashCode()) {
         case 3493088:  // rate
           return _rate;
-        case 348962765:  // isExchangeNotional
-          return _isExchangeNotional;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -255,14 +207,6 @@ public class FixedInflationSwapLeg extends InflationLeg {
      */
     public final MetaProperty<Double> rate() {
       return _rate;
-    }
-
-    /**
-     * The meta-property for the {@code isExchangeNotional} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> isExchangeNotional() {
-      return _isExchangeNotional;
     }
 
   }

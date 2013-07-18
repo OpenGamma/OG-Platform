@@ -87,14 +87,12 @@ public class AnnotationScanningStringListFactoryBean extends SingletonFactoryBea
     s_logger.debug("Force scan system property set to '{}'", forceScanPropertyValue);
     return forceScanPropertyValue != null;
   }
-  
+
   private List<String> getFromCache(File cacheFile) {
     List<String> stringList = new ArrayList<String>();
-    try {
-      FileReader reader = new FileReader(cacheFile);
-      BufferedReader bufferedReader = new BufferedReader(reader);
+    try (BufferedReader reader = new BufferedReader(new FileReader(cacheFile))) {
       String nextLine;
-      while ((nextLine = bufferedReader.readLine()) != null) {
+      while ((nextLine = reader.readLine()) != null) {
         stringList.add(nextLine);
       }
     } catch (FileNotFoundException e) {
@@ -104,11 +102,11 @@ public class AnnotationScanningStringListFactoryBean extends SingletonFactoryBea
     }
     return stringList;
   }
-  
+
   private Set<String> getByScanning(String annotationClassName) {
     Set<String> annotated = AnnotationReflector.getDefaultReflector().getReflector().getStore().getTypesAnnotatedWith(annotationClassName);
     s_logger.debug("Found {} classes containing annotation: {}", annotated.size(), annotated);
     return annotated;
   }
-  
+
 }

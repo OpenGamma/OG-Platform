@@ -187,15 +187,12 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
   public static class FixedInflationSwapLegBuilder extends SwapLegFudgeBuilder implements FudgeBuilder<FixedInflationSwapLeg>  {
     /** The rate field name */
     private static final String RATE_FIELD_NAME = "rate";
-    /** The exchange notional field name */
-    private static final String IS_EXCHANGE_NOTIONAL_FIELD_NAME = "isExchangeNotional";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedInflationSwapLeg object) {
       final MutableFudgeMsg msg = serializer.newMessage();
       toFudgeMsg(serializer, object, msg);
       addToMessage(msg, RATE_FIELD_NAME, object.getRate());
-      addToMessage(msg, IS_EXCHANGE_NOTIONAL_FIELD_NAME, object.isIsExchangeNotional());
       return msg;
     }
 
@@ -204,7 +201,6 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
       final FixedInflationSwapLeg fixedInflationSwapLeg = new FixedInflationSwapLeg();
       fromFudgeMsg(deserializer, msg, fixedInflationSwapLeg);
       fixedInflationSwapLeg.setRate(msg.getDouble(RATE_FIELD_NAME));
-      fixedInflationSwapLeg.setIsExchangeNotional(msg.getBoolean(IS_EXCHANGE_NOTIONAL_FIELD_NAME));
       return fixedInflationSwapLeg;
     }
   }
@@ -215,8 +211,6 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
    */
   @FudgeBuilderFor(InflationIndexSwapLeg.class)
   public static class InflationIndexSwapLegBuilder extends SwapLegFudgeBuilder implements FudgeBuilder<InflationIndexSwapLeg>  {
-    /** The exchange notional field name */
-    private static final String IS_EXCHANGE_NOTIONAL_FIELD_NAME = "isExchangeNotional";
     /** The index reference id field name */
     private static final String INDEX_ID_FIELD_NAME = "indexId";
     /** The lag field name */
@@ -228,7 +222,6 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InflationIndexSwapLeg object) {
       final MutableFudgeMsg msg = serializer.newMessage();
       toFudgeMsg(serializer, object, msg);
-      addToMessage(msg, IS_EXCHANGE_NOTIONAL_FIELD_NAME, object.isIsExchangeNotional());
       addToMessage(msg, INDEX_ID_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getIndexId()));
       addToMessage(msg, LAG_FIELD_NAME, object.getLag());
       addToMessage(msg, INTERPOLATION_METHOD_FIELD_NAME, object.getInterpolationMethod().name());
@@ -239,7 +232,6 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     public InflationIndexSwapLeg buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
       final InflationIndexSwapLeg inflationIndexSwapLeg = new InflationIndexSwapLeg();
       fromFudgeMsg(deserializer, msg, inflationIndexSwapLeg);
-      inflationIndexSwapLeg.setIsExchangeNotional(msg.getBoolean(IS_EXCHANGE_NOTIONAL_FIELD_NAME));
       inflationIndexSwapLeg.setIndexId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INDEX_ID_FIELD_NAME)));
       inflationIndexSwapLeg.setLag(msg.getInt(LAG_FIELD_NAME));
       inflationIndexSwapLeg.setInterpolationMethod(InterpolationMethod.valueOf(msg.getString(INTERPOLATION_METHOD_FIELD_NAME)));

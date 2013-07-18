@@ -76,6 +76,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_SPOT_RATE_TYPES, SecurityType.SPOT_RATE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_VOLATILITY_QUOTE_TYPES, SecurityType.VOLATILITY_QUOTE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FX_FORWARD_TYPES, SecurityType.FX_FORWARD);
+    addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_INFLATION_SWAP_TYPES, SecurityType.INFLATION_SWAP);
   }
   
   //private static final Map<String, SecurityType> s_cdsTypes = Maps.newConcurrentMap();

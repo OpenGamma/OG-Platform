@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
+import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
@@ -222,6 +223,9 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<>();
   private String _mark2MarketField;
   private String _costOfCarryField;
+  private double _absoluteTolerance;
+  private double _relativeTolerance;
+  private int _maxIterations;
 
   public StandardFunctionConfiguration() {
     setDefaultCurrencyInfo();
@@ -318,6 +322,54 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return _costOfCarryField;
   }
 
+  /**
+   * Sets the absolute tolerance for the curve root-finder.
+   * @param absoluteTolerance The absolute tolerance, greater than zero
+   */
+  public void setAbsoluteTolerance(final double absoluteTolerance) {
+    _absoluteTolerance = absoluteTolerance;
+  }
+  
+  /**
+   * Gets the absolute tolerance for the curve root-finder.
+   * @return The absolute tolerance
+   */
+  public double getAbsoluteTolerance() {
+    return _absoluteTolerance;
+  }
+  
+  /**
+   * Sets the relative tolerance for the curve root-finder.
+   * @param relativeTolerance The relative tolerance, greater than zero
+   */
+  public void setRelativeTolerance(final double relativeTolerance) {
+    _relativeTolerance = relativeTolerance;
+  }
+  
+  /**
+   * Gets the relative tolerance for the curve root-finder.
+   * @return The relative tolerance
+   */
+  public double getRelativeTolerance() {
+    return _relativeTolerance;
+  }
+  
+  /**
+   * Sets the maximum number of iterations for the curve root-finder.
+   * @param maxIterations The maximum iterations, greater than zero
+   */
+  public void setMaximumIterations(final int maxIterations) {
+    _maxIterations = maxIterations;
+  }
+  
+  /**
+   * Gets the maximum number of iterations for the curve root-finder.
+   * @return The maximum iterations
+   */
+  public int getMaximumIterations() {
+    return _maxIterations;
+  }
+  
   protected CurrencyInfo defaultCurrencyInfo(final String currency) {
     return new CurrencyInfo(currency);
   }
@@ -949,6 +1001,18 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return getRepository(defaults);
   }
 
+  protected FunctionConfigurationSource curveFunctions() {
+    final CurveFunctions.Defaults defaults = new CurveFunctions.Defaults();
+    setCurveDefaults(defaults);
+    return getRepository(defaults);
+  }
+  
+  protected void setCurveDefaults(final CurveFunctions.Defaults defaults) {
+    defaults.setAbsoluteTolerance(_absoluteTolerance);
+    defaults.setRelativeTolerance(_relativeTolerance);
+    defaults.setMaximumIterations(_maxIterations);
+  }
+  
   protected void setIRFutureOptionDefaults(final CurrencyInfo i, final IRFutureOptionFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/irfutureoption"));
     defaults.setSurfaceName(i.getSurfaceName("model/irfutureoption"));
@@ -1172,7 +1236,8 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), forexDigitalFunctions(), cdsFunctions(),
         deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(),
         forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(),
-        pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions(), xCcySwapFunctions());
+        pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions(), xCcySwapFunctions(),
+        curveFunctions());
   }
 
 }

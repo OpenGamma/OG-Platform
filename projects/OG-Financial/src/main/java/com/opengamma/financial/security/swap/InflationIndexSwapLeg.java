@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.swap;
@@ -51,12 +51,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
   private InterpolationMethod _interpolationMethod;
 
   /**
-   * Should the notional be exchanged
-   */
-  @PropertyDefinition
-  private boolean _isExchangeNotional;
-
-  /**
    * For the builder.
    */
   /* package */InflationIndexSwapLeg() {
@@ -70,15 +64,13 @@ public class InflationIndexSwapLeg extends InflationLeg {
    * @param businessDayConvention The business day convention, not null
    * @param notional The notional, not null
    * @param isEOM True if dates follow the EOM convention
-   * @param isExchangeNotional True if notionals are exchanged
    * @param indexId The id of the index, not null
    * @param lag The quotation lag
    * @param interpolationMethod The interpolation method, not null
    */
   public InflationIndexSwapLeg(final DayCount dayCount, final Frequency frequency, final ExternalId regionId, final BusinessDayConvention businessDayConvention,
-      final Notional notional, final boolean isEOM, final boolean isExchangeNotional, final ExternalId indexId, final int lag, final InterpolationMethod interpolationMethod) {
+      final Notional notional, final boolean isEOM, final ExternalId indexId, final int lag, final InterpolationMethod interpolationMethod) {
     super(dayCount, frequency, regionId, businessDayConvention, notional, isEOM);
-    setIsExchangeNotional(isExchangeNotional);
     setIndexId(indexId);
     setLag(lag);
     setInterpolationMethod(interpolationMethod);
@@ -117,8 +109,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
         return getLag();
       case 374385573:  // interpolationMethod
         return getInterpolationMethod();
-      case 348962765:  // isExchangeNotional
-        return isIsExchangeNotional();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -134,9 +124,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
         return;
       case 374385573:  // interpolationMethod
         setInterpolationMethod((InterpolationMethod) newValue);
-        return;
-      case 348962765:  // isExchangeNotional
-        setIsExchangeNotional((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -159,7 +146,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
       return JodaBeanUtils.equal(getIndexId(), other.getIndexId()) &&
           JodaBeanUtils.equal(getLag(), other.getLag()) &&
           JodaBeanUtils.equal(getInterpolationMethod(), other.getInterpolationMethod()) &&
-          JodaBeanUtils.equal(isIsExchangeNotional(), other.isIsExchangeNotional()) &&
           super.equals(obj);
     }
     return false;
@@ -171,7 +157,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndexId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLag());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
     return hash ^ super.hashCode();
   }
 
@@ -254,31 +239,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets should the notional be exchanged
-   * @return the value of the property
-   */
-  public boolean isIsExchangeNotional() {
-    return _isExchangeNotional;
-  }
-
-  /**
-   * Sets should the notional be exchanged
-   * @param isExchangeNotional  the new value of the property
-   */
-  public void setIsExchangeNotional(boolean isExchangeNotional) {
-    this._isExchangeNotional = isExchangeNotional;
-  }
-
-  /**
-   * Gets the the {@code isExchangeNotional} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> isExchangeNotional() {
-    return metaBean().isExchangeNotional().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code InflationIndexSwapLeg}.
    */
   public static class Meta extends InflationLeg.Meta {
@@ -303,19 +263,13 @@ public class InflationIndexSwapLeg extends InflationLeg {
     private final MetaProperty<InterpolationMethod> _interpolationMethod = DirectMetaProperty.ofReadWrite(
         this, "interpolationMethod", InflationIndexSwapLeg.class, InterpolationMethod.class);
     /**
-     * The meta-property for the {@code isExchangeNotional} property.
-     */
-    private final MetaProperty<Boolean> _isExchangeNotional = DirectMetaProperty.ofReadWrite(
-        this, "isExchangeNotional", InflationIndexSwapLeg.class, Boolean.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "indexId",
         "lag",
-        "interpolationMethod",
-        "isExchangeNotional");
+        "interpolationMethod");
 
     /**
      * Restricted constructor.
@@ -332,8 +286,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
           return _lag;
         case 374385573:  // interpolationMethod
           return _interpolationMethod;
-        case 348962765:  // isExchangeNotional
-          return _isExchangeNotional;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -376,14 +328,6 @@ public class InflationIndexSwapLeg extends InflationLeg {
      */
     public final MetaProperty<InterpolationMethod> interpolationMethod() {
       return _interpolationMethod;
-    }
-
-    /**
-     * The meta-property for the {@code isExchangeNotional} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> isExchangeNotional() {
-      return _isExchangeNotional;
     }
 
   }

@@ -152,5 +152,9 @@ public enum SecurityType {
   /**
    * CD
    */
-  CD
+  CD,
+  /**
+   * Inflation swap
+   */
+  INFLATION_SWAP
 }

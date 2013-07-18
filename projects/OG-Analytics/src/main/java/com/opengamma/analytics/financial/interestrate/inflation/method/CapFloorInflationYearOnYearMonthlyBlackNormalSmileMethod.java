@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
@@ -83,6 +86,11 @@ public final class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod {
     final MultipleCurrencyAmount nonDiscountedPresentValue = netAmount(cap, black);
     final double df = black.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     return nonDiscountedPresentValue.multipliedBy(df);
+  }
+
+  public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, final BlackSmileCapInflationYearOnYearProviderInterface black) {
+    Validate.isTrue(instrument instanceof CapFloorInflationYearOnYearMonthly, "Ibor Cap/floor");
+    return presentValue((CapFloorInflationYearOnYearMonthly) instrument, black);
   }
 
   /**

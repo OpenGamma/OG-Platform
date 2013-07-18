@@ -8,15 +8,11 @@ package com.opengamma.financial.analytics.model.curve;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
-import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationFunction;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
-import com.opengamma.financial.analytics.model.curve.future.FutureFunctions;
-import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -44,6 +40,59 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
   }
 
   /**
+   * Function repository configuration source for the default functions contained in this package.
+   */
+  public static class Defaults extends AbstractFunctionConfigurationBean {
+    private double _absoluteTolerance = 0.0001;
+    private double _relativeTolerance = 0.0001;
+    private int _maxIterations = 1000;
+
+    public double getAbsoluteTolerance() {
+      return _absoluteTolerance;
+    }
+
+    public void setAbsoluteTolerance(final double absoluteTolerance) {
+      _absoluteTolerance = absoluteTolerance;
+    }
+
+    public double getRelativeTolerance() {
+      return _relativeTolerance;
+    }
+
+    public void setRelativeTolerance(final double relativeTolerance) {
+      _relativeTolerance = relativeTolerance;
+    }
+
+    public int getMaximumIterations() {
+      return _maxIterations;
+    }
+
+    public void setMaximumIterations(final int maxIterations) {
+      _maxIterations = maxIterations;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNegativeOrZero(getAbsoluteTolerance(), "absolute tolerance");
+      ArgumentChecker.notNegativeOrZero(getRelativeTolerance(), "relative tolerance");
+      ArgumentChecker.notNegativeOrZero(getMaximumIterations(), "maximum iterations");
+      super.afterPropertiesSet();
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      addCurveDefaults(functions);
+    }
+
+    protected void addCurveDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[3];
+      args[0] = Double.toString(getAbsoluteTolerance());
+      args[1] = Double.toString(getRelativeTolerance());
+      args[2] = Integer.toString(getMaximumIterations());
+      functions.add(functionConfiguration(CurveDefaults.class, args));
+    }
+  }
+  /**
    * Function repository configuration source for curve functions based on the items defined in a {@link ConfigMaster}.
    */
   public static class Providers extends AbstractFunctionConfigurationBean {
@@ -69,8 +118,8 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       final ConfigSearchRequest<CurveDefinition> searchRequest = new ConfigSearchRequest<>();
       searchRequest.setType(CurveConstructionConfiguration.class);
-      final Class[] curveConstructionConfigurationClasses = new Class[] {CurveConstructionConfiguration.class};
-      for (final Class klass : curveConstructionConfigurationClasses) {
+      final Class<?>[] curveConstructionConfigurationClasses = new Class[] {CurveConstructionConfiguration.class};
+      for (final Class<?> klass : curveConstructionConfigurationClasses) {
         searchRequest.setType(klass);
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
           final String documentName = configDocument.getName();
@@ -78,23 +127,6 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         }
       }
     }
-  }
-
-  protected FunctionConfigurationSource forwardFunctionConfiguration() {
-    return ForwardFunctions.instance();
-  }
-
-  protected FunctionConfigurationSource futureFunctionConfiguration() {
-    return FutureFunctions.instance();
-  }
-
-  protected FunctionConfigurationSource interestRateFunctionConfiguration() {
-    return InterestRateFunctions.instance();
-  }
-
-  @Override
-  protected FunctionConfigurationSource createObject() {
-    return CombiningFunctionConfigurationSource.of(super.createObject(), forwardFunctionConfiguration(), futureFunctionConfiguration(), interestRateFunctionConfiguration());
   }
 
   @Override
