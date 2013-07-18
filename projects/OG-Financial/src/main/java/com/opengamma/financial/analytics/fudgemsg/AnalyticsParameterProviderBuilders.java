@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -309,6 +310,36 @@ public final class AnalyticsParameterProviderBuilders {
         serializer.addToMessageWithClassHeaders(message, PRICE_INDEX_FIELD, null, entry.getKey());
         serializer.addToMessageWithClassHeaders(message, PRICE_INDEX_CURVE_FIELD, null, entry.getValue());
       }
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link HullWhiteOneFactorProviderDiscount}
+   */
+  @FudgeBuilderFor(HullWhiteOneFactorProviderDiscount.class)
+  public static class HullWhiteOneFactorProviderDiscountBuilder extends AbstractFudgeBuilder<HullWhiteOneFactorProviderDiscount> {
+    /** The curve provider field */
+    private static final String CURVE_PROVIDER_FIELD = "curveProvider";
+    /** The Hull-White parameters field */
+    private static final String HULL_WHITE_PARAMETERS_FIELD = "hullWhiteParameters";
+    /** The currency field */
+    private static final String CURRENCY_FIELD = "currency";
+
+    @Override
+    public HullWhiteOneFactorProviderDiscount buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final MulticurveProviderDiscount multicurves = deserializer.fieldValueToObject(MulticurveProviderDiscount.class, message.getByName(CURVE_PROVIDER_FIELD));
+      final HullWhiteOneFactorPiecewiseConstantParameters parameters = deserializer.fieldValueToObject(HullWhiteOneFactorPiecewiseConstantParameters.class,
+          message.getByName(HULL_WHITE_PARAMETERS_FIELD));
+      final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
+      return new HullWhiteOneFactorProviderDiscount(multicurves, parameters, currency);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final HullWhiteOneFactorProviderDiscount object) {
+      serializer.addToMessageWithClassHeaders(message, CURVE_PROVIDER_FIELD, null, object.getMulticurveProvider());
+      serializer.addToMessageWithClassHeaders(message, HULL_WHITE_PARAMETERS_FIELD, null, object.getHullWhiteParameters());
+      message.add(CURRENCY_FIELD, object.getHullWhiteCurrency().getCode());
     }
 
   }

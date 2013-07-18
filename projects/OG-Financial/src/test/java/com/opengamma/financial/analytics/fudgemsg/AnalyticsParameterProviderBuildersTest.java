@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -170,5 +171,34 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
   public void testHullWhiteParameters() {
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(0.04, new double[] {0.1, 0.2, 0.3, 0.4, 0.5}, new double[] {1, 2, 3, 4, 5});
     assertEquals(parameters, cycleObject(HullWhiteOneFactorPiecewiseConstantParameters.class, parameters));
+  }
+
+  @Test
+  public void testHullWhiteOneFactorProviderDiscount() {
+    final Map<Currency, Integer> map = new LinkedHashMap<>();
+    final Currency[] currencies = new Currency[] {Currency.AUD, Currency.CAD, Currency.CHF, Currency.FRF, Currency.DEM, Currency.USD, Currency.GBP, Currency.EUR, Currency.HKD, Currency.DKK};
+    final double[][] fxRates = new double[10][10];
+    for (int i = 0; i < 10; i++) {
+      map.put(currencies[i], i);
+      for (int j = 0; j < 10; j++) {
+        fxRates[i][j] = Math.random();
+      }
+    }
+    final FXMatrix matrix = new FXMatrix(map, fxRates);
+    final Map<Currency, YieldAndDiscountCurve> discounting = new LinkedHashMap<>();
+    discounting.put(Currency.USD, new YieldCurve("A", ConstantDoublesCurve.from(0.06, "a")));
+    discounting.put(Currency.EUR, new DiscountCurve("B", ConstantDoublesCurve.from(0.99, "b")));
+    final Map<IborIndex, YieldAndDiscountCurve> ibor = new LinkedHashMap<>();
+    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+        new YieldCurve("C", ConstantDoublesCurve.from(0.03, "c")));
+    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+        new YieldCurve("D", ConstantDoublesCurve.from(0.03, "d")));
+    final Map<IndexON, YieldAndDiscountCurve> overnight = new LinkedHashMap<>();
+    overnight.put(new IndexON("NAME1", Currency.USD, DayCountFactory.INSTANCE.getDayCount("Act/360"), 1), new YieldCurve("E", ConstantDoublesCurve.from(0.003, "e")));
+    overnight.put(new IndexON("NAME2", Currency.EUR, DayCountFactory.INSTANCE.getDayCount("Act/360"), 0), new YieldCurve("F", ConstantDoublesCurve.from(0.006, "f")));
+    final MulticurveProviderDiscount multicurve = new MulticurveProviderDiscount(discounting, ibor, overnight, matrix);
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(0.04, new double[] {0.1, 0.2, 0.3, 0.4, 0.5}, new double[] {1, 2, 3, 4, 5});
+    final HullWhiteOneFactorProviderDiscount provider = new HullWhiteOneFactorProviderDiscount(multicurve, parameters, Currency.USD);
+    assertEquals(provider, cycleObject(HullWhiteOneFactorProviderDiscount.class, provider));
   }
 }
