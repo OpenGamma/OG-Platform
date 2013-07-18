@@ -49,7 +49,7 @@ public class DepositZeroDefinitionTest {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final double DEPOSIT_AF = DAY_COUNT.getDayCountFraction(SPOT_DATE, END_DATE);
   private static final DepositZeroDefinition DEPOSIT_DEFINITION = new DepositZeroDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, RATE);
-
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final String CURVE_NAME = "Curve";
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -74,7 +74,7 @@ public class DepositZeroDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullDayCount() {
-    DepositZeroDefinition.from(EUR, SPOT_DATE, END_DATE, null, RATE);
+    DepositZeroDefinition.from(EUR, SPOT_DATE, END_DATE, null, RATE, CALENDAR);
   }
 
   @Test
@@ -121,7 +121,7 @@ public class DepositZeroDefinitionTest {
    * Tests the builders.
    */
   public void from() {
-    final DepositZeroDefinition from = DepositZeroDefinition.from(EUR, SPOT_DATE, END_DATE, DAY_COUNT, RATE);
+    final DepositZeroDefinition from = DepositZeroDefinition.from(EUR, SPOT_DATE, END_DATE, DAY_COUNT, RATE, CALENDAR);
     final DepositZeroDefinition comp = new DepositZeroDefinition(EUR, SPOT_DATE, END_DATE, 1.0, DEPOSIT_AF, RATE);
     assertEquals("DepositZeroDefinition - From", comp, from);
   }

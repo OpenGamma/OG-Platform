@@ -269,4 +269,46 @@ public class MonotoneConvexSplineInterpolator1DTest {
       }
     }
   }
+
+  /**
+   * 
+   */
+  @Test
+  public void badConditionedDataTest() {
+    final double[] xValues = new double[] {1., 2., 3.5, 5.5, 8., 11., 13., 14., 16., 17. };
+    final double[][] yValues = new double[][] {
+        {6.706599802399542E-11, 6.932869815957718E-11, 2.87869332927719E-11, 5.363437234730385E-11, 7.149182250540928E-11, 2.1005233282848234E-11, 8.692845461548654E-11, 7.808410446575907E-11,
+            3.1131590776828966E-11, 4.950537896543594E-12 },
+        {-5.308664795777495E-11, -5.542422564946849E-11, -4.5930585175814465E-11, -2.5553806762015985E-11, -9.561076343552027E-11, -8.126383784798095E-11, -9.310456023675433E-11,
+            -8.619479603195128E-11, -8.402362931611621E-11, -3.833506843218892E-11 },
+        {1.9906779848802714E-11, 6.441367027972245E-12, -2.3752572108384883E-12, -3.149892625189229E-11, 4.791854240887406E-12, 8.24613071357958E-12, -1.1943895254480108E-11, -1.975674153567708E-12,
+            4.3920535237286795E-11, 4.575947365163211E-11 } };
+    final int nData = xValues.length;
+    final int nDim = yValues.length;
+    for (int k = 0; k < nDim; ++k) {
+      double[] yValuesUp = Arrays.copyOf(yValues[k], nData);
+      double[] yValuesDw = Arrays.copyOf(yValues[k], nData);
+      final double[] xKeys = new double[10 * nData];
+      final double xMin = xValues[0];
+      final double xMax = xValues[nData - 1];
+      for (int i = 0; i < 10 * nData; ++i) {
+        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
+      }
+
+      Interpolator1DDataBundle dataBund = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues[k]);
+
+      for (int j = 0; j < nData; ++j) {
+        yValuesUp[j] = yValues[k][j] * (1. + EPS);
+        yValuesDw[j] = yValues[k][j] * (1. - EPS);
+        Interpolator1DDataBundle dataBundUp = INTERP1D.getDataBundle(xValues, yValuesUp);
+        Interpolator1DDataBundle dataBundDw = INTERP1D.getDataBundle(xValues, yValuesDw);
+        for (int i = 0; i < 10 * nData; ++i) {
+          double res0 = 0.5 * (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[k][j];
+          assertEquals(res0, INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[k][j]) * 1.e-4, 1.e-4));
+        }
+        yValuesUp[j] = yValues[k][j];
+        yValuesDw[j] = yValues[k][j];
+      }
+    }
+  }
 }

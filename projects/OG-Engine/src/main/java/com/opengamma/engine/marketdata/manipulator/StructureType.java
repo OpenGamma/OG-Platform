@@ -1,5 +1,7 @@
 package com.opengamma.engine.marketdata.manipulator;
 
+import com.opengamma.engine.value.ValueRequirementNames;
+
 /**
  * The type of market data which is to take part in a manipulation with an
  * associated extractor for extracting the daat from a dependency graph node.
@@ -14,12 +16,17 @@ public enum StructureType {
   /**
    * Represents a volatility surface structure within a dependency graph.
    */
-  VOLATILITY_SURFACE(null),
+  VOLATILITY_SURFACE(new VolatilitySurfaceNodeExtractor(ValueRequirementNames.VOLATILITY_SURFACE)),
+
+  /**
+   * Represents a volatility surface structure within a dependency graph.
+   */
+  INTERPOLATED_VOLATILITY_SURFACE(new VolatilitySurfaceNodeExtractor(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE)),
 
   /**
    * Represents a volatility cube structure within a dependency graph.
    */
-  VOLATILITY_CUBE(null),
+  VOLATILITY_CUBE(new VolatilityCubeNodeExtractor()),
 
   /**
    * Represents a market data point within a dependency graph.

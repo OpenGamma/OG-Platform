@@ -240,46 +240,18 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
         first[i] = 0.5 * (slopesExt[i + 1] + slopesExt[i + 2]);
 
         Arrays.fill(tmp, 0.);
-        final int left = Math.max(2, i) - 2;
-        final int right = Math.min(nData + 2, i + 5) - 2;
-        //        System.out.println(i + "\t" + left + "\t" + right);
         double[] yValuesUp = Arrays.copyOf(yValues, nData);
         double[] yValuesDw = Arrays.copyOf(yValues, nData);
-        //        for (int j = left; j < right; ++j) {
-        //          final double div = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * EPS;
-        //          yValuesUp[j] = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * (1. + EPS);
-        //          yValuesDw[j] = Math.abs(yValues[j]) < SMALL ? -EPS : yValues[j] * (1. - EPS);
-        //          final double firstUp = firstDerivativeCalculator(_solver.slopesCalculator(yValuesUp, intervals))[i];
-        //          final double firstDw = firstDerivativeCalculator(_solver.slopesCalculator(yValuesDw, intervals))[i];
-        //          tmp[j] = 0.5 * (firstUp - firstDw) / div;
-        //          yValuesUp[j] = yValues[j];
-        //          yValuesDw[j] = yValues[j];
-        //        }
         for (int j = 0; j < nData; ++j) {
           final double div = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * EPS;
           yValuesUp[j] = Math.abs(yValues[j]) < SMALL ? EPS : yValues[j] * (1. + EPS);
           yValuesDw[j] = Math.abs(yValues[j]) < SMALL ? -EPS : yValues[j] * (1. - EPS);
           final double firstUp = firstDerivativeCalculator(_solver.slopesCalculator(yValuesUp, intervals))[i];
           final double firstDw = firstDerivativeCalculator(_solver.slopesCalculator(yValuesDw, intervals))[i];
-          //          System.out.println(j + "\t" + new DoubleMatrix1D(firstDerivativeCalculator(_solver.slopesCalculator(yValuesUp, intervals))));
-          //          System.out.print(j + "\t" + new DoubleMatrix1D(firstDerivativeCalculator(_solver.slopesCalculator(yValuesDw, intervals))));
-          //          System.out.println("\n");
           tmp[j] = 0.5 * (firstUp - firstDw) / div;
           yValuesUp[j] = yValues[j];
           yValuesDw[j] = yValues[j];
         }
-        //        /*
-        //         * Derivative value is ambiguous and finite difference approximation diverges in this case
-        //         */
-        //        for (int k = 0; k < i; ++k) {
-        //          tmp[k] = slopeSensitivityExtTransp[k][i + 2];
-        //        }
-        //        //        tmp[i] = 0.5 * (intervalsExt[i + 1] * slopeSensitivityExtTransp[i][i + 1] + intervalsExt[i + 2] * slopeSensitivityExtTransp[i][i + 2]) /
-        //        //            (intervalsExt[i + 2] + intervalsExt[i + 1]);
-        //        tmp[i] = 0.;
-        //        for (int k = i + 1; k < nData; ++k) {
-        //          tmp[k] = slopeSensitivityExtTransp[k][i + 1];
-        //        }
       } else {
         first[i] = modSlopesWithSensitivity[0].getData()[i + 2] * slopesExt[i + 1] / den + modSlopesWithSensitivity[0].getData()[i] * slopesExt[i + 2] / den;
         for (int k = 0; k < nData; ++k) {

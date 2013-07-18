@@ -23,7 +23,7 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * Note that shape-preserving three-point formula is used at endpoints 
  */
 public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewisePolynomialInterpolator {
-  private static final double EPS = 1.e-7;
+  private static final double EPS = 1.e-6;
   private static final double SMALL = 1.e-14;
 
   private final HermiteCoefficientsProvider _solver = new HermiteCoefficientsProvider();
@@ -355,19 +355,18 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
       final double ref = tau * initialFirst[i];
       final double[] tmp = new double[nDataPts];
       Arrays.fill(tmp, 0.);
-      if (Math.abs(ref - lower) < SMALL && tau != 0.) {
+      if (Math.abs(ref - lower) < SMALL) {
         newFirst[i] = ref >= lower ? initialFirst[i] : lower / tau;
         for (int k = 0; k < nDataPts; ++k) {
           tmp[k] = 0.5 * initialFirstSense[i].getData()[k];
         }
         tmp[i] -= 2.5 / intervals[i];
-        //        throw new IllegalArgumentException("1");
       } else {
         if (ref < lower) {
           newFirst[i] = lower / tau;
           tmp[i] = -5. / intervals[i];
         } else {
-          if (Math.abs(ref - upper) < SMALL && tau != 0.) {
+          if (Math.abs(ref - upper) < SMALL) {
             newFirst[i] = ref <= upper ? initialFirst[i] : upper / tau;
             for (int k = 0; k < nDataPts; ++k) {
               tmp[k] = 0.5 * initialFirstSense[i].getData()[k];
@@ -392,25 +391,23 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     final double refIni = tauIni * initialFirst[0];
     final double[] tmpIni = new double[nDataPts];
     Arrays.fill(tmpIni, 0.);
-    if (Math.abs(refIni - lowerIni) < SMALL && tauIni != 0.) {
+    if (Math.abs(refIni - lowerIni) < SMALL) {
       newFirst[0] = refIni >= lowerIni ? initialFirst[0] : lowerIni / tauIni;
       for (int k = 0; k < nDataPts; ++k) {
         tmpIni[k] = 0.5 * initialFirstSense[0].getData()[k];
       }
       tmpIni[0] -= 2.5 / intervals[0];
-      //      throw new IllegalArgumentException("2");
     } else {
       if (refIni < lowerIni) {
         newFirst[0] = lowerIni / tauIni;
         tmpIni[0] = -5. / intervals[0];
       } else {
-        if (Math.abs(refIni - upperIni) < SMALL && tauIni != 0.) {
+        if (Math.abs(refIni - upperIni) < SMALL) {
           newFirst[0] = refIni <= upperIni ? initialFirst[0] : upperIni / tauIni;
           for (int k = 0; k < nDataPts; ++k) {
             tmpIni[k] = 0.5 * initialFirstSense[0].getData()[k];
           }
           tmpIni[0] += 2.5 / intervals[0];
-          //          throw new IllegalArgumentException("3");
         } else {
           if (refIni > upperIni) {
             newFirst[0] = upperIni / tauIni;
@@ -430,25 +427,23 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     final double refFin = tauFin * initialFirst[nDataPts - 1];
     final double[] tmpFin = new double[nDataPts];
     Arrays.fill(tmpFin, 0.);
-    if (Math.abs(refFin - lowerFin) < SMALL && tauFin != 0.) {
+    if (Math.abs(refFin - lowerFin) < SMALL) {
       newFirst[nDataPts - 1] = refFin >= lowerFin ? initialFirst[nDataPts - 1] : lowerFin / tauFin;
       for (int k = 0; k < nDataPts; ++k) {
         tmpFin[k] = 0.5 * initialFirstSense[nDataPts - 1].getData()[k];
       }
       tmpFin[nDataPts - 1] -= 2.5 / intervals[nDataPts - 2];
-      //      throw new IllegalArgumentException("4");
     } else {
       if (refFin < lowerFin) {
         newFirst[nDataPts - 1] = lowerFin / tauFin;
         tmpFin[nDataPts - 1] = -5. / intervals[nDataPts - 2];
       } else {
-        if (Math.abs(refFin - upperFin) < SMALL && tauFin != 0.) {
+        if (Math.abs(refFin - upperFin) < SMALL) {
           newFirst[nDataPts - 1] = refFin <= upperFin ? initialFirst[nDataPts - 1] : upperFin / tauFin;
           for (int k = 0; k < nDataPts; ++k) {
             tmpFin[k] = 0.5 * initialFirstSense[nDataPts - 1].getData()[k];
           }
           tmpFin[nDataPts - 1] += 2.5 / intervals[nDataPts - 2];
-          //          throw new IllegalArgumentException("5");
         } else {
           if (refFin > upperFin) {
             newFirst[nDataPts - 1] = upperFin / tauFin;
@@ -485,7 +480,6 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
           tmp[k] = 4. * firstWithSensitivity[i + 1].getEntry(k) * (1. / intervals[i - 1] - 1. / intervals[i]);
         }
         tmp[i] -= 10. * (1. / intervals[i - 1] / intervals[i - 1] + 1. / intervals[i] / intervals[i]);
-        //        throw new IllegalArgumentException("6");
       } else {
         if (ref1 > ref2 && ref1 * tau > tau * initialSecond[i]) {
           newSecond[i] = ref1;

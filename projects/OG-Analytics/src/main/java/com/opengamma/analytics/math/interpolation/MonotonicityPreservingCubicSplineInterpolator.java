@@ -204,7 +204,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
 
     /*
      * Mode sensitivity is not computed analytically for |s_i| = |s_{i+1}| or s_{i-1}*h_{i} + s_{i}*h_{i-1} = 0. 
-     * Centered finite difference approximation is used  
+     * Centered finite difference approximation is used in such cases
      */
     final boolean sym = checkSymm(slopes);
     if (sym == true) {

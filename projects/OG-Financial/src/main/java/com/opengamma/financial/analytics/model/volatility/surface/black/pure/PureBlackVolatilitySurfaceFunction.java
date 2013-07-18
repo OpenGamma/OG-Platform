@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black.pure;
 
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PRICE_QUOTE;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE;
+import static com.opengamma.engine.value.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.EQUITY_OPTION;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE;
-import static com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames.PRICE_QUOTE;
-import static com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE;
-import static com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS;
 import static com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE;
 
 import java.util.Collections;

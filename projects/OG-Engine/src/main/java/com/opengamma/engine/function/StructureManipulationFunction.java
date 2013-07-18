@@ -83,8 +83,12 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
         // appropriate input using the required output
         Object structure = inputs.getValue(stripped);
 
-        Object result = canHandle(structureManipulator, structure) ?
-            structureManipulator.execute(structure) : structure;
+        Object result;
+        if (canHandle(structureManipulator, structure)) {
+          result = structureManipulator.execute(structure);
+        } else {
+          result = structure;
+        }
         builder.add(createComputedValue(target, requirement, result));
       }
 
@@ -122,5 +126,10 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
 
   private ValueSpecification createValueSpecification(ComputationTarget target, ValueRequirement requirement) {
     return new ValueSpecification(requirement.getValueName(), target.toSpecification(), requirement.getConstraints());
+  }
+
+  @Override
+  public boolean canHandleMissingInputs() {
+    return false;
   }
 }

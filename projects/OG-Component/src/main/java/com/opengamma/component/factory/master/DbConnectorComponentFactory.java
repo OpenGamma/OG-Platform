@@ -5,11 +5,16 @@
  */
 package com.opengamma.component.factory.master;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Environment;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,6 +26,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
+import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -30,6 +40,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
+import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
  * Component factory for a database connector.
@@ -53,6 +64,21 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private String _dialect;
   /**
+   * The name of the Hibernate mapping files implementation.
+   */
+  @PropertyDefinition
+  private String _hibernateMappingFiles;
+  /**
+   * Indicates whether Hibnerate should output its SQL.
+   */
+  @PropertyDefinition
+  private boolean _hibernateShowSql;
+  /**
+   * Indicates whether a Hibernate session should be bound to a thread.
+   */
+  @PropertyDefinition
+  private boolean _allowHibernateThreadBoundSession;
+  /**
    * The transaction isolation level.
    */
   @PropertyDefinition
@@ -73,6 +99,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _name;
   
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     if (getName() == null) {
@@ -84,15 +111,17 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   protected DbConnector initDbConnector(ComponentRepository repo) {
     DbDialect dialect = createDialect();
     NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
-    TransactionTemplate transactionTemplate = createTransactionTemplate();
-    DbConnector dbConnector = new DbConnector(getName(), dialect, getDataSource(), jdbcTemplate, null, transactionTemplate);
+    SessionFactory hibernateSessionFactory = createHibernateSessionFactory(dialect);
+    HibernateTemplate hibernateTemplate = createHibernateTemplate(hibernateSessionFactory);
+    TransactionTemplate transactionTemplate = createTransactionTemplate(hibernateSessionFactory);
+    DbConnector dbConnector = new DbConnector(getName(), dialect, getDataSource(), jdbcTemplate, hibernateTemplate, transactionTemplate);
     
     ComponentInfo info = new ComponentInfo(DbConnector.class, getClassifier());
     repo.registerComponent(info, dbConnector);
     return dbConnector;
   }
 
-  private TransactionTemplate createTransactionTemplate() {
+  private TransactionTemplate createTransactionTemplate(SessionFactory hibernateSessionFactory) {
     DefaultTransactionDefinition transactionDef = new DefaultTransactionDefinition();
     transactionDef.setName(getName());
     if (getTransactionIsolationLevel() != null) {
@@ -104,10 +133,100 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     if (getTransactionTimeout() != 0) {
       transactionDef.setTimeout(getTransactionTimeout());
     }
-    return new TransactionTemplate(new DataSourceTransactionManager(getDataSource()), transactionDef);
+    return new TransactionTemplate(createTransactionManager(hibernateSessionFactory), transactionDef);
   }
   
   //-------------------------------------------------------------------------
+  /**
+   * Creates the Hibernate session factory.
+   * 
+   * @param dialect  the dialect instance, not null
+   * @return the session factory, may be null
+   */
+  protected SessionFactory createHibernateSessionFactory(DbDialect dialect) {
+    if (getHibernateMappingFiles() == null) {
+      return null; // Hibernate not required
+    }
+    LocalSessionFactoryBean factory = new LocalSessionFactoryBean();
+    factory.setMappingResources(getHibernateMappingResources());
+    factory.setDataSource(getDataSource());
+    Properties props = new Properties();
+    props.setProperty("hibernate.dialect", dialect.getHibernateDialect().getClass().getName());
+    props.setProperty("hibernate.show_sql", String.valueOf(isHibernateShowSql()));
+    props.setProperty("hibernate.connection.release_mode", "on_close");
+    if (isAllowHibernateThreadBoundSession()) {
+      props.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+      props.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
+    }
+    factory.setHibernateProperties(props);
+    factory.setLobHandler(dialect.getLobHandler());
+    try {
+      factory.afterPropertiesSet();
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
+    return factory.getObject();
+  }
+  
+  /**
+   * Creates the complete list of Hibernate configuration files.
+   * 
+   * @return the set of Hibernate files, not null
+   */
+  protected String[] getHibernateMappingResources() {
+    String hibernateMappingFilesClassName = getHibernateMappingFiles();
+    Class<?> hibernateMappingFilesClass;
+    try {
+      hibernateMappingFilesClass = getClass().getClassLoader().loadClass(hibernateMappingFilesClassName);
+    } catch (ClassNotFoundException e) {
+      throw new OpenGammaRuntimeException("Could not find Hibernate mapping files implementation " + hibernateMappingFilesClassName, e);
+    }
+    HibernateMappingFiles hibernateMappingFiles;
+    try {
+      hibernateMappingFiles = (HibernateMappingFiles) hibernateMappingFilesClass.newInstance();
+    } catch (InstantiationException e) {
+      throw new OpenGammaRuntimeException("Could not instantiate Hibernate mapping files implementation " + hibernateMappingFilesClassName, e);
+    } catch (IllegalAccessException e) {
+      throw new OpenGammaRuntimeException("Could not access Hibernate mapping files implementation " + hibernateMappingFilesClassName, e);
+    }
+    Set<String> config = new HashSet<String>();
+    for (Class<?> cls : hibernateMappingFiles.getHibernateMappingFiles()) {
+      String hbm = cls.getName().replace('.', '/') + ".hbm.xml";
+      config.add(hbm);
+    }
+    return (String[]) config.toArray(new String[config.size()]);
+  }
+  
+  /**
+   * Creates the transaction manager.
+   * 
+   * @param hibernateSessionFactory  the Hibernate session factory, may be null
+   * @return the transaction manager, not null
+   */
+  protected PlatformTransactionManager createTransactionManager(SessionFactory hibernateSessionFactory) {
+    AbstractPlatformTransactionManager newTransMgr;
+    if (hibernateSessionFactory == null) {
+      newTransMgr = new DataSourceTransactionManager(getDataSource());
+    } else {
+      newTransMgr = new HibernateTransactionManager(hibernateSessionFactory);
+    }
+    newTransMgr.setNestedTransactionAllowed(true);
+    return newTransMgr;
+  }
+  
+  /**
+   * Creates the Hibernate template, using the session factory.
+   * 
+   * @param sessionFactory  the Hibernate session factory, may be null
+   * @return the Hibernate template, not null
+   */
+  protected HibernateTemplate createHibernateTemplate(SessionFactory sessionFactory) {
+    if (sessionFactory == null) {
+      return null;
+    }
+    return new HibernateTemplate(sessionFactory);
+  }
+  
   /**
    * Creates the database dialect.
    * 
@@ -148,6 +267,12 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
         return getDataSource();
       case 1655014950:  // dialect
         return getDialect();
+      case 1110639547:  // hibernateMappingFiles
+        return getHibernateMappingFiles();
+      case 257395935:  // hibernateShowSql
+        return isHibernateShowSql();
+      case 1850252619:  // allowHibernateThreadBoundSession
+        return isAllowHibernateThreadBoundSession();
       case 1321533396:  // transactionIsolationLevel
         return getTransactionIsolationLevel();
       case 230249600:  // transactionPropagationBehavior
@@ -171,6 +296,15 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
         return;
       case 1655014950:  // dialect
         setDialect((String) newValue);
+        return;
+      case 1110639547:  // hibernateMappingFiles
+        setHibernateMappingFiles((String) newValue);
+        return;
+      case 257395935:  // hibernateShowSql
+        setHibernateShowSql((Boolean) newValue);
+        return;
+      case 1850252619:  // allowHibernateThreadBoundSession
+        setAllowHibernateThreadBoundSession((Boolean) newValue);
         return;
       case 1321533396:  // transactionIsolationLevel
         setTransactionIsolationLevel((String) newValue);
@@ -206,6 +340,9 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDialect(), other.getDialect()) &&
+          JodaBeanUtils.equal(getHibernateMappingFiles(), other.getHibernateMappingFiles()) &&
+          JodaBeanUtils.equal(isHibernateShowSql(), other.isHibernateShowSql()) &&
+          JodaBeanUtils.equal(isAllowHibernateThreadBoundSession(), other.isAllowHibernateThreadBoundSession()) &&
           JodaBeanUtils.equal(getTransactionIsolationLevel(), other.getTransactionIsolationLevel()) &&
           JodaBeanUtils.equal(getTransactionPropagationBehavior(), other.getTransactionPropagationBehavior()) &&
           JodaBeanUtils.equal(getTransactionTimeout(), other.getTransactionTimeout()) &&
@@ -221,6 +358,9 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDialect());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHibernateMappingFiles());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isHibernateShowSql());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isAllowHibernateThreadBoundSession());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionIsolationLevel());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionPropagationBehavior());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTransactionTimeout());
@@ -304,6 +444,81 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
    */
   public final Property<String> dialect() {
     return metaBean().dialect().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of the Hibernate mapping files implementation.
+   * @return the value of the property
+   */
+  public String getHibernateMappingFiles() {
+    return _hibernateMappingFiles;
+  }
+
+  /**
+   * Sets the name of the Hibernate mapping files implementation.
+   * @param hibernateMappingFiles  the new value of the property
+   */
+  public void setHibernateMappingFiles(String hibernateMappingFiles) {
+    this._hibernateMappingFiles = hibernateMappingFiles;
+  }
+
+  /**
+   * Gets the the {@code hibernateMappingFiles} property.
+   * @return the property, not null
+   */
+  public final Property<String> hibernateMappingFiles() {
+    return metaBean().hibernateMappingFiles().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets indicates whether Hibnerate should output its SQL.
+   * @return the value of the property
+   */
+  public boolean isHibernateShowSql() {
+    return _hibernateShowSql;
+  }
+
+  /**
+   * Sets indicates whether Hibnerate should output its SQL.
+   * @param hibernateShowSql  the new value of the property
+   */
+  public void setHibernateShowSql(boolean hibernateShowSql) {
+    this._hibernateShowSql = hibernateShowSql;
+  }
+
+  /**
+   * Gets the the {@code hibernateShowSql} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> hibernateShowSql() {
+    return metaBean().hibernateShowSql().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets indicates whether a Hibernate session should be bound to a thread.
+   * @return the value of the property
+   */
+  public boolean isAllowHibernateThreadBoundSession() {
+    return _allowHibernateThreadBoundSession;
+  }
+
+  /**
+   * Sets indicates whether a Hibernate session should be bound to a thread.
+   * @param allowHibernateThreadBoundSession  the new value of the property
+   */
+  public void setAllowHibernateThreadBoundSession(boolean allowHibernateThreadBoundSession) {
+    this._allowHibernateThreadBoundSession = allowHibernateThreadBoundSession;
+  }
+
+  /**
+   * Gets the the {@code allowHibernateThreadBoundSession} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> allowHibernateThreadBoundSession() {
+    return metaBean().allowHibernateThreadBoundSession().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -432,6 +647,21 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _dialect = DirectMetaProperty.ofReadWrite(
         this, "dialect", DbConnectorComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code hibernateMappingFiles} property.
+     */
+    private final MetaProperty<String> _hibernateMappingFiles = DirectMetaProperty.ofReadWrite(
+        this, "hibernateMappingFiles", DbConnectorComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code hibernateShowSql} property.
+     */
+    private final MetaProperty<Boolean> _hibernateShowSql = DirectMetaProperty.ofReadWrite(
+        this, "hibernateShowSql", DbConnectorComponentFactory.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code allowHibernateThreadBoundSession} property.
+     */
+    private final MetaProperty<Boolean> _allowHibernateThreadBoundSession = DirectMetaProperty.ofReadWrite(
+        this, "allowHibernateThreadBoundSession", DbConnectorComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code transactionIsolationLevel} property.
      */
     private final MetaProperty<String> _transactionIsolationLevel = DirectMetaProperty.ofReadWrite(
@@ -459,6 +689,9 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
         "classifier",
         "dataSource",
         "dialect",
+        "hibernateMappingFiles",
+        "hibernateShowSql",
+        "allowHibernateThreadBoundSession",
         "transactionIsolationLevel",
         "transactionPropagationBehavior",
         "transactionTimeout",
@@ -479,6 +712,12 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
           return _dataSource;
         case 1655014950:  // dialect
           return _dialect;
+        case 1110639547:  // hibernateMappingFiles
+          return _hibernateMappingFiles;
+        case 257395935:  // hibernateShowSql
+          return _hibernateShowSql;
+        case 1850252619:  // allowHibernateThreadBoundSession
+          return _allowHibernateThreadBoundSession;
         case 1321533396:  // transactionIsolationLevel
           return _transactionIsolationLevel;
         case 230249600:  // transactionPropagationBehavior
@@ -529,6 +768,30 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> dialect() {
       return _dialect;
+    }
+
+    /**
+     * The meta-property for the {@code hibernateMappingFiles} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> hibernateMappingFiles() {
+      return _hibernateMappingFiles;
+    }
+
+    /**
+     * The meta-property for the {@code hibernateShowSql} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> hibernateShowSql() {
+      return _hibernateShowSql;
+    }
+
+    /**
+     * The meta-property for the {@code allowHibernateThreadBoundSession} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> allowHibernateThreadBoundSession() {
+      return _allowHibernateThreadBoundSession;
     }
 
     /**

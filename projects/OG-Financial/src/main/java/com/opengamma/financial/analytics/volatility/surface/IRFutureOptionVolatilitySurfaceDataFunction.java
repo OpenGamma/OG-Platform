@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +32,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -50,6 +49,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  *
