@@ -5,7 +5,7 @@
   <property environment="env" />
   <property file="build.properties" />
 
-  <property name="version" value="2.0.0" />
+  <property name="version" value="2.0.1" />
   <property name="git.branch" value="dev/v2.0.x" />
 
   <property name="apidocs.public.dir" value="target/apidocs-public" />
