@@ -8,6 +8,7 @@ package com.opengamma.master.position;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -230,7 +231,7 @@ public class ManageablePosition extends DirectBean
    * @param objectIds  the object identifiers to match against, not null
    * @return true if at least one identifier matches
    */
-  public boolean matchesAnyTrade(List<ObjectId> objectIds) {
+  public boolean matchesAnyTrade(Collection<ObjectId> objectIds) {
     ArgumentChecker.notNull(objectIds, "objectIds");
     for (ManageableTrade trade : getTrades()) {
       if (objectIds.contains(trade.getUniqueId().getObjectId())) {

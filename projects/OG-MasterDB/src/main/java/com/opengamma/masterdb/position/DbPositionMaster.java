@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,8 +120,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     final PositionSearchResult result = new PositionSearchResult(vc);
 
     final ExternalIdSearch securityIdSearch = request.getSecurityIdSearch();
-    final List<ObjectId> positionObjectIds = request.getPositionObjectIds();
-    final List<ObjectId> tradeObjectIds = request.getTradeObjectIds();
+    final Collection<ObjectId> positionObjectIds = request.getPositionObjectIds();
+    final Collection<ObjectId> tradeObjectIds = request.getTradeObjectIds();
     if ((positionObjectIds != null && positionObjectIds.size() == 0) ||
         (tradeObjectIds != null && tradeObjectIds.size() == 0) ||
         (ExternalIdSearch.canMatch(securityIdSearch) == false)) {
