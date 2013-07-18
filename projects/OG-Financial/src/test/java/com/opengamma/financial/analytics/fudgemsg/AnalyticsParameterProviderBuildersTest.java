@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
@@ -163,5 +164,11 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     data.put("E", Pair.of(block3, new DoubleMatrix2D(new double[][] {new double[] {22, 24}, new double[] {25, 26}})));
     final CurveBuildingBlockBundle bundle = new CurveBuildingBlockBundle(data);
     assertEquals(bundle, cycleObject(CurveBuildingBlockBundle.class, bundle));
+  }
+
+  @Test
+  public void testHullWhiteParameters() {
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(0.04, new double[] {0.1, 0.2, 0.3, 0.4, 0.5}, new double[] {1, 2, 3, 4, 5});
+    assertEquals(parameters, cycleObject(HullWhiteOneFactorPiecewiseConstantParameters.class, parameters));
   }
 }

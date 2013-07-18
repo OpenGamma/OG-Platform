@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
@@ -399,6 +400,48 @@ public final class AnalyticsParameterProviderBuilders {
         message.add(CURVE_NAME_FIELD, entry.getKey());
         serializer.addToMessageWithClassHeaders(message, BLOCK_FIELD, null, entry.getValue().getFirst());
         serializer.addToMessageWithClassHeaders(message, MATRIX_FIELD, null, entry.getValue().getSecond().getData());
+      }
+    }
+  }
+
+  /**
+   * Fudge builder for {@link HullWhiteOneFactorPiecewiseConstantParameters}
+   */
+  @FudgeBuilderFor(HullWhiteOneFactorPiecewiseConstantParameters.class)
+  public static class HullWhiteOneFactorPiecewiseConstantParametersBuilder extends AbstractFudgeBuilder<HullWhiteOneFactorPiecewiseConstantParameters> {
+    /** The mean reversion field */
+    private static final String MEAN_REVERSION_FIELD = "meanReversion";
+    /** The volatility field */
+    private static final String VOLATILITY_FIELD = "volatility";
+    /** The time field */
+    private static final String TIME_FIELD = "time";
+
+    @Override
+    public HullWhiteOneFactorPiecewiseConstantParameters buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double meanReversion = message.getDouble(MEAN_REVERSION_FIELD);
+      final List<FudgeField> volatilityFields = message.getAllByName(VOLATILITY_FIELD);
+      final List<FudgeField> timeFields = message.getAllByName(TIME_FIELD);
+      final int n = volatilityFields.size();
+      if (n != timeFields.size()) {
+        throw new IllegalStateException("Should have same number of volatilities as times");
+      }
+      final double[] volatilities = new double[n];
+      final double[] times = new double[n];
+      for (int i = 0; i < n; i++) {
+        volatilities[i] = (Double) volatilityFields.get(i).getValue();
+        times[i] = (Double) timeFields.get(i).getValue();
+      }
+      return new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatilities, times);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final HullWhiteOneFactorPiecewiseConstantParameters object) {
+      message.add(MEAN_REVERSION_FIELD, object.getMeanReversion());
+      final double[] volatility = object.getVolatility();
+      final double[] volatilityTime = object.getVolatilityTime();
+      for (int i = 0; i < volatility.length; i++) {
+        message.add(VOLATILITY_FIELD, volatility[i]);
+        message.add(TIME_FIELD, volatilityTime[i + 1]); //values are added to the time array in the constructor
       }
     }
 
