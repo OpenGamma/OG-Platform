@@ -38,6 +38,18 @@ public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<Instru
   private final HolidaySource _holidaySource;
 
   /**
+   * Creates an instance.
+   * @param conventionSource  the convention source, not null
+   * @deprecated use the constructor taking a holiday source
+   */
+  @Deprecated
+  public ZeroDepositConverter(final ConventionBundleSource conventionSource) {
+    ArgumentChecker.notNull(conventionSource, "convention sourceo");
+    _conventionSource = conventionSource;
+    _holidaySource = null;
+  }
+
+  /**
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    */
@@ -49,6 +61,7 @@ public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<Instru
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public InstrumentDefinition<?> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final Currency currency = security.getCurrency();
@@ -58,6 +71,12 @@ public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<Instru
     final DayCount daycount = convention.getDayCount();
     final InterestRate rate = new ContinuousInterestRate(security.getRate());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, currency);
+    
+    // backwards compatible code for v2.0.1
+    if (_holidaySource == null) {
+      return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate);
+    }
+    
     return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate, calendar);
   }
 
@@ -67,6 +86,7 @@ public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<Instru
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public InstrumentDefinition<?> visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final Currency currency = security.getCurrency();
@@ -76,6 +96,12 @@ public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<Instru
     final DayCount daycount = convention.getDayCount();
     final InterestRate rate = new PeriodicInterestRate(security.getRate(), (int) security.getCompoundingPeriodsPerYear());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, currency);
+    
+    // backwards compatible code for v2.0.1
+    if (_holidaySource == null) {
+      return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate);
+    }
+    
     return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate, calendar);
   }
 

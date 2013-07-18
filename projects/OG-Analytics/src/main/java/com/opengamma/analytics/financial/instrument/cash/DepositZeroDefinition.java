@@ -83,6 +83,22 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * @param endDate The end date.
    * @param daycount The day count.
    * @param rate The interest rate and its composition type.
+   * @return The deposit.
+   * @deprecated Use factory method taking a {@code Calendar}
+   */
+  @Deprecated
+  public static DepositZeroDefinition from(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final DayCount daycount, final InterestRate rate) {
+    ArgumentChecker.notNull(daycount, "day count");
+    return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate), rate);
+  }
+
+  /**
+   * Builder. The day count is used to compute the accrual factor. The notional is 1.
+   * @param currency The currency.
+   * @param startDate The start date.
+   * @param endDate The end date.
+   * @param daycount The day count.
+   * @param rate The interest rate and its composition type.
    * @param calendar The holiday calendar.
    * @return The deposit.
    */
