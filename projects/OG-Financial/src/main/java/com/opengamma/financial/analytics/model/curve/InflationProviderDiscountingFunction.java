@@ -303,11 +303,13 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
             } // Node points - end
             for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
               if (type instanceof InflationCurveTypeConfiguration) {
-                final String reference = ((InflationCurveTypeConfiguration) type).getReference();
+                final InflationCurveTypeConfiguration inflationConfiguration = (InflationCurveTypeConfiguration) type;
+                final String reference = inflationConfiguration.getReference();
+                final String indexName = inflationConfiguration.getPriceIndex();
                 try {
                   final Currency currency = Currency.of(reference);
                   //should this map check that the curve name has not already been entered?
-                  inflation.add(new IndexPrice(curveName, currency));
+                  inflation.add(new IndexPrice(indexName, currency));
                 } catch (final IllegalArgumentException e) {
                   throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for inflation curves");
                 }
