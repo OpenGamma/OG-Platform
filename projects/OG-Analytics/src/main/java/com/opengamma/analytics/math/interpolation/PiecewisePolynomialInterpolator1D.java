@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DPiecewisePo
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
- * 
+ * Wrapper class for {@link PiecewisePolynomialInterpolator} 
  */
 public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
 
@@ -63,7 +63,7 @@ public abstract class PiecewisePolynomialInterpolator1D extends Interpolator1D {
    * @param y Y values of data
    * @param leftCond First derivative value at left endpoint 
    * @param rightCond First derivative value at right endpoint 
-   * @return {@link Interpolator1DPiecewisePoynomialDataBundle} 
+   * @return {@link Interpolator1DPiecewisePoynomialDataBundle}
    */
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y, final double leftCond, final double rightCond) {
     if (!(_baseMethod.getPrimaryMethod() instanceof CubicSplineInterpolator)) {
