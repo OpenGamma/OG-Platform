@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.security.swap;
@@ -22,7 +22,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class SwapSecurityFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
@@ -48,20 +48,20 @@ public class SwapSecurityFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void testZeroCouponInflationSwapSecurity() {
-    final FixedInflationSwapLeg payLeg = new FixedInflationSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, 0.002, true);
-    final InflationIndexSwapLeg receiveLeg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, true, ExternalId.of("Test", "SDF"),
+    final FixedInflationSwapLeg payLeg = new FixedInflationSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, 0.002);
+    final InflationIndexSwapLeg receiveLeg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, ExternalId.of("Test", "SDF"),
         2, InterpolationMethod.MONTH_START_LINEAR);
-    final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(TRADE_DATE, EFFECTIVE_DATE, MATURITY, COUNTERPARTY, payLeg, receiveLeg);
+    final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(TRADE_DATE, EFFECTIVE_DATE, MATURITY, COUNTERPARTY, payLeg, receiveLeg, false);
     assertEncodeDecodeCycle(ZeroCouponInflationSwapSecurity.class, security);
   }
 
   @Test
   public void testYearOnYearInflationSwapSecurity() {
-    final FixedInflationSwapLeg payLeg = new FixedInflationSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, 0.002, true);
-    final InflationIndexSwapLeg receiveLeg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, true, ExternalId.of("Test", "SDF"),
+    final FixedInflationSwapLeg payLeg = new FixedInflationSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, 0.002);
+    final InflationIndexSwapLeg receiveLeg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, ExternalId.of("Test", "SDF"),
         2, InterpolationMethod.MONTH_START_LINEAR);
     final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(TRADE_DATE, EFFECTIVE_DATE, MATURITY, COUNTERPARTY, payLeg, receiveLeg,
-        Tenor.TEN_YEARS);
+        true, Tenor.TEN_YEARS);
     assertEncodeDecodeCycle(YearOnYearInflationSwapSecurity.class, security);
   }
 

@@ -88,7 +88,7 @@ public class MultiSwapLegVisitorTest {
   }
 
   private static ZeroCouponInflationSwapSecurity zciSwap(final SwapLeg payLeg, final SwapLeg receiveLeg) {
-    return new ZeroCouponInflationSwapSecurity(ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "cpty", payLeg, receiveLeg);
+    return new ZeroCouponInflationSwapSecurity(ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "cpty", payLeg, receiveLeg, true);
   }
 
   private static SwapLeg fixedLeg(final Frequency frequency) {
@@ -119,8 +119,7 @@ public class MultiSwapLegVisitorTest {
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
         new InterestRateNotional(Currency.USD, 1234),
         true,
-        0.1,
-        false);
+        0.1);
   }
 
   private static SwapLeg indexInflationLeg(final Frequency frequency) {
@@ -130,7 +129,6 @@ public class MultiSwapLegVisitorTest {
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
         new InterestRateNotional(Currency.USD, 1234),
         true,
-        false,
         ExternalId.of("Test", "AD"),
         2,
         InterpolationMethod.MONTH_START_LINEAR);
