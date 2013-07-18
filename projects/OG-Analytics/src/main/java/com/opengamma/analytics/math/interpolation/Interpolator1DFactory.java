@@ -92,6 +92,103 @@ public final class Interpolator1DFactory {
   /** 
    */
 
+  /**Cubic spline with clamped endpoint conditions*/
+  public static final String CLAMPED_CUBIC = "ClampedCubicSpline";
+  /**Instance of cubic spline with clamped endpoint conditions*/
+  public static final ClampedCubicSplineInterpolator1D CLAMPED_CUBIC_INSTANCE = new ClampedCubicSplineInterpolator1D();
+  /**Cubic spline with clamped endpoint conditions and monotonicity filter*/
+  public static final String CLAMPED_CUBIC_MONOTONE = "ClampedCubicSplineWithMonotonicity";
+  /**Instance of cubic spline with clamped endpoint conditions and monotonicity filter*/
+  public static final MonotonicityPreservingCubicSplineInterpolator1D CLAMPED_CUBIC_MONOTONE_INSTANCE = new MonotonicityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
+  /**Cubic spline with clamped endpoint conditions and nonnegativity filter*/
+  public static final String CLAMPED_CUBIC_NONNEGATIVE = "ClampedCubicSplineWithNonnegativity";
+  /**Instance of cubic spline with clamped endpoint conditions and nonnegativity filter*/
+  public static final NonnegativityPreservingCubicSplineInterpolator1D CLAMPED_CUBIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
+  /**Quintic spline with clamped endpoint conditions and monotonicity filter*/
+  public static final String CLAMPED_QUINTIC_MONOTONE = "ClampedQuinticSplineWithMonotonicity";
+  /**Instance of quintic spline with clamped endpoint conditions and monotonicity filter*/
+  public static final MonotonicityPreservingQuinticSplineInterpolator1D CLAMPED_QUINTIC_MONOTONE_INSTANCE = new MonotonicityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
+  /**Quintic spline with clamped endpoint conditions and nonnegativity filter*/
+  public static final String CLAMPED_QUINTIC_NONNEGATIVE = "ClampedQuinticSplineWithNonnegativity";
+  /**Instance of quintic spline with clamped endpoint conditions nonnegativity filter*/
+  public static final NonnegativityPreservingQuinticSplineInterpolator1D CLAMPED_QUINTIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
+
+  /**Cubic spline with natural endpoint conditions and monotonicity filter*/
+  public static final String NATURAL_CUBIC_MONOTONE = "NaturalCubicSplineWithMonotonicity";
+  /**Instance of cubic spline with clamped endpoint conditions and monotonicity filter*/
+  public static final MonotonicityPreservingCubicSplineInterpolator1D NATURAL_CUBIC_MONOTONE_INSTANCE = new MonotonicityPreservingCubicSplineInterpolator1D(new NaturalSplineInterpolator());
+  /**Cubic spline with natural endpoint conditions and nonnegativity filter*/
+  public static final String NATURAL_CUBIC_NONNEGATIVE = "NaturalCubicSplineWithNonnegativity";
+  /**Instance of cubic spline with clamped endpoint conditions and nonnegativity filter*/
+  public static final NonnegativityPreservingCubicSplineInterpolator1D NATURAL_CUBIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingCubicSplineInterpolator1D(new NaturalSplineInterpolator());
+  /**Quintic spline with natural endpoint conditions and monotonicity filter*/
+  public static final String NATURAL_QUINTIC_MONOTONE = "NaturalQuinticSplineWithMonotonicity";
+  /**Instance of quintic spline with clamped endpoint conditions and monotonicity filter*/
+  public static final MonotonicityPreservingQuinticSplineInterpolator1D NATURAL_QUINTIC_MONOTONE_INSTANCE = new MonotonicityPreservingQuinticSplineInterpolator1D(new NaturalSplineInterpolator());
+  /**Quintic spline with natural endpoint conditions and nonnegativity filter*/
+  public static final String NATURAL_QUINTIC_NONNEGATIVE = "NaturalQuinticSplineWithNonnegativity";
+  /**Instance of quintic spline with clamped endpoint conditions and nonnegativity filter*/
+  public static final NonnegativityPreservingQuinticSplineInterpolator1D NATURAL_QUINTIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingQuinticSplineInterpolator1D(new NaturalSplineInterpolator());
+
+  /**Cubic spline with not-a-knot endpoint conditions*/
+  public static final String NOTAKNOT_CUBIC = "NotAKnotCubicSpline";
+  /**Instance of cubic spline with not-a-knot endpoint conditions*/
+  public static final NotAKnotCubicSplineInterpolator1D NOTAKNOT_CUBIC_INSTANCE = new NotAKnotCubicSplineInterpolator1D();
+  /**Cubic spline with not-a-knot endpoint conditions and monotonicity filter*/
+  public static final String NOTAKNOT_CUBIC_MONOTONE = "NotAKnotCubicSplineWithMonotonicity";
+  /**Instance of quintic spline with not-a-knot endpoint conditions and monotonicity filter*/
+  public static final MonotonicityPreservingCubicSplineInterpolator1D NOTAKNOT_CUBIC_MONOTONE_INSTANCE = new MonotonicityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
+  /**Cubic spline with not-a-knot endpoint conditions and nonnegativity filter*/
+  public static final String NOTAKNOT_CUBIC_NONNEGATIVE = "NotAKnotCubicSplineWithNonnegativity";
+  /**Instance of quintic spline with not-a-knot endpoint conditions and nonnegativity filter*/
+  public static final NonnegativityPreservingCubicSplineInterpolator1D NOTAKNOT_CUBIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
+  /**Quintic spline with not-a-knot endpoint conditions and monotonicity filter*/
+  public static final String NOTAKNOT_QUINTIC_MONOTONE = "NotAKnotQuinticSplineWithMonotonicity";
+  /**Instance of quintic spline with not-a-knot endpoint conditions and monotonicity filter*/
+  public static final MonotonicityPreservingQuinticSplineInterpolator1D NOTAKNOT_QUINTIC_MONOTONE_INSTANCE = new MonotonicityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
+  /**Quintic spline with not-a-knot endpoint conditions and nonnegativity filter*/
+  public static final String NOTAKNOT_QUINTIC_NONNEGATIVE = "NotAKnotQuinticSplineWithNonnegativity";
+  /**Instance of quintic spline with not-a-knot endpoint conditions and nonnegativity filter*/
+  public static final NonnegativityPreservingQuinticSplineInterpolator1D NOTAKNOT_QUINTIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
+
+  /**Constrained cubic interpolation*/
+  public static final String CONSTRAINED_CUBIC = "ConstrainedCubicSpline";
+  /**Instance of constrained cubic interpolation*/
+  public static final ConstrainedCubicSplineInterpolator1D CONSTRAINED_CUBIC_INSTANCE = new ConstrainedCubicSplineInterpolator1D();
+  /**Constrained cubic interpolation with monotonicity filter*/
+  public static final String CONSTRAINED_CUBIC_MONOTONE = "ConstrainedCubicSplineWithMonotonicity";
+  /**Instance of constrained cubic interpolation with monotonicity filter*/
+  public static final MonotonicityPreservingCubicSplineInterpolator1D CONSTRAINED_CUBIC_MONOTONE_INSTANCE = new MonotonicityPreservingCubicSplineInterpolator1D(
+      new ConstrainedCubicSplineInterpolator());
+  /**Constrained cubic interpolation with nonnegativity filter*/
+  public static final String CONSTRAINED_CUBIC_NONNEGATIVE = "ConstrainedCubicSplineWithNonnegativity";
+  /**Instance of constrained cubic interpolation with nonnegativity filter*/
+  public static final NonnegativityPreservingCubicSplineInterpolator1D CONSTRAINED_CUBIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingCubicSplineInterpolator1D(
+      new ConstrainedCubicSplineInterpolator());
+
+  /**Akima cubic interpolation*/
+  public static final String AKIMA_CUBIC = "AkimaCubicSpline";
+  /**Instance of Akima cubic interpolation*/
+  public static final SemiLocalCubicSplineInterpolator1D AKIMA_CUBIC_INSTANCE = new SemiLocalCubicSplineInterpolator1D();
+  /**Akima cubic interpolation with monotonicity filter*/
+  public static final String AKIMA_CUBIC_MONOTONE = "AkimaCubicSplineWithMonotonicity";
+  /**Instance of Akima cubic interpolation with monotonicity filter*/
+  public static final MonotonicityPreservingCubicSplineInterpolator1D AKIMA_CUBIC_MONOTONE_INSTANCE = new MonotonicityPreservingCubicSplineInterpolator1D(new SemiLocalCubicSplineInterpolator());
+  /**Akima cubic interpolation with nonnegativity filter*/
+  public static final String AKIMA_CUBIC_NONNEGATIVE = "AkimaCubicSplineWithNonnegativity";
+  /**Instance of Akima cubic interpolation with nonnegativity filter*/
+  public static final NonnegativityPreservingCubicSplineInterpolator1D AKIMA_CUBIC_NONNEGATIVE_INSTANCE = new NonnegativityPreservingCubicSplineInterpolator1D(new SemiLocalCubicSplineInterpolator());
+
+  /**Monotone convex cubic interpolation*/
+  public static final String MONOTONE_CONVEX_CUBIC = "MonotoneConvexCubicSpline";
+  /**Instance of monotone convex cubic interpolation*/
+  public static final MonotoneConvexSplineInterpolator1D MONOTONE_CONVEX_CUBIC_INSTANCE = new MonotoneConvexSplineInterpolator1D();
+
+  /**C2 shape preserving cubic interpolation*/
+  public static final String C2_SHAPE_PRESERVING_CUBIC = "C2ShapePreservingCubicSpline";
+  /**Instance of C2 shape preserving cubic interpolation*/
+  public static final ShapePreservingCubicSplineInterpolator1D C2_SHAPE_PRESERVING_CUBIC_INSTANCE = new ShapePreservingCubicSplineInterpolator1D();
+
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
@@ -128,6 +225,57 @@ public final class Interpolator1DFactory {
     instanceNames.put(ISDAInterpolator1D.class, ISDA_INTERPOLATOR);
     staticInstances.put(ISDA_EXTRAPOLATOR, ISDA_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ISDAExtrapolator1D.class, ISDA_EXTRAPOLATOR);
+
+    staticInstances.put(CLAMPED_CUBIC, CLAMPED_CUBIC_INSTANCE);
+    instanceNames.put(ClampedCubicSplineInterpolator1D.class, CLAMPED_CUBIC);
+    staticInstances.put(CLAMPED_CUBIC_MONOTONE, CLAMPED_CUBIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingCubicSplineInterpolator1D.class, CLAMPED_CUBIC_MONOTONE);
+    staticInstances.put(CLAMPED_CUBIC_NONNEGATIVE, CLAMPED_CUBIC_NONNEGATIVE_INSTANCE);
+    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, CLAMPED_CUBIC_NONNEGATIVE);
+    staticInstances.put(CLAMPED_QUINTIC_MONOTONE, CLAMPED_QUINTIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingQuinticSplineInterpolator1D.class, CLAMPED_QUINTIC_MONOTONE);
+    staticInstances.put(CLAMPED_QUINTIC_NONNEGATIVE, CLAMPED_QUINTIC_NONNEGATIVE_INSTANCE);
+    instanceNames.put(NonnegativityPreservingQuinticSplineInterpolator1D.class, CLAMPED_QUINTIC_NONNEGATIVE);
+
+    staticInstances.put(NATURAL_CUBIC_MONOTONE, NATURAL_CUBIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingCubicSplineInterpolator1D.class, NATURAL_CUBIC_MONOTONE);
+    staticInstances.put(NATURAL_CUBIC_NONNEGATIVE, NATURAL_CUBIC_NONNEGATIVE_INSTANCE);
+    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, NATURAL_CUBIC_NONNEGATIVE);
+    staticInstances.put(NATURAL_QUINTIC_MONOTONE, NATURAL_QUINTIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingQuinticSplineInterpolator1D.class, NATURAL_QUINTIC_MONOTONE);
+    staticInstances.put(NATURAL_QUINTIC_NONNEGATIVE, NATURAL_QUINTIC_NONNEGATIVE_INSTANCE);
+    instanceNames.put(NonnegativityPreservingQuinticSplineInterpolator1D.class, NATURAL_QUINTIC_NONNEGATIVE);
+
+    staticInstances.put(NOTAKNOT_CUBIC, NOTAKNOT_CUBIC_INSTANCE);
+    instanceNames.put(NotAKnotCubicSplineInterpolator1D.class, NOTAKNOT_CUBIC);
+    staticInstances.put(NOTAKNOT_CUBIC_MONOTONE, NOTAKNOT_CUBIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingCubicSplineInterpolator1D.class, NOTAKNOT_CUBIC_MONOTONE);
+    staticInstances.put(NOTAKNOT_CUBIC_NONNEGATIVE, NOTAKNOT_CUBIC_NONNEGATIVE_INSTANCE);
+    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, NOTAKNOT_CUBIC_NONNEGATIVE);
+    staticInstances.put(NOTAKNOT_QUINTIC_MONOTONE, NOTAKNOT_QUINTIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingQuinticSplineInterpolator1D.class, NOTAKNOT_QUINTIC_MONOTONE);
+    staticInstances.put(NOTAKNOT_QUINTIC_NONNEGATIVE, NOTAKNOT_QUINTIC_NONNEGATIVE_INSTANCE);
+    instanceNames.put(NonnegativityPreservingQuinticSplineInterpolator1D.class, NOTAKNOT_QUINTIC_NONNEGATIVE);
+
+    staticInstances.put(CONSTRAINED_CUBIC, CONSTRAINED_CUBIC_INSTANCE);
+    instanceNames.put(ConstrainedCubicSplineInterpolator1D.class, CONSTRAINED_CUBIC);
+    staticInstances.put(CONSTRAINED_CUBIC_MONOTONE, CONSTRAINED_CUBIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingCubicSplineInterpolator1D.class, CONSTRAINED_CUBIC_MONOTONE);
+    staticInstances.put(CONSTRAINED_CUBIC_NONNEGATIVE, CONSTRAINED_CUBIC_NONNEGATIVE_INSTANCE);
+    //    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, CONSTRAINED_CUBIC_NONNEGATIVE);
+
+    staticInstances.put(AKIMA_CUBIC, AKIMA_CUBIC_INSTANCE);
+    instanceNames.put(SemiLocalCubicSplineInterpolator1D.class, AKIMA_CUBIC);
+    staticInstances.put(AKIMA_CUBIC_MONOTONE, AKIMA_CUBIC_MONOTONE_INSTANCE);
+    instanceNames.put(MonotonicityPreservingCubicSplineInterpolator1D.class, AKIMA_CUBIC_MONOTONE);
+    staticInstances.put(AKIMA_CUBIC_NONNEGATIVE, AKIMA_CUBIC_NONNEGATIVE_INSTANCE);
+    //    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, AKIMA_CUBIC_NONNEGATIVE);
+
+    staticInstances.put(MONOTONE_CONVEX_CUBIC, MONOTONE_CONVEX_CUBIC_INSTANCE);
+    instanceNames.put(MonotoneConvexSplineInterpolator1D.class, MONOTONE_CONVEX_CUBIC);
+
+    staticInstances.put(C2_SHAPE_PRESERVING_CUBIC, C2_SHAPE_PRESERVING_CUBIC_INSTANCE);
+    instanceNames.put(ShapePreservingCubicSplineInterpolator1D.class, C2_SHAPE_PRESERVING_CUBIC);
 
     s_staticInstances = new HashMap<>(staticInstances);
     s_instanceNames = new HashMap<>(instanceNames);
