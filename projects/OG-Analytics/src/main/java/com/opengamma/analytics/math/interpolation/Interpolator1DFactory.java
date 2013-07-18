@@ -262,14 +262,14 @@ public final class Interpolator1DFactory {
     staticInstances.put(CONSTRAINED_CUBIC_MONOTONE, CONSTRAINED_CUBIC_MONOTONE_INSTANCE);
     instanceNames.put(MonotonicityPreservingCubicSplineInterpolator1D.class, CONSTRAINED_CUBIC_MONOTONE);
     staticInstances.put(CONSTRAINED_CUBIC_NONNEGATIVE, CONSTRAINED_CUBIC_NONNEGATIVE_INSTANCE);
-    //    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, CONSTRAINED_CUBIC_NONNEGATIVE);
+    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, CONSTRAINED_CUBIC_NONNEGATIVE);
 
     staticInstances.put(AKIMA_CUBIC, AKIMA_CUBIC_INSTANCE);
     instanceNames.put(SemiLocalCubicSplineInterpolator1D.class, AKIMA_CUBIC);
     staticInstances.put(AKIMA_CUBIC_MONOTONE, AKIMA_CUBIC_MONOTONE_INSTANCE);
     instanceNames.put(MonotonicityPreservingCubicSplineInterpolator1D.class, AKIMA_CUBIC_MONOTONE);
     staticInstances.put(AKIMA_CUBIC_NONNEGATIVE, AKIMA_CUBIC_NONNEGATIVE_INSTANCE);
-    //    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, AKIMA_CUBIC_NONNEGATIVE);
+    instanceNames.put(NonnegativityPreservingCubicSplineInterpolator1D.class, AKIMA_CUBIC_NONNEGATIVE);
 
     staticInstances.put(MONOTONE_CONVEX_CUBIC, MONOTONE_CONVEX_CUBIC_INSTANCE);
     instanceNames.put(MonotoneConvexSplineInterpolator1D.class, MONOTONE_CONVEX_CUBIC);
