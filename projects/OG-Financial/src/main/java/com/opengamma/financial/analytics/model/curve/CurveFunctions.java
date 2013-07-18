@@ -132,5 +132,6 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(HullWhiteOneFactorParametersFunction.class));
   }
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.curve;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
@@ -230,8 +231,12 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
         if (maxIterations == null || maxIterations.size() != 1) {
           return null;
         }
-        final Set<String> hwPropertyNames = constraints.getValues(CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS);
+        final Set<String> hwPropertyNames = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
         if (hwPropertyNames == null || hwPropertyNames.size() != 1) {
+          return null;
+        }
+        final Set<String> hwCurrencies = constraints.getValues(CURRENCY);
+        if (hwCurrencies == null || hwCurrencies.size() != 1) {
           return null;
         }
         final Set<ValueRequirement> requirements = new HashSet<>();
@@ -247,24 +252,14 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .get();
         final ValueProperties hwProperties = ValueProperties.builder()
-            .with(CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
+            .with(PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
+            .with(CURRENCY, hwCurrencies)
             .get();
         requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
         requirements.add(new ValueRequirement(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties));
         requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.NULL, hwProperties));
         requirements.addAll(exogenousRequirements);
         return requirements;
-      }
-
-
-      @Override
-      public boolean canHandleMissingRequirements() {
-        return true;
-      }
-
-      @Override
-      public boolean canHandleMissingInputs() {
-        return true;
       }
 
       @SuppressWarnings("synthetic-access")
@@ -278,6 +273,7 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
             .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
+            .withAny(CURRENCY)
             .get();
       }
 
@@ -291,6 +287,7 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
             .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
+            .withAny(CURRENCY)
             .get();
       }
 
