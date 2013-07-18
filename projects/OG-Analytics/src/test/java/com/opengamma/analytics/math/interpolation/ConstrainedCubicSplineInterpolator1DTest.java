@@ -8,21 +8,16 @@ package com.opengamma.analytics.math.interpolation;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.math.interpolation.data.Interpolator1DPiecewisePoynomialDataBundle;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
- * 
+ * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
 public class ConstrainedCubicSplineInterpolator1DTest {
 
-  private static final Random randObj = new Random();
   private static final ConstrainedCubicSplineInterpolator INTERP = new ConstrainedCubicSplineInterpolator();
   private static final ConstrainedCubicSplineInterpolator1D INTERP1D = new ConstrainedCubicSplineInterpolator1D();
 
@@ -240,110 +235,6 @@ public class ConstrainedCubicSplineInterpolator1DTest {
     final double[] yValues = new double[] {0., 1., 2., 3., };
 
     INTERP1D.getDataBundleFromSortedArrays(xValues, yValues, 0., 0.);
-  }
-
-  /*
-   * Tests below for debugging
-   */
-  /**
-   * 
-   */
-  @Test
-      (enabled = false)
-      void aTest() {
-
-    final int nData = 10;
-    final double[] xValues = new double[] {-4.542836025786744, -4.0922900068506465, -3.662324298072357, -3.6216598876997477, -2.1801407063098632, 0.05332117292283778, 1.5364674393829736,
-        2.5693687567130876, 3.1099096256668677, 3.414762533338045 };
-    final double[] yValues = new double[] {-2.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0, -2.0, 1.0 };
-    final double[] xKeys = new double[10 * nData];
-    final double xMin = xValues[0];
-    final double xMax = xValues[nData - 1];
-    for (int i = 0; i < 10 * nData; ++i) {
-      xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-    }
-    //    System.out.println(new DoubleMatrix1D(yValues));
-    double[] yValues1Up = Arrays.copyOf(yValues, nData);
-    double[] yValues1Dw = Arrays.copyOf(yValues, nData);
-    Interpolator1DPiecewisePoynomialDataBundle dataBund = (Interpolator1DPiecewisePoynomialDataBundle) INTERP1D.getDataBundleFromSortedArrays(xValues, yValues);
-
-    //    for (int i = 0; i < nData - 1; ++i) {
-    //      System.out.println(dataBund.getPiecewisePolynomialResultsWithSensitivity().getCoefficientSensitivity(i));
-    //    }
-    for (int j = 0; j < nData; ++j) {
-      yValues1Up[j] = Math.abs(yValues[j]) == 0. ? EPS : yValues[j] * (1. + EPS);
-      yValues1Dw[j] = Math.abs(yValues[j]) == 0. ? -EPS : yValues[j] * (1. - EPS);
-      Interpolator1DDataBundle dataBundUp = INTERP1D.getDataBundle(xValues, yValues1Up);
-      Interpolator1DDataBundle dataBundDw = INTERP1D.getDataBundle(xValues, yValues1Dw);
-      for (int i = 0; i < 10 * nData; ++i) {
-        double res = 0.5 * (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        System.out.println(res + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j]);
-        //        assertEquals(res, INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[j]) * EPS, EPS) * 1.e4);
-      }
-      yValues1Up[j] = yValues[j];
-      yValues1Dw[j] = yValues[j];
-    }
-  }
-
-  /**
-   * 
-   */
-  @Test
-      (enabled = false)
-      public void randomTest() {
-    final int nData = 10;
-    final double[] xValues = new double[nData];
-    final double[] yValues = new double[nData];
-    final double[] xKeys = new double[10 * nData];
-
-    int k = 0;
-    while (k < 1000000) {
-      ++k;
-      for (int i = 0; i < nData; ++i) {
-        xValues[i] = 10. * (randObj.nextDouble() - 0.5);
-        yValues[i] = randObj.nextInt(4) - 2.;
-      }
-
-      double[] xValuesSrt = Arrays.copyOf(xValues, nData);
-      double[] yValuesSrt = Arrays.copyOf(yValues, nData);
-      ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
-      double[] yValues1Up = Arrays.copyOf(yValuesSrt, nData);
-      double[] yValues1Dw = Arrays.copyOf(yValuesSrt, nData);
-      System.out.println(new DoubleMatrix1D(xValuesSrt));
-      System.out.println(new DoubleMatrix1D(yValuesSrt));
-      System.out.println("\n");
-
-      final double xMin = xValuesSrt[0];
-      final double xMax = xValuesSrt[nData - 1];
-      for (int i = 0; i < 10 * nData; ++i) {
-        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-      }
-
-      try {
-        final double[] resPrim = INTERP.interpolate(xValuesSrt, yValuesSrt, xKeys).getData();
-        Interpolator1DDataBundle dataBund = INTERP1D.getDataBundleFromSortedArrays(xValuesSrt, yValuesSrt);
-        for (int i = 0; i < 10 * nData; ++i) {
-          assertEquals(resPrim[i], INTERP1D.interpolate(dataBund, xKeys[i]), 1.e-15);
-        }
-
-        for (int j = 0; j < nData; ++j) {
-          yValues1Up[j] = Math.abs(xValuesSrt[j]) == 0. ? EPS : yValues[j] * (1. + EPS);
-          yValues1Dw[j] = Math.abs(xValuesSrt[j]) == 0. ? -EPS : yValues[j] * (1. - EPS);
-          Interpolator1DDataBundle dataBundUp = INTERP1D.getDataBundleFromSortedArrays(xValuesSrt, yValues1Up);
-          Interpolator1DDataBundle dataBundDw = INTERP1D.getDataBundleFromSortedArrays(xValuesSrt, yValues1Dw);
-          for (int i = 0; i < 10 * nData; ++i) {
-            double res = 0.5 * (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValuesSrt[j];
-            assertEquals(res, INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValuesSrt[j]) * EPS, EPS) * 1.e4);
-          }
-          yValues1Up[j] = yValuesSrt[j];
-          yValues1Dw[j] = yValuesSrt[j];
-        }
-      } catch (IllegalArgumentException e) {
-        System.out.println(e.getMessage());
-        System.out.println("\n");
-      }
-
-    }
   }
 
 }

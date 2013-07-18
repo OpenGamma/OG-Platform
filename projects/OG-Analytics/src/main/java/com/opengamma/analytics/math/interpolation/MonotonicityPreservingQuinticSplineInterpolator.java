@@ -300,7 +300,10 @@ public class MonotonicityPreservingQuinticSplineInterpolator extends PiecewisePo
     firstWithSensitivity[0] = new DoubleMatrix1D(first);
     secondWithSensitivity[0] = new DoubleMatrix1D(second);
 
-    int nExtra = nDataPts == yValuesLen ? 0 : 1;
+    /*
+     * Centered finite difference method is used for computing node sensitivity
+     */
+    int nExtra = (nDataPts == yValuesLen) ? 0 : 1;
     final double[] yValuesUp = Arrays.copyOf(yValues, nDataPts + 2 * nExtra);
     final double[] yValuesDw = Arrays.copyOf(yValues, nDataPts + 2 * nExtra);
     final double[][] tmpFirst = new double[nDataPts][nDataPts];

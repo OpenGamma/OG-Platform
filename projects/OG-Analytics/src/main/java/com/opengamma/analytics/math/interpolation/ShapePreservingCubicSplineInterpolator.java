@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -102,6 +103,13 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
     throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
   }
 
+  /**
+   * Since this interpolation method introduces new breakpoints in certain cases, {@link PiecewisePolynomialResultsWithSensitivity} is not well-defined
+   * Instead the node sensitivity is computed in {@link MonotoneConvexSplineInterpolator1D} via {@link Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle}
+   * @param xValues 
+   * @param yValues 
+   * @return NotImplementedException
+   */
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
     throw new NotImplementedException();
