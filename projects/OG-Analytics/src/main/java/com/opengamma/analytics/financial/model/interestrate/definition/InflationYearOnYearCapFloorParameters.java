@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.definition;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.util.ArgumentChecker;
 
@@ -16,7 +18,7 @@ public class InflationYearOnYearCapFloorParameters {
   /**
    * The times separating the Ibor periods. 
    */
-  private final double[] _expiryTime;
+  private final double[] _expiryTimes;
   /**
    * The strike.
    */
@@ -39,7 +41,7 @@ public class InflationYearOnYearCapFloorParameters {
 
   public InflationYearOnYearCapFloorParameters() {
 
-    _expiryTime = new double[1];
+    _expiryTimes = new double[1];
     _strikes = new double[0];
     _volatility = new double[0][0];
     _index = new IndexPrice("index", null);
@@ -50,6 +52,7 @@ public class InflationYearOnYearCapFloorParameters {
    * @param expiryTimes The times separating the Ibor periods. 
    * @param strikes The accrual factors for the different periods.
    * @param volatility The displacements for the different periods.
+   * @param index The price index.
    */
   public InflationYearOnYearCapFloorParameters(double[] expiryTimes, double[] strikes, final double[][] volatility, IndexPrice index) {
     ArgumentChecker.notNull(expiryTimes, "Inflation year on year options expiry times");
@@ -57,7 +60,7 @@ public class InflationYearOnYearCapFloorParameters {
     ArgumentChecker.notNull(volatility, "Inflation year on year options volatilities");
     ArgumentChecker.isTrue(expiryTimes.length == volatility.length, "number of expiry should be the same in the volatility matrix and in the expiry vector");
     ArgumentChecker.isTrue(strikes.length == volatility[0].length, "number of strikes should be the same in the volatility matrix and in the strikes vector");
-    _expiryTime = expiryTimes;
+    _expiryTimes = expiryTimes;
     _strikes = strikes;
     _volatility = volatility;
     _index = index;
@@ -72,15 +75,15 @@ public class InflationYearOnYearCapFloorParameters {
     for (int loopperiod = 0; loopperiod < _volatility.length; loopperiod++) {
       vol[loopperiod] = _volatility[loopperiod].clone();
     }
-    return new InflationYearOnYearCapFloorParameters(_expiryTime.clone(), _strikes.clone(), vol, _index);
+    return new InflationYearOnYearCapFloorParameters(_expiryTimes.clone(), _strikes.clone(), vol, _index);
   }
 
   /**
    * Gets the expiries vector.
    * @return the _expiryTime
    */
-  public double[] getExpiryTime() {
-    return _expiryTime;
+  public double[] getExpiryTimes() {
+    return _expiryTimes;
   }
 
   /**
@@ -103,8 +106,8 @@ public class InflationYearOnYearCapFloorParameters {
    * Gets the Number Of Expiry Times.
    * @return the _expiryTime.length
    */
-  public int getNumberOfExpiryTime() {
-    return _expiryTime.length;
+  public int getNumberOfExpiryTimes() {
+    return _expiryTimes.length;
   }
 
   /**
@@ -147,17 +150,17 @@ public class InflationYearOnYearCapFloorParameters {
    * @param strikeIndex The index for the value to change.
    */
   public final void setVolatility(final double volatility, final int expiryIndex, final int strikeIndex) {
-    System.arraycopy(volatility, strikeIndex, _volatility[expiryIndex], strikeIndex, 1);
+    Arrays.fill(_volatility[expiryIndex], strikeIndex, strikeIndex + 1, volatility);
   }
 
   /**
    * Change the model displacement in a block to a given displacement vector.
-   * @param expiryTime The change displacement.
+   * @param expiryTimes The change displacement.
    * @param startIndex The start index for the block to change.
    */
-  public final void setExpiryTime(final double[] expiryTime, final int startIndex) {
-    ArgumentChecker.notNull(expiryTime, "Inflation year on year options expiry times");
-    System.arraycopy(expiryTime, 0, _expiryTime, startIndex, expiryTime.length);
+  public final void setExpiryTimes(final double[] expiryTimes, final int startIndex) {
+    ArgumentChecker.notNull(expiryTimes, "Inflation year on year options expiry times");
+    System.arraycopy(expiryTimes, 0, _expiryTimes, startIndex, expiryTimes.length);
   }
 
   /**

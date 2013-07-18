@@ -9,12 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
@@ -72,7 +69,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
       CapFloorInflationYearOnYearInterpolation cap = (CapFloorInflationYearOnYearInterpolation) instrument;
       _calibrationTimes.add(cap.getPaymentTime());
       _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters()
-          .getExpiryTime(), cap.getPaymentTime()));
+          .getExpiryTimes(), cap.getPaymentTime()));
       _instrumentStrikeIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters().getStrikes(),
           cap.getStrike()));
     }
@@ -80,7 +77,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
       CapFloorInflationYearOnYearMonthly cap = (CapFloorInflationYearOnYearMonthly) instrument;
       _calibrationTimes.add(cap.getPaymentTime());
       _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters()
-          .getExpiryTime(), cap.getPaymentTime()));
+          .getExpiryTimes(), cap.getPaymentTime()));
       _instrumentStrikeIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters().getStrikes(),
           cap.getStrike()));
     }
@@ -111,11 +108,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
   @Override
   public void addInstrument(final InstrumentDerivative[] instrument, final double[] calibrationPrices) {
     for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      Validate.isTrue((instrument[loopinstrument] instanceof CapFloorInflationYearOnYearInterpolation) || (instrument[loopinstrument] instanceof CapFloorInflationYearOnYearMonthly),
-          "Calibration instruments should be cap/floor inflation year on year");
-      getBasket().add(instrument[loopinstrument]);
-      getCalibrationPrices().add(calibrationPrices[loopinstrument]);
-      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
+      addInstrument(instrument[loopinstrument], calibrationPrices[loopinstrument]);
     }
   }
 
