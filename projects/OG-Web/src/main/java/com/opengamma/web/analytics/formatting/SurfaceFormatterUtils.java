@@ -7,6 +7,7 @@ package com.opengamma.web.analytics.formatting;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,7 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
@@ -52,6 +54,12 @@ import com.opengamma.web.server.conversion.LabelFormatter;
       results.put(Y_LABELS, SurfaceFormatterUtils.getAxisLabels(yData));
       results.put(Y_TITLE, ""); // TODO use labels from VolatilitySurface once they exist
       results.put(VOL, vol);
+      return results;
+    } else if (surface instanceof ConstantDoublesSurface) {
+      Map<String, Object> results = Maps.newHashMap();
+      results.put(LabelledMatrix2DFormatter.X_LABELS, Collections.singletonList("All"));
+      results.put(LabelledMatrix2DFormatter.Y_LABELS, Collections.singletonList("All"));
+      results.put(LabelledMatrix2DFormatter.MATRIX, Collections.singletonList(surface.getZData()));
       return results;
     } else {
       // TODO format as matrix

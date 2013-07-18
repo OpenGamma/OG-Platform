@@ -39,7 +39,6 @@ public class YieldCurveKey extends StructuredMarketDataKey implements Comparable
    * @param name  the name
    */
   public YieldCurveKey(Currency currency, String name) {
-    super();
     _currency = currency;
     _name = name;
   }

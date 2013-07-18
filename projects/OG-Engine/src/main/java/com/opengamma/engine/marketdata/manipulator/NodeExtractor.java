@@ -5,7 +5,11 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.util.Set;
+
+import com.google.common.collect.Iterables;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -30,6 +34,22 @@ public abstract class NodeExtractor<K> {
    */
   public NodeExtractor(String specificationName) {
     _specificationName = specificationName;
+  }
+
+  protected static String getSingleProperty(final ValueSpecification spec, final String propertyName) {
+    final ValueProperties properties = spec.getProperties();
+    final Set<String> curves = properties.getValues(propertyName);
+    return Iterables.getOnlyElement(curves);
+  }
+
+  protected static String getOptionalProperty(final ValueSpecification spec, final String propertyName) {
+    final ValueProperties properties = spec.getProperties();
+    final Set<String> curves = properties.getValues(propertyName);
+    if (curves != null && !curves.isEmpty()) {
+      return Iterables.getOnlyElement(curves);
+    } else {
+      return null;
+    }
   }
 
   /**

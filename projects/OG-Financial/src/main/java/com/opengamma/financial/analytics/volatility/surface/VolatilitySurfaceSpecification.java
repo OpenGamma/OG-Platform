@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.id.UniqueIdentifiable;

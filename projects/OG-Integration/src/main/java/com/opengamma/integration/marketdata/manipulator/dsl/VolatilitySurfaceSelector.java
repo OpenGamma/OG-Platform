@@ -21,7 +21,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
 
-  private static final Set<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.VOLATILITY_SURFACE);
+  private static final Set<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.VOLATILITY_SURFACE,
+                                                                            StructureType.INTERPOLATED_VOLATILITY_SURFACE);
 
   private final Set<String> _calcConfigNames;
   private final Set<String> _names;

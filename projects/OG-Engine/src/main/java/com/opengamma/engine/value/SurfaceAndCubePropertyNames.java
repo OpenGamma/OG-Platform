@@ -3,10 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface;
+package com.opengamma.engine.value;
 
 /**
- * 
+ *
  */
 public class SurfaceAndCubePropertyNames {
   /** The name of the surface quote type property */

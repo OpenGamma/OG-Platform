@@ -41,7 +41,6 @@ public class VolatilityCubeKey extends StructuredMarketDataKey implements Compar
    * @param name  the name
    */
   public VolatilityCubeKey(Currency currency, String name) {
-    super();
     _currency = currency;
     _name = name;
   }
