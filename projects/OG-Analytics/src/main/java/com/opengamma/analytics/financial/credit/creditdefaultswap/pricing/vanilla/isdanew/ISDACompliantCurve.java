@@ -37,7 +37,7 @@ public class ISDACompliantCurve {
    * @param r the level 
    */
   public ISDACompliantCurve(final double t, final double r) {
-    this(new double[] {t}, new double[] {r});
+    this(new double[] {t }, new double[] {r });
   }
 
   /**
@@ -155,13 +155,13 @@ public class ISDACompliantCurve {
   }
 
   protected double[] getKnotTimes() {
-    double[] res = new double[_n];
+    final double[] res = new double[_n];
     System.arraycopy(_t, 0, res, 0, _n);
     return res;
   }
 
   protected double[] getKnotZeroRates() {
-    double[] res = new double[_n];
+    final double[] res = new double[_n];
     System.arraycopy(_r, 0, res, 0, _n);
     return res;
   }
@@ -181,7 +181,7 @@ public class ISDACompliantCurve {
       return _df[index];
     }
 
-    int insertionPoint = -(1 + index);
+    final int insertionPoint = -(1 + index);
     final double rt = getRT(t, insertionPoint);
     return Math.exp(-rt);
   }
@@ -206,8 +206,9 @@ public class ISDACompliantCurve {
     if (t <= _t[0]) {
       return _r[0];
     }
-    if (t >= _t[_n - 1]) {
-      return _r[_n - 1];
+    if (t > _t[_n - 1]) {
+      final double rt = getRT(t, _n - 1);
+      return rt / t;
     }
 
     final int index = Arrays.binarySearch(_t, t);
@@ -232,8 +233,8 @@ public class ISDACompliantCurve {
     if (t <= _t[0]) {
       return _r[0] * t;
     }
-    if (t >= _t[_n - 1]) {
-      return _r[_n - 1] * t;// * (t - _offsetTime) + _offsetRT;
+    if (t > _t[_n - 1]) {
+      return getRT(t, _n - 1); //linear extrapolation 
     }
 
     final int index = Arrays.binarySearch(_t, t);
@@ -250,7 +251,7 @@ public class ISDACompliantCurve {
       return t * _r[0];
     }
     if (insertionPoint == _n) {
-      return _r[_n - 1] * t;// (t - _offsetTime) + _offsetRT;
+      return getRT(t, insertionPoint - 1); //linear extrapolation 
     }
 
     final double t1 = _t[insertionPoint - 1];
@@ -275,7 +276,7 @@ public class ISDACompliantCurve {
    */
   public double[] getNodeSensitivity(final double t) {
 
-    double[] res = new double[_n];
+    final double[] res = new double[_n];
 
     // short-cut doing binary search
     if (t <= _t[0]) {
@@ -283,7 +284,12 @@ public class ISDACompliantCurve {
       return res;
     }
     if (t >= _t[_n - 1]) {
-      res[_n - 1] = 1.0;
+      final int insertionPoint = _n - 1;
+      final double t1 = _t[insertionPoint - 1];
+      final double t2 = _t[insertionPoint];
+      final double dt = t2 - t1;
+      res[insertionPoint - 1] = t1 * (t2 - t) / dt / t;
+      res[insertionPoint] = t2 * (t - t1) / dt / t;
       return res;
     }
 
@@ -316,16 +322,17 @@ public class ISDACompliantCurve {
     if (t <= _t[0]) {
       return nodeIndex == 0 ? 1.0 : 0.0;
     }
-    if (t >= _t[_n - 1]) {
-      return nodeIndex == _n - 1 ? 1.0 : 0.0;
-    }
+    //    if (t >= _t[_n - 1]) {
+    //      
+    //      return nodeIndex == _n - 1 ? 1.0 : 0.0;
+    //    }
 
     final int index = Arrays.binarySearch(_t, t);
     if (index >= 0) {
       return nodeIndex == index ? 1.0 : 0.0;
     }
 
-    final int insertionPoint = -(1 + index);
+    final int insertionPoint = Math.min(_n - 1, -(1 + index));
     if (nodeIndex != insertionPoint && nodeIndex != insertionPoint - 1) {
       return 0.0;
     }
@@ -357,16 +364,16 @@ public class ISDACompliantCurve {
     if (t <= _t[0]) {
       return nodeIndex == 0 ? -t * Math.exp(-t * _r[0]) : 0.0;
     }
-    if (t >= _t[_n - 1]) {
-      return nodeIndex == _n - 1 ? -t * Math.exp(-t * _r[_n - 1]) : 0.0;
-    }
+    //    if (t >= _t[_n - 1]) {
+    //      return nodeIndex == _n - 1 ? -t * Math.exp(-t * _r[_n - 1]) : 0.0;
+    //    }
 
     final int index = Arrays.binarySearch(_t, t);
     if (index >= 0) {
       return nodeIndex == index ? -t * _df[nodeIndex] : 0.0;
     }
 
-    final int insertionPoint = -(1 + index);
+    final int insertionPoint = Math.min(_n - 1, -(1 + index));
     if (nodeIndex != insertionPoint && nodeIndex != insertionPoint - 1) {
       return 0.0;
     }
@@ -400,10 +407,10 @@ public class ISDACompliantCurve {
    */
   public ISDACompliantCurve withRate(final double rate, final int index) {
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
-    double[] t = new double[_n];
-    double[] r = new double[_n];
-    double[] rt = new double[_n];
-    double[] df = new double[_n];
+    final double[] t = new double[_n];
+    final double[] r = new double[_n];
+    final double[] rt = new double[_n];
+    final double[] df = new double[_n];
     System.arraycopy(_t, 0, t, 0, _n);
     System.arraycopy(_r, 0, r, 0, _n);
     System.arraycopy(_rt, 0, rt, 0, _n);
@@ -426,10 +433,10 @@ public class ISDACompliantCurve {
       throw new NotImplementedException("Please implement");
     }
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
-    double[] t = new double[_n];
-    double[] r = new double[_n];
-    double[] rt = new double[_n];
-    double[] df = new double[_n];
+    final double[] t = new double[_n];
+    final double[] r = new double[_n];
+    final double[] rt = new double[_n];
+    final double[] df = new double[_n];
     System.arraycopy(_t, 0, t, 0, _n);
     System.arraycopy(_r, 0, r, 0, _n);
     System.arraycopy(_rt, 0, rt, 0, _n);
@@ -466,7 +473,7 @@ public class ISDACompliantCurve {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) {
       return true;
     }
@@ -474,7 +481,7 @@ public class ISDACompliantCurve {
       return false;
     }
 
-    ISDACompliantCurve that = (ISDACompliantCurve) o;
+    final ISDACompliantCurve that = (ISDACompliantCurve) o;
 
     if (_n != that._n) {
       return false;
