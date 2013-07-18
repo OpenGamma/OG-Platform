@@ -25,7 +25,7 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
   private static final NonnegativityPreservingQuinticSplineInterpolator INTERP_NAK = new NonnegativityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
   private static final NonnegativityPreservingQuinticSplineInterpolator1D INTERP1D_NAK = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
 
-  private static final double EPS = 1.e-7;
+  private static final double EPS = 1.e-6;
 
   /**
    * Recovery test on polynomial, rational, exponential functions, and node sensitivity test by finite difference method
@@ -47,13 +47,10 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
     final double[] xKeys = new double[10 * nData];
 
     for (int i = 0; i < nData; ++i) {
-      //      xValues[i] = i * i + i - 1.;
       xValues[i] = i + 1;
       yValues1[i] = 0.5 * xValues[i] * xValues[i] * xValues[i] - 1.5 * xValues[i] * xValues[i] + xValues[i] - 2.;
       yValues2[i] = Math.exp(0.1 * xValues[i] - 6.);
       yValues3[i] = (2. * xValues[i] * xValues[i] + xValues[i]) / (xValues[i] * xValues[i] + xValues[i] * xValues[i] * xValues[i] + 5. * xValues[i] + 2.);
-      //      yValues1[i] = xValues[i];
-      //      System.out.println(yValues1[i] + "\t" + yValues2[i] + "\t" + yValues3[i]);
       yValues1Up[i] = yValues1[i];
       yValues2Up[i] = yValues2[i];
       yValues3Up[i] = yValues3[i];
@@ -106,11 +103,6 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
           double res1 = 0.5 * (wrappedInterp[k].interpolate(dataBund1Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund1Dw, xKeys[i])) / EPS / yValues1[j];
           double res2 = 0.5 * (wrappedInterp[k].interpolate(dataBund2Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund2Dw, xKeys[i])) / EPS / yValues2[j];
           double res3 = 0.5 * (wrappedInterp[k].interpolate(dataBund3Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund3Dw, xKeys[i])) / EPS / yValues3[j];
-          //        System.out.println(res1 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j]);
-          //        System.out.println(res2 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j]);
-          //        System.out.println(res3 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j]);
-          //        System.out.println(i + "\t" + j);
-          //        INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i]);
           assertEquals(res1, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 10.);
           assertEquals(res2, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j], Math.max(Math.abs(yValues2[j]) * EPS, EPS) * 10.);
           assertEquals(res3, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j], Math.max(Math.abs(yValues3[j]) * EPS, EPS) * 10.);
@@ -144,7 +136,6 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
     final double[] xKeys = new double[10 * nData];
 
     for (int i = 0; i < nData; ++i) {
-      //      xValues[i] = i * i + i - 1.;
       xValues[i] = i + 1;
       yValues1Up[i] = yValues1[i];
       yValues2Up[i] = yValues2[i];
@@ -194,24 +185,13 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
         Interpolator1DDataBundle dataBund1Dw = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1Dw);
         Interpolator1DDataBundle dataBund2Dw = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues2Dw);
         Interpolator1DDataBundle dataBund3Dw = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues3Dw);
-        //        System.out.println("\n");
-        //        System.out.println(k + "\t" + j);
         for (int i = 0; i < 10 * nData; ++i) {
           double res1 = 0.5 * (wrappedInterp[k].interpolate(dataBund1Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund1Dw, xKeys[i])) / EPS / yValues1[j];
           double res2 = 0.5 * (wrappedInterp[k].interpolate(dataBund2Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund2Dw, xKeys[i])) / EPS / yValues2[j];
           double res3 = 0.5 * (wrappedInterp[k].interpolate(dataBund3Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund3Dw, xKeys[i])) / EPS / yValues3[j];
-          //          System.out.println(res1 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j]);
-          //          System.out.println(res2 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j]);
-          //          System.out.println(res3 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j]);
-          //          System.out.println(i + "\t" + j);
-          //          INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i]);
           assertEquals(res1, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 10.);
           assertEquals(res2, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j], Math.max(Math.abs(yValues2[j]) * EPS, EPS) * 10.);
           assertEquals(res3, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j], Math.max(Math.abs(yValues3[j]) * EPS, EPS) * 100.);
-          //          if (j == 1) {
-          //            System.out.println(xKeys[i] + "\t" + wrappedInterp[k].interpolate(dataBund2, xKeys[i]) + "\t" + wrappedInterp[k].interpolate(dataBund2Up, xKeys[i]) + "\t" +
-          //                wrappedInterp[k].interpolate(dataBund2Dw, xKeys[i]));
-          //          }
         }
         yValues1Up[j] = yValues1[j];
         yValues2Up[j] = yValues2[j];
@@ -345,7 +325,6 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
           Interpolator1DDataBundle dataBund5Up = wrap.getDataBundleFromSortedArrays(xValues, yValues5Up, bdConds[l], bdConds[m]);
           Interpolator1DDataBundle dataBund5Dw = wrap.getDataBundleFromSortedArrays(xValues, yValues5Dw, bdConds[l], bdConds[m]);
           for (int i = 0; i < 10 * nData; ++i) {
-            //            System.out.println(l + "\t" + m + "\t" + j + "\t" + i);
             double res1 = 0.5 * (wrap.interpolate(dataBund1Up, xKeys[i]) - wrap.interpolate(dataBund1Dw, xKeys[i])) / EPS / yValues1[j];
             double res2 = 0.5 * (wrap.interpolate(dataBund2Up, xKeys[i]) - wrap.interpolate(dataBund2Dw, xKeys[i])) / EPS / yValues2[j];
             double res3 = 0.5 * (wrap.interpolate(dataBund3Up, xKeys[i]) - wrap.interpolate(dataBund3Dw, xKeys[i])) / EPS / yValues3[j];
@@ -378,7 +357,8 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
   @Test
   public void linearDataTest() {
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8. };
-    final double[][] yValues = new double[][] { {0., 0., 0., 0., 0., 0., 0., 0. }, {1., 1., 1., 1., 1., 1., 1., 1. }, {1., 3., 5., 7., 9., 11., 13., 15. }, {19., 14., 9., 4., -1., -6., -11., -16. },
+    final double[][] yValues = new double[][] { {0., 0., 0., 0., 0., 0., 0., 0. }, {1., 1., 1., 1., 1., 1., 1., 1. }, {1., 3., 5., 7., 9., 11., 13., 15. },
+        {19., 14., 9., 4., -1., -6., -11., -16. }, {-16., -11., -6., -1., 4., 9., 14., 19., },
         {0., 0., 0., 0., 0., 0., 1., 1. }, {0., 0., 0., 0., 0., 0., -1., -1. } };
     final int nData = xValues.length;
     final int dim = yValues.length;
@@ -445,14 +425,9 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
       for (int i = 0; i < 10 * nData; ++i) {
         xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
       }
-
-      //      final NonnegativityPreservingQuinticSplineInterpolator bare = new NonnegativityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
-      //      final NonnegativityPreservingQuinticSplineInterpolator1D wrap = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
       final NonnegativityPreservingQuinticSplineInterpolator[] bareInterp = new NonnegativityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
       final NonnegativityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
       final int nMethods = wrappedInterp.length;
-      //      final CubicSplineInterpolator bare = new CubicSplineInterpolator();
-      //      final NotAKnotCubicSplineInterpolator1D wrap = new NotAKnotCubicSplineInterpolator1D();
 
       for (int l = 0; l < nMethods; ++l) {
         final double[] resPrim1 = bareInterp[l].interpolate(xValues, yValues1[k], xKeys).getData();
@@ -470,8 +445,6 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
           Interpolator1DDataBundle dataBund1Dw = wrappedInterp[l].getDataBundleFromSortedArrays(xValues, yValues1Dw);
           for (int i = 0; i < 10 * nData; ++i) {
             double res1 = 0.5 * (wrappedInterp[l].interpolate(dataBund1Up, xKeys[i]) - wrappedInterp[l].interpolate(dataBund1Dw, xKeys[i])) / den1;
-            //          System.out.println(xKeys[i] + "\t" + j + "\t" + yValues1[k][j]);
-            //          System.out.println(res1 + "\t" + wrap.interpolate(dataBund1Up, xKeys[i]) + "\t" + wrap.interpolate(dataBund1Dw, xKeys[i]));
             assertEquals(res1, wrappedInterp[l].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[k][j]) * EPS, EPS) * 10.);
           }
           yValues1Up[j] = yValues1[k][j];
@@ -514,15 +487,10 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
       for (int i = 0; i < 10 * nData; ++i) {
         xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
       }
-
-      //      final NonnegativityPreservingQuinticSplineInterpolator bare = new NonnegativityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
-      //      final NonnegativityPreservingQuinticSplineInterpolator1D wrap = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
       final NonnegativityPreservingQuinticSplineInterpolator bareInterp = new NonnegativityPreservingQuinticSplineInterpolator(
           new CubicSplineInterpolator());
       final NonnegativityPreservingQuinticSplineInterpolator1D wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D(
           new CubicSplineInterpolator());
-      //      final CubicSplineInterpolator bare = new CubicSplineInterpolator();
-      //      final NotAKnotCubicSplineInterpolator1D wrap = new NotAKnotCubicSplineInterpolator1D();
 
       final double[] resPrim1 = bareInterp.interpolate(xValues, yValues1Srt, xKeys).getData();
       Interpolator1DDataBundle dataBund1 = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1[k], 0., 0.);
@@ -539,8 +507,6 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
         Interpolator1DDataBundle dataBund1Dw = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Dw, 0., 0.);
         for (int i = 0; i < 10 * nData; ++i) {
           double res1 = 0.5 * (wrappedInterp.interpolate(dataBund1Up, xKeys[i]) - wrappedInterp.interpolate(dataBund1Dw, xKeys[i])) / den1;
-          //          System.out.println(xKeys[i] + "\t" + j + "\t" + yValues1[k][j]);
-          //          System.out.println(res1 + "\t" + wrap.interpolate(dataBund1Up, xKeys[i]) + "\t" + wrap.interpolate(dataBund1Dw, xKeys[i]));
           assertEquals(res1, wrappedInterp.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[k][j]) * EPS, EPS) * 10.);
         }
         yValues1Up[j] = yValues1[k][j];
@@ -553,89 +519,17 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
    * 
    */
   @Test
-      (enabled = false)
-      public void branchClampedBadConditioningTest() {
-    final int nData = 9;
-    double[] xValues;
-    double[][] yValues1;
-    double[] yValues1Up = new double[nData];
-    double[] yValues1Dw = new double[nData];
-    final double[] xKeys = new double[10 * nData];
-    xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9. };
-    for (int l = 0; l < 100000; ++l) {
-      yValues1 = new double[][] {
-          {1., 1., 1., 2. + 0.0001 * l, 1., 2. + 0.0000001 * l, 1., 1., 1. }
-      };
-      final int dim = yValues1.length;
-
-      for (int k = 0; k < dim; ++k) {
-        final double[] yValues1Srt = new double[nData + 2];
-        Arrays.fill(yValues1Srt, 0.);
-        for (int i = 0; i < nData; ++i) {
-          yValues1Up[i] = yValues1[k][i];
-          yValues1Dw[i] = yValues1[k][i];
-          yValues1Srt[i + 1] = yValues1[k][i];
-        }
-
-        final double xMin = xValues[0];
-        final double xMax = xValues[nData - 1];
-        for (int i = 0; i < 10 * nData; ++i) {
-          xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-        }
-
-        //      final NonnegativityPreservingQuinticSplineInterpolator bare = new NonnegativityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
-        //      final NonnegativityPreservingQuinticSplineInterpolator1D wrap = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
-        final NonnegativityPreservingQuinticSplineInterpolator bareInterp = new NonnegativityPreservingQuinticSplineInterpolator(
-            new CubicSplineInterpolator());
-        final NonnegativityPreservingQuinticSplineInterpolator1D wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D(
-            new CubicSplineInterpolator());
-        //      final CubicSplineInterpolator bare = new CubicSplineInterpolator();
-        //      final NotAKnotCubicSplineInterpolator1D wrap = new NotAKnotCubicSplineInterpolator1D();
-
-        final double[] resPrim1 = bareInterp.interpolate(xValues, yValues1Srt, xKeys).getData();
-        Interpolator1DDataBundle dataBund1 = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1[k], 0., 0.);
-        for (int i = 0; i < 10 * nData; ++i) {
-          final double ref1 = resPrim1[i];
-          assertEquals(ref1, wrappedInterp.interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-        }
-
-        for (int j = 0; j < nData; ++j) {
-          final double den1 = Math.abs(yValues1[k][j]) == 0. ? EPS : yValues1[k][j] * EPS;
-          yValues1Up[j] = Math.abs(yValues1[k][j]) == 0. ? EPS : yValues1[k][j] * (1. + EPS);
-          yValues1Dw[j] = Math.abs(yValues1[k][j]) == 0. ? -EPS : yValues1[k][j] * (1. - EPS);
-          Interpolator1DDataBundle dataBund1Up = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Up, 0., 0.);
-          Interpolator1DDataBundle dataBund1Dw = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Dw, 0., 0.);
-          for (int i = 0; i < 10 * nData; ++i) {
-            double res1 = 0.5 * (wrappedInterp.interpolate(dataBund1Up, xKeys[i]) - wrappedInterp.interpolate(dataBund1Dw, xKeys[i])) / den1;
-            //          System.out.println(xKeys[i] + "\t" + j + "\t" + yValues1[k][j]);
-            //          System.out.println(res1 + "\t" + wrap.interpolate(dataBund1Up, xKeys[i]) + "\t" + wrap.interpolate(dataBund1Dw, xKeys[i]));
-            assertEquals(res1, wrappedInterp.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[k][j]) * EPS, EPS) * 10.);
-          }
-          yValues1Up[j] = yValues1[k][j];
-          yValues1Dw[j] = yValues1[k][j];
-        }
-      }
-    }
-  }
-
-  /**
-   * 
-   */
-  @Test
-      (enabled = false)
-      public void branchClamped2Test() {
+  public void branchClamped2Test() {
     final int nData = 10;
     double[] xValues;
     double[][] yValues1;
     double[] yValues1Up = new double[nData];
     double[] yValues1Dw = new double[nData];
     final double[] xKeys = new double[10 * nData];
-    xValues = new double[] {1000., 2000., 3000., 4000., 5000., 6000., 7000., 8000., 9000., 10000. };
-    yValues1 = new double[][] {
-        {9.094971119499569E-7, 9.253343733343077E-8, 4.0517448895248884E-8, 5.435995869572241E-8, 7.628312291644884E-7, 1.3008944109361496E-7, 4.117330208917439E-7, 5.922903293294197E-7,
-            4.834689604437151E-7, 6.860367543408155E-7 }
-    };
+    xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
+    yValues1 = new double[][] { {1., 2., 3., 4., 5., 6., 7., 4., 7., 1. }, {-1., 2., 3., 4., 5., 6., 7., 4., 7., -1. } };
     final int dim = yValues1.length;
+    final double[] bv = new double[] {5., -5 };
 
     for (int k = 0; k < dim; ++k) {
       final double[] yValues1Srt = new double[nData + 2];
@@ -652,42 +546,103 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
         xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
       }
 
-      //      final NonnegativityPreservingQuinticSplineInterpolator bare = new NonnegativityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
-      //      final NonnegativityPreservingQuinticSplineInterpolator1D wrap = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
       final NonnegativityPreservingQuinticSplineInterpolator bareInterp = new NonnegativityPreservingQuinticSplineInterpolator(
           new CubicSplineInterpolator());
       final NonnegativityPreservingQuinticSplineInterpolator1D wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D(
           new CubicSplineInterpolator());
-      //      final CubicSplineInterpolator bare = new CubicSplineInterpolator();
-      //      final NotAKnotCubicSplineInterpolator1D wrap = new NotAKnotCubicSplineInterpolator1D();
 
+      for (int l = 0; l < 2; ++l) {
+        yValues1Srt[0] = bv[l];
+        yValues1Srt[nData + 1] = bv[l];
+        final double[] resPrim1 = bareInterp.interpolate(xValues, yValues1Srt, xKeys).getData();
+        Interpolator1DDataBundle dataBund1 = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1[k], bv[l], bv[l]);
+        for (int i = 0; i < 10 * nData; ++i) {
+          final double ref1 = resPrim1[i];
+          assertEquals(ref1, wrappedInterp.interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
+        }
+
+        for (int j = 0; j < nData; ++j) {
+          final double den1 = Math.abs(yValues1[k][j]) == 0. ? EPS : yValues1[k][j] * EPS;
+          yValues1Up[j] = Math.abs(yValues1[k][j]) == 0. ? EPS : yValues1[k][j] * (1. + EPS);
+          yValues1Dw[j] = Math.abs(yValues1[k][j]) == 0. ? -EPS : yValues1[k][j] * (1. - EPS);
+          Interpolator1DDataBundle dataBund1Up = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Up, bv[l], bv[l]);
+          Interpolator1DDataBundle dataBund1Dw = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Dw, bv[l], bv[l]);
+          for (int i = 0; i < 10 * nData; ++i) {
+            double res1 = 0.5 * (wrappedInterp.interpolate(dataBund1Up, xKeys[i]) - wrappedInterp.interpolate(dataBund1Dw, xKeys[i])) / den1;
+            assertEquals(res1, wrappedInterp.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[k][j]) * EPS, EPS) * 1.e6);
+          }
+          yValues1Up[j] = yValues1[k][j];
+          yValues1Dw[j] = yValues1[k][j];
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void branchClamped3Test() {
+    final int nData = 5;
+    double[] xValues;
+    double[] yValues1;
+    double[] yValues1Up = new double[nData];
+    double[] yValues1Dw = new double[nData];
+    final double[] xKeys = new double[10 * nData];
+    xValues = new double[] {1., 2., 3., 4., 5. };
+    yValues1 = new double[] {-1.483840496565862, -0.23754175460045587, 0.011717993792625392, 0.011717993792625392, 0.5102374905787879 };
+    final int dim = yValues1.length;
+
+    for (int k = 0; k < dim; ++k) {
+      final double[] yValues1Srt = new double[nData + 2];
+      Arrays.fill(yValues1Srt, 0.);
+      for (int i = 0; i < nData; ++i) {
+        yValues1Up[i] = yValues1[i];
+        yValues1Dw[i] = yValues1[i];
+        yValues1Srt[i + 1] = yValues1[i];
+      }
+
+      final double xMin = xValues[0];
+      final double xMax = xValues[nData - 1];
+      for (int i = 0; i < 10 * nData; ++i) {
+        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
+      }
+
+      final NonnegativityPreservingQuinticSplineInterpolator bareInterp = new NonnegativityPreservingQuinticSplineInterpolator(
+          new CubicSplineInterpolator());
+      final NonnegativityPreservingQuinticSplineInterpolator1D wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D(
+          new CubicSplineInterpolator());
+
+      final double left = 4. / 3. * (yValues1[2] - yValues1[0]);
+      final double right = 2. / 3. * (yValues1[2] - yValues1[0]);
+
+      yValues1Srt[0] = left;
+      yValues1Srt[nData + 1] = right;
       final double[] resPrim1 = bareInterp.interpolate(xValues, yValues1Srt, xKeys).getData();
-      Interpolator1DDataBundle dataBund1 = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1[k], 0., 0.);
+      Interpolator1DDataBundle dataBund1 = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1, left, right);
       for (int i = 0; i < 10 * nData; ++i) {
         final double ref1 = resPrim1[i];
         assertEquals(ref1, wrappedInterp.interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
       }
 
       for (int j = 0; j < nData; ++j) {
-        final double den1 = Math.abs(yValues1[k][j]) == 0. ? EPS : yValues1[k][j] * EPS;
-        yValues1Up[j] = Math.abs(yValues1[k][j]) == 0. ? EPS : yValues1[k][j] * (1. + EPS);
-        yValues1Dw[j] = Math.abs(yValues1[k][j]) == 0. ? -EPS : yValues1[k][j] * (1. - EPS);
-        Interpolator1DDataBundle dataBund1Up = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Up, 0., 0.);
-        Interpolator1DDataBundle dataBund1Dw = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Dw, 0., 0.);
+        final double den1 = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * EPS;
+        yValues1Up[j] = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * (1. + EPS);
+        yValues1Dw[j] = Math.abs(yValues1[j]) == 0. ? -EPS : yValues1[j] * (1. - EPS);
+        Interpolator1DDataBundle dataBund1Up = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Up, left, right);
+        Interpolator1DDataBundle dataBund1Dw = wrappedInterp.getDataBundleFromSortedArrays(xValues, yValues1Dw, left, right);
         for (int i = 0; i < 10 * nData; ++i) {
           double res1 = 0.5 * (wrappedInterp.interpolate(dataBund1Up, xKeys[i]) - wrappedInterp.interpolate(dataBund1Dw, xKeys[i])) / den1;
-          //          System.out.println(xKeys[i] + "\t" + j + "\t" + yValues1[k][j]);
-          //          System.out.println(res1 + "\t" + wrap.interpolate(dataBund1Up, xKeys[i]) + "\t" + wrap.interpolate(dataBund1Dw, xKeys[i]));
-          assertEquals(res1, wrappedInterp.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[k][j]) * EPS, EPS) * 1.e6);
+          assertEquals(res1, wrappedInterp.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 1.e6);
         }
-        yValues1Up[j] = yValues1[k][j];
-        yValues1Dw[j] = yValues1[k][j];
+        yValues1Up[j] = yValues1[j];
+        yValues1Dw[j] = yValues1[j];
       }
     }
   }
 
   /**
-   * For debugging
+   * Tests below are for debugging
    */
   @Test
       (enabled = false)
@@ -724,18 +679,17 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
 
       //      final NonnegativityPreservingCubicSplineInterpolator bare = new NonnegativityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
       //      final NonnegativityPreservingQuinticSplineInterpolator1D wrap = new NonnegativityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
-      //      final NonnegativityPreservingQuinticSplineInterpolator[] bareInterp = new NonnegativityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
-      //      final NonnegativityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
-      final NonnegativityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT };
+      final NonnegativityPreservingQuinticSplineInterpolator[] bareInterp = new NonnegativityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
+      final NonnegativityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
+      //      final NonnegativityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new NonnegativityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT };
       final int nMethods = wrappedInterp.length;
 
-      //        final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues1, xKeys).getData();
-
       for (int k = 0; k < nMethods; ++k) {
+        final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues1, xKeys).getData();
         Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1);
         for (int i = 0; i < 10 * nData; ++i) {
-          //          final double ref1 = resPrim1[i];
-          //          assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
+          final double ref1 = resPrim1[i];
+          assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
         }
 
         for (int j = 0; j < nData; ++j) {
@@ -746,7 +700,7 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
           Interpolator1DDataBundle dataBund1Dw = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1Dw);
           for (int i = 0; i < 10 * nData; ++i) {
             double res1 = 0.5 * (wrappedInterp[k].interpolate(dataBund1Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund1Dw, xKeys[i])) / den1;
-            //            assertEquals(res1, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 1000.);
+            assertEquals(res1, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 1000.);
           }
           yValues1Up[j] = yValues1[j];
           yValues1Dw[j] = yValues1[j];
@@ -755,27 +709,42 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
     }
   }
 
+  /**
+   * 
+   */
   @Test
       (enabled = false)
       public void clampedRandomTest() {
     final Random rand = new Random();
-    final int nData = 10;
-    double[] xValues;
+    final int nData = 5;
+    double[] xValues = new double[nData];
     double[] yValues1 = new double[nData];
     double[] yValues1Up = new double[nData];
     double[] yValues1Dw = new double[nData];
     final double[] xKeys = new double[10 * nData];
-    xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
+    xValues = new double[] {1., 2., 3., 4., 5. };
     //    xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
-    //    xValues = new double[] {1., 2., 3.5, 5.5, 8., 11., 13., 14., 16., 17. };
+    //    //    xValues = new double[] {1., 2., 3.5, 5.5, 8., 11., 13., 14., 16., 17. };
+    //    xValues = new double[] {0, 5. / 2., 7. / 3., 29. / 7. };
+    //    yValues1 = new double[] {45., 5. / 4., 20. / 9., 320. / 49. };
     int l = 0;
-    while (l < 100000) {
+    while (l < 1000000) {
       ++l;
+
+      final double valB = rand.nextDouble();
+      final double valA = valB * 81. / 4. + rand.nextDouble();
+      yValues1 = new double[] {-4. * valA + valB, -2. * valA / 3. + valB, valB, valB, 4. * valA / 3. + valB };
       for (int i = 0; i < nData; ++i) {
-        //        yValues1[i] = (rand.nextInt(12) - 5.5) / (rand.nextInt(1) + 1.) * 1.e-7;
-        //        yValues1[i] = rand.nextInt(4) + .1;
-        yValues1[i] = rand.nextDouble() * 1.e-9;
-        //        yValues1[i] *= yValues1[i];
+        //        //        yValues1[i] = (rand.nextInt(12) - 5.5) / (rand.nextInt(1) + 1.) * 1.e-7;
+        //        //        yValues1[i] = rand.nextInt(4) + .1;
+        //        yValues1[i] = rand.nextDouble() + 0.4;
+        //        yValues1[i] = yValues1[i] * yValues1[i] * yValues1[i] * yValues1[i] * yValues1[i] * yValues1[i];
+        //        yValues1[i] = 10.;
+        //        if (i == 5) {
+        //          yValues1[i] *= 1.e3;
+        //        }
+        //        xValues[i] = ref + rand.nextDouble();
+        //        yValues1[i] = rand.nextDouble();
         yValues1Up[i] = yValues1[i];
         yValues1Dw[i] = yValues1[i];
       }
@@ -798,7 +767,9 @@ public class NonnegativityPreservingQuinticSplineInterpolator1DTest {
       //        final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues1, xKeys).getData();
 
       for (int k = 0; k < nMethods; ++k) {
-        Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1, 0., 0.);
+        //        Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1);
+        //        Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1, 16. / 3. * valA, 8. / 3. * valA);
+        wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1, 16. / 3. * valA, 8. / 3. * valA);
         //        for (int i = 0; i < 10 * nData; ++i) {
         //          //          final double ref1 = resPrim1[i];
         //          //          assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
