@@ -16,6 +16,10 @@ import com.opengamma.analytics.financial.credit.StubType;
  */
 public interface ISDACompliantCreditCurveBuilder {
 
+  public enum ArbitrageHandling {
+    Ignore, Fail, ZeroHazardRate
+  }
+
   /**
    * Bootstrapper the credit curve from a single market CDS quote given as a par spread. Obviously the resulting credit (hazard)
    *  curve will be flat.

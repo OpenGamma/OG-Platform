@@ -28,11 +28,13 @@ import com.opengamma.util.ArgumentChecker;
 
 public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
+  private static final boolean DEFAULT_USE_ALLOW_ARBITRAGE = false;
   private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
 
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
 
+  private final boolean _allowArbitrage;
   private final boolean _useCorrectAccOnDefaultFormula;
 
   /**
@@ -40,6 +42,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * has been reproduced.   
    */
   public FastCreditCurveBuilder() {
+    _allowArbitrage = DEFAULT_USE_ALLOW_ARBITRAGE;
     _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
   }
 
@@ -49,6 +52,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
    */
   public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula) {
+    _allowArbitrage = DEFAULT_USE_ALLOW_ARBITRAGE;
     _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
   }
 
@@ -109,7 +113,9 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     for (int i = 0; i < n; i++) {
       final Pricer pricer = new Pricer(cds[i], yieldCurve, t, premiums[i], pointsUpfront[i]);
       final Function1D<Double, Double> func = pricer.getPointFunction(i, creditCurve);
-      final double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], 0.0, Double.POSITIVE_INFINITY);
+
+      final double minValue = _allowArbitrage ? 0.0 : i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
+      final double[] bracket = BRACKER.getBracketedPoints(func, Math.max(minValue, 0.8 * guess[i]), Math.max(minValue + 1e-4, 1.25 * guess[i]), minValue, Double.POSITIVE_INFINITY);
       final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
       creditCurve = creditCurve.withRate(zeroRate, i);
     }

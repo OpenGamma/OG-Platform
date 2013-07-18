@@ -194,6 +194,10 @@ public class ISDACompliantCurve {
     return _r[index];
   }
 
+  public double getRTAtIndex(final int index) {
+    return _rt[index];
+  }
+
   /**
    * The zero rate or zero hazard rate 
    * @param t Time 
