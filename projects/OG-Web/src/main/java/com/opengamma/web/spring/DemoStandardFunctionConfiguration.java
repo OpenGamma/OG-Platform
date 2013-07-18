@@ -61,6 +61,9 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   public DemoStandardFunctionConfiguration() {
     setMark2MarketField("PX_LAST");
     setCostOfCarryField("COST_OF_CARRY");
+    setAbsoluteTolerance(0.0001);
+    setRelativeTolerance(0.0001);
+    setMaximumIterations(1000);
   }
 
   @Override

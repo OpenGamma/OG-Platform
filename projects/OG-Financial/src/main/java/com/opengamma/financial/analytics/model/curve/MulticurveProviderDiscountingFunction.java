@@ -123,9 +123,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
         final ValueProperties properties = ValueProperties.builder()
             .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
             .with(CURVE_CONSTRUCTION_CONFIG, name)
-            .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
-            .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
-            .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
             .get();
         exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
