@@ -22,10 +22,12 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * A database-backed clock.
  * <p>
- * This only queries the database once per second, using simple interpolation from nanoTime() between calls.
+ * This only queries the database once per second, using simple
+ * interpolation from nanoTime() between calls.
  */
 class DbClock extends Clock {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbClock.class);
 
   /**
@@ -60,7 +62,7 @@ class DbClock extends Clock {
   /**
    * Creates the clock.
    * 
-   * @param connector the connector, not null
+   * @param connector  the connector, not null
    */
   DbClock(DbConnector connector) {
     this(connector, OpenGammaClock.getZone());
@@ -69,7 +71,7 @@ class DbClock extends Clock {
   /**
    * Creates the clock.
    * 
-   * @param connector the connector, not null
+   * @param connector  the connector, not null
    */
   DbClock(DbConnector connector, ZoneId zone) {
     _connector = Objects.requireNonNull(connector, "connector");
@@ -77,7 +79,8 @@ class DbClock extends Clock {
     _zone = zone;
     long now = System.nanoTime();
     long base = now - 2_000_000_000L;
-    if (base > now) { // overflow
+    // handle overflow
+    if (base > now) {
       base = Long.MIN_VALUE;
     }
     _nowNanoTime = base;
@@ -88,7 +91,8 @@ class DbClock extends Clock {
     long nowNanos = System.nanoTime();
     _lock.readLock().lock();
     if (nowNanos - (_nowNanoTime + 1_000_000_000L) > 0 || _nowInstant == null) {
-      _lock.readLock().unlock(); // safely upgrade to write lock
+      // safely upgrade to write lock
+      _lock.readLock().unlock();
       _lock.writeLock().lock();
       try {
         // recheck, as per double checked locking
@@ -97,7 +101,8 @@ class DbClock extends Clock {
           _nowNanoTime = System.nanoTime();
           return _nowInstant;
         } else {
-          _lock.readLock().lock(); // safely downgrade to read lock
+          // safely downgrade to read lock
+          _lock.readLock().lock();
         }
       } finally {
         _lock.writeLock().unlock();
