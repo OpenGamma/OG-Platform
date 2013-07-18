@@ -89,13 +89,6 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   private final AtomicReference<Status> _status = new AtomicReference<Status>(Status.CREATING);
 
-//  /**
-//   * Creates an instance with no logging.
-//   */
-//  public ComponentRepository() {
-//    this(null);
-//  }
-
   /**
    * Creates an instance.
    *

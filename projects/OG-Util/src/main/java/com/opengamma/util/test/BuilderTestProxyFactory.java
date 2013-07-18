@@ -7,7 +7,6 @@ package com.opengamma.util.test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -71,16 +70,13 @@ public class BuilderTestProxyFactory {
       try {
         final Process proc = processBuilder.start();
         try {
-          try (OutputStream outputStream = proc.getOutputStream()) {
-            FudgeDataOutputStreamWriter fudgeDataOutputStreamWriter = new FudgeDataOutputStreamWriter(context, outputStream);
-            FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(fudgeDataOutputStreamWriter);
+          try (FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(
+              new FudgeDataOutputStreamWriter(context, proc.getOutputStream()))) {
             fudgeMsgWriter.writeMessage(orig);
             fudgeMsgWriter.flush();
             
-            try (InputStream inputStream = proc.getInputStream()) {
-              FudgeDataInputStreamReader fudgeDataInputStreamReader = new FudgeDataInputStreamReader(context, inputStream);
-              final FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(fudgeDataInputStreamReader);
-              
+            try (FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(
+                new FudgeDataInputStreamReader(context, proc.getInputStream()))) {
               ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(3);
               Future<FudgeMsg> retMsgFuture = scheduledThreadPoolExecutor.submit(new Callable<FudgeMsg>() {
                 @Override

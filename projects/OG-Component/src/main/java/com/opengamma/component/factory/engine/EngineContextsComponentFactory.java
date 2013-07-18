@@ -182,7 +182,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * The PnL requirements gatherer.
    */
   @PropertyDefinition
-  private PnLRequirementsGatherer _pnlRequirementsGatherer = null;
+  private PnLRequirementsGatherer _pnlRequirementsGatherer;
   /**
    * The risk factors requirements gatherer.
    */
