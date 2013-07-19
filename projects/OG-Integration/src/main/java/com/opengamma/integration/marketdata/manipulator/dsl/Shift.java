@@ -13,26 +13,26 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
 /**
- * Manipulator that scales a single market data value.
+ * Manipulator that shift a single market data value by an absolute amount.
  */
-public class Scaling implements StructureManipulator<Double> {
+public class Shift implements StructureManipulator<Double> {
 
   /** Field name for Fudge message. */
-  private static final String SCALING_FACTOR = "scalingFactor";
+  private static final String SHIFT = "shift";
 
-  /** Scaling factor applied to the market data value. */
-  private final double _scalingFactor;
+  /** Absolute shift added to the market data value. */
+  private final double _shift;
 
-  /* package */ Scaling(double scalingFactor) {
-    if (Double.isInfinite(scalingFactor) || Double.isNaN(scalingFactor)) {
-      throw new IllegalArgumentException("scalingFactor must not be infinite or NaN. value=" + scalingFactor);
+  /* package */ Shift(double shift) {
+    if (Double.isInfinite(shift) || Double.isNaN(shift)) {
+      throw new IllegalArgumentException("shift must not be infinite or NaN. value=" + shift);
     }
-    _scalingFactor = scalingFactor;
+    _shift = shift;
   }
 
   @Override
   public Double execute(Double structure) {
-    return structure * _scalingFactor;
+    return structure + _shift;
   }
 
   @Override
@@ -42,18 +42,18 @@ public class Scaling implements StructureManipulator<Double> {
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessage(msg, SCALING_FACTOR, null, _scalingFactor);
+    serializer.addToMessage(msg, SHIFT, null, _shift);
     return msg;
   }
 
-  public static Scaling fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    Double scalingFactor = deserializer.fieldValueToObject(Double.class, msg.getByName(SCALING_FACTOR));
-    return new Scaling(scalingFactor);
+  public static Shift fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    Double scalingFactor = deserializer.fieldValueToObject(Double.class, msg.getByName(SHIFT));
+    return new Shift(scalingFactor);
   }
 
   @Override
   public String toString() {
-    return "Scaling [_scalingFactor=" + _scalingFactor + "]";
+    return "Shift [_shift=" + _shift + "]";
   }
 
   @Override
@@ -64,9 +64,9 @@ public class Scaling implements StructureManipulator<Double> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Scaling scaling = (Scaling) o;
+    Shift shift = (Shift) o;
 
-    if (Double.compare(scaling._scalingFactor, _scalingFactor) != 0) {
+    if (Double.compare(shift._shift, _shift) != 0) {
       return false;
     }
     return true;
@@ -74,7 +74,7 @@ public class Scaling implements StructureManipulator<Double> {
 
   @Override
   public int hashCode() {
-    long temp = Double.doubleToLongBits(_scalingFactor);
+    long temp = Double.doubleToLongBits(_shift);
     return (int) (temp ^ (temp >>> 32));
   }
 }

@@ -37,7 +37,6 @@ public abstract class SimulationScript extends Script {
    * }
    * </pre>
    * @param body The block that defines the script's parameters
-   * TODO param values as strings - this method uses the type info to convert from string and push into the binding
    */
   public void parameters(Closure body) {
     ParametersDelegate parametersDelegate = new ParametersDelegate();
@@ -92,7 +91,8 @@ public abstract class SimulationScript extends Script {
 
   /**
    * Defines a method in the DSL that takes a closure defining a simulation.
-   * @param body The block that defines the scenario
+   * @param body The block that defines the simulation
+   * @return The simulation
    */
   public Simulation simulation(Closure body) {
     _simulation = new Simulation();
@@ -105,6 +105,7 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure defining a scenario.
    * @param name The scenario name, not empty
    * @param body The block that defines the scenario
+   * @return The scenario
    */
   public Scenario scenario(String name, Closure body) {
     // scenarios can be defined as part of a simulation or stand-alone
@@ -151,7 +152,7 @@ public abstract class SimulationScript extends Script {
   /**
    * Delegate class for closures that define a surface transformation in the DSL.
    */
-  private static class SurfaceBuilder extends VolatilitySurfaceSelector.Builder {
+  private static final class SurfaceBuilder extends VolatilitySurfaceSelector.Builder {
 
     private SurfaceBuilder(Scenario scenario) {
       super(scenario);
@@ -167,7 +168,7 @@ public abstract class SimulationScript extends Script {
   /**
    * Delegate class for blocks that define a market data point transformation in the DSL.
    */
-  private static class PointBuilder extends PointSelector.Builder {
+  private static final class PointBuilder extends PointSelector.Builder {
 
     private PointBuilder(Scenario scenario) {
       super(scenario);
@@ -183,7 +184,7 @@ public abstract class SimulationScript extends Script {
   /**
    * Delegate class for closures that define a curve transformation in the DSL.
    */
-  private static class CurveBuilder extends YieldCurveSelector.Builder {
+  private static final class CurveBuilder extends YieldCurveSelector.Builder {
 
     private CurveBuilder(Scenario scenario) {
       super(scenario);
