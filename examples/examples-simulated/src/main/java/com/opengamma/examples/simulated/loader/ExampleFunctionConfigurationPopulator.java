@@ -18,9 +18,9 @@ import com.opengamma.examples.simulated.function.ExampleStandardFunctionConfigur
 import com.opengamma.examples.simulated.function.SyntheticVolatilityCubeFunctions;
 import com.opengamma.financial.aggregation.AggregationFunctions;
 import com.opengamma.financial.analytics.AnalyticsFunctions;
-import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.currency.CurrencyFunctions;
 import com.opengamma.financial.property.PropertyFunctions;
+import com.opengamma.financial.target.TargetFunctions;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.financial.value.ValueFunctions;
 import com.opengamma.financial.view.ViewFunctions;
@@ -34,7 +34,6 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolContext> {
 
-  private static final String CURVE = "CURVE_FUNCTIONS";
   private static final String STANDARD = "STANDARD_FUNCTIONS";
   private static final String VIEW = "VIEW_FUNCTIONS";
   private static final String VALUE = "VALUE_FUNCTIONS";
@@ -45,6 +44,7 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
   private static final String FINANCIAL = "FINANCIAL_FUNCTIONS";
   private static final String EXAMPLE = "EXAMPLE_FUNCTIONS";
   private static final String CUBE = "CUBE_FUNCTIONS";
+  private static final String TARGET = "TARGET_FUNCTIONS";
 
   //-------------------------------------------------------------------------
   /**
@@ -66,19 +66,19 @@ public class ExampleFunctionConfigurationPopulator extends AbstractTool<ToolCont
     storeFunctionDefinition(PROPERTY, PropertyFunctions.instance());
     storeFunctionDefinition(VALUE, ValueFunctions.instance());
     storeFunctionDefinition(VIEW, ViewFunctions.instance());
+    storeFunctionDefinition(TARGET, TargetFunctions.instance());
 
     FunctionConfigurationDefinition financialFunc = new FunctionConfigurationDefinition(FINANCIAL,
-        ImmutableList.of(AGGREGATION, ANALYTICS, CURRENCY, PROPERTY, VALUE, VIEW),
+        ImmutableList.of(AGGREGATION, ANALYTICS, CURRENCY, PROPERTY, TARGET, VALUE, VIEW),
         Collections.<StaticFunctionConfiguration>emptyList(),
         Collections.<ParameterizedFunctionConfiguration>emptyList());
     storeFunctionDefinition(financialFunc);
 
     storeFunctionDefinition(STANDARD, ExampleStandardFunctionConfiguration.instance());
-    storeFunctionDefinition(CURVE, IRCurveFunctions.providers(getToolContext().getConfigMaster()));
     storeFunctionDefinition(CUBE, SyntheticVolatilityCubeFunctions.instance());
 
     FunctionConfigurationDefinition exampleFunc = new FunctionConfigurationDefinition(EXAMPLE,
-        ImmutableList.of(FINANCIAL, STANDARD, CURVE, CUBE),
+        ImmutableList.of(FINANCIAL, STANDARD, CUBE),
         Collections.<StaticFunctionConfiguration>emptyList(),
         Collections.<ParameterizedFunctionConfiguration>emptyList());
     storeFunctionDefinition(exampleFunc);
