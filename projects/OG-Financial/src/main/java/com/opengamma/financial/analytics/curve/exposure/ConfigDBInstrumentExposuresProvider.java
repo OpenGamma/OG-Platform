@@ -15,6 +15,7 @@ import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
@@ -27,13 +28,18 @@ import com.opengamma.util.ArgumentChecker;
 public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresProvider {
   /** The configuration source */
   private final ConfigSource _configSource;
+  /** The security source */
+  private final SecuritySource _securitySource;
 
   /**
    * @param configSource The config source, not null
+   * @param securitySource The security source, not null
    */
-  public ConfigDBInstrumentExposuresProvider(final ConfigSource configSource) {
+  public ConfigDBInstrumentExposuresProvider(final ConfigSource configSource, final SecuritySource securitySource) {
     ArgumentChecker.notNull(configSource, "config source");
+    ArgumentChecker.notNull(securitySource, "security source");
     _configSource = configSource;
+    _securitySource = securitySource;
   }
 
   @Override
@@ -48,9 +54,10 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
     if (exposures == null) {
       throw new OpenGammaRuntimeException("Could not get instrument exposure configuration called " + instrumentExposureConfigurationName);
     }
-    final List<ExposureFunction> exposureFunctions = exposures.getExposureFunctions();
+    final List<String> exposureFunctionNames = exposures.getExposureFunctions();
     List<ExternalId> ids = null;
-    for (final ExposureFunction exposureFunction : exposureFunctions) {
+    for (final String exposureFunctionName : exposureFunctionNames) {
+      final ExposureFunction exposureFunction = ExposureFunctionFactory.getExposureFunction(_securitySource, exposureFunctionName);
       ids = security.accept(exposureFunction);
       if (ids != null) {
         final Set<String> curveConstructionConfigurationNames = new HashSet<>();

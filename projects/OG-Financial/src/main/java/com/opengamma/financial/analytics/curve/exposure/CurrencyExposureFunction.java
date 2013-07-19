@@ -87,6 +87,11 @@ public class CurrencyExposureFunction implements ExposureFunction {
     _securitySource = securitySource;
   }
 
+  @Override
+  public String getName() {
+    return "Currency";
+  }
+
   private List<ExternalId> getExternalIds(final Security security) {
     final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, _securitySource);
     if (currencies.isEmpty()) {

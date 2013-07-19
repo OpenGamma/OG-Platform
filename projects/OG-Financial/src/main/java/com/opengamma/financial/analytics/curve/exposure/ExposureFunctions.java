@@ -54,7 +54,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
    * A list of exposure functions and curve construction configuration names in order of priority.
    */
   @PropertyDefinition(validate = "notNull")
-  private List<ExposureFunction> _exposureFunctions;
+  private List<String> _exposureFunctions;
 
   /**
    * A map of ids to curve configuration names.
@@ -74,7 +74,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
    * @param idsToNames A map of ids to curve configuration names, not null
    * of priority, not null or empty
    */
-  public ExposureFunctions(final String name, final List<ExposureFunction> exposureFunctions, final Map<ExternalId, String> idsToNames) {
+  public ExposureFunctions(final String name, final List<String> exposureFunctions, final Map<ExternalId, String> idsToNames) {
     ArgumentChecker.notEmpty(exposureFunctions, "exposure functions");
     setName(name);
     setExposureFunctions(exposureFunctions);
@@ -125,7 +125,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
         setName((String) newValue);
         return;
       case -1787010476:  // exposureFunctions
-        setExposureFunctions((List<ExposureFunction>) newValue);
+        setExposureFunctions((List<String>) newValue);
         return;
       case -462409803:  // idsToNames
         setIdsToNames((Map<ExternalId, String>) newValue);
@@ -223,7 +223,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
    * Gets a list of exposure functions and curve construction configuration names in order of priority.
    * @return the value of the property, not null
    */
-  public List<ExposureFunction> getExposureFunctions() {
+  public List<String> getExposureFunctions() {
     return _exposureFunctions;
   }
 
@@ -231,7 +231,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
    * Sets a list of exposure functions and curve construction configuration names in order of priority.
    * @param exposureFunctions  the new value of the property, not null
    */
-  public void setExposureFunctions(List<ExposureFunction> exposureFunctions) {
+  public void setExposureFunctions(List<String> exposureFunctions) {
     JodaBeanUtils.notNull(exposureFunctions, "exposureFunctions");
     this._exposureFunctions = exposureFunctions;
   }
@@ -240,7 +240,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
    * Gets the the {@code exposureFunctions} property.
    * @return the property, not null
    */
-  public final Property<List<ExposureFunction>> exposureFunctions() {
+  public final Property<List<String>> exposureFunctions() {
     return metaBean().exposureFunctions().createProperty(this);
   }
 
@@ -294,7 +294,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
      * The meta-property for the {@code exposureFunctions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ExposureFunction>> _exposureFunctions = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<String>> _exposureFunctions = DirectMetaProperty.ofReadWrite(
         this, "exposureFunctions", ExposureFunctions.class, (Class) List.class);
     /**
      * The meta-property for the {@code idsToNames} property.
@@ -369,7 +369,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
      * The meta-property for the {@code exposureFunctions} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ExposureFunction>> exposureFunctions() {
+    public final MetaProperty<List<String>> exposureFunctions() {
       return _exposureFunctions;
     }
 
