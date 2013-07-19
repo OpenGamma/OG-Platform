@@ -240,17 +240,10 @@
 }
 
 /**
- * Temporal
- */
-.OG-analytics-form .og-temporal{
-    margin:0 0 0 2%;
-}
-
-/**
  * Aggregation
  */
 .OG-analytics-form .og-aggregation {
-    margin: 0 10%;
+    padding-left: 2px;
 }
 
 /**
@@ -337,18 +330,14 @@
     margin-right: 10px;
 }
 
+.OG-analytics-form .og-optional {
+    min-width: 190px;
+    width:15%;
+}
+
 /** TEMP **/
 
 .OG-analytics-form .og-portfolios,
 .OG-analytics-form .og-optional .og-filters{
     display: none;
-}
-
-.OG-analytics-form .og-optional {
-    min-width: 100px;
-    width:10%;
-}
-
-.OG-analytics-form .og-aggregation{
-    margin:0;
 }
