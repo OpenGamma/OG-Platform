@@ -37,6 +37,9 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   public ExampleStandardFunctionConfiguration() {
     setMark2MarketField("CLOSE");
     setCostOfCarryField("COST_OF_CARRY");
+    setAbsoluteTolerance(0.0001);
+    setRelativeTolerance(0.0001);
+    setMaximumIterations(1000);
   }
 
   @Override
