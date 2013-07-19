@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
 public class ShapePreservingCubicSplineInterpolator1DTest {
 
@@ -107,7 +107,7 @@ public class ShapePreservingCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data contain zero yValues
    */
   @Test
   public void zeroValuetest() {
@@ -199,7 +199,7 @@ public class ShapePreservingCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data are constant or linearly increasing/decreasing
    */
   @Test
   public void linearDataTest() {
@@ -235,7 +235,7 @@ public class ShapePreservingCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data are monotone
    */
   @Test
   public void monotoneDataTest() {

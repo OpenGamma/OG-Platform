@@ -5,9 +5,14 @@
  */
 package com.opengamma.financial.analytics.model.curve;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.HULL_WHITE_DISCOUNTING;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.ROOT_FINDING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
@@ -95,7 +100,6 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
-  private static final String CALCULATION_METHOD = "Hull-White"; //TODO move me
   private static final ParSpreadMarketQuoteHullWhiteCalculator PSMQHWC = ParSpreadMarketQuoteHullWhiteCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator PSMQCSHWC = ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
   private final String _configurationName;
@@ -124,11 +128,7 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
       for (final String name : exogenousConfigurations) {
         //TODO deal with arbitrary depth
         final ValueProperties properties = ValueProperties.builder()
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
             .with(CURVE_CONSTRUCTION_CONFIG, name)
-            .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
-            .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
-            .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
           .get();
         exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
@@ -231,15 +231,14 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
         if (maxIterations == null || maxIterations.size() != 1) {
           return null;
         }
-        final Set<String> currencies = constraints.getValues(ValuePropertyNames.CURRENCY);
-        if (currencies == null || currencies.size() != 1) {
-          return null;
-        }
-        final Set<String> hwPropertyNames = constraints.getValues(CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS);
+        final Set<String> hwPropertyNames = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
         if (hwPropertyNames == null || hwPropertyNames.size() != 1) {
           return null;
         }
-        final Currency currency = Currency.of(Iterables.getOnlyElement(currencies));
+        final Set<String> hwCurrencies = constraints.getValues(CURRENCY);
+        if (hwCurrencies == null || hwCurrencies.size() != 1) {
+          return null;
+        }
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final String curveName : curveNames) {
           final ValueProperties properties = ValueProperties.builder()
@@ -253,11 +252,12 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .get();
         final ValueProperties hwProperties = ValueProperties.builder()
-            .with(CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
+            .with(PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
+            .with(CURRENCY, hwCurrencies)
             .get();
         requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
         requirements.add(new ValueRequirement(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(currency), hwProperties));
+        requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.NULL, hwProperties));
         requirements.addAll(exogenousRequirements);
         return requirements;
       }
@@ -266,22 +266,28 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
       private ValueProperties getCurveProperties(final String curveName) {
         return createValueProperties()
             .with(CURVE, curveName)
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+            .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+            .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
+            .withAny(CURRENCY)
             .get();
       }
 
       @SuppressWarnings("synthetic-access")
       private ValueProperties getBundleProperties() {
         return createValueProperties()
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+            .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+            .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
+            .withAny(CURRENCY)
             .get();
       }
 

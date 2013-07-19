@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
- * 
+ * Interpolate consecutive two points by a straight line
+ * Note that this interpolator is NOT included in {@link Interpolator1DFactory} 
+ * Use {@link LinearInterpolator1D} for node sensitivity
  */
 public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
@@ -137,7 +139,7 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
 
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
-    throw new NotImplementedException("Use LinearInterpolator1D");
+    throw new NotImplementedException("Use LinearInterpolator1D for node sensitivity");
   }
 
   /**

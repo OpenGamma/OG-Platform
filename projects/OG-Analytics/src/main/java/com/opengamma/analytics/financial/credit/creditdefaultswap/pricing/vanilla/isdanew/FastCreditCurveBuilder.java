@@ -118,15 +118,13 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     final double[] t = new double[n];
     for (int i = 0; i < n; i++) {
       t[i] = cds[i].getProtectionEnd();
-      guess[i] = (premiums[i] + pointsUpfront[i] / t[i]) / cds[i].getLGD(); // TODO incorporate pointsUpfront
+      guess[i] = (premiums[i] + pointsUpfront[i] / t[i]) / cds[i].getLGD();
     }
 
     ISDACompliantCreditCurve creditCurve = new ISDACompliantCreditCurve(t, guess);
     for (int i = 0; i < n; i++) {
       final Pricer pricer = new Pricer(cds[i], yieldCurve, t, premiums[i], pointsUpfront[i]);
       final Function1D<Double, Double> func = pricer.getPointFunction(i, creditCurve);
-
-      //    final double minValue = _allowArbitrage ? 0.0 : i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
 
       switch (_arbHandling) {
         case Ignore: {

@@ -8,6 +8,9 @@ package com.opengamma.financial.analytics.model.curve;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.ROOT_FINDING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
@@ -87,7 +90,6 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class InflationProviderDiscountingFunction extends AbstractFunction {
-  private static final String CALCULATION_METHOD = "Discounting"; //TODO move me
   private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator PSIMQCSC = ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
   private final String _configurationName;
@@ -116,11 +118,7 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
       for (final String name : exogenousConfigurations) {
         //TODO deal with arbitrary depth
         final ValueProperties properties = ValueProperties.builder()
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
             .with(CURVE_CONSTRUCTION_CONFIG, name)
-            .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
-            .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")
-            .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
           .get();
         exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
@@ -135,12 +133,14 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+        final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
         //TODO requires that the discounting curves are supplied externally
         InflationProviderDiscount knownData;
         if (exogenousRequirements.isEmpty()) {
-          knownData = new InflationProviderDiscount();
+          knownData = new InflationProviderDiscount(fxMatrix);
         } else {
           knownData = new InflationProviderDiscount((MulticurveProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE));
+          knownData.getMulticurveProvider().setForexMatrix(fxMatrix);
         }
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
@@ -161,9 +161,8 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
         final double absoluteTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)));
         final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
         final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
-        final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
         final InflationDiscountBuildingRepository builder = new InflationDiscountBuildingRepository(absoluteTolerance, relativeTolerance, maxIterations);
-        final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData, fxMatrix);
+        final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData);
         final ValueSpecification bundleSpec = new ValueSpecification(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
         final Set<ComputedValue> result = new HashSet<>();
         result.add(new ComputedValue(bundleSpec, pair.getFirst()));
@@ -231,7 +230,8 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
       private ValueProperties getCurveProperties(final String curveName) {
         return createValueProperties()
             .with(CURVE, curveName)
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
@@ -242,7 +242,8 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
       @SuppressWarnings("synthetic-access")
       private ValueProperties getBundleProperties() {
         return createValueProperties()
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
@@ -252,8 +253,7 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       private Pair<InflationProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
-          final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder, final InflationProviderDiscount knownData,
-          final FXMatrix fxMatrix) {
+          final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder, final InflationProviderDiscount knownData) {
         final ValueProperties curveConstructionProperties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, constructionConfiguration.getName())
             .get();

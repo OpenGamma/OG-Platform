@@ -173,6 +173,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
     return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
+  @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
     ArgumentChecker.notNull(xValues, "xValues");
     ArgumentChecker.notNull(yValues, "yValues");

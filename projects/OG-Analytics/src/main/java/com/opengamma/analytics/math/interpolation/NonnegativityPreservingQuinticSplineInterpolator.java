@@ -218,6 +218,10 @@ public class NonnegativityPreservingQuinticSplineInterpolator extends PiecewiseP
     DoubleMatrix1D[] firstWithSensitivity = new DoubleMatrix1D[nDataPts + 1];
     DoubleMatrix1D[] secondWithSensitivity = new DoubleMatrix1D[nDataPts + 1];
 
+    /*
+     * If y_i = 0 for at least one i, analytic formula fails (not necessarily though). 
+     * Then the centered finite difference approximation is used
+     */
     final boolean finApp = checkZero(yValuesSrt);
     if (finApp) {
       final PiecewisePolynomialResult result = _method.interpolate(xValues, yValues);

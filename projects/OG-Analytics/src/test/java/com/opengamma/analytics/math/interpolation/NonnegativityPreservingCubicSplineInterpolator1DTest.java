@@ -8,15 +8,13 @@ package com.opengamma.analytics.math.interpolation;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
- * 
+ * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
 public class NonnegativityPreservingCubicSplineInterpolator1DTest {
 
@@ -121,7 +119,7 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Derivative values are corrected 
    */
   @Test
   public void modifiedFunctionTest() {
@@ -207,7 +205,7 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data are constant or linearly increasing/decreasing
    */
   @Test
   public void linearDataTest() {
@@ -398,7 +396,7 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Covering remaining branches
    */
   @Test
   public void branchTest() {
@@ -451,64 +449,4 @@ public class NonnegativityPreservingCubicSplineInterpolator1DTest {
     }
   }
 
-  /**
-   * For debugging
-   */
-  @Test
-      (enabled = false)
-      public void test() {
-    final Random rand = new Random();
-    final int nData = 10;
-    double[] xValues;
-    double[] yValues1 = new double[nData];
-    double[] yValues1Up = new double[nData];
-    double[] yValues1Dw = new double[nData];
-    final double[] xKeys = new double[10 * nData];
-    xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
-    //    xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
-    //    xValues = new double[] {1., 2., 3.5, 5.5, 8., 11., 13., 14., 16., 17. };
-    int l = 0;
-    while (l < 100000) {
-      ++l;
-      for (int i = 0; i < nData; ++i) {
-        yValues1[i] = rand.nextDouble() * 1.e-9;
-        //        yValues1[i] *= yValues1[i];
-        yValues1Up[i] = yValues1[i];
-        yValues1Dw[i] = yValues1[i];
-      }
-      System.out.println(new DoubleMatrix1D(xValues));
-      System.out.println(new DoubleMatrix1D(yValues1));
-
-      final double xMin = xValues[0];
-      final double xMax = xValues[nData - 1];
-      for (int i = 0; i < 10 * nData; ++i) {
-        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-      }
-
-      final NonnegativityPreservingCubicSplineInterpolator bare = new NonnegativityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
-      final NonnegativityPreservingCubicSplineInterpolator1D wrap = new NonnegativityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
-
-      final double[] resPrim1 = bare.interpolate(xValues, yValues1, xKeys).getData();
-
-      Interpolator1DDataBundle dataBund1 = wrap.getDataBundleFromSortedArrays(xValues, yValues1);
-      for (int i = 0; i < 10 * nData; ++i) {
-        final double ref1 = resPrim1[i];
-        assertEquals(ref1, wrap.interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-      }
-
-      for (int j = 0; j < nData; ++j) {
-        final double den1 = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * EPS;
-        yValues1Up[j] = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * (1. + EPS);
-        yValues1Dw[j] = Math.abs(yValues1[j]) == 0. ? -EPS : yValues1[j] * (1. - EPS);
-        Interpolator1DDataBundle dataBund1Up = wrap.getDataBundleFromSortedArrays(xValues, yValues1Up);
-        Interpolator1DDataBundle dataBund1Dw = wrap.getDataBundleFromSortedArrays(xValues, yValues1Dw);
-        for (int i = 0; i < 10 * nData; ++i) {
-          double res1 = 0.5 * (wrap.interpolate(dataBund1Up, xKeys[i]) - wrap.interpolate(dataBund1Dw, xKeys[i])) / den1;
-          assertEquals(res1, wrap.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * 1.e-1, 1.e-1));
-        }
-        yValues1Up[j] = yValues1[j];
-        yValues1Dw[j] = yValues1[j];
-      }
-    }
-  }
 }

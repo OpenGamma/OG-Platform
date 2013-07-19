@@ -31,7 +31,7 @@ public class CreditBootstrapFailTest extends ISDABaseTest {
 
   private static final double[] PAR_SPREADS = new double[] {0.0181398, 0.0181398, 0.027096, 0.0279819, 0.0357239, 0.0273206 };
 
-  @Test
+  @Test(enabled = false)
   public void test() {
     final ISDACompliantCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder(true, ArbitrageHandling.ZeroHazardRate);
 

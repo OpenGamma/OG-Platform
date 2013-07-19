@@ -8,15 +8,13 @@ package com.opengamma.analytics.math.interpolation;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
- * 
+ * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
 public class SemiLocalCubicSplineInterpolator1DTest {
 
@@ -201,8 +199,7 @@ public class SemiLocalCubicSplineInterpolator1DTest {
   }
 
   /**
-   * Central finite difference approximation is not a good reference for this interpolation method
-   * since first derivative value for s1=s2 \ne s3=s4 is not a limiting case of its general form
+   * 
    */
   @Test
   public void linearDataTest() {
@@ -279,61 +276,4 @@ public class SemiLocalCubicSplineInterpolator1DTest {
     }
   }
 
-  /**
-   * For debugging
-   */
-  @Test
-      (enabled = false)
-      public void recapTest() {
-    final int nData = 10;
-    final double[] xValues = new double[] {1., 2., 3.5, 5.5, 8., 11., 13., 14., 16., 17. };
-    double[] yValues1 = new double[nData];
-    double[] yValues1Up = new double[nData];
-    double[] yValues1Dw = new double[nData];
-    final double[] xKeys = new double[10 * nData];
-    final Random rand = new Random();
-
-    int k = 0;
-    while (k < 10000) {
-      ++k;
-      for (int i = 0; i < nData; ++i) {
-        yValues1[i] = -(rand.nextDouble()) * 1.e-10;
-        yValues1Up[i] = yValues1[i];
-        yValues1Dw[i] = yValues1[i];
-      }
-      System.out.println(new DoubleMatrix1D(xValues));
-      System.out.println(new DoubleMatrix1D(yValues1));
-
-      //    INTERP_AKIMA.interpolateWithSensitivity(xValues, yValues1);
-
-      final double xMin = xValues[0];
-      final double xMax = xValues[nData - 1];
-      for (int i = 0; i < 10 * nData; ++i) {
-        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-      }
-
-      final double[] resPrim1 = INTERP.interpolate(xValues, yValues1, xKeys).getData();
-
-      Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1);
-      for (int i = 0; i < 10 * nData; ++i) {
-        final double ref1 = resPrim1[i];
-        assertEquals(ref1, INTERP1D.interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-      }
-
-      for (int j = 0; j < nData; ++j) {
-        final double den1 = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * EPS;
-        yValues1Up[j] = Math.abs(yValues1[j]) == 0. ? EPS : yValues1[j] * (1. + EPS);
-        yValues1Dw[j] = Math.abs(yValues1[j]) == 0. ? -EPS : yValues1[j] * (1. - EPS);
-        Interpolator1DDataBundle dataBund1Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Up);
-        Interpolator1DDataBundle dataBund1Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Dw);
-        for (int i = 0; i < 10 * nData; ++i) {
-          //        System.out.println(xKeys[i]);
-          double res1 = 0.5 * (INTERP1D.interpolate(dataBund1Up, xKeys[i]) - INTERP1D.interpolate(dataBund1Dw, xKeys[i])) / den1;
-          assertEquals(res1, INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * 1.e-4, 1.e-4));
-        }
-        yValues1Up[j] = yValues1[j];
-        yValues1Dw[j] = yValues1[j];
-      }
-    }
-  }
 }
