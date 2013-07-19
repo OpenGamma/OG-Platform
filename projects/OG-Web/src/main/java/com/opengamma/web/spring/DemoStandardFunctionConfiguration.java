@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
@@ -541,4 +542,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionCalculationMethodDefaultFunction.class.getName(), defaults));
   }
 
+  @Override
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions());
+  }
 }
