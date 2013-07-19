@@ -19,6 +19,8 @@ import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOption
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
+import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
@@ -80,6 +82,14 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
 
   protected FunctionConfigurationSource fixedIncomeFunctionConfiguration() {
     return FixedIncomeFunctions.instance();
+  }
+
+  protected FunctionConfigurationSource yieldCurveFunctionConfiguration() {
+    return InterestRateFunctions.instance();
+  }
+
+  protected FunctionConfigurationSource forwardFunctionConfiguration() {
+    return ForwardFunctions.instance();
   }
 
   protected FunctionConfigurationSource forexFunctionConfiguration() {
@@ -145,7 +155,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(),
         futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
         pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
-        swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration());
+        swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration(), yieldCurveFunctionConfiguration(), forwardFunctionConfiguration());
   }
 
 }
