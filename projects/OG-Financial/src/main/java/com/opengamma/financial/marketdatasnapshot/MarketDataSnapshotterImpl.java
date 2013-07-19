@@ -6,10 +6,7 @@
 package com.opengamma.financial.marketdatasnapshot;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -49,7 +46,6 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -122,28 +118,20 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   private ManageableUnstructuredMarketDataSnapshot getGlobalValues(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results, final Map<String, DependencyGraph> graphs) {
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
-    final Collection<ComputedValue> data = new ArrayList<ComputedValue>(results.getAllMarketData());
     for (final Entry<String, DependencyGraph> graphEntry : graphs.entrySet()) {
       final DependencyGraph graph = graphEntry.getValue();
-      final Iterator<ComputedValue> itrData = data.iterator();
-      while (itrData.hasNext()) {
-        final ComputedValue computedValue = itrData.next();
-        if (computedValue.getValue() instanceof Double) {
-          final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
-          if ((nodeProducing != null) && isTerminalUnstructuredOutput(nodeProducing, graph)) {
-            itrData.remove();
-            ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(computedValue.getSpecification().getTargetSpecification());
-            // if reading live data from hts, we need to lookup the externalIdBundle via the hts unique id
-            if (identifiers == null && _htsSource != null && computedValue.getSpecification().getTargetSpecification().getUniqueId() != null) {
-              // try a lookup in hts
-              identifiers = _htsSource.getExternalIdBundle(computedValue.getSpecification().getTargetSpecification().getUniqueId());
-            }
-            if (identifiers != null) {
-              snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), new ValueSnapshot((Double) computedValue.getValue()));
-            }
+      for (ComputedValue computedValue : results.getAllMarketData()) {
+        final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
+        if ((nodeProducing != null) && isTerminalUnstructuredOutput(nodeProducing, graph)) {
+          ExternalIdBundle identifiers = resolver.visitComputationTargetSpecification(computedValue.getSpecification().getTargetSpecification());
+          // if reading live data from hts, we need to lookup the externalIdBundle via the hts unique id
+          if (identifiers == null && _htsSource != null && computedValue.getSpecification().getTargetSpecification().getUniqueId() != null) {
+            // try a lookup in hts
+            identifiers = _htsSource.getExternalIdBundle(computedValue.getSpecification().getTargetSpecification().getUniqueId());
           }
-        } else {
-          itrData.remove();
+          if (identifiers != null) {
+            snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), new ValueSnapshot(computedValue.getValue()));
+          }
         }
       }
     }
