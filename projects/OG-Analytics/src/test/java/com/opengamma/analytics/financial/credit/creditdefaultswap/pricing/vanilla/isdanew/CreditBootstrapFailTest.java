@@ -6,6 +6,8 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
+
 public class CreditBootstrapFailTest extends ISDABaseTest {
 
   protected static final double NOTIONAL = 1e6;
@@ -31,6 +33,8 @@ public class CreditBootstrapFailTest extends ISDABaseTest {
 
   @Test
   public void test() {
+    final ISDACompliantCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder(true, ArbitrageHandling.ZeroHazardRate);
+
     final double coupon = COUPON * ONE_BP;
     // final double scale = NOTIONAL * ONE_BP;
 
@@ -40,7 +44,7 @@ public class CreditBootstrapFailTest extends ISDABaseTest {
     for (int i = 0; i < m; i++) {
       curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
-    final ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(curveCDSs, PAR_SPREADS, YIELD_CURVE);
+    final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(curveCDSs, PAR_SPREADS, YIELD_CURVE);
 
     for (int i = 0; i < 200; i++) {
       final double t = 12.0 * i / 200.;

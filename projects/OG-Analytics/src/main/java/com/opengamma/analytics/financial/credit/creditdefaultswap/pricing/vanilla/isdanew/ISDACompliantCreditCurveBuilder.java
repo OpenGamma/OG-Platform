@@ -16,8 +16,25 @@ import com.opengamma.analytics.financial.credit.StubType;
  */
 public interface ISDACompliantCreditCurveBuilder {
 
+  /**
+   * How should any arbitrage in the input data be handled 
+   */
   public enum ArbitrageHandling {
-    Ignore, Fail, ZeroHazardRate
+    /**
+     * If the market data has arbitrage, the curve will still build, but the survival probability will not be monotonically
+     * decreasing (equivalently, some forward hazard rates will be negative)
+     */
+    Ignore,
+    /**
+     * An exception is throw if an arbitrage is found
+     */
+    Fail,
+    /**
+     * If a particular spread implies a negative forward hazard rate, the hazard rate is set to zero, and the calibration 
+     * continues. The resultant curve will of course not exactly reprice the input CDSs, but will find new spreads that
+     * just avoid arbitrage.   
+     */
+    ZeroHazardRate
   }
 
   /**

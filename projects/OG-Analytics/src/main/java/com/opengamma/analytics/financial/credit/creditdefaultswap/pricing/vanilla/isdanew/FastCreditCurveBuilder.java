@@ -28,13 +28,13 @@ import com.opengamma.util.ArgumentChecker;
 
 public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
-  private static final boolean DEFAULT_USE_ALLOW_ARBITRAGE = false;
+  private static final ArbitrageHandling DEFAULT_ARBITRAGE_HANDLING = ArbitrageHandling.Ignore;
   private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
 
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
 
-  private final boolean _allowArbitrage;
+  private final ArbitrageHandling _arbHandling;
   private final boolean _useCorrectAccOnDefaultFormula;
 
   /**
@@ -42,17 +42,29 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * has been reproduced.   
    */
   public FastCreditCurveBuilder() {
-    _allowArbitrage = DEFAULT_USE_ALLOW_ARBITRAGE;
+    _arbHandling = DEFAULT_ARBITRAGE_HANDLING;
     _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
   }
 
   /**
-   *  For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
+   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.  
    * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
    */
   public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula) {
-    _allowArbitrage = DEFAULT_USE_ALLOW_ARBITRAGE;
+    _arbHandling = DEFAULT_ARBITRAGE_HANDLING;
+    _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  }
+
+  /**
+   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
+   * has been reproduced.  
+   * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
+   * @param arbHandling How should any arbitrage in the input date be handled
+   */
+  public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula, final ArbitrageHandling arbHandling) {
+    ArgumentChecker.notNull(arbHandling, "arbHandling");
+    _arbHandling = arbHandling;
     _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
   }
 
@@ -105,8 +117,8 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     final double[] guess = new double[n];
     final double[] t = new double[n];
     for (int i = 0; i < n; i++) {
-      guess[i] = premiums[i] / cds[i].getLGD(); // TODO incorporate pointsUpfront
       t[i] = cds[i].getProtectionEnd();
+      guess[i] = (premiums[i] + pointsUpfront[i] / t[i]) / cds[i].getLGD(); // TODO incorporate pointsUpfront
     }
 
     ISDACompliantCreditCurve creditCurve = new ISDACompliantCreditCurve(t, guess);
@@ -114,10 +126,50 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
       final Pricer pricer = new Pricer(cds[i], yieldCurve, t, premiums[i], pointsUpfront[i]);
       final Function1D<Double, Double> func = pricer.getPointFunction(i, creditCurve);
 
-      final double minValue = _allowArbitrage ? 0.0 : i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
-      final double[] bracket = BRACKER.getBracketedPoints(func, Math.max(minValue, 0.8 * guess[i]), Math.max(minValue + 1e-4, 1.25 * guess[i]), minValue, Double.POSITIVE_INFINITY);
-      final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
-      creditCurve = creditCurve.withRate(zeroRate, i);
+      //    final double minValue = _allowArbitrage ? 0.0 : i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
+
+      switch (_arbHandling) {
+        case Ignore: {
+          final double minValue = 0.0;
+          final double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], minValue, Double.POSITIVE_INFINITY);
+          final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+          creditCurve = creditCurve.withRate(zeroRate, i);
+          break;
+        }
+        case Fail: {
+          final double minValue = i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
+          if (i > 0 && func.evaluate(minValue) > 0.0) { //can never fail on the first spread
+            final StringBuilder msg = new StringBuilder();
+            if (pointsUpfront[i] == 0.0) {
+              msg.append("The par spread of " + premiums[i] + " at index " + i);
+            } else {
+              msg.append("The premium of " + premiums[i] + "and points up-front of " + pointsUpfront[i] + " at index " + i);
+            }
+            msg.append(" is an arbitrage; cannot fit a curve with positive forward hazard rate. ");
+            throw new IllegalArgumentException(msg.toString());
+          }
+          guess[i] = Math.max(minValue, guess[i]);
+          final double[] bracket = BRACKER.getBracketedPoints(func, guess[i], 1.2 * guess[i], minValue, Double.POSITIVE_INFINITY);
+          final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+          creditCurve = creditCurve.withRate(zeroRate, i);
+          break;
+        }
+        case ZeroHazardRate: {
+          final double minValue = i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
+          if (i > 0 && func.evaluate(minValue) > 0.0) { //can never fail on the first spread
+            creditCurve = creditCurve.withRate(minValue, i);
+          } else {
+            guess[i] = Math.max(minValue, guess[i]);
+            final double[] bracket = BRACKER.getBracketedPoints(func, guess[i], 1.2 * guess[i], minValue, Double.POSITIVE_INFINITY);
+            final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+            creditCurve = creditCurve.withRate(zeroRate, i);
+          }
+          break;
+        }
+        default:
+          throw new IllegalArgumentException("unknow case " + _arbHandling);
+      }
+
     }
     return creditCurve;
   }
