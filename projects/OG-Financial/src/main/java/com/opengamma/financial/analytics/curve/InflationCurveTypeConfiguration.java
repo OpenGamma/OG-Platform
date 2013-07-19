@@ -17,8 +17,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.ExternalId;
-
 /**
  *
  */
@@ -41,7 +39,7 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
   private String _priceIndex;
 
   /**
-   * For the fudge builder.
+   * For the builder.
    */
   /* package */ InflationCurveTypeConfiguration() {
     super();
