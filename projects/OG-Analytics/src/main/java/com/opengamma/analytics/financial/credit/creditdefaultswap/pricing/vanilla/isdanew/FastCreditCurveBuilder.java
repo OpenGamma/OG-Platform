@@ -28,6 +28,8 @@ import com.opengamma.util.ArgumentChecker;
 
 public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
+  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
+
   private static final ArbitrageHandling DEFAULT_ARBITRAGE_HANDLING = ArbitrageHandling.Ignore;
   private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
 
@@ -66,6 +68,76 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     ArgumentChecker.notNull(arbHandling, "arbHandling");
     _arbHandling = arbHandling;
     _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
+    double puf;
+    double coupon;
+    if (marketQuote instanceof ParSpread) {
+      puf = 0.0;
+      coupon = marketQuote.getCoupon();
+    } else if (marketQuote instanceof QuotedSpread) {
+      puf = 0.0;
+      coupon = ((QuotedSpread) marketQuote).getQuotedSpread();
+    } else if (marketQuote instanceof PointsUpFront) {
+      final PointsUpFront temp = (PointsUpFront) marketQuote;
+      puf = temp.getPointsUpFront();
+      coupon = temp.getCoupon();
+    } else {
+      throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
+    }
+
+    return calibrateCreditCurve(new CDSAnalytic[] {calibrationCDS }, new double[] {coupon }, yieldCurve, new double[] {puf });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] calibrationCDSs, final CDSQuoteConvention[] marketQuotes, final ISDACompliantYieldCurve yieldCurve) {
+    ArgumentChecker.noNulls(marketQuotes, "marketQuotes");
+    final int n = marketQuotes.length;
+    final double[] coupons = new double[n];
+    final double[] pufs = new double[n];
+    for (int i = 0; i < n; i++) {
+      final double[] temp = getStandardQuoteForm(calibrationCDSs[i], marketQuotes[i], yieldCurve);
+      coupons[i] = temp[0];
+      pufs[i] = temp[1];
+    }
+
+    return calibrateCreditCurve(calibrationCDSs, coupons, yieldCurve, pufs);
+  }
+
+  /**
+   * Put any CDS market quote into the form needed for the curve builder, namely coupon and points up-front (which can be zero)
+   * @param calibrationCDS
+   * @param marketQuote
+   * @param yieldCurve
+   * @return
+   */
+  private double[] getStandardQuoteForm(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
+    final double[] res = new double[2];
+    if (marketQuote instanceof ParSpread) {
+      res[0] = marketQuote.getCoupon();
+    } else if (marketQuote instanceof QuotedSpread) {
+      final QuotedSpread temp = (QuotedSpread) marketQuote;
+      final double coupon = temp.getCoupon();
+      final double qSpread = temp.getQuotedSpread();
+      final ISDACompliantCreditCurve cc = calibrateCreditCurve(new CDSAnalytic[] {calibrationCDS }, new double[] {qSpread }, yieldCurve, new double[1]);
+      res[0] = coupon;
+      res[1] = PRICER.pv(calibrationCDS, yieldCurve, cc, coupon, PriceType.CLEAN);
+    } else if (marketQuote instanceof PointsUpFront) {
+      final PointsUpFront temp = (PointsUpFront) marketQuote;
+      res[0] = temp.getCoupon();
+      res[1] = temp.getPointsUpFront();
+    } else {
+      throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
+    }
+    return res;
   }
 
   /**

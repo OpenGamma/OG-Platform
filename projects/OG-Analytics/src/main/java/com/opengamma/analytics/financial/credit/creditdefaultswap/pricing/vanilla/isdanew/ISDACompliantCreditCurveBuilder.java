@@ -38,6 +38,25 @@ public interface ISDACompliantCreditCurveBuilder {
   }
 
   /**
+   * Bootstrapper the credit curve from a single market CDS quote. Obviously the resulting credit (hazard)
+   *  curve will be flat.
+   * @param calibrationCDS The single market CDS - this is the reference instruments used to build the credit curve 
+   * @param marketQuote The market quote of the CDS 
+   * @param yieldCurve The yield (or discount) curve  
+   * @return The credit curve  
+   */
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve);
+
+  /**
+   * Bootstrapper the credit curve from a set of reference/calibration CDSs with market quotes 
+   * @param calibrationCDSs The market CDSs - these are the reference instruments used to build the credit curve 
+   * @param marketQuotes The market quotes of the CDSs 
+   * @param yieldCurve The yield (or discount) curve 
+   * @return The credit curve 
+   */
+  ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] calibrationCDSs, final CDSQuoteConvention[] marketQuotes, final ISDACompliantYieldCurve yieldCurve);
+
+  /**
    * Bootstrapper the credit curve from a single market CDS quote given as a par spread. Obviously the resulting credit (hazard)
    *  curve will be flat.
    * @param cds  The single market CDS - this is the reference instruments used to build the credit curve 
