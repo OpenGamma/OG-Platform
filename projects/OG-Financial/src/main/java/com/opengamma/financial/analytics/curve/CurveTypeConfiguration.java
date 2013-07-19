@@ -12,13 +12,9 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
-import com.opengamma.id.UniqueId;
 
 /**
  * Configuration object that contains information about how a curve is to be used (e.g. as a discounting curve,
@@ -31,7 +27,7 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructor for the fudge builder
+   * Constructor for the builder
    */
   /* package */CurveTypeConfiguration() {
   }

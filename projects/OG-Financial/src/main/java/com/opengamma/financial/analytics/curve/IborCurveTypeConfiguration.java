@@ -42,7 +42,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   private Tenor _tenor;
 
   /**
-   * For the fudge builder
+   * For the builder.
    */
   /* package */ IborCurveTypeConfiguration() {
     super();

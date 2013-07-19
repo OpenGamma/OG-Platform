@@ -32,6 +32,9 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
   @PropertyDefinition(validate = "notNull")
   private String _reference;
 
+  /**
+   * For the builder.
+   */
   /* package */ DiscountingCurveTypeConfiguration() {
     super();
   }

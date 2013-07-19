@@ -35,7 +35,7 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
   private ExternalId _convention;
 
   /**
-   * For the fudge builder
+   * For the builder.
    */
   /* package */ OvernightCurveTypeConfiguration() {
     super();

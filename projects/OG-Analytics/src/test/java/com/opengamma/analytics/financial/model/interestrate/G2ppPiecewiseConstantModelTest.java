@@ -13,6 +13,7 @@ import org.testng.internal.junit.ArrayAsserts;
 
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the construction of the G2++ model with piecewise constant volatility. The computation of several model related factors are also tested.
@@ -27,7 +28,14 @@ public class G2ppPiecewiseConstantModelTest {
   private static final G2ppPiecewiseConstantModel MODEL_G2PP = new G2ppPiecewiseConstantModel();
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL_HW = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
+  private static final double[] DCF_FIXED = new double[] {1.0, 1.0 };
+  private static final double[] T_FIXED = new double[] {3.0, 4.0 };
+  private static final double[] DCF_IBOR = new double[] {1.001, 0.001, 0.001, 0.001, -1.0 };
+  private static final double[] T_IBOR = new double[] {2.0, 2.5, 3.0, 3.5, 4.0 };
+
   private static final double TOLERANCE_FACTOR = 1.0E-6;
+  private static final double TOLERANCE_RATE_DELTA = 1.0E-8;
+  private static final double TOLERANCE_RATE_DELTA2 = 1.0E-7;
 
   @Test
   /**
@@ -116,27 +124,23 @@ public class G2ppPiecewiseConstantModelTest {
    */
   public void swapRateD1and2() {
     double theta = 1.99;
-    double[] discountedCashFlowFixed = new double[] {1.0, 1.0 };
-    double[] tFixed = new double[] {3.0, 4.0 };
-    double[] discountedCashFlowIbor = new double[] {1.001, 0.001, 0.001, 0.001, -1.0 };
-    double[] tIbor = new double[] {2.0, 2.5, 3.0, 3.5, 4.0 };
 
     double rhog2pp = MODEL_PARAMETERS.getCorrelation();
     double[][] gamma = MODEL_G2PP.gamma(MODEL_PARAMETERS, 0, theta);
-    double[][] alphaFixed = new double[tFixed.length][2];
-    double[] tau2Fixed = new double[tFixed.length];
-    double[][] alphaIbor = new double[tIbor.length][2];
-    double[] tau2Ibor = new double[tIbor.length];
-    double[][] hthetaFixed = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, tFixed);
-    alphaFixed = new double[2][tFixed.length];
-    tau2Fixed = new double[tFixed.length];
-    for (int loopcf = 0; loopcf < tFixed.length; loopcf++) {
+    double[][] alphaFixed = new double[T_FIXED.length][2];
+    double[] tau2Fixed = new double[T_FIXED.length];
+    double[][] alphaIbor = new double[T_IBOR.length][2];
+    double[] tau2Ibor = new double[T_IBOR.length];
+    double[][] hthetaFixed = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, T_FIXED);
+    alphaFixed = new double[2][T_FIXED.length];
+    tau2Fixed = new double[T_FIXED.length];
+    for (int loopcf = 0; loopcf < T_FIXED.length; loopcf++) {
       alphaFixed[loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaFixed[0][loopcf];
       alphaFixed[loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaFixed[1][loopcf];
       tau2Fixed[loopcf] = alphaFixed[loopcf][0] * alphaFixed[loopcf][0] + alphaFixed[loopcf][1] * alphaFixed[loopcf][1] + 2 * rhog2pp * gamma[0][1] * hthetaFixed[0][loopcf] * hthetaFixed[1][loopcf];
     }
-    double[][] hthetaIbor = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, tIbor);
-    for (int loopcf = 0; loopcf < tIbor.length; loopcf++) {
+    double[][] hthetaIbor = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, T_IBOR);
+    for (int loopcf = 0; loopcf < T_IBOR.length; loopcf++) {
       alphaIbor[loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaIbor[0][loopcf];
       alphaIbor[loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaIbor[1][loopcf];
       tau2Ibor[loopcf] = alphaIbor[loopcf][0] * alphaIbor[loopcf][0] + alphaIbor[loopcf][1] * alphaIbor[loopcf][1] + 2 * rhog2pp * gamma[0][1] * hthetaIbor[0][loopcf] * hthetaIbor[1][loopcf];
@@ -146,14 +150,14 @@ public class G2ppPiecewiseConstantModelTest {
     double shift = 1.0E-4;
     double[] swapRateD1 = new double[2];
     for (int looptest = 0; looptest < x.length; looptest++) {
-      MODEL_G2PP.swapRate(x[looptest], discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, swapRateD1);
+      MODEL_G2PP.swapRate(x[looptest], DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor, swapRateD1);
       for (int loop = 0; loop < 2; loop++) {
         double[] xP = x[looptest].clone();
         xP[loop] += shift;
         double[] xM = x[looptest].clone();
         xM[loop] -= shift;
-        double swapRateP1 = MODEL_G2PP.swapRate(xP, discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor);
-        double swapRateM1 = MODEL_G2PP.swapRate(xM, discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor);
+        double swapRateP1 = MODEL_G2PP.swapRate(xP, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+        double swapRateM1 = MODEL_G2PP.swapRate(xM, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
         assertEquals("G2++: swap rate", (swapRateP1 - swapRateM1) / (2 * shift), swapRateD1[loop], 1.0E-7);
       }
     }
@@ -162,8 +166,8 @@ public class G2ppPiecewiseConstantModelTest {
     double[] swapRateD1Expected = new double[2];
     double[][] swapRateD2 = new double[2][2];
     for (int looptest = 0; looptest < x.length; looptest++) {
-      MODEL_G2PP.swapRate(x[looptest], discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, swapRateD1Expected);
-      MODEL_G2PP.swapRate(x[looptest], discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, swapRateD1, swapRateD2);
+      MODEL_G2PP.swapRate(x[looptest], DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor, swapRateD1Expected);
+      MODEL_G2PP.swapRate(x[looptest], DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor, swapRateD1, swapRateD2);
       double[][] swapRateD2Expected = new double[2][2];
       for (int loop1 = 0; loop1 < 2; loop1++) {
         for (int loop2 = 0; loop2 < 2; loop2++) {
@@ -179,16 +183,134 @@ public class G2ppPiecewiseConstantModelTest {
           xMP[loop2] += shift;
           xPM[loop1] += shift;
           xPM[loop2] -= shift;
-          double swapRatePP = MODEL_G2PP.swapRate(xPP, discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor);
-          double swapRateMM = MODEL_G2PP.swapRate(xMM, discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor);
-          double swapRateMP = MODEL_G2PP.swapRate(xMP, discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor);
-          double swapRatePM = MODEL_G2PP.swapRate(xPM, discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor);
+          double swapRatePP = MODEL_G2PP.swapRate(xPP, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+          double swapRateMM = MODEL_G2PP.swapRate(xMM, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+          double swapRateMP = MODEL_G2PP.swapRate(xMP, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+          double swapRatePM = MODEL_G2PP.swapRate(xPM, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
           swapRateD2Expected[loop1][loop2] = (swapRatePP + swapRateMM - swapRateMP - swapRatePM) / (4 * shift * shift);
           assertEquals("G2++: swap rate", swapRateD2Expected[loop1][loop2], swapRateD2[loop1][loop2], 1.0E-7);
         }
       }
       ArrayAsserts.assertArrayEquals("G2++: gamma", swapRateD1Expected, swapRateD1, 1.0E-7);
     }
+  }
+
+  @Test
+  public void swapRateDdcf() {
+    double theta = 1.99;
+    double rhog2pp = MODEL_PARAMETERS.getCorrelation();
+    double[][] gamma = MODEL_G2PP.gamma(MODEL_PARAMETERS, 0, theta);
+    double[][] alphaFixed = new double[T_FIXED.length][2];
+    double[] tau2Fixed = new double[T_FIXED.length];
+    double[][] alphaIbor = new double[T_IBOR.length][2];
+    double[] tau2Ibor = new double[T_IBOR.length];
+    double[][] hthetaFixed = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, T_FIXED);
+    alphaFixed = new double[2][T_FIXED.length];
+    tau2Fixed = new double[T_FIXED.length];
+    for (int loopcf = 0; loopcf < T_FIXED.length; loopcf++) {
+      alphaFixed[loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaFixed[0][loopcf];
+      alphaFixed[loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaFixed[1][loopcf];
+      tau2Fixed[loopcf] = alphaFixed[loopcf][0] * alphaFixed[loopcf][0] + alphaFixed[loopcf][1] * alphaFixed[loopcf][1] + 2 * rhog2pp * gamma[0][1] * hthetaFixed[0][loopcf] * hthetaFixed[1][loopcf];
+    }
+    double[][] hthetaIbor = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, T_IBOR);
+    for (int loopcf = 0; loopcf < T_IBOR.length; loopcf++) {
+      alphaIbor[loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaIbor[0][loopcf];
+      alphaIbor[loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaIbor[1][loopcf];
+      tau2Ibor[loopcf] = alphaIbor[loopcf][0] * alphaIbor[loopcf][0] + alphaIbor[loopcf][1] * alphaIbor[loopcf][1] + 2 * rhog2pp * gamma[0][1] * hthetaIbor[0][loopcf] * hthetaIbor[1][loopcf];
+    }
+
+    final double shift = 1.0E-8;
+    double[] x = {0.0, 0.1 };
+    double[] ddcffExpected = new double[DCF_FIXED.length];
+    for (int loopcf = 0; loopcf < DCF_FIXED.length; loopcf++) {
+      double[] dsf_bumped = DCF_FIXED.clone();
+      dsf_bumped[loopcf] += shift;
+      double swapRatePlus = MODEL_G2PP.swapRate(x, dsf_bumped, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL_G2PP.swapRate(x, dsf_bumped, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+      ddcffExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    double[] ddcffComputed = MODEL_G2PP.swapRateDdcff1(x, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate", ddcffExpected, ddcffComputed, TOLERANCE_RATE_DELTA);
+
+    double[] ddcfiExpected = new double[DCF_IBOR.length];
+    for (int loopcf = 0; loopcf < DCF_IBOR.length; loopcf++) {
+      double[] dsf_bumped = DCF_IBOR.clone();
+      dsf_bumped[loopcf] += shift;
+      double swapRatePlus = MODEL_G2PP.swapRate(x, DCF_FIXED, alphaFixed, tau2Fixed, dsf_bumped, alphaIbor, tau2Ibor);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL_G2PP.swapRate(x, DCF_FIXED, alphaFixed, tau2Fixed, dsf_bumped, alphaIbor, tau2Ibor);
+      ddcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    double[] ddcfiComputed = MODEL_G2PP.swapRateDdcfi1(x, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate", ddcfiExpected, ddcfiComputed, TOLERANCE_RATE_DELTA);
+  }
+
+  @Test(enabled = true)
+  public void swapRateDx2Ddcf() {
+    double theta = 1.99;
+    double rhog2pp = MODEL_PARAMETERS.getCorrelation();
+    double[][] gamma = MODEL_G2PP.gamma(MODEL_PARAMETERS, 0, theta);
+    double[][] alphaFixed = new double[T_FIXED.length][2];
+    double[] tau2Fixed = new double[T_FIXED.length];
+    double[][] alphaIbor = new double[T_IBOR.length][2];
+    double[] tau2Ibor = new double[T_IBOR.length];
+    double[][] hthetaFixed = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, T_FIXED);
+    alphaFixed = new double[2][T_FIXED.length];
+    tau2Fixed = new double[T_FIXED.length];
+    for (int loopcf = 0; loopcf < T_FIXED.length; loopcf++) {
+      alphaFixed[loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaFixed[0][loopcf];
+      alphaFixed[loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaFixed[1][loopcf];
+      tau2Fixed[loopcf] = alphaFixed[loopcf][0] * alphaFixed[loopcf][0] + alphaFixed[loopcf][1] * alphaFixed[loopcf][1] + 2 * rhog2pp * gamma[0][1] * hthetaFixed[0][loopcf] * hthetaFixed[1][loopcf];
+    }
+    double[][] hthetaIbor = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, theta, T_IBOR);
+    for (int loopcf = 0; loopcf < T_IBOR.length; loopcf++) {
+      alphaIbor[loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaIbor[0][loopcf];
+      alphaIbor[loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaIbor[1][loopcf];
+      tau2Ibor[loopcf] = alphaIbor[loopcf][0] * alphaIbor[loopcf][0] + alphaIbor[loopcf][1] * alphaIbor[loopcf][1] + 2 * rhog2pp * gamma[0][1] * hthetaIbor[0][loopcf] * hthetaIbor[1][loopcf];
+    }
+
+    final double shift = 1.0E-7;
+    double[] x = {0.0, 0.1 };
+    Pair<double[][][], double[][][]> dx2ddcfComputed = MODEL_G2PP.swapRateDdcfDx2(x, DCF_FIXED, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor);
+    double[][][] dx2DdcffExpected = new double[DCF_FIXED.length][2][2];
+    for (int loopcf = 0; loopcf < DCF_FIXED.length; loopcf++) {
+      double[] dsf_bumped = DCF_FIXED.clone();
+      dsf_bumped[loopcf] += shift;
+      double[] d1Plus = new double[2];
+      double[][] d2Plus = new double[2][2];
+      MODEL_G2PP.swapRate(x, dsf_bumped, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor, d1Plus, d2Plus);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double[] d1Minus = new double[2];
+      double[][] d2Minus = new double[2][2];
+      MODEL_G2PP.swapRate(x, dsf_bumped, alphaFixed, tau2Fixed, DCF_IBOR, alphaIbor, tau2Ibor, d1Minus, d2Minus);
+      for (int loopd1 = 0; loopd1 < 2; loopd1++) {
+        for (int loopd2 = loopd1; loopd2 < 2; loopd2++) {
+          dx2DdcffExpected[loopcf][loopd1][loopd2] = (d2Plus[loopd1][loopd2] - d2Minus[loopd1][loopd2]) / (2 * shift);
+          assertEquals("Hull-White model: swap rate", dx2DdcffExpected[loopcf][loopd1][loopd2], dx2ddcfComputed.getFirst()[loopcf][loopd1][loopd2], TOLERANCE_RATE_DELTA2);
+        }
+      }
+    }
+    double[][][] dx2DdcfiExpected = new double[DCF_IBOR.length][2][2];
+    for (int loopcf = 0; loopcf < DCF_IBOR.length; loopcf++) {
+      double[] dsf_bumped = DCF_IBOR.clone();
+      dsf_bumped[loopcf] += shift;
+      double[] d1Plus = new double[2];
+      double[][] d2Plus = new double[2][2];
+      MODEL_G2PP.swapRate(x, DCF_FIXED, alphaFixed, tau2Fixed, dsf_bumped, alphaIbor, tau2Ibor, d1Plus, d2Plus);
+      dsf_bumped[loopcf] -= 2 * shift;
+      double[] d1Minus = new double[2];
+      double[][] d2Minus = new double[2][2];
+      MODEL_G2PP.swapRate(x, DCF_FIXED, alphaFixed, tau2Fixed, dsf_bumped, alphaIbor, tau2Ibor, d1Minus, d2Minus);
+      for (int loopd1 = 0; loopd1 < 2; loopd1++) {
+        for (int loopd2 = loopd1; loopd2 < 2; loopd2++) {
+          dx2DdcfiExpected[loopcf][loopd1][loopd2] = (d2Plus[loopd1][loopd2] - d2Minus[loopd1][loopd2]) / (2 * shift);
+          assertEquals("Hull-White model: swap rate", dx2DdcfiExpected[loopcf][loopd1][loopd2], dx2ddcfComputed.getSecond()[loopcf][loopd1][loopd2], TOLERANCE_RATE_DELTA2);
+        }
+      }
+    }
+    @SuppressWarnings("unused")
+    int t = 0;
   }
 
   @Test

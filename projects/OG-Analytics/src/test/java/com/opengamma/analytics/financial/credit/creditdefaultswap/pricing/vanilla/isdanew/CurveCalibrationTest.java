@@ -72,7 +72,7 @@ public class CurveCalibrationTest extends ISDABaseTest {
     final ISDACompliantCreditCurve psCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(CURVE_CDS, parSpread, YIELD_CURVE);
 
     for (int i = 0; i < n; i++) {
-      assertEquals(pufCurve.getZeroRateAtIndex(i), psCurve.getZeroRateAtIndex(i), 1e-14);
+      assertEquals(pufCurve.getZeroRateAtIndex(i), psCurve.getZeroRateAtIndex(i), 1e-15);
     }
   }
 

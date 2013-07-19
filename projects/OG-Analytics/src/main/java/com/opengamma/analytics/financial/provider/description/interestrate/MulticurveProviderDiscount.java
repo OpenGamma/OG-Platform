@@ -347,8 +347,8 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   /**
    * Set all the curves contains in another bundle. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other bundle.
-   * TODO: REVIEW: Should we check that the curve are already present?
    */
+  //TODO: REVIEW: Should we check that the curve are already present?
   public void setAll(final MulticurveProviderDiscount other) {
     ArgumentChecker.notNull(other, "Market bundle");
     _discountingCurves.putAll(other._discountingCurves);
