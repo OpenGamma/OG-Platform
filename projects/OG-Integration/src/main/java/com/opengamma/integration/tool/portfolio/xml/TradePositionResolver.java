@@ -96,7 +96,7 @@ public class TradePositionResolver {
    * in the unresolved state, accessor methods can only be called when we are in the
    * resolved state.
    */
-  private boolean _isResolved = false;
+  private boolean _isResolved;
 
   /**
    * Constructor, taken in the set of known trade ids. Trade ids which are referenced

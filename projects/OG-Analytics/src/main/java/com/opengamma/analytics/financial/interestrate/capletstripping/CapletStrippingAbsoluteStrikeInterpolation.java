@@ -43,7 +43,7 @@ import com.opengamma.util.ArgumentChecker;
 public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingAbsoluteStrike {
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
   // TODO option on root finder
-  private static final NewtonVectorRootFinder ROOTFINDER = new NewtonDefaultVectorRootFinder();// new BroydenVectorRootFinder();
+  private static final NewtonVectorRootFinder ROOTFINDER = new NewtonDefaultVectorRootFinder();  // new BroydenVectorRootFinder();
 
   private static final String DEFAULT_INTERPOLATOR = Interpolator1DFactory.DOUBLE_QUADRATIC;
   private static final String DEFAULT_EXTRAPOLATOR = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.enginedebugger.node;
 
 import com.opengamma.util.ArgumentChecker;
@@ -13,7 +18,7 @@ public class SpanningValuePropertyEntryNode extends AbstractTreeTableLeafNode {
   private final String _specificationConstraing;
   private final boolean _specificationOptional;
   
-  public SpanningValuePropertyEntryNode(String commonConstraintName, 
+  public SpanningValuePropertyEntryNode(String commonConstraintName,
                                     String requirementConstraint, boolean requirementOptional,
                                     String specificationConstraint, boolean specificationOptional) {
     ArgumentChecker.notNull(commonConstraintName, "commonConstraintName");

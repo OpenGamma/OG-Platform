@@ -100,14 +100,14 @@ public final class EquityIndexFutureOptionBlackMethod {
     return df * fwdPrice;
   }
 
-  /** 
+  /**
    * Computes the sensitivity of the present value wrt the discounting rate assuming one is hedging with the Forward, F. <p>
-   * In this case, the arguments d1,d2 in the cumulative normal calls have no rates dependence. 
-   * The only sensitivity comes from the discounting itself, hence dV/dr = (T-t) * V. <p> 
+   * In this case, the arguments d1,d2 in the cumulative normal calls have no rates dependence.
+   * The only sensitivity comes from the discounting itself, hence dV/dr = (T-t) * V. <p>
    * This differs from rhoBlackScholes in which one forms a hedging portfolio with a discount bond and the SPOT, S.
-   * @param derivative An EquityOption, the OG-Analytics form of the derivative 
+   * @param derivative An EquityOption, the OG-Analytics form of the derivative
    * @param marketData A StaticReplicationDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
-   * @return The sensitivity of the present value wrt the discounting rate 
+   * @return The sensitivity of the present value wrt the discounting rate
    */
   public double rhoBlack(final EquityIndexFutureOption derivative, final StaticReplicationDataBundle marketData) {
     final double ttm = derivative.getExpiry();
@@ -346,7 +346,7 @@ public final class EquityIndexFutureOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double interestRate = marketData.getDiscountCurve().getInterestRate(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double theta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol,derivative.isCall(), interestRate);
+    final double theta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol, derivative.isCall(), interestRate);
     return theta;
   }
 }

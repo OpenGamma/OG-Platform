@@ -81,7 +81,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   private CompiledViewDefinitionWithGraphsImpl(final CompiledViewDefinitionWithGraphsImpl copyFrom,
                                               final Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
-                                              Map<DependencyGraph, Map<DistinctMarketDataSelector,FunctionParameters>> paramsByGraph) {
+                                              Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
     super(copyFrom.getResolverVersionCorrection(), copyFrom.getCompilationIdentifier(), copyFrom.getViewDefinition(), copyFrom.getPortfolio(),
           processCompiledCalculationConfigurations(copyFrom.getCompiledCalculationConfigurationsMap(), copyFrom._graphsByConfiguration, selectionsByGraph, paramsByGraph),
           copyFrom.getValidFrom(), copyFrom.getValidTo());

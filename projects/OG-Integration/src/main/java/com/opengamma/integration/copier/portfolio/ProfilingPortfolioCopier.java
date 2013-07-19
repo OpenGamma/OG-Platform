@@ -26,8 +26,8 @@ public class ProfilingPortfolioCopier implements PortfolioCopier {
   private static final Logger s_logger = LoggerFactory.getLogger(ProfilingPortfolioCopier.class);
   private String[] _structure;
 
-  private int _readTime = 0;
-  private int _writeTime = 0;
+  private int _readTime;
+  private int _writeTime;
 
   public ProfilingPortfolioCopier() {
     _structure = null;
@@ -43,6 +43,7 @@ public class ProfilingPortfolioCopier implements PortfolioCopier {
     copy(portfolioReader, portfolioWriter, null);
   }
 
+  @Override
   public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter, PortfolioCopierVisitor visitor) {
 
     ArgumentChecker.notNull(portfolioWriter, "portfolioWriter");
@@ -90,7 +91,7 @@ public class ProfilingPortfolioCopier implements PortfolioCopier {
         portfolioWriter.setPath(path);
 
         // Write position and security data
-        ObjectsPair<ManageablePosition, ManageableSecurity[]> written = 
+        ObjectsPair<ManageablePosition, ManageableSecurity[]> written =
             portfolioWriter.writePosition(position, securities);
         
         if (visitor != null && written != null) {

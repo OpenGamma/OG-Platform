@@ -13,10 +13,10 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public class PortfolioCopierStats implements PortfolioCopierVisitor {
 
-  private int _positionLoadCount = 0;
-  private int _securityLoadCount = 0;
-  private int _positionErrorCount = 0;
-  private int _securityErrorCount = 0;
+  private int _positionLoadCount;
+  private int _securityLoadCount;
+  private int _positionErrorCount;
+  private int _securityErrorCount;
 
   @Override
   public void info(String message, ManageablePosition position, ManageableSecurity[] securities) {

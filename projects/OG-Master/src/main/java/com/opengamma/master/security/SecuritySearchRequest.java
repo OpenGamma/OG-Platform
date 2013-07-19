@@ -43,7 +43,7 @@ import com.opengamma.util.RegexUtils;
 @PublicSPI
 @BeanDefinition
 public class SecuritySearchRequest extends AbstractSearchRequest {
-  
+
   /**
    * The set of security object identifiers, null to not limit by security object identifiers.
    * Note that an empty set will return no securities.
@@ -153,7 +153,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   //-------------------------------------------------------------------------
   /**
    * Adds a single security external identifier to the collection to search for.
-   * Unless customized, the search will match 
+   * Unless customized, the search will match.
    * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
    * @param securityId  the security key identifier to add, not null
@@ -165,7 +165,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   /**
    * Adds a collection of security external identifiers to the collection to search for.
-   * Unless customized, the search will match 
+   * Unless customized, the search will match.
    * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
    * @param securityIds  the security key identifiers to add, not null
@@ -181,7 +181,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   /**
    * Adds a collection of security external identifiers to the collection to search for.
-   * Unless customized, the search will match 
+   * Unless customized, the search will match.
    * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
    * @param securityIds  the security key identifiers to add, not null

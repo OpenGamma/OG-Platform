@@ -48,7 +48,7 @@ public class LiveMarketDataPermissionProvider implements MarketDataPermissionPro
       // 2013-02-04 Andrew -- The message below said this was failing open, but it's returning the full set of specifications which is no access. I kept
       // this behaviour but changed the logging message.
       s_logger.warn("Failed to perform entitlement checking. Assuming no access to data.", e);
-      return Sets.newHashSet();//specifications;
+      return Sets.newHashSet();  //specifications;
     }
     final Set<ValueSpecification> failures = Sets.newHashSet();
     for (final Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {

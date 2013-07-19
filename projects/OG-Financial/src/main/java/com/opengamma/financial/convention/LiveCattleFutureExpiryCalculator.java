@@ -25,7 +25,7 @@ public final class LiveCattleFutureExpiryCalculator implements ExchangeTradedIns
   private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
 
   private static final Month[] CATTLE_FUTURE_EXPIRY_MONTHS =
-  { Month.FEBRUARY, Month.APRIL, Month.JUNE, Month.AUGUST, Month.OCTOBER, Month.DECEMBER };
+  {Month.FEBRUARY, Month.APRIL, Month.JUNE, Month.AUGUST, Month.OCTOBER, Month.DECEMBER };
 
   public static LiveCattleFutureExpiryCalculator getInstance() {
     return INSTANCE;

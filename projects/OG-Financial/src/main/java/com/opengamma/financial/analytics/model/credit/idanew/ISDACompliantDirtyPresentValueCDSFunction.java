@@ -29,10 +29,10 @@ public class ISDACompliantDirtyPresentValueCDSFunction extends ISDACompliantCDSF
 
   @Override
   protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
-                           final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
+      final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
     final double pv = cds.getNotional() * _pricer.pv(analytic, yieldCurve, creditCurve, cds.getParSpread() * s_tenminus4, PriceType.DIRTY);
     // SELL protection reverses directions of legs
-    return Double.valueOf(cds.getBuySellProtection() == BuySellProtection.SELL ? - pv : pv);
+    return Double.valueOf(cds.getBuySellProtection() == BuySellProtection.SELL ? -pv : pv);
   }
 
 }

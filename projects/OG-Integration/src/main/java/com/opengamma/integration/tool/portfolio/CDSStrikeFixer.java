@@ -125,7 +125,8 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
           CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) this.getToolContext().getSecuritySource().getSingle(
               cdsOption.getUnderlyingId().toBundle());
 
-          String curveDefinitionID = "SAMEDAY_"+cds.getReferenceEntity().getValue() + "_" + cds.getNotional().getCurrency() + "_" + cds.getDebtSeniority().toString() + "_" + cds.getRestructuringClause();
+          String curveDefinitionID = "SAMEDAY_" + cds.getReferenceEntity().getValue() + "_" + cds.getNotional().getCurrency() + "_" +
+              cds.getDebtSeniority().toString() + "_" + cds.getRestructuringClause();
 
           ConfigSearchRequest<CurveDefinition> curveDefinitionConfigSearchRequest = new ConfigSearchRequest<CurveDefinition>(CurveDefinition.class);
           curveDefinitionConfigSearchRequest.setName(curveDefinitionID);

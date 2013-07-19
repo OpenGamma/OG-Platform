@@ -16,9 +16,13 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FloatingLeg extends SwapLeg {
 
-  public enum ResetType {InAdvance, InArrears}
+  public enum ResetType {
+    InAdvance, InArrears
+  }
 
-  public enum StubPeriodCouponAdjustment {LegIndex, AverageOfNearestIndices, ClosestButNotLongerThanLegIndex, ClosestButNotShorterThanLegIndex}
+  public enum StubPeriodCouponAdjustment {
+    LegIndex, AverageOfNearestIndices, ClosestButNotLongerThanLegIndex, ClosestButNotShorterThanLegIndex
+  }
 
   @XmlElement(name = "resetFrequency")
   private String _resetFrequency;

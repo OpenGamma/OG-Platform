@@ -263,7 +263,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     final List<StripInstrumentType> stripList = new ArrayList<StripInstrumentType>(n);
     int stripCount = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
-      final int index = stripCount++;//labelsList.indexOf(strip.getSecurityIdentifier());
+      final int index = stripCount++;  //labelsList.indexOf(strip.getSecurityIdentifier());
       if (index < 0) {
         throw new OpenGammaRuntimeException("Could not get index for " + strip);
       }

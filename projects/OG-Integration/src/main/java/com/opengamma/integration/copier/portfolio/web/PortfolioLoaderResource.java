@@ -110,7 +110,7 @@ public class PortfolioLoaderResource {
     FormDataBodyPart fileBodyPart = getBodyPart(formData, "file");
     FormDataBodyPart filexmlBodyPart = getBodyPart(formData, "filexml");
 
-    if(filexmlBodyPart.getFormDataContentDisposition().getFileName().toLowerCase().endsWith("xml")) {
+    if (filexmlBodyPart.getFormDataContentDisposition().getFileName().toLowerCase().endsWith("xml")) {
       // xml can contain multiple portfolios
       Object filexmlEntity = filexmlBodyPart.getEntity();
       InputStream filexmlStream = new WorkaroundInputStream(((BodyPartEntity) filexmlEntity).getInputStream());

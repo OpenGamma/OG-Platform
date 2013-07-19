@@ -31,7 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 @XmlRootElement(name = "og-portfolio")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {}) // Indicate we don't care about element ordering
+@XmlType(propOrder = { }) // Indicate we don't care about element ordering
 @BeanDefinition
 public class PortfolioDocumentV1_0 extends DirectBean {
 

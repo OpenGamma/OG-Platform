@@ -18,7 +18,8 @@ public class Calendar {
     @XmlEnumValue(value = "bank")
     BANK,
     @XmlEnumValue(value = "currency")
-    CURRENCY}
+    CURRENCY
+  }
 
   @XmlAttribute(name = "calendarType")
   private CalendarType _calendarType;

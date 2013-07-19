@@ -1,14 +1,13 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.engine.function.dsl;
 
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.lambdava.streams.Functional;
 
-
-/**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
- */
 public interface FunctionSignature {
 
   FunctionSignature outputs(FunctionOutput... outputs);

@@ -50,32 +50,32 @@ public class DefaultRiskFactorsConfigurationProvider implements RiskFactorsConfi
 
   @Override
   public String getFXVanillaOptionSurfaceName(Currency ccy1, Currency ccy2) {
-    return "TULLETT";//_" + ccy1.getCode() + ccy2.getCode();
+    return "TULLETT";  //_" + ccy1.getCode() + ccy2.getCode();
   }
 
   @Override
   public String getIRFutureOptionVolatilitySurfaceName(String futureCode) {
-    return "DEFAULT";// + futureCode;;
+    return "DEFAULT";  // + futureCode;;
   }
   
   @Override
   public String getCommodityFutureOptionVolatilitySurfaceName(String futureCode) {
-    return "DEFAULT";// + futureCode;
+    return "DEFAULT";  // + futureCode;
   }
 
   @Override
   public String getEquityIndexOptionVolatilitySurfaceName(String tickerPlusMarketSector) {
-    return "BBG";// + tickerPlusMarketSector;
+    return "BBG";  // + tickerPlusMarketSector;
   }
 
   @Override
   public String getSwaptionVolatilitySurfaceName(Currency ccy) {
-    return "DEFAULT";//_ + ccy.getCode();
+    return "DEFAULT";  //_ + ccy.getCode();
   }
 
   @Override
   public String getSwaptionVolatilityCubeName(Currency ccy) {
-    return "BLOOMBERG";// + ccy.getCode();
+    return "BLOOMBERG";  // + ccy.getCode();
   }
   
   @Override

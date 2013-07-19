@@ -113,7 +113,7 @@ public class ReportingInputStream extends FilterInputStream {
       if (time - _nextReportTime >= 0) {
         _nextReportTime = time + TIME_TO_REPORT;
         _logger.info("Stream {} read {}Kb in {}ms from {} operations ({}M)}", new Object[] {_streamName, (double) _readBytes / 1024d, (double) _readTime / 1000000d, _readOperations,
-          (double) _readBytes * 8192d / (double) _readTime});
+          (double) _readBytes * 8192d / (double) _readTime });
         
         // scale down influence of older data
         _readOperations >>= 1;

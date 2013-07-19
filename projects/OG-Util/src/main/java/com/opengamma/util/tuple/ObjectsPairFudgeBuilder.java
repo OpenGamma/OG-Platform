@@ -14,7 +14,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-
 /**
  * Fudge builder for {@code ObjectsPair}.
  */
@@ -73,7 +72,7 @@ public final class ObjectsPairFudgeBuilder implements FudgeBuilder<ObjectsPair<?
     }
     return ObjectsPair.of(first, second);
   }
-  
+
   public static <K, V> ObjectsPair<K, V> buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg, final Class<K> baseK, final Class<V> baseV) {
     FudgeField field = msg.getByName(FIRST_FIELD_NAME);
     final K first = (field != null) ? deserializer.fieldValueToObject(baseK, field) : null;

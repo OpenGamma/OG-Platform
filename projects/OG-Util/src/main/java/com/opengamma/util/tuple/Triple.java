@@ -142,7 +142,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   @Override
   public int compareTo(Triple<A, B, C> other) {
     return new CompareToBuilder().append(_first, other._first)
-            .append(_second, other._second).append(_third, other._third).toComparison();
+        .append(_second, other._second).append(_third, other._third).toComparison();
   }
 
   @Override
@@ -153,8 +153,8 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
     if (obj instanceof Triple<?, ?, ?>) {
       Triple<?, ?, ?> other = (Triple<?, ?, ?>) obj;
       return ObjectUtils.equals(getFirst(), other.getFirst()) &&
-              ObjectUtils.equals(getSecond(), other.getSecond()) &&
-              ObjectUtils.equals(getThird(), other.getThird());
+          ObjectUtils.equals(getSecond(), other.getSecond()) &&
+          ObjectUtils.equals(getThird(), other.getThird());
     }
     return false;
   }

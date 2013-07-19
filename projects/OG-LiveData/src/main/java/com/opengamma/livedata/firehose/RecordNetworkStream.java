@@ -21,25 +21,23 @@ public class RecordNetworkStream {
     final String host = args[0];
     final Integer port = Integer.parseInt(args[1]);
     final String file = args[2];
-    final Socket socket = new Socket(host, port);
-    final BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file));
-    try {
-      final BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
-      try {
-        final byte[] buffer = new byte[4096];
-        final long start = System.nanoTime();
-        while (System.nanoTime() - start < 300000000000L) {
-          final int bytes = input.read(buffer);
-          if (bytes < 0) {
-            return;
+    try (Socket socket = new Socket(host, port)) {
+      try (BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
+        final BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
+        try {
+          final byte[] buffer = new byte[4096];
+          final long start = System.nanoTime();
+          while (System.nanoTime() - start < 300000000000L) {
+            final int bytes = input.read(buffer);
+            if (bytes < 0) {
+              return;
+            }
+            output.write(buffer, 0, bytes);
           }
-          output.write(buffer, 0, bytes);
+        } finally {
+          input.close();
         }
-      } finally {
-        input.close();
       }
-    } finally {
-      output.close();
     }
   }
 
