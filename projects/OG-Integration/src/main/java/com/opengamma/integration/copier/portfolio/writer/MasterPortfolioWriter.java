@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -378,6 +379,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           // It's already there, don't update or add it
           return foundSecurity;
         } else {
+          s_logger.debug("Updating security " + foundSecurity + " due to differences: " + differences);
           SecurityDocument updateDoc = new SecurityDocument(security);
           updateDoc.setVersionFromInstant(Instant.now());
           try {
@@ -456,11 +458,11 @@ public class MasterPortfolioWriter implements PortfolioWriter {
             @Override
             public Integer call() throws Exception {
               try {
-                 // Update the position in the position master
-                 PositionDocument addedDoc = _positionMaster.update(new PositionDocument(position));
+                // Update the position in the position master
+                PositionDocument addedDoc = _positionMaster.update(new PositionDocument(position));
                 s_logger.debug("Updated position {}", position);
                  // Add the new position to the portfolio node
-                 _currentNode.addPosition(addedDoc.getUniqueId());
+                _currentNode.addPosition(addedDoc.getUniqueId());
               } catch (Exception e) {
                 s_logger.error("Unable to update position " + position.getUniqueId() + ": " + e.getMessage());
               }
@@ -487,20 +489,30 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // If keeping original portfolio nodes and merging positions, populate position map with existing positions in node
       if (_keepCurrentPositions && _mergePositions && _originalNode != null) {
+        s_logger.debug("Storing security associations for positions " + _originalNode.getPositionIds() + " at path " + StringUtils.join(newPath, '/'));
         for (ObjectId positionId : _originalNode.getPositionIds()) {
           ManageablePosition position = null;
           try {
             position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
           } catch (Exception e) {
             // no action
+            s_logger.error("Exception retrieving position " + positionId, e);
           }
           if (position != null) {
             position.getSecurityLink().resolve(_securitySource);
             if (position.getSecurity() != null) {
-              _securityIdToPosition.put(position.getSecurity().getUniqueId().getObjectId(), position);
+              if (_securityIdToPosition.containsKey(position.getSecurity())) {
+                ManageablePosition existing = _securityIdToPosition.get(position.getSecurity());
+                s_logger.warn("Merging positions but found existing duplicates under path " + StringUtils.join(newPath, '/') + ": " + position + " and " + existing
+                    + ".  New trades for security " + position.getSecurity().getUniqueId().getObjectId() + " will be added to position " + position.getUniqueId());
+              
+              } else {
+                _securityIdToPosition.put(position.getSecurity().getUniqueId().getObjectId(), position);
+              }
             }
           }
         }
+        s_logger.debug("Formed map: " + _securityIdToPosition);
       }
 
       _currentPath = newPath;
