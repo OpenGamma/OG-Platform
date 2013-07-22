@@ -114,6 +114,12 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
     assertEquals(node, cycleObject(SwapNode.class, node));
     node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST", "Name");
     assertEquals(node, cycleObject(SwapNode.class, node));
+    node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), false, "TEST");
+    assertEquals(node, cycleObject(SwapNode.class, node));
+    node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), false, "TEST", null);
+    assertEquals(node, cycleObject(SwapNode.class, node));
+    node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), false, "TEST", "Name");
+    assertEquals(node, cycleObject(SwapNode.class, node));
   }
 
   @Test
