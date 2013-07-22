@@ -8,6 +8,9 @@ package com.opengamma.financial.analytics.model.curve;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.ROOT_FINDING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
@@ -92,7 +95,6 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class MulticurveProviderDiscountingFunction extends AbstractFunction {
-  private static final String CALCULATION_METHOD = "Discounting"; //TODO move me
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
   private final String _configurationName;
@@ -121,7 +123,6 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       for (final String name : exogenousConfigurations) {
         //TODO deal with arbitrary depth
         final ValueProperties properties = ValueProperties.builder()
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
             .with(CURVE_CONSTRUCTION_CONFIG, name)
             .get();
         exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
@@ -233,7 +234,8 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       private ValueProperties getCurveProperties(final String curveName) {
         return createValueProperties()
             .with(CURVE, curveName)
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
@@ -244,7 +246,8 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
       @SuppressWarnings("synthetic-access")
       private ValueProperties getBundleProperties() {
         return createValueProperties()
-            .with(CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)

@@ -19,19 +19,30 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * A function for primitive testing.
  */
 public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
-  
+
+  /**
+   * The requirement name.
+   */
   private final String _requirementName;
-  
+  /**
+   * The function invoker.
+   */
   private FunctionInvoker _functionInvoker;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param requirementName  the name, not null
+   */
   public PrimitiveTestFunction(String requirementName) {
     ArgumentChecker.notNull(requirementName, "Requirement name");
     _requirementName = requirementName;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     assert ComputationTargetType.PRIMITIVE.isCompatible(target.getType());
@@ -40,7 +51,7 @@ public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
-    ValueRequirement requirement = new ValueRequirement(_requirementName, 
+    ValueRequirement requirement = new ValueRequirement(_requirementName,
         ComputationTargetType.PRIMITIVE,
         UniqueId.of("foo", "bar"));
     return Collections.singleton(requirement);
@@ -61,13 +72,13 @@ public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE;
   }
-  
-  public void setFunctionInvoker (final FunctionInvoker functionInvoker) {
+
+  public void setFunctionInvoker(final FunctionInvoker functionInvoker) {
     _functionInvoker = functionInvoker;
   }
-  
+
   @Override
-  public FunctionInvoker getFunctionInvoker () {
+  public FunctionInvoker getFunctionInvoker() {
     return _functionInvoker;
   }
 

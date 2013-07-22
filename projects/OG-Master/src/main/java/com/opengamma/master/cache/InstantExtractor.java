@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.master.cache;
 
 import org.threeten.bp.Instant;
@@ -9,14 +14,19 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeExtractorException;
 
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
+ * EHCache search attribute extractor.
  */
-
 public class InstantExtractor implements AttributeExtractor {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -655758762396830164L;
+  /**
+   * The minimum instant.
+   */
   public static final Instant MIN_INSTANT = Instant.EPOCH;
+  /**
+   * The maximum instant.
+   */
   public static final Instant MAX_INSTANT = Instant.parse("9999-12-31T00:00Z");
 
   @Override

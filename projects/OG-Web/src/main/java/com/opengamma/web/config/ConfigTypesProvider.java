@@ -10,10 +10,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.AnnotationReflector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Maps;
 import com.opengamma.core.config.Config;
 
 /**
@@ -21,6 +23,8 @@ import com.opengamma.core.config.Config;
  */
 public final class ConfigTypesProvider {
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(ConfigTypesProvider.class);
   /**
    * Singleton instance.
    */
@@ -43,7 +47,7 @@ public final class ConfigTypesProvider {
   }
 
   private Map<String, Class<?>> getConfigValue() {
-    Builder<String, Class<?>> result = ImmutableMap.builder();
+    Map<String, Class<?>> result = Maps.newHashMap();
     AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
     Set<Class<?>> configClasses = reflector.getReflector().getTypesAnnotatedWith(Config.class);
     for (Class<?> configClass : configClasses) {
@@ -54,10 +58,13 @@ public final class ConfigTypesProvider {
         if (configType == Object.class) {
           configType = configClass;
         }
-        result.put(configType.getSimpleName(), configType);
+        Class<?> old = result.put(configType.getSimpleName(), configType);
+        if (old != null) {
+          s_logger.warn("Two classes exist with the same name: " + configType.getSimpleName());
+        }
       }
     }
-    return result.build();
+    return ImmutableMap.copyOf(result);
   }
 
   public Set<String> getConfigTypes() {

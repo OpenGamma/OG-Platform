@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * A market data shift implementation that allows a set of individual market data shifts
  * to be bundled together.
  */
-public class CompositeMarketDataSelector implements MarketDataSelector {
+public final class CompositeMarketDataSelector implements MarketDataSelector {
 
   /** Field name for Fudge message */
   private static final String SELECTORS = "selectors";

@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
 public class MonotonicityPreservingQuinticSplineInterpolator1DTest {
 
@@ -161,7 +161,7 @@ public class MonotonicityPreservingQuinticSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Primary interpolation with Clamped endpoint condition
    */
   @Test
   public void clampedTest() {
@@ -310,7 +310,7 @@ public class MonotonicityPreservingQuinticSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data contain zero yValues
    */
   @Test
   public void zeroValuetest() {
@@ -402,7 +402,7 @@ public class MonotonicityPreservingQuinticSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data are monotone
    */
   @Test
   public void MonotoneTest() {

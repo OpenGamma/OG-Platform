@@ -6,6 +6,7 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -13,22 +14,20 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.threeten.bp.LocalDate;
-
-import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.util.money.Currency;
-import java.util.Map;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.util.money.Currency;
+
 @XmlRootElement
-@XmlSeeAlso({FxOptionTrade.class, FxDigitalOptionTrade.class})
+@XmlSeeAlso({FxOptionTrade.class, FxDigitalOptionTrade.class, })
 @BeanDefinition
 public abstract class AbstractFxOptionTrade extends Trade {
 

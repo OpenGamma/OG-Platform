@@ -25,7 +25,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-@XmlSeeAlso({OptionSecurityDefinition.class, FutureSecurityDefinition.class, FutureOptionSecurityDefinition.class})
+/**
+ * XML access to a listed security.
+ */
+@XmlSeeAlso({OptionSecurityDefinition.class, FutureSecurityDefinition.class, FutureOptionSecurityDefinition.class })
 @BeanDefinition
 public abstract class ListedSecurityDefinition extends DirectBean {
 

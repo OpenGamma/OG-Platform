@@ -194,7 +194,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
   @Override
   public int compareTo(Pair<A, B> other) {
     return new CompareToBuilder().append(getFirst(), other.getFirst())
-            .append(getSecond(), other.getSecond()).toComparison();
+        .append(getSecond(), other.getSecond()).toComparison();
   }
 
   @Override
@@ -206,7 +206,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
     if (obj instanceof Map.Entry<?, ?>) {
       Map.Entry<?, ?> other = (Map.Entry<?, ?>) obj;
       return ObjectUtils.equals(getKey(), other.getKey()) &&
-              ObjectUtils.equals(getValue(), other.getValue());
+          ObjectUtils.equals(getValue(), other.getValue());
     }
     return false;
   }
@@ -215,7 +215,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
   public int hashCode() {
     // see Map.Entry API specification
     return (getKey() == null ? 0 : getKey().hashCode()) ^
-            (getValue() == null ? 0 : getValue().hashCode());
+        (getValue() == null ? 0 : getValue().hashCode());
   }
 
   @Override

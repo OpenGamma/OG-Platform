@@ -121,7 +121,7 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
       _idValue = currency2.getCode() + currency1.getCode();
     }
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets one of the two currencies.

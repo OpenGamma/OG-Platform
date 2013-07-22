@@ -42,7 +42,7 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public abstract class AbstractMasterPositionSource implements PositionSource {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(MasterDelegatingPositionSource.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractMasterPositionSource.class);
   
   private final PortfolioMaster _portfolioMaster;
   

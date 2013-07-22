@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.snapshot;
 
+import static java.lang.String.format;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -341,7 +344,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     return _snapshot;
   }
 
-  private static Double query(final ValueSnapshot valueSnapshot) {
+  private static Object query(final ValueSnapshot valueSnapshot) {
     if (valueSnapshot == null) {
       return null;
     }
@@ -354,14 +357,22 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       return valueSnapshot.getMarketValue();
     }
   }
+  
+  private static Double queryDouble(final ValueSnapshot valueSnapshot) {
+    Object objResult = query(valueSnapshot);
+    if (objResult == null //original query() would return null for Doubles so do same here
+        || objResult instanceof Double) {
+      return (Double) objResult;
+    } else {
+      throw new OpenGammaRuntimeException(format("Double was expected in snapshot but Object instance of type %s found instead.", objResult.getClass()));
+    }
+  }
 
   private static SnapshotDataBundle createSnapshotDataBundle(final UnstructuredMarketDataSnapshot values) {
     final SnapshotDataBundle ret = new SnapshotDataBundle();
     for (final ExternalIdBundle target : values.getTargets()) {
-      final Double value = query(values.getValue(target, MarketDataRequirementNames.MARKET_VALUE));
-      if (value != null) {
-        ret.setDataPoint(target, value);
-      }
+      final Double value = queryDouble(values.getValue(target, MarketDataRequirementNames.MARKET_VALUE));
+      ret.setDataPoint(target, value);
     }
     return ret;
   }
@@ -380,7 +391,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     final Map<Pair<Object, Object>, Double> values = new HashMap<Pair<Object, Object>, Double>();
     final Map<Pair<Object, Object>, ValueSnapshot> snapValues = volCubeSnapshot.getValues();
     for (final Entry<Pair<Object, Object>, ValueSnapshot> entry : snapValues.entrySet()) {
-      values.put(entry.getKey(), query(entry.getValue()));
+      values.put(entry.getKey(), queryDouble(entry.getValue()));
       xs.add(entry.getKey().getFirst());
       ys.add(entry.getKey().getSecond());
     }
@@ -404,7 +415,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
     for (final Entry<VolatilityPoint, ValueSnapshot> entry : values.entrySet()) {
       final ValueSnapshot value = entry.getValue();
-      final Double query = query(value);
+      final Double query = queryDouble(value);
       if (query != null) {
         dataPoints.put(entry.getKey(), query);
       }
@@ -416,7 +427,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     final HashMap<Pair<Tenor, Tenor>, Double> dataPoints = new HashMap<Pair<Tenor, Tenor>, Double>();
     for (final Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : strikes.entrySet()) {
       final ValueSnapshot value = entry.getValue();
-      final Double query = query(value);
+      final Double query = queryDouble(value);
       if (query != null) {
         dataPoints.put(entry.getKey(), query);
       }

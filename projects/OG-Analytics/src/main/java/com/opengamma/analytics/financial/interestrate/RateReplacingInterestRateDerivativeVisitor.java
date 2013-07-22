@@ -55,7 +55,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
         fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), rate, fra.getForwardCurveName());
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   public SwapFixedCoupon<?> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final Double rate) {
     return new SwapFixedCoupon(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());

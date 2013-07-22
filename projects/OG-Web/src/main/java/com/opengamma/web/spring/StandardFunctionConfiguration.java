@@ -1236,8 +1236,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), forexDigitalFunctions(), cdsFunctions(),
         deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(),
         forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(),
-        pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions(), xCcySwapFunctions(),
-        curveFunctions());
+        pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions(), xCcySwapFunctions());
   }
 
 }

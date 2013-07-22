@@ -87,7 +87,7 @@ public class FunctionInvocationStatistics {
    * @param dataInputCost the data input cost
    * @param dataOutputCost the data output cost
    */
-  /* package */synchronized void setCosts(final double invocationCost, final double dataInputCost, final double dataOutputCost) {
+  synchronized void setCosts(final double invocationCost, final double dataInputCost, final double dataOutputCost) {
     _invocationCost = invocationCost;
     _dataInputCost = dataInputCost;
     _dataOutputCost = dataOutputCost;
@@ -104,7 +104,7 @@ public class FunctionInvocationStatistics {
    * @param dataInputBytes the mean data input, bytes per input node, or {@code NaN} if unavailable
    * @param dataOutputBytes the mean data output, bytes per output node, or {@code NaN} if unavailable
    */
-  /* package */synchronized void recordInvocation(
+  synchronized void recordInvocation(
       final int invocationCount, final double invocationNanos, final double dataInputBytes, final double dataOutputBytes) {
     _invocations += invocationCount;
     _invocationTime += invocationNanos;

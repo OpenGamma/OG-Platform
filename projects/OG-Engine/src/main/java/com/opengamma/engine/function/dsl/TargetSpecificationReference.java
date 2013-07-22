@@ -5,13 +5,16 @@
  */
 package com.opengamma.engine.function.dsl;
 
-public class TargetSpecificationReference {
+/**
+ * Target specification reference.
+ */
+public final class TargetSpecificationReference {
 
-    private TargetSpecificationReference(){
-    }
+  private TargetSpecificationReference() {
+  }
 
-    public static TargetSpecificationReference originalTarget(){
-      return new TargetSpecificationReference();
-    }
+  public static TargetSpecificationReference originalTarget() {
+    return new TargetSpecificationReference();
+  }
 
 }

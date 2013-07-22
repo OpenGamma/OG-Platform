@@ -28,11 +28,15 @@ import com.opengamma.util.ArgumentChecker;
 
 public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
+  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
+
+  private static final ArbitrageHandling DEFAULT_ARBITRAGE_HANDLING = ArbitrageHandling.Ignore;
   private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
 
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
 
+  private final ArbitrageHandling _arbHandling;
   private final boolean _useCorrectAccOnDefaultFormula;
 
   /**
@@ -40,16 +44,100 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * has been reproduced.   
    */
   public FastCreditCurveBuilder() {
+    _arbHandling = DEFAULT_ARBITRAGE_HANDLING;
     _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
   }
 
   /**
-   *  For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
+   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.  
    * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
    */
   public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula) {
+    _arbHandling = DEFAULT_ARBITRAGE_HANDLING;
     _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  }
+
+  /**
+   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
+   * has been reproduced.  
+   * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
+   * @param arbHandling How should any arbitrage in the input date be handled
+   */
+  public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula, final ArbitrageHandling arbHandling) {
+    ArgumentChecker.notNull(arbHandling, "arbHandling");
+    _arbHandling = arbHandling;
+    _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
+    double puf;
+    double coupon;
+    if (marketQuote instanceof ParSpread) {
+      puf = 0.0;
+      coupon = marketQuote.getCoupon();
+    } else if (marketQuote instanceof QuotedSpread) {
+      puf = 0.0;
+      coupon = ((QuotedSpread) marketQuote).getQuotedSpread();
+    } else if (marketQuote instanceof PointsUpFront) {
+      final PointsUpFront temp = (PointsUpFront) marketQuote;
+      puf = temp.getPointsUpFront();
+      coupon = temp.getCoupon();
+    } else {
+      throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
+    }
+
+    return calibrateCreditCurve(new CDSAnalytic[] {calibrationCDS }, new double[] {coupon }, yieldCurve, new double[] {puf });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] calibrationCDSs, final CDSQuoteConvention[] marketQuotes, final ISDACompliantYieldCurve yieldCurve) {
+    ArgumentChecker.noNulls(marketQuotes, "marketQuotes");
+    final int n = marketQuotes.length;
+    final double[] coupons = new double[n];
+    final double[] pufs = new double[n];
+    for (int i = 0; i < n; i++) {
+      final double[] temp = getStandardQuoteForm(calibrationCDSs[i], marketQuotes[i], yieldCurve);
+      coupons[i] = temp[0];
+      pufs[i] = temp[1];
+    }
+
+    return calibrateCreditCurve(calibrationCDSs, coupons, yieldCurve, pufs);
+  }
+
+  /**
+   * Put any CDS market quote into the form needed for the curve builder, namely coupon and points up-front (which can be zero)
+   * @param calibrationCDS
+   * @param marketQuote
+   * @param yieldCurve
+   * @return
+   */
+  private double[] getStandardQuoteForm(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
+    final double[] res = new double[2];
+    if (marketQuote instanceof ParSpread) {
+      res[0] = marketQuote.getCoupon();
+    } else if (marketQuote instanceof QuotedSpread) {
+      final QuotedSpread temp = (QuotedSpread) marketQuote;
+      final double coupon = temp.getCoupon();
+      final double qSpread = temp.getQuotedSpread();
+      final ISDACompliantCreditCurve cc = calibrateCreditCurve(new CDSAnalytic[] {calibrationCDS }, new double[] {qSpread }, yieldCurve, new double[1]);
+      res[0] = coupon;
+      res[1] = PRICER.pv(calibrationCDS, yieldCurve, cc, coupon, PriceType.CLEAN);
+    } else if (marketQuote instanceof PointsUpFront) {
+      final PointsUpFront temp = (PointsUpFront) marketQuote;
+      res[0] = temp.getCoupon();
+      res[1] = temp.getPointsUpFront();
+    } else {
+      throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
+    }
+    return res;
   }
 
   /**
@@ -101,17 +189,57 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     final double[] guess = new double[n];
     final double[] t = new double[n];
     for (int i = 0; i < n; i++) {
-      guess[i] = premiums[i] / cds[i].getLGD(); // TODO incorporate pointsUpfront
       t[i] = cds[i].getProtectionEnd();
+      guess[i] = (premiums[i] + pointsUpfront[i] / t[i]) / cds[i].getLGD();
     }
 
     ISDACompliantCreditCurve creditCurve = new ISDACompliantCreditCurve(t, guess);
     for (int i = 0; i < n; i++) {
       final Pricer pricer = new Pricer(cds[i], yieldCurve, t, premiums[i], pointsUpfront[i]);
       final Function1D<Double, Double> func = pricer.getPointFunction(i, creditCurve);
-      final double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], 0.0, Double.POSITIVE_INFINITY);
-      final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
-      creditCurve = creditCurve.withRate(zeroRate, i);
+
+      switch (_arbHandling) {
+        case Ignore: {
+          final double minValue = 0.0;
+          final double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], minValue, Double.POSITIVE_INFINITY);
+          final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+          creditCurve = creditCurve.withRate(zeroRate, i);
+          break;
+        }
+        case Fail: {
+          final double minValue = i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
+          if (i > 0 && func.evaluate(minValue) > 0.0) { //can never fail on the first spread
+            final StringBuilder msg = new StringBuilder();
+            if (pointsUpfront[i] == 0.0) {
+              msg.append("The par spread of " + premiums[i] + " at index " + i);
+            } else {
+              msg.append("The premium of " + premiums[i] + "and points up-front of " + pointsUpfront[i] + " at index " + i);
+            }
+            msg.append(" is an arbitrage; cannot fit a curve with positive forward hazard rate. ");
+            throw new IllegalArgumentException(msg.toString());
+          }
+          guess[i] = Math.max(minValue, guess[i]);
+          final double[] bracket = BRACKER.getBracketedPoints(func, guess[i], 1.2 * guess[i], minValue, Double.POSITIVE_INFINITY);
+          final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+          creditCurve = creditCurve.withRate(zeroRate, i);
+          break;
+        }
+        case ZeroHazardRate: {
+          final double minValue = i == 0 ? 0.0 : creditCurve.getRTAtIndex(i - 1) / creditCurve.getTimeAtIndex(i);
+          if (i > 0 && func.evaluate(minValue) > 0.0) { //can never fail on the first spread
+            creditCurve = creditCurve.withRate(minValue, i);
+          } else {
+            guess[i] = Math.max(minValue, guess[i]);
+            final double[] bracket = BRACKER.getBracketedPoints(func, guess[i], 1.2 * guess[i], minValue, Double.POSITIVE_INFINITY);
+            final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+            creditCurve = creditCurve.withRate(zeroRate, i);
+          }
+          break;
+        }
+        default:
+          throw new IllegalArgumentException("unknow case " + _arbHandling);
+      }
+
     }
     return creditCurve;
   }

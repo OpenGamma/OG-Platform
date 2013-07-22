@@ -27,7 +27,7 @@ public final class LiveCattleFutureOptionExpiryCalculator implements ExchangeTra
 
   // regular months
   private static final Month[] CATTLE_OPTION_EXPIRY_MONTHS =
-  { Month.FEBRUARY, Month.APRIL, Month.JUNE, Month.AUGUST, Month.OCTOBER, Month.DECEMBER };
+  {Month.FEBRUARY, Month.APRIL, Month.JUNE, Month.AUGUST, Month.OCTOBER, Month.DECEMBER };
 
   public static LiveCattleFutureOptionExpiryCalculator getInstance() {
     return INSTANCE;
@@ -35,7 +35,6 @@ public final class LiveCattleFutureOptionExpiryCalculator implements ExchangeTra
 
   private LiveCattleFutureOptionExpiryCalculator() {
   }
-
 
   /**
    * Expiry date of Soybean Future Options:

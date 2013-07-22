@@ -26,6 +26,10 @@ $.register_module({
             dom = {};
 
         var init = function (data) {
+            var temporal = {};
+            if (data.correction) temporal.correction = data.correction;
+            if (data.valuation) temporal.valuation = data.valuation;
+            if (data.version) temporal.version = data.version;
             dom.form_container = $('.' + selectors.form_container);
             form = new og.common.util.ui.Form({
                 module: tashes.form_container,
@@ -33,10 +37,10 @@ $.register_module({
             });
             form.children.push(
                 //new og.analytics.form.Portfolios({form:form, val: data.portfolio || null}),
-                new og.analytics.form.ViewDefinitions({form:form, val: data.viewdefinition || null}),
-                new og.analytics.form.DatasourcesMenu({form:form, source:  data.providers || null}),
-                //new og.analytics.form.TemporalMenu({form:form, temporal: data.temporals || null }),
-                new og.analytics.form.AggregatorsMenu({form:form, aggregators: data.aggregators || null})
+                new og.analytics.form.ViewDefinitions({form: form, val: data.viewdefinition || null}),
+                new og.analytics.form.DatasourcesMenu({form: form, source:  data.providers || null}),
+                new og.analytics.form.TemporalMenu({form: form, temporal: temporal}),
+                new og.analytics.form.AggregatorsMenu({form: form, aggregators: data.aggregators || null})
                 //new og.analytics.form.FiltersMenu({form:form, index:'filters', filters:  data.filters || null})
             );
             form.on('form:load', load_handler);
@@ -49,10 +53,10 @@ $.register_module({
             dom.menus = {};
             dom.form_controls = {};
             Object.keys(selectors.menus).map(function (entry) {
-                dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
+                dom.menus[entry] = $('.' + selectors.menus[entry], dom.form_jecontainer);
             });
             dom.menus.views.find('input').select();
-            dom.load_btn = $('.'+selectors.load_btn).addClass('og-disabled').attr('disabled', 'disabled');
+            dom.load_btn = $('.' + selectors.load_btn).addClass('og-disabled').attr('disabled', 'disabled');
             events.on.call(form, 'datasources:initialized', function () {
                 dom.load_btn.removeClass('og-disabled').removeAttr('disabled');
             });
@@ -65,7 +69,9 @@ $.register_module({
                 providers: data.providers,
                 viewdefinition: data.viewdefinition,
                 portfolio: data.portfolio,
-                temporal: data.temporal
+                valuation: data.temporal.valuation,
+                version: data.temporal.version,
+                correction: data.temporal.correction
             };
             og.analytics.status.resume();
             callback(query);

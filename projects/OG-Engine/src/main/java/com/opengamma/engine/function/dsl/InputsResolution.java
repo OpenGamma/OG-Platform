@@ -27,7 +27,7 @@ public class InputsResolution extends DirectBean {
   @PropertyDefinition(validate = "notNull")
   private Collection<ResolvedInput> _inputs = new ArrayList<ResolvedInput>();
   
-  public void addInput(ResolvedInput input){
+  public void addInput(ResolvedInput input) {
     _inputs.add(input);
   }
   

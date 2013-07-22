@@ -68,15 +68,12 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
           final double resNodeSensitivityXkeyDw = FUNCTION.nodeSensitivity(result, xKeyDw).getEntry(j);
           final double senseFiniteXkey = 0.5 * (resNodeSensitivityXkeyUp - resNodeSensitivityXkeyDw) / EPS / xKeys[i];
           final double resDiffNodeSensitivity = FUNCTION.differentiateNodeSensitivity(result, xKeys[i]).getEntry(j);
-          //        System.out.println(resFinite + "\t" + res);
-          //        System.out.println(senseFinite + "\t" + resDiffSensitivity);
           assertEquals(valueFinite, resNodeSensitivity, Math.max(Math.abs(yValues[j]) * EPS, EPS));
           assertEquals(senseFinite, resDiffNodeSensitivity, Math.max(Math.abs(yValues[j]) * EPS, EPS));
           assertEquals(senseFiniteXkey, resDiffNodeSensitivity, Math.max(Math.abs(xKeys[i]) * EPS, EPS));
         }
         yValuesUp[j] = yValues[j];
         yValuesDw[j] = yValues[j];
-        //      System.out.println("\n");
       }
     }
   }
@@ -134,7 +131,7 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
    * Interpolations with longer yValues
    */
   @Test
-  public void notAknotFiniteDifferenceTest() {
+  public void clampedFiniteDifferenceTest() {
     final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator() };
     final int nInterps = interps.length;
     for (int k = 0; k < nInterps; ++k) {
@@ -175,15 +172,12 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
               final double resNodeSensitivityXkeyDw = FUNCTION.nodeSensitivity(result, xKeyDw).getEntry(j);
               final double senseFiniteXkey = 0.5 * (resNodeSensitivityXkeyUp - resNodeSensitivityXkeyDw) / EPS / xKeys[i];
               final double resDiffNodeSensitivity = FUNCTION.differentiateNodeSensitivity(result, xKeys[i]).getEntry(j);
-              //        System.out.println(resFinite + "\t" + res);
-              //        System.out.println(senseFinite + "\t" + resDiffSensitivity);
               assertEquals(valueFinite, resNodeSensitivity, Math.max(Math.abs(yValues[j + 1]) * EPS, EPS));
               assertEquals(senseFinite, resDiffNodeSensitivity, Math.max(Math.abs(yValues[j + 1]) * EPS, EPS));
               assertEquals(senseFiniteXkey, resDiffNodeSensitivity, Math.max(Math.abs(xKeys[i]) * EPS, EPS));
             }
             yValuesUp[j + 1] = yValues[j + 1];
             yValuesDw[j + 1] = yValues[j + 1];
-            //      System.out.println("\n");
           }
         }
       }
@@ -194,7 +188,7 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
    * 
    */
   @Test
-  public void notAknotSecondDerivativeFiniteDifferenceTest() {
+  public void clampedSecondDerivativeFiniteDifferenceTest() {
     final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator() };
     final int nInterps = interps.length;
     for (int k = 0; k < nInterps; ++k) {

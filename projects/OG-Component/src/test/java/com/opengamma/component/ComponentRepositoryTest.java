@@ -139,17 +139,22 @@ public class ComponentRepositoryTest {
     repo.registerComponent(info, new MockSimple());
   }
 
+  /**
+   * Test that we can register MBeans on the server and access their attributes.
+   *
+   * @throws MalformedObjectNameException
+   * @throws AttributeNotFoundException
+   * @throws MBeanException
+   * @throws ReflectionException
+   * @throws InstanceNotFoundException
+   */
   @Test
   public void test_registerMBean() throws MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
 
-    MBeanServerFactoryBean factoryBean = new MBeanServerFactoryBean();
-    factoryBean.setLocateExistingServerIfPossible(true);
+    MBeanServer server = createMBeanServer();
 
-    // Ensure the server is created
-    factoryBean.afterPropertiesSet();
-    MBeanServer server = factoryBean.getObject();
+    ComponentRepository repo = createComponentRepository(server);
 
-    ComponentRepository repo = new ComponentRepository(LOGGER);
     ObjectName registrationName = new ObjectName("test:name=MBean");
     repo.registerMBean(new TestMBean(), registrationName);
     repo.start();
@@ -158,17 +163,23 @@ public class ComponentRepositoryTest {
     assertEquals(server.getAttribute(registrationName, "Answer"), 42);
   }
 
+  /**
+   * Test that we can register MX Beans on the server and access their
+   * attributes. MX Bean attributes should be converted to composite data types.
+   *
+   * @throws MalformedObjectNameException
+   * @throws AttributeNotFoundException
+   * @throws MBeanException
+   * @throws ReflectionException
+   * @throws InstanceNotFoundException
+   */
   @Test
   public void test_registerMXBean() throws MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
 
-    MBeanServerFactoryBean factoryBean = new MBeanServerFactoryBean();
-    factoryBean.setLocateExistingServerIfPossible(true);
+    MBeanServer server = createMBeanServer();
 
-    // Ensure the server is created
-    factoryBean.afterPropertiesSet();
-    MBeanServer server = factoryBean.getObject();
+    ComponentRepository repo = createComponentRepository(server);
 
-    ComponentRepository repo = new ComponentRepository(LOGGER);
     ObjectName registrationName = new ObjectName("test:name=MXBean");
     repo.registerMBean(new TestMXBean(), registrationName);
     repo.start();
@@ -181,6 +192,22 @@ public class ComponentRepositoryTest {
 
     assertEquals(42, data.get("inty"));
     assertEquals("forty-two", data.get("stringy"));
+  }
+
+  private ComponentRepository createComponentRepository(MBeanServer server) {
+    ComponentRepository repo = new ComponentRepository(LOGGER);
+    // Register the MBean server
+    repo.registerComponent(MBeanServer.class, "", server);
+    return repo;
+  }
+
+  private MBeanServer createMBeanServer() {
+    MBeanServerFactoryBean factoryBean = new MBeanServerFactoryBean();
+    factoryBean.setLocateExistingServerIfPossible(true);
+
+    // Ensure the server is created
+    factoryBean.afterPropertiesSet();
+    return factoryBean.getObject();
   }
 
   public static class TestMBean {

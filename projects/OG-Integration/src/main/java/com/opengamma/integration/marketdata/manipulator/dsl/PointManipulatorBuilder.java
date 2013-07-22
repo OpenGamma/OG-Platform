@@ -25,7 +25,7 @@ public class PointManipulatorBuilder {
   }
 
   /**
-   * Adds an action to scale the raw value.
+   * Adds an action to the scenario to scale the raw value.
    * @param scalingFactor The scaling factor
    * @return This builder
    * TODO should this be named multiplicativeShift?
@@ -35,7 +35,23 @@ public class PointManipulatorBuilder {
     return this;
   }
 
-  // TODO method / manipulator that does an additive shift (just called shift?)
+  /**
+   * Adds an action to the scenario to apply an absolute shift to a value.
+   * @param shift The shift amount
+   * @return This builder
+   */
+  public PointManipulatorBuilder shift(double shift) {
+    _scenario.add(_selector, new Shift(shift));
+    return this;
+  }
 
-  // TODO method / manipulator that replaces the input with a specified value (called value? replace? replacement?)
+  /**
+   * Adds an action to the scenario to replace a market data point with a specified value.
+   * @param value The replacement value
+   * @return This builder
+   */
+  public PointManipulatorBuilder replace(double value) {
+    _scenario.add(_selector, new Replace(value));
+    return this;
+  }
 }

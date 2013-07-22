@@ -31,7 +31,6 @@ public class UnorderedCurrencyPairFudgeBuilder implements FudgeBuilder<Unordered
   public UnorderedCurrencyPair buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String currencyCode1 = message.getString("currency1");
     final Currency currency1 = Currency.of(currencyCode1);
-    
     final String currencyCode2 = message.getString("currency2");
     final Currency currency2 = Currency.of(currencyCode2);
     return UnorderedCurrencyPair.of(currency1, currency2);

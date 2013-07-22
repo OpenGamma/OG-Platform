@@ -23,14 +23,17 @@ public class SubscriptionTrace {
 
   private final Set<DistributorTrace> _distributors;
 
-  public SubscriptionTrace(String identifier, String created) {
-    this(identifier, created, ImmutableSet.<DistributorTrace>of());
+  private final String _lastValues;
+
+  public SubscriptionTrace(String identifier) {
+    this(identifier, "N/A", ImmutableSet.<DistributorTrace>of(), "N/A");
   }
 
-  public SubscriptionTrace(String identifier, String created, Set<DistributorTrace> distributors) {
+  public SubscriptionTrace(String identifier, String created, Set<DistributorTrace> distributors, String lastValues) {
     _identifier = identifier;
     _created = created;
     _distributors = distributors;
+    _lastValues = lastValues;
   }
 
   public String getIdentifier() {
@@ -43,5 +46,9 @@ public class SubscriptionTrace {
 
   public Set<DistributorTrace> getDistributors() {
     return _distributors;
+  }
+
+  public String getLastValues() {
+    return _lastValues;
   }
 }

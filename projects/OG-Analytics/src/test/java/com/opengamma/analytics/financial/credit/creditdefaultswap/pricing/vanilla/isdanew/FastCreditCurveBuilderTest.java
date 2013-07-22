@@ -106,12 +106,11 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
 
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void internalPricerTest() {
-    AnalyticCDSPricer testedPricer = new AnalyticCDSPricer();
+    final AnalyticCDSPricer testedPricer = new AnalyticCDSPricer();
 
-    Pricer pricer = BUILDER.new Pricer(CDS, YIELD_CURVE, CREDIT_CURVE_KNOTS, DEAL_SPREAD / 10000.,0.0);
+    final Pricer pricer = BUILDER.new Pricer(CDS, YIELD_CURVE, CREDIT_CURVE_KNOTS, DEAL_SPREAD / 10000., 0.0);
 
     final double proLeg1 = testedPricer.protectionLeg(CDS, YIELD_CURVE, CREDIT_CURVE);
     final double proLeg2 = pricer.protectionLeg(CREDIT_CURVE);

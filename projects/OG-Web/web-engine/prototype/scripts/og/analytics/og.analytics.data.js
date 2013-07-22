@@ -101,7 +101,7 @@ $.register_module({
                 }
             })();
             var initialize = function () {
-                var message, put_options = ['viewdefinition', 'aggregators', 'providers']
+                var message, put_options = ['viewdefinition', 'aggregators', 'providers','valuation', 'version', 'correction']
                     .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
                 if (!!source.blotter) put_options.blotter = true;
                 if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup

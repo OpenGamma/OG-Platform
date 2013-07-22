@@ -320,7 +320,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       URL resource = ExampleEquityPortfolioLoader.class.getResource("equityOptions.zip");
       final String file = unpackJar(resource); 
       final PortfolioLoader equityOptionLoader = new PortfolioLoader(getToolContext(), EQUITY_OPTION_PORTFOLIO_NAME, null,
-              file, true, true, true, true, false, true, false, null);
+              file, true, false, true, true, false, true, false, null);
       equityOptionLoader.execute();
       log.done();
     } catch (final RuntimeException t) {

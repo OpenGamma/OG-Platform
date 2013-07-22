@@ -50,7 +50,7 @@ public class UrlSuffixFilter implements ContainerRequestFilter {
         if (path.endsWith(suffix)) {
           adjustHeader(request, path, suffix);
           break;
-        } 
+        }
       }
     }
     return request;

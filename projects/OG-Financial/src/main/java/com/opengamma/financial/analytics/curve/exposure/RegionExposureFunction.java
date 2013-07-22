@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -74,7 +74,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class RegionExposureFunction implements ExposureFunction {
   private final SecuritySource _securitySource;
@@ -82,6 +82,11 @@ public class RegionExposureFunction implements ExposureFunction {
   public RegionExposureFunction(final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "security source");
     _securitySource = securitySource;
+  }
+
+  @Override
+  public String getName() {
+    return "Region";
   }
 
   @Override
@@ -382,7 +387,7 @@ public class RegionExposureFunction implements ExposureFunction {
   }
 
   @Override
-  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
@@ -392,7 +397,7 @@ public class RegionExposureFunction implements ExposureFunction {
   }
 
   @Override
-  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     if (payLeg.getRegionId().equals(receiveLeg.getRegionId())) {

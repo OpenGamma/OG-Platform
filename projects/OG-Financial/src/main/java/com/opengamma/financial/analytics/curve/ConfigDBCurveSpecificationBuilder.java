@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -23,7 +23,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Builds a curve specification from a curve definition and curve node id mapper
+ * stored in a configuration source.
  */
 public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuilder {
   /** The config source */

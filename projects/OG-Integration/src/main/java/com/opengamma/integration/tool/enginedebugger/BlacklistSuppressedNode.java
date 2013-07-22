@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.enginedebugger;
 
 import java.util.Map;
@@ -5,7 +10,6 @@ import java.util.Map;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.integration.tool.enginedebugger.node.AbstractFailureWithRequirementsNode;
-import com.opengamma.integration.tool.enginedebugger.node.GetAdditionalRequirementsFailedNode;
 
 public class BlacklistSuppressedNode extends AbstractFailureWithRequirementsNode {
 
@@ -27,6 +31,11 @@ public class BlacklistSuppressedNode extends AbstractFailureWithRequirementsNode
   public boolean equals(Object o) {
     boolean result = super.equals(o);
     return result && o instanceof BlacklistSuppressedNode;
+  }
+
+  @Override
+  public int hashCode() {
+    return BlacklistSuppressedNode.class.hashCode();
   }
 
 }

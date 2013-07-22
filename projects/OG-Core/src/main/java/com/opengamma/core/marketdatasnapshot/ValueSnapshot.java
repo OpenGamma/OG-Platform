@@ -14,7 +14,6 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.util.PublicSPI;
 
@@ -32,11 +31,11 @@ public class ValueSnapshot implements Serializable {
   /**
    * The value sampled from the market.
    */
-  private final Double _marketValue;
+  private final Object _marketValue;
   /**
    * The value entered by the user, null if not overridden.
    */
-  private Double _overrideValue;
+  private Object _overrideValue;
 
   /**
    * Creates an instance with the real value and optional override.
@@ -44,7 +43,7 @@ public class ValueSnapshot implements Serializable {
    * @param marketValue  the real market value
    * @param overrideValue  the override, null if no override
    */
-  public ValueSnapshot(Double marketValue, Double overrideValue) {
+  public ValueSnapshot(Object marketValue, Object overrideValue) {
     super();
     _marketValue = marketValue;
     _overrideValue = overrideValue;
@@ -55,7 +54,7 @@ public class ValueSnapshot implements Serializable {
    * 
    * @param marketValue  the real market value
    */
-  public ValueSnapshot(Double marketValue) {
+  public ValueSnapshot(Object marketValue) {
     this(marketValue, null);
   }
 
@@ -66,7 +65,7 @@ public class ValueSnapshot implements Serializable {
    * 
    * @return the value sampled from the market
    */
-  public Double getMarketValue() {
+  public Object getMarketValue() {
     return _marketValue;
   }
 
@@ -75,7 +74,7 @@ public class ValueSnapshot implements Serializable {
    * 
    * @return the override value, null if not overridden
    */
-  public Double getOverrideValue() {
+  public Object getOverrideValue() {
     return _overrideValue;
   }
 
@@ -137,10 +136,10 @@ public class ValueSnapshot implements Serializable {
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
     if (getMarketValue() != null) {
-      msg.add("marketValue", null, FudgeWireType.DOUBLE, getMarketValue().doubleValue());
+      msg.add("marketValue", getMarketValue());
     }
     if (getOverrideValue() != null) {
-      msg.add("overrideValue", null, FudgeWireType.DOUBLE, getOverrideValue().doubleValue());
+      msg.add("overrideValue", getOverrideValue());
     }
     return msg;
   }
@@ -154,8 +153,8 @@ public class ValueSnapshot implements Serializable {
    * @return a snapshot object
    */
   public static ValueSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    Double marketValue = msg.getDouble("marketValue");
-    Double overrideValue = msg.getDouble("overrideValue");
+    Object marketValue = msg.getValue("marketValue");
+    Object overrideValue = msg.getValue("overrideValue");
     return new ValueSnapshot(marketValue, overrideValue);
   }
 

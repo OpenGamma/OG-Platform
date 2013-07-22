@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -10,7 +10,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A source for {@link CurveConstructionConfiguration}s.
+ * Supplies {@link CurveConstructionConfiguration}s stored in a {@link ConfigSource}
  */
 public class ConfigDBCurveConstructionConfigurationSource implements CurveConstructionConfigurationSource {
   /** The config source */
@@ -27,11 +27,7 @@ public class ConfigDBCurveConstructionConfigurationSource implements CurveConstr
   @Override
   public CurveConstructionConfiguration getCurveConstructionConfiguration(final String name) {
     ArgumentChecker.notNull(name, "name");
-    final CurveConstructionConfiguration result = _configSource.getLatestByName(CurveConstructionConfiguration.class, name);
-    if (result == null) {
-      return _configSource.getLatestByName(CurveConstructionConfiguration.class, name);
-    }
-    return result;
+    return _configSource.getLatestByName(CurveConstructionConfiguration.class, name);
   }
 
   @Override

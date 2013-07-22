@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.enginedebugger.node;
 
 import java.util.ArrayList;
@@ -80,6 +85,7 @@ public class SpecToRequirementEntryNode implements TreeTableNode {
     return _requirement;
   }
   
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -94,6 +100,7 @@ public class SpecToRequirementEntryNode implements TreeTableNode {
     return _specification.equals(other._specification) && _requirement.equals(other._requirement);
   }
   
+  @Override
   public int hashCode() {
     return _specification.hashCode() ^ _requirement.hashCode();
   }

@@ -11,23 +11,28 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
-import com.opengamma.id.UniqueId;
 
 /**
- *
+ * Defaults for the volatility surface.
  */
 public class PureBlackVolatilitySurfacePrimitiveDefaults extends PureBlackVolatilitySurfaceDefaults {
 
+  /**
+   * Creates an instance.
+   * 
+   * @param defaultsPerTicker  the defaults, not null
+   */
   public PureBlackVolatilitySurfacePrimitiveDefaults(final String... defaultsPerTicker) {
     super(ComputationTargetType.PRIMITIVE, defaultsPerTicker);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getValue () instanceof ExternalIdentifiable)) {
+    if (!(target.getValue() instanceof ExternalIdentifiable)) {
       return false;
     }
-    ExternalId id = ((ExternalIdentifiable)target.getValue()).getExternalId();
+    ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
     if (ticker == null) {
       return false;

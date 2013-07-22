@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.credit;
 
-
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -19,16 +18,17 @@ import com.opengamma.engine.value.ValueRequirementNames;
  */
 public class ISDAUpfrontAmountVanillaCDSFunction extends ISDAVanillaCDSFunction {
 
-  private static PresentValueCreditDefaultSwap CALCULATOR = new PresentValueCreditDefaultSwap();
+  private static final PresentValueCreditDefaultSwap CALCULATOR = new PresentValueCreditDefaultSwap();
 
   public ISDAUpfrontAmountVanillaCDSFunction() {
     super(ValueRequirementNames.UPFRONT_AMOUNT);
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   protected Object compute(final ZonedDateTime now, LegacyVanillaCreditDefaultSwapDefinition cds, final double[] spreads, final ISDADateCurve isdaCurve, final ZonedDateTime[] bucketDates) {
-    final ZonedDateTime[] singleCalibrationTenor = { cds.getMaturityDate() };
-    final double[] singleSpreadTermStructure = { spreads[0] };
+    final ZonedDateTime[] singleCalibrationTenor = {cds.getMaturityDate() };
+    final double[] singleSpreadTermStructure = {spreads[0] };
     return CALCULATOR.calibrateAndGetPresentValue(now, cds, singleCalibrationTenor, singleSpreadTermStructure, isdaCurve, PriceType.DIRTY); // take values from requirements
   }
 

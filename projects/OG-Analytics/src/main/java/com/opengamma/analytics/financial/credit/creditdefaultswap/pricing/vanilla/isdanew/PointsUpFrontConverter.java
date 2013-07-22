@@ -112,6 +112,11 @@ public class PointsUpFrontConverter {
     return res;
   }
 
+  public PointsUpFront toPointsUpFront(final CDSAnalytic cds, final QuotedSpread qSpread, final ISDACompliantYieldCurve yieldCurve) {
+    final double puf = quotedSpreadToPUF(cds, qSpread.getCoupon(), yieldCurve, qSpread.getQuotedSpread());
+    return new PointsUpFront(qSpread.getCoupon(), puf);
+  }
+
   /**
    * Convert from a CDS quoted spread to points up-front (PUF). <b>Note:</b> Quoted spread is not the same as par spread
    * (although they are numerically similar) -  it is simply an alternative quoting convention from PUF where the CDS is priced
@@ -126,6 +131,20 @@ public class PointsUpFrontConverter {
   public double quotedSpreadToPUF(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double quotedSpread) {
     final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, quotedSpread, yieldCurve);
     return pointsUpFront(cds, premium, yieldCurve, creditCurve);
+  }
+
+  public PointsUpFront[] toPointsUpFront(final CDSAnalytic[] cds, final QuotedSpread[] qSpreads, final ISDACompliantYieldCurve yieldCurve) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.noNulls(qSpreads, "qSpreads");
+    final int n = cds.length;
+    ArgumentChecker.isTrue(n == qSpreads.length, "numbe od CDSs does not match qSpreads");
+    final PointsUpFront[] res = new PointsUpFront[n];
+    for (int i = 0; i < n; i++) {
+      final double coupon = qSpreads[i].getCoupon();
+      final double puf = quotedSpreadToPUF(cds[i], coupon, yieldCurve, qSpreads[i].getQuotedSpread());
+      res[i] = new PointsUpFront(coupon, puf);
+    }
+    return res;
   }
 
   /**

@@ -12,11 +12,10 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
 public class ClampedCubicSplineInterpolator1DTest {
 
-  //  private static final Random randObj = new Random();
   private static final CubicSplineInterpolator INTERP = new CubicSplineInterpolator();
   private static final ClampedCubicSplineInterpolator1D INTERP1D = new ClampedCubicSplineInterpolator1D();
 
@@ -44,7 +43,7 @@ public class ClampedCubicSplineInterpolator1DTest {
     for (int i = 0; i < nData; ++i) {
       xValues[i] = 0.1 * i * i + i - 8.;
       yValues1[i] = 0.5 * xValues[i] * xValues[i] * xValues[i] - 1.5 * xValues[i] * xValues[i] + xValues[i] - 2.;
-      yValues2[i] = Math.exp(0.1 * xValues[i] - 6.);
+      yValues2[i] = Math.exp(0.1 * xValues[i] + 1.);
       yValues3[i] = (2. * xValues[i] * xValues[i] + xValues[i]) / (xValues[i] * xValues[i] + xValues[i] * xValues[i] * xValues[i] + 5. * xValues[i] + 2.);
       yValues1Up[i] = yValues1[i];
       yValues2Up[i] = yValues2[i];
@@ -166,12 +165,12 @@ public class ClampedCubicSplineInterpolator1DTest {
         yValues1Dw[j] = yValues1[j] == 0. ? -EPS : yValues1[j] * (1. - EPS);
         yValues2Dw[j] = yValues2[j] == 0. ? -EPS : yValues2[j] * (1. - EPS);
         yValues3Dw[j] = yValues3[j] == 0. ? -EPS : yValues3[j] * (1. - EPS);
-        Interpolator1DDataBundle dataBund1Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Up);
-        Interpolator1DDataBundle dataBund2Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Up);
-        Interpolator1DDataBundle dataBund3Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues3Up);
-        Interpolator1DDataBundle dataBund1Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Dw);
-        Interpolator1DDataBundle dataBund2Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Dw);
-        Interpolator1DDataBundle dataBund3Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues3Dw);
+        Interpolator1DDataBundle dataBund1Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Up, grad1, grad2);
+        Interpolator1DDataBundle dataBund2Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Up, grad1, grad2);
+        Interpolator1DDataBundle dataBund3Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues3Up, grad1, grad2);
+        Interpolator1DDataBundle dataBund1Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Dw, grad1, grad2);
+        Interpolator1DDataBundle dataBund2Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Dw, grad1, grad2);
+        Interpolator1DDataBundle dataBund3Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues3Dw, grad1, grad2);
         for (int i = 0; i < 10 * nData; ++i) {
           final double ref1 = yValues1[j] == 0. ? EPS : yValues1[j] * EPS;
           final double ref2 = yValues2[j] == 0. ? EPS : yValues2[j] * EPS;
@@ -297,10 +296,10 @@ public class ClampedCubicSplineInterpolator1DTest {
           yValues1Dw[j] = Math.abs(yValues1[j]) == 0. ? -EPS : yValues1[j] * (1. - EPS);
           yValues2Up[j] = Math.abs(yValues2[j]) == 0. ? EPS : yValues2[j] * (1. + EPS);
           yValues2Dw[j] = Math.abs(yValues2[j]) == 0. ? -EPS : yValues2[j] * (1. - EPS);
-          Interpolator1DDataBundle dataBund1Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Up);
-          Interpolator1DDataBundle dataBund2Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Up);
-          Interpolator1DDataBundle dataBund1Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Dw);
-          Interpolator1DDataBundle dataBund2Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Dw);
+          Interpolator1DDataBundle dataBund1Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Up, bdConds[k], bdConds[l]);
+          Interpolator1DDataBundle dataBund2Up = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Up, bdConds[k], bdConds[l]);
+          Interpolator1DDataBundle dataBund1Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1Dw, bdConds[k], bdConds[l]);
+          Interpolator1DDataBundle dataBund2Dw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2Dw, bdConds[k], bdConds[l]);
           for (int i = 0; i < 10 * nData; ++i) {
             double res1 = 0.5 * (INTERP1D.interpolate(dataBund1Up, xKeys[i]) - INTERP1D.interpolate(dataBund1Dw, xKeys[i])) / den1;
             double res2 = 0.5 * (INTERP1D.interpolate(dataBund2Up, xKeys[i]) - INTERP1D.interpolate(dataBund2Dw, xKeys[i])) / den2;

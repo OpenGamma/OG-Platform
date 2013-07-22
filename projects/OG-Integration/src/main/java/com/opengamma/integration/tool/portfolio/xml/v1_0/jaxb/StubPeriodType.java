@@ -5,4 +5,18 @@
  */
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
-public enum StubPeriodType {LongCoupon, ShortCoupon}
+/**
+ * XML stub period type.
+ */
+public enum StubPeriodType {
+
+  /**
+   * Long coupon.
+   */
+  LongCoupon,
+  /**
+   * Short coupon.
+   */
+  ShortCoupon
+
+}

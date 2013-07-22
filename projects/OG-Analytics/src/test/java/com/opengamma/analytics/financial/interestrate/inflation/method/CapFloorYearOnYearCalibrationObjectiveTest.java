@@ -97,10 +97,12 @@ public class CapFloorYearOnYearCalibrationObjectiveTest {
   private static final double[][] volatilities = { {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 },
       {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 },
       {.01, .01, .01, .01, .01, .01 } };
+
   AnnuityCapFloorInflationYearOnYearMonthlyDefinition[] CAP_DEFINITIONS= new AnnuityCapFloorInflationYearOnYearMonthlyDefinition[6];
   Annuity<? extends Payment>[] CAPS= new  Annuity<?>[6];
  
   @Test
+
   /**
    * Tests the correctness of INFLATION YEAR ON YEAR CAP/FLOOR calibration to market prices.
    */

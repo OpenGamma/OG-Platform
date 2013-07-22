@@ -6,34 +6,13 @@
 package com.opengamma.integration.tool.enginedebugger;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.id.ExternalIdDisplayComparator;
-import com.opengamma.core.id.ExternalIdDisplayComparatorUtils;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolutionFailure;
 import com.opengamma.engine.depgraph.ResolutionFailureImpl;
-import com.opengamma.engine.target.ComputationTargetReference;
-import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
-import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
-import com.opengamma.integration.tool.enginedebugger.node.FunctionEntryNode;
 import com.opengamma.integration.tool.enginedebugger.node.TreeTableNode;
-import com.opengamma.integration.tool.enginedebugger.node.UnsatisfiedResolutionFailuresNode;
-import com.opengamma.integration.tool.enginedebugger.node.ValuePropertyNode;
-import com.opengamma.integration.tool.enginedebugger.node.ValueSpecificationToRequirementMapNode;
 
 /**
  * Tree-table model for browsing ResolutionFailure structures
@@ -73,12 +52,12 @@ public class ResolutionFailureTreeTableModel extends AbstractTreeTableModel {
     } else if (node instanceof String) {
       switch (column) {
         case 0:
-          return (String)node;
+          return (String) node;
         default:
           return null;
       }
     }
-    return node.getClass().toString() + "(" + node.hashCode() + ")";//*/
+    return node.getClass().toString() + "(" + node.hashCode() + ")";
   }
 
   @Override
@@ -114,7 +93,7 @@ public class ResolutionFailureTreeTableModel extends AbstractTreeTableModel {
       List<?> failures = (List<?>) parent;
       return failures.indexOf(child);
     }
-    return -1;    
+    return -1;
   }
 
 }

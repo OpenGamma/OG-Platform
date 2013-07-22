@@ -54,10 +54,9 @@ public final class ZipUtils {
       unzipArchive(new ZipFile(archive), outputDir);
     } catch (Exception ex) {
       throw new OpenGammaRuntimeException("Error while extracting file: " + archive + " to: " + outputDir, ex);
-    } 
+    }
   }
-  
-  
+
   //-------------------------------------------------------------------------
   /**
    * Unzips a ZIP archive.

@@ -27,7 +27,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
- *
+ * Configuration object that contains a list of {@link CurveGroupConfiguration}s and any
+ * exogenous curve configurations that are required.
  */
 @BeanDefinition
 @Config
