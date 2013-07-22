@@ -24,11 +24,13 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationYearOnYearParameters;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProvider;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine;
 import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -55,7 +57,7 @@ public class CapFloorYearOnYearCalibrationObjectiveTest {
   private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 9);
   private static final double NOTIONAL = 10000; //100m
-  private static final double STRIKE = 0.04;
+  private static final double[] STRIKES = {-.01, .00, .01, .02, .03, .04 };
   private static final boolean IS_CAP = true;
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
@@ -75,42 +77,70 @@ public class CapFloorYearOnYearCalibrationObjectiveTest {
   private static final InterpolatedDoublesSurface BLACK_SURF = TestsDataSetsBlack.createBlackSurfaceExpiryStrike();
   private static final BlackSmileCapInflationYearOnYearParameters BLACK_PARAM = new BlackSmileCapInflationYearOnYearParameters(BLACK_SURF, PRICE_INDEX_EUR);
   private static final BlackSmileCapInflationYearOnYearProviderDiscount BLACK_INFLATION = new BlackSmileCapInflationYearOnYearProviderDiscount(MARKET.getInflationProvider(), BLACK_PARAM);
-  private static final AnnuityCapFloorInflationYearOnYearMonthlyDefinition CAP_DEFINITION = AnnuityCapFloorInflationYearOnYearMonthlyDefinition.from(PRICE_INDEX_EUR, SETTLEMENT_DATE, NOTIONAL,
-      COUPON_TENOR, COUPON_PAYMENT_TENOR,
-      BUSINESS_DAY, CALENDAR, IS_EOM, 3, 3, LAST_KNOWN_FIXING_DATE, STRIKE, IS_CAP);
+  
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[CURVES.size()]);
-  private static final Annuity<? extends Payment> CAP = CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+ 
   private static final CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod METHOD = CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod.getInstance();
   private static final CapFloorIborHullWhiteMethod METHOD_CAP_HW = new CapFloorIborHullWhiteMethod();
-  private static final double[] marketPrices = {100.00, 100.00, 100.00, 100.00, 100.00, 100.00, 100.00, 100.00, 100.00, 100.00 };
+   double[][] marketPrices= new  double[6][10];
+  
+  
+  
   private static final double[] expiryTimes = {1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.00 };
+  private static  double[] expiryTimes1 = new double[10];
   private static final double[] strikes = {-.01, .00, .01, .02, .03, .04 };
   private static final double[][] volatilities = { {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 },
       {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 },
       {.01, .01, .01, .01, .01, .01 } };
-
+  AnnuityCapFloorInflationYearOnYearMonthlyDefinition[] CAP_DEFINITIONS= new AnnuityCapFloorInflationYearOnYearMonthlyDefinition[6];
+  Annuity<? extends Payment>[] CAPS= new  Annuity<?>[6];
+ 
   @Test
   /**
    * Tests the correctness of INFLATION YEAR ON YEAR CAP/FLOOR calibration to market prices.
    */
   public void calibration() {
-
-    final InflationYearOnYearCapFloorParameters parameters = new InflationYearOnYearCapFloorParameters(expiryTimes, strikes, volatilities, PRICE_INDEX_EUR);
+    
+    for (int loopexp = 0; loopexp < STRIKES.length; loopexp++) {
+     CAP_DEFINITIONS[loopexp] = AnnuityCapFloorInflationYearOnYearMonthlyDefinition.from(PRICE_INDEX_EUR, SETTLEMENT_DATE, NOTIONAL,
+        COUPON_TENOR, COUPON_PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, 3, 3, LAST_KNOWN_FIXING_DATE, STRIKES[loopexp], IS_CAP);
+     CAPS[loopexp]  = CAP_DEFINITIONS[loopexp] .toDerivative(REFERENCE_DATE, CURVES_NAME);
+    
+    }
+    for (int loopexp = 0; loopexp < CAPS[0].getNumberOfPayments(); loopexp++) {  
+      expiryTimes1[loopexp]=CAPS[0].getNthPayment(loopexp).getPaymentTime();
+    }
+    final InflationYearOnYearCapFloorParameters parameters = new InflationYearOnYearCapFloorParameters(expiryTimes1, strikes, volatilities, PRICE_INDEX_EUR);
     final SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective objective = new SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective(parameters, CUR);
     final SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine calibrationEngine = new SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine(objective);
-    for (int loopexp = 0; loopexp < CAP.getNumberOfPayments(); loopexp++) {
-      calibrationEngine.addInstrument(CAP.getNthPayment(loopexp), marketPrices[loopexp]);
+    for (int loop1 = 0; loop1 < STRIKES.length; loop1++) {
+      for (int loop2 = 0; loop2 < CAPS[loop1].getNumberOfPayments(); loop2++) {
+        marketPrices[loop1][loop2]=METHOD.presentValue(CAPS[loop1].getNthPayment(loop2), BLACK_INFLATION).getAmount(CUR);
+      }
+      }
+   
+    
+    for (int loop1 = 0; loop1 < STRIKES.length; loop1++) {
+    for (int loop2 = 0; loop2 < CAPS[loop1].getNumberOfPayments(); loop2++) {
+      calibrationEngine.addInstrument(CAPS[loop1].getNthPayment(loop2),marketPrices[loop1][loop2]);
+    }
     }
     calibrationEngine.calibrate(MARKET.getInflationProvider());
-    final MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[CAP.getNumberOfPayments()];
-    for (int loopexp = 0; loopexp < CAP.getNumberOfPayments(); loopexp++) {
-      pvHw[loopexp] = METHOD.presentValue(CAP.getNthPayment(loopexp), objective.getInflationCapYearOnYearProvider());
-      assertEquals("Inflaiton year on year calibration: cap/floor " + loopexp, pvHw[loopexp].getAmount(CUR), marketPrices[loopexp], 1E-2);
+    final MultipleCurrencyAmount[][] pvCapYearOnYear = new MultipleCurrencyAmount[STRIKES.length][CAPS[0].getNumberOfPayments()];
+    for (int loop1 = 0; loop1 < STRIKES.length; loop1++) {
+      for (int loop2 = 0; loop2 < CAPS[loop1].getNumberOfPayments(); loop2++)  {
+      Interpolator2D interpolator = objective.getInflationCapYearOnYearProvider().getBlackParameters().getVolatilitySurface().getInterpolator();
+      BlackSmileCapInflationYearOnYearParameters CalibratedBlackSmileCapInflationYearOnYearParameters = new BlackSmileCapInflationYearOnYearParameters(objective.getInflationCapYearOnYearParameters(), interpolator);
+      BlackSmileCapInflationYearOnYearProvider CalibratedBlackSmileCapInflationYearOnYearProvider = new BlackSmileCapInflationYearOnYearProvider(objective.getInflationCapYearOnYearProvider().getInflationProvider(),
+          CalibratedBlackSmileCapInflationYearOnYearParameters);
+      pvCapYearOnYear[loop1][loop2] = METHOD.presentValue(CAPS[loop1].getNthPayment(loop2), CalibratedBlackSmileCapInflationYearOnYearProvider);
+      assertEquals("Inflaiton year on year calibration: cap/floor " + loop1, pvCapYearOnYear[loop1][loop2].getAmount(CUR), marketPrices[loop1][loop2], 1E-2);
+    }
     }
   }
 

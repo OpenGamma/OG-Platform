@@ -123,8 +123,8 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
       InstrumentDerivative instrument = getBasket().get(loopins);
       _calibrationObjective.setInstrument(instrument);
       _calibrationObjective.setPrice(getCalibrationPrices().get(loopins));
-      objective.setExpiryIndex(_instrumentExpiryIndex.get(loopins));
-      objective.setStrikeIndex(_instrumentStrikeIndex.get(loopins));
+      objective.setExpiryIndex(_instrumentExpiryIndex.get(loopins+1));
+      objective.setStrikeIndex(_instrumentStrikeIndex.get(loopins+1));
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
       if (loopins < nbInstruments - 1) {

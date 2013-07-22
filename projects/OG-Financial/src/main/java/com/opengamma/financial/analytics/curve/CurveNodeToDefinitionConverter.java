@@ -106,7 +106,7 @@ public class CurveNodeToDefinitionConverter {
   }
 
   /**
-   * Converts a {@link CurveNode} into an {@InstrumentDefinition}, which will be used in curve construction.
+   * Converts a {@link CurveNode} into an {@link InstrumentDefinition}, which will be used in curve construction.
    * @param node The curve node, not null
    * @param marketDataId The market data id, not null
    * @param now The curve construction time, not null
