@@ -305,7 +305,7 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
               marketDataForCurve[k] = marketData;
               parameterGuessForCurves.add(0.02); // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot,
-                  timeSeries, curveName);
+                  timeSeries);
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
             } // Node points - end
             for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start

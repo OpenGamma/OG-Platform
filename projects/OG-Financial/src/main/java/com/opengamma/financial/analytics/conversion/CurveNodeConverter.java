@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -11,21 +11,37 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class CurveNodeConverter {
 
+  /**
+   * Given an {@link InstrumentDefinition} (the time-independent form used in the analytics library) and a valuation time, converts to the
+   * time-dependent {@link InstrumentDerivative} form.
+   * @param node The curve node, not null
+   * @param definition The definition, not null
+   * @param now The valuation time, not null
+   * @param timeSeries A fixing time series, not null if required
+   * @return A derivative instrument
+   */
   @SuppressWarnings("unchecked")
   public static InstrumentDerivative getDerivative(final CurveNodeWithIdentifier node, final InstrumentDefinition<?> definition, final ZonedDateTime now,
       final HistoricalTimeSeriesBundle timeSeries) {
-    if (definition instanceof InstrumentDefinitionWithData<?, ?> && node.getCurveNode() instanceof RateFutureNode) {
+    ArgumentChecker.notNull(node, "node");
+    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(now, "now");
+    if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
+      ArgumentChecker.notNull(timeSeries, "time series");
       final ExternalId id = node.getIdentifier();
       final DoubleTimeSeries<?> ts = timeSeries.get(node.getDataField(), id).getTimeSeries();
       if (ts == null) {
@@ -41,4 +57,7 @@ public class CurveNodeConverter {
     return definition.toDerivative(now, new String[] {"", "", ""});
   }
 
+  private static boolean requiresFixingSeries(final CurveNode node) {
+    return node instanceof RateFutureNode || (node instanceof SwapNode && ((SwapNode) node).isUseFixings());
+  }
 }

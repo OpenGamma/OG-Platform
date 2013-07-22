@@ -298,7 +298,7 @@ public class InflationProviderDiscountingFunction extends AbstractFunction {
               marketDataForCurve[k] = marketData;
               parameterGuessForCurves.add(marketData);
               final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot,
-                  timeSeries, curveName);
+                  timeSeries);
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
             } // Node points - end
             for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
