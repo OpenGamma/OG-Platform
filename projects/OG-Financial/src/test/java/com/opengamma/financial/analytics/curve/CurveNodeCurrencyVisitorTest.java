@@ -86,13 +86,13 @@ public class CurveNodeCurrencyVisitorTest {
   private static final ExternalId PRICE_INDEX_ID = ExternalId.of(SCHEME, "USD CPI");
   private static final ExternalId ZERO_COUPON_INFLATION_ID = ExternalId.of(SCHEME, "ZCI");
   private static final SwapFixedLegConvention FIXED_LEG = new SwapFixedLegConvention("USD Swap Fixed Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Swap Fixed Leg")),
-      Tenor.SIX_MONTHS, ACT_360, MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.NONE, false);
+      Tenor.SIX_MONTHS, ACT_360, MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.NONE, false, 2);
   private static final VanillaIborLegConvention SWAP_3M_LIBOR = new VanillaIborLegConvention("USD 3m Floating Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD 3m Floating Leg")),
-      LIBOR_3M_ID, false, SCHEME, Tenor.THREE_MONTHS, 2, false, StubType.NONE, false);
+      LIBOR_3M_ID, false, SCHEME, Tenor.THREE_MONTHS, 2, false, StubType.NONE, false, 2);
   private static final VanillaIborLegConvention SWAP_6M_EURIBOR = new VanillaIborLegConvention("EUR 6m Floating Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "EUR 6m Floating Leg")),
-      EURIBOR_6M_ID, false, SCHEME, Tenor.SIX_MONTHS, 2, false, StubType.NONE, false);
+      EURIBOR_6M_ID, false, SCHEME, Tenor.SIX_MONTHS, 2, false, StubType.NONE, false,2 );
   private static final OISLegConvention OIS = new OISLegConvention("USD OIS Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD OIS Leg")), OVERNIGHT_ID,
-      Tenor.ONE_YEAR, 1, MODIFIED_FOLLOWING, 2, false, StubType.NONE, false);
+      Tenor.ONE_YEAR, MODIFIED_FOLLOWING, 2, false, StubType.NONE, false, 1);
   private static final DepositConvention DEPOSIT_1M = new DepositConvention("USD 1m Deposit", ExternalIdBundle.of(DEPOSIT_1M_ID),
       ACT_360, MODIFIED_FOLLOWING, 2, false, Currency.USD, US);
   private static final IborIndexConvention LIBOR_3M = new IborIndexConvention("USD 3m Libor", ExternalIdBundle.of(LIBOR_3M_ID),
