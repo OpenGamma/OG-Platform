@@ -23,18 +23,19 @@ public class IMMFutureAndFutureOptionQuarterlyExpiryCalculatorTest {
   private static final IMMFutureAndFutureOptionQuarterlyExpiryCalculator CALCULATOR = IMMFutureAndFutureOptionQuarterlyExpiryCalculator.getInstance();
   static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("a");
   private static final Calendar CALENDAR = new MyCalendar();
-  private static final LocalDate AUGUST = LocalDate.of(2012, 8, 1);
+  private static final LocalDate AUGUST_START = LocalDate.of(2012, 8, 1);
+  private static final LocalDate AUGUST_END = LocalDate.of(2012, 8, 25);
   private static final LocalDate SEPTEMBER_START = LocalDate.of(2012, 9, 1);
   private static final LocalDate SEPTEMBER_END = LocalDate.of(2012, 9, 18);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeN() {
-    CALCULATOR.getExpiryDate(-1, AUGUST, CALENDAR);
+    CALCULATOR.getExpiryDate(-1, AUGUST_START, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroN() {
-    CALCULATOR.getExpiryDate(0, AUGUST, CALENDAR);
+    CALCULATOR.getExpiryDate(0, AUGUST_START, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -44,23 +45,39 @@ public class IMMFutureAndFutureOptionQuarterlyExpiryCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar() {
-    CALCULATOR.getExpiryDate(2, AUGUST, null);
+    CALCULATOR.getExpiryDate(2, AUGUST_START, null);
   }
 
   @Test
-  public void testDifferentMonth() {
-    assertEquals(LocalDate.of(2012, 9, 17), CALCULATOR.getExpiryDate(1, AUGUST, WEEKEND_CALENDAR));
-    assertEquals(LocalDate.of(2012, 9, 17), CALCULATOR.getExpiryDate(1, AUGUST, CALENDAR));
-    assertEquals(LocalDate.of(2012, 12, 17), CALCULATOR.getExpiryDate(2, AUGUST, WEEKEND_CALENDAR));
-    assertEquals(LocalDate.of(2012, 12, 14), CALCULATOR.getExpiryDate(2, AUGUST, CALENDAR));
-    assertEquals(LocalDate.of(2013, 3, 18), CALCULATOR.getExpiryDate(3, AUGUST, WEEKEND_CALENDAR));
-    assertEquals(LocalDate.of(2013, 3, 18), CALCULATOR.getExpiryDate(3, AUGUST, CALENDAR));
-    assertEquals(LocalDate.of(2013, 6, 17), CALCULATOR.getExpiryDate(4, AUGUST, WEEKEND_CALENDAR));
-    assertEquals(LocalDate.of(2013, 6, 17), CALCULATOR.getExpiryDate(4, AUGUST, CALENDAR));
-    assertEquals(LocalDate.of(2013, 9, 16), CALCULATOR.getExpiryDate(5, AUGUST, WEEKEND_CALENDAR));
-    assertEquals(LocalDate.of(2013, 9, 16), CALCULATOR.getExpiryDate(5, AUGUST, CALENDAR));
-    assertEquals(LocalDate.of(2013, 12, 16), CALCULATOR.getExpiryDate(6, AUGUST, WEEKEND_CALENDAR));
-    assertEquals(LocalDate.of(2013, 12, 16), CALCULATOR.getExpiryDate(6, AUGUST, CALENDAR));
+  public void testDifferentMonthStart() {
+    assertEquals(LocalDate.of(2012, 9, 17), CALCULATOR.getExpiryDate(1, AUGUST_START, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2012, 9, 17), CALCULATOR.getExpiryDate(1, AUGUST_START, CALENDAR));
+    assertEquals(LocalDate.of(2012, 12, 17), CALCULATOR.getExpiryDate(2, AUGUST_START, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2012, 12, 14), CALCULATOR.getExpiryDate(2, AUGUST_START, CALENDAR));
+    assertEquals(LocalDate.of(2013, 3, 18), CALCULATOR.getExpiryDate(3, AUGUST_START, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 3, 18), CALCULATOR.getExpiryDate(3, AUGUST_START, CALENDAR));
+    assertEquals(LocalDate.of(2013, 6, 17), CALCULATOR.getExpiryDate(4, AUGUST_START, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 6, 17), CALCULATOR.getExpiryDate(4, AUGUST_START, CALENDAR));
+    assertEquals(LocalDate.of(2013, 9, 16), CALCULATOR.getExpiryDate(5, AUGUST_START, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 9, 16), CALCULATOR.getExpiryDate(5, AUGUST_START, CALENDAR));
+    assertEquals(LocalDate.of(2013, 12, 16), CALCULATOR.getExpiryDate(6, AUGUST_START, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 12, 16), CALCULATOR.getExpiryDate(6, AUGUST_START, CALENDAR));
+  }
+
+  @Test
+  public void testDifferentMonthEnd() {
+    assertEquals(LocalDate.of(2012, 9, 17), CALCULATOR.getExpiryDate(1, AUGUST_END, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2012, 9, 17), CALCULATOR.getExpiryDate(1, AUGUST_END, CALENDAR));
+    assertEquals(LocalDate.of(2012, 12, 17), CALCULATOR.getExpiryDate(2, AUGUST_END, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2012, 12, 14), CALCULATOR.getExpiryDate(2, AUGUST_END, CALENDAR));
+    assertEquals(LocalDate.of(2013, 3, 18), CALCULATOR.getExpiryDate(3, AUGUST_END, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 3, 18), CALCULATOR.getExpiryDate(3, AUGUST_END, CALENDAR));
+    assertEquals(LocalDate.of(2013, 6, 17), CALCULATOR.getExpiryDate(4, AUGUST_END, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 6, 17), CALCULATOR.getExpiryDate(4, AUGUST_END, CALENDAR));
+    assertEquals(LocalDate.of(2013, 9, 16), CALCULATOR.getExpiryDate(5, AUGUST_END, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 9, 16), CALCULATOR.getExpiryDate(5, AUGUST_END, CALENDAR));
+    assertEquals(LocalDate.of(2013, 12, 16), CALCULATOR.getExpiryDate(6, AUGUST_END, WEEKEND_CALENDAR));
+    assertEquals(LocalDate.of(2013, 12, 16), CALCULATOR.getExpiryDate(6, AUGUST_END, CALENDAR));
   }
 
   @Test
