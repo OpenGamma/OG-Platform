@@ -220,7 +220,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       if (!_multithread) {
         // Save the updated existing position to the position master
         PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
-        s_logger.debug("Updated position {}, delta position {}", existingPosition, position);
+        s_logger.debug("Updated position {}, delta position {}", addedDoc.getPosition(), position);
 
         // update position map (huh?)
         _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
@@ -243,7 +243,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       PositionDocument addedDoc;
       try {
         addedDoc = _positionMaster.add(new PositionDocument(position));
-        s_logger.debug("Added position {}", position);
+        s_logger.debug("Added position {}", addedDoc.getPosition());
       } catch (Exception e) {
         s_logger.error("Unable to add position " + position.getUniqueId() + ": " + e.getMessage(), e);
         return null;
@@ -512,7 +512,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
             }
           }
         }
-        s_logger.debug("Formed map: " + _securityIdToPosition);
+        if (s_logger.isDebugEnabled()) {
+          StringBuilder sb = new StringBuilder("Cached security to position mappings at path ").append(StringUtils.join(newPath, '/')).append(":");
+          for (Map.Entry<ObjectId, ManageablePosition> entry : _securityIdToPosition.entrySet()) {
+            sb.append(System.lineSeparator()).append("  ").append(entry.getKey()).append(" = ").append(entry.getValue().getUniqueId());
+          }
+          s_logger.debug(sb.toString());
+        }
       }
 
       _currentPath = newPath;
