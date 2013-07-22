@@ -373,6 +373,8 @@ import com.opengamma.util.time.Tenor;
     private static final String PAY_LEG_CONVENTION_FIELD = "payLegConvention";
     /** The receive leg convention field */
     private static final String RECEIVE_LEG_CONVENTION_FIELD = "receiveLegConvention";
+    /** The use fixings field */
+    private static final String USE_FIXINGS_FIELD = "useFixings";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SwapNode object) {
@@ -386,6 +388,7 @@ import com.opengamma.util.time.Tenor;
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
       }
+      message.add(USE_FIXINGS_FIELD, object.isUseFixings());
       return message;
     }
 
@@ -398,7 +401,15 @@ import com.opengamma.util.time.Tenor;
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
+        if (message.hasField(USE_FIXINGS_FIELD)) {
+          final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
+          return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, useFixings, curveNodeIdMapperName, name);
+        }
         return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName, name);
+      }
+      if (message.hasField(USE_FIXINGS_FIELD)) {
+        final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
+        return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, useFixings, curveNodeIdMapperName);
       }
       return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName);
     }
