@@ -18,7 +18,8 @@ $.register_module({
                 return output;
             };
             var rebuild_xml = function (groovy) {
-                var xml = '<fudgeEnvelope><script type="string">';
+                var find = '&', re = new RegExp(find, 'g'), xml = '<fudgeEnvelope><script type="string">';
+                groovy = groovy.replace(re, '&#38;');
                 xml += groovy;
                 xml += '</script>';
                 xml += '<fudgeField0 ordinal="0" type="string">';
