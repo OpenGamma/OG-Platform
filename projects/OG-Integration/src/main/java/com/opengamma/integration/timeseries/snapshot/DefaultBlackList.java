@@ -43,6 +43,7 @@ public class DefaultBlackList extends DirectBean implements BlackList {
   public static DefaultBlackList.Meta meta() {
     return DefaultBlackList.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DefaultBlackList.Meta.INSTANCE);
   }

@@ -48,6 +48,7 @@ class CacheTestDocument extends AbstractDocument {
   public static CacheTestDocument.Meta meta() {
     return CacheTestDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CacheTestDocument.Meta.INSTANCE);
   }

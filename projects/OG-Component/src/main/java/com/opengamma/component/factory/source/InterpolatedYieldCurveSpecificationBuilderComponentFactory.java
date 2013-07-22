@@ -90,6 +90,7 @@ public class InterpolatedYieldCurveSpecificationBuilderComponentFactory extends 
   public static InterpolatedYieldCurveSpecificationBuilderComponentFactory.Meta meta() {
     return InterpolatedYieldCurveSpecificationBuilderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterpolatedYieldCurveSpecificationBuilderComponentFactory.Meta.INSTANCE);
   }

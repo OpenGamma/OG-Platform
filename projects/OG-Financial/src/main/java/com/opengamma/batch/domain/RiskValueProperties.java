@@ -181,6 +181,7 @@ public class RiskValueProperties extends DirectBean {
   public static RiskValueProperties.Meta meta() {
     return RiskValueProperties.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RiskValueProperties.Meta.INSTANCE);
   }

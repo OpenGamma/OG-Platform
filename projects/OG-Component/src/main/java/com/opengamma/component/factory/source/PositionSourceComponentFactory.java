@@ -108,6 +108,7 @@ public class PositionSourceComponentFactory extends AbstractComponentFactory {
   public static PositionSourceComponentFactory.Meta meta() {
     return PositionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PositionSourceComponentFactory.Meta.INSTANCE);
   }

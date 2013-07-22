@@ -45,6 +45,7 @@ public class RemoteNamedMarketDataSpecificationRepositoryComponentFactory extend
   public static RemoteNamedMarketDataSpecificationRepositoryComponentFactory.Meta meta() {
     return RemoteNamedMarketDataSpecificationRepositoryComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RemoteNamedMarketDataSpecificationRepositoryComponentFactory.Meta.INSTANCE);
   }

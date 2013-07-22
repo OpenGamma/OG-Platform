@@ -52,6 +52,7 @@ public class RiskRunProperty extends DirectBean {
   public static RiskRunProperty.Meta meta() {
     return RiskRunProperty.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RiskRunProperty.Meta.INSTANCE);
   }

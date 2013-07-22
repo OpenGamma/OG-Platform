@@ -136,6 +136,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   public static ConfigSearchRequest.Meta meta() {
     return ConfigSearchRequest.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code ConfigSearchRequest}.
    * @param <R>  the bean's generic type
@@ -146,6 +147,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   public static <R> ConfigSearchRequest.Meta<R> metaConfigSearchRequest(Class<R> cls) {
     return ConfigSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigSearchRequest.Meta.INSTANCE);
   }

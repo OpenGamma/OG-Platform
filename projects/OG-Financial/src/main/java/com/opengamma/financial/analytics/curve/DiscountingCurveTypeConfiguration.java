@@ -56,6 +56,7 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
   public static DiscountingCurveTypeConfiguration.Meta meta() {
     return DiscountingCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DiscountingCurveTypeConfiguration.Meta.INSTANCE);
   }

@@ -141,6 +141,7 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
   public static UserFinancialMarketDataSnapshotSourceComponentFactory.Meta meta() {
     return UserFinancialMarketDataSnapshotSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserFinancialMarketDataSnapshotSourceComponentFactory.Meta.INSTANCE);
   }

@@ -89,6 +89,7 @@ public class Position extends DirectBean {
   public static Position.Meta meta() {
     return Position.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Position.Meta.INSTANCE);
   }

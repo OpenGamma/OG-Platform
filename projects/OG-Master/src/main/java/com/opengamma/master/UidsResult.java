@@ -76,6 +76,7 @@ public abstract class UidsResult extends DirectBean {
   public static UidsResult.Meta meta() {
     return UidsResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UidsResult.Meta.INSTANCE);
   }

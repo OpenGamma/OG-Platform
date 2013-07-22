@@ -98,6 +98,7 @@ public class WebExchangeData extends DirectBean {
   public static WebExchangeData.Meta meta() {
     return WebExchangeData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebExchangeData.Meta.INSTANCE);
   }

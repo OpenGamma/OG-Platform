@@ -89,6 +89,7 @@ public class FactorExposureData extends DirectBean {
   public static FactorExposureData.Meta meta() {
     return FactorExposureData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FactorExposureData.Meta.INSTANCE);
   }

@@ -69,6 +69,7 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
   public static ExchangeTradedFutureAndOptionConvention.Meta meta() {
     return ExchangeTradedFutureAndOptionConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeTradedFutureAndOptionConvention.Meta.INSTANCE);
   }

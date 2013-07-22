@@ -116,6 +116,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   public static IRFutureOptionSecurity.Meta meta() {
     return IRFutureOptionSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IRFutureOptionSecurity.Meta.INSTANCE);
   }

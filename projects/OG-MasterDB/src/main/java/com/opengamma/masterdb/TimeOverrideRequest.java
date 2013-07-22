@@ -44,6 +44,7 @@ public class TimeOverrideRequest extends DirectBean {
   public static TimeOverrideRequest.Meta meta() {
     return TimeOverrideRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(TimeOverrideRequest.Meta.INSTANCE);
   }

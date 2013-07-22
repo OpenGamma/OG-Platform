@@ -72,6 +72,7 @@ public class VolatilityPoint extends DirectBean {
   public static VolatilityPoint.Meta meta() {
     return VolatilityPoint.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VolatilityPoint.Meta.INSTANCE);
   }

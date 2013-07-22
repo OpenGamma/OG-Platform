@@ -75,6 +75,7 @@ public class FixedInflationSwapLeg extends InflationLeg {
   public static FixedInflationSwapLeg.Meta meta() {
     return FixedInflationSwapLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FixedInflationSwapLeg.Meta.INSTANCE);
   }

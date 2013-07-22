@@ -107,6 +107,7 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
   public static UserSearchResult.Meta meta() {
     return UserSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserSearchResult.Meta.INSTANCE);
   }

@@ -152,6 +152,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
   public static AbstractBloombergLiveDataServerComponentFactory.Meta meta() {
     return AbstractBloombergLiveDataServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractBloombergLiveDataServerComponentFactory.Meta.INSTANCE);
   }

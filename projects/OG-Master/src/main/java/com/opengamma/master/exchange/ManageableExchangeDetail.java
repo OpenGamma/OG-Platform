@@ -144,6 +144,7 @@ public class ManageableExchangeDetail extends DirectBean {
   public static ManageableExchangeDetail.Meta meta() {
     return ManageableExchangeDetail.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableExchangeDetail.Meta.INSTANCE);
   }

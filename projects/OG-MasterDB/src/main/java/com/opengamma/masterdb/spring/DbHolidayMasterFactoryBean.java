@@ -57,6 +57,7 @@ public class DbHolidayMasterFactoryBean extends AbstractDbMasterFactoryBean<DbHo
   public static DbHolidayMasterFactoryBean.Meta meta() {
     return DbHolidayMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbHolidayMasterFactoryBean.Meta.INSTANCE);
   }

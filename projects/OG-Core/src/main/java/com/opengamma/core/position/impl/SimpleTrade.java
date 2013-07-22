@@ -235,6 +235,7 @@ public class SimpleTrade extends DirectBean
   public static SimpleTrade.Meta meta() {
     return SimpleTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleTrade.Meta.INSTANCE);
   }

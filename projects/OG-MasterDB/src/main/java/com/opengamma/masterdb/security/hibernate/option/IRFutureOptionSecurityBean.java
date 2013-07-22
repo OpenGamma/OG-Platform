@@ -105,6 +105,7 @@ public class IRFutureOptionSecurityBean extends SecurityBean {
   public static IRFutureOptionSecurityBean.Meta meta() {
     return IRFutureOptionSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IRFutureOptionSecurityBean.Meta.INSTANCE);
   }

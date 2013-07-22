@@ -40,6 +40,7 @@ public class InputsResolution extends DirectBean {
   public static InputsResolution.Meta meta() {
     return InputsResolution.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InputsResolution.Meta.INSTANCE);
   }

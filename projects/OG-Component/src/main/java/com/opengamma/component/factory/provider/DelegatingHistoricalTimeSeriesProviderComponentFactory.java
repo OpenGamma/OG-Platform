@@ -134,6 +134,7 @@ public class DelegatingHistoricalTimeSeriesProviderComponentFactory extends Abst
   public static DelegatingHistoricalTimeSeriesProviderComponentFactory.Meta meta() {
     return DelegatingHistoricalTimeSeriesProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DelegatingHistoricalTimeSeriesProviderComponentFactory.Meta.INSTANCE);
   }

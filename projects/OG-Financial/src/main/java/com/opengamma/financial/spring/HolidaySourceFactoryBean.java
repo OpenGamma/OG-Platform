@@ -57,6 +57,7 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
   public static HolidaySourceFactoryBean.Meta meta() {
     return HolidaySourceFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidaySourceFactoryBean.Meta.INSTANCE);
   }

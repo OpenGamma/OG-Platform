@@ -56,6 +56,7 @@ public class FRASecurityBean extends SecurityBean {
   public static FRASecurityBean.Meta meta() {
     return FRASecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FRASecurityBean.Meta.INSTANCE);
   }

@@ -44,6 +44,7 @@ public class AssetOrNothingPayoffStyle extends PayoffStyle {
   public static AssetOrNothingPayoffStyle.Meta meta() {
     return AssetOrNothingPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AssetOrNothingPayoffStyle.Meta.INSTANCE);
   }

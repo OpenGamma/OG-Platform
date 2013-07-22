@@ -74,6 +74,7 @@ public abstract class AbstractFxOptionTrade extends Trade {
   public static AbstractFxOptionTrade.Meta meta() {
     return AbstractFxOptionTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractFxOptionTrade.Meta.INSTANCE);
   }

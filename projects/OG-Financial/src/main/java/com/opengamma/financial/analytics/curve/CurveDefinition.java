@@ -81,6 +81,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   public static CurveDefinition.Meta meta() {
     return CurveDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveDefinition.Meta.INSTANCE);
   }

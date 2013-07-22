@@ -58,6 +58,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   public static RedisConnectorComponentFactory.Meta meta() {
     return RedisConnectorComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RedisConnectorComponentFactory.Meta.INSTANCE);
   }

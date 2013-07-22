@@ -44,6 +44,7 @@ public class BarrierPayoffStyle extends PayoffStyle {
   public static BarrierPayoffStyle.Meta meta() {
     return BarrierPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BarrierPayoffStyle.Meta.INSTANCE);
   }

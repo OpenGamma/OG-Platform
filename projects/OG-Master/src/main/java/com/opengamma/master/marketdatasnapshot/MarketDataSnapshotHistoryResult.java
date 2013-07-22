@@ -99,6 +99,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
   public static MarketDataSnapshotHistoryResult.Meta meta() {
     return MarketDataSnapshotHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataSnapshotHistoryResult.Meta.INSTANCE);
   }

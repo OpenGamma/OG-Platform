@@ -55,6 +55,7 @@ public class NonVersionedRedisHolidaySourceComponentFactory extends AbstractNonV
   public static NonVersionedRedisHolidaySourceComponentFactory.Meta meta() {
     return NonVersionedRedisHolidaySourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NonVersionedRedisHolidaySourceComponentFactory.Meta.INSTANCE);
   }

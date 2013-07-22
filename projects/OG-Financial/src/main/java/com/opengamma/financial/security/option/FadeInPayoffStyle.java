@@ -69,6 +69,7 @@ public class FadeInPayoffStyle extends PayoffStyle {
   public static FadeInPayoffStyle.Meta meta() {
     return FadeInPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FadeInPayoffStyle.Meta.INSTANCE);
   }

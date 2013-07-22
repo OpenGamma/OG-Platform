@@ -113,6 +113,7 @@ public class OrganizationSearchResult extends AbstractSearchResult<OrganizationD
   public static OrganizationSearchResult.Meta meta() {
     return OrganizationSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OrganizationSearchResult.Meta.INSTANCE);
   }

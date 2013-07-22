@@ -81,6 +81,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   public static SimpleZeroDepositSecurity.Meta meta() {
     return SimpleZeroDepositSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleZeroDepositSecurity.Meta.INSTANCE);
   }

@@ -63,6 +63,7 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
   public static BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta meta() {
     return BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta.INSTANCE);
   }

@@ -86,6 +86,7 @@ public class EHCachingHolidayMasterComponentFactory extends AbstractComponentFac
   public static EHCachingHolidayMasterComponentFactory.Meta meta() {
     return EHCachingHolidayMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EHCachingHolidayMasterComponentFactory.Meta.INSTANCE);
   }

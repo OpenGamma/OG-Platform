@@ -41,6 +41,7 @@ public class RiskValueRequirement extends RiskValueProperties {
   public static RiskValueRequirement.Meta meta() {
     return RiskValueRequirement.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RiskValueRequirement.Meta.INSTANCE);
   }

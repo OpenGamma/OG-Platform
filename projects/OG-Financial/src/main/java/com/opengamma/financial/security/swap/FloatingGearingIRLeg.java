@@ -77,6 +77,7 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
   public static FloatingGearingIRLeg.Meta meta() {
     return FloatingGearingIRLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FloatingGearingIRLeg.Meta.INSTANCE);
   }

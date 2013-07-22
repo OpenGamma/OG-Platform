@@ -115,6 +115,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   public static MetricRepositoryFactory.Meta meta() {
     return MetricRepositoryFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MetricRepositoryFactory.Meta.INSTANCE);
   }

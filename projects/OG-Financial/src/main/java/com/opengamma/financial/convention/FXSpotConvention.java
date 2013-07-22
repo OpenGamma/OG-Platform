@@ -68,6 +68,7 @@ public class FXSpotConvention extends Convention {
   public static FXSpotConvention.Meta meta() {
     return FXSpotConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXSpotConvention.Meta.INSTANCE);
   }

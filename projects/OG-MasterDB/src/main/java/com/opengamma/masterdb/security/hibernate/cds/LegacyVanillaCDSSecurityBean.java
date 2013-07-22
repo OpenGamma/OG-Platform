@@ -35,6 +35,7 @@ public class LegacyVanillaCDSSecurityBean extends CreditDefaultSwapSecurityBean 
   public static LegacyVanillaCDSSecurityBean.Meta meta() {
     return LegacyVanillaCDSSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LegacyVanillaCDSSecurityBean.Meta.INSTANCE);
   }

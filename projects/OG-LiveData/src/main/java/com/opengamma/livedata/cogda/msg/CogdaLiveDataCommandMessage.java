@@ -44,6 +44,7 @@ public abstract class CogdaLiveDataCommandMessage extends CogdaCommandMessage {
   public static CogdaLiveDataCommandMessage.Meta meta() {
     return CogdaLiveDataCommandMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaLiveDataCommandMessage.Meta.INSTANCE);
   }

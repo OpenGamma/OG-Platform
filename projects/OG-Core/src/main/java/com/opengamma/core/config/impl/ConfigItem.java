@@ -159,6 +159,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   public static ConfigItem.Meta meta() {
     return ConfigItem.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code ConfigItem}.
    * @param <R>  the bean's generic type
@@ -169,6 +170,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   public static <R> ConfigItem.Meta<R> metaConfigItem(Class<R> cls) {
     return ConfigItem.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigItem.Meta.INSTANCE);
   }

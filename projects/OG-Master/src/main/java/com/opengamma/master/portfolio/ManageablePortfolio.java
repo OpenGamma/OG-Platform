@@ -113,6 +113,7 @@ public class ManageablePortfolio extends DirectBean implements MutableUniqueIden
   public static ManageablePortfolio.Meta meta() {
     return ManageablePortfolio.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageablePortfolio.Meta.INSTANCE);
   }

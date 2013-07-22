@@ -127,6 +127,7 @@ public class SimpleSecurity extends DirectBean
   public static SimpleSecurity.Meta meta() {
     return SimpleSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleSecurity.Meta.INSTANCE);
   }

@@ -64,6 +64,7 @@ public class HistoricalTimeSeriesLoaderResult extends DirectBean {
   public static HistoricalTimeSeriesLoaderResult.Meta meta() {
     return HistoricalTimeSeriesLoaderResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesLoaderResult.Meta.INSTANCE);
   }

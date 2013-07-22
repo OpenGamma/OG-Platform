@@ -106,6 +106,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   public static MarketDataSnapshotDocument.Meta meta() {
     return MarketDataSnapshotDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataSnapshotDocument.Meta.INSTANCE);
   }

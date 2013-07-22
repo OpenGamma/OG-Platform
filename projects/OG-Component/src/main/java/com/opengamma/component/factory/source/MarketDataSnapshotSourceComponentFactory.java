@@ -93,6 +93,7 @@ public class MarketDataSnapshotSourceComponentFactory extends AbstractComponentF
   public static MarketDataSnapshotSourceComponentFactory.Meta meta() {
     return MarketDataSnapshotSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataSnapshotSourceComponentFactory.Meta.INSTANCE);
   }

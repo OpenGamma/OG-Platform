@@ -52,6 +52,7 @@ public class ComputationCacheResponse extends DirectBean {
   public static ComputationCacheResponse.Meta meta() {
     return ComputationCacheResponse.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComputationCacheResponse.Meta.INSTANCE);
   }

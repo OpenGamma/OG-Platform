@@ -213,6 +213,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
   public static SimpleSecurityLink.Meta meta() {
     return SimpleSecurityLink.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleSecurityLink.Meta.INSTANCE);
   }

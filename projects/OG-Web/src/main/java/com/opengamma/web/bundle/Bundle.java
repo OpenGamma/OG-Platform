@@ -109,6 +109,7 @@ public class Bundle extends DirectBean implements BundleNode {
   public static Bundle.Meta meta() {
     return Bundle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Bundle.Meta.INSTANCE);
   }

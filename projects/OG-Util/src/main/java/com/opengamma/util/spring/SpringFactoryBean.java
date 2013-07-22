@@ -96,6 +96,7 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
   public static SpringFactoryBean.Meta meta() {
     return SpringFactoryBean.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code SpringFactoryBean}.
    * @param <R>  the bean's generic type
@@ -106,6 +107,7 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
   public static <R> SpringFactoryBean.Meta<R> metaSpringFactoryBean(Class<R> cls) {
     return SpringFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SpringFactoryBean.Meta.INSTANCE);
   }

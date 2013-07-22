@@ -56,6 +56,7 @@ public class AttachToViewProcessRequest extends DirectBean {
   public static AttachToViewProcessRequest.Meta meta() {
     return AttachToViewProcessRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AttachToViewProcessRequest.Meta.INSTANCE);
   }

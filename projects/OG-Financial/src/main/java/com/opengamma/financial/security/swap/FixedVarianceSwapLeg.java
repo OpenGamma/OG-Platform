@@ -87,6 +87,7 @@ public class FixedVarianceSwapLeg extends VarianceSwapLeg {
   public static FixedVarianceSwapLeg.Meta meta() {
     return FixedVarianceSwapLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FixedVarianceSwapLeg.Meta.INSTANCE);
   }

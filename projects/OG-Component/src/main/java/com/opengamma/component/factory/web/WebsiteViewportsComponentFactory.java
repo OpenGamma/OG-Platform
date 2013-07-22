@@ -283,6 +283,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   public static WebsiteViewportsComponentFactory.Meta meta() {
     return WebsiteViewportsComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebsiteViewportsComponentFactory.Meta.INSTANCE);
   }

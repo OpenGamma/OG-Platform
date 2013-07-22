@@ -79,6 +79,7 @@ public class PaymentServiceComponentFactory extends AbstractComponentFactory {
   public static PaymentServiceComponentFactory.Meta meta() {
     return PaymentServiceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PaymentServiceComponentFactory.Meta.INSTANCE);
   }

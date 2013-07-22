@@ -75,6 +75,7 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
   public static Convention.Meta meta() {
     return Convention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Convention.Meta.INSTANCE);
   }

@@ -64,6 +64,7 @@ public class DefaultHistoricalTimeSeriesResolverFactoryBean extends SpringFactor
   public static DefaultHistoricalTimeSeriesResolverFactoryBean.Meta meta() {
     return DefaultHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DefaultHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE);
   }

@@ -62,6 +62,7 @@ public class CashOrNothingPayoffStyle extends PayoffStyle {
   public static CashOrNothingPayoffStyle.Meta meta() {
     return CashOrNothingPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CashOrNothingPayoffStyle.Meta.INSTANCE);
   }

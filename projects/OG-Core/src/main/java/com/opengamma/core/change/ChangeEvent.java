@@ -98,6 +98,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
   public static ChangeEvent.Meta meta() {
     return ChangeEvent.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ChangeEvent.Meta.INSTANCE);
   }

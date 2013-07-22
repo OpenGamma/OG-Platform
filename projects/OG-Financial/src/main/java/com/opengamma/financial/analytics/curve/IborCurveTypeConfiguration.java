@@ -67,6 +67,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   public static IborCurveTypeConfiguration.Meta meta() {
     return IborCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IborCurveTypeConfiguration.Meta.INSTANCE);
   }

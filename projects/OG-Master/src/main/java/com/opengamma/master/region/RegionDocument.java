@@ -93,6 +93,7 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   public static RegionDocument.Meta meta() {
     return RegionDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RegionDocument.Meta.INSTANCE);
   }

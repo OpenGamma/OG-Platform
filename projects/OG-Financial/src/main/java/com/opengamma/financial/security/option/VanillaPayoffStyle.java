@@ -44,6 +44,7 @@ public class VanillaPayoffStyle extends PayoffStyle {
   public static VanillaPayoffStyle.Meta meta() {
     return VanillaPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VanillaPayoffStyle.Meta.INSTANCE);
   }

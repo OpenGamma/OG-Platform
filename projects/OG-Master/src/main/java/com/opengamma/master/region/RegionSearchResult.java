@@ -108,6 +108,7 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
   public static RegionSearchResult.Meta meta() {
     return RegionSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RegionSearchResult.Meta.INSTANCE);
   }

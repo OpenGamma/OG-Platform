@@ -66,6 +66,7 @@ public class MarketDataSnapshotSourceFactoryBean extends SpringFactoryBean<Marke
   public static MarketDataSnapshotSourceFactoryBean.Meta meta() {
     return MarketDataSnapshotSourceFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataSnapshotSourceFactoryBean.Meta.INSTANCE);
   }

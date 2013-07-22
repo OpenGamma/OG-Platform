@@ -93,6 +93,7 @@ public class SimpleExchange extends DirectBean
   public static SimpleExchange.Meta meta() {
     return SimpleExchange.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleExchange.Meta.INSTANCE);
   }

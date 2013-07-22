@@ -99,6 +99,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   public static InterpolatedCurveDefinition.Meta meta() {
     return InterpolatedCurveDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterpolatedCurveDefinition.Meta.INSTANCE);
   }

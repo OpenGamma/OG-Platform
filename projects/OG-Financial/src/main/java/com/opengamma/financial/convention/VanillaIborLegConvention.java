@@ -128,6 +128,7 @@ public class VanillaIborLegConvention extends Convention {
   public static VanillaIborLegConvention.Meta meta() {
     return VanillaIborLegConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VanillaIborLegConvention.Meta.INSTANCE);
   }

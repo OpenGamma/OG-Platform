@@ -47,6 +47,7 @@ public class UnsupportedSecurityLoaderComponentFactory extends AbstractSecurityL
   public static UnsupportedSecurityLoaderComponentFactory.Meta meta() {
     return UnsupportedSecurityLoaderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UnsupportedSecurityLoaderComponentFactory.Meta.INSTANCE);
   }

@@ -102,6 +102,7 @@ public class ExchangeSourceComponentFactory extends AbstractComponentFactory {
   public static ExchangeSourceComponentFactory.Meta meta() {
     return ExchangeSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeSourceComponentFactory.Meta.INSTANCE);
   }

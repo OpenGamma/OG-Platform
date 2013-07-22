@@ -90,6 +90,7 @@ public class OrganizationSourceComponentFactory extends AbstractComponentFactory
   public static OrganizationSourceComponentFactory.Meta meta() {
     return OrganizationSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OrganizationSourceComponentFactory.Meta.INSTANCE);
   }

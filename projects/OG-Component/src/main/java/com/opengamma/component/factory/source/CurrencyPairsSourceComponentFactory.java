@@ -90,6 +90,7 @@ public class CurrencyPairsSourceComponentFactory extends AbstractComponentFactor
   public static CurrencyPairsSourceComponentFactory.Meta meta() {
     return CurrencyPairsSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurrencyPairsSourceComponentFactory.Meta.INSTANCE);
   }

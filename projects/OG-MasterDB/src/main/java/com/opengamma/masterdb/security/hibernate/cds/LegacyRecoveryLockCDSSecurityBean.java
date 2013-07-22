@@ -35,6 +35,7 @@ public class LegacyRecoveryLockCDSSecurityBean extends CreditDefaultSwapSecurity
   public static LegacyRecoveryLockCDSSecurityBean.Meta meta() {
     return LegacyRecoveryLockCDSSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LegacyRecoveryLockCDSSecurityBean.Meta.INSTANCE);
   }

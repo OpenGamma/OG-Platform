@@ -79,6 +79,7 @@ public class RiskFailure extends DirectBean {
   public static RiskFailure.Meta meta() {
     return RiskFailure.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RiskFailure.Meta.INSTANCE);
   }

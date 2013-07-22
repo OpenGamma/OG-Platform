@@ -72,6 +72,7 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
   public static FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta meta() {
     return FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE);
   }

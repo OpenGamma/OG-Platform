@@ -112,6 +112,7 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> 
   public static ConfigSearchResult.Meta meta() {
     return ConfigSearchResult.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code ConfigSearchResult}.
    * @param <R>  the bean's generic type
@@ -122,6 +123,7 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> 
   public static <R> ConfigSearchResult.Meta<R> metaConfigSearchResult(Class<R> cls) {
     return ConfigSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigSearchResult.Meta.INSTANCE);
   }

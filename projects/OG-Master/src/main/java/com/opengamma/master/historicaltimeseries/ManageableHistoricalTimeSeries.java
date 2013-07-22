@@ -83,6 +83,7 @@ public class ManageableHistoricalTimeSeries extends DirectBean
   public static ManageableHistoricalTimeSeries.Meta meta() {
     return ManageableHistoricalTimeSeries.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableHistoricalTimeSeries.Meta.INSTANCE);
   }

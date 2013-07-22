@@ -61,6 +61,7 @@ public class BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory extends H
   public static BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory.Meta meta() {
     return BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }

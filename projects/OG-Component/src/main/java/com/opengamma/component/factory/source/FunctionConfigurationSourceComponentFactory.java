@@ -206,6 +206,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   public static FunctionConfigurationSourceComponentFactory.Meta meta() {
     return FunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionConfigurationSourceComponentFactory.Meta.INSTANCE);
   }

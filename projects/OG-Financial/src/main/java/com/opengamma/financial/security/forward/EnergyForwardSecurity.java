@@ -50,6 +50,7 @@ public class EnergyForwardSecurity extends CommodityForwardSecurity {
   public static EnergyForwardSecurity.Meta meta() {
     return EnergyForwardSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EnergyForwardSecurity.Meta.INSTANCE);
   }

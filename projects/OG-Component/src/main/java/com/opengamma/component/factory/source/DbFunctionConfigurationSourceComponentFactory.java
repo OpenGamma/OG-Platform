@@ -153,6 +153,7 @@ public class DbFunctionConfigurationSourceComponentFactory extends AbstractCompo
   public static DbFunctionConfigurationSourceComponentFactory.Meta meta() {
     return DbFunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbFunctionConfigurationSourceComponentFactory.Meta.INSTANCE);
   }

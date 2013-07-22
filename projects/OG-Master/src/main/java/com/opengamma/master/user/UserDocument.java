@@ -86,6 +86,7 @@ public class UserDocument extends AbstractDocument implements Serializable {
   public static UserDocument.Meta meta() {
     return UserDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserDocument.Meta.INSTANCE);
   }

@@ -41,6 +41,7 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
   public static CurveTypeConfiguration.Meta meta() {
     return CurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveTypeConfiguration.Meta.INSTANCE);
   }

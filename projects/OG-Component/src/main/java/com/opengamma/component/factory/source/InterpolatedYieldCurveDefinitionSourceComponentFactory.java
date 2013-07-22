@@ -102,6 +102,7 @@ public class InterpolatedYieldCurveDefinitionSourceComponentFactory extends Abst
   public static InterpolatedYieldCurveDefinitionSourceComponentFactory.Meta meta() {
     return InterpolatedYieldCurveDefinitionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterpolatedYieldCurveDefinitionSourceComponentFactory.Meta.INSTANCE);
   }

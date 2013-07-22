@@ -81,6 +81,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   public static DbBatchMasterComponentFactory.Meta meta() {
     return DbBatchMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbBatchMasterComponentFactory.Meta.INSTANCE);
   }

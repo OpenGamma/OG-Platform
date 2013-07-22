@@ -29,6 +29,7 @@ public class CogdaLiveDataSubscriptionRequestMessage extends CogdaLiveDataComman
   public static CogdaLiveDataSubscriptionRequestMessage.Meta meta() {
     return CogdaLiveDataSubscriptionRequestMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaLiveDataSubscriptionRequestMessage.Meta.INSTANCE);
   }

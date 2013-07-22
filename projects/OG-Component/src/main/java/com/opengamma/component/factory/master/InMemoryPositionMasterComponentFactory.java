@@ -68,6 +68,7 @@ public class InMemoryPositionMasterComponentFactory extends AbstractComponentFac
   public static InMemoryPositionMasterComponentFactory.Meta meta() {
     return InMemoryPositionMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InMemoryPositionMasterComponentFactory.Meta.INSTANCE);
   }

@@ -52,6 +52,7 @@ public class Broker extends DirectBean {
   public static Broker.Meta meta() {
     return Broker.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Broker.Meta.INSTANCE);
   }

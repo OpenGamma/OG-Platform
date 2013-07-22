@@ -68,6 +68,7 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
   public static InMemoryPortfolioMasterComponentFactory.Meta meta() {
     return InMemoryPortfolioMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InMemoryPortfolioMasterComponentFactory.Meta.INSTANCE);
   }

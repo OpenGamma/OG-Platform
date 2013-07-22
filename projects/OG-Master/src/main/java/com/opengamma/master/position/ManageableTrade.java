@@ -235,6 +235,7 @@ public class ManageableTrade extends DirectBean
   public static ManageableTrade.Meta meta() {
     return ManageableTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableTrade.Meta.INSTANCE);
   }

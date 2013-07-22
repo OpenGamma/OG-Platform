@@ -98,6 +98,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   public static FloatingInterestRateLeg.Meta meta() {
     return FloatingInterestRateLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FloatingInterestRateLeg.Meta.INSTANCE);
   }

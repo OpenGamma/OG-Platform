@@ -97,6 +97,7 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
   public static ConventionSourceComponentFactory.Meta meta() {
     return ConventionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConventionSourceComponentFactory.Meta.INSTANCE);
   }

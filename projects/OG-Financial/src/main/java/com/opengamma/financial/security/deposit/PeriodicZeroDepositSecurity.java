@@ -87,6 +87,7 @@ public class PeriodicZeroDepositSecurity extends FinancialSecurity {
   public static PeriodicZeroDepositSecurity.Meta meta() {
     return PeriodicZeroDepositSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PeriodicZeroDepositSecurity.Meta.INSTANCE);
   }

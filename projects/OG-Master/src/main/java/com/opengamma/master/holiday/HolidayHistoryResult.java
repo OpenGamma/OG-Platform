@@ -98,6 +98,7 @@ public class HolidayHistoryResult extends AbstractHistoryResult<HolidayDocument>
   public static HolidayHistoryResult.Meta meta() {
     return HolidayHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidayHistoryResult.Meta.INSTANCE);
   }

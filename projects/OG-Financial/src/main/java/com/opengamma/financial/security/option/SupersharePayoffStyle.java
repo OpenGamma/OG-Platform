@@ -69,6 +69,7 @@ public class SupersharePayoffStyle extends PayoffStyle {
   public static SupersharePayoffStyle.Meta meta() {
     return SupersharePayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SupersharePayoffStyle.Meta.INSTANCE);
   }

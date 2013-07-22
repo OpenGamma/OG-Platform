@@ -138,6 +138,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   public static ManageableSecurity.Meta meta() {
     return ManageableSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableSecurity.Meta.INSTANCE);
   }

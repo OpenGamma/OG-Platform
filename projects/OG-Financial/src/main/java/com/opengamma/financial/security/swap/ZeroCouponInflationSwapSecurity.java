@@ -78,6 +78,7 @@ public class ZeroCouponInflationSwapSecurity extends SwapSecurity {
   public static ZeroCouponInflationSwapSecurity.Meta meta() {
     return ZeroCouponInflationSwapSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ZeroCouponInflationSwapSecurity.Meta.INSTANCE);
   }

@@ -156,6 +156,7 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   public static HistoricalTimeSeriesSourceComponentFactory.Meta meta() {
     return HistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }

@@ -149,6 +149,7 @@ public class CronTriggerComponentFactory extends AbstractComponentFactory {
   public static CronTriggerComponentFactory.Meta meta() {
     return CronTriggerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CronTriggerComponentFactory.Meta.INSTANCE);
   }

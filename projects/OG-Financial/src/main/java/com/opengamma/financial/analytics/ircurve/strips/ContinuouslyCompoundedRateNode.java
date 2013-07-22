@@ -78,6 +78,7 @@ public class ContinuouslyCompoundedRateNode extends CurveNode {
   public static ContinuouslyCompoundedRateNode.Meta meta() {
     return ContinuouslyCompoundedRateNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ContinuouslyCompoundedRateNode.Meta.INSTANCE);
   }

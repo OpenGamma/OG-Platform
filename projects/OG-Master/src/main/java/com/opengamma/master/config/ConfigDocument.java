@@ -183,6 +183,7 @@ public class ConfigDocument extends AbstractDocument {
   public static ConfigDocument.Meta meta() {
     return ConfigDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigDocument.Meta.INSTANCE);
   }

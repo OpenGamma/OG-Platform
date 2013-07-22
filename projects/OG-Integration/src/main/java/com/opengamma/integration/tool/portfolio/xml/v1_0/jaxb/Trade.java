@@ -112,6 +112,7 @@ public abstract class Trade extends DirectBean {
   public static Trade.Meta meta() {
     return Trade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Trade.Meta.INSTANCE);
   }

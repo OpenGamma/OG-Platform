@@ -68,6 +68,7 @@ public abstract class ListedSecurityDefinition extends DirectBean {
   public static ListedSecurityDefinition.Meta meta() {
     return ListedSecurityDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ListedSecurityDefinition.Meta.INSTANCE);
   }

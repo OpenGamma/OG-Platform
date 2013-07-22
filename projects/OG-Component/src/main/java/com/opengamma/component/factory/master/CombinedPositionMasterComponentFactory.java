@@ -84,6 +84,7 @@ public class CombinedPositionMasterComponentFactory extends AbstractComponentFac
   public static CombinedPositionMasterComponentFactory.Meta meta() {
     return CombinedPositionMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CombinedPositionMasterComponentFactory.Meta.INSTANCE);
   }

@@ -61,6 +61,7 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
   public static CommodityFutureSecurity.Meta meta() {
     return CommodityFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CommodityFutureSecurity.Meta.INSTANCE);
   }

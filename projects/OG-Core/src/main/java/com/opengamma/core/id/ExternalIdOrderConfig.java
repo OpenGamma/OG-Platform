@@ -182,6 +182,7 @@ public class ExternalIdOrderConfig extends DirectBean {
   public static ExternalIdOrderConfig.Meta meta() {
     return ExternalIdOrderConfig.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExternalIdOrderConfig.Meta.INSTANCE);
   }

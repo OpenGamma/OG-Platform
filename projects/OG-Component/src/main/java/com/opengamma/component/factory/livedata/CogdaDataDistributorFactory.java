@@ -60,6 +60,7 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
   public static CogdaDataDistributorFactory.Meta meta() {
     return CogdaDataDistributorFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaDataDistributorFactory.Meta.INSTANCE);
   }

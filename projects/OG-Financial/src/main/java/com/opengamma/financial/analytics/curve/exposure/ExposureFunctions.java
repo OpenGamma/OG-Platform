@@ -90,6 +90,7 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
   public static ExposureFunctions.Meta meta() {
     return ExposureFunctions.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExposureFunctions.Meta.INSTANCE);
   }

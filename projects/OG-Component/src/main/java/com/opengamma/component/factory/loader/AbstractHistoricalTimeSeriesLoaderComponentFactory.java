@@ -82,6 +82,7 @@ public abstract class AbstractHistoricalTimeSeriesLoaderComponentFactory extends
   public static AbstractHistoricalTimeSeriesLoaderComponentFactory.Meta meta() {
     return AbstractHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE);
   }

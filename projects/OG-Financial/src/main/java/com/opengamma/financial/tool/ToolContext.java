@@ -248,6 +248,7 @@ public class ToolContext extends DirectBean implements Closeable {
   public static ToolContext.Meta meta() {
     return ToolContext.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ToolContext.Meta.INSTANCE);
   }

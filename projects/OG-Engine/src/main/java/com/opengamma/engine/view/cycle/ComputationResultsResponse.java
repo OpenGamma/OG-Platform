@@ -45,6 +45,7 @@ public class ComputationResultsResponse extends DirectBean {
   public static ComputationResultsResponse.Meta meta() {
     return ComputationResultsResponse.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComputationResultsResponse.Meta.INSTANCE);
   }

@@ -111,6 +111,7 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
   public static MarketDataValue.Meta meta() {
     return MarketDataValue.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataValue.Meta.INSTANCE);
   }

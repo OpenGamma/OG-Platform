@@ -54,6 +54,7 @@ public abstract class VarianceSwapLeg extends SwapLeg {
   public static VarianceSwapLeg.Meta meta() {
     return VarianceSwapLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VarianceSwapLeg.Meta.INSTANCE);
   }

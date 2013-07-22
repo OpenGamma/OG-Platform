@@ -77,6 +77,7 @@ public class FudgeListWrapper<T> extends DirectBean {
   public static FudgeListWrapper.Meta meta() {
     return FudgeListWrapper.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code FudgeListWrapper}.
    * @param <R>  the bean's generic type
@@ -87,6 +88,7 @@ public class FudgeListWrapper<T> extends DirectBean {
   public static <R> FudgeListWrapper.Meta<R> metaFudgeListWrapper(Class<R> cls) {
     return FudgeListWrapper.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FudgeListWrapper.Meta.INSTANCE);
   }

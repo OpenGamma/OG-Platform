@@ -41,6 +41,7 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractSecurityLoade
   public static ExampleSecurityLoaderComponentFactory.Meta meta() {
     return ExampleSecurityLoaderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleSecurityLoaderComponentFactory.Meta.INSTANCE);
   }

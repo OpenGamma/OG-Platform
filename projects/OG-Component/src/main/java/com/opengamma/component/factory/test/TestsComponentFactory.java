@@ -116,6 +116,7 @@ public class TestsComponentFactory extends AbstractComponentFactory {
   public static TestsComponentFactory.Meta meta() {
     return TestsComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(TestsComponentFactory.Meta.INSTANCE);
   }

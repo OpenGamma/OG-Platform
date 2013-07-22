@@ -105,6 +105,7 @@ public class DepositConvention extends Convention {
   public static DepositConvention.Meta meta() {
     return DepositConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DepositConvention.Meta.INSTANCE);
   }

@@ -154,6 +154,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   public static WebsiteBundleComponentFactory.Meta meta() {
     return WebsiteBundleComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebsiteBundleComponentFactory.Meta.INSTANCE);
   }

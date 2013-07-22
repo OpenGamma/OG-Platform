@@ -86,6 +86,7 @@ public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractC
   public static EHCachingMarketDataSnapshotMasterComponentFactory.Meta meta() {
     return EHCachingMarketDataSnapshotMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EHCachingMarketDataSnapshotMasterComponentFactory.Meta.INSTANCE);
   }

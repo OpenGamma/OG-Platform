@@ -104,6 +104,7 @@ public class CapFloorSecurityBean extends SecurityBean {
   public static CapFloorSecurityBean.Meta meta() {
     return CapFloorSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CapFloorSecurityBean.Meta.INSTANCE);
   }

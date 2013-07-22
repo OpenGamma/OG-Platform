@@ -97,6 +97,7 @@ public class RawSecurity extends ManageableSecurity {
   public static RawSecurity.Meta meta() {
     return RawSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RawSecurity.Meta.INSTANCE);
   }

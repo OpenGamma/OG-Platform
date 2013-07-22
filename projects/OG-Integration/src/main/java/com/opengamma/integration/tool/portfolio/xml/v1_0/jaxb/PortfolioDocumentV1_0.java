@@ -64,6 +64,7 @@ public class PortfolioDocumentV1_0 extends DirectBean {
   public static PortfolioDocumentV1_0.Meta meta() {
     return PortfolioDocumentV1_0.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PortfolioDocumentV1_0.Meta.INSTANCE);
   }

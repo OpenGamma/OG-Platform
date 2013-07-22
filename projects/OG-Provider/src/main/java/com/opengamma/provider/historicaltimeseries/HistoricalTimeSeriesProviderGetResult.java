@@ -63,6 +63,7 @@ public class HistoricalTimeSeriesProviderGetResult extends DirectBean {
   public static HistoricalTimeSeriesProviderGetResult.Meta meta() {
     return HistoricalTimeSeriesProviderGetResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesProviderGetResult.Meta.INSTANCE);
   }

@@ -80,6 +80,7 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
   public static LiveDataClientComponentFactory.Meta meta() {
     return LiveDataClientComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LiveDataClientComponentFactory.Meta.INSTANCE);
   }

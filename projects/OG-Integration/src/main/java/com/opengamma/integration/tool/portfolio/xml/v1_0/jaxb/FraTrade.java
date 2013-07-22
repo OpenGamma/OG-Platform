@@ -99,6 +99,7 @@ public class FraTrade extends Trade {
   public static FraTrade.Meta meta() {
     return FraTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FraTrade.Meta.INSTANCE);
   }

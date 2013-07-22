@@ -54,6 +54,7 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
   public static FxDigitalOptionTrade.Meta meta() {
     return FxDigitalOptionTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FxDigitalOptionTrade.Meta.INSTANCE);
   }

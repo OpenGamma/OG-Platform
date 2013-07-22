@@ -88,6 +88,7 @@ public class EquityVarianceSwapTrade extends Trade {
   public static EquityVarianceSwapTrade.Meta meta() {
     return EquityVarianceSwapTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EquityVarianceSwapTrade.Meta.INSTANCE);
   }

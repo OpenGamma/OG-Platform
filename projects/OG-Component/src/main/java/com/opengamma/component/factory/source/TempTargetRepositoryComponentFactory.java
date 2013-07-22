@@ -146,6 +146,7 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   public static TempTargetRepositoryComponentFactory.Meta meta() {
     return TempTargetRepositoryComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(TempTargetRepositoryComponentFactory.Meta.INSTANCE);
   }

@@ -62,6 +62,7 @@ public class AsymmetricPoweredPayoffStyle extends PayoffStyle {
   public static AsymmetricPoweredPayoffStyle.Meta meta() {
     return AsymmetricPoweredPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AsymmetricPoweredPayoffStyle.Meta.INSTANCE);
   }

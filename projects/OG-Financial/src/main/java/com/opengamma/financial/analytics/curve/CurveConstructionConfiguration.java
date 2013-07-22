@@ -84,6 +84,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   public static CurveConstructionConfiguration.Meta meta() {
     return CurveConstructionConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveConstructionConfiguration.Meta.INSTANCE);
   }

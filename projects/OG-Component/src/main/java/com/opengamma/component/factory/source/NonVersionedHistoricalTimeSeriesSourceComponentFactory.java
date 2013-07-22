@@ -55,6 +55,7 @@ public class NonVersionedHistoricalTimeSeriesSourceComponentFactory extends Abst
   public static NonVersionedHistoricalTimeSeriesSourceComponentFactory.Meta meta() {
     return NonVersionedHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NonVersionedHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }

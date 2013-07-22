@@ -76,6 +76,7 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
   public static LegacyRecoveryLockCDSSecurity.Meta meta() {
     return LegacyRecoveryLockCDSSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LegacyRecoveryLockCDSSecurity.Meta.INSTANCE);
   }

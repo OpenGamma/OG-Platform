@@ -48,6 +48,7 @@ public class BermudanExerciseType extends ExerciseType {
   public static BermudanExerciseType.Meta meta() {
     return BermudanExerciseType.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BermudanExerciseType.Meta.INSTANCE);
   }

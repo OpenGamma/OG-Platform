@@ -170,6 +170,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   public static TargetResolverComponentFactory.Meta meta() {
     return TargetResolverComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(TargetResolverComponentFactory.Meta.INSTANCE);
   }

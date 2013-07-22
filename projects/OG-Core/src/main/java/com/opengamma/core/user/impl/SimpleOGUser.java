@@ -110,6 +110,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   public static SimpleOGUser.Meta meta() {
     return SimpleOGUser.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleOGUser.Meta.INSTANCE);
   }

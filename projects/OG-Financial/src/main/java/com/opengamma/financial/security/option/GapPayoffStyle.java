@@ -62,6 +62,7 @@ public class GapPayoffStyle extends PayoffStyle {
   public static GapPayoffStyle.Meta meta() {
     return GapPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(GapPayoffStyle.Meta.INSTANCE);
   }

@@ -71,6 +71,7 @@ public class BondFutureDeliverable extends DirectBean implements Serializable {
   public static BondFutureDeliverable.Meta meta() {
     return BondFutureDeliverable.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BondFutureDeliverable.Meta.INSTANCE);
   }

@@ -116,6 +116,7 @@ public class CommodityFutureOptionSecurity extends FinancialSecurity {
   public static CommodityFutureOptionSecurity.Meta meta() {
     return CommodityFutureOptionSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CommodityFutureOptionSecurity.Meta.INSTANCE);
   }

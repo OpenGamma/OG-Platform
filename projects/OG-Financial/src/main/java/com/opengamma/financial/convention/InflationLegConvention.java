@@ -103,6 +103,7 @@ public class InflationLegConvention extends Convention {
   public static InflationLegConvention.Meta meta() {
     return InflationLegConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InflationLegConvention.Meta.INSTANCE);
   }

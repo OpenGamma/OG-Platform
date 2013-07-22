@@ -131,6 +131,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   public static EquityVarianceSwapSecurity.Meta meta() {
     return EquityVarianceSwapSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EquityVarianceSwapSecurity.Meta.INSTANCE);
   }

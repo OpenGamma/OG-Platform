@@ -52,6 +52,7 @@ public class CogdaLiveDataUpdateMessage extends DirectBean {
   public static CogdaLiveDataUpdateMessage.Meta meta() {
     return CogdaLiveDataUpdateMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaLiveDataUpdateMessage.Meta.INSTANCE);
   }

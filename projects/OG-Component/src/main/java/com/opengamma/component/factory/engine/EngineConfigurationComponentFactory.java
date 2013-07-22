@@ -116,6 +116,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   public static EngineConfigurationComponentFactory.Meta meta() {
     return EngineConfigurationComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EngineConfigurationComponentFactory.Meta.INSTANCE);
   }

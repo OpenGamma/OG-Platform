@@ -89,6 +89,7 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
   public static YieldCurveDefinitionDocument.Meta meta() {
     return YieldCurveDefinitionDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(YieldCurveDefinitionDocument.Meta.INSTANCE);
   }

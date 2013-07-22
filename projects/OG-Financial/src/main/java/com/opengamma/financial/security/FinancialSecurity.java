@@ -74,6 +74,7 @@ public abstract class FinancialSecurity extends ManageableSecurity {
   public static FinancialSecurity.Meta meta() {
     return FinancialSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FinancialSecurity.Meta.INSTANCE);
   }

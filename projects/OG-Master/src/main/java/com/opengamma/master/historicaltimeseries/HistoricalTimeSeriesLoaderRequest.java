@@ -123,6 +123,7 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
   public static HistoricalTimeSeriesLoaderRequest.Meta meta() {
     return HistoricalTimeSeriesLoaderRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesLoaderRequest.Meta.INSTANCE);
   }

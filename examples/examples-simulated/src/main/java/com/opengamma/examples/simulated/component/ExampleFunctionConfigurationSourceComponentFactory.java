@@ -57,6 +57,7 @@ public class ExampleFunctionConfigurationSourceComponentFactory extends Function
   public static ExampleFunctionConfigurationSourceComponentFactory.Meta meta() {
     return ExampleFunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleFunctionConfigurationSourceComponentFactory.Meta.INSTANCE);
   }

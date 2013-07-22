@@ -67,6 +67,7 @@ public class InMemoryFunctionCostsMasterComponentFactory extends AbstractCompone
   public static InMemoryFunctionCostsMasterComponentFactory.Meta meta() {
     return InMemoryFunctionCostsMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InMemoryFunctionCostsMasterComponentFactory.Meta.INSTANCE);
   }

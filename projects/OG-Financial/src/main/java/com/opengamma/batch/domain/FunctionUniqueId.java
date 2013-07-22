@@ -55,6 +55,7 @@ public class FunctionUniqueId extends DirectBean {
   public static FunctionUniqueId.Meta meta() {
     return FunctionUniqueId.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionUniqueId.Meta.INSTANCE);
   }

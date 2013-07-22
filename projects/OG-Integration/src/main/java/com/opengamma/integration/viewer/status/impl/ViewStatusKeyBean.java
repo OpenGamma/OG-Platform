@@ -75,6 +75,7 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
   public static ViewStatusKeyBean.Meta meta() {
     return ViewStatusKeyBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ViewStatusKeyBean.Meta.INSTANCE);
   }

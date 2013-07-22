@@ -135,6 +135,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
   public static FinancialUserManagerComponentFactory.Meta meta() {
     return FinancialUserManagerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FinancialUserManagerComponentFactory.Meta.INSTANCE);
   }

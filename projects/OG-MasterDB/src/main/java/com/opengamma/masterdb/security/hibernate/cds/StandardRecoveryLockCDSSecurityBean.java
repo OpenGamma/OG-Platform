@@ -29,6 +29,7 @@ public class StandardRecoveryLockCDSSecurityBean extends StandardCDSSecurityBean
   public static StandardRecoveryLockCDSSecurityBean.Meta meta() {
     return StandardRecoveryLockCDSSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(StandardRecoveryLockCDSSecurityBean.Meta.INSTANCE);
   }

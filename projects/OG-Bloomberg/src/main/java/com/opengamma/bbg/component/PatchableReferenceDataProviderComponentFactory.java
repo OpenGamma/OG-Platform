@@ -52,6 +52,7 @@ public class PatchableReferenceDataProviderComponentFactory extends AbstractComp
   public static PatchableReferenceDataProviderComponentFactory.Meta meta() {
     return PatchableReferenceDataProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PatchableReferenceDataProviderComponentFactory.Meta.INSTANCE);
   }

@@ -156,6 +156,7 @@ public class SwapNode extends CurveNode {
   public static SwapNode.Meta meta() {
     return SwapNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SwapNode.Meta.INSTANCE);
   }

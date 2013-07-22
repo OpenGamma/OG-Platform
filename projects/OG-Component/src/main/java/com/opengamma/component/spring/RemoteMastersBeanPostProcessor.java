@@ -110,6 +110,7 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
   public static RemoteMastersBeanPostProcessor.Meta meta() {
     return RemoteMastersBeanPostProcessor.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RemoteMastersBeanPostProcessor.Meta.INSTANCE);
   }

@@ -50,6 +50,7 @@ public class NoneFoundReferenceDataProviderComponentFactory extends DirectBean i
   public static NoneFoundReferenceDataProviderComponentFactory.Meta meta() {
     return NoneFoundReferenceDataProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NoneFoundReferenceDataProviderComponentFactory.Meta.INSTANCE);
   }

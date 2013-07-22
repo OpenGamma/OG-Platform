@@ -195,6 +195,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   public static AbstractStandardLiveDataServerComponentFactory.Meta meta() {
     return AbstractStandardLiveDataServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractStandardLiveDataServerComponentFactory.Meta.INSTANCE);
   }

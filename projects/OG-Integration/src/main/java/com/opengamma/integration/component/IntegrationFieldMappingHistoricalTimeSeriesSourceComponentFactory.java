@@ -61,6 +61,7 @@ public class IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory e
   public static IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory.Meta meta() {
     return IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IntegrationFieldMappingHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }

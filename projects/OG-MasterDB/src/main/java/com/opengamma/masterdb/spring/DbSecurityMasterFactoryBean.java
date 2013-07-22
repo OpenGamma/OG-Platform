@@ -73,6 +73,7 @@ public class DbSecurityMasterFactoryBean extends AbstractDbMasterFactoryBean<DbS
   public static DbSecurityMasterFactoryBean.Meta meta() {
     return DbSecurityMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbSecurityMasterFactoryBean.Meta.INSTANCE);
   }

@@ -80,6 +80,7 @@ public class CreditSpreadNode extends CurveNode {
   public static CreditSpreadNode.Meta meta() {
     return CreditSpreadNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CreditSpreadNode.Meta.INSTANCE);
   }

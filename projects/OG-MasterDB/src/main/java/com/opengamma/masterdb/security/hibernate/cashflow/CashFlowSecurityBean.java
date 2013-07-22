@@ -66,6 +66,7 @@ public class CashFlowSecurityBean extends SecurityBean {
   public static CashFlowSecurityBean.Meta meta() {
     return CashFlowSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CashFlowSecurityBean.Meta.INSTANCE);
   }

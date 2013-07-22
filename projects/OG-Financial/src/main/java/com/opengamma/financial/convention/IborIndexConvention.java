@@ -139,6 +139,7 @@ public class IborIndexConvention extends Convention {
   public static IborIndexConvention.Meta meta() {
     return IborIndexConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IborIndexConvention.Meta.INSTANCE);
   }

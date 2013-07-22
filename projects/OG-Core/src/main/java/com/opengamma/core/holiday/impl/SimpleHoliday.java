@@ -106,6 +106,7 @@ public class SimpleHoliday extends DirectBean
   public static SimpleHoliday.Meta meta() {
     return SimpleHoliday.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleHoliday.Meta.INSTANCE);
   }

@@ -69,6 +69,7 @@ public class SwapIndexConvention extends Convention {
   public static SwapIndexConvention.Meta meta() {
     return SwapIndexConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SwapIndexConvention.Meta.INSTANCE);
   }

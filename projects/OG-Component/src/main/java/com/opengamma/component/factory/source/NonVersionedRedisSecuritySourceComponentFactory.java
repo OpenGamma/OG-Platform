@@ -82,6 +82,7 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   public static NonVersionedRedisSecuritySourceComponentFactory.Meta meta() {
     return NonVersionedRedisSecuritySourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NonVersionedRedisSecuritySourceComponentFactory.Meta.INSTANCE);
   }

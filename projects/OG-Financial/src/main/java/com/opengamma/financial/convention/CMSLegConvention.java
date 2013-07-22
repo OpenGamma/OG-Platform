@@ -79,6 +79,7 @@ public class CMSLegConvention extends Convention {
   public static CMSLegConvention.Meta meta() {
     return CMSLegConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CMSLegConvention.Meta.INSTANCE);
   }

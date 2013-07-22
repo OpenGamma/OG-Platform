@@ -107,6 +107,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
   public static PositionSearchResult.Meta meta() {
     return PositionSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PositionSearchResult.Meta.INSTANCE);
   }

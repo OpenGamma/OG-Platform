@@ -51,6 +51,7 @@ public class FailureReason extends DirectBean {
   public static FailureReason.Meta meta() {
     return FailureReason.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FailureReason.Meta.INSTANCE);
   }

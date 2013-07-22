@@ -64,6 +64,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   public static InterestRateFutureSecurity.Meta meta() {
     return InterestRateFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterestRateFutureSecurity.Meta.INSTANCE);
   }

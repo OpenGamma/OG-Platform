@@ -87,6 +87,7 @@ public class CompoundingIborLegConvention extends Convention {
   public static CompoundingIborLegConvention.Meta meta() {
     return CompoundingIborLegConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CompoundingIborLegConvention.Meta.INSTANCE);
   }

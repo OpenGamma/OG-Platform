@@ -98,6 +98,7 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
   public static CogdaLiveDataServerFactory.Meta meta() {
     return CogdaLiveDataServerFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaLiveDataServerFactory.Meta.INSTANCE);
   }

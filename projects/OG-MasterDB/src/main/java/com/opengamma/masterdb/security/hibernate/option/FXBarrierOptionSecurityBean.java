@@ -116,6 +116,7 @@ public class FXBarrierOptionSecurityBean extends SecurityBean {
   public static FXBarrierOptionSecurityBean.Meta meta() {
     return FXBarrierOptionSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXBarrierOptionSecurityBean.Meta.INSTANCE);
   }

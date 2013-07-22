@@ -59,6 +59,7 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   public static SecurityMetaDataResult.Meta meta() {
     return SecurityMetaDataResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityMetaDataResult.Meta.INSTANCE);
   }

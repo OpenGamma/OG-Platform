@@ -45,6 +45,7 @@ public class ForeignExchangeFutureBean extends FutureSecurityBean {
   public static ForeignExchangeFutureBean.Meta meta() {
     return ForeignExchangeFutureBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ForeignExchangeFutureBean.Meta.INSTANCE);
   }

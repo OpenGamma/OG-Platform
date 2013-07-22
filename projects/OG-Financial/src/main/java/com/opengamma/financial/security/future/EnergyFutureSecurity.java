@@ -60,6 +60,7 @@ public class EnergyFutureSecurity extends CommodityFutureSecurity {
   public static EnergyFutureSecurity.Meta meta() {
     return EnergyFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EnergyFutureSecurity.Meta.INSTANCE);
   }

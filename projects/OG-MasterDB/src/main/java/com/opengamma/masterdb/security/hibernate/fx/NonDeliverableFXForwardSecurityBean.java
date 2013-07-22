@@ -84,6 +84,7 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
   public static NonDeliverableFXForwardSecurityBean.Meta meta() {
     return NonDeliverableFXForwardSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NonDeliverableFXForwardSecurityBean.Meta.INSTANCE);
   }

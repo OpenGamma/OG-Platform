@@ -241,6 +241,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   public static SecuritySearchRequest.Meta meta() {
     return SecuritySearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecuritySearchRequest.Meta.INSTANCE);
   }

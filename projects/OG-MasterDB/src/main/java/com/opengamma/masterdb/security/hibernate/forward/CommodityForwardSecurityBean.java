@@ -85,6 +85,7 @@ public abstract class CommodityForwardSecurityBean extends SecurityBean {
   public static CommodityForwardSecurityBean.Meta meta() {
     return CommodityForwardSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CommodityForwardSecurityBean.Meta.INSTANCE);
   }

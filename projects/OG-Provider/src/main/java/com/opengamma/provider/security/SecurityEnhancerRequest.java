@@ -104,6 +104,7 @@ public class SecurityEnhancerRequest extends DirectBean {
   public static SecurityEnhancerRequest.Meta meta() {
     return SecurityEnhancerRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityEnhancerRequest.Meta.INSTANCE);
   }

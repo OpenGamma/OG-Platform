@@ -48,6 +48,7 @@ public class AmericanExerciseType extends ExerciseType {
   public static AmericanExerciseType.Meta meta() {
     return AmericanExerciseType.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AmericanExerciseType.Meta.INSTANCE);
   }

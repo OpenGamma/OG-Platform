@@ -104,6 +104,7 @@ public class CashSecurity extends FinancialSecurity {
   public static CashSecurity.Meta meta() {
     return CashSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CashSecurity.Meta.INSTANCE);
   }

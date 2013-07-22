@@ -134,6 +134,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   public static ConfigMasterPopulatorsFactoryBean.Meta meta() {
     return ConfigMasterPopulatorsFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigMasterPopulatorsFactoryBean.Meta.INSTANCE);
   }

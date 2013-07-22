@@ -139,6 +139,7 @@ public class SwapFixedLegConvention extends Convention {
   public static SwapFixedLegConvention.Meta meta() {
     return SwapFixedLegConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SwapFixedLegConvention.Meta.INSTANCE);
   }

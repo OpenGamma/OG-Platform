@@ -60,6 +60,7 @@ public class CalculationConfiguration extends DirectBean {
   public static CalculationConfiguration.Meta meta() {
     return CalculationConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CalculationConfiguration.Meta.INSTANCE);
   }

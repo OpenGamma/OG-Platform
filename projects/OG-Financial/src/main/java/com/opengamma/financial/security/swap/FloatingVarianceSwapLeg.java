@@ -95,6 +95,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   public static FloatingVarianceSwapLeg.Meta meta() {
     return FloatingVarianceSwapLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FloatingVarianceSwapLeg.Meta.INSTANCE);
   }

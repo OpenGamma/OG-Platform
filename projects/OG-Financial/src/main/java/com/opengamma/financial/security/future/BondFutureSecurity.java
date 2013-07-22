@@ -78,6 +78,7 @@ public class BondFutureSecurity extends FutureSecurity {
   public static BondFutureSecurity.Meta meta() {
     return BondFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BondFutureSecurity.Meta.INSTANCE);
   }

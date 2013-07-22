@@ -121,6 +121,7 @@ public class OISLegConvention extends Convention {
   public static OISLegConvention.Meta meta() {
     return OISLegConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OISLegConvention.Meta.INSTANCE);
   }

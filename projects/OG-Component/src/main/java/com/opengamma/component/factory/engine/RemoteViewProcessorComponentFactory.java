@@ -57,6 +57,7 @@ public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponent
   public static RemoteViewProcessorComponentFactory.Meta meta() {
     return RemoteViewProcessorComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RemoteViewProcessorComponentFactory.Meta.INSTANCE);
   }

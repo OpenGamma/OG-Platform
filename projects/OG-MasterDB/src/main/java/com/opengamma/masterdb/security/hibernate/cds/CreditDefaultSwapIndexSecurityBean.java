@@ -85,6 +85,7 @@ public class CreditDefaultSwapIndexSecurityBean extends SecurityBean {
   public static CreditDefaultSwapIndexSecurityBean.Meta meta() {
     return CreditDefaultSwapIndexSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CreditDefaultSwapIndexSecurityBean.Meta.INSTANCE);
   }

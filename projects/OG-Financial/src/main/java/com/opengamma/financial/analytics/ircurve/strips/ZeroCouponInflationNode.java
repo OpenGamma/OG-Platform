@@ -115,6 +115,7 @@ public class ZeroCouponInflationNode extends CurveNode {
   public static ZeroCouponInflationNode.Meta meta() {
     return ZeroCouponInflationNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ZeroCouponInflationNode.Meta.INSTANCE);
   }
