@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 import com.opengamma.id.VersionCorrection
 import org.threeten.bp.Instant
 

@@ -128,6 +128,7 @@ public class Simulation {
    * Returns the scenario with the given name. If no scenario exists with the specified name it is created and
    * initialized with default the simulation's default values for calculation configuration, valuation time and
    * resolver version correction.
+   * @param name The scenario name
    * @return The scenario.
    * TODO check the name isn't the base scenario name and throw IAE
    */

@@ -34,7 +34,7 @@ public class SimulationScriptTest {
 
   @Test
   public void createSimulationFromDsl() {
-    Simulation simulation = SimulationUtils.createSimulationFromDsl("src/test/resources/scenarios/SimulationDslTest.groovy", null);
+    Simulation simulation = SimulationUtils.createSimulationFromDsl("src/test/groovy/SimulationDslTest.groovy", null);
     assertNotNull(simulation);
     // TODO check the simulation
     s_logger.debug(simulation.toString());
@@ -42,7 +42,7 @@ public class SimulationScriptTest {
 
   @Test
   public void createScenarioFromDsl() {
-    Scenario scenario = SimulationUtils.createScenarioFromDsl("src/test/resources/scenarios/ScenarioDslTest.groovy", null);
+    Scenario scenario = SimulationUtils.createScenarioFromDsl("src/test/groovy/ScenarioDslTest.groovy", null);
     assertNotNull(scenario);
     // TODO check the simulation
     s_logger.debug(scenario.toString());
@@ -51,7 +51,7 @@ public class SimulationScriptTest {
   @Test
   public void parameters() {
     Map<String, Object> params = ImmutableMap.<String, Object>of("foo", "FOO", "bar", 123d);
-    Scenario scenario = SimulationUtils.createScenarioFromDsl("src/test/resources/scenarios/ParametersTest.groovy", params);
+    Scenario scenario = SimulationUtils.createScenarioFromDsl("src/test/groovy/ParametersTest.groovy", params);
     assertNotNull(scenario);
     ScenarioDefinition scenarioDefinition = scenario.createDefinition();
     Map<DistinctMarketDataSelector, FunctionParameters> definitionMap = scenarioDefinition.getDefinitionMap();
@@ -66,12 +66,12 @@ public class SimulationScriptTest {
   @Test(expectedExceptions = DataNotFoundException.class)
   public void missingParameters() {
     Map<String, Object> params = ImmutableMap.<String, Object>of("foo", "FOO");
-    SimulationUtils.createScenarioFromDsl("src/test/resources/scenarios/ParametersTest.groovy", params);
+    SimulationUtils.createScenarioFromDsl("src/test/groovy/ParametersTest.groovy", params);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongParameterType() {
     Map<String, Object> params = ImmutableMap.<String, Object>of("foo", "FOO", "bar", "BAR");
-    SimulationUtils.createScenarioFromDsl("src/test/resources/scenarios/ParametersTest.groovy", params);
+    SimulationUtils.createScenarioFromDsl("src/test/groovy/ParametersTest.groovy", params);
   }
 }
