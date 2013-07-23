@@ -78,6 +78,7 @@ public class PriceIndexConvention extends Convention {
   public static PriceIndexConvention.Meta meta() {
     return PriceIndexConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PriceIndexConvention.Meta.INSTANCE);
   }

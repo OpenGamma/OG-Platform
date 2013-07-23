@@ -91,6 +91,7 @@ public abstract class AbstractSearchRequest extends DirectBean {
   public static AbstractSearchRequest.Meta meta() {
     return AbstractSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractSearchRequest.Meta.INSTANCE);
   }

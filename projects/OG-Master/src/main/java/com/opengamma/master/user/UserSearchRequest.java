@@ -249,6 +249,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
   public static UserSearchRequest.Meta meta() {
     return UserSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserSearchRequest.Meta.INSTANCE);
   }

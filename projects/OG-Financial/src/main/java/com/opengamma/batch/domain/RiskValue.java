@@ -80,6 +80,7 @@ public class RiskValue extends DirectBean {
   public static RiskValue.Meta meta() {
     return RiskValue.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RiskValue.Meta.INSTANCE);
   }

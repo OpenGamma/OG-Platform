@@ -90,6 +90,7 @@ public class SecuritySourceComponentFactory extends AbstractComponentFactory {
   public static SecuritySourceComponentFactory.Meta meta() {
     return SecuritySourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecuritySourceComponentFactory.Meta.INSTANCE);
   }

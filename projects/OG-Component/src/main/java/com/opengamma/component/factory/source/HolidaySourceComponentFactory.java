@@ -92,6 +92,7 @@ public class HolidaySourceComponentFactory extends AbstractComponentFactory {
   public static HolidaySourceComponentFactory.Meta meta() {
     return HolidaySourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidaySourceComponentFactory.Meta.INSTANCE);
   }

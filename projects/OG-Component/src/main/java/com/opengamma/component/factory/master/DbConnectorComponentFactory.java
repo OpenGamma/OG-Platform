@@ -249,6 +249,7 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   public static DbConnectorComponentFactory.Meta meta() {
     return DbConnectorComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbConnectorComponentFactory.Meta.INSTANCE);
   }

@@ -57,6 +57,7 @@ public class DbHistoricalTimeSeriesMasterFactoryBean extends AbstractDbMasterFac
   public static DbHistoricalTimeSeriesMasterFactoryBean.Meta meta() {
     return DbHistoricalTimeSeriesMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbHistoricalTimeSeriesMasterFactoryBean.Meta.INSTANCE);
   }

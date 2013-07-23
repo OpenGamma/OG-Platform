@@ -112,6 +112,7 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
   public static FreemarkerConfigurationComponentFactory.Meta meta() {
     return FreemarkerConfigurationComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FreemarkerConfigurationComponentFactory.Meta.INSTANCE);
   }

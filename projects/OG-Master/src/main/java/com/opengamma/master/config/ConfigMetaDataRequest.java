@@ -50,6 +50,7 @@ public class ConfigMetaDataRequest extends AbstractMetaDataRequest {
   public static ConfigMetaDataRequest.Meta meta() {
     return ConfigMetaDataRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigMetaDataRequest.Meta.INSTANCE);
   }

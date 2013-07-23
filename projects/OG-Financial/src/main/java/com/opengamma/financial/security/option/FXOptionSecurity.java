@@ -130,6 +130,7 @@ public class FXOptionSecurity extends FinancialSecurity {
   public static FXOptionSecurity.Meta meta() {
     return FXOptionSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXOptionSecurity.Meta.INSTANCE);
   }

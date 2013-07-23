@@ -306,6 +306,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
         }
         _marketValues.put(identifier, nextValues);
         liveDataReceived(identifier, nextValues);
+        s_logger.debug("{} lastValues: {} nextValues: {}", identifier, lastValues, nextValues);
         try {
           Thread.sleep(_random.nextInt(_maxMillisBetweenTicks));
         } catch (final InterruptedException e) {

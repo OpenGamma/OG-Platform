@@ -101,6 +101,7 @@ public class FXForwardSecurity extends FinancialSecurity {
   public static FXForwardSecurity.Meta meta() {
     return FXForwardSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXForwardSecurity.Meta.INSTANCE);
   }

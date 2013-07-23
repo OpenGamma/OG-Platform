@@ -50,6 +50,7 @@ public class AgricultureFutureSecurity extends CommodityFutureSecurity {
   public static AgricultureFutureSecurity.Meta meta() {
     return AgricultureFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AgricultureFutureSecurity.Meta.INSTANCE);
   }

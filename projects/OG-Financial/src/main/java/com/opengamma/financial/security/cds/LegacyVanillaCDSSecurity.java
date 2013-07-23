@@ -76,6 +76,7 @@ public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
   public static LegacyVanillaCDSSecurity.Meta meta() {
     return LegacyVanillaCDSSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LegacyVanillaCDSSecurity.Meta.INSTANCE);
   }

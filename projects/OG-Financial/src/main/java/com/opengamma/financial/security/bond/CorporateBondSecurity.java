@@ -57,6 +57,7 @@ public class CorporateBondSecurity extends BondSecurity {
   public static CorporateBondSecurity.Meta meta() {
     return CorporateBondSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CorporateBondSecurity.Meta.INSTANCE);
   }

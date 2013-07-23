@@ -144,6 +144,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
   public static AbstractSpringComponentFactory.Meta meta() {
     return AbstractSpringComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractSpringComponentFactory.Meta.INSTANCE);
   }

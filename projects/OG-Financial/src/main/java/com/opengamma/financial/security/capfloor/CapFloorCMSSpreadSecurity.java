@@ -131,6 +131,7 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   public static CapFloorCMSSpreadSecurity.Meta meta() {
     return CapFloorCMSSpreadSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CapFloorCMSSpreadSecurity.Meta.INSTANCE);
   }

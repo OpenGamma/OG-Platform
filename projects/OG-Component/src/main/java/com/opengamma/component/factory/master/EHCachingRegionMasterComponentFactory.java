@@ -86,6 +86,7 @@ public class EHCachingRegionMasterComponentFactory extends AbstractComponentFact
   public static EHCachingRegionMasterComponentFactory.Meta meta() {
     return EHCachingRegionMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EHCachingRegionMasterComponentFactory.Meta.INSTANCE);
   }

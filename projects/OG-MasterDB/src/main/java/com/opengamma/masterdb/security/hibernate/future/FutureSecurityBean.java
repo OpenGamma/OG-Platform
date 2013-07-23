@@ -104,6 +104,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
   public static FutureSecurityBean.Meta meta() {
     return FutureSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FutureSecurityBean.Meta.INSTANCE);
   }

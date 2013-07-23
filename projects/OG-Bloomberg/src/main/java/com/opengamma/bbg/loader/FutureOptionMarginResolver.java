@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.bbg.loader;
 
 import java.util.Map;
@@ -45,11 +50,11 @@ public class FutureOptionMarginResolver {
    * if the code is not recognied.
    */
   public boolean isMargined(String exchangeCode) {
-
-    if(EXCHANGE_CODE_MARGIN_MAPPING.containsKey(exchangeCode)) {
+    if (EXCHANGE_CODE_MARGIN_MAPPING.containsKey(exchangeCode)) {
       return EXCHANGE_CODE_MARGIN_MAPPING.get(exchangeCode);
     } else {
       throw new OpenGammaRuntimeException("Cannot calculate margined flag from exchangeCode: " + exchangeCode);
     }
   }
+
 }

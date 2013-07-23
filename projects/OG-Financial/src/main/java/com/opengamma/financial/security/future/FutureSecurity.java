@@ -95,6 +95,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
   public static FutureSecurity.Meta meta() {
     return FutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FutureSecurity.Meta.INSTANCE);
   }

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.tool.enginedebugger.node;
 
 /**
@@ -21,6 +26,7 @@ public class ValuePropertyNode extends AbstractTreeTableLeafNode {
     return _value;
   }
   
+  @Override
   public boolean equals(Object other) {
     if (!(other instanceof ValuePropertyNode)) {
       return false;
@@ -29,6 +35,7 @@ public class ValuePropertyNode extends AbstractTreeTableLeafNode {
     return _name.equals(o.getName()) && _value.equals(o.getValue());
   }
   
+  @Override
   public int hashCode() {
     return _name.hashCode() * _value.hashCode();
   }

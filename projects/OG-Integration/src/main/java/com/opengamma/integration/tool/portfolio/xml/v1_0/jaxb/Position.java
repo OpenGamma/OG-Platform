@@ -36,7 +36,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {}) // Indicate we don't care about element ordering
+@XmlType(propOrder = { }) // Indicate we don't care about element ordering
 @BeanDefinition
 public class Position extends DirectBean {
 
@@ -89,6 +89,7 @@ public class Position extends DirectBean {
   public static Position.Meta meta() {
     return Position.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Position.Meta.INSTANCE);
   }

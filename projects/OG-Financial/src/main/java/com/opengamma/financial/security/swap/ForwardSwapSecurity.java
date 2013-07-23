@@ -64,6 +64,7 @@ public class ForwardSwapSecurity extends SwapSecurity {
   public static ForwardSwapSecurity.Meta meta() {
     return ForwardSwapSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ForwardSwapSecurity.Meta.INSTANCE);
   }

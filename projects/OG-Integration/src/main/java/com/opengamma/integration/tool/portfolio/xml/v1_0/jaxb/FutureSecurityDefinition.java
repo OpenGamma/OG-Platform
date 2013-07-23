@@ -77,6 +77,7 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
   public static FutureSecurityDefinition.Meta meta() {
     return FutureSecurityDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FutureSecurityDefinition.Meta.INSTANCE);
   }

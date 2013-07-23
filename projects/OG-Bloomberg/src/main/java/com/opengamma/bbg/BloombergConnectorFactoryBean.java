@@ -112,6 +112,7 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   public static BloombergConnectorFactoryBean.Meta meta() {
     return BloombergConnectorFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergConnectorFactoryBean.Meta.INSTANCE);
   }

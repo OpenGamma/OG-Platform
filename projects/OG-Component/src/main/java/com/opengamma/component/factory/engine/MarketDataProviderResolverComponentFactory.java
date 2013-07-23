@@ -122,6 +122,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   public static MarketDataProviderResolverComponentFactory.Meta meta() {
     return MarketDataProviderResolverComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataProviderResolverComponentFactory.Meta.INSTANCE);
   }

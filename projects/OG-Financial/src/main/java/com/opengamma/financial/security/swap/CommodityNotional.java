@@ -44,6 +44,7 @@ public class CommodityNotional extends Notional {
   public static CommodityNotional.Meta meta() {
     return CommodityNotional.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CommodityNotional.Meta.INSTANCE);
   }

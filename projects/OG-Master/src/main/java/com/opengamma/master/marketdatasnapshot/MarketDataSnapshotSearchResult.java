@@ -109,6 +109,7 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
   public static MarketDataSnapshotSearchResult.Meta meta() {
     return MarketDataSnapshotSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataSnapshotSearchResult.Meta.INSTANCE);
   }

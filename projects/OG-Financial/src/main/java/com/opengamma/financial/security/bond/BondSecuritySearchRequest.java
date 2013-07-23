@@ -81,6 +81,7 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
   public static BondSecuritySearchRequest.Meta meta() {
     return BondSecuritySearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BondSecuritySearchRequest.Meta.INSTANCE);
   }

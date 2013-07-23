@@ -101,6 +101,7 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   public static CommodityForwardSecurity.Meta meta() {
     return CommodityForwardSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CommodityForwardSecurity.Meta.INSTANCE);
   }

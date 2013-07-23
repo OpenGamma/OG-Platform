@@ -81,6 +81,7 @@ public class OrganisationDocument extends AbstractDocument implements Serializab
   public static OrganisationDocument.Meta meta() {
     return OrganisationDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OrganisationDocument.Meta.INSTANCE);
   }

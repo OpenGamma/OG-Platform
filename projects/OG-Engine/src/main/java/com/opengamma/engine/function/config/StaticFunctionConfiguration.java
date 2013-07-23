@@ -68,6 +68,7 @@ public class StaticFunctionConfiguration extends DirectBean implements FunctionC
   public static StaticFunctionConfiguration.Meta meta() {
     return StaticFunctionConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(StaticFunctionConfiguration.Meta.INSTANCE);
   }

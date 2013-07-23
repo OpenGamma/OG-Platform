@@ -77,6 +77,7 @@ public class FixedInterestRateLeg extends InterestRateLeg {
   public static FixedInterestRateLeg.Meta meta() {
     return FixedInterestRateLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FixedInterestRateLeg.Meta.INSTANCE);
   }

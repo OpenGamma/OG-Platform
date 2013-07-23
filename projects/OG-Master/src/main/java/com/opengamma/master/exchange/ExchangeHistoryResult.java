@@ -98,6 +98,7 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
   public static ExchangeHistoryResult.Meta meta() {
     return ExchangeHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeHistoryResult.Meta.INSTANCE);
   }

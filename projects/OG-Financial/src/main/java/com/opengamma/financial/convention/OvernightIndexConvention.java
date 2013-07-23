@@ -87,6 +87,7 @@ public class OvernightIndexConvention extends Convention {
   public static OvernightIndexConvention.Meta meta() {
     return OvernightIndexConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OvernightIndexConvention.Meta.INSTANCE);
   }

@@ -56,6 +56,7 @@ public class IntegrationToolContextComponentFactory extends ToolContextComponent
   public static IntegrationToolContextComponentFactory.Meta meta() {
     return IntegrationToolContextComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IntegrationToolContextComponentFactory.Meta.INSTANCE);
   }

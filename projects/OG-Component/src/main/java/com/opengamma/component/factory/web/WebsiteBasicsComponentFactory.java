@@ -198,6 +198,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   public static WebsiteBasicsComponentFactory.Meta meta() {
     return WebsiteBasicsComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebsiteBasicsComponentFactory.Meta.INSTANCE);
   }

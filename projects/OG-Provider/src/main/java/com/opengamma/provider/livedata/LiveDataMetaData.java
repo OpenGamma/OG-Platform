@@ -104,6 +104,7 @@ public class LiveDataMetaData extends DirectBean {
   public static LiveDataMetaData.Meta meta() {
     return LiveDataMetaData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LiveDataMetaData.Meta.INSTANCE);
   }

@@ -99,6 +99,7 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   public static ConfigHistoryRequest.Meta meta() {
     return ConfigHistoryRequest.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code ConfigHistoryRequest}.
    * @param <R>  the bean's generic type
@@ -109,6 +110,7 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   public static <R> ConfigHistoryRequest.Meta<R> metaConfigHistoryRequest(Class<R> cls) {
     return ConfigHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigHistoryRequest.Meta.INSTANCE);
   }

@@ -37,6 +37,7 @@ public class ComputeHost extends DirectBean {
   public static ComputeHost.Meta meta() {
     return ComputeHost.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComputeHost.Meta.INSTANCE);
   }

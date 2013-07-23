@@ -88,6 +88,7 @@ public class SpringActiveMqComponentFactory extends AbstractSpringComponentFacto
   public static SpringActiveMqComponentFactory.Meta meta() {
     return SpringActiveMqComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SpringActiveMqComponentFactory.Meta.INSTANCE);
   }

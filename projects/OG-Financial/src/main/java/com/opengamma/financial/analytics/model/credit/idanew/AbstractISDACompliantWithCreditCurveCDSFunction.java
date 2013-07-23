@@ -19,6 +19,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
@@ -47,8 +48,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -64,30 +63,31 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- * Abstract class for cds functions that require ISDA and spread curves.
+ * Abstract class for cds functions that require a credit (hazard) curve.
  */
-public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
+public abstract class AbstractISDACompliantWithCreditCurveCDSFunction extends NonCompiledInvoker {
 
-  private CreditDefaultSwapSecurityConverterDeprecated _converter;
-  private static final Logger s_logger = LoggerFactory.getLogger(ISDACompliantCDSFunction.class);
+  //private CreditDefaultSwapSecurityConverterDeprecated _converter;
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractISDACompliantWithCreditCurveCDSFunction.class);
   protected final String _valueRequirement;
   protected static double s_tenminus4 = 1e-4; // fractional 1 BPS
+  private HolidaySource _holidaySource;
+  private RegionSource _regionSource;
 
-  public ISDACompliantCDSFunction(final String valueRequirement) {
+  public AbstractISDACompliantWithCreditCurveCDSFunction(final String valueRequirement) {
     _valueRequirement = valueRequirement;
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
     // using hardcoded region and calendar for now
-    final HolidaySource holidaySource = new WeekendHolidaySource(); //OpenGammaCompilationContext.getHolidaySource(context);
-    @SuppressWarnings("synthetic-access")
-    final RegionSource regionSource = new TestRegionSource(getTestRegion()); //OpenGammaCompilationContext.getRegionSource(context);
-    _converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
+    _holidaySource = new WeekendHolidaySource(); //OpenGammaCompilationContext.getHolidaySource(context);
+    _regionSource = new TestRegionSource(getTestRegion()); //OpenGammaCompilationContext.getRegionSource(context);
+    //_converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
   }
 
-  protected abstract Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
-                                    final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final double[] spreads);
+  protected abstract Object compute(final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantCreditCurve creditCurve,
+                                    final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic);
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
@@ -95,7 +95,7 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
 
     final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
-    LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
+    //LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 
     final String quoteConventionString = desiredValue.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION);
@@ -114,25 +114,11 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
       throw new OpenGammaRuntimeException("Unable to get credit curve");
     }
 
-    // spreads
-    NodalTenorDoubleCurve spreadObject = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
-    if (spreadObject == null) {
-      throw new OpenGammaRuntimeException("Unable to get spreads");
-    }
-    final double[] spreads = ArrayUtils.toPrimitive(spreadObject.getYData());
+    //final CDSAnalytic analytic = CDSAnalyticConverter.create(cds, now.toLocalDate());
+    final CDSAnalytic analytic = security.accept(new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource));
+    final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
 
-    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, desiredValue.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
-
-    // CDS analytics for credit curve (possible performance improvement if earlier result obtained)
-    final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);
-    final CDSAnalytic[] creditAnalytics = new CDSAnalytic[bucketDates.length];
-    for (int i = 0; i < creditAnalytics.length; i++) {
-      creditAnalytics[i] = CDSAnalyticConverter.create(curveCDS, now.toLocalDate(), bucketDates[i].toLocalDate());
-    }
-
-    final CDSAnalytic analytic = CDSAnalyticConverter.create(cds, now.toLocalDate());
-
-    final Object result = compute(now, cds, creditCurve, yieldCurve, analytic, creditAnalytics, spreads);
+    final Object result = compute(security.getParSpread(), security.getNotional().getAmount(), buySellProtection, creditCurve, yieldCurve, analytic);
 
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
     final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);
@@ -210,18 +196,7 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
         .get();
     final ValueRequirement creditRequirment = new ValueRequirement(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), creditCurveProperties);
 
-    //market  spreads
-    final ValueProperties spreadProperties = ValueProperties.builder()
-        .with(ISDAFunctionConstants.CDS_QUOTE_CONVENTION, quoteConvention)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
-        .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, isdaOffset)
-        .with(ISDAFunctionConstants.ISDA_CURVE_DATE, isdaCurveDate)
-        .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, isdaCurveMethod)
-        .with(ISDAFunctionConstants.ISDA_BUCKET_TENORS, bucketTenors)
-        .get();
-    final ValueRequirement spreadRequirment = new ValueRequirement(ValueRequirementNames.BUCKETED_SPREADS, target.toSpecification(), spreadProperties);
-
-    return Sets.newHashSet(isdaRequirment, spreadRequirment, creditRequirment);
+    return Sets.newHashSet(isdaRequirment, creditRequirment);
   }
 
   public static CreditCurveIdentifier getSpreadCurveIdentifier(final CreditDefaultSwapSecurity cds) {
@@ -234,7 +209,7 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
 
   /**
    * Get the CreditCurveIdentifier with name appended
-   * 
+   *
    * @param security
    */
   private static CreditCurveIdentifier getCreditCurveIdentifier(final CreditDefaultSwapSecurity security, final String name) {
@@ -319,7 +294,7 @@ public abstract class ISDACompliantCDSFunction extends NonCompiledInvoker {
 
     /**
      * Gets the count.
-     * 
+     *
      * @return the count
      */
     public AtomicLong getCount() {

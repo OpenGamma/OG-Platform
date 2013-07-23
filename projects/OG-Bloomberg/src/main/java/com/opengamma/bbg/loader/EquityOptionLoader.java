@@ -77,7 +77,7 @@ public class EquityOptionLoader extends SecurityLoader {
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE);
   
-  private static final ExchangeDataProvider exchangeData = DefaultExchangeDataProvider.getInstance();
+  private static final ExchangeDataProvider s_exchangeData = DefaultExchangeDataProvider.getInstance();
 
   /**
    * Creates an instance.
@@ -161,20 +161,20 @@ public class EquityOptionLoader extends SecurityLoader {
     
     // currently we will pick up the unified bbg exchange code - we try to map to MIC via the description
     if (exchangeDescription != null) {
-      final String exchangeMIC = exchangeData.getExchangeFromDescription(exchangeDescription).getMic();
+      final String exchangeMIC = s_exchangeData.getExchangeFromDescription(exchangeDescription).getMic();
       if (exchangeMIC != null) {
         exchange = exchangeMIC;
       }
     }
 
     final EquityOptionSecurity security = new EquityOptionSecurity(
-        optionType, 
-        optionStrikePrice, 
-        ogCurrency, 
+        optionType,
+        optionStrikePrice,
+        ogCurrency,
         ExternalSchemes.bloombergTickerSecurityId(underlingTicker),
-        exerciseType, 
-        expiry, 
-        pointValue, 
+        exerciseType,
+        expiry,
+        pointValue,
         exchange);
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     security.setUniqueId(BloombergSecurityProvider.createUniqueId(bbgUniqueID));

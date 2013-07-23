@@ -50,6 +50,7 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Historica
   public static ExampleHistoricalTimeSeriesSourceComponentFactory.Meta meta() {
     return ExampleHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleHistoricalTimeSeriesSourceComponentFactory.Meta.INSTANCE);
   }

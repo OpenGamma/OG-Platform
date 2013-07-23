@@ -38,6 +38,7 @@ public abstract class StandardCDSSecurityBean extends CreditDefaultSwapSecurityB
   public static StandardCDSSecurityBean.Meta meta() {
     return StandardCDSSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(StandardCDSSecurityBean.Meta.INSTANCE);
   }

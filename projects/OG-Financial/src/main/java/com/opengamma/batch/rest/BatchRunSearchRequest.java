@@ -80,6 +80,7 @@ public class BatchRunSearchRequest extends DirectBean {
   public static BatchRunSearchRequest.Meta meta() {
     return BatchRunSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BatchRunSearchRequest.Meta.INSTANCE);
   }

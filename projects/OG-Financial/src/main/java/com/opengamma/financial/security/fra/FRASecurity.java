@@ -123,6 +123,7 @@ public class FRASecurity extends FinancialSecurity {
   public static FRASecurity.Meta meta() {
     return FRASecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FRASecurity.Meta.INSTANCE);
   }

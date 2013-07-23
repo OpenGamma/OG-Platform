@@ -125,6 +125,7 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   public static BloombergLiveDataClientComponentFactory.Meta meta() {
     return BloombergLiveDataClientComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergLiveDataClientComponentFactory.Meta.INSTANCE);
   }

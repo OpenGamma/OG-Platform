@@ -140,6 +140,7 @@ public class ManageableOGUser extends DirectBean implements OGUser, Serializable
   public static ManageableOGUser.Meta meta() {
     return ManageableOGUser.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableOGUser.Meta.INSTANCE);
   }

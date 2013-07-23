@@ -36,6 +36,7 @@ public class OutputsResolution extends DirectBean {
   public static OutputsResolution.Meta meta() {
     return OutputsResolution.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OutputsResolution.Meta.INSTANCE);
   }

@@ -82,6 +82,7 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
   public static DbManagementComponentFactory.Meta meta() {
     return DbManagementComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbManagementComponentFactory.Meta.INSTANCE);
   }

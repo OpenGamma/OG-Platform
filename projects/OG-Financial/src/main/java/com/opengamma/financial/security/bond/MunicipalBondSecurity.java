@@ -58,6 +58,7 @@ public class MunicipalBondSecurity extends BondSecurity {
   public static MunicipalBondSecurity.Meta meta() {
     return MunicipalBondSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MunicipalBondSecurity.Meta.INSTANCE);
   }

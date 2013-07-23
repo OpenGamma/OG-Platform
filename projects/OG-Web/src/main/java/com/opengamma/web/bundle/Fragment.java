@@ -85,6 +85,7 @@ public class Fragment extends DirectBean implements BundleNode {
   public static Fragment.Meta meta() {
     return Fragment.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Fragment.Meta.INSTANCE);
   }

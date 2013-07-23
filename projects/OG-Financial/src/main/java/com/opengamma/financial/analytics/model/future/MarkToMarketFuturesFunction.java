@@ -8,9 +8,6 @@ package com.opengamma.financial.analytics.model.future;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.security.Security;
@@ -32,7 +29,7 @@ import com.opengamma.util.money.Currency;
  * @param <T> The type of the data returned from the calculator
  */
 public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> {
-  private static final Logger s_logger = LoggerFactory.getLogger(MarkToMarketFuturesFunction.class);
+
   /** The calculation method name */
   public static final String CALCULATION_METHOD_NAME = CalculationPropertyNamesAndValues.MARK_TO_MARKET_METHOD;
 
@@ -43,7 +40,7 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
    * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
    * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
-  public MarkToMarketFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator, 
+  public MarkToMarketFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator,
       String closingPriceField, String costOfCarryField, String resolutionKey) {
     super(valueRequirementName, calculator, closingPriceField, costOfCarryField, resolutionKey);
   }
@@ -79,7 +76,7 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
     return new SimpleFutureDataBundle(null, marketPrice, null, null, null);
   }
 
-  /**  
+  /**
    * @return Requirement of latest market value
    * @param security FutureSecurity
    */
@@ -93,7 +90,7 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
    * @param inputs {@link FunctionInputs}
    */
   protected Double getMarketPrice(final Security security, final FunctionInputs inputs) {
-    return (Double)inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
+    return (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
   }
 
 }

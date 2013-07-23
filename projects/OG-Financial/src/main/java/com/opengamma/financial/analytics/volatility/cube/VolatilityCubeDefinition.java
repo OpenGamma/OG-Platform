@@ -89,6 +89,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   public static VolatilityCubeDefinition.Meta meta() {
     return VolatilityCubeDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VolatilityCubeDefinition.Meta.INSTANCE);
   }

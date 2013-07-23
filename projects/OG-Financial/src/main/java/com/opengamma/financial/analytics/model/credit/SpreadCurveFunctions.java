@@ -183,6 +183,7 @@ public class SpreadCurveFunctions {
    * @param quoteConvention the quote convention (e.g Spread, points upfront etc)
    * @return the spread curve for the given cds
    */
+  @Deprecated
   public static double[] getSpreadCurve(final LegacyVanillaCreditDefaultSwapDefinition cds, final NodalTenorDoubleCurve spreadCurve, final ZonedDateTime[] bucketDates,
       final StandardCDSQuotingConvention quoteConvention, final ZonedDateTime valuationDate, final ISDACompliantYieldCurve isdaCurve, final ZonedDateTime startDate) {
     ArgumentChecker.notNull(spreadCurve, "spread curve");
@@ -222,6 +223,40 @@ public class SpreadCurveFunctions {
     }
 
     // non-IMM date take spread from subset of dates that we want
+    int i = 0;
+    for (final Tenor tenor : spreadCurve.getXData()) {
+      final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
+      final int index = Arrays.binarySearch(bucketDates, bucketDate);
+      if (index >= 0) {
+        spreads[i++] = spreadCurve.getYValue(tenor) * s_tenminus4;
+      }
+    }
+    // if spread curve ends before required buckets take last spread entry
+    for (int j = spreads.length - 1; j >= 0; j--) {
+      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1] * s_tenminus4;
+      if (spreads[j] == 0) {
+        spreads[j] = lastspread;
+      } else {
+        break;
+      }
+    }
+    return spreads;
+  }
+
+  /**
+   * Get spread curve for the given tenors
+   *
+   * @param spreadCurve the spread curve
+   * @param bucketDates the bucket dates
+   * @return the spread curve
+   */
+  public static double[] getSpreadCurveNew(final NodalTenorDoubleCurve spreadCurve, final ZonedDateTime[] bucketDates, final ZonedDateTime startDate) {
+    ArgumentChecker.notNull(spreadCurve, "spread curve");
+    ArgumentChecker.notNull(bucketDates, "bucket dates");
+    ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
+    final double[] spreads = new double[bucketDates.length];
+
+    // take spreads from subset of dates that we want
     int i = 0;
     for (final Tenor tenor : spreadCurve.getXData()) {
       final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());

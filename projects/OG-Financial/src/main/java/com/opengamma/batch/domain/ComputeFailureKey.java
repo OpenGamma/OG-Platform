@@ -77,6 +77,7 @@ public class ComputeFailureKey extends DirectBean {
   public static ComputeFailureKey.Meta meta() {
     return ComputeFailureKey.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComputeFailureKey.Meta.INSTANCE);
   }

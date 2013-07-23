@@ -136,6 +136,7 @@ public class BloombergContractID extends DirectBean {
   public static BloombergContractID.Meta meta() {
     return BloombergContractID.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergContractID.Meta.INSTANCE);
   }

@@ -83,6 +83,7 @@ public class UserHistoryRequest extends AbstractHistoryRequest {
   public static UserHistoryRequest.Meta meta() {
     return UserHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserHistoryRequest.Meta.INSTANCE);
   }

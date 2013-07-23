@@ -57,6 +57,7 @@ public class DbExchangeMasterFactoryBean extends AbstractDbMasterFactoryBean<DbE
   public static DbExchangeMasterFactoryBean.Meta meta() {
     return DbExchangeMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbExchangeMasterFactoryBean.Meta.INSTANCE);
   }

@@ -70,6 +70,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
   public static CurveGroupConfiguration.Meta meta() {
     return CurveGroupConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveGroupConfiguration.Meta.INSTANCE);
   }

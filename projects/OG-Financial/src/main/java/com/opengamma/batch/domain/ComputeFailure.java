@@ -58,6 +58,7 @@ public class ComputeFailure extends DirectBean {
   public static ComputeFailure.Meta meta() {
     return ComputeFailure.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComputeFailure.Meta.INSTANCE);
   }

@@ -101,6 +101,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   public static DbToolContextComponentFactory.Meta meta() {
     return DbToolContextComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbToolContextComponentFactory.Meta.INSTANCE);
   }

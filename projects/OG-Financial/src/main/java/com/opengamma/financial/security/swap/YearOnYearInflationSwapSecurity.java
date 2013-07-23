@@ -87,6 +87,7 @@ public class YearOnYearInflationSwapSecurity extends SwapSecurity {
   public static YearOnYearInflationSwapSecurity.Meta meta() {
     return YearOnYearInflationSwapSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(YearOnYearInflationSwapSecurity.Meta.INSTANCE);
   }

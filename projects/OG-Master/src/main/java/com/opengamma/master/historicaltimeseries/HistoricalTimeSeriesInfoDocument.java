@@ -93,6 +93,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
   public static HistoricalTimeSeriesInfoDocument.Meta meta() {
     return HistoricalTimeSeriesInfoDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoDocument.Meta.INSTANCE);
   }

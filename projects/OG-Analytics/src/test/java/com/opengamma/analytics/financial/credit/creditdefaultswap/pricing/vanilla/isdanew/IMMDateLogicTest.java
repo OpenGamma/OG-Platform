@@ -24,9 +24,7 @@ public class IMMDateLogicTest {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 20);
     final LocalDate stepin = today.plusDays(1);
     final LocalDate[] dates = IMMDateLogic.getIMMDateSet(stepin, TENORS);
-    for (final LocalDate date : dates) {
-      System.out.println(date);
-    }
+    assertEquals(dates.length, TENORS.length);
     assertEquals(LocalDate.of(2013, Month.DECEMBER, 20), dates[0]);
   }
 
@@ -35,9 +33,7 @@ public class IMMDateLogicTest {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 26);
     final LocalDate stepin = today.plusDays(1);
     final LocalDate[] dates = IMMDateLogic.getIMMDateSet(stepin, TENORS);
-    for (final LocalDate date : dates) {
-      System.out.println(date);
-    }
+    assertEquals(dates.length, TENORS.length);
     assertEquals(LocalDate.of(2013, Month.DECEMBER, 20), dates[0]);
   }
 
@@ -46,9 +42,7 @@ public class IMMDateLogicTest {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 19);
     final LocalDate stepin = today.plusDays(1);
     final LocalDate[] dates = IMMDateLogic.getIMMDateSet(stepin, TENORS);
-    for (final LocalDate date : dates) {
-      System.out.println(date);
-    }
+    assertEquals(dates.length, TENORS.length);
     assertEquals(LocalDate.of(2013, Month.DECEMBER, 20), dates[0]);
   }
 
@@ -57,9 +51,7 @@ public class IMMDateLogicTest {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 18);
     final LocalDate stepin = today.plusDays(1);
     final LocalDate[] dates = IMMDateLogic.getIMMDateSet(stepin, TENORS);
-    for (final LocalDate date : dates) {
-      System.out.println(date);
-    }
+    assertEquals(dates.length, TENORS.length);
     assertEquals(LocalDate.of(2013, Month.SEPTEMBER, 20), dates[0]);
   }
 

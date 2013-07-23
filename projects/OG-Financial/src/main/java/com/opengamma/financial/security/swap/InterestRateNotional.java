@@ -71,6 +71,7 @@ public class InterestRateNotional extends Notional {
   public static InterestRateNotional.Meta meta() {
     return InterestRateNotional.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterestRateNotional.Meta.INSTANCE);
   }

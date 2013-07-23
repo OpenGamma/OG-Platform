@@ -46,7 +46,7 @@ public class MarketDataSelectionGraphManipulator {
    * @param specificSelectors the market data selectors which will be applied only to named graphs, not null
    */
   public MarketDataSelectionGraphManipulator(MarketDataSelector marketDataSelector,
-                                             Map<String, Map<DistinctMarketDataSelector,FunctionParameters>> specificSelectors) {
+                                             Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificSelectors) {
     ArgumentChecker.notNull(marketDataSelector, "marketDataSelector");
     ArgumentChecker.notNull(specificSelectors, "specificSelectors");
     _marketDataSelector = marketDataSelector;

@@ -94,6 +94,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   public static DefaultViewCycleMetadata.Meta meta() {
     return DefaultViewCycleMetadata.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DefaultViewCycleMetadata.Meta.INSTANCE);
   }

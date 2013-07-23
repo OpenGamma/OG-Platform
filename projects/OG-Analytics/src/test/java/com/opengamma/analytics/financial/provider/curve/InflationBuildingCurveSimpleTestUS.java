@@ -171,7 +171,7 @@ public class InflationBuildingCurveSimpleTestUS {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 1000;

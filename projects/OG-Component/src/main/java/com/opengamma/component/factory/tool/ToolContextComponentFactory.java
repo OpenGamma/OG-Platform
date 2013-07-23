@@ -231,6 +231,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   public static ToolContextComponentFactory.Meta meta() {
     return ToolContextComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ToolContextComponentFactory.Meta.INSTANCE);
   }

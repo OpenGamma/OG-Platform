@@ -33,8 +33,8 @@ public class ISDACompliantCurve {
 
   /**
    * Flat curve at level r
-   * @param t (arbitrary) single knot point (t > 0) 
-   * @param r the level 
+   * @param t (arbitrary) single knot point (t > 0)
+   * @param r the level
    */
   public ISDACompliantCurve(final double t, final double r) {
     this(new double[] {t }, new double[] {r });
@@ -43,7 +43,7 @@ public class ISDACompliantCurve {
   /**
    * 
    * @param t Set of times that form the knots of the curve. Must be ascending with the first value >= 0.
-   * @param r Set of zero rates 
+   * @param r Set of zero rates
    */
   public ISDACompliantCurve(final double[] t, final double[] r) {
     ArgumentChecker.notEmpty(t, "t empty");
@@ -89,10 +89,10 @@ public class ISDACompliantCurve {
    * Today (the observation point) is 11-Jul-13, but the yield curve is snapped (bootstrapped from money market and swap rates)
    * on 10-Jul-13 - seen from today there is an offset of -1/365 (assuming a day count of ACT/365) that must be applied to use
    * the yield curve today.  <br>
-   * In general, a discount curve observed at time $t_1$ can be written as $P(t_1,T)$. Observed from time $t_2$ this is 
+   * In general, a discount curve observed at time $t_1$ can be written as $P(t_1,T)$. Observed from time $t_2$ this is
    * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$
-   * @param timesFromBaseDate times measured from the base date of the curve 
-   * @param r zero rates 
+   * @param timesFromBaseDate times measured from the base date of the curve
+   * @param r zero rates
    * @param offsetFromNewBaseDate if this curve is to be used from a new base-date, what is the offset from the curve base
    */
   protected ISDACompliantCurve(final double[] timesFromBaseDate, final double[] r, final double offsetFromNewBaseDate) {
@@ -167,9 +167,9 @@ public class ISDACompliantCurve {
   }
 
   /**
-   * The discount factor or survival probability 
-   * @param t Time 
-   * @return value 
+   * The discount factor or survival probability
+   * @param t Time
+   * @return value
    */
   public double getDiscountFactor(final double t) {
     ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
@@ -199,9 +199,9 @@ public class ISDACompliantCurve {
   }
 
   /**
-   * The zero rate or zero hazard rate 
-   * @param t Time 
-   * @return value 
+   * The zero rate or zero hazard rate
+   * @param t Time
+   * @return value
    */
   public double getZeroRate(final double t) {
     ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
@@ -276,7 +276,7 @@ public class ISDACompliantCurve {
    * get the sensitivity of the interpolated rate at time t to the curve node. Note, since the interpolator is highly local, most
    * of the returned values will be zero, so it maybe more efficient to call getSingleNodeSensitivity
    * @param t The time
-   * @return sensitivity to the nodes 
+   * @return sensitivity to the nodes
    */
   public double[] getNodeSensitivity(final double t) {
 
@@ -314,10 +314,10 @@ public class ISDACompliantCurve {
 
   /**
    * get the sensitivity of the interpolated zero rate at time t to the value of the zero rate at a given node (knot).  For a
-   * given index, i, this is zero unless $$t_{i-1} < t < t_{i+1}$$ since the interpolation is highly local.    
+   * given index, i, this is zero unless $$t_{i-1} < t < t_{i+1}$$ since the interpolation is highly local.
    * @param t The time
-   * @param nodeIndex The node index 
-   * @return sensitivity to a single node 
+   * @param nodeIndex The node index
+   * @return sensitivity to a single node
    */
   public double getSingleNodeSensitivity(final double t, final int nodeIndex) {
     ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
@@ -353,10 +353,10 @@ public class ISDACompliantCurve {
 
   /**
    * The sensitivity of the discount factor at some time, t, to the value of the zero rate at a given node (knot). For a
-   * given index, i, this is zero unless $$t_{i-1} < t < t_{i+1}$$ since the interpolation is highly local.    
-   * @param t time value of the discount factor 
-   * @param nodeIndex node index 
-   * @return sensitivity of a discount factor to a single node 
+   * given index, i, this is zero unless $$t_{i-1} < t < t_{i+1}$$ since the interpolation is highly local.
+   * @param t time value of the discount factor
+   * @param nodeIndex node index
+   * @return sensitivity of a discount factor to a single node
    */
   public double getSingleNodeDiscountFactorSensitivity(final double t, final int nodeIndex) {
     ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
@@ -395,19 +395,19 @@ public class ISDACompliantCurve {
   }
 
   /**
-   * Update are rates in curve. 
+   * Update are rates in curve.
    * @param r Set of rates
-   * @return a new curve 
+   * @return a new curve
    */
   public ISDACompliantCurve withRates(final double[] r) {
     return new ISDACompliantCurve(_t, r);
   }
 
   /**
-   * Adjust a rate at a particular index 
+   * Adjust a rate at a particular index.
    * @param rate The new rate
    * @param index The index of the knot
-   * @return a new curve 
+   * @return a new curve
    */
   public ISDACompliantCurve withRate(final double rate, final int index) {
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
@@ -427,10 +427,10 @@ public class ISDACompliantCurve {
   }
 
   /**
-   * Adjust a discount factor at a particular index 
+   * Adjust a discount factor at a particular index.
    * @param discountFactor The new discount factor
    * @param index The index of the knot
-   * @return a new curve 
+   * @return a new curve
    */
   public ISDACompliantCurve withDiscountFactor(final double discountFactor, final int index) {
     if (_offsetTime != 0) { // TODO implement

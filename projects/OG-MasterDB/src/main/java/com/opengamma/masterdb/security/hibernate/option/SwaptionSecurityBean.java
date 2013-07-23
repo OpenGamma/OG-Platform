@@ -108,6 +108,7 @@ public class SwaptionSecurityBean extends SecurityBean {
   public static SwaptionSecurityBean.Meta meta() {
     return SwaptionSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SwaptionSecurityBean.Meta.INSTANCE);
   }

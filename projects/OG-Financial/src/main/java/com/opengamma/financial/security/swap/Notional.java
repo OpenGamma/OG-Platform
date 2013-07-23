@@ -50,6 +50,7 @@ public abstract class Notional extends DirectBean implements Serializable {
   public static Notional.Meta meta() {
     return Notional.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Notional.Meta.INSTANCE);
   }

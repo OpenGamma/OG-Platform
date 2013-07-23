@@ -130,6 +130,7 @@ public class CapFloorSecurity extends FinancialSecurity {
   public static CapFloorSecurity.Meta meta() {
     return CapFloorSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CapFloorSecurity.Meta.INSTANCE);
   }

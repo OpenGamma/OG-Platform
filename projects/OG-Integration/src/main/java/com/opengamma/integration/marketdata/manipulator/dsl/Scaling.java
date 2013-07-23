@@ -11,7 +11,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Manipulator that scales a single market data value.
@@ -25,7 +24,6 @@ public class Scaling implements StructureManipulator<Double> {
   private final double _scalingFactor;
 
   /* package */ Scaling(double scalingFactor) {
-    ArgumentChecker.notNull(scalingFactor, "scalingFactor");
     if (Double.isInfinite(scalingFactor) || Double.isNaN(scalingFactor)) {
       throw new IllegalArgumentException("scalingFactor must not be infinite or NaN. value=" + scalingFactor);
     }
@@ -55,9 +53,7 @@ public class Scaling implements StructureManipulator<Double> {
 
   @Override
   public String toString() {
-    return "Scaling [" +
-        "_scalingFactor=" + _scalingFactor +
-        "]";
+    return "Scaling [_scalingFactor=" + _scalingFactor + "]";
   }
 
   @Override

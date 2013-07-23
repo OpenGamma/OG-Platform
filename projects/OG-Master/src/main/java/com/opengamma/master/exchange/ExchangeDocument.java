@@ -87,6 +87,7 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
   public static ExchangeDocument.Meta meta() {
     return ExchangeDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeDocument.Meta.INSTANCE);
   }

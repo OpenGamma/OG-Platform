@@ -125,6 +125,7 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   public static RedisHtsSnapshotJobDetailComponentFactory.Meta meta() {
     return RedisHtsSnapshotJobDetailComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RedisHtsSnapshotJobDetailComponentFactory.Meta.INSTANCE);
   }

@@ -164,6 +164,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   public static ManageableMarketDataSnapshot.Meta meta() {
     return ManageableMarketDataSnapshot.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableMarketDataSnapshot.Meta.INSTANCE);
   }

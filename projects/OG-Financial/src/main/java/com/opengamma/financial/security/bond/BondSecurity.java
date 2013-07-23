@@ -200,6 +200,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   public static BondSecurity.Meta meta() {
     return BondSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BondSecurity.Meta.INSTANCE);
   }

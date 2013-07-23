@@ -66,6 +66,7 @@ public class FunctionConfigurationBundle extends DirectBean implements Serializa
   public static FunctionConfigurationBundle.Meta meta() {
     return FunctionConfigurationBundle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionConfigurationBundle.Meta.INSTANCE);
   }

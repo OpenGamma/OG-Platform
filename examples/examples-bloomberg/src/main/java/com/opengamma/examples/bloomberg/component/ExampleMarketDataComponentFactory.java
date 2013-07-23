@@ -141,6 +141,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   public static ExampleMarketDataComponentFactory.Meta meta() {
     return ExampleMarketDataComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleMarketDataComponentFactory.Meta.INSTANCE);
   }

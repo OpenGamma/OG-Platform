@@ -134,6 +134,7 @@ public class RateFutureNode extends CurveNode {
   public static RateFutureNode.Meta meta() {
     return RateFutureNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RateFutureNode.Meta.INSTANCE);
   }

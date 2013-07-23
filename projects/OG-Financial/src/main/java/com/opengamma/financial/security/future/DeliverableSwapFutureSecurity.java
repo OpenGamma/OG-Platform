@@ -81,6 +81,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   public static DeliverableSwapFutureSecurity.Meta meta() {
     return DeliverableSwapFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DeliverableSwapFutureSecurity.Meta.INSTANCE);
   }

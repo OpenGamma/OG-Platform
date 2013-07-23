@@ -96,6 +96,7 @@ public class CreditDefaultSwapIndexComponent extends DirectBean implements Compa
   public static CreditDefaultSwapIndexComponent.Meta meta() {
     return CreditDefaultSwapIndexComponent.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CreditDefaultSwapIndexComponent.Meta.INSTANCE);
   }

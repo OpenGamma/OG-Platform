@@ -67,6 +67,7 @@ public class BloombergHistoricalTimeSeriesLoaderComponentFactory extends Abstrac
   public static BloombergHistoricalTimeSeriesLoaderComponentFactory.Meta meta() {
     return BloombergHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE);
   }

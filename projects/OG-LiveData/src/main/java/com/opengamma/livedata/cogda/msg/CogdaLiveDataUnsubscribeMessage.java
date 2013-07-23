@@ -30,6 +30,7 @@ public class CogdaLiveDataUnsubscribeMessage extends CogdaLiveDataCommandMessage
   public static CogdaLiveDataUnsubscribeMessage.Meta meta() {
     return CogdaLiveDataUnsubscribeMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaLiveDataUnsubscribeMessage.Meta.INSTANCE);
   }

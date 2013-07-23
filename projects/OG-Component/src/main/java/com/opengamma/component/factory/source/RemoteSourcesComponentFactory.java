@@ -102,6 +102,7 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
   public static RemoteSourcesComponentFactory.Meta meta() {
     return RemoteSourcesComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RemoteSourcesComponentFactory.Meta.INSTANCE);
   }

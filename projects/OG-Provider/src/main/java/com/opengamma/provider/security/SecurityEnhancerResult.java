@@ -89,6 +89,7 @@ public class SecurityEnhancerResult extends DirectBean {
   public static SecurityEnhancerResult.Meta meta() {
     return SecurityEnhancerResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityEnhancerResult.Meta.INSTANCE);
   }

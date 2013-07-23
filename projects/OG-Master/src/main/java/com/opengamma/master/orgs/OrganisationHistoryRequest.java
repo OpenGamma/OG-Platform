@@ -82,6 +82,7 @@ public class OrganisationHistoryRequest extends AbstractHistoryRequest {
   public static OrganisationHistoryRequest.Meta meta() {
     return OrganisationHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OrganisationHistoryRequest.Meta.INSTANCE);
   }

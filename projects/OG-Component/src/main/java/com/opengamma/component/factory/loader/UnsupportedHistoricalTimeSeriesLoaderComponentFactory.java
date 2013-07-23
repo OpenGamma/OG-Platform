@@ -47,6 +47,7 @@ public class UnsupportedHistoricalTimeSeriesLoaderComponentFactory extends Abstr
   public static UnsupportedHistoricalTimeSeriesLoaderComponentFactory.Meta meta() {
     return UnsupportedHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UnsupportedHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE);
   }

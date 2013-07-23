@@ -134,6 +134,7 @@ public class SecurityLoaderRequest extends DirectBean {
   public static SecurityLoaderRequest.Meta meta() {
     return SecurityLoaderRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityLoaderRequest.Meta.INSTANCE);
   }

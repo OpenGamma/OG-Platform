@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -73,13 +73,18 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 public class ContractCategoryExposureFunction implements ExposureFunction {
   private final SecuritySource _securitySource;
 
   public ContractCategoryExposureFunction(final SecuritySource securitySource) {
     _securitySource = securitySource;
+  }
+
+  @Override
+  public String getName() {
+    return "Contract Category";
   }
 
   private static List<ExternalId> getContractType(final FutureSecurity security) {
@@ -377,12 +382,12 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
   }
 
   @Override
-  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
     return null;
   }
 
   @Override
-  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     return null;
   }
 

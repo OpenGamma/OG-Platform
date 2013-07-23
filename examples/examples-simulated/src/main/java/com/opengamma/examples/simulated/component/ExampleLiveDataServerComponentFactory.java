@@ -94,6 +94,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   public static ExampleLiveDataServerComponentFactory.Meta meta() {
     return ExampleLiveDataServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleLiveDataServerComponentFactory.Meta.INSTANCE);
   }

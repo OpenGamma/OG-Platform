@@ -89,6 +89,7 @@ public class WebBundlesData extends DirectBean {
   public static WebBundlesData.Meta meta() {
     return WebBundlesData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebBundlesData.Meta.INSTANCE);
   }

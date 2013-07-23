@@ -72,6 +72,7 @@ public class FXFutureSecurity extends FutureSecurity {
   public static FXFutureSecurity.Meta meta() {
     return FXFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXFutureSecurity.Meta.INSTANCE);
   }

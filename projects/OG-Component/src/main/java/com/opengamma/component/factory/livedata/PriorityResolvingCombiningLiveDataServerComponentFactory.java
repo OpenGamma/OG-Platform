@@ -168,6 +168,7 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   public static PriorityResolvingCombiningLiveDataServerComponentFactory.Meta meta() {
     return PriorityResolvingCombiningLiveDataServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PriorityResolvingCombiningLiveDataServerComponentFactory.Meta.INSTANCE);
   }

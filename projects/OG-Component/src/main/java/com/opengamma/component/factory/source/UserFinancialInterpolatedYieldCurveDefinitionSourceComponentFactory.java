@@ -151,6 +151,7 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
   public static UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory.Meta meta() {
     return UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory.Meta.INSTANCE);
   }

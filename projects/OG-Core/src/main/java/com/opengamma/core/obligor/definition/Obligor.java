@@ -159,6 +159,7 @@ public class Obligor extends DirectBean {
   public static Obligor.Meta meta() {
     return Obligor.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Obligor.Meta.INSTANCE);
   }

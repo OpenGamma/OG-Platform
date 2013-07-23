@@ -81,6 +81,7 @@ public class FxForwardTrade extends Trade {
   public static FxForwardTrade.Meta meta() {
     return FxForwardTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FxForwardTrade.Meta.INSTANCE);
   }

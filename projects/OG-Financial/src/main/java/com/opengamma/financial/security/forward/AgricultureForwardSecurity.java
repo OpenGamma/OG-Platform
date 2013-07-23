@@ -50,6 +50,7 @@ public class AgricultureForwardSecurity extends CommodityForwardSecurity {
   public static AgricultureForwardSecurity.Meta meta() {
     return AgricultureForwardSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AgricultureForwardSecurity.Meta.INSTANCE);
   }

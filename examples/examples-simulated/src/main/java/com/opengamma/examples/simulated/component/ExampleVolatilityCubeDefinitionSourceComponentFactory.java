@@ -73,6 +73,7 @@ public class ExampleVolatilityCubeDefinitionSourceComponentFactory extends Abstr
   public static ExampleVolatilityCubeDefinitionSourceComponentFactory.Meta meta() {
     return ExampleVolatilityCubeDefinitionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleVolatilityCubeDefinitionSourceComponentFactory.Meta.INSTANCE);
   }

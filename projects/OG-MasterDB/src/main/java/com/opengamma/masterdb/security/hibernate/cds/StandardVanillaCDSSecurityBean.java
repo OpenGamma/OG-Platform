@@ -41,6 +41,7 @@ public class StandardVanillaCDSSecurityBean extends StandardCDSSecurityBean {
   public static StandardVanillaCDSSecurityBean.Meta meta() {
     return StandardVanillaCDSSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(StandardVanillaCDSSecurityBean.Meta.INSTANCE);
   }

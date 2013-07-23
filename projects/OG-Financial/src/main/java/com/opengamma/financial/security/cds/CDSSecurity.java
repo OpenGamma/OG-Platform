@@ -158,6 +158,7 @@ public class CDSSecurity extends FinancialSecurity {
   public static CDSSecurity.Meta meta() {
     return CDSSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CDSSecurity.Meta.INSTANCE);
   }

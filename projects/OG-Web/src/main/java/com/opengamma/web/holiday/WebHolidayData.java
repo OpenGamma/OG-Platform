@@ -98,6 +98,7 @@ public class WebHolidayData extends DirectBean {
   public static WebHolidayData.Meta meta() {
     return WebHolidayData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebHolidayData.Meta.INSTANCE);
   }

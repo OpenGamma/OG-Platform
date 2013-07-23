@@ -108,6 +108,7 @@ public class ReferenceDataProviderGetResult extends DirectBean {
   public static ReferenceDataProviderGetResult.Meta meta() {
     return ReferenceDataProviderGetResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ReferenceDataProviderGetResult.Meta.INSTANCE);
   }

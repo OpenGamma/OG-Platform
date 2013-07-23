@@ -190,10 +190,21 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     final List<FunctionConfigurationSource> sources = new LinkedList<FunctionConfigurationSource>();
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
+    sources.add(cubeConfigurations());
+    sources.addAll(curveAndSurfaceSources());
+    return sources;
+  }
+  
+  /**
+   * Gets the list of curve and surface function configuration sources.
+   * 
+   * @return the curve and surface function configuration sources, not null
+   */
+  protected List<FunctionConfigurationSource> curveAndSurfaceSources() {
+    final List<FunctionConfigurationSource> sources = new LinkedList<FunctionConfigurationSource>();    
     sources.add(yieldCurveConfigurations());
     sources.add(curveConfigurations());
     sources.add(fxForwardCurveConfigurations());
-    sources.add(cubeConfigurations());
     return sources;
   }
 
@@ -206,6 +217,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   public static FunctionConfigurationSourceComponentFactory.Meta meta() {
     return FunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionConfigurationSourceComponentFactory.Meta.INSTANCE);
   }

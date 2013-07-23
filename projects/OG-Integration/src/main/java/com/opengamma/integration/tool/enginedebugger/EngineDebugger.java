@@ -99,7 +99,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
    */
   public static void main(String[] args) {
     //new EngineDebugger().initialize();
-    new EngineDebugger().initAndRun(args, IntegrationToolContext.class); 
+    new EngineDebugger().initAndRun(args, IntegrationToolContext.class);
   }
 
   /**
@@ -166,7 +166,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
         JTree portfolioTree = (JTree) e.getSource();
         updateTreeTableModel(portfolioTree);
       }
-    });    
+    });
     
     _comboBox.addActionListener(new ActionListener() {
       @Override
@@ -228,7 +228,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
     final int i = valueReq.indexOf('[');
     if ((i > 0) && (valueReq.charAt(valueReq.length() - 1) == ']')) {
       name = valueReq.substring(0, i);
-      constraints = ValueProperties.parse(valueReq.substring(i+1, valueReq.length()-1));
+      constraints = ValueProperties.parse(valueReq.substring(i + 1, valueReq.length() - 1));
     } else {
       name = valueReq;
       constraints = ValueProperties.none();
@@ -288,6 +288,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   protected void doRun() throws Exception {
     initialize();
     EventQueue.invokeLater(new Runnable() {
+      @Override
       public void run() {
         try {
           _frame.pack();

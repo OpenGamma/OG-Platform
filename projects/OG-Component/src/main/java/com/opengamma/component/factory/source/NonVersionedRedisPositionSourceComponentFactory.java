@@ -56,6 +56,7 @@ public class NonVersionedRedisPositionSourceComponentFactory extends AbstractNon
   public static NonVersionedRedisPositionSourceComponentFactory.Meta meta() {
     return NonVersionedRedisPositionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NonVersionedRedisPositionSourceComponentFactory.Meta.INSTANCE);
   }

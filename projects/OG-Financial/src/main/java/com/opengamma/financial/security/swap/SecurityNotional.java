@@ -64,6 +64,7 @@ public class SecurityNotional extends Notional {
   public static SecurityNotional.Meta meta() {
     return SecurityNotional.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityNotional.Meta.INSTANCE);
   }

@@ -111,6 +111,7 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   public static RedisSimulationSeriesSourceComponentFactory.Meta meta() {
     return RedisSimulationSeriesSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RedisSimulationSeriesSourceComponentFactory.Meta.INSTANCE);
   }

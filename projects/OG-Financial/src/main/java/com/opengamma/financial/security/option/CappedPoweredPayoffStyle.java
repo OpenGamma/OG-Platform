@@ -69,6 +69,7 @@ public class CappedPoweredPayoffStyle extends PayoffStyle {
   public static CappedPoweredPayoffStyle.Meta meta() {
     return CappedPoweredPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CappedPoweredPayoffStyle.Meta.INSTANCE);
   }

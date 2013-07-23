@@ -40,6 +40,7 @@ public class ComputeNode extends DirectBean {
   public static ComputeNode.Meta meta() {
     return ComputeNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComputeNode.Meta.INSTANCE);
   }

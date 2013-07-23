@@ -328,7 +328,7 @@ public final class UniqueId
     }
     ObjectId objectId = other.getObjectId();
     return _scheme.equals(objectId.getScheme()) &&
-            _value.equals(objectId.getValue());
+        _value.equals(objectId.getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -359,8 +359,8 @@ public final class UniqueId
     if (obj instanceof UniqueId) {
       UniqueId other = (UniqueId) obj;
       return _scheme.equals(other._scheme) &&
-              _value.equals(other._value) &&
-              ObjectUtils.equals(_version, other._version);
+          _value.equals(other._value) &&
+          ObjectUtils.equals(_version, other._version);
     }
     return false;
   }

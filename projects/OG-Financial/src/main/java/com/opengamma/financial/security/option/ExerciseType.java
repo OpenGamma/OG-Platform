@@ -51,6 +51,7 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
   public static ExerciseType.Meta meta() {
     return ExerciseType.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExerciseType.Meta.INSTANCE);
   }

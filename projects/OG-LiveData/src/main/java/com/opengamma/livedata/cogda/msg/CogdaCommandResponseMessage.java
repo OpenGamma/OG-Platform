@@ -50,6 +50,7 @@ public abstract class CogdaCommandResponseMessage extends DirectBean {
   public static CogdaCommandResponseMessage.Meta meta() {
     return CogdaCommandResponseMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaCommandResponseMessage.Meta.INSTANCE);
   }

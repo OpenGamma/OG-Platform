@@ -110,6 +110,7 @@ public class EquityIndexOptionSecurity extends FinancialSecurity {
   public static EquityIndexOptionSecurity.Meta meta() {
     return EquityIndexOptionSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EquityIndexOptionSecurity.Meta.INSTANCE);
   }

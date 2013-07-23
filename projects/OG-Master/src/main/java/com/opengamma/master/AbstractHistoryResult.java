@@ -62,6 +62,7 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
   public static AbstractHistoryResult.Meta meta() {
     return AbstractHistoryResult.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code AbstractHistoryResult}.
    * @param <R>  the bean's generic type
@@ -72,6 +73,7 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
   public static <R extends AbstractDocument> AbstractHistoryResult.Meta<R> metaAbstractHistoryResult(Class<R> cls) {
     return AbstractHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractHistoryResult.Meta.INSTANCE);
   }

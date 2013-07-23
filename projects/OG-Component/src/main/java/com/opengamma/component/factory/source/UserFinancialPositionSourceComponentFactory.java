@@ -158,6 +158,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   public static UserFinancialPositionSourceComponentFactory.Meta meta() {
     return UserFinancialPositionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserFinancialPositionSourceComponentFactory.Meta.INSTANCE);
   }

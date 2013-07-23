@@ -108,6 +108,7 @@ public class ManageableOrganization extends DirectBean implements Organization, 
   public static ManageableOrganization.Meta meta() {
     return ManageableOrganization.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableOrganization.Meta.INSTANCE);
   }

@@ -79,6 +79,7 @@ public class SimpleChooserPayoffStyle extends PayoffStyle {
   public static SimpleChooserPayoffStyle.Meta meta() {
     return SimpleChooserPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleChooserPayoffStyle.Meta.INSTANCE);
   }

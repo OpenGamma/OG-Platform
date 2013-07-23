@@ -110,6 +110,7 @@ public class WebRegionData extends DirectBean {
   public static WebRegionData.Meta meta() {
     return WebRegionData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebRegionData.Meta.INSTANCE);
   }

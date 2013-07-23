@@ -57,6 +57,7 @@ public class DbConfigMasterFactoryBean extends AbstractDbMasterFactoryBean<DbCon
   public static DbConfigMasterFactoryBean.Meta meta() {
     return DbConfigMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbConfigMasterFactoryBean.Meta.INSTANCE);
   }

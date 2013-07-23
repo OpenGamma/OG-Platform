@@ -57,6 +57,7 @@ public class GovernmentBondSecurity extends BondSecurity {
   public static GovernmentBondSecurity.Meta meta() {
     return GovernmentBondSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(GovernmentBondSecurity.Meta.INSTANCE);
   }

@@ -93,6 +93,7 @@ public class HbComputationTargetSpecification extends DirectBean {
   public static HbComputationTargetSpecification.Meta meta() {
     return HbComputationTargetSpecification.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HbComputationTargetSpecification.Meta.INSTANCE);
   }

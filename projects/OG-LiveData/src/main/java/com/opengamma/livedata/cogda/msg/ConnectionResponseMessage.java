@@ -62,6 +62,7 @@ public class ConnectionResponseMessage extends DirectBean {
   public static ConnectionResponseMessage.Meta meta() {
     return ConnectionResponseMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConnectionResponseMessage.Meta.INSTANCE);
   }

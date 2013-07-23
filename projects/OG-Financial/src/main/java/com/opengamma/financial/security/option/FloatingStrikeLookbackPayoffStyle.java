@@ -44,6 +44,7 @@ public class FloatingStrikeLookbackPayoffStyle extends PayoffStyle {
   public static FloatingStrikeLookbackPayoffStyle.Meta meta() {
     return FloatingStrikeLookbackPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FloatingStrikeLookbackPayoffStyle.Meta.INSTANCE);
   }

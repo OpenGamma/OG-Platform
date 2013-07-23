@@ -102,6 +102,7 @@ public class RegionSourceComponentFactory extends AbstractComponentFactory {
   public static RegionSourceComponentFactory.Meta meta() {
     return RegionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RegionSourceComponentFactory.Meta.INSTANCE);
   }

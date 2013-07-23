@@ -95,6 +95,7 @@ public class ManageableOrganisation extends DirectBean implements MutableUniqueI
   public static ManageableOrganisation.Meta meta() {
     return ManageableOrganisation.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableOrganisation.Meta.INSTANCE);
   }

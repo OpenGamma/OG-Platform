@@ -37,6 +37,7 @@ public class LiveDataField extends DirectBean {
   public static LiveDataField.Meta meta() {
     return LiveDataField.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LiveDataField.Meta.INSTANCE);
   }

@@ -182,6 +182,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
   public static RiskRun.Meta meta() {
     return RiskRun.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RiskRun.Meta.INSTANCE);
   }

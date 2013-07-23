@@ -72,6 +72,7 @@ public class VarianceSwapNotional extends Notional {
   public static VarianceSwapNotional.Meta meta() {
     return VarianceSwapNotional.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VarianceSwapNotional.Meta.INSTANCE);
   }

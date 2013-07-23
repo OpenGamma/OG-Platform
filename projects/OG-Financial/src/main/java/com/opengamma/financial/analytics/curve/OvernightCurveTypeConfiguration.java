@@ -58,6 +58,7 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
   public static OvernightCurveTypeConfiguration.Meta meta() {
     return OvernightCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OvernightCurveTypeConfiguration.Meta.INSTANCE);
   }

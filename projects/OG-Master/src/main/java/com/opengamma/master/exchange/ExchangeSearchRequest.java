@@ -195,6 +195,7 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public static ExchangeSearchRequest.Meta meta() {
     return ExchangeSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeSearchRequest.Meta.INSTANCE);
   }

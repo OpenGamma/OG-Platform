@@ -72,6 +72,7 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
   public static DbFunctionCostsMasterComponentFactory.Meta meta() {
     return DbFunctionCostsMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbFunctionCostsMasterComponentFactory.Meta.INSTANCE);
   }

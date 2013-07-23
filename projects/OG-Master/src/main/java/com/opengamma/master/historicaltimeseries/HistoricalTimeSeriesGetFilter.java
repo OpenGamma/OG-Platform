@@ -164,6 +164,7 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean implements Seriali
   public static HistoricalTimeSeriesGetFilter.Meta meta() {
     return HistoricalTimeSeriesGetFilter.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesGetFilter.Meta.INSTANCE);
   }

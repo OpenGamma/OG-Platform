@@ -163,6 +163,7 @@ public class ReferenceData extends DirectBean {
   public static ReferenceData.Meta meta() {
     return ReferenceData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ReferenceData.Meta.INSTANCE);
   }

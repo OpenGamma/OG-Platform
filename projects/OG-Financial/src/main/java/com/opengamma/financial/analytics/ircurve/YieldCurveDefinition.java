@@ -167,6 +167,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   public static YieldCurveDefinition.Meta meta() {
     return YieldCurveDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(YieldCurveDefinition.Meta.INSTANCE);
   }

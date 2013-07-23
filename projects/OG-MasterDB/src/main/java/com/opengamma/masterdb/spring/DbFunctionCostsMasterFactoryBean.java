@@ -56,6 +56,7 @@ public class DbFunctionCostsMasterFactoryBean extends SpringFactoryBean<DbFuncti
   public static DbFunctionCostsMasterFactoryBean.Meta meta() {
     return DbFunctionCostsMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbFunctionCostsMasterFactoryBean.Meta.INSTANCE);
   }

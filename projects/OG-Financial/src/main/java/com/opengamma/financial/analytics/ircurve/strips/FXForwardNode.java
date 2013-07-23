@@ -123,6 +123,7 @@ public class FXForwardNode extends CurveNode {
   public static FXForwardNode.Meta meta() {
     return FXForwardNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXForwardNode.Meta.INSTANCE);
   }

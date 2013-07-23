@@ -102,6 +102,7 @@ public class OtcEquityIndexOptionTrade extends Trade {
   public static OtcEquityIndexOptionTrade.Meta meta() {
     return OtcEquityIndexOptionTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OtcEquityIndexOptionTrade.Meta.INSTANCE);
   }

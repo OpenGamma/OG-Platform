@@ -248,6 +248,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public static PositionSearchRequest.Meta meta() {
     return PositionSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PositionSearchRequest.Meta.INSTANCE);
   }

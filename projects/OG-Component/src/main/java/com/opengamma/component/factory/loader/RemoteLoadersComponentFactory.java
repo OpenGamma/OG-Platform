@@ -85,6 +85,7 @@ public class RemoteLoadersComponentFactory extends AbstractComponentFactory {
   public static RemoteLoadersComponentFactory.Meta meta() {
     return RemoteLoadersComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RemoteLoadersComponentFactory.Meta.INSTANCE);
   }

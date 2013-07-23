@@ -263,6 +263,7 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
   public static ManageableSecurityLink.Meta meta() {
     return ManageableSecurityLink.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableSecurityLink.Meta.INSTANCE);
   }

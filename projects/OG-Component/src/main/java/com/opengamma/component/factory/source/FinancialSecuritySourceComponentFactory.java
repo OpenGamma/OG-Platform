@@ -103,6 +103,7 @@ public class FinancialSecuritySourceComponentFactory extends AbstractComponentFa
   public static FinancialSecuritySourceComponentFactory.Meta meta() {
     return FinancialSecuritySourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FinancialSecuritySourceComponentFactory.Meta.INSTANCE);
   }

@@ -257,6 +257,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   public static RegionSearchRequest.Meta meta() {
     return RegionSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RegionSearchRequest.Meta.INSTANCE);
   }

@@ -37,6 +37,7 @@ public class ResolvedInput extends DirectBean {
   public static ResolvedInput.Meta meta() {
     return ResolvedInput.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ResolvedInput.Meta.INSTANCE);
   }

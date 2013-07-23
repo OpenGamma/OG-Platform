@@ -73,6 +73,7 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   public static AbstractDbMasterFactoryBean.Meta meta() {
     return AbstractDbMasterFactoryBean.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code AbstractDbMasterFactoryBean}.
    * @param <R>  the bean's generic type
@@ -83,6 +84,7 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   public static <R> AbstractDbMasterFactoryBean.Meta<R> metaAbstractDbMasterFactoryBean(Class<R> cls) {
     return AbstractDbMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractDbMasterFactoryBean.Meta.INSTANCE);
   }

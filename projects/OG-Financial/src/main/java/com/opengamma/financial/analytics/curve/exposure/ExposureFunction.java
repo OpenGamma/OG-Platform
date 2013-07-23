@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -11,7 +11,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
 
 /**
- * 
+ *
  */
 public interface ExposureFunction extends FinancialSecurityVisitor<List<ExternalId>> {
   /** Separator */
@@ -21,4 +21,5 @@ public interface ExposureFunction extends FinancialSecurityVisitor<List<External
   /** Contract identifier */
   String CONTRACT_IDENTIFIER = "ContractType";
 
+  String getName();
 }

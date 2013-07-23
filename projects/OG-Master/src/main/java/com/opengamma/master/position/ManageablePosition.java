@@ -316,6 +316,7 @@ public class ManageablePosition extends DirectBean
   public static ManageablePosition.Meta meta() {
     return ManageablePosition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageablePosition.Meta.INSTANCE);
   }

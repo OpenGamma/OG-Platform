@@ -157,6 +157,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   public static ManageableHoliday.Meta meta() {
     return ManageableHoliday.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableHoliday.Meta.INSTANCE);
   }

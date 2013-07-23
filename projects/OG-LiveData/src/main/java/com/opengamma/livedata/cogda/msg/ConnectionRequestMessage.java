@@ -61,6 +61,7 @@ public class ConnectionRequestMessage extends DirectBean {
   public static ConnectionRequestMessage.Meta meta() {
     return ConnectionRequestMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConnectionRequestMessage.Meta.INSTANCE);
   }

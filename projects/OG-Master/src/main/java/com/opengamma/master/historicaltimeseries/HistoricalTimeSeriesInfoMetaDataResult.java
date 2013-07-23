@@ -71,6 +71,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   public static HistoricalTimeSeriesInfoMetaDataResult.Meta meta() {
     return HistoricalTimeSeriesInfoMetaDataResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoMetaDataResult.Meta.INSTANCE);
   }

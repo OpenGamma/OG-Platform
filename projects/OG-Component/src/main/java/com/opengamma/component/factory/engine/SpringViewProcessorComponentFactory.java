@@ -255,6 +255,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   public static SpringViewProcessorComponentFactory.Meta meta() {
     return SpringViewProcessorComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SpringViewProcessorComponentFactory.Meta.INSTANCE);
   }

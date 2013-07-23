@@ -70,6 +70,7 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
   public static ExtremeSpreadPayoffStyle.Meta meta() {
     return ExtremeSpreadPayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExtremeSpreadPayoffStyle.Meta.INSTANCE);
   }

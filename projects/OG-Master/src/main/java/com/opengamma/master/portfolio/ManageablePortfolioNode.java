@@ -293,6 +293,7 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   public static ManageablePortfolioNode.Meta meta() {
     return ManageablePortfolioNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageablePortfolioNode.Meta.INSTANCE);
   }

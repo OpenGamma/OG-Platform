@@ -145,6 +145,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   public static SwaptionSecurity.Meta meta() {
     return SwaptionSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SwaptionSecurity.Meta.INSTANCE);
   }

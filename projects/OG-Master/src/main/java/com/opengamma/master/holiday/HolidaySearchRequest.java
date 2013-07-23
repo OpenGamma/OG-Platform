@@ -322,6 +322,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public static HolidaySearchRequest.Meta meta() {
     return HolidaySearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidaySearchRequest.Meta.INSTANCE);
   }

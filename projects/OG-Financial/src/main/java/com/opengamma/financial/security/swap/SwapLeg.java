@@ -108,6 +108,7 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
   public static SwapLeg.Meta meta() {
     return SwapLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SwapLeg.Meta.INSTANCE);
   }

@@ -37,7 +37,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}. 
+ * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}.
  */
 @GenericFudgeBuilderFor(ViewDefinition.class)
 public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> {
@@ -185,7 +185,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     final UniqueId portfolioId = portfolioIdField == null ? null : deserializer.fieldValueToObject(UniqueId.class, portfolioIdField);
     final String name = message.getFieldValue(String.class, message.getByName(NAME_FIELD));
     final UserPrincipal user = deserializer.fieldValueToObject(UserPrincipal.class, message.getByName(USER_FIELD));
-    final ResultModelDefinition model = deserializer.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD)); 
+    final ResultModelDefinition model = deserializer.fieldValueToObject(ResultModelDefinition.class, message.getByName(RESULT_MODEL_DEFINITION_FIELD));
     ViewDefinition viewDefinition = new ViewDefinition(
         name,
         portfolioId,
@@ -270,7 +270,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
           FudgeMsg columnMsg = (FudgeMsg) field.getValue();
           String header = deserializer.fieldValueToObject(String.class, columnMsg.getByName(HEADER_FIELD));
           String valueName = deserializer.fieldValueToObject(String.class, columnMsg.getByName(VALUE_NAME_FIELD));
-          ValueProperties properties = deserializer.fieldValueToObject(ValueProperties.class, columnMsg.getByName( PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD));
+          ValueProperties properties = deserializer.fieldValueToObject(ValueProperties.class, columnMsg.getByName(PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD));
           columns.add(new ViewCalculationConfiguration.Column(header, valueName, properties));
         }
       }

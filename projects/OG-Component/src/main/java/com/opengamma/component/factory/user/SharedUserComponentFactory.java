@@ -52,6 +52,7 @@ public class SharedUserComponentFactory extends AbstractComponentFactory {
   public static SharedUserComponentFactory.Meta meta() {
     return SharedUserComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SharedUserComponentFactory.Meta.INSTANCE);
   }

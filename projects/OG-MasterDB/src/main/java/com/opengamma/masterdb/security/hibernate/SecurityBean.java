@@ -44,6 +44,7 @@ public abstract class SecurityBean extends DirectBean {
   public static SecurityBean.Meta meta() {
     return SecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityBean.Meta.INSTANCE);
   }

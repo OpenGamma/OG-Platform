@@ -75,6 +75,7 @@ public class EquitySecurityBean extends SecurityBean {
   public static EquitySecurityBean.Meta meta() {
     return EquitySecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EquitySecurityBean.Meta.INSTANCE);
   }

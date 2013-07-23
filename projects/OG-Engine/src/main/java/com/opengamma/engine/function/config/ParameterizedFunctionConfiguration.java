@@ -91,6 +91,7 @@ public class ParameterizedFunctionConfiguration extends StaticFunctionConfigurat
   public static ParameterizedFunctionConfiguration.Meta meta() {
     return ParameterizedFunctionConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ParameterizedFunctionConfiguration.Meta.INSTANCE);
   }

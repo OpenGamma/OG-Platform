@@ -50,6 +50,7 @@ public abstract class PayoffStyle extends DirectBean implements Serializable {
   public static PayoffStyle.Meta meta() {
     return PayoffStyle.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PayoffStyle.Meta.INSTANCE);
   }

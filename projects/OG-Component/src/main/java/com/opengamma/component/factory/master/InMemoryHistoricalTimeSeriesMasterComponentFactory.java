@@ -68,6 +68,7 @@ public class InMemoryHistoricalTimeSeriesMasterComponentFactory extends Abstract
   public static InMemoryHistoricalTimeSeriesMasterComponentFactory.Meta meta() {
     return InMemoryHistoricalTimeSeriesMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InMemoryHistoricalTimeSeriesMasterComponentFactory.Meta.INSTANCE);
   }

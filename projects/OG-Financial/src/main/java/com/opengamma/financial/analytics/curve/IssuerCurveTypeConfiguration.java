@@ -64,6 +64,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   public static IssuerCurveTypeConfiguration.Meta meta() {
     return IssuerCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IssuerCurveTypeConfiguration.Meta.INSTANCE);
   }

@@ -59,6 +59,7 @@ public abstract class InterestRateLeg extends SwapLeg {
   public static InterestRateLeg.Meta meta() {
     return InterestRateLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterestRateLeg.Meta.INSTANCE);
   }

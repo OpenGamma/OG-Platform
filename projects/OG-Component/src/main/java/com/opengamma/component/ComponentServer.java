@@ -141,6 +141,7 @@ public class ComponentServer extends DirectBean {
   public static ComponentServer.Meta meta() {
     return ComponentServer.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComponentServer.Meta.INSTANCE);
   }

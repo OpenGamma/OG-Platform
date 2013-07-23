@@ -95,6 +95,7 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
   public static SecurityHistoryRequest.Meta meta() {
     return SecurityHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityHistoryRequest.Meta.INSTANCE);
   }

@@ -100,6 +100,7 @@ public class CashNode extends CurveNode {
   public static CashNode.Meta meta() {
     return CashNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CashNode.Meta.INSTANCE);
   }

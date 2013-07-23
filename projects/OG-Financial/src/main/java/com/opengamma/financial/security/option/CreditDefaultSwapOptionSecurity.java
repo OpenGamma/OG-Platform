@@ -147,6 +147,7 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   public static CreditDefaultSwapOptionSecurity.Meta meta() {
     return CreditDefaultSwapOptionSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CreditDefaultSwapOptionSecurity.Meta.INSTANCE);
   }

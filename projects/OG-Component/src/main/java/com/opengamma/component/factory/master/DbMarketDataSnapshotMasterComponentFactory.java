@@ -110,6 +110,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDbMaster
   public static DbMarketDataSnapshotMasterComponentFactory.Meta meta() {
     return DbMarketDataSnapshotMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbMarketDataSnapshotMasterComponentFactory.Meta.INSTANCE);
   }

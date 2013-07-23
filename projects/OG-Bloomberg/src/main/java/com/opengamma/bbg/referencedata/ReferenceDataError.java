@@ -100,6 +100,7 @@ public class ReferenceDataError extends DirectBean {
   public static ReferenceDataError.Meta meta() {
     return ReferenceDataError.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ReferenceDataError.Meta.INSTANCE);
   }

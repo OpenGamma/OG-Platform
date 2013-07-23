@@ -94,6 +94,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
   public static IntegrationWebComponentFactory.Meta meta() {
     return IntegrationWebComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IntegrationWebComponentFactory.Meta.INSTANCE);
   }

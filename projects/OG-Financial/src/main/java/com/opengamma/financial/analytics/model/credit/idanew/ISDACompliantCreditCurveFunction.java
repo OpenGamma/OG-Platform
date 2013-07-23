@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
@@ -47,7 +46,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
-import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCDSFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -62,23 +60,22 @@ import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to return hazard (credit) curve for a security
- * Note: This is slightly bad as it returns the curv instruments also
  */
 public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
   private CreditDefaultSwapSecurityConverterDeprecated _converter;
+  private HolidaySource _holidaySource;
+  private RegionSource _regionSource;
 
   @Override
   public void init(final FunctionCompilationContext context) {
       // using hardcoded region and calendar for now
-      final HolidaySource holidaySource = new WeekendHolidaySource(); //OpenGammaCompilationContext.getHolidaySource(context);
-      @SuppressWarnings("synthetic-access")
-      final RegionSource regionSource = new TestRegionSource(); //OpenGammaCompilationContext.getRegionSource(context);
-      _converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
+      _holidaySource = new WeekendHolidaySource(); //OpenGammaCompilationContext.getHolidaySource(context);
+      _regionSource = new TestRegionSource(); //OpenGammaCompilationContext.getRegionSource(context);
+      _converter = new CreditDefaultSwapSecurityConverterDeprecated(_holidaySource, _regionSource);
     }
 
     @Override
@@ -100,7 +97,8 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(creditCurveReq.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION));
       final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
       if (spreadCurve == null) {
-        throw new OpenGammaRuntimeException("Bucketed spreads not available for " +  ISDACompliantCDSFunction.getSpreadCurveIdentifier(security));
+        throw new OpenGammaRuntimeException("Bucketed spreads not available for " +  AbstractISDACompliantWithCreditCurveCDSFunction.getSpreadCurveIdentifier(
+            security));
       }
 
       // get the isda curve
@@ -114,6 +112,7 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
                                                                            spreadsRequriement.getConstraint(
                                                                                ISDAFunctionConstants.ISDA_BUCKET_TENORS));
       double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, yieldCurve, cds.getStartDate());
+      //double[] spreads = SpreadCurveFunctions.getSpreadCurveNew(spreadCurve, bucketDates, security.getStartDate());
       Tenor[] tenors = SpreadCurveFunctions.getBuckets(spreadsRequriement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
       final NodalTenorDoubleCurve modifiedSpreadCurve = new NodalTenorDoubleCurve(tenors, ArrayUtils.toObject(spreads), true);
 
@@ -121,8 +120,14 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);
       final CDSAnalytic[] creditAnalytics = new CDSAnalytic[spreads.length];
       for (int i = 0; i < creditAnalytics.length; i++) {
+        final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), bucketDates[i].toLocalDate());
+        //creditAnalytics[i] = security.accept(visitor);
         creditAnalytics[i] = CDSAnalyticConverter.create(curveCDS, now.toLocalDate(), bucketDates[i].toLocalDate());
       }
+
+      //FIXME: Proper handling of PUF and quote types, send to analytoics and let that handle
+
+
       final FastCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder();
       final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics, spreads, yieldCurve);
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), creditCurveReq.getConstraints());
@@ -165,10 +170,12 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) target.getSecurity();
-      final CreditCurveIdentifier spreadIdentifier = ISDACompliantCDSFunction.getSpreadCurveIdentifier(cds);
+      final CreditCurveIdentifier spreadIdentifier = AbstractISDACompliantWithCreditCurveCDSFunction.getSpreadCurveIdentifier(
+          cds);
 
       final Currency ccy = cds.getNotional().getCurrency();
-      final CreditCurveIdentifier isdaIdentifier = ISDACompliantCDSFunction.getISDACurveIdentifier(cds);
+      final CreditCurveIdentifier isdaIdentifier = AbstractISDACompliantWithCreditCurveCDSFunction.getISDACurveIdentifier(
+          cds);
 
       final String isdaOffset = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_OFFSET);
       if (isdaOffset == null) {

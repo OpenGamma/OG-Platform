@@ -150,6 +150,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
   public static SpringJettyComponentFactory.Meta meta() {
     return SpringJettyComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SpringJettyComponentFactory.Meta.INSTANCE);
   }

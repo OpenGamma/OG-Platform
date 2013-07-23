@@ -68,6 +68,7 @@ public class InMemoryExchangeMasterComponentFactory extends AbstractComponentFac
   public static InMemoryExchangeMasterComponentFactory.Meta meta() {
     return InMemoryExchangeMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InMemoryExchangeMasterComponentFactory.Meta.INSTANCE);
   }

@@ -91,6 +91,7 @@ public class InflationIndexSwapLeg extends InflationLeg {
   public static InflationIndexSwapLeg.Meta meta() {
     return InflationIndexSwapLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InflationIndexSwapLeg.Meta.INSTANCE);
   }

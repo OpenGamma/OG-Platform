@@ -52,6 +52,7 @@ public class MetalForwardSecurity extends CommodityForwardSecurity {
   public static MetalForwardSecurity.Meta meta() {
     return MetalForwardSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MetalForwardSecurity.Meta.INSTANCE);
   }

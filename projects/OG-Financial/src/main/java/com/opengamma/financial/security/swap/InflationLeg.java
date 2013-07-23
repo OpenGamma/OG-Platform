@@ -56,6 +56,7 @@ public abstract class InflationLeg extends SwapLeg {
   public static InflationLeg.Meta meta() {
     return InflationLeg.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InflationLeg.Meta.INSTANCE);
   }

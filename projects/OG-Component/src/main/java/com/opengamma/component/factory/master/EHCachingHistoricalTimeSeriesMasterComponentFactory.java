@@ -86,6 +86,7 @@ public class EHCachingHistoricalTimeSeriesMasterComponentFactory extends Abstrac
   public static EHCachingHistoricalTimeSeriesMasterComponentFactory.Meta meta() {
     return EHCachingHistoricalTimeSeriesMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EHCachingHistoricalTimeSeriesMasterComponentFactory.Meta.INSTANCE);
   }

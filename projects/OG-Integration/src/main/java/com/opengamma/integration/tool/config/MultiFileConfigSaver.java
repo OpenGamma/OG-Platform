@@ -110,6 +110,7 @@ public class MultiFileConfigSaver extends DirectBean {
   public static MultiFileConfigSaver.Meta meta() {
     return MultiFileConfigSaver.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MultiFileConfigSaver.Meta.INSTANCE);
   }

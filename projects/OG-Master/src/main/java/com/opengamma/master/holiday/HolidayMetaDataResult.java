@@ -54,6 +54,7 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
   public static HolidayMetaDataResult.Meta meta() {
     return HolidayMetaDataResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidayMetaDataResult.Meta.INSTANCE);
   }

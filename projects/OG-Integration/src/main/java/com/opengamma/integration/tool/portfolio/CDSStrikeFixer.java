@@ -7,14 +7,13 @@ package com.opengamma.integration.tool.portfolio;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.lang.String.format;
 
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -125,7 +124,8 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
           CreditDefaultSwapSecurity cds = (CreditDefaultSwapSecurity) this.getToolContext().getSecuritySource().getSingle(
               cdsOption.getUnderlyingId().toBundle());
 
-          String curveDefinitionID = "SAMEDAY_"+cds.getReferenceEntity().getValue() + "_" + cds.getNotional().getCurrency() + "_" + cds.getDebtSeniority().toString() + "_" + cds.getRestructuringClause();
+          String curveDefinitionID = "SAMEDAY_" + cds.getReferenceEntity().getValue() + "_" + cds.getNotional().getCurrency() + "_" +
+              cds.getDebtSeniority().toString() + "_" + cds.getRestructuringClause();
 
           ConfigSearchRequest<CurveDefinition> curveDefinitionConfigSearchRequest = new ConfigSearchRequest<CurveDefinition>(CurveDefinition.class);
           curveDefinitionConfigSearchRequest.setName(curveDefinitionID);
@@ -165,14 +165,19 @@ public class CDSStrikeFixer extends AbstractTool<IntegrationToolContext> {
             tenor = Tenor.of(Period.ofYears(5));
             ExternalId timeSeriesId = curveNodeIdMapper.getCreditSpreadNodeId(null /* magic null - ask Elaine */, tenor);
 
-
-            Double strike = snapshot.getGlobalValues().getValue(timeSeriesId, "PX_LAST").getMarketValue();
+            
+            Object strikeObj = snapshot.getGlobalValues().getValue(timeSeriesId, "PX_LAST").getMarketValue();
+            if ((strikeObj instanceof Double)) {
+              cdsOption.setStrike((Double) strikeObj);
+            } else {
+              throw new OpenGammaRuntimeException(format("Double expected for strike but '%s' found instead.", String.valueOf(strikeObj)));
+            }
+            //else throw?
             //snapshot.getGlobalValues().getValue()
             //cdsArgs.add(timeSeriesId);
             //loadTimeSeries(newArrayList(timeSeriesId));
             //LocalDate tradeDate = functional(position.getTrades()).first().getTradeDate();
             //Double strike = getFixedRate(random, tradeDate, timeSeriesId);
-            cdsOption.setStrike(strike);
             securityMaster.update(new SecurityDocument(cdsOption));
           } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

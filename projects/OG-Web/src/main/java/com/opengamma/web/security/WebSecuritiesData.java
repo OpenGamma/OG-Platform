@@ -116,6 +116,7 @@ public class WebSecuritiesData extends DirectBean {
   public static WebSecuritiesData.Meta meta() {
     return WebSecuritiesData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebSecuritiesData.Meta.INSTANCE);
   }

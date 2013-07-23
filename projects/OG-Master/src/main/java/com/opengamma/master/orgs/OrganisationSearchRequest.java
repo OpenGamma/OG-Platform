@@ -135,6 +135,7 @@ public class OrganisationSearchRequest extends AbstractSearchRequest {
   public static OrganisationSearchRequest.Meta meta() {
     return OrganisationSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OrganisationSearchRequest.Meta.INSTANCE);
   }

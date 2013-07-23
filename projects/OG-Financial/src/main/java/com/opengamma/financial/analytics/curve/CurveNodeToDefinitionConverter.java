@@ -106,7 +106,7 @@ public class CurveNodeToDefinitionConverter {
   }
 
   /**
-   * Converts a {@link CurveNode} into an {@InstrumentDefinition}, which will be used in curve construction.
+   * Converts a {@link CurveNode} into an {@link InstrumentDefinition}, which will be used in curve construction.
    * @param node The curve node, not null
    * @param marketDataId The market data id, not null
    * @param now The curve construction time, not null
@@ -476,7 +476,7 @@ public class CurveNodeToDefinitionConverter {
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
         final boolean isEOM = convention.isIsEOM();
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
-        final int paymentLag = convention.getPaymentDelay();
+        final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
         return AnnuityCouponONSimplifiedDefinition.from(settlementDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention,
             paymentPeriod, isEOM);

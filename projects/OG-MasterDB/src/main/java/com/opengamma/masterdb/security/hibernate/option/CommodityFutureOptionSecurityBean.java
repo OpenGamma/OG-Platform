@@ -104,6 +104,7 @@ public class CommodityFutureOptionSecurityBean extends SecurityBean {
   public static CommodityFutureOptionSecurityBean.Meta meta() {
     return CommodityFutureOptionSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CommodityFutureOptionSecurityBean.Meta.INSTANCE);
   }

@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  *
  */
-public class ISDACompliantPointsUpfrontCDSFunction extends ISDACompliantCDSFunction {
+public class ISDACompliantPointsUpfrontCDSFunction extends AbstractISDACompliantWithSpreadsCDSFunction {
 
   private final PointsUpFrontConverter _puf = new PointsUpFrontConverter();
 
@@ -27,11 +27,10 @@ public class ISDACompliantPointsUpfrontCDSFunction extends ISDACompliantCDSFunct
   }
 
   @Override
-  protected Object compute(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACompliantCreditCurve creditCurve,
-      final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
-    final double puf = 100.0 * _puf.quotedSpreadToPUF(analytic, cds.getParSpread() * s_tenminus4, yieldCurve, spreads[0]);
+  protected Object compute(final double parSpread, final double notiona, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
+    final double puf = 100.0 * _puf.quotedSpreadToPUF(analytic, parSpread * s_tenminus4, yieldCurve, spreads[0]);
     // SELL protection reverses directions of legs
-    return Double.valueOf(cds.getBuySellProtection() == BuySellProtection.SELL ? -puf : puf);
+    return Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
   }
 
 }

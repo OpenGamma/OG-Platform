@@ -53,6 +53,7 @@ public class EquityIndexDividendFutureSecurity extends EquityFutureSecurity {
   public static EquityIndexDividendFutureSecurity.Meta meta() {
     return EquityIndexDividendFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EquityIndexDividendFutureSecurity.Meta.INSTANCE);
   }

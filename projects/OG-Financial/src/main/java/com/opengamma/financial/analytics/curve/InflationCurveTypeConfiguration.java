@@ -64,6 +64,7 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
   public static InflationCurveTypeConfiguration.Meta meta() {
     return InflationCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InflationCurveTypeConfiguration.Meta.INSTANCE);
   }

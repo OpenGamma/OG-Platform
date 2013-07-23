@@ -136,6 +136,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
   public static AbstractHistoryRequest.Meta meta() {
     return AbstractHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractHistoryRequest.Meta.INSTANCE);
   }

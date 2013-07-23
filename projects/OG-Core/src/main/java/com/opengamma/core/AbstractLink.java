@@ -170,6 +170,7 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
   public static AbstractLink.Meta meta() {
     return AbstractLink.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code AbstractLink}.
    * @param <R>  the bean's generic type
@@ -180,6 +181,7 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
   public static <R extends UniqueIdentifiable> AbstractLink.Meta<R> metaAbstractLink(Class<R> cls) {
     return AbstractLink.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractLink.Meta.INSTANCE);
   }

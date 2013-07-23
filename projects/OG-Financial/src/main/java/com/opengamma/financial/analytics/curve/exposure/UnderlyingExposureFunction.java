@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -76,7 +76,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class UnderlyingExposureFunction implements ExposureFunction {
   private final SecuritySource _securitySource;
@@ -84,6 +84,11 @@ public class UnderlyingExposureFunction implements ExposureFunction {
   public UnderlyingExposureFunction(final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "security source");
     _securitySource = securitySource;
+  }
+
+  @Override
+  public String getName() {
+    return "Underlying Security";
   }
 
   @Override
@@ -407,7 +412,7 @@ public class UnderlyingExposureFunction implements ExposureFunction {
   }
 
   @Override
-  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
     final List<ExternalId> result = new ArrayList<>();
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
@@ -424,7 +429,7 @@ public class UnderlyingExposureFunction implements ExposureFunction {
   }
 
   @Override
-  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     final List<ExternalId> result = new ArrayList<>();
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();

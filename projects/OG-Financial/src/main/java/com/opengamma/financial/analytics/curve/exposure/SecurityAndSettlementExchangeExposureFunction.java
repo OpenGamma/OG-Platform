@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -69,9 +69,14 @@ import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 
 /**
- * 
+ *
  */
 public class SecurityAndSettlementExchangeExposureFunction implements ExposureFunction {
+
+  @Override
+  public String getName() {
+    return "Security / Settlement Exchange";
+  }
 
   @Override
   public List<ExternalId> visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
@@ -394,12 +399,12 @@ public class SecurityAndSettlementExchangeExposureFunction implements ExposureFu
   }
 
   @Override
-  public List<ExternalId> visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
     return null;
   }
 
   @Override
-  public List<ExternalId> visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     return null;
   }
 

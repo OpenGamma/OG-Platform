@@ -60,6 +60,7 @@ public class SecurityEntryData extends DirectBean {
   public static SecurityEntryData.Meta meta() {
     return SecurityEntryData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityEntryData.Meta.INSTANCE);
   }

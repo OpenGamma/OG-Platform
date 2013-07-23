@@ -84,6 +84,7 @@ public class ListedSecurityTrade extends Trade {
   public static ListedSecurityTrade.Meta meta() {
     return ListedSecurityTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ListedSecurityTrade.Meta.INSTANCE);
   }
