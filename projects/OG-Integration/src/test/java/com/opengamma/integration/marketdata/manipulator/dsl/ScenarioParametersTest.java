@@ -27,7 +27,7 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void setParametersFromScript() throws IOException {
-    String scriptFile = "src/test/resources/scenarios/ScenarioParametersTest.groovy";
+    String scriptFile = "src/test/groovy/ScenarioParametersTest.groovy";
     String script = IOUtils.toString(new BufferedReader(new FileReader(scriptFile)));
     ScenarioParameters scenarioParameters = new ScenarioDslParameters(script);
     Map<String,Object> parameters = scenarioParameters.getParameters();
