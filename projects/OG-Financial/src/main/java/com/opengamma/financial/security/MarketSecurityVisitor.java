@@ -8,6 +8,7 @@ package com.opengamma.financial.security;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
@@ -42,6 +43,11 @@ public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdap
   
   @Override
   public Boolean visitEquityFutureSecurity(final EquityFutureSecurity security) {
+    return true;
+  }
+  
+  @Override
+  public Boolean visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     return true;
   }
   
