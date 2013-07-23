@@ -10,7 +10,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.temporal.JulianFields;
 
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -67,7 +66,7 @@ public class CDSAnalytic {
    * @param recoveryRate The recovery rate 
    */
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, StubType stubType, final boolean protectStart, final double recoveryRate) {
+      final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate) {
     this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365);
   }
 
@@ -95,7 +94,7 @@ public class CDSAnalytic {
    * @param accrualDayCount Day count used for accrual
    */
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
+      final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
       final DayCount accrualDayCount) {
     this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, businessdayAdjustmentConvention, calendar, accrualDayCount, ACT_365);
   }
@@ -120,18 +119,18 @@ public class CDSAnalytic {
    * @param curveDayCount Day count used on curve (NOTE ISDA uses ACT/365 and it is not recommended to change this)
    */
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
+      final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
       final DayCount accrualDayCount, final DayCount curveDayCount) {
-    ArgumentChecker.notNull(today, "null today");
-    ArgumentChecker.notNull(stepinDate, "null stepinDate");
-    ArgumentChecker.notNull(valueDate, "null valueDate");
-    ArgumentChecker.notNull(startDate, "null startDate");
-    ArgumentChecker.notNull(endDate, "null endDate");
-    ArgumentChecker.notNull(tenor, "null tenor");
-    ArgumentChecker.notNull(stubType, "null stubType");
-    ArgumentChecker.notNull(businessdayAdjustmentConvention, "null businessdayAdjustmentConvention");
-    ArgumentChecker.notNull(accrualDayCount, "null accuralDayCount");
-    ArgumentChecker.notNull(curveDayCount, "null curveDayCount");
+    ArgumentChecker.notNull(today, "today");
+    ArgumentChecker.notNull(stepinDate, "stepinDate");
+    ArgumentChecker.notNull(valueDate, "valueDate");
+    ArgumentChecker.notNull(startDate, "startDate");
+    ArgumentChecker.notNull(endDate, "endDate");
+    ArgumentChecker.notNull(tenor, "tenor");
+    ArgumentChecker.notNull(stubType, "stubType");
+    ArgumentChecker.notNull(businessdayAdjustmentConvention, "businessdayAdjustmentConvention");
+    ArgumentChecker.notNull(accrualDayCount, "accuralDayCount");
+    ArgumentChecker.notNull(curveDayCount, "curveDayCount");
     ArgumentChecker.isFalse(valueDate.isBefore(today), "Require valueDate >= today");
     ArgumentChecker.isFalse(stepinDate.isBefore(today), "Require stepin >= today");
     ArgumentChecker.isFalse(today.isAfter(endDate), "CDS has expired");
@@ -160,7 +159,7 @@ public class CDSAnalytic {
     _accFractions = new double[_nPayments];
 
     for (int i = 0; i < _nPayments; i++) {
-      LocalDate paymentDate = paymentSchedule.getPaymentDate(i);
+      final LocalDate paymentDate = paymentSchedule.getPaymentDate(i);
       _paymentTimes[i] = curveDayCount.getDayCountFraction(today, paymentDate);
       final LocalDate accStart = paymentSchedule.getAccStartDate(i);
       final LocalDate accEnd = paymentSchedule.getAccEndDate(i);

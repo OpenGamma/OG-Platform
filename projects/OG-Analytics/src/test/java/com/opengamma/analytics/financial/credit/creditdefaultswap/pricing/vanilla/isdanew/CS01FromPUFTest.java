@@ -49,7 +49,7 @@ public class CS01FromPUFTest extends ISDABaseTest {
       final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PROCTECTION_START, TENOR, STUB, PAY_ACC_ON_DEFAULT, RECOVERY_RATE);
       final double puf = PUF[i] * ONE_PC;
       final double cs01 = scale * CS01_CAL.parallelCS01FromPUF(cds, coupon, YIELD_CURVE, puf, ONE_BP);
-      //  System.out.println(EXPECTED_PCS01[i] + "\t" + cs01);
+      // System.out.println(EXPECTED_PCS01[i] + "\t" + cs01);
       assertEquals(MATURITIES[i].toString(), EXPECTED_PCS01[i], cs01, 1e-14 * notional);
     }
   }

@@ -120,35 +120,35 @@ public class SpreadSensitivityCalculator {
    * For small bumps (<1e-4) this approximates $$\frac{\partial V}{\partial S_i}$$ where $$S_i$$ is the spread of the $$1^{th}$$
    * market CDS<br>
    * @param cds analytic description of a CDS traded at a certain time 
-   * @param cdsFracSpread The <b>fraction</b> spread of the CDS
+   * @param cdsCoupon The <b>fraction</b> spread of the CDS
    * @param yieldCurve The yield (or discount) curve  
    * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
-   * @param marketFracSpreads The <b>fractional</b> spreads of the market CDSs 
+   * @param marketParSpreads The <b>fractional</b> par-spreads of the market CDSs 
    * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
    * @param bumpType ADDITIVE or MULTIPLICATIVE
    * @return The credit DV01
    * @return
    */
-  public double[] bucketedCS01FromParSpreads(final CDSAnalytic cds, final double cdsFracSpread, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
-      final double[] marketFracSpreads, final double fracBumpAmount, final BumpType bumpType) {
+  public double[] bucketedCS01FromParSpreads(final CDSAnalytic cds, final double cdsCoupon, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs, final double[] marketParSpreads,
+      final double fracBumpAmount, final BumpType bumpType) {
     ArgumentChecker.notNull(cds, "cds");
     ArgumentChecker.noNulls(marketCDSs, "curvePoints");
-    ArgumentChecker.notEmpty(marketFracSpreads, "spreads");
+    ArgumentChecker.notEmpty(marketParSpreads, "spreads");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.notNull(bumpType, "bumpType");
     ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
     final int n = marketCDSs.length;
-    ArgumentChecker.isTrue(n == marketFracSpreads.length, "speads length does not match curvePoints");
+    ArgumentChecker.isTrue(n == marketParSpreads.length, "speads length does not match curvePoints");
     final PriceType priceType = PriceType.DIRTY;
 
-    final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(marketCDSs, marketFracSpreads, yieldCurve);
-    final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, cdsFracSpread, priceType);
+    final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(marketCDSs, marketParSpreads, yieldCurve);
+    final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, cdsCoupon, priceType);
 
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      final double[] temp = makeBumpedSpreads(marketFracSpreads, fracBumpAmount, bumpType, i);
+      final double[] temp = makeBumpedSpreads(marketParSpreads, fracBumpAmount, bumpType, i);
       final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(marketCDSs, temp, yieldCurve);
-      final double price = PRICER.pv(cds, yieldCurve, bumpedCurve, cdsFracSpread, priceType);
+      final double price = PRICER.pv(cds, yieldCurve, bumpedCurve, cdsCoupon, priceType);
       res[i] = (price - basePrice) / fracBumpAmount;
     }
 
