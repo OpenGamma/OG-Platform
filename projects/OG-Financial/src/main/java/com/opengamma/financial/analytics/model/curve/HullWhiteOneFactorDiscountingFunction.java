@@ -70,20 +70,27 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
+import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
-import com.opengamma.financial.analytics.curve.CurveNodeToDefinitionConverter;
+import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.FRANodeConverter;
+import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
+import com.opengamma.financial.analytics.curve.SwapNodeConverter;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.Convention;
@@ -134,10 +141,6 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
       }
     }
     final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
-    final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final CurveNodeToDefinitionConverter curveNodeToDefinitionConverter = new CurveNodeToDefinitionConverter(conventionSource, holidaySource, regionSource);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
@@ -185,7 +188,11 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
         final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
         final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
         final HullWhiteProviderDiscountBuildingRepository builder = new HullWhiteProviderDiscountBuildingRepository(absoluteTolerance, relativeTolerance, maxIterations);
-        final Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData);
+        final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+        final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+        final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+        final Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> pair = getCurves(curveConstructionConfiguration, inputs, now, builder, knownData,
+            conventionSource, holidaySource, regionSource);
         final ValueSpecification bundleSpec = new ValueSpecification(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
         final Set<ComputedValue> result = new HashSet<>();
         result.add(new ComputedValue(bundleSpec, pair.getFirst()));
@@ -293,7 +300,9 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
 
       @SuppressWarnings("synthetic-access")
       private Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> getCurves(final CurveConstructionConfiguration constructionConfiguration,
-          final FunctionInputs inputs, final ZonedDateTime now, final HullWhiteProviderDiscountBuildingRepository builder, final HullWhiteOneFactorProviderDiscount knownData) {
+          final FunctionInputs inputs, final ZonedDateTime now, final HullWhiteProviderDiscountBuildingRepository builder,
+          final HullWhiteOneFactorProviderDiscount knownData, final ConventionSource conventionSource, final HolidaySource holidaySource,
+          final RegionSource regionSource) {
         final ValueProperties curveConstructionProperties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, constructionConfiguration.getName())
             .get();
@@ -340,8 +349,7 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
               }
               marketDataForCurve[k] = marketData;
               parameterGuessForCurves.add(marketData);
-              final InstrumentDefinition<?> definitionForNode = curveNodeToDefinitionConverter.getDefinitionForNode(node.getCurveNode(), node.getIdentifier(), now, snapshot,
-                  timeSeries);
+              final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, marketData, now));
               derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
             } // Node points - end
             for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
@@ -403,6 +411,17 @@ public class HullWhiteOneFactorDiscountingFunction extends AbstractFunction {
           return new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, interpolator);
         }
         throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
+      }
+
+      private CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+          final Double marketData, final ZonedDateTime now) {
+        return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
+            .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+            .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+            .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+            .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+            .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+            .create();
       }
     };
   }

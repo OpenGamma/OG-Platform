@@ -329,7 +329,7 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
   public static String getUnsupportedOperationMessage(final Class<?> clazz, final FinancialSecurity security) {
     ArgumentChecker.notNull(clazz, "implementation class");
     ArgumentChecker.notNull(security, "financial security");
-    return "This visitor (" + clazz.getName() + ") is not supporting " + security.getClass().getName() + " security.";
+    return "This visitor (" + clazz.getName() + ") does not support " + security.getClass().getName() + " security.";
   }
 
   /**
