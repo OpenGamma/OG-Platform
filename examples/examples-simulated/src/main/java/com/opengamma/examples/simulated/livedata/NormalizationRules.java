@@ -28,10 +28,9 @@ public final class NormalizationRules {
   public static NormalizationRuleSet getMarketValueNormalization() {
     final List<NormalizationRule> rules = new ArrayList<NormalizationRule>();
     
+    rules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.LAST));
     rules.add(new FieldNameChange("BID", MarketDataRequirementNames.BID));
     rules.add(new FieldNameChange("ASK", MarketDataRequirementNames.ASK));
-    rules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.MARKET_VALUE));
-//    rules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.LAST));
     rules.add(new FieldNameChange("PX_SETTLE", MarketDataRequirementNames.SETTLE_PRICE));
     rules.add(new FieldNameChange("VOLUME", MarketDataRequirementNames.VOLUME));
     rules.add(new FieldNameChange("OPT_IMPLIED_VOLATILITY_BID_RT", MarketDataRequirementNames.BID_IMPLIED_VOLATILITY));
@@ -41,7 +40,6 @@ public final class NormalizationRules {
     rules.add(new FieldNameChange("YLD_CNV_MID", MarketDataRequirementNames.YIELD_CONVENTION_MID));
     rules.add(new FieldNameChange("YLD_YTM_MID", MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID));
     rules.add(new FieldNameChange("PX_DIRTY_MID", MarketDataRequirementNames.DIRTY_PRICE_MID));
-    
     
     rules.add(new MarketValueCalculator());
     rules.add(new FieldHistoryUpdater());
