@@ -54,26 +54,12 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>${maven-project-info-reports-plugin.version}</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>index</report>
-              <report>dependency-info</report>
-              <report>scm</report>
-              <report>summary</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${maven-javadoc-plugin.version}</version>
         <reportSets>
           <reportSet>
             <id>aggregate</id>
+            <inherited>false</inherited>
             <reports>
               <report>aggregate</report>
             </reports>
@@ -87,6 +73,7 @@
         <reportSets>
           <reportSet>
             <id>aggregate</id>
+            <inherited>false</inherited>
             <reports>
               <report>checkstyle-aggregate</report>
             </reports>
@@ -97,11 +84,20 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
         <version>${maven-surefire-report-plugin.version}</version>
-        <configuration>
-          <aggregate>true</aggregate>
-          <alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
-          <showSuccess>true</showSuccess>
-        </configuration>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>report-only</report>
+            </reports>
+            <configuration>
+              <aggregate>true</aggregate>
+              <alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
+              <showSuccess>true</showSuccess>
+            </configuration>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -110,6 +106,7 @@
         <reportSets>
           <reportSet>
             <id>aggregate</id>
+            <inherited>false</inherited>
             <reports>
               <report>aggregate</report>
             </reports>
