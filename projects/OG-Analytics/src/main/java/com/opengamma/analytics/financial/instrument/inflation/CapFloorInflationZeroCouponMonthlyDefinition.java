@@ -129,6 +129,32 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
   }
 
   /**
+   * Builder from all the cap/floor details, using details inside the price index with standard reference end date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param paymentDate Coupon payment date.
+   * @param notional Coupon notional.
+   * @param priceIndex The price index associated to the coupon.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates.
+   * @param monthLag  The lag in month between the index validity and the coupon dates.
+   * @param maturity The cap/floor maturity in years.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
+   * @param indexStartValue The index value at the start of the coupon.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   * @return The cap/floor.
+   */
+  public static CapFloorInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final int maturity, final ZonedDateTime lastKnownFixingDate, final double indexStartValue,
+       final double strike, final boolean isCap) {
+    Validate.notNull(priceIndex, "Price index");
+    ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
+    referenceEndDate = referenceEndDate.withDayOfMonth(1);
+    return new CapFloorInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
+        notional, priceIndex, lastKnownFixingDate, conventionalMonthLag, monthLag, maturity, indexStartValue, referenceEndDate, strike, isCap);
+  }
+  
+  
+  /**
    * Builder from a zero-coupon inflation interpolation coupon the cap/floor strike and isCap flag.
    * @param couponInflation The underlying inflation coupon.
    * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.

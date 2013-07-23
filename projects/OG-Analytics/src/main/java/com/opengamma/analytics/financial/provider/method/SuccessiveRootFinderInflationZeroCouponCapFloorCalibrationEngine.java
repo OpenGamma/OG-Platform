@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * Specific calibration engine for the price index (inflation) market model with year on year cap/floor.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DATA_TYPE extends InflationProviderInterface> extends CalibrationEngineWithPrices<DATA_TYPE> {
+public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<DATA_TYPE extends InflationProviderInterface> extends CalibrationEngineWithPrices<DATA_TYPE> {
 
   /**
    * The list of the last index in the Ibor date for each instrument.
@@ -47,7 +47,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine(final SuccessiveRootFinderCalibrationObjectivewithInflation calibrationObjective) {
+  public SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine(final SuccessiveRootFinderCalibrationObjectivewithInflation calibrationObjective) {
     super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
     _calibrationObjective = calibrationObjective;
     _instrumentExpiryIndex.add(0);
@@ -61,24 +61,24 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
    */
   @Override
   public void addInstrument(final InstrumentDerivative instrument, final double calibrationPrice) {
-    ArgumentChecker.isTrue((instrument instanceof CapFloorInflationYearOnYearInterpolation) || (instrument instanceof CapFloorInflationYearOnYearMonthly),
+    ArgumentChecker.isTrue((instrument instanceof CapFloorInflationZeroCouponInterpolation) || (instrument instanceof CapFloorInflationZeroCouponMonthly),
         "Instrument should be cap inflation year on year.");
     getBasket().add(instrument);
     getCalibrationPrices().add(calibrationPrice);
-    if (instrument instanceof CapFloorInflationYearOnYearInterpolation) {
-      final CapFloorInflationYearOnYearInterpolation cap = (CapFloorInflationYearOnYearInterpolation) instrument;
+    if (instrument instanceof CapFloorInflationZeroCouponInterpolation) {
+      final CapFloorInflationZeroCouponInterpolation cap = (CapFloorInflationZeroCouponInterpolation) instrument;
       _calibrationTimes.add(cap.getPaymentTime());
-      _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters()
+      _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective).getInflationCapZeroCouponParameters()
           .getExpiryTimes(), cap.getReferenceEndTime()[1]));
-      _instrumentStrikeIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters().getStrikes(),
+      _instrumentStrikeIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective).getInflationCapZeroCouponParameters().getStrikes(),
           cap.getStrike()));
     }
-    if (instrument instanceof CapFloorInflationYearOnYearMonthly) {
-      final CapFloorInflationYearOnYearMonthly cap = (CapFloorInflationYearOnYearMonthly) instrument;
+    if (instrument instanceof CapFloorInflationZeroCouponMonthly) {
+      final CapFloorInflationZeroCouponMonthly cap = (CapFloorInflationZeroCouponMonthly) instrument;
       _calibrationTimes.add(cap.getPaymentTime());
-      _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters()
+      _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective).getInflationCapZeroCouponParameters()
           .getExpiryTimes(), cap.getReferenceEndTime()));
-      _instrumentStrikeIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters().getStrikes(),
+      _instrumentStrikeIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective).getInflationCapZeroCouponParameters().getStrikes(),
           cap.getStrike()));
     }
 
@@ -116,7 +116,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
   public void calibrate(final DATA_TYPE data) {
     _calibrationObjective.setInflation(data.getInflationProvider());
     final int nbInstruments = getBasket().size();
-    final SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective objective = (SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective;
+    final SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective objective = (SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective;
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(_calibrationObjective.getFunctionValueAccuracy(), _calibrationObjective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
@@ -128,7 +128,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
       if (loopins < nbInstruments - 1) {
-        ((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
+        ((SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
       }
     }
   }

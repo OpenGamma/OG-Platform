@@ -7,35 +7,34 @@ package com.opengamma.analytics.financial.provider.method;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.model.interestrate.definition.InflationYearOnYearCapFloorParameters;
-import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationYearOnYearParameters;
-import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueBlackSmileInflationYearOnYearCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProvider;
+import com.opengamma.analytics.financial.model.interestrate.definition.InflationZeroCouponCapFloorParameters;
+import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationZeroCouponParameters;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueBlackSmileInflationZeroCouponCalculator;
+import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationZeroCouponProvider;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.util.money.Currency;
 
 /**
- * Specific objective function for cap floor year on year in price index model  model calibration.
+ * Specific objective function for cap floor zero coupon in price index model  model calibration.
  */
-public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective extends SuccessiveRootFinderCalibrationObjectivewithInflation {
-
+public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective extends SuccessiveRootFinderCalibrationObjectivewithInflation {
   /**
    * The pricing method used to price the cap/floor.
    */
-  private static final PresentValueBlackSmileInflationYearOnYearCalculator PVIC = PresentValueBlackSmileInflationYearOnYearCalculator.getInstance();
+  private static final PresentValueBlackSmileInflationZeroCouponCalculator PVIC = PresentValueBlackSmileInflationZeroCouponCalculator.getInstance();
   /**
-   * The cap floor year on year in price index model parameters before calibration. The calibration is done on the last volatility.
+   * The cap floor Zero Coupon in price index model parameters before calibration. The calibration is done on the last volatility.
    */
-  private final InflationYearOnYearCapFloorParameters _inflationCapYearOnYearParameters;
+  private final InflationZeroCouponCapFloorParameters _inflationCapZeroCouponParameters;
   /**
    * The currency for which the cap floor year on year in price index model  parameters are valid.
    */
-  private final Currency _ccyInflationcapYearOnYear;
+  private final Currency _ccyInflationcapZeroCoupon;
   /**
    * The inflation year on year parameters and curves bundle.
    */
-  private BlackSmileCapInflationYearOnYearProvider _inflationCapYearOnYearProvider;
+  private BlackSmileCapInflationZeroCouponProvider _inflationCapZeroCouponProvider;
 
   /**
    * The expiry index for the calibration.
@@ -55,13 +54,13 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
   /**
    * Constructor of the objective function with the  year on year cap/floor parameters. The parameters range and accuracy are set at some default value 
    * (minimum: 1.0E-6; maximum: 1.0, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
-   * @param parameters The Year on Year cap/floor parameters.
+   * @param parameters The Zero Coupon cap/floor parameters.
    * @param ccy The currency for which the Hull-White parameters are valid.
    */
-  public SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective(final InflationYearOnYearCapFloorParameters parameters, final Currency ccy) {
+  public SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective(final InflationZeroCouponCapFloorParameters parameters, final Currency ccy) {
     super(new FXMatrix(ccy), ccy);
-    _inflationCapYearOnYearParameters = parameters;
-    _ccyInflationcapYearOnYear = ccy;
+    _inflationCapZeroCouponParameters = parameters;
+    _ccyInflationcapZeroCoupon = ccy;
     setMinimumParameter(1.0E-6);
     setMaximumParameter(1.0);
     setFunctionValueAccuracy(1.0E-4);
@@ -80,23 +79,23 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
    */
   @Override
   public void setInflation(InflationProviderInterface inflation) {
-    _inflationCapYearOnYearProvider = new BlackSmileCapInflationYearOnYearProvider(inflation, new BlackSmileCapInflationYearOnYearParameters(_inflationCapYearOnYearParameters));
+    _inflationCapZeroCouponProvider = new BlackSmileCapInflationZeroCouponProvider(inflation, new BlackSmileCapInflationZeroCouponParameters(_inflationCapZeroCouponParameters));
   }
 
   /**
-   * Gets the inflation year on year cap/floor data.
-   * @return The inflation year on year cap/floor data.
+   * Gets the inflation Zero Couponr cap/floor data.
+   * @return The inflation Zero Coupon cap/floor data.
    */
-  public InflationYearOnYearCapFloorParameters getInflationCapYearOnYearParameters() {
-    return _inflationCapYearOnYearParameters;
+  public InflationZeroCouponCapFloorParameters getInflationCapZeroCouponParameters() {
+    return _inflationCapZeroCouponParameters;
   }
 
   /**
-   * Sets the inflation year on year cap/floor curve bundle.
-   * @return The inflation year on year cap/floor curve bundle.
+   * Sets the inflation Zero Coupon cap/floor curve bundle.
+   * @return The inflation Zero Coupon cap/floor curve bundle.
    */
-  public BlackSmileCapInflationYearOnYearProvider getInflationCapYearOnYearProvider() {
-    return _inflationCapYearOnYearProvider;
+  public BlackSmileCapInflationZeroCouponProvider getInflationCapZeroCouponProvider() {
+    return _inflationCapZeroCouponProvider;
   }
 
   /**
@@ -147,14 +146,15 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
   public Double evaluate(Double x) {
 
     // setting the volatility in the volatility matrix
-    _inflationCapYearOnYearParameters.setVolatility(x, _expiryIndex, _strikeIndex);
+    _inflationCapZeroCouponParameters.setVolatility(x, _expiryIndex, _strikeIndex);
     // creating the new volatility surface using the new volatility matrix
-    Interpolator2D interpolator = _inflationCapYearOnYearProvider.getBlackParameters().getVolatilitySurface().getInterpolator();
-    BlackSmileCapInflationYearOnYearParameters blackSmileCapInflationYearOnYearParameters = new BlackSmileCapInflationYearOnYearParameters(_inflationCapYearOnYearParameters, interpolator);
-    BlackSmileCapInflationYearOnYearProvider blackSmileCapInflationYearOnYearProvider = new BlackSmileCapInflationYearOnYearProvider(_inflationCapYearOnYearProvider.getInflationProvider(),
-        blackSmileCapInflationYearOnYearParameters);
+    Interpolator2D interpolator = _inflationCapZeroCouponProvider.getBlackParameters().getVolatilitySurface().getInterpolator();
+    BlackSmileCapInflationZeroCouponParameters blackSmileCapInflationZeroCouponParameters = new BlackSmileCapInflationZeroCouponParameters(_inflationCapZeroCouponParameters, interpolator);
+    BlackSmileCapInflationZeroCouponProvider blackSmileCapInflationZeroCouponProvider = new BlackSmileCapInflationZeroCouponProvider(_inflationCapZeroCouponProvider.getInflationProvider(),
+        blackSmileCapInflationZeroCouponParameters);
 
-    return _inflationCapYearOnYearProvider.getMulticurveProvider().getFxRates().convert(getInstrument().accept(PVIC, blackSmileCapInflationYearOnYearProvider), _ccyInflationcapYearOnYear).getAmount()
+    return _inflationCapZeroCouponProvider.getMulticurveProvider().getFxRates().convert(getInstrument().accept(PVIC, blackSmileCapInflationZeroCouponProvider), _ccyInflationcapZeroCoupon).getAmount()
         - getPrice();
   }
+
 }

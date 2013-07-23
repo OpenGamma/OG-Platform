@@ -34,25 +34,25 @@ public class AnnuityCapFloorInflationYearOnYearMonthlyDefinition extends Annuity
    * @param priceIndex The price index.
    * @param settlementDate The settlement date.
    * @param notional The notional.
-   * @param totalPeriod The  period of the annuity.
-   * @param paymentPeriod The payment period of the coupons.
+   * @param totalTemor The  period of the deal.
+   * @param paymentPeriod The period between each coupons (basically it is most of the 1Y).
    * @param businessDayConvention the business day convention. 
    * @param calendar the calendar.
    * @param endOfMonth The end-of-month flag.
-   * @param conventionalMonthLag TODO
-   * @param monthLag The day count of the coupons.
+   * @param conventionalMonthLag The month lag used in the exchange for the same kind of deal (basically same price index)
+   * @param monthLag The month lag actually used in the deal.
    * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    * @return The Year on year coupon leg.
    */
   public static AnnuityCapFloorInflationYearOnYearMonthlyDefinition from(final IndexPrice priceIndex, final ZonedDateTime settlementDate,
-      final double notional, final Period totalPeriod, final Period paymentPeriod, final BusinessDayConvention businessDayConvention, final Calendar calendar,
+      final double notional, final Period totalTemor, final Period paymentPeriod, final BusinessDayConvention businessDayConvention, final Calendar calendar,
       final boolean endOfMonth, int conventionalMonthLag, final int monthLag, final ZonedDateTime lastKnownFixingDate, final double strike, final boolean isCap) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(paymentPeriod, "Payment period");
     Validate.notNull(lastKnownFixingDate, "Last known fixing date");
-    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, totalPeriod, paymentPeriod,  true, false, businessDayConvention, calendar, endOfMonth);
+    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, totalTemor, paymentPeriod,  true, false, businessDayConvention, calendar, endOfMonth);
 
     final CapFloorInflationYearOnYearMonthlyDefinition[] coupons = new CapFloorInflationYearOnYearMonthlyDefinition[paymentDates.length];
     coupons[0] = CapFloorInflationYearOnYearMonthlyDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, conventionalMonthLag, monthLag, lastKnownFixingDate, strike, isCap);

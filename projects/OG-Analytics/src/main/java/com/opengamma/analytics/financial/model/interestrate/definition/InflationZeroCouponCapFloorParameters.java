@@ -11,12 +11,12 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *  Data bundle related to the year on year inflation cap/floor in price index market model.
+ * Data bundle related to the zero coupon inflation cap/floor in price index market model.
  */
-public class InflationYearOnYearCapFloorParameters {
-
+public class InflationZeroCouponCapFloorParameters {
+  
   /**
-   *  The expiry times of the caplet/floorlet(for inflation this is the fixing time of the underlying CPI, the one of the numerator). 
+   * The expiry times (for inflation this is the fixing time of the underlying CPI).
    */
   private final double[] _expiryTimes;
   /**
@@ -39,7 +39,7 @@ public class InflationYearOnYearCapFloorParameters {
    */
   private static final double TIME_TOLERANCE = 1.0E-3;
 
-  public InflationYearOnYearCapFloorParameters() {
+  public InflationZeroCouponCapFloorParameters() {
 
     _expiryTimes = new double[1];
     _strikes = new double[0];
@@ -49,15 +49,15 @@ public class InflationYearOnYearCapFloorParameters {
 
   /**
    * Constructor from the model details.
-   * @param expiryTimes The expiry times of the caplet/floorlet(for inflation this is the fixing time of the underlying CPI, the one of the numerator). 
-   * @param strikes The strikes of the caplet/floorlet.
-   * @param volatility The volatility of the year on year caplet/floorlet.
+   * @param expiryTimes The expiry times (for inflation this is the fixing time of the underlying CPI). 
+   * @param strikes The strikes.
+   * @param volatility The volatility of the zero coupon cap/floor.
    * @param index The price index.
    */
-  public InflationYearOnYearCapFloorParameters(double[] expiryTimes, double[] strikes, final double[][] volatility, IndexPrice index) {
-    ArgumentChecker.notNull(expiryTimes, "Inflation year on year options expiry times");
-    ArgumentChecker.notNull(strikes, "Inflation year on year options strikes");
-    ArgumentChecker.notNull(volatility, "Inflation year on year options volatilities");
+  public InflationZeroCouponCapFloorParameters(double[] expiryTimes, double[] strikes, final double[][] volatility, IndexPrice index) {
+    ArgumentChecker.notNull(expiryTimes, "Inflation zero coupon options expiry times");
+    ArgumentChecker.notNull(strikes, "Inflation zero coupon options strikes");
+    ArgumentChecker.notNull(volatility, "Inflation zero coupon options volatilities");
     ArgumentChecker.isTrue(expiryTimes.length == volatility.length, "number of expiry should be the same in the volatility matrix and in the expiry vector");
     ArgumentChecker.isTrue(strikes.length == volatility[0].length, "number of strikes should be the same in the volatility matrix and in the strikes vector");
     _expiryTimes = expiryTimes;
@@ -79,7 +79,7 @@ public class InflationYearOnYearCapFloorParameters {
   }
 
   /**
-   * Gets the expiry tumes vector.
+   * Gets the expiry times vector.
    * @return the _expiryTime
    */
   public double[] getExpiryTimes() {
@@ -172,5 +172,6 @@ public class InflationYearOnYearCapFloorParameters {
     ArgumentChecker.notNull(_strikes, "Inflation year on year options strikes");
     System.arraycopy(strikes, 0, _strikes, startIndex, strikes.length);
   }
+
 
 }
