@@ -10,9 +10,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
@@ -21,11 +18,9 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
@@ -45,9 +40,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
-import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -67,15 +60,17 @@ import com.opengamma.util.money.Currency;
  */
 public abstract class AbstractISDACompliantWithCreditCurveCDSFunction extends NonCompiledInvoker {
 
-  //private CreditDefaultSwapSecurityConverterDeprecated _converter;
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractISDACompliantWithCreditCurveCDSFunction.class);
-  protected final String _valueRequirement;
-  protected static double s_tenminus4 = 1e-4; // fractional 1 BPS
+  private final String _valueRequirement;
+  private static double s_tenminus4 = 1e-4; // fractional 1 BPS
   private HolidaySource _holidaySource;
   private RegionSource _regionSource;
 
   public AbstractISDACompliantWithCreditCurveCDSFunction(final String valueRequirement) {
     _valueRequirement = valueRequirement;
+  }
+
+  protected static double getTenminus4() {
+    return s_tenminus4;
   }
 
   @Override
@@ -91,7 +86,7 @@ public abstract class AbstractISDACompliantWithCreditCurveCDSFunction extends No
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+    throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
 
     final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
@@ -121,7 +116,7 @@ public abstract class AbstractISDACompliantWithCreditCurveCDSFunction extends No
     final Object result = compute(security.getParSpread(), security.getNotional().getAmount(), buySellProtection, creditCurve, yieldCurve, analytic);
 
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
-    final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 
@@ -140,7 +135,7 @@ public abstract class AbstractISDACompliantWithCreditCurveCDSFunction extends No
         .withAny(ISDAFunctionConstants.ISDA_BUCKET_TENORS)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .get();
-    return Collections.singleton(new ValueSpecification(_valueRequirement, target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(getValueRequirement(), target.toSpecification(), properties));
   }
 
   @Override
@@ -229,7 +224,12 @@ public abstract class AbstractISDACompliantWithCreditCurveCDSFunction extends No
     return region;
   }
 
-  public class TestRegionSource extends AbstractSourceWithExternalBundle<Region> implements RegionSource {
+  protected String getValueRequirement() {
+    return _valueRequirement;
+  }
+
+  /** Test region */
+  public final class TestRegionSource extends AbstractSourceWithExternalBundle<Region> implements RegionSource {
 
     private final AtomicLong _count = new AtomicLong(0);
     private final Region _testRegion;

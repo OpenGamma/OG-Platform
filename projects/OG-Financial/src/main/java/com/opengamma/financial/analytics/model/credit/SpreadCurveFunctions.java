@@ -21,8 +21,12 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuo
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.financial.analytics.model.credit.idanew.CDSAnalyticConverter;
@@ -275,6 +279,31 @@ public class SpreadCurveFunctions {
       }
     }
     return spreads;
+  }
+
+  /**
+   * Get analytic quote objects from an input which may be a mix of quoting conventions.
+   *
+   * If quoteConvention is SPREAD, set quoted vs. par spread based on IMM maturity
+   *
+   * @param dates the dates we have quotes for
+   * @param values the quotes
+   * @param quoteConvention the quote convention e.g. SPREAD or PUF
+   * @return the cds quote conventions
+   */
+  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime[] dates, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention) {
+    ArgumentChecker.isTrue(dates.length == values.length, "Dates and values arrays must be equal length");
+    final CDSQuoteConvention[] result = new CDSQuoteConvention[dates.length];
+    for (int i = 0; i < dates.length; i++) {
+      if (StandardCDSQuotingConvention.SPREAD.equals(quoteConvention)) {
+        result[i] = IMMDateGenerator.isIMMDate(dates[i]) ? new QuotedSpread(coupon, values[i]) : new ParSpread(values[i]);
+      } else if (StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention)) {
+        result[i] = new PointsUpFront(values[i], coupon);
+      } else {
+        throw new OpenGammaRuntimeException("Unsupported quote type: " + quoteConvention);
+      }
+    }
+    return result;
   }
 
 }

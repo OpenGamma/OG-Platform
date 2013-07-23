@@ -9,9 +9,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
@@ -29,11 +29,12 @@ public class ISDACompliantUpfrontAmountCDSFunction extends AbstractISDACompliant
   }
 
   @Override
-  protected Object compute(final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final double[] spreads) {
+  protected Object compute(final ZonedDateTime maturity, final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, final CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
     // upfront amount is defined as PV at first tenor point
     final FastCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder();
-    final ISDACompliantCreditCurve singleTenorCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics[0], spreads[0], yieldCurve);
-    final double pv = notional * _pricer.pv(analytic, yieldCurve, singleTenorCurve, parSpread * s_tenminus4,  PriceType.DIRTY);
+    //TODO: Check this logic and take quote type into account
+    final ISDACompliantCreditCurve singleTenorCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics[0], quotes[0], yieldCurve);
+    final double pv = notional * _pricer.pv(analytic, yieldCurve, singleTenorCurve, parSpread * getTenminus4(),  PriceType.DIRTY);
     // SELL protection reverses directions of legs
     return Double.valueOf(buySellProtection == BuySellProtection.SELL ? -pv : pv);
   }

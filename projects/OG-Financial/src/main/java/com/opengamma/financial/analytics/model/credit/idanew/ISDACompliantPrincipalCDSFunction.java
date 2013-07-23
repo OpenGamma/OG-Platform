@@ -5,10 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.credit.idanew;
 
-import org.threeten.bp.ZonedDateTime;
-
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
@@ -29,7 +26,7 @@ public class ISDACompliantPrincipalCDSFunction extends AbstractISDACompliantWith
   @Override
   protected Object compute(final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantCreditCurve creditCurve,
                            final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic) {
-    return _pricer.principal(notional, analytic, yieldCurve, creditCurve, parSpread * s_tenminus4);
+    return _pricer.principal(notional, analytic, yieldCurve, creditCurve, parSpread * getTenminus4());
   }
 
 }
