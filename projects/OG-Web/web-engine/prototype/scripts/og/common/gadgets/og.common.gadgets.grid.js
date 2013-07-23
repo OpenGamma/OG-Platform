@@ -524,26 +524,34 @@ $.register_module({
                 if ((result = '') || (lcv = times)) while (lcv--) result += rep_str;
                 return rep_memo[times] = result;
             };
+            /* arr is of format [start row, end row, [children]. expand] */
             var unravel = function (arr, result, indent) {
                 var start = arr[0], end = arr[1], children = arr[2], expand = !arr[3], prefix, last_end = null, str,
-                    i, j, len = children.length, child, curr_start, curr_end, html;
-                html = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;'
-                if (end - start) {
-                    prefix = cache[rep(indent) + html] = counter++;
+                    i, j, len = children.length, child, curr_start, curr_end, html_children, html_empty;
+                html_children = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;';
+                html_empty = '<span data-row="' + start + '"></span>&nbsp;';
+                if (end - start) { // nodes with children
+                    prefix = cache[rep(indent) + html_children] = counter++;
                     result.push({prefix: prefix, node: true, indent: indent, range: [start, end], expand: expand});
                 } else { // empty nodes are basically just like other rows
-                    prefix = cache[rep(indent)] = counter++;
+                    prefix = cache[rep(indent) + html_empty] = counter++;
                     result.push({prefix: prefix});
                 }
                 for (i = 0; i < len; i += 1) {
                     child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
-                    if (j < curr_start) prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
-                    for (; j < curr_start; j += 1) result.push({prefix: prefix});
+                    if (j < curr_start) {
+                        prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
+                    }
+                    for (; j < curr_start; j += 1) {
+                        result.push({prefix: prefix});
+                    }
                     last_end = start = curr_end;
                     unravel(child, result, indent + 1);
                 }
                 prefix = (str = rep(indent + 2)) in cache ? cache[str] : (cache[str] = counter++);
-                while (++start <= end) result.push({prefix: prefix});
+                while (++start <= end) {
+                    result.push({prefix: prefix});
+                }
                 return result;
             };
             return function () {
@@ -559,8 +567,10 @@ $.register_module({
                     if (collapse && val.indent >= collapse_level) acc.collapse.push(idx); // e.g. depgraphs
                     return acc;
                 }, {all: [], collapse: [], indent: {}, ranges: [], max_indent: 0});
-                Object.keys(cache)
-                    .forEach(function (prefix) {state.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);});
+                /* unraveled_cache() returns the indent and the expand/collapse markup for a node */
+                Object.keys(cache).forEach(function (prefix) {
+                    state.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);
+                });
                 state.unraveled = unraveled.pluck('prefix');
                 state.structure = meta.structure;
             };
