@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * An MBean implementation for those attributes and operations we wish to expose on ViewProcessor.
  * 
  */
-public final class ViewProcessor implements ViewProcessorMBean {
+public final class ViewProcessorMBeanImpl implements ViewProcessorMBean {
 
   /**
    * A ViewProcessor backing instance
@@ -34,7 +34,7 @@ public final class ViewProcessor implements ViewProcessorMBean {
    * 
    * @param viewProcessor the underlying ViewProcessor
    */
-  public ViewProcessor(ViewProcessorInternal viewProcessor) {
+  public ViewProcessorMBeanImpl(ViewProcessorInternal viewProcessor) {
     ArgumentChecker.notNull(viewProcessor, "View Processor");
     _viewProcessor = viewProcessor;
     _objectName = createObjectName(viewProcessor);

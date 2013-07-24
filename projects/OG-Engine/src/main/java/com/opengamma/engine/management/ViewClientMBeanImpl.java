@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An MBean implementation for those attributes and operations we wish to expose on a {@link com.opengamma.engine.view.client.ViewClient}.
  */
-public class ViewClient implements ViewClientMBean {
+public class ViewClientMBeanImpl implements ViewClientMBean {
 
   /**
    * Underlying
@@ -33,7 +33,7 @@ public class ViewClient implements ViewClientMBean {
    * 
    * @param viewClient  the underlying view client
    */
-  public ViewClient(com.opengamma.engine.view.client.ViewClient viewClient) {
+  public ViewClientMBeanImpl(com.opengamma.engine.view.client.ViewClient viewClient) {
     ArgumentChecker.notNull(viewClient, "viewClient");
     _viewClient = viewClient;
     _objectName = createObjectName(viewClient.getViewProcessor().getName(), viewClient.getUniqueId());

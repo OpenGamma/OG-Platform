@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * An MBean implementation for attributes and operations on a view process.
  * 
  */
-public class ViewProcess implements ViewProcessMBean {
+public class ViewProcessMBeanImpl implements ViewProcessMBean {
 
   /**
    * The backing view process instance
@@ -34,7 +34,7 @@ public class ViewProcess implements ViewProcessMBean {
    * @param viewProcess the underlying view process
    * @param viewProcessor the view processor responsible for the view process
    */
-  public ViewProcess(ViewProcessInternal viewProcess, com.opengamma.engine.view.ViewProcessor viewProcessor) {
+  public ViewProcessMBeanImpl(ViewProcessInternal viewProcess, com.opengamma.engine.view.ViewProcessor viewProcessor) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(viewProcessor, "ViewProcessor");
     _viewProcess = viewProcess;

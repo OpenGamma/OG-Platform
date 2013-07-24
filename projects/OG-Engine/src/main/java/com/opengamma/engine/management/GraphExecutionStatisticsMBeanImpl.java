@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An MBean implementation for those attributes and operations we wish to expose on a {@link com.opengamma.engine.exec.stats.GraphExecutionStatistics}.
  */
-public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
+public class GraphExecutionStatisticsMBeanImpl implements GraphExecutionStatisticsMBean {
   
   private final TotallingGraphStatisticsGathererProvider _statisticsProvider;
   
@@ -41,7 +41,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
    * @param viewProcessorName  the view processor name
    * @param calcConfigName  the calculation configuration name
    */
-  public GraphExecutionStatistics(ViewProcess viewProcess, TotallingGraphStatisticsGathererProvider statisticsProvider, String viewProcessorName, String calcConfigName) {
+  public GraphExecutionStatisticsMBeanImpl(ViewProcess viewProcess, TotallingGraphStatisticsGathererProvider statisticsProvider, String viewProcessorName, String calcConfigName) {
     ArgumentChecker.notNull(statisticsProvider, "TotallingGraphStatisticsGathererProvider");
     ArgumentChecker.notNull(viewProcessorName, "viewProcessorName");
     ArgumentChecker.notNull(viewProcess, "View Process");
