@@ -311,4 +311,7 @@ public final class ValuePropertyNames {
    * The name of a general property that scales results. 
    */
   public static final String SCALE = "Scale";
+  
+  /** The name of a property representing the exposure configuration used for pricing */
+  public static final String CURVE_EXPOSURES = "CurveExposures";
 }

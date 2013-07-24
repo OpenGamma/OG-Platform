@@ -10,15 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.temporal.ChronoUnit;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -44,13 +40,10 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
 
   @Override
   public Set<String> getCurveConstructionConfigurationsForConfig(final String instrumentExposureConfigurationName,
-      final FinancialSecurity security, final Instant valuationTime) {
+      final FinancialSecurity security) {
     ArgumentChecker.notNull(instrumentExposureConfigurationName, "instrument exposure configuration name");
     ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(valuationTime, "valuation time");
-    final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
-    final ExposureFunctions exposures = _configSource.getSingle(ExposureFunctions.class,
-        instrumentExposureConfigurationName, VersionCorrection.of(versionTime, versionTime));
+    final ExposureFunctions exposures = _configSource.getLatestByName(ExposureFunctions.class, instrumentExposureConfigurationName);
     if (exposures == null) {
       throw new OpenGammaRuntimeException("Could not get instrument exposure configuration called " + instrumentExposureConfigurationName);
     }

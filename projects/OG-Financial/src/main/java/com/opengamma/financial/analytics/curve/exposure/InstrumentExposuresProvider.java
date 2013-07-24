@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.curve.exposure;
 
 import java.util.Set;
 
-import org.threeten.bp.Instant;
-
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
@@ -16,6 +14,5 @@ import com.opengamma.financial.security.FinancialSecurity;
  */
 public interface InstrumentExposuresProvider {
 
-  Set<String> getCurveConstructionConfigurationsForConfig(String instrumentExposureConfigurationName, FinancialSecurity security,
-      Instant valuationTime);
+  Set<String> getCurveConstructionConfigurationsForConfig(String instrumentExposureConfigurationName, FinancialSecurity security);
 }
