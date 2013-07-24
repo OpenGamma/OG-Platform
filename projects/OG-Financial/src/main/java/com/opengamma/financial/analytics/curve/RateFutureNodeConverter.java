@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
@@ -28,6 +29,7 @@ import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -42,33 +44,44 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   /** The region source */
   private final RegionSource _regionSource;
   /** The market data */
-  private final Double _marketData;
+  private final SnapshotDataBundle _marketData;
+  /** The market data id */
+  private final ExternalId _dataId;
   /** The valuation time */
-  private final ZonedDateTime _now;
+  private final ZonedDateTime _valuationTime;
 
   /**
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
-   * @param marketData The market data, may be null
-   * @param now The valuation time, not null
+   * @param marketData The market data, not null
+   * @param dataId The id of the market data, not null
+   * @param valuationTime The valuation time, not null
    */
   public RateFutureNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-      final Double marketData, final ZonedDateTime now) {
+      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(marketData, "market data");
+    ArgumentChecker.notNull(dataId, "data id");
+    ArgumentChecker.notNull(valuationTime, "valuation time");
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _marketData = marketData;
-    _now = now;
+    _dataId = dataId;
+    _valuationTime = valuationTime;
   }
 
   @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitRateFutureNode(final RateFutureNode rateFuture) {
     final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
+    final Double rate = _marketData.getDataPoint(_dataId);
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
+    }
     final String expiryCalculatorName;
     if (futureConvention instanceof InterestRateFutureConvention) {
       expiryCalculatorName = ((InterestRateFutureConvention) futureConvention).getExpiryConvention().getValue();
@@ -98,12 +111,12 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
     final boolean eom = indexConvention.isIsEOM();
     final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom, indexConvention.getName());
     final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
-    final ZonedDateTime startDate = _now.plus(rateFuture.getStartTenor().getPeriod());
+    final ZonedDateTime startDate = _valuationTime.plus(rateFuture.getStartTenor().getPeriod());
     final LocalTime time = startDate.toLocalTime();
     final ZoneId timeZone = startDate.getZone();
     final ZonedDateTime lastTradeDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), regionCalendar), time, timeZone);
     final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, 1, paymentAccrualFactor, "", fixingCalendar);
-    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, _now, _marketData, 1);
-    return transactionDefinition.withNewNotionalAndTransactionPrice(1, _marketData);
+    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, _valuationTime, rate, 1);
+    return transactionDefinition.withNewNotionalAndTransactionPrice(1, rate);
   }
 }

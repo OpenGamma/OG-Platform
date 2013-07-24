@@ -110,7 +110,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions, final String curveConfigName) {
       functions.add(functionConfiguration(FXMatrixFunction.class, curveConfigName));
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
-      functions.add(functionConfiguration(MulticurveProviderDiscountingFunction.class, curveConfigName));
+      functions.add(functionConfiguration(MultiCurveDiscountingFunction.class, curveConfigName));
       functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
       functions.add(functionConfiguration(HullWhiteOneFactorDiscountingFunction.class, curveConfigName));
     }

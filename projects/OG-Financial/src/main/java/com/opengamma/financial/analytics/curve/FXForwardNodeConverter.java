@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
@@ -36,33 +37,44 @@ public class FXForwardNodeConverter extends CurveNodeVisitorAdapter<InstrumentDe
   /** The region source */
   private final RegionSource _regionSource;
   /** The market data */
-  private final Double _marketData;
+  private final SnapshotDataBundle _marketData;
+  /** The market data id */
+  private final ExternalId _dataId;
   /** The valuation time */
-  private final ZonedDateTime _now;
+  private final ZonedDateTime _valuationTime;
 
   /**
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
-   * @param marketData The market data, may be null
-   * @param now The valuation time, not null
+   * @param marketData The market data, not null
+   * @param dataId The id of the market data, not null
+   * @param valuationTime The valuation time, not null
    */
   public FXForwardNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-      final Double marketData, final ZonedDateTime now) {
+      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(marketData, "market data");
+    ArgumentChecker.notNull(dataId, "data id");
+    ArgumentChecker.notNull(valuationTime, "valuation time");
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _marketData = marketData;
-    _now = now;
+    _dataId = dataId;
+    _valuationTime = valuationTime;
   }
 
   @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitFXForwardNode(final FXForwardNode fxForward) {
     final ExternalId conventionId = fxForward.getFxForwardConvention();
+    final Double forward = _marketData.getDataPoint(_dataId);
+    if (forward == null) {
+      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
+    }
     final Convention convention = _conventionSource.getConvention(conventionId);
     if (convention == null) {
       throw new OpenGammaRuntimeException("Could not get convention with id " + conventionId);
@@ -84,11 +96,11 @@ public class FXForwardNodeConverter extends CurveNodeVisitorAdapter<InstrumentDe
     final Currency receiveCurrency = fxForward.getReceiveCurrency();
     final Tenor forwardTenor = fxForward.getMaturityTenor();
     final double payAmount = 1;
-    final double receiveAmount = _marketData;
+    final double receiveAmount = forward;
     final int settlementDays = spotConvention.getSettlementDays();
     final ExternalId settlementRegion = forwardConvention.getSettlementRegion();
     final Calendar settlementCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, settlementRegion);
-    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_now, settlementDays, settlementCalendar);
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, settlementCalendar);
     final ZonedDateTime exchangeDate = ScheduleCalculator.getAdjustedDate(spotDate, forwardTenor.getPeriod(), forwardConvention.getBusinessDayConvention(), settlementCalendar,
         forwardConvention.isIsEOM());
     return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, payAmount, -receiveAmount);

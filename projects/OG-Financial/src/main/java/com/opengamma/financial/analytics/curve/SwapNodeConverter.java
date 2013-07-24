@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -33,6 +34,7 @@ import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -47,33 +49,44 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   /** The region source */
   private final RegionSource _regionSource;
   /** The market data */
-  private final Double _marketData;
+  private final SnapshotDataBundle _marketData;
+  /** The market data id */
+  private final ExternalId _dataId;
   /** The valuation time */
-  private final ZonedDateTime _now;
+  private final ZonedDateTime _valuationTime;
 
   /**
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
-   * @param marketData The market data, may be null
-   * @param now The valuation time, not null
+   * @param marketData The market data, not null
+   * @param dataId The id of the market data, not null
+   * @param valuationTime The valuation time, not null
    */
   public SwapNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-      final Double marketData, final ZonedDateTime now) {
+      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(marketData, "market data");
+    ArgumentChecker.notNull(dataId, "data id");
+    ArgumentChecker.notNull(valuationTime, "valuation time");
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _marketData = marketData;
-    _now = now;
+    _dataId = dataId;
+    _valuationTime = valuationTime;
   }
 
   @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitSwapNode(final SwapNode swapNode) {
     final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
+    final Double rate = _marketData.getDataPoint(_dataId);
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
+    }
     if (payLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
     }
@@ -84,7 +97,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final AnnuityDefinition<? extends PaymentDefinition> payLeg;
     final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
     if (payLegConvention instanceof SwapFixedLegConvention) {
-      payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, _marketData, true);
+      payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, rate, true);
     } else if (payLegConvention instanceof VanillaIborLegConvention) {
       payLeg = getIborLeg((VanillaIborLegConvention) payLegConvention, swapNode, true);
     } else if (payLegConvention instanceof OISLegConvention) {
@@ -93,7 +106,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
     }
     if (receiveLegConvention instanceof SwapFixedLegConvention) {
-      receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, _marketData, false);
+      receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, rate, false);
     } else if (receiveLegConvention instanceof VanillaIborLegConvention) {
       receiveLeg = getIborLeg((VanillaIborLegConvention) receiveLegConvention, swapNode, false);
     } else if (receiveLegConvention instanceof OISLegConvention) {
@@ -113,7 +126,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
     final boolean eom = convention.isIsEOM();
     final int settlementDays = convention.getSettlementDays();
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_valuationTime.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
     final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
     return AnnuityCouponFixedDefinition.from(currency, settlementDate, maturityTenor, paymentPeriod, calendar, dayCount, businessDayConvention, eom, 1, rate, isPayer);
@@ -140,7 +153,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
     final int settlementDays = convention.getSettlementDays();
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_valuationTime.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
     return AnnuityCouponIborDefinition.from(settlementDate, maturityTenor, 1, iborIndex, isPayer, calendar);
   }
 
@@ -158,7 +171,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final boolean isEOM = convention.isIsEOM();
     final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
     final int paymentLag = convention.getPaymentLag();
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_now.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_valuationTime.plus(swapNode.getStartTenor().getPeriod()), settlementDays, calendar);
     return AnnuityCouponONSimplifiedDefinition.from(settlementDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention,
         paymentPeriod, isEOM);
   }
