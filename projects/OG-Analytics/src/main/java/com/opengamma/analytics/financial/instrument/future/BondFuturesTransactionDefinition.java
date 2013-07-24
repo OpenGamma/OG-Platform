@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -14,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of a bond future transaction (definition version).
@@ -45,12 +45,12 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
    * @param tradePrice Transaction price.
    */
   public BondFuturesTransactionDefinition(final BondFuturesSecurityDefinition underlyingFuture, final int quantity, final ZonedDateTime tradeDate, final double tradePrice) {
-    Validate.notNull(underlyingFuture, "Underlying future");
-    Validate.notNull(tradeDate, "Trade date");
-    this._underlyingFuture = underlyingFuture;
-    this._quantity = quantity;
-    this._tradeDate = tradeDate;
-    this._tradePrice = tradePrice;
+    ArgumentChecker.notNull(underlyingFuture, "Underlying future");
+    ArgumentChecker.notNull(tradeDate, "Trade date");
+    _underlyingFuture = underlyingFuture;
+    _quantity = quantity;
+    _tradeDate = tradeDate;
+    _tradePrice = tradePrice;
   }
 
   /**
@@ -86,15 +86,15 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
   }
 
   @Override
-  public BondFuturesTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public BondFuturesTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the two argument method (without margin price data).");
   }
 
   @Override
-  public BondFuturesTransaction toDerivative(ZonedDateTime date, Double lastMarginPrice, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(getUnderlyingFuture().getDeliveryLastDate()), "Date is after last delivery date");
-    Validate.isTrue(!date.isBefore(_tradeDate), "Date is before trade date");
+  public BondFuturesTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getDeliveryLastDate()), "Date is after last delivery date");
+    ArgumentChecker.isTrue(!date.isBefore(_tradeDate), "Date is before trade date");
     final BondFuturesSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
     double referencePrice;
     if (_tradeDate.isBefore(date)) { // Transaction was before last margining.
@@ -102,7 +102,29 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
     } else { // Transaction is today
       referencePrice = _tradePrice;
     }
-    BondFuturesTransaction futureTransaction = new BondFuturesTransaction(underlyingFuture, _quantity, referencePrice);
+    final BondFuturesTransaction futureTransaction = new BondFuturesTransaction(underlyingFuture, _quantity, referencePrice);
+    return futureTransaction;
+  }
+
+  @Override
+  public BondFuturesTransaction toDerivative(final ZonedDateTime date) {
+    throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the two argument method (without margin price data).");
+  }
+
+
+  @Override
+  public BondFuturesTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getDeliveryLastDate()), "Date is after last delivery date");
+    ArgumentChecker.isTrue(!date.isBefore(_tradeDate), "Date is before trade date");
+    final BondFuturesSecurity underlyingFuture = _underlyingFuture.toDerivative(date);
+    double referencePrice;
+    if (_tradeDate.isBefore(date)) { // Transaction was before last margining.
+      referencePrice = lastMarginPrice;
+    } else { // Transaction is today
+      referencePrice = _tradePrice;
+    }
+    final BondFuturesTransaction futureTransaction = new BondFuturesTransaction(underlyingFuture, _quantity, referencePrice);
     return futureTransaction;
   }
 
@@ -130,7 +152,7 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -140,7 +162,7 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFuturesTransactionDefinition other = (BondFuturesTransactionDefinition) obj;
+    final BondFuturesTransactionDefinition other = (BondFuturesTransactionDefinition) obj;
     if (_quantity != other._quantity) {
       return false;
     }

@@ -96,39 +96,34 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
         settlementDate);
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   * 
-   * @param date  fixing time, before or on the expiry, not null
-   * @param yieldCurveNames  the yield curve names, not used
-   * @return the fixed derivative
-   */
   @Override
   public AgricultureForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public AgricultureForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+    return toDerivative(date, referencePrice);
+  }
+
+  @Override
+  public AgricultureForward toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new AgricultureForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(),
         timeToSettlement, getReferencePrice(), getCurrency());
-  }
+  }  
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   *
-   * @param date  fixing time
-   * @param referencePrice reference price
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
-  public AgricultureForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+  public AgricultureForward toDerivative(final ZonedDateTime date, final Double referencePrice) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new AgricultureForward(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
         referencePrice.doubleValue(), getCurrency());
   }
-
+  
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

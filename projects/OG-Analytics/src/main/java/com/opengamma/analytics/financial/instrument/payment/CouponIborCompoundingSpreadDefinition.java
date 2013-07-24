@@ -281,9 +281,18 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
 
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+    return toDerivative(dateTime, indexFixingTimeSeries);
+  }
+
+  @Override
+  public CouponIborCompoundingSpread toDerivative(final ZonedDateTime dateTime) {
+    return toDerivative(dateTime);
+  }
+
+  @Override
+  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     final LocalDate dateConversion = dateTime.toLocalDate();
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final int nbSubPeriods = _fixingDates.length;
@@ -310,7 +319,7 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
     if (nbFixed == nbSubPeriods) {
       // Implementation note: all dates already fixed: CouponFixed
       final double rate = (ratioAccrued - 1.0) / getPaymentYearFraction();
-      return new CouponFixed(getCurrency(), paymentTime, "Not used", getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+      return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
     }
     final double notionalAccrued = getNotional() * ratioAccrued;
     final int nbSubPeriodLeft = nbSubPeriods - nbFixed;

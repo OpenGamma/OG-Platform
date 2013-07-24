@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -241,6 +241,31 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
       if (!date.isAfter(getPayments()[loopcoupon].getPaymentDate())) {
         resultList.add(getPayments()[loopcoupon].toDerivative(date, yieldCurveNames));
+      }
+    }
+    return new Annuity<>(resultList.toArray(new Coupon[resultList.size()]));
+  }
+
+  @Override
+  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
+    ArgumentChecker.notNull(date, "date");
+    final List<Coupon> resultList = new ArrayList<>();
+    final CouponIborDefinition[] payments = getPayments();
+    for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
+      if (!date.isAfter(payments[loopcoupon].getPaymentDate())) {
+        resultList.add(payments[loopcoupon].toDerivative(date, indexFixingTS));
+      }
+    }
+    return new Annuity<>(resultList.toArray(new Coupon[resultList.size()]));
+  }
+
+  @Override
+  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final List<Coupon> resultList = new ArrayList<>();
+    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
+      if (!date.isAfter(getPayments()[loopcoupon].getPaymentDate())) {
+        resultList.add(getPayments()[loopcoupon].toDerivative(date));
       }
     }
     return new Annuity<>(resultList.toArray(new Coupon[resultList.size()]));

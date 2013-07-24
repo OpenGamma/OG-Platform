@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swaption;
@@ -86,6 +86,18 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
     return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
+
+  @Override
+  public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
+    final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
+    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
+    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime);
+    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+  }
+
 
   /**
    * Gets the underlying swap field.

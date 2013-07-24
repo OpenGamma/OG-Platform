@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -88,10 +88,11 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
     return _quantity;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * @param lastMarginPrice The price on which the last margining was done.
    */
+  @Override
   public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -117,6 +118,35 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
     throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
   }
 
+  /**
+   * {@inheritDoc}
+   * @param lastMarginPrice The price on which the last margining was done.
+   */
+  @Override
+  public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate date = dateTime.toLocalDate();
+    final LocalDate transactionDateLocal = _transactionDate.toLocalDate();
+    final LocalDate deliveryDateLocal = _underlying.getDeliveryDate().toLocalDate();
+    if (date.isAfter(deliveryDateLocal)) {
+      throw new ExpiredException("Valuation date, " + date + ", is after last trading date, " + deliveryDateLocal);
+    }
+    double referencePrice;
+    if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
+      referencePrice = lastMarginPrice;
+    } else { // Transaction is today
+      referencePrice = _transactionPrice;
+    }
+    final SwapFuturesPriceDeliverableSecurity underlying = _underlying.toDerivative(dateTime);
+    final SwapFuturesPriceDeliverableTransaction future = new SwapFuturesPriceDeliverableTransaction(underlying, referencePrice, _quantity);
+    return future;
+  }
+
+  @Override
+  public InstrumentDerivative toDerivative(final ZonedDateTime date) {
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
+  }
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
@@ -131,7 +161,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
 
   @Override
   public String toString() {
-    String result = "Quantity: " + _quantity + " of " + _underlying.toString();
+    final String result = "Quantity: " + _quantity + " of " + _underlying.toString();
     return result;
   }
 
@@ -149,7 +179,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -159,7 +189,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwapFuturesPriceDeliverableTransactionDefinition other = (SwapFuturesPriceDeliverableTransactionDefinition) obj;
+    final SwapFuturesPriceDeliverableTransactionDefinition other = (SwapFuturesPriceDeliverableTransactionDefinition) obj;
     if (_quantity != other._quantity) {
       return false;
     }

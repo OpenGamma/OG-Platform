@@ -331,6 +331,47 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
   }
 
   @Override
+  public CouponInflationZeroCouponInterpolation toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double[] referenceEndTime = new double[2];
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
+    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
+    return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, naturalPaymentTime,
+        _weight, _payNotional);
+  }
+
+  @Override
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final LocalDate dayConversion = date.toLocalDate();
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayFixing = getReferenceEndDate()[1].toLocalDate();
+    if (dayConversion.isAfter(dayFixing)) {
+      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
+
+      if (fixedEndIndex1 != null) {
+        final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
+        final Double fixedEndIndex = getWeight() * fixedEndIndex0 + (1 - getWeight()) * fixedEndIndex1;
+        final Double fixedRate = (fixedEndIndex / getIndexStartValue() - (payNotional() ? 0.0 : 1.0));
+        return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
+      }
+    }
+    final double[] referenceEndTime = new double[2];
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
+    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
+    return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, naturalPaymentTime,
+        _weight, _payNotional);
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationZeroCouponInterpolation(this, data);

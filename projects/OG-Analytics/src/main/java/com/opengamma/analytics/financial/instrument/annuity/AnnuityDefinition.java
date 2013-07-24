@@ -182,6 +182,37 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
   }
 
   @Override
+  public Annuity<? extends Payment> toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final List<Payment> resultList = new ArrayList<>();
+    for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
+      if (!date.isAfter(_payments[loopcoupon].getPaymentDate())) {
+        resultList.add(_payments[loopcoupon].toDerivative(date));
+      }
+    }
+    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
+    final List<Payment> resultList = new ArrayList<>();
+    for (final P payment : _payments) {
+      //TODO check this
+      if (!date.isAfter(payment.getPaymentDate())) {
+        if (payment instanceof InstrumentDefinitionWithData) {
+          resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS));
+        } else {
+          resultList.add(payment.toDerivative(date));
+        }
+      }
+    }
+    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
+  }
+  
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAnnuityDefinition(this, data);

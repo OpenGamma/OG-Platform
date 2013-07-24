@@ -79,6 +79,14 @@ public class PaymentFixedDefinition extends PaymentDefinition {
   }
 
   @Override
+  public PaymentFixed toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    return new PaymentFixed(getCurrency(), paymentTime, _amount);
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitPaymentFixedDefinition(this, data);

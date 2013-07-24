@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
@@ -61,17 +61,19 @@ public class CouponIborSpread extends CouponFloating {
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param spread The spread.
    * @param forwardCurveName Name of the forward (or estimation) curve.
+   * @deprecated Use the constructor that does not take yield curve names.
    */
+  @Deprecated
   public CouponIborSpread(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
       final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
-    Validate.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
     _fixingPeriodStartTime = fixingPeriodStartTime;
-    Validate.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
     _fixingPeriodEndTime = fixingPeriodEndTime;
-    Validate.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
     _fixingAccrualFactor = fixingYearFraction;
-    Validate.notNull(forwardCurveName);
+    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     _forwardCurveName = forwardCurveName;
     _spread = spread;
     _spreadAmount = _spread * getPaymentYearFraction() * getNotional();
@@ -91,10 +93,57 @@ public class CouponIborSpread extends CouponFloating {
    * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param forwardCurveName Name of the forward (or estimation) curve.
+   * @deprecated Use the constructor that does not take yield curve names.
    */
+  @Deprecated
   public CouponIborSpread(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
       final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param fixingTime Time (in years) up to fixing.
+   * @param index The Ibor-like index on which the coupon fixes.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
+   * @param fixingPeriodEndTime The fixing period end time (in years).
+   * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
+   * @param spread The spread.
+   */
+  public CouponIborSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread) {
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    _fixingAccrualFactor = fixingYearFraction;
+    _spread = spread;
+    _spreadAmount = _spread * getPaymentYearFraction() * getNotional();
+    _index = index;
+    _forwardCurveName = null;
+  }
+
+  /**
+   * Constructor from details with spread defaulted to 0.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param fixingTime Time (in years) up to fixing.
+   * @param index The Ibor-like index on which the coupon fixes.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
+   * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
+   * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
+   */
+  public CouponIborSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction) {
+    this(currency, paymentTime, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0);
   }
 
   /**
@@ -140,8 +189,13 @@ public class CouponIborSpread extends CouponFloating {
   /**
    * Gets the forward curve name.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_forwardCurveName == null) {
+      throw new IllegalStateException("Forward curve name was not set");
+    }
     return _forwardCurveName;
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -98,6 +98,14 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
   public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
     final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
+    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
+    return new InterestRateFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
+  }
+
+  @Override
+  public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
+    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date);
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     return new InterestRateFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
   }

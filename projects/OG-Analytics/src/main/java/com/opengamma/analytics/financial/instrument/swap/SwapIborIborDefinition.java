@@ -118,4 +118,20 @@ public class SwapIborIborDefinition extends SwapDefinition {
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
     return new Swap<>(firstLeg, secondLeg);
   }
+
+  @Override
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date) {
+    final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date);
+    final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date);
+    return new Swap<>(firstLeg, secondLeg);
+  }
+
+  @Override
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS) {
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
+    final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, indexDataTS[0]);
+    final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, indexDataTS[1]);
+    return new Swap<>(firstLeg, secondLeg);
+  }
 }

@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.convention.yield.YieldConvention;
@@ -69,17 +69,19 @@ public class BillSecurity implements InstrumentDerivative {
    * @param issuer The bill issuer name.
    * @param creditCurveName The name of the curve used for the bill cash flows (issuer credit).
    * @param discountingCurveName The name of the curve used for settlement amount discounting.
+   * @deprecated Use the constructor that does not take curve names
    */
-  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, final double notional, final YieldConvention yieldConvention, final double accrualFactor,
-      final String issuer, final String creditCurveName, final String discountingCurveName) {
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(yieldConvention, "Yield convention");
-    Validate.notNull(issuer, "Issuer");
-    Validate.notNull(creditCurveName, "Credit curve");
-    Validate.notNull(discountingCurveName, "Discounting curve");
-    Validate.isTrue(notional > 0.0, "Notional should be positive");
-    Validate.isTrue(endTime >= settlementTime, "End time should be after settlement time");
-    Validate.isTrue(settlementTime >= 0, "Settlement time should be positive");
+  @Deprecated
+  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, final double notional, final YieldConvention yieldConvention, 
+      final double accrualFactor, final String issuer, final String creditCurveName, final String discountingCurveName) {
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(yieldConvention, "Yield convention");
+    ArgumentChecker.notNull(issuer, "Issuer");
+    ArgumentChecker.notNull(creditCurveName, "Credit curve");
+    ArgumentChecker.notNull(discountingCurveName, "Discounting curve");
+    ArgumentChecker.isTrue(notional > 0.0, "Notional should be positive");
+    ArgumentChecker.isTrue(endTime >= settlementTime, "End time should be after settlement time");
+    ArgumentChecker.isTrue(settlementTime >= 0, "Settlement time should be positive");
     _currency = currency;
     _endTime = endTime;
     _settlementTime = settlementTime;
@@ -91,6 +93,35 @@ public class BillSecurity implements InstrumentDerivative {
     _discountingCurveName = discountingCurveName;
   }
 
+  /**
+   * Constructor from all details.
+   * @param currency The bill currency.
+   * @param settlementTime The bill time to settlement.
+   * @param endTime The bill end or maturity time.
+   * @param notional The bill nominal.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param accrualFactor The accrual factor in the bill day count between settlement and maturity.
+   * @param issuer The bill issuer name.
+   */
+  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, final double notional, final YieldConvention yieldConvention, final double accrualFactor,
+      final String issuer) {
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(yieldConvention, "Yield convention");
+    ArgumentChecker.notNull(issuer, "Issuer");
+    ArgumentChecker.isTrue(notional > 0.0, "Notional should be positive");
+    ArgumentChecker.isTrue(endTime >= settlementTime, "End time should be after settlement time");
+    ArgumentChecker.isTrue(settlementTime >= 0, "Settlement time should be positive");
+    _currency = currency;
+    _endTime = endTime;
+    _settlementTime = settlementTime;
+    _notional = notional;
+    _yieldConvention = yieldConvention;
+    _accrualFactor = accrualFactor;
+    _issuer = issuer;
+    _creditCurveName = null;
+    _discountingCurveName = null;
+  }
+  
   /**
    * Get the bill currency.
    * @return The currency.
@@ -158,16 +189,26 @@ public class BillSecurity implements InstrumentDerivative {
   /**
    * Gets the name of the curve used for settlement amount discounting.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getDiscountingCurveName() {
+    if (_discountingCurveName == null) {
+      throw new IllegalStateException("Discounting curve name was not set");
+    }
     return _discountingCurveName;
   }
 
   /**
    * Gets the name of the curve used for the bill cash flows (issuer credit).
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getCreditCurveName() {
+    if (_creditCurveName == null) {
+      throw new IllegalStateException("Credit curve name was not set");
+    }
     return _creditCurveName;
   }
 

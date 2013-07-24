@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.inflation;
@@ -81,7 +81,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
    */
   public CouponInflationYearOnYearInterpolationWithMarginDefinition(final double factor, final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int conventionalMonthLag,
-      int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final boolean payNotional, final double weightStart, final double weightEnd) {
+      final int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final boolean payNotional, final double weightStart, final double weightEnd) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
@@ -123,7 +123,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
   }
 
   /**
-   * Builder for inflation Year on Yearn based on an inflation lag and index publication. The fixing date is the publication lag after the last reference month. 
+   * Builder for inflation Year on Yearn based on an inflation lag and index publication. The fixing date is the publication lag after the last reference month.
    * @param factor the additive factor
    * @param accrualStartDate Start date of the accrual period.
    * @param paymentDate The payment date.
@@ -304,6 +304,60 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
   }
 
   @Override
+  public CouponInflationYearOnYearInterpolationWithMargin toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double[] referenceStartTime = new double[2];
+    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[0]);
+    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[1]);
+    final double[] referenceEndTime = new double[2];
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
+    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
+    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
+    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
+    return new CouponInflationYearOnYearInterpolationWithMargin(_factor, getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime,
+        naturalPaymentStartTime,
+        referenceEndTime,
+        naturalPaymentEndTime, _payNotional, _weightStart, _weightEnd);
+  }
+
+  @Override
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final LocalDate dayConversion = date.toLocalDate();
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayFixing = getReferenceEndDate()[1].toLocalDate();
+    if (dayConversion.isAfter(dayFixing)) {
+      final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
+      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
+      final Double fixedEndIndex = getWeightEnd() * fixedEndIndex0 + (1 - getWeightEnd()) * fixedEndIndex1;
+      final Double fixedStartIndex0 = priceIndexTimeSeries.getValue(getReferenceStartDate()[0]);
+      final Double fixedStartIndex1 = priceIndexTimeSeries.getValue(getReferenceStartDate()[1]);
+      final Double fixedStartIndex = getWeightStart() * fixedStartIndex0 + (1 - getWeightStart()) * fixedStartIndex1;
+      final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0)) + _factor;
+      return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
+    }
+    final double[] referenceEndTime = new double[2];
+    final double[] referenceStartTime = new double[2];
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
+    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[0]);
+    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[1]);
+    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
+    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
+    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
+    return new CouponInflationYearOnYearInterpolationWithMargin(_factor, getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime,
+        naturalPaymentStartTime,
+        referenceEndTime, naturalPaymentEndTime, _payNotional, _weightStart, _weightEnd);
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationYearOnYearInterpolationWithMargin(this, data);
@@ -326,7 +380,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -336,7 +390,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationYearOnYearInterpolationWithMarginDefinition other = (CouponInflationYearOnYearInterpolationWithMarginDefinition) obj;
+    final CouponInflationYearOnYearInterpolationWithMarginDefinition other = (CouponInflationYearOnYearInterpolationWithMarginDefinition) obj;
     if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
       return false;
     }

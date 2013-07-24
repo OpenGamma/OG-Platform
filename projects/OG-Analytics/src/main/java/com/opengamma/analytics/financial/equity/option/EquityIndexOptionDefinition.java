@@ -151,14 +151,13 @@ public class EquityIndexOptionDefinition implements InstrumentDefinition<EquityI
     return _settlementType;
   }
 
-  /**
-   * Creates an {@link EquityIndexOption}, as of an exact date, ready for pricing
-   * @param date Date at which valuation will occur, not null
-   * @param yieldCurveNames not used
-   * @return EquityIndexOption derivative as of date
-   */
   @Override
   public EquityIndexOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+    
+  @Override
+  public EquityIndexOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.inOrderOrEqual(date.toLocalDate(), getExpiryDate().toLocalDate(), "valuation date", "expiry");
     double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.interestrate.future.derivative;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -54,6 +54,9 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    * The future name.
    */
   private final String _name;
+  /**
+   * The OIS curve name
+   */
   private final String _oisCurveName;
 
   /**
@@ -67,15 +70,17 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    * @param paymentAccrualFactor The future payment accrual factor. Usually a standardized number of 1/12 for a 30-day future.
    * @param name The future name.
    * @param oisCurveName The OIS forward curve name.
+   * @deprecated Use the constructor that does not take curve names
    */
+  @Deprecated
   public FederalFundsFutureSecurity(final IndexON index, final double accruedInterest, final double[] fixingPeriodTime, final double[] fixingPeriodAccrualFactor,
       final double fixingTotalAccrualFactor, final double notional,
       final double paymentAccrualFactor, final String name, final String oisCurveName) {
-    Validate.notNull(index, "Index overnight");
-    Validate.notNull(fixingPeriodTime, "Fixing period time");
-    Validate.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
-    Validate.notNull(name, "Name");
-    Validate.isTrue(fixingPeriodTime.length == fixingPeriodAccrualFactor.length + 1, "Fixing dates length should be fixing accrual factors + 1.");
+    ArgumentChecker.notNull(index, "Index overnight");
+    ArgumentChecker.notNull(fixingPeriodTime, "Fixing period time");
+    ArgumentChecker.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
+    ArgumentChecker.notNull(name, "Name");
+    ArgumentChecker.isTrue(fixingPeriodTime.length == fixingPeriodAccrualFactor.length + 1, "Fixing dates length should be fixing accrual factors + 1.");
     _index = index;
     _accruedInterest = accruedInterest;
     _fixingPeriodTime = fixingPeriodTime;
@@ -86,6 +91,36 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
     _name = name;
     _oisCurveName = oisCurveName;
   }
+
+  /**
+   * Constructor from all the details.
+   * @param index The OIS-like index on which the future fixes.
+   * @param accruedInterest The accrual interest of the period already fixed. Interest (fixing rate * accrual fraction) for a notional of 1.
+   * @param fixingPeriodTime The times of the fixing periods not yet fixed. There is one date more than period.
+   * @param fixingPeriodAccrualFactor The accrual factors (or year fractions) associated to the fixing periods not yet fixed in the Index day count convention.
+   * @param fixingTotalAccrualFactor The total accrual factor for all fixing periods (including the one that have fixed already).
+   * @param notional The future notional.
+   * @param paymentAccrualFactor The future payment accrual factor. Usually a standardized number of 1/12 for a 30-day future.
+   * @param name The future name.
+   */
+  public FederalFundsFutureSecurity(final IndexON index, final double accruedInterest, final double[] fixingPeriodTime, final double[] fixingPeriodAccrualFactor,
+      final double fixingTotalAccrualFactor, final double notional, final double paymentAccrualFactor, final String name) {
+    ArgumentChecker.notNull(index, "Index overnight");
+    ArgumentChecker.notNull(fixingPeriodTime, "Fixing period time");
+    ArgumentChecker.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
+    ArgumentChecker.notNull(name, "Name");
+    ArgumentChecker.isTrue(fixingPeriodTime.length == fixingPeriodAccrualFactor.length + 1, "Fixing dates length should be fixing accrual factors + 1.");
+    _index = index;
+    _accruedInterest = accruedInterest;
+    _fixingPeriodTime = fixingPeriodTime;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
+    _fixingTotalAccrualFactor = fixingTotalAccrualFactor;
+    _notional = notional;
+    _paymentAccrualFactor = paymentAccrualFactor;
+    _name = name;
+    _oisCurveName = null;
+  }
+
 
   /**
    * Gets the OIS-like index on which the future fixes.
@@ -154,8 +189,13 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
   /**
    * Gets the OIS curve name.
    * @return The curve name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getOISCurveName() {
+    if (_oisCurveName == null) {
+      throw new IllegalStateException("OIS curve name not set");
+    }
     return _oisCurveName;
   }
 

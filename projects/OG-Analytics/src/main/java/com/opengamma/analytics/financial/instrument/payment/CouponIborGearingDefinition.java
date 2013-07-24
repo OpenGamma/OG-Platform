@@ -233,6 +233,55 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
   }
 
   @Override
+  public CouponIborGearing toDerivative(final ZonedDateTime dateTime) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()),
+        "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + dateTime);
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
+    return new CouponIborGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
+        getFixingPeriodAccrualFactor(), _spread, _factor);
+  }
+
+  @Override
+  /**
+   * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned.
+   * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with gearing is returned.
+   * If the fixing date is strictly after the conversion date, a coupon Ibor with gearing is returned.
+   * All the comparisons are between dates without time.
+   */
+  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
+    final LocalDate dayFixing = getFixingDate().toLocalDate();
+    if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      if (fixedRate != null) {
+        return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
+      }
+    }
+    if (dayConversion.isAfter(dayFixing)) { // The fixing is required
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      if (fixedRate == null) {
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+      }
+      return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
+    }
+    final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
+    return new CouponIborGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
+        getFixingPeriodAccrualFactor(), _spread, _factor);
+  }
+  
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborGearingDefinition(this, data);

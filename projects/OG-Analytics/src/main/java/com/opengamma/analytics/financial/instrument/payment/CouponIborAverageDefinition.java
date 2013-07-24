@@ -296,6 +296,23 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
 
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
+    return toDerivative(dateTime);
+  }
+
+  /**
+   * {@inheritDoc}
+   * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned.
+   * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with spread is returned.
+   * If the fixing date is strictly after the conversion date, a coupon Ibor is returned.
+   * All the comparisons are between dates without time.
+   */
+  @Override
+  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+    return toDerivative(dateTime, indexFixingTimeSeries);
+  }
+
+  @Override
+  public Coupon toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
     ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + dateTime
@@ -319,7 +336,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * If the fixing date is strictly after the conversion date, a coupon Ibor is returned.
    * All the comparisons are between dates without time.
    */
-  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
@@ -349,7 +366,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
         fixingPeriodEndTime1, getFixingPeriodAccrualFactor1(), getIndex2(), fixingPeriodStartTime2, fixingPeriodEndTime2, getFixingPeriodAccrualFactor2(), getWeight1(),
         getWeight2());
   }
-
+  
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

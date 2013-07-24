@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swap;
@@ -133,4 +133,21 @@ public class SwapFixedONDefinition extends SwapDefinition {
     return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) oisLeg);
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date) {
+    final Annuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date);
+    final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date);
+    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) oisLeg);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS) {
+    Validate.notNull(indexDataTS, "index data time series array");
+    // Validate.isTrue(indexDataTS.length > 0, "index data time series must contain at least one element");
+    final Annuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date);
+    final Annuity<? extends Coupon> oisLeg = this.getOISLeg().toDerivative(date, indexDataTS[0]);
+    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) oisLeg);
+  }
 }

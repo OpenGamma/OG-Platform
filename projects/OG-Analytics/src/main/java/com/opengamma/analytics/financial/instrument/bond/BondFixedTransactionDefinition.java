@@ -93,6 +93,31 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
   }
 
   @Override
+  public BondFixedTransaction toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
+    final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate());
+    final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date);
+    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
+    int couponIndex = 0; // The index of the coupon of the spot date.
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
+        couponIndex = loopcpn;
+        break;
+      }
+    }
+    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
+    double price;
+    if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
+      price = 0.0;
+    } else {
+      price = getPrice();
+    }
+    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), price, bondStandard, notionalStandard);
+    return result;
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFixedTransactionDefinition(this, data);

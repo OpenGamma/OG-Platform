@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -125,6 +125,12 @@ public class CouponArithmeticAverageONSpreadSimplifiedDefinition extends CouponD
 
   @Override
   public CouponArithmeticAverageON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.isTrue(!getAccrualStartDate().plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
+    return null; // TODO
+  }
+
+  @Override
+  public CouponArithmeticAverageON toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!getAccrualStartDate().plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
     return null; // TODO
   }

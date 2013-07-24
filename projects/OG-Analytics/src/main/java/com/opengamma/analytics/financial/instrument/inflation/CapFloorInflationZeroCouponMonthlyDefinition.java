@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.inflation;
@@ -79,7 +79,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
    * @param priceIndex The price index associated to the coupon.
    * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates  for the standard product.
-   * @param monthLag The lag in month between the index validity and the coupon dates  for the actual product. 
+   * @param monthLag The lag in month between the index validity and the coupon dates  for the actual product.
    * @param maturity The cap/floor maturity in years.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndDate The reference date for the index at the coupon end.
@@ -152,8 +152,8 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
     return new CapFloorInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
         notional, priceIndex, lastKnownFixingDate, conventionalMonthLag, monthLag, maturity, indexStartValue, referenceEndDate, strike, isCap);
   }
-  
-  
+
+
   /**
    * Builder from a zero-coupon inflation interpolation coupon the cap/floor strike and isCap flag.
    * @param couponInflation The underlying inflation coupon.
@@ -239,7 +239,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
   }
 
   @Override
-  public CouponInflationDefinition with(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double notional) {
+  public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
     return null;
   }
 
@@ -296,6 +296,44 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
   }
 
   @Override
+  public CapFloorInflationZeroCouponMonthly toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
+    final double lastKnownFixingTime = TimeCalculator.getTimeBetween(date, getlastKnownFixingDate());
+    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
+    return new CapFloorInflationZeroCouponMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), lastKnownFixingTime, _indexStartValue, referenceEndTime,
+        naturalPaymentEndTime, _maturity, _strike, _isCap);
+  }
+
+  @Override
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final LocalDate dayConversion = date.toLocalDate();
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayFixing = getReferenceEndDate().toLocalDate();
+    if (dayConversion.isAfter(dayFixing)) {
+      final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
+
+      if (fixedEndIndex != null) {
+        final Double fixedRate = (fixedEndIndex / getIndexStartValue() - 1.0);
+        return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
+      }
+    }
+
+    final double referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
+    final double lastKnownFixingTime = TimeCalculator.getTimeBetween(date, getlastKnownFixingDate());
+    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
+    return new CapFloorInflationZeroCouponMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), lastKnownFixingTime, _indexStartValue, referenceEndTime,
+        naturalPaymentEndTime, _maturity, _strike, _isCap);
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorInflationZeroCouponMonthlyDefinition(this, data);
@@ -331,7 +369,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -341,7 +379,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CapFloorInflationZeroCouponMonthlyDefinition other = (CapFloorInflationZeroCouponMonthlyDefinition) obj;
+    final CapFloorInflationZeroCouponMonthlyDefinition other = (CapFloorInflationZeroCouponMonthlyDefinition) obj;
     if (_conventionalMonthLag != other._conventionalMonthLag) {
       return false;
     }

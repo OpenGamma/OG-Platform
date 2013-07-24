@@ -127,6 +127,17 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
   }
 
   @Override
+  public BondFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "Reference date");
+    final BondFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date);
+    final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
+    if (premiumTime < 0) { // Premium payment in the past: it is represented by a 0 payment today.
+      return new BondFutureOptionPremiumTransaction(option, _quantity, new PaymentFixed(getCurrency(), 0, 0));
+    }
+    return new BondFutureOptionPremiumTransaction(option, _quantity, _premium.toDerivative(date));
+  }
+  
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumTransactionDefinition(this, data);

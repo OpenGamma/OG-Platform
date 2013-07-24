@@ -32,18 +32,17 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
     super(expiryDate, underlying, strike, exerciseType, isCall);
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   * @param date fixing time
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
   public MetalFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public MetalFutureOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     //timeToSettlement
-    return new MetalFutureOption(timeToFixing, getUnderlying().toDerivative(date, yieldCurveNames), getStrike(), getExerciseType(), isCall());
+    return new MetalFutureOption(timeToFixing, getUnderlying().toDerivative(date), getStrike(), getExerciseType(), isCall());
   }
 
   @Override

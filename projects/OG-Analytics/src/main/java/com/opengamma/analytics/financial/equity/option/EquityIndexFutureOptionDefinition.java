@@ -151,8 +151,14 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     return true;
   }
 
+  
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+  
+  @Override
+  public EquityIndexFutureOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.inOrderOrEqual(date.toLocalDate(), _expiryDate.toLocalDate(), "valuation date", "expiry");
     double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());

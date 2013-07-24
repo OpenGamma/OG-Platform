@@ -130,6 +130,13 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
   }
 
   @Override
+  public ForexNonDeliverableForward toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(_fixingDate), "Date is after fixing date");
+    return new ForexNonDeliverableForward(_currency1, _currency2, _notional, _exchangeRate, TimeCalculator.getTimeBetween(date, _fixingDate),
+        TimeCalculator.getTimeBetween(date, _paymentDate));
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableForwardDefinition(this, data);

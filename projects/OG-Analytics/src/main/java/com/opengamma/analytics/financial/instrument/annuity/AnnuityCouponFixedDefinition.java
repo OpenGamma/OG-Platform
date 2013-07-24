@@ -315,4 +315,14 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[resultList.size()]));
   }
 
+  @Override
+  public AnnuityCouponFixed toDerivative(final ZonedDateTime date) {
+    final List<CouponFixed> resultList = new ArrayList<>();
+    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
+      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
+        resultList.add(getNthPayment(loopcoupon).toDerivative(date));
+      }
+    }
+    return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[resultList.size()]));
+  }
 }

@@ -13,7 +13,6 @@ import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexFut
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * An equity index future option.

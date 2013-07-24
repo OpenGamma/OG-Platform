@@ -272,6 +272,61 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
   }
 
   @Override
+  public Payment toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " "
+        + date);
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    // Ibor is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixingPeriodEndDate());
+    return new ForwardRateAgreement(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingTime, fixingPeriodStartTime,
+        fixingPeriodEndTime, getFixingPeriodAccrualFactor(), _rate);
+  }
+
+  @Override
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
+      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
+      if (fixedRate == null) {
+        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().with(LocalTime.of(11, 0));
+        fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
+      }
+      if (fixedRate == null) {
+        final ZonedDateTime previousBusinessDay = PRECEDING_BDC.adjustDate(_calendar,
+            getFixingDate().minusDays(1));
+        fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
+        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
+        if (fixedRate == null) {
+          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.with(LocalTime.of(11, 0));
+          fixedRate = indexFixingTimeSeries.getValue(previousBusinessDayAtLiborFixingTime);
+        }
+        if (fixedRate == null) {
+          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        }
+      }
+      return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate - _rate);
+    }
+
+    // Ibor is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixingPeriodEndDate());
+    return new ForwardRateAgreement(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingTime, fixingPeriodStartTime,
+        fixingPeriodEndTime, getFixingPeriodAccrualFactor(), _rate);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();

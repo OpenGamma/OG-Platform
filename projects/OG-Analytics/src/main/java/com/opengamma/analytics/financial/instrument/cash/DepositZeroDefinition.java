@@ -164,6 +164,16 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   }
 
   @Override
+  public DepositZero toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(_endDate), "date is after end date");
+    final double startTime = TimeCalculator.getTimeBetween(date.toLocalDate(), _startDate.toLocalDate());
+    if (startTime < 0) {
+      return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate, _interestAmount);
+    }
+    return new DepositZero(_currency, startTime, TimeCalculator.getTimeBetween(date, _endDate), _notional, _notional, _paymentAccrualFactor, _rate, _interestAmount);
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositZeroDefinition(this, data);

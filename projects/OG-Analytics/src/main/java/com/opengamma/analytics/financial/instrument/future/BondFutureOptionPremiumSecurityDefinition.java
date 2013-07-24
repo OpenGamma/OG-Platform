@@ -112,6 +112,15 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
   }
 
   @Override
+  public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
+    final Double referencePrice = 0.0; // FIXME Bond future should have a "Security" version, without transaction price.
+    final BondFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice);
+    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
+    return new BondFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
+  }
+  
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumSecurityDefinition(this, data);

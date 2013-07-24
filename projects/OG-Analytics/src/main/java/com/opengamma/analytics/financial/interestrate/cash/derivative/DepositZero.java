@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.cash.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
@@ -51,6 +52,9 @@ public class DepositZero implements InstrumentDerivative {
    * The interest amount to be paid at end date.
    */
   private final double _interestAmount;
+  /** 
+   * The discounting curve name 
+   */
   private final String _discountingCurveName;
 
   /**
@@ -64,7 +68,9 @@ public class DepositZero implements InstrumentDerivative {
    * @param rate The interest rate and its composition type.
    * @param interestAmount  The interest amount to be paid at end date.
    * @param discountingCurveName The discounting curve name.
+   * @deprecated Use the constructor that does not take yield curve names.
    */
+  @Deprecated
   public DepositZero(final Currency currency, final double startTime, final double endTime, final double initialAmount, final double notional, final double paymentAccrualFactor,
       final InterestRate rate, final double interestAmount, final String discountingCurveName) {
     ArgumentChecker.notNull(currency, "Currency");
@@ -79,6 +85,32 @@ public class DepositZero implements InstrumentDerivative {
     _rate = rate;
     _interestAmount = interestAmount;
     _discountingCurveName = discountingCurveName;
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The currency.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @param initialAmount The initial amount. Usually is equal to the notional or 0 if the amount has been paid in the past. Should be of the same sign as notional.
+   * @param notional The notional.
+   * @param paymentAccrualFactor The accrual factor (or year fraction).
+   * @param rate The interest rate and its composition type.
+   * @param interestAmount  The interest amount to be paid at end date.
+   */
+  public DepositZero(final Currency currency, final double startTime, final double endTime, final double initialAmount, final double notional, final double paymentAccrualFactor,
+      final InterestRate rate, final double interestAmount) {
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(rate, "Rate");
+    _currency = currency;
+    _startTime = startTime;
+    _endTime = endTime;
+    _initialAmount = initialAmount;
+    _notional = notional;
+    _paymentAccrualFactor = paymentAccrualFactor;
+    _rate = rate;
+    _interestAmount = interestAmount;
+    _discountingCurveName = null;
   }
 
   /**
@@ -148,8 +180,12 @@ public class DepositZero implements InstrumentDerivative {
   /**
    * Gets the discounting curve name.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
   public String getDiscountingCurveName() {
+    if (_discountingCurveName == null) {
+      throw new IllegalStateException("Discounting curve name was not set");
+    }
     return _discountingCurveName;
   }
 
@@ -175,7 +211,7 @@ public class DepositZero implements InstrumentDerivative {
     final int prime = 31;
     int result = 1;
     result = prime * result + _currency.hashCode();
-    result = prime * result + _discountingCurveName.hashCode();
+    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_endTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));

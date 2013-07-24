@@ -96,14 +96,18 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
     return new EnergyFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   * @param date fixing time
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
   public EnergyFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public EnergyFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+    return toDerivative(date, referencePrice);
+  }
+
+  @Override
+  public EnergyFuture toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
@@ -111,23 +115,15 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
         getReferencePrice(), getCurrency());
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   *
-   * @param date  fixing time
-   * @param referencePrice reference price
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
-  public EnergyFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+  public EnergyFuture toDerivative(final ZonedDateTime date, final Double referencePrice) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
     return new EnergyFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
         referencePrice.doubleValue(), getCurrency());
   }
-
+  
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

@@ -1,11 +1,10 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swap;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -22,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
 
@@ -77,10 +76,10 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
   public static SwapFixedInflationYearOnYearDefinition fromMonthly(final IndexPrice priceIndex, final ZonedDateTime settlementDate, final Period paymentPeriod, final int tenor,
       final double fixedRate, final double notional, final boolean isPayer, final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth,
       final DayCount fixedLegDayCount, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
-    Validate.notNull(priceIndex, "Price index");
-    Validate.notNull(settlementDate, "Settlement date");
-    Validate.notNull(businessDayConvention, "Business day convention");
-    Validate.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(priceIndex, "Price index");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(calendar, "Calendar");
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(priceIndex.getCurrency(), settlementDate, Period.ofYears(tenor), paymentPeriod, calendar,
         fixedLegDayCount, businessDayConvention, endOfMonth, notional, fixedRate, isPayer);
     final AnnuityCouponInflationYearOnYearMonthlyDefinition inflationLeg = AnnuityCouponInflationYearOnYearMonthlyDefinition.from(priceIndex, settlementDate, notional, Period.ofYears(tenor),
@@ -100,9 +99,9 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
    */
   public static SwapFixedInflationYearOnYearDefinition fromGeneratorMonthly(final ZonedDateTime settlementDate, final double fixedRate, final double notional, final Period tenor,
       final GeneratorSwapFixedInflationYearOnYear generator, final boolean isPayer) {
-    Validate.notNull(settlementDate, "Settlement date");
-    Validate.notNull(generator, "generator");
-    Validate.notNull(tenor, "tenor");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.notNull(generator, "generator");
+    ArgumentChecker.notNull(tenor, "tenor");
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(generator.getIndexPrice().getCurrency(), settlementDate, tenor, generator.getFixedLegPeriod(),
         generator.getCalendar(), generator.getFixedLegDayCount(), generator.getBusinessDayConvention(), generator.isEndOfMonth(), notional, fixedRate, isPayer);
     final AnnuityCouponInflationYearOnYearMonthlyDefinition inflationLeg = AnnuityCouponInflationYearOnYearMonthlyDefinition.from(generator.getIndexPrice(), settlementDate, notional,
@@ -132,10 +131,10 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
   public static SwapFixedInflationYearOnYearDefinition fromInterpolation(final IndexPrice priceIndex, final ZonedDateTime settlementDate, final Period paymentPeriod, final Period tenor,
       final double fixedRate, final double notional, final boolean isPayer, final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth,
       final DayCount fixedLegDayCount, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
-    Validate.notNull(priceIndex, "Price index");
-    Validate.notNull(settlementDate, "Settlement date");
-    Validate.notNull(businessDayConvention, "Business day convention");
-    Validate.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(priceIndex, "Price index");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(calendar, "Calendar");
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(priceIndex.getCurrency(), settlementDate, tenor, paymentPeriod, calendar,
         fixedLegDayCount, businessDayConvention, endOfMonth, notional, fixedRate, isPayer);
     final AnnuityCouponInflationYearOnYearInterpolationDefinition inflationLeg = AnnuityCouponInflationYearOnYearInterpolationDefinition.from(priceIndex, settlementDate, notional,
@@ -155,9 +154,9 @@ public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
    */
   public static SwapFixedInflationYearOnYearDefinition fromGeneratorInterpolation(final ZonedDateTime settlementDate, final double fixedRate, final double notional, final Period tenor,
       final GeneratorSwapFixedInflationYearOnYear generator, final boolean isPayer) {
-    Validate.notNull(settlementDate, "Settlement date");
-    Validate.notNull(generator, "generator");
-    Validate.notNull(tenor, "tenor");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    ArgumentChecker.notNull(generator, "generator");
+    ArgumentChecker.notNull(tenor, "tenor");
     final AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(generator.getIndexPrice().getCurrency(), settlementDate, tenor, generator.getFixedLegPeriod(),
         generator.getCalendar(), generator.getFixedLegDayCount(), generator.getBusinessDayConvention(), generator.isEndOfMonth(), notional, fixedRate, isPayer);
     final AnnuityCouponInflationYearOnYearInterpolationDefinition inflationLeg = AnnuityCouponInflationYearOnYearInterpolationDefinition.from(generator.getIndexPrice(), settlementDate,

@@ -1,11 +1,10 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swap;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -20,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing an Ibor for overnight swap. Both legs are in the same currency.
@@ -34,7 +34,7 @@ public class SwapIborONDefinition extends SwapDefinition {
    */
   public SwapIborONDefinition(final AnnuityCouponIborSpreadDefinition iborLeg, final AnnuityCouponONDefinition oisLeg) {
     super(iborLeg, oisLeg);
-    Validate.isTrue(iborLeg.getCurrency() == oisLeg.getCurrency(), "Legs should have the same currency");
+    ArgumentChecker.isTrue(iborLeg.getCurrency() == oisLeg.getCurrency(), "Legs should have the same currency");
   }
 
   /**
@@ -134,11 +134,30 @@ public class SwapIborONDefinition extends SwapDefinition {
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     // Curves should be: discounting, ibor, ois
-    Validate.notNull(indexDataTS, "index data time series array");
-    Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
     final Annuity<? extends Coupon> oisLeg = this.getOISLeg().toDerivative(date, indexDataTS[1], new String[] {yieldCurveNames[0], yieldCurveNames[2] });
     return new Swap<>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date) {
+    // Curves should be: discounting, ibor, ois
+    final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date);
+    final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date);
+    return new Swap<>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS) {
+    // Curves should be: discounting, ibor, ois
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
+    final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, indexDataTS[0]);
+    final Annuity<? extends Coupon> oisLeg = this.getOISLeg().toDerivative(date, indexDataTS[1]);
+    return new Swap<>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
+  }
 }

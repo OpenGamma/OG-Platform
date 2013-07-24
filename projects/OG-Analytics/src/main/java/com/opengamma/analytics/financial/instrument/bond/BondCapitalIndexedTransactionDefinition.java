@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  */
 public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition> extends BondTransactionDefinition<C, C>
-implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+  implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Capital indexed bond transaction from all the transaction details.
@@ -48,16 +48,24 @@ implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<?
 
   @Override
   public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+  
+  @Override
+  public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+    return toDerivative(date, data);
+  }
+  
+  @Override
+  public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date) {
     final ImmutableZonedDateTimeDoubleTimeSeries series = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC);
-    return toDerivative(date, series, yieldCurveNames);
+    return toDerivative(date, series);
   }
 
   @Override
-  public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+  public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(data, "Price index fixing time series");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final BondCapitalIndexedSecurity<Coupon> bondPurchase = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, getSettlementDate(), data);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final BondCapitalIndexedSecurity<Coupon> bondStandard = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, spot, data);

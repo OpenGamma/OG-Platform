@@ -176,6 +176,14 @@ public class CouponFixedDefinition extends CouponDefinition {
   }
 
   @Override
+  public CouponFixed toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate()); // Required: reference date <= payment date
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
+  }
+  
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponFixedDefinition(this, data);

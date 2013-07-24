@@ -42,10 +42,32 @@ public class ISDACDSCoupon extends CouponFixed {
    * @param accrualEndDate The end date of the coupon accrual period.
    * @param accrualStartTime The start time of the coupon accrual period.
    * @param accrualEndTime The end time of the coupon accrual period.
+   * @deprecated Use the constructor that does not take curve names
    */
+  @Deprecated
   public ISDACDSCoupon(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
     final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualStartTime, final double accrualEndTime) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, rate, accrualStartDate, accrualEndDate);
+   
+    _accrualStartTime = accrualStartTime;
+    _accrualEndTime = accrualEndTime;
+  }
+  
+  /**
+   * Constructor from all details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param rate The coupon fixed rate.
+   * @param accrualStartDate The start date of the coupon accrual period.
+   * @param accrualEndDate The end date of the coupon accrual period.
+   * @param accrualStartTime The start time of the coupon accrual period.
+   * @param accrualEndTime The end time of the coupon accrual period.
+   */
+  public ISDACDSCoupon(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double rate,
+    final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualStartTime, final double accrualEndTime) {
+    super(currency, paymentTime, paymentYearFraction, notional, rate, accrualStartDate, accrualEndDate);
    
     _accrualStartTime = accrualStartTime;
     _accrualEndTime = accrualEndTime;

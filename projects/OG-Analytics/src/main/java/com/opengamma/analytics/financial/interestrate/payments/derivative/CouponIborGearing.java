@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.payments.derivative;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.money.Currency;
@@ -65,23 +66,54 @@ public class CouponIborGearing extends CouponFloating {
    * @param spread The spread paid above the Ibor rate.
    * @param factor The gearing (multiplicative) factor applied to the Ibor rate.
    * @param forwardCurveName The forward curve name used in to estimate the fixing index.
+   * @deprecated Use the constructor that does not take yield curve names.
    */
+  @Deprecated
   public CouponIborGearing(Currency currency, double paymentTime, String discountingCurveName, double paymentYearFraction, double notional, double fixingTime, IborIndex index,
       double fixingPeriodStartTime, double fixingPeriodEndTime, double fixingAccrualFactor, double spread, double factor, String forwardCurveName) {
     super(currency, paymentTime, discountingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.notNull(index, "Index");
     Validate.notNull(forwardCurveName, "Forward curve");
     Validate.isTrue(currency.equals(index.getCurrency()));
-    this._index = index;
-    this._fixingPeriodStartTime = fixingPeriodStartTime;
-    this._fixingPeriodEndTime = fixingPeriodEndTime;
-    this._fixingAccrualFactor = fixingAccrualFactor;
-    this._spread = spread;
-    this._factor = factor;
-    this._forwardCurveName = forwardCurveName;
+    _index = index;
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingAccrualFactor = fixingAccrualFactor;
+    _spread = spread;
+    _factor = factor;
+    _forwardCurveName = forwardCurveName;
     _spreadAmount = getNotional() * getPaymentYearFraction() * spread;
   }
 
+  /**
+   * Constructor from all the details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param fixingTime Time (in years) up to fixing.
+   * @param index Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
+   * @param fixingPeriodEndTime The fixing period end time (in years).
+   * @param fixingAccrualFactor The fixing period accrual factor (or year fraction) in the fixing convention.
+   * @param spread The spread paid above the Ibor rate.
+   * @param factor The gearing (multiplicative) factor applied to the Ibor rate.
+   */
+  public CouponIborGearing(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, IborIndex index,
+      double fixingPeriodStartTime, double fixingPeriodEndTime, double fixingAccrualFactor, double spread, double factor) {
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
+    Validate.notNull(index, "Index");
+    Validate.isTrue(currency.equals(index.getCurrency()));
+    _index = index;
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingAccrualFactor = fixingAccrualFactor;
+    _spread = spread;
+    _factor = factor;
+    _forwardCurveName = null;
+    _spreadAmount = getNotional() * getPaymentYearFraction() * spread;
+  }
+  
   /**
    * Gets the Ibor index.
    * @return The index.
@@ -141,8 +173,13 @@ public class CouponIborGearing extends CouponFloating {
   /**
    * Gets the forward curve name.
    * @return the _forward curve name
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_forwardCurveName == null) {
+      throw new IllegalStateException("Forward curve name was not set");
+    }
     return _forwardCurveName;
   }
 
@@ -181,7 +218,7 @@ public class CouponIborGearing extends CouponFloating {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_fixingPeriodStartTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _forwardCurveName.hashCode();
+    result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
     result = prime * result + _index.hashCode();
     temp = Double.doubleToLongBits(_spread);
     result = prime * result + (int) (temp ^ (temp >>> 32));

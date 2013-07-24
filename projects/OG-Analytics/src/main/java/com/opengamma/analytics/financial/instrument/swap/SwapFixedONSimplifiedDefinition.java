@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swap;
@@ -181,4 +181,11 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) oisLeg);
   }
 
+  @SuppressWarnings({"unchecked" })
+  @Override
+  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date) {
+    final Annuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date);
+    final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date);
+    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) oisLeg);
+  }
 }

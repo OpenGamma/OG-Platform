@@ -1,13 +1,13 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -68,17 +68,19 @@ public class InterestRateFutureSecurity implements InstrumentDerivative {
    * @param fixingPeriodEndTime Fixing period of the reference Ibor end time.
    * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
    * @param notional Future notional.
-   * @param paymentAccrualFactor Future payment accrual factor. 
+   * @param paymentAccrualFactor Future payment accrual factor.
    * @param name Future name.
    * @param discountingCurveName The discounting curve name.
    * @param forwardCurveName The forward curve name.
+   * @deprecated Use the constructor that does not take curve names
    */
+  @Deprecated
   public InterestRateFutureSecurity(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
       final double fixingPeriodAccrualFactor, final double notional, final double paymentAccrualFactor, final String name, final String discountingCurveName, final String forwardCurveName) {
-    Validate.notNull(iborIndex, "Ibor index");
-    Validate.notNull(name, "Name");
-    Validate.notNull(discountingCurveName, "Discounting curve name");
-    Validate.notNull(forwardCurveName, "Forward curve name");
+    ArgumentChecker.notNull(iborIndex, "Ibor index");
+    ArgumentChecker.notNull(name, "Name");
+    ArgumentChecker.notNull(discountingCurveName, "Discounting curve name");
+    ArgumentChecker.notNull(forwardCurveName, "Forward curve name");
     _lastTradingTime = lastTradingTime;
     _iborIndex = iborIndex;
     _fixingPeriodStartTime = fixingPeriodStartTime;
@@ -89,6 +91,33 @@ public class InterestRateFutureSecurity implements InstrumentDerivative {
     _discountingCurveName = discountingCurveName;
     _forwardCurveName = forwardCurveName;
     _name = name;
+  }
+
+  /**
+   * Constructor from all the details.
+   * @param lastTradingTime Future last trading time.
+   * @param iborIndex Ibor index associated to the future.
+   * @param fixingPeriodStartTime Fixing period of the reference Ibor starting time.
+   * @param fixingPeriodEndTime Fixing period of the reference Ibor end time.
+   * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
+   * @param notional Future notional.
+   * @param paymentAccrualFactor Future payment accrual factor.
+   * @param name Future name.
+   */
+  public InterestRateFutureSecurity(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
+      final double fixingPeriodAccrualFactor, final double notional, final double paymentAccrualFactor, final String name) {
+    ArgumentChecker.notNull(iborIndex, "Ibor index");
+    ArgumentChecker.notNull(name, "Name");
+    _lastTradingTime = lastTradingTime;
+    _iborIndex = iborIndex;
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
+    _notional = notional;
+    _paymentAccrualFactor = paymentAccrualFactor;
+    _name = name;
+    _discountingCurveName = null;
+    _forwardCurveName = null;
   }
 
   /**
@@ -140,8 +169,8 @@ public class InterestRateFutureSecurity implements InstrumentDerivative {
   }
 
   /**
-   * Gets the future payment accrual factor. 
-   * @return The future payment accrual factor. 
+   * Gets the future payment accrual factor.
+   * @return The future payment accrual factor.
    */
   public double getPaymentAccrualFactor() {
     return _paymentAccrualFactor;
@@ -154,20 +183,30 @@ public class InterestRateFutureSecurity implements InstrumentDerivative {
   public double getUnitAmount() {
     return _notional * _paymentAccrualFactor;
   }
-  
+
   /**
    * Gets the discounting curve name.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getDiscountingCurveName() {
+    if (_discountingCurveName == null) {
+      throw new IllegalStateException("Discounting curve name was not set");
+    }
     return _discountingCurveName;
   }
 
   /**
    * Gets the forward curve name.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_forwardCurveName == null) {
+      throw new IllegalStateException("Forward curve name was not set");
+    }
     return _forwardCurveName;
   }
 

@@ -328,19 +328,29 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
 
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+    return toDerivative(date, data);
+  }
+
+  @Override
+  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC));
   }
 
   @Override
-  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(data, "data");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, data);
   }
-
+  
   /**
    * @param date The date to use when converting to the derivative form, not null
    * @param settlementDate The settlement date, not null
@@ -368,7 +378,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       }
     }
     final AnnuityDefinition<PaymentDefinition> couponDefinitionExPeriod = new AnnuityDefinition<PaymentDefinition>(couponExPeriodArray);
-    final Annuity<Coupon> couponStandard = (Annuity<Coupon>) couponDefinitionExPeriod.toDerivative(date, data, "Not used");
+    final Annuity<Coupon> couponStandard = (Annuity<Coupon>) couponDefinitionExPeriod.toDerivative(date, data);
     final Annuity<Coupon> nominalStandard = nominal.trimBefore(settlementTime);
     final double accruedInterest = accruedInterest(settlementDate);
     final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
@@ -380,7 +390,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
     final double notional = settlementDate.isBefore(date) ? 0.0 : 1.0;
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
-    final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date, "Not used");
+    final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date);
     return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
         getIssuer());
   }

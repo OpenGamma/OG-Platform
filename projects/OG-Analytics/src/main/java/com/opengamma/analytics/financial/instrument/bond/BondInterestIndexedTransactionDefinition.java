@@ -30,6 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Describes a capital inflation indexed bond transaction. Both the coupon and the nominal are indexed on a price index.
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
+ * @param <N> Type of the fixed payment.
  */
 public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefinition, C extends CouponDefinition> extends BondTransactionDefinition<N, C>
     implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
@@ -50,16 +51,24 @@ public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefi
 
   @Override
   public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final ImmutableZonedDateTimeDoubleTimeSeries series = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC);
-    return toDerivative(date, series, yieldCurveNames);
+    return toDerivative(date);
   }
 
   @Override
   public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+    return toDerivative(date, data);
+  }
+
+  @Override
+  public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date) {
+    final ImmutableZonedDateTimeDoubleTimeSeries series = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC);
+    return toDerivative(date, series);
+  }
+
+  @Override
+  public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(data, "Price index fixing time series");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final BondInterestIndexedSecurity<PaymentFixed, Coupon> bondPurchase = ((BondInterestIndexedSecurityDefinition<PaymentFixedDefinition, CouponInflationDefinition>) getUnderlyingBond())
         .toDerivative(date, getSettlementDate(), data);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
@@ -77,7 +86,7 @@ public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefi
     final BondInterestIndexedTransaction<PaymentFixed, Coupon> result = new BondInterestIndexedTransaction<>(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
-
+  
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

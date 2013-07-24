@@ -186,6 +186,23 @@ public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondF
   }
 
   @Override
+  public BondFuturesSecurity toDerivative(ZonedDateTime date) {
+    Validate.notNull(date, "date");
+    Validate.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double lastTradingTime = actAct.getDayCountFraction(date, getTradingLastDate());
+    final double firstNoticeTime = actAct.getDayCountFraction(date, getNoticeFirstDate());
+    final double lastNoticeTime = actAct.getDayCountFraction(date, getNoticeLastDate());
+    final double firstDeliveryTime = actAct.getDayCountFraction(date, getDeliveryFirstDate());
+    final double lastDeliveryTime = actAct.getDayCountFraction(date, getDeliveryLastDate());
+    final BondFixedSecurity[] basket = new BondFixedSecurity[_deliveryBasket.length];
+    for (int loopbasket = 0; loopbasket < _deliveryBasket.length; loopbasket++) {
+      basket[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryLastDate);
+    }
+    return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket, _conversionFactor);
+  }
+  
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitBondFuturesSecurityDefinition(this, data);
   }

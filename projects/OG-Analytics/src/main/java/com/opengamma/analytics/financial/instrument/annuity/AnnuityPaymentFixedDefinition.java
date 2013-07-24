@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -49,6 +49,17 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
       if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
         resultList.add(getNthPayment(loopcoupon).toDerivative(date, yieldCurveNames));
+      }
+    }
+    return new AnnuityPaymentFixed(resultList.toArray(new PaymentFixed[resultList.size()]));
+  }
+
+  @Override
+  public AnnuityPaymentFixed toDerivative(final ZonedDateTime date) {
+    final List<PaymentFixed> resultList = new ArrayList<>();
+    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
+      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
+        resultList.add(getNthPayment(loopcoupon).toDerivative(date));
       }
     }
     return new AnnuityPaymentFixed(resultList.toArray(new PaymentFixed[resultList.size()]));

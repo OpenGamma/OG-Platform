@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -36,9 +35,9 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentD
    * @param secondLeg The swap second leg. The two leg should have opposite payer flags.
    */
   public Swap(final Annuity<P1> firstLeg, final Annuity<P2> secondLeg) {
-    Validate.notNull(firstLeg);
-    Validate.notNull(secondLeg);
-    Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
+    ArgumentChecker.notNull(firstLeg, "first leg");
+    ArgumentChecker.notNull(secondLeg, "second leg");
+    ArgumentChecker.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
     _firstLeg = firstLeg;
     _secondLeg = secondLeg;
   }
@@ -65,7 +64,7 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentD
    * @return The trimmed annuity.
    */
   public Swap<P1, P2> trimAfter(final double trimTime) {
-    return new Swap<P1, P2>(_firstLeg.trimAfter(trimTime), _secondLeg.trimAfter(trimTime));
+    return new Swap<>(_firstLeg.trimAfter(trimTime), _secondLeg.trimAfter(trimTime));
   }
 
   @Override

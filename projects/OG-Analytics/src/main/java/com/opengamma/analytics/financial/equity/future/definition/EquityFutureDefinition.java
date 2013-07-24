@@ -91,15 +91,18 @@ public class EquityFutureDefinition implements InstrumentDefinitionWithData<Equi
     return _unitAmount;
   }
 
-  /**
-   * In this form, the reference (strike) price must already be set in the constructor of the Definition.
-   * The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
-   * @param date time of valuation
-   * @param yieldCurveNames not used
-   * @return derivative form
-   */
   @Override
   public EquityFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public EquityFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+    return toDerivative(date, referencePrice);
+  }
+
+  @Override
+  public EquityFuture toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);
     final double timeToDelivery = TimeCalculator.getTimeBetween(date, _settlementDate);
@@ -107,15 +110,8 @@ public class EquityFutureDefinition implements InstrumentDefinitionWithData<Equi
     return newDeriv;
   }
 
-  /**
-   * In this form, the reference (strike) price must be provided.
-   * @param date time of valuation
-   * @param referencePrice The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
-   * @param yieldCurveNames Not used
-   * @return derivative form
-   */
   @Override
-  public EquityFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+  public EquityFuture toDerivative(final ZonedDateTime date, final Double referencePrice) {
     ArgumentChecker.notNull(date, "date");
     if (referencePrice == null) {
       return toDerivative(date);

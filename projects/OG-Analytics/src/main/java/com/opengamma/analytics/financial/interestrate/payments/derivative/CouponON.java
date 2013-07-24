@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -58,12 +57,13 @@ public class CouponON extends Coupon {
    * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    * @param notionalAccrued The notional accrued by the interest periods already fixed.
    * @param forwardCurveName The name of the forward curve.
+   * @deprecated Use the constructor that does not take yield curve names
    */
+  @Deprecated
   public CouponON(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final IndexON index,
-      final double fixingPeriodStartTime,
-      final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final String forwardCurveName) {
+      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
-    Validate.notNull(index, "Coupon OIS: index");
+    ArgumentChecker.notNull(index, "Coupon OIS: index");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
@@ -72,6 +72,30 @@ public class CouponON extends Coupon {
     _forwardCurveName = forwardCurveName;
   }
 
+  /**
+   * Constructor of a generic coupon from details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param index The OIS-like index on which the coupon fixes. Not null.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
+   * @param fixingPeriodEndTime The fixing period end time (in years).
+   * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
+   * @param notionalAccrued The notional accrued by the interest periods already fixed.
+   */
+  public CouponON(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index,
+      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued) {
+    super(currency, paymentTime, paymentYearFraction, notional);
+    ArgumentChecker.notNull(index, "Coupon OIS: index");
+    _index = index;
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
+    _notionalAccrued = notionalAccrued;
+    _forwardCurveName = null;
+  }
+  
   /**
    * Gets the OIS index of the instrument.
    * @return The index.

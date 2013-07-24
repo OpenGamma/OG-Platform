@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -67,7 +67,8 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
    * @param rate The underlying swap rate.
    * @return The futures.
    */
-  public static SwapFuturesPriceDeliverableSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor, final double notional, final double rate) {
+  public static SwapFuturesPriceDeliverableSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor,
+      final double notional, final double rate) {
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(effectiveDate, -generator.getSpotLag(), generator.getCalendar());
@@ -112,6 +113,14 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
     final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
     final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+    return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
+  }
+
+  @Override
+  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date) {
+    final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
+    final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
+    final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date);
     return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -102,14 +102,14 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(iborIndex, "Ibor index");
     ArgumentChecker.notNull(name, "Name");
-    this._lastTradingDate = lastTradingDate;
-    this._iborIndex = iborIndex;
+    _lastTradingDate = lastTradingDate;
+    _iborIndex = iborIndex;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getSpotLag(), calendar);
     _fixingPeriodEndDate = ScheduleCalculator
         .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(), calendar, _iborIndex.isEndOfMonth());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
-    this._notional = notional;
-    this._paymentAccrualFactor = paymentAccrualFactor;
+    _notional = notional;
+    _paymentAccrualFactor = paymentAccrualFactor;
     _name = name;
   }
 
@@ -152,9 +152,9 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   public IborIndex getIborIndex() {
     return _iborIndex;
   }
-  
+
   /**
-   * Gets the _unitAmount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'. 
+   * Gets the _unitAmount. This represents the PNL of a single long contract if its price increases by 1.0. Also known as the 'Point Value'.
    * @return the _unitAmount
    */
   public double getUnitAmount() {
@@ -222,7 +222,6 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final LocalDate date = dateTime.toLocalDate();
-//    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
@@ -240,6 +239,27 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   @Override
   public InterestRateFutureSecurity toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
     return toDerivative(date, yieldCurveNames); //TODO Should disappear.
+  }
+
+  @Override
+  public InterestRateFutureSecurity toDerivative(final ZonedDateTime dateTime) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate date = dateTime.toLocalDate();
+    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
+    if (date.isAfter(lastMarginDateLocal)) {
+      throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
+    }
+    final double lastTradingTime = TimeCalculator.getTimeBetween(dateTime, getLastTradingDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
+    final InterestRateFutureSecurity future = new InterestRateFutureSecurity(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, _notional,
+        _paymentAccrualFactor, _name);
+    return future;
+  }
+
+  @Override
+  public InterestRateFutureSecurity toDerivative(final ZonedDateTime date, final Double data) {
+    return toDerivative(date); //TODO Should disappear.
   }
 
   @Override

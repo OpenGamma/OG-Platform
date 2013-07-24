@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.varianceswap;
@@ -43,7 +43,7 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
 
   /**
    * Constructor based upon vega (volatility) parameterisation - strike and notional.
-   * 
+   *
    * @param obsStartDate Date of first observation, not null
    * @param obsEndDate Date of final observation, not null
    * @param settlementDate Date of cash settlement, not null
@@ -143,7 +143,13 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
     return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
   }
 
+  @Override
+  public VarianceSwap toDerivative(final ZonedDateTime date) {
+    return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+  }
+
   /**
+   * {@inheritDoc}
    * The definition is responsible for constructing a view of the variance swap as of a particular date.
    * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
    * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
@@ -155,6 +161,38 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
    */
   @Override
   public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(valueDate, "date");
+    ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
+    final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
+    final double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
+    final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
+    DoubleTimeSeries<LocalDate> realizedTS;
+    if (timeToObsStart > 0) {
+      realizedTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
+    } else {
+      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
+    }
+    final double[] observations = realizedTS.valuesArrayFast();
+    final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
+    final int nGoodBusinessDays = countExpectedGoodDays(_obsStartDate.toLocalDate(), valueDate.toLocalDate(), _calendar, _obsFreq);
+    final int nObsDisrupted = nGoodBusinessDays - observations.length;
+    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
+    return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, _varStrike, _varNotional, _currency, _annualizationFactor, _nObsExpected, nObsDisrupted,
+        observations, observationWeights);
+  }
+
+  /**
+   * {@inheritDoc}
+   * The definition is responsible for constructing a view of the variance swap as of a particular date.
+   * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
+   * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
+   * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
+   * @param valueDate Date at which valuation will occur, not null
+   * @param underlyingTimeSeries Time series of underlying observations, not null
+   * @return VarianceSwap derivative as of date
+   */
+  @Override
+  public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
     ArgumentChecker.notNull(valueDate, "date");
     ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
     final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);

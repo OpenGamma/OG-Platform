@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -28,7 +28,7 @@ import com.opengamma.util.money.Currency;
 public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationDefinition {
 
   /**
-   * The reference date for the index at the coupon start. 
+   * The reference date for the index at the coupon start.
    */
   private final ZonedDateTime _referenceStartDate;
 
@@ -67,7 +67,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    */
   public CouponInflationYearOnYearMonthlyDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int conventionalMonthLag,
-      int monthLag, final ZonedDateTime referenceStartDate, final ZonedDateTime referenceEndDate, final boolean payNotional) {
+      final int monthLag, final ZonedDateTime referenceStartDate, final ZonedDateTime referenceEndDate, final boolean payNotional) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
@@ -188,7 +188,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   }
 
   @Override
-  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
@@ -218,6 +218,48 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   }
 
   @Override
+  public CouponInflationYearOnYearMonthly toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
+    final double referenceStartTime = TimeCalculator.getTimeBetween(date, getReferenceStartDate());
+    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
+    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
+    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
+    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
+        referenceEndTime, naturalPaymentEndTime, _payNotional);
+  }
+
+  @Override
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final LocalDate dayConversion = date.toLocalDate();
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayFixing = getReferenceEndDate().toLocalDate();
+    if (dayConversion.isAfter(dayFixing)) {
+      final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
+      if (fixedEndIndex != null) {
+        final Double fixedStartIndex = priceIndexTimeSeries.getValue(getReferenceStartDate());
+        final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0));
+        return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
+      }
+    }
+    double referenceEndTime = 0.0;
+    double referenceStartTime = 0.0;
+    referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
+    referenceStartTime = TimeCalculator.getTimeBetween(date, _referenceStartDate);
+    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
+    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
+    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
+    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
+    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
+        referenceEndTime, naturalPaymentEndTime, _payNotional);
+  }
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationYearOnYearFirstOfMonth(this, data);
@@ -242,7 +284,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -252,7 +294,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationYearOnYearMonthlyDefinition other = (CouponInflationYearOnYearMonthlyDefinition) obj;
+    final CouponInflationYearOnYearMonthlyDefinition other = (CouponInflationYearOnYearMonthlyDefinition) obj;
     if (_conventionalMonthLag != other._conventionalMonthLag) {
       return false;
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -49,9 +49,9 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
       final ZonedDateTime premiumDate, final double tradePrice) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     ArgumentChecker.notNull(premiumDate, "premium date");
-    this._underlyingOption = underlyingOption;
-    this._quantity = quantity;
-    this._tradePrice = tradePrice;
+    _underlyingOption = underlyingOption;
+    _quantity = quantity;
+    _tradePrice = tradePrice;
     final double premiumAmount = _tradePrice * _underlyingOption.getUnderlyingFuture().getNotional() * _underlyingOption.getUnderlyingFuture().getPaymentAccrualFactor();
     _premium = new PaymentFixedDefinition(underlyingOption.getCurrency(), premiumDate, premiumAmount);
   }
@@ -91,7 +91,17 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
   @Override
   public InterestRateFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final InterestRateFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date, yieldCurveNames);
-    //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
+    if (premiumTime < 0) { // Premium payment in the past.
+      // The premium payment is in the past and is represented by a 0 payment today.
+      return new InterestRateFutureOptionPremiumTransaction(option, _quantity, 0.0, 0.0);
+    }
+    return new InterestRateFutureOptionPremiumTransaction(option, _quantity, premiumTime, _tradePrice);
+  }
+
+  @Override
+  public InterestRateFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date) {
+    final InterestRateFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date);
     final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
     if (premiumTime < 0) { // Premium payment in the past.
       // The premium payment is in the past and is represented by a 0 payment today.

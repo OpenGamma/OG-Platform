@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -209,10 +209,11 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
         notional, getPaymentAccrualFactor(), getName());
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * @param lastMarginPrice The price on which the last margining was done.
    */
+  @Override
   public InterestRateFutureTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -230,6 +231,35 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
       referencePrice = _transactionPrice;
     }
     final InterestRateFutureSecurity underlying = _underlying.toDerivative(dateTime, yieldCurveNames);
+    final InterestRateFutureTransaction future = new InterestRateFutureTransaction(underlying, referencePrice, _quantity);
+    return future;
+  }
+
+  @Override
+  public InstrumentDerivative toDerivative(final ZonedDateTime date) {
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
+  }
+
+  /**
+   * {@inheritDoc}
+   * @param lastMarginPrice The price on which the last margining was done.
+   */
+  @Override
+  public InterestRateFutureTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate date = dateTime.toLocalDate();
+    final LocalDate transactionDateLocal = _transactionDate.toLocalDate();
+    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
+    if (date.isAfter(lastMarginDateLocal)) {
+      throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
+    }
+    double referencePrice;
+    if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
+      referencePrice = lastMarginPrice;
+    } else { // Transaction is today
+      referencePrice = _transactionPrice;
+    }
+    final InterestRateFutureSecurity underlying = _underlying.toDerivative(dateTime);
     final InterestRateFutureTransaction future = new InterestRateFutureTransaction(underlying, referencePrice, _quantity);
     return future;
   }

@@ -311,19 +311,29 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
 
   @Override
   public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC));
   }
 
   @Override
-  public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+  public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(data, "data");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, data);
   }
-
+  
   /**
    * @param date The date to use when converting to the derivative form, not null
    * @param settlementDate The settlement date, not null

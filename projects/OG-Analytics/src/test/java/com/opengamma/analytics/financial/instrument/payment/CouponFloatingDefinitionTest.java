@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class CouponFloatingDefinitionTest {
 
@@ -99,13 +99,23 @@ public class CouponFloatingDefinitionTest {
     }
 
     @Override
-    public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+    public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Payment toDerivative(final ZonedDateTime date) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+    public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
       // TODO Auto-generated method stub
       return null;
     }

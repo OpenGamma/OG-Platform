@@ -122,6 +122,15 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
   }
 
   @Override
+  public BillTransaction toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "Reference date");
+    final BillSecurity purchased = _underlying.toDerivative(date, _settlementDate);
+    final BillSecurity standard = _underlying.toDerivative(date);
+    final double amount = (_settlementDate.isBefore(date)) ? 0.0 : _settlementAmount;
+    return new BillTransaction(purchased, _quantity, amount, standard);
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBillTransactionDefinition(this, data);

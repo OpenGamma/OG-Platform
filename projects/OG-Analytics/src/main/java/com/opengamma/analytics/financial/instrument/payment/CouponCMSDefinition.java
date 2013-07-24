@@ -194,6 +194,48 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
     return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
   }
+  
+  @Override
+  public Coupon toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    // CMS is not fixed yet, all the details are required.
+    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final SwapFixedCoupon<Coupon> swap = _underlyingSwap.toDerivative(date);
+    //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
+    return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
+  }
+
+  @Override
+  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
+    final LocalDate dayFixing = getFixingDate().toLocalDate();
+    if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      if (fixedRate != null) {
+        return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
+      }
+    }
+    if (dayConversion.isAfter(dayFixing)) { // The fixing is required
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate().withHour(0)); // TODO: remove time from fixing date.
+      if (fixedRate == null) {
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + dayFixing);
+      }
+      return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
+    }
+    final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final SwapFixedCoupon<Coupon> swap = _underlyingSwap.toDerivative(dateTime);
+    //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
+    return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
+  }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {

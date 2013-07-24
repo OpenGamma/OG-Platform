@@ -191,6 +191,11 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
 
   @Override
   public CouponFixedCompounding toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public CouponFixedCompounding toDerivative(ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate dayConversion = date.toLocalDate();
     ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
@@ -198,7 +203,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
     return new CouponFixedCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(),
         getPaymentAccrualFactors(), getRate());
   }
-
+  
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
     ArgumentChecker.notNull(visitor, "visitor");

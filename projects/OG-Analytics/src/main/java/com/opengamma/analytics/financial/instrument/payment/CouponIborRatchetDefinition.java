@@ -237,4 +237,23 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
     //TODO: coupon with fixing!
   }
 
+  @Override
+  public CouponIborRatchet toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(!date.isAfter(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
+    return new CouponIborRatchet(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+        getFixingPeriodAccrualFactor(), getIndex(), _mainCoefficients, _floorCoefficients, _capCoefficients);
+  }
+
+  @Override
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data) {
+    return null;
+    //TODO: coupon with fixing!
+  }
+
 }

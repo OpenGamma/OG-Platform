@@ -33,17 +33,16 @@ public class AgricultureFutureOptionDefinition extends CommodityFutureOptionDefi
     super(expiryDate, underlying, strike, exerciseType, isCall);
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   * @param date fixing time
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
   public AgricultureFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public AgricultureFutureOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
-    final AgricultureFuture underlyingDeriv = getUnderlying().toDerivative(date, yieldCurveNames);
+    final AgricultureFuture underlyingDeriv = getUnderlying().toDerivative(date);
     return new AgricultureFutureOption(timeToFixing, underlyingDeriv, getStrike(), getExerciseType(), isCall());
   }
 

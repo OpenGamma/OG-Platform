@@ -42,7 +42,9 @@ public class CouponFixed extends Coupon {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param rate The coupon fixed rate.
+   * @deprecated Use the constructor that does not take a curve name
    */
+  @Deprecated
   public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     _fixedRate = rate;
@@ -61,7 +63,9 @@ public class CouponFixed extends Coupon {
    * @param rate The coupon fixed rate.
    * @param accrualStartDate The start date of the coupon accrual period.
    * @param accrualEndDate The end date of the coupon accrual period.
+   * @deprecated Use the constructor that does not take a curve name
    */
+  @Deprecated
   public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
       final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
@@ -78,11 +82,59 @@ public class CouponFixed extends Coupon {
    * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param rate The coupon fixed rate.
+   * @deprecated Use the constructor that does not take a curve name
    */
+  @Deprecated
   public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double rate) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, 1.0, rate);
   }
 
+  /**
+   * Constructor from all details but accrual dates.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param rate The coupon fixed rate.
+   */
+  public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double rate) {
+    super(currency, paymentTime, paymentYearFraction, notional);
+    _fixedRate = rate;
+    _accrualStartDate = null;
+    _accrualEndDate = null;
+    _amount = paymentYearFraction * notional * rate;
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param rate The coupon fixed rate.
+   * @param accrualStartDate The start date of the coupon accrual period.
+   * @param accrualEndDate The end date of the coupon accrual period.
+   */
+  public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double rate,
+      final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
+    super(currency, paymentTime, paymentYearFraction, notional);
+    _fixedRate = rate;
+    _amount = paymentYearFraction * notional * rate;
+    _accrualStartDate = accrualStartDate;
+    _accrualEndDate = accrualEndDate;
+  }
+
+  /**
+   * Constructor from details with notional defaulted to 1.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param rate The coupon fixed rate.
+   */
+  public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double rate) {
+    this(currency, paymentTime, paymentYearFraction, 1.0, rate);
+  }
+  
   /**
    * Gets the coupon fixed rate.
    * @return The fixed rate.

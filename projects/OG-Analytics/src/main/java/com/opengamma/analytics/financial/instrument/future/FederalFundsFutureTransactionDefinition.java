@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -92,15 +92,42 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   }
 
   @Override
+  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date) {
+    throw new UnsupportedOperationException("The method toDerivative of FederalFundsFutureTransactionDefinition does not support the two argument method (without ON fixing and margin price data).");
+  }
+
   /**
    * @param date The reference date.
    * @param data Two time series. The first one with the ON index fixing; the second one with the future closing (margining) prices.
+   * @param yieldCurveNames The yield curve names
    * The last closing price at a date strictly before "date" is used as last closing.
+   * @return The derivative form
    */
+  @Override
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Date");
     ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
     final FederalFundsFutureSecurity underlying = _underlyingFuture.toDerivative(date, data[0], yieldCurveNames);
+    if (_tradeDate.equals(date)) {
+      return new FederalFundsFutureTransaction(underlying, _quantity, _tradePrice);
+    }
+    final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
+    ArgumentChecker.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
+    final double lastMargin = pastClosing.getLatestValue();
+    return new FederalFundsFutureTransaction(underlying, _quantity, lastMargin);
+  }
+
+  /**
+   * @param date The reference date.
+   * @param data Two time series. The first one with the ON index fixing; the second one with the future closing (margining) prices.
+   * The last closing price at a date strictly before "date" is used as last closing.
+   * @return The derivative form
+   */
+  @Override
+  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data) {
+    ArgumentChecker.notNull(date, "Date");
+    ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
+    final FederalFundsFutureSecurity underlying = _underlyingFuture.toDerivative(date, data[0]);
     if (_tradeDate.equals(date)) {
       return new FederalFundsFutureTransaction(underlying, _quantity, _tradePrice);
     }

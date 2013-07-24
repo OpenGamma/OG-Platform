@@ -203,6 +203,33 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
   }
 
   @Override
+  public BondFuture toDerivative(final ZonedDateTime date) {
+    throw new UnsupportedOperationException("The method toDerivative of " + getClass().getSimpleName()
+        + " does not support the two argument method (without margin price data).");
+  }
+
+  @Override
+  public BondFuture toDerivative(final ZonedDateTime valDate, final Double referencePrice) {
+    ArgumentChecker.notNull(valDate, "valDate must always be provided to form a Derivative from a Definition");
+    ArgumentChecker.isTrue(!valDate.isAfter(getDeliveryLastDate()), "Valuation date is after last delivery date");
+
+    final double lastTradingTime = TimeCalculator.getTimeBetween(valDate, getTradingLastDate());
+    final double firstNoticeTime = TimeCalculator.getTimeBetween(valDate, getNoticeFirstDate());
+    final double lastNoticeTime = TimeCalculator.getTimeBetween(valDate, getNoticeLastDate());
+    final double firstDeliveryTime = TimeCalculator.getTimeBetween(valDate, getDeliveryFirstDate());
+    final double lastDeliveryTime = TimeCalculator.getTimeBetween(valDate, getDeliveryLastDate());
+
+    final BondFixedSecurity[] basket = new BondFixedSecurity[_deliveryBasket.length];
+    for (int loopbasket = 0; loopbasket < _deliveryBasket.length; loopbasket++) {
+      basket[loopbasket] = _deliveryBasket[loopbasket].toDerivative(valDate, _deliveryLastDate);
+    }
+
+    final BondFuture futureDeriv = new BondFuture(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket,
+        _conversionFactor, referencePrice);
+    return futureDeriv;
+  }
+  
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureDefinition(this, data);

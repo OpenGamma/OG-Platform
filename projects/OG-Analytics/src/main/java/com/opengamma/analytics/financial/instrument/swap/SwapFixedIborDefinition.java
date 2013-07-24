@@ -226,6 +226,23 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date) {
+    final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date);
+    final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date);
+    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS) {
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date);
+    final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, indexDataTS[0]);
+    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
+  }
+  
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

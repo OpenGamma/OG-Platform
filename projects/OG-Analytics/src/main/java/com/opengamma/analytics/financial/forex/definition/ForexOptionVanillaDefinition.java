@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.forex.definition;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
@@ -51,9 +50,9 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
    * @param isLong The long (true) / short (false) flag.
    */
   public ForexOptionVanillaDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, final boolean isLong) {
-    Validate.notNull(forex, "Underlying forex");
-    Validate.notNull(expirationDate, "Expiration date");
-    Validate.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
+    ArgumentChecker.notNull(forex, "Underlying forex");
+    ArgumentChecker.notNull(expirationDate, "Expiration date");
+    ArgumentChecker.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
     this._underlyingForex = forex;
     this._expirationDate = expirationDate;
     this._isCall = isCall;
@@ -97,9 +96,20 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
    */
   @Override
   public ForexOptionVanilla toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yieldCurveNames");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yieldCurveNames");
     final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
+    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
+    return new ForexOptionVanilla(fx, expirationTime, _isCall, _isLong);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ForexOptionVanilla toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final Forex fx = _underlyingForex.toDerivative(date);
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     return new ForexOptionVanilla(fx, expirationTime, _isCall, _isLong);
   }

@@ -142,6 +142,18 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    * {@inheritDoc}
    */
   @Override
+  public ForexOptionDigital toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final Forex fx = _underlyingForex.toDerivative(date);
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
+    return new ForexOptionDigital(fx, expirationTime, _isCall, _isLong, _payDomestic);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionDigitalDefinition(this, data);

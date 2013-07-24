@@ -143,6 +143,40 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
         _couponFrequency, _convention, _stubType);
   }
 
+  /**
+   * Create a {@link ISDACDSDerivative} object for pricing relative to the given pricing date
+   * 
+   * @param pricingDate Pricing point for offsetting t values
+   * @return CDS derivative object ready for pricing
+   */
+  @Override
+  public ISDACDSDerivative toDerivative(final ZonedDateTime pricingDate) {
+
+    final ZonedDateTime stepinDate = pricingDate.isAfter(_startDate) ? pricingDate.plusDays(1) : _startDate;
+    final ZonedDateTime settlementDate = findSettlementDate(pricingDate, _convention);
+
+    return toDerivative(pricingDate, stepinDate, settlementDate);
+  }
+
+  /**
+   * @param pricingDate The pricing date
+   * @param stepinDate The step-in date
+   * @param settlementDate The settlement date
+   * @return The derivative form of a CDS
+   */
+  public ISDACDSDerivative toDerivative(final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate) {
+
+    return new ISDACDSDerivative(
+        _premium.toDerivative(pricingDate),
+        getTimeBetween(pricingDate, _startDate),
+        getTimeBetween(pricingDate, _maturity),
+        getTimeBetween(pricingDate, stepinDate),
+        getTimeBetween(pricingDate, settlementDate),
+        _notional, _spread, _recoveryRate, accruedInterest(stepinDate),
+        _accrualOnDefault, _payOnDefault, _protectStart,
+        _couponFrequency, _convention, _stubType);
+  }
+  
   private ZonedDateTime findSettlementDate(final ZonedDateTime startDate, final Convention convention) {
 
     final TemporalAdjuster adjuster = convention.getBusinessDayConvention().getTemporalAdjuster(convention.getWorkingDayCalendar());

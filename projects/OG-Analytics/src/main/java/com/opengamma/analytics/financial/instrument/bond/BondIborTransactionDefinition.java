@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * Describes a transaction on a Ibor coupon bond issue.
  */
 public class BondIborTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponIborDefinition>
-implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
+  implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * Constructor of a Ibor coupon bond transaction from all the transaction details.
@@ -124,6 +124,73 @@ implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<?
     return result;
   }
 
+  @Override
+  public BondIborTransaction toDerivative(final ZonedDateTime date) {
+    // TODO: review this implementation using the Security toDerivative.
+    ArgumentChecker.notNull(date, "date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
+    final double spotTime = actAct.getDayCountFraction(date, spot);
+    final double settlementTime;
+    if (getSettlementDate().isBefore(date)) {
+      settlementTime = 0;
+    } else {
+      settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
+    }
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupons().toDerivative(date);
+    final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
+    final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
+    final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
+    final Annuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
+    final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime, null);
+    final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime, null);
+    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
+    int couponIndex = 0; // The index of the coupon of the spot date.
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
+        couponIndex = loopcpn;
+        break;
+      }
+    }
+    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
+    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
+    return result;
+  }
+
+  @Override
+  public BondIborTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
+    final double spotTime = actAct.getDayCountFraction(date, spot);
+    final double settlementTime;
+    if (getSettlementDate().isBefore(date)) {
+      settlementTime = 0;
+    } else {
+      settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
+    }
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupons().toDerivative(date, indexFixingTS);
+    final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
+    final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
+    final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
+    final Annuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
+    final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime);
+    final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime);
+    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
+    int couponIndex = 0; // The index of the coupon of the spot date.
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
+        couponIndex = loopcpn;
+        break;
+      }
+    }
+    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
+    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
+    return result;
+  }
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

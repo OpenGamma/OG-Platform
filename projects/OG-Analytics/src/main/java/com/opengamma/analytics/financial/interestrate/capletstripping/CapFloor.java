@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -10,12 +10,12 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Representation of an interest rate cap (floor) as a set of caplets (floorlets) - calls (puts) on an Ibor rate 
+ * Representation of an interest rate cap (floor) as a set of caplets (floorlets) - calls (puts) on an Ibor rate
  */
 public class CapFloor extends Annuity<CapFloorIbor> {
 
   /**
-   * @param payments The series of caplets or floorlets - note must be all caplets or all floorlets with same strike 
+   * @param payments The series of caplets or floorlets - note must be all caplets or all floorlets with same strike
    */
   public CapFloor(final CapFloorIbor[] payments) {
     super(payments);
@@ -29,8 +29,6 @@ public class CapFloor extends Annuity<CapFloorIbor> {
     }
   }
 
-
-
   public double getStrike() {
     return getNthPayment(0).getStrike();
   }
@@ -40,7 +38,7 @@ public class CapFloor extends Annuity<CapFloorIbor> {
   }
 
   /**
-   * The start time is taken as the fixing period start of the first caplet/floorlet 
+   * The start time is taken as the fixing period start of the first caplet/floorlet
    * @return The start time
    */
   public double getStartTime() {
@@ -48,7 +46,7 @@ public class CapFloor extends Annuity<CapFloorIbor> {
   }
 
   /**
-   * The end time is taken as the fixing period end of the last caplet/floorlet 
+   * The end time is taken as the fixing period end of the last caplet/floorlet
    * @return The end time
    */
   public double getEndTime() {
@@ -57,9 +55,9 @@ public class CapFloor extends Annuity<CapFloorIbor> {
 
   public CapFloor withStrike(final double strike) {
     ArgumentChecker.isTrue(strike >= 0, "negative strike");
-    CapFloorIbor[] payments = getPayments();
+    final CapFloorIbor[] payments = getPayments();
     final int n = getNumberOfPayments();
-    CapFloorIbor[] temp = new CapFloorIbor[n];
+    final CapFloorIbor[] temp = new CapFloorIbor[n];
     for (int i = 0; i < n; i++) {
       temp[i] = payments[i].withStrike(strike);
     }

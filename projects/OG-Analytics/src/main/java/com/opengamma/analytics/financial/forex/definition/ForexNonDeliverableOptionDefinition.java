@@ -88,6 +88,14 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
    * {@inheritDoc}
    */
   @Override
+  public ForexNonDeliverableOption toDerivative(final ZonedDateTime date) {
+    return new ForexNonDeliverableOption(_underlyingNDF.toDerivative(date), _isCall, _isLong);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexNonDeliverableOptionDefinition(this, data);

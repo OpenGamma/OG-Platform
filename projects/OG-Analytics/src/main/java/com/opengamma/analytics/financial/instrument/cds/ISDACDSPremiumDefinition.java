@@ -111,10 +111,21 @@ public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
 
   @Override
   public ISDACDSPremium toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final List<ISDACDSCoupon> resultList = new ArrayList<ISDACDSCoupon>();
+    final List<ISDACDSCoupon> resultList = new ArrayList<>();
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
       if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
         resultList.add(((ISDACDSCouponDefinition) getNthPayment(loopcoupon)).toDerivative(date, yieldCurveNames));
+      }
+    }
+    return new ISDACDSPremium(resultList.toArray(new ISDACDSCoupon[resultList.size()]));
+  }
+
+  @Override
+  public ISDACDSPremium toDerivative(final ZonedDateTime date) {
+    final List<ISDACDSCoupon> resultList = new ArrayList<>();
+    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
+      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
+        resultList.add(((ISDACDSCouponDefinition) getNthPayment(loopcoupon)).toDerivative(date));
       }
     }
     return new ISDACDSPremium(resultList.toArray(new ISDACDSCoupon[resultList.size()]));

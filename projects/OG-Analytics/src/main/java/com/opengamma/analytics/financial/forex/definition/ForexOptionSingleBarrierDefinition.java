@@ -94,6 +94,13 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
   }
 
   @Override
+  public ForexOptionSingleBarrier toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final ForexOptionVanilla underlying = _underlyingOption.toDerivative(date);
+    return new ForexOptionSingleBarrier(underlying, _barrier);
+  }
+
+  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitForexOptionSingleBarrierDefiniton(this, data);

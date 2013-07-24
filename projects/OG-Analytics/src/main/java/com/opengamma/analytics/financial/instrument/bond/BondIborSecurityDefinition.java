@@ -34,7 +34,7 @@ import com.opengamma.util.time.DateUtils;
  * Describes a floating coupon bond (or Floating Rate Note) issue with Ibor-like coupon.
  */
 public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition>
-implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
+  implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The default notional for the security.
@@ -114,7 +114,17 @@ implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extend
     return toDerivative(date, indexFixingTS, spot, yieldCurveNames);
   }
 
-  public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final ZonedDateTime settlementDate, final String... yieldCurveNames) {
+  /**
+   * @param date The valuation date, not null
+   * @param indexFixingTS The index fixing time series, not null
+   * @param settlementDate The settlement date, not null
+   * @param yieldCurveNames The yield curve names, not null, must have at least two entries
+   * @return The security
+   * @deprecated Use the version that does not take curve names
+   */
+  @Deprecated
+  public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final ZonedDateTime settlementDate, 
+      final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(indexFixingTS, "fixing time series");
@@ -134,6 +144,41 @@ implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extend
     return new BondIborSecurity(nominal.trimBefore(settlementTime), coupon.trimBefore(settlementTime), settlementTime, riskFreeCurveName);
   }
 
+  @Override
+  public BondIborSecurity toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
+    return toDerivative(date, ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(1800, 1, 1), 0.0), spot);
+  }
+
+  @Override
+  public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
+    ArgumentChecker.notNull(date, "date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
+    return toDerivative(date, indexFixingTS, spot);
+  }
+
+  /**
+   * @param date The valuation date, not null
+   * @param indexFixingTS The index fixing time series, not null
+   * @param settlementDate The settlement date, not null
+   * @return The security
+   */
+  public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final ZonedDateTime settlementDate) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(indexFixingTS, "fixing time series");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    double settlementTime;
+    if (settlementDate.isBefore(date)) {
+      settlementTime = 0.0;
+    } else {
+      settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
+    }
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) getCoupons().toDerivative(date, indexFixingTS);
+    return new BondIborSecurity(nominal.trimBefore(settlementTime), coupon.trimBefore(settlementTime), settlementTime);
+  }
+  
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

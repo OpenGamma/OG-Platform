@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -27,10 +25,22 @@ public class PaymentFixed extends Payment {
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentAmount The amount paid.
    * @param fundingCurve Name of the funding curve.
+   * @deprecated Use the version that does not take a funding curve name
    */
+  @Deprecated
   public PaymentFixed(final Currency currency, final double paymentTime, final double paymentAmount, final String fundingCurve) {
     super(currency, paymentTime, fundingCurve);
-    Validate.notNull(fundingCurve);
+    _amount = paymentAmount;
+  }
+
+  /**
+   * Fixed payment constructor.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentAmount The amount paid.
+   */
+  public PaymentFixed(final Currency currency, final double paymentTime, final double paymentAmount) {
+    super(currency, paymentTime);
     _amount = paymentAmount;
   }
 
