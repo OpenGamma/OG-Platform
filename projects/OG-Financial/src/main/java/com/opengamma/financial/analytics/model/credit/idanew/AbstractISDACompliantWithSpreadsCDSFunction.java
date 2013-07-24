@@ -114,7 +114,7 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     }
     final double[] spreads = ArrayUtils.toPrimitive(spreadObject.getYData());
     final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, desiredValue.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
-    final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(bucketDates, spreads, security.getParSpread(), quoteConvention);
+    final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), bucketDates, spreads, security.getParSpread(), quoteConvention);
 
     // CDS analytics for credit curve (possible performance improvement if earlier result obtained)
     //final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);

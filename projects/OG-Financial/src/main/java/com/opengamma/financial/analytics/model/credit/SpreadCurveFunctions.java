@@ -282,21 +282,23 @@ public class SpreadCurveFunctions {
   }
 
   /**
-   * Get analytic quote objects from an input which may be a mix of quoting conventions.
+   * Get analytic quote objects for the spread / credit curve.
+   * If priced cds matures on an IMM date set spreads to quoted otherwise take them as par.
    *
    * If quoteConvention is SPREAD, set quoted vs. par spread based on IMM maturity
    *
+   * @param pricedCDSMaturity the maturity of the priced cds
    * @param dates the dates we have quotes for
    * @param values the quotes
    * @param quoteConvention the quote convention e.g. SPREAD or PUF
    * @return the cds quote conventions
    */
-  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime[] dates, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention) {
+  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime pricedCDSMaturity, final ZonedDateTime[] dates, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention) {
     ArgumentChecker.isTrue(dates.length == values.length, "Dates and values arrays must be equal length");
     final CDSQuoteConvention[] result = new CDSQuoteConvention[dates.length];
     for (int i = 0; i < dates.length; i++) {
       if (StandardCDSQuotingConvention.SPREAD.equals(quoteConvention)) {
-        result[i] = IMMDateGenerator.isIMMDate(dates[i]) ? new QuotedSpread(coupon, values[i]) : new ParSpread(values[i]);
+        result[i] = IMMDateGenerator.isIMMDate(pricedCDSMaturity) ? new QuotedSpread(coupon, values[i]) : new ParSpread(values[i]);
       } else if (StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention)) {
         result[i] = new PointsUpFront(values[i], coupon);
       } else {
