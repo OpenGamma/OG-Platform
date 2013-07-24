@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.variance;
@@ -27,7 +27,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
 
   /**
    * Constructor based upon vega (volatility) parameterisation - strike and notional.
-   * 
+   *
    * @param obsStartDate Date of first observation, not null
    * @param obsEndDate Date of final observation, not null
    * @param settlementDate Date of cash settlement, not null
@@ -104,6 +104,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
   }
 
   /**
+   * {@inheritDoc}
    * The definition is responsible for constructing a view of the variance swap as of a particular date.
    * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
    * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
@@ -134,6 +135,44 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),
         getAnnualizationFactor(), getObsExpected(), nObsDisrupted, observations, observationWeights, correctForDividends());
   }
+
+  @Override
+  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate) {
+    return toDerivative(valueDate, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+  }
+
+  /**
+   * {@inheritDoc}
+   * The definition is responsible for constructing a view of the variance swap as of a particular date.
+   * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
+   * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
+   * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
+   * @param valueDate Date at which valuation will occur, not null
+   * @param underlyingTimeSeries Time series of underlying observations, not null
+   * @return VarianceSwap derivative as of date
+   */
+  @Override
+  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
+    ArgumentChecker.notNull(valueDate, "date");
+    ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
+    final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, getObsStartDate());
+    final double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, getObsEndDate());
+    final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, getSettlementDate());
+    DoubleTimeSeries<LocalDate> realizedTS;
+    if (timeToObsStart > 0) {
+      realizedTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
+    } else {
+      realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
+    }
+    final double[] observations = realizedTS.valuesArrayFast();
+    final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
+    final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
+    final int nObsDisrupted = nGoodBusinessDays - observations.length;
+    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
+    return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),
+        getAnnualizationFactor(), getObsExpected(), nObsDisrupted, observations, observationWeights, correctForDividends());
+  }
+
 
   @Override
   public int hashCode() {

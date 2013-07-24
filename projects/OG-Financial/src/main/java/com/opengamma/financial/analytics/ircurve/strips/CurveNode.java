@@ -42,7 +42,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @PropertyDefinition
   private String _name;
 
-  /* package */CurveNode() {
+  protected CurveNode() {
     super();
   }
 

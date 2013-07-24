@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility;
@@ -235,7 +235,7 @@ public abstract class BlackFormulaRepository {
    * The simple delta.
    * Note that this is not the standard delta one is accustomed to.
    * The argument of the cumulative normal is simply d = Math.log(forward / strike) / sigmaRootT
-   * 
+   *
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
@@ -468,7 +468,7 @@ public abstract class BlackFormulaRepository {
     double d2 = 0.;
 
     double priceLike = Double.NaN;
-    double rt = (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0. ? 1. : -1.) : interestRate * timeToExpiry;
+    final double rt = (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0. ? 1. : -1.) : interestRate * timeToExpiry;
     if (bFwd && bStr) {
       s_logger.info("(large value)/(large value) ambiguous");
       priceLike = isCall ? (forward >= strike ? forward : 0.) : (strike >= forward ? strike : 0.);
@@ -624,7 +624,7 @@ public abstract class BlackFormulaRepository {
     ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
     ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    double rootT = Math.sqrt(timeToExpiry);
+    final double rootT = Math.sqrt(timeToExpiry);
     double sigmaRootT = lognormalVol * rootT;
     if (Double.isNaN(sigmaRootT)) {
       s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
@@ -676,7 +676,7 @@ public abstract class BlackFormulaRepository {
     ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
     ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
 
-    double rootT = Math.sqrt(timeToExpiry);
+    final double rootT = Math.sqrt(timeToExpiry);
     double sigmaRootT = lognormalVol * rootT;
     if (Double.isNaN(sigmaRootT)) {
       s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
@@ -804,7 +804,7 @@ public abstract class BlackFormulaRepository {
 
     final double intrinsicPrice = Math.max(0., (isCall ? 1 : -1) * (forward - strike));
 
-    final double targetPrice = price - intrinsicPrice; //Math.max(0., price - intrinsicPrice) should not used for least chi square 
+    final double targetPrice = price - intrinsicPrice; //Math.max(0., price - intrinsicPrice) should not used for least chi square
     final double sigmaGuess = 0.3;
     return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess);
   }
@@ -1045,7 +1045,6 @@ public abstract class BlackFormulaRepository {
     final double[] res = new double[2];
     res[0] = price(forward, strike, timeToExpiry, lognormalVol, isCall);
     res[1] = vega(forward, strike, timeToExpiry, lognormalVol);
-    //    System.out.println(new DoubleMatrix1D(res));
     return res;
 
     //    final double rootT = Math.sqrt(timeToExpiry);

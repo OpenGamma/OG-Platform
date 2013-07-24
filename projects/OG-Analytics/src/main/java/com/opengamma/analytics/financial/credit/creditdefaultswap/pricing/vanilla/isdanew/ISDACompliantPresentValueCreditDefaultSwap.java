@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -55,7 +55,7 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
 
   /**
    * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
-   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis 
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis
    * points divided by 10,000) <p>
    * This mimics the ISDA c function <b>JpmcdsCdsFeeLegPV</b>
    * @param today The 'current' date
@@ -364,7 +364,6 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
 
     }
     pv *= 1.0 - recoveryRate;
-    // System.out.println(pv);
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
     final double t = _curveDayCount.getDayCountFraction(today, valueDate);
