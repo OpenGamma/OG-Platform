@@ -19,8 +19,6 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
-import au.com.bytecode.opencsv.CSVReader;
-
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.portfolio.PortfolioCopier;
@@ -44,6 +42,8 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.test.TestGroup;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 @Test(groups = TestGroup.UNIT)
 public class PortfolioCopierTest {
@@ -82,8 +82,8 @@ public class PortfolioCopierTest {
     // file to masters
     PortfolioReader portfolioReader = 
         new SingleSheetSimplePortfolioReader(PORTFOLIO_FILE, SECURITY_TYPE);
-    PortfolioWriter portfolioWriter = new MasterPortfolioWriter(PORTFOLIO_NAME, portfolioMaster, positionMaster,
-        securityMaster, false, false, false, false);
+    PortfolioWriter portfolioWriter =
+        new MasterPortfolioWriter(PORTFOLIO_NAME, portfolioMaster, positionMaster, securityMaster, false, false, false);
     portfolioCopier.copy(portfolioReader, portfolioWriter);
     portfolioReader.close();
     portfolioWriter.close();

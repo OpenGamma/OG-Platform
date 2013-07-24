@@ -167,12 +167,13 @@ public class PortfolioLoader {
       }
 
       // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new MasterPortfolioWriter(
-          portfolioName,
-          toolContext.getPortfolioMaster(),
-          toolContext.getPositionMaster(),
-          toolContext.getSecurityMaster(),
-          overwrite, mergePositions, keepCurrentPositions, false);
+      return new MasterPortfolioWriter(portfolioName,
+                                       toolContext.getPortfolioMaster(),
+                                       toolContext.getPositionMaster(),
+                                       toolContext.getSecurityMaster(),
+                                       mergePositions,
+                                       keepCurrentPositions,
+                                       false);
 
     } else {
 
