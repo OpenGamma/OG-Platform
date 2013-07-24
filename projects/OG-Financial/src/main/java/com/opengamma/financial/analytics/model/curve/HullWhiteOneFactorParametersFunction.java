@@ -35,7 +35,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction.NonCo
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(0.02, new double[] {0.2, 0.25}, new double[] {1, 2});
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(0.02, new double[] {0.01}, new double[0]);
     final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
     final ValueSpecification spec = new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.NULL, properties);
     return Collections.singleton(new ComputedValue(spec, parameters));
