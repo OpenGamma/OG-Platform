@@ -708,7 +708,7 @@ public class SingleThreadViewProcessWorker implements MarketDataListener, ViewPr
     try {
       getWorkerContext().viewDefinitionCompiled(getMarketDataProvider(), compiledViewDefinition);
     } catch (final Exception vpe) {
-      s_logger.error("Error notifying " + getWorkerContext() + " of view definition compilation");
+      s_logger.error("Error notifying " + getWorkerContext() + " of view definition compilation", vpe);
     }
   }
 
