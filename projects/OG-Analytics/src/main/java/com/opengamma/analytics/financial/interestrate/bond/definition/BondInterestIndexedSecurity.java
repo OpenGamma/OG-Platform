@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -42,7 +42,7 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
    */
   private final double _factorToNextCoupon;
   /**
-   * The description of the bond settlement. It is used only for the dates. 
+   * The description of the bond settlement. It is used only for the dates.
    * The notional is 0 if the settlement is in the past and 1 if not.
    */
   private final PaymentFixed _settlement;
@@ -67,7 +67,7 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
    */
   public BondInterestIndexedSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final YieldConvention yieldConvention, final int couponPerYear, final PaymentFixed settlement, final String issuer, final IndexPrice priceIndex) {
-    super(nominal, coupon, settlementTime, "Not used", issuer);
+    super(nominal, coupon, settlementTime, issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     Validate.notNull(settlement, "Settlement");
     Validate.notNull(priceIndex, "Price Index");
@@ -164,7 +164,7 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -174,7 +174,7 @@ public class BondInterestIndexedSecurity<N extends PaymentFixed, C extends Coupo
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondInterestIndexedSecurity<?, ?> other = (BondInterestIndexedSecurity<?, ?>) obj;
+    final BondInterestIndexedSecurity<?, ?> other = (BondInterestIndexedSecurity<?, ?>) obj;
     if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
       return false;
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
@@ -74,10 +74,8 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final double paymentTime = payment.getPaymentTime();
     final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
         * multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
-    final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor(),
-        payment.getFundingCurveName());
-    final PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, -payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor(),
-        payment.getFundingCurveName());
+    final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor());
+    final PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, -payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor());
     return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
   }
 
@@ -91,10 +89,9 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final double paymentTime = payment.getPaymentTime();
     final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
         * multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
-    final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor(),
-        payment.getFundingCurveName());
+    final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor());
     final PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, (-payment.getNotional() + payment.getSpreadAmount()) * payment.getPaymentYearFraction()
-        / payment.getFixingAccrualFactor(), payment.getFundingCurveName());
+        / payment.getFixingAccrualFactor());
     return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
   }
 
@@ -109,9 +106,9 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final double beta = (1.0 + payment.getFixingAccrualFactor() * multicurves.getForwardRate(payment.getIndex(), fixingStartTime, fixingEndTime, payment.getFixingAccrualFactor()))
         * multicurves.getDiscountFactor(ccy, paymentTime) / multicurves.getDiscountFactor(ccy, fixingStartTime);
     final PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, payment.getFactor() * beta * payment.getNotional() * payment.getPaymentYearFraction()
-        / payment.getFixingAccrualFactor(), payment.getFundingCurveName());
+        / payment.getFixingAccrualFactor());
     final PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, (-payment.getFactor() / payment.getFixingAccrualFactor() + payment.getSpread()) *
-        payment.getPaymentYearFraction() * payment.getNotional(), payment.getFundingCurveName());
+        payment.getPaymentYearFraction() * payment.getNotional());
     return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
   }
 
@@ -119,7 +116,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
   public AnnuityPaymentFixed visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurves, "Multicurves provider");
-    final TreeMap<Double, Double> flow = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> flow = new TreeMap<>();
     final Currency ccy = annuity.getCurrency();
     for (final Payment p : annuity.getPayments()) {
       final AnnuityPaymentFixed cfe = p.accept(this, multicurves);
@@ -130,7 +127,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final PaymentFixed[] agregatedCfe = new PaymentFixed[flow.size()];
     int loopcf = 0;
     for (final double time : flow.keySet()) {
-      agregatedCfe[loopcf++] = new PaymentFixed(ccy, time, flow.get(time), annuity.getDiscountCurve());
+      agregatedCfe[loopcf++] = new PaymentFixed(ccy, time, flow.get(time));
     }
     return new AnnuityPaymentFixed(agregatedCfe);
   }
@@ -146,7 +143,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     ArgumentChecker.notNull(multicurves, "Multicurves provider");
     final Currency ccy = swap.getFirstLeg().getCurrency();
     Validate.isTrue(ccy.equals(swap.getSecondLeg().getCurrency()), "Cash flow equivalent available only for single currency swaps.");
-    final TreeMap<Double, Double> flow = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> flow = new TreeMap<>();
     final AnnuityPaymentFixed cfeLeg1 = swap.getFirstLeg().accept(this, multicurves);
     final AnnuityPaymentFixed cfeLeg2 = swap.getSecondLeg().accept(this, multicurves);
     for (final PaymentFixed p : cfeLeg1.getPayments()) {
@@ -158,7 +155,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final PaymentFixed[] agregatedCfe = new PaymentFixed[flow.size()];
     int loopcf = 0;
     for (final double time : flow.keySet()) {
-      agregatedCfe[loopcf++] = new PaymentFixed(ccy, time, flow.get(time), cfeLeg1.getDiscountCurve());
+      agregatedCfe[loopcf++] = new PaymentFixed(ccy, time, flow.get(time));
     }
     return new AnnuityPaymentFixed(agregatedCfe);
   }
@@ -173,7 +170,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(multicurves, "Multicurves provider");
     final Currency ccy = bond.getCurrency();
-    final TreeMap<Double, Double> flow = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> flow = new TreeMap<>();
     final AnnuityPaymentFixed cfeNom = bond.getNominal().accept(this, multicurves);
     final AnnuityPaymentFixed cfeCpn = bond.getCoupon().accept(this, multicurves);
     for (final PaymentFixed p : cfeNom.getPayments()) {
@@ -185,7 +182,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
     final PaymentFixed[] agregatedCfe = new PaymentFixed[flow.size()];
     int loopcf = 0;
     for (final double time : flow.keySet()) {
-      agregatedCfe[loopcf++] = new PaymentFixed(ccy, time, flow.get(time), cfeCpn.getDiscountCurve());
+      agregatedCfe[loopcf++] = new PaymentFixed(ccy, time, flow.get(time));
     }
     return new AnnuityPaymentFixed(agregatedCfe);
 
@@ -197,7 +194,7 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
    * @param time The time of the flow to add.
    * @param amount The amount of the flow to add.
    */
-  private void addcf(final TreeMap<Double, Double> flow, final double time, final double amount) {
+  private static void addcf(final TreeMap<Double, Double> flow, final double time, final double amount) {
     if (flow.containsKey(time)) {
       flow.put(time, flow.get(time) + amount);
     } else {

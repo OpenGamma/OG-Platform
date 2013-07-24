@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class CouponTest {
   private static final Currency CCY = Currency.AUD;
@@ -41,7 +41,7 @@ public class CouponTest {
     Coupon other = new MyCoupon(CCY, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
     assertEquals(COUPON, other);
     assertEquals(COUPON.hashCode(), other.hashCode());
-    assertEquals(COUPON.toString(), "Currency=AUD, Payment time=0.5, Funding curve=D, year fraction = 0.51, notional = 100.0");
+    assertEquals(COUPON.toString(), "Currency=AUD, payment time=0.5, funding curve=D, year fraction = 0.51, notional = 100.0");
     other = new MyCoupon(Currency.CAD, PAYMENT_TIME, NAME, ACCRUAL_TIME, NOTIONAL);
     assertFalse(other.equals(COUPON));
     other = new MyCoupon(CCY, PAYMENT_TIME + 1, NAME, ACCRUAL_TIME, NOTIONAL);
@@ -71,7 +71,7 @@ public class CouponTest {
     }
 
     @Override
-    public Coupon withNotional(double notional) {
+    public Coupon withNotional(final double notional) {
       return null;
     }
 

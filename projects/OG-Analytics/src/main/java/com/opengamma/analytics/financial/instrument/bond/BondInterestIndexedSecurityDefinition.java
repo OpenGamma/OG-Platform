@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -333,7 +333,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
     return toDerivative(date, spot, data);
   }
-  
+
   /**
    * @param date The date to use when converting to the derivative form, not null
    * @param settlementDate The settlement date, not null
@@ -349,7 +349,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
     } else {
       settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     }
-    final Annuity<PaymentFixed> nominal = (Annuity<PaymentFixed>) getNominal().toDerivative(date, data, "Not used");
+    final Annuity<PaymentFixed> nominal = (Annuity<PaymentFixed>) getNominal().toDerivative(date, data);
     final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) getCoupons().trimBefore(settlementDate);
     final CouponDefinition[] couponExPeriodArray = new CouponDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 0, couponExPeriodArray, 0, couponDefinition.getNumberOfPayments());
@@ -361,7 +361,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
       }
     }
     final AnnuityDefinition<PaymentDefinition> couponDefinitionExPeriod = new AnnuityDefinition<PaymentDefinition>(couponExPeriodArray);
-    final Annuity<Coupon> couponStandard = (Annuity<Coupon>) couponDefinitionExPeriod.toDerivative(date, data, "Not used");
+    final Annuity<Coupon> couponStandard = (Annuity<Coupon>) couponDefinitionExPeriod.toDerivative(date, data);
     final Annuity<PaymentFixed> nominalStandard = nominal.trimBefore(settlementTime);
     final double accruedInterest = accruedInterest(settlementDate);
     final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
@@ -373,7 +373,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
     final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
     final double notional = settlementDate.isBefore(date) ? 0.0 : 1.0;
     final PaymentFixedDefinition settlementDefinition = new PaymentFixedDefinition(nominalLast.getCurrency(), settlementDate2, notional);
-    final PaymentFixed settlement = settlementDefinition.toDerivative(date, "Not used");
+    final PaymentFixed settlement = settlementDefinition.toDerivative(date);
     return new BondInterestIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, getIssuer(),
         _priceIndex);
   }
@@ -432,7 +432,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -442,7 +442,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondInterestIndexedSecurityDefinition<?, ?> other = (BondInterestIndexedSecurityDefinition<?, ?>) obj;
+    final BondInterestIndexedSecurityDefinition<?, ?> other = (BondInterestIndexedSecurityDefinition<?, ?>) obj;
     if (_couponPerYear != other._couponPerYear) {
       return false;
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class PaymentTest {
   private static final Currency CCY = Currency.CAD;
@@ -46,7 +46,7 @@ public class PaymentTest {
     MyPayment other = new MyPayment(CCY, PAYMENT_TIME, NAME);
     assertEquals(PAYMENT, other);
     assertEquals(PAYMENT.hashCode(), other.hashCode());
-    assertEquals("Currency=CAD, Payment time=0.5, Funding curve=A", PAYMENT.toString());
+    assertEquals("Currency=CAD, payment time=0.5, funding curve=A", PAYMENT.toString());
     other = new MyPayment(Currency.AUD, PAYMENT_TIME, NAME);
     assertFalse(other.equals(PAYMENT));
     other = new MyPayment(CCY, PAYMENT_TIME + 1, NAME);

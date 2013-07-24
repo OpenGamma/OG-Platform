@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -161,7 +161,7 @@ public class CouponIborCompoundingSpreadDefinitionTest {
         * (1.0 + PAYMENT_ACCRUAL_FACTORS[2] * (FIXING_RATES[3] + SPREAD)) - 1.0)
         / PAYMENT_ACCRUAL_FACTOR;
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, CPN_FROM_INDEX_DEFINITION.getPaymentDate());
-    final CouponFixed cpnExpected = new CouponFixed(USDLIBOR1M.getCurrency(), paymentTime, "Not used", PAYMENT_ACCRUAL_FACTOR, NOTIONAL, rate, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1]);
+    final CouponFixed cpnExpected = new CouponFixed(USDLIBOR1M.getCurrency(), paymentTime, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, rate, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1]);
     assertEquals("CouponIborCompoundedSpreadDefinition: toDerivatives", cpnExpected, cpnConverted);
   }
 
