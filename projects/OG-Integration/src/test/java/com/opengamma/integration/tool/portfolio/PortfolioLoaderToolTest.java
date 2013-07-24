@@ -82,24 +82,25 @@ public class PortfolioLoaderToolTest extends AbstractDbTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToolContextMustBeProvided() {
-    new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,
+    new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, false, false, false, true,
                         true, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPortfolioNameMustBeProvided() {
-    new PortfolioLoader(_toolContext, null, "Equity", _tempFile.getAbsolutePath(), true, true, false, false, false, true,
+    new PortfolioLoader(_toolContext, null, "Equity", _tempFile.getAbsolutePath(), true, false, false, false, true,
                         true, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFilenameMustBeProvided() {
-    new PortfolioLoader(_toolContext, "My portfolio", "Equity", null, true, true, false, false, false, true, true, null);
+    new PortfolioLoader(_toolContext, "My portfolio", "Equity", null, true, false, false, false, true, true, null);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testFileMustHaveRecognisedExtension() {
-    new PortfolioLoader(_toolContext, "My portfolio", "Equity", "some_file.goobledygook", true, true, false, false, false, true,
+    new PortfolioLoader(_toolContext, "My portfolio", "Equity", "some_file.goobledygook", true,
+                        false, false, false, true,
                         true, null).execute();
   }
 
@@ -182,7 +183,8 @@ public class PortfolioLoaderToolTest extends AbstractDbTest {
 
     populateFileWithData(data);
 
-    new PortfolioLoader(_toolContext, portfolioName, securityType, _tempFile.getAbsolutePath(), true, true, false, false, false, true,
+    new PortfolioLoader(_toolContext, portfolioName, securityType, _tempFile.getAbsolutePath(), true,
+                        false, false, false, true,
                         true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), expectedPortfolios);

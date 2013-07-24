@@ -60,11 +60,6 @@ public class PortfolioLoader {
   private final boolean _write;
 
   /**
-   * Should entirely new securities and positions be created, or new versions of matching existing ones.
-   */
-  private final boolean _overwrite;
-
-  /**
    * Should the output be verbose.
    */
   private final boolean _verbose;
@@ -97,17 +92,15 @@ public class PortfolioLoader {
    * @param securityType the security type for the portfolio (if not a multi-asset portfolio)
    * @param fileName the filename to read the portfolio from - must not be null
    * @param write should the data actually be written to the masters
-   * @param overwrite should entirely new securities and positions be created, or new versions of matching existing ones
    * @param verbose should the output be verbose
    * @param mergePositions should positions in the same security and within the same portfolio node be merged into one
    * @param keepCurrentPositions should positions in the previous portfolio version be kept, otherwise start from scratch
    * @param ignoreVersion should the version hashes in the multi-asset zip file be ignored
    * @param logToSystemOut should logging go to system out or standard logger
    * @param structure the portfolio structure, preserve existing structure if null, flatten if zero-length array,
-   *                  otherwise use position attributes with the specified names to structure portfolio
    */
   public PortfolioLoader(ToolContext toolContext, String portfolioName, String securityType, String fileName,
-                         boolean write, boolean overwrite, boolean verbose, boolean mergePositions,
+                         boolean write, boolean verbose, boolean mergePositions,
                          boolean keepCurrentPositions, boolean ignoreVersion, boolean logToSystemOut,
                          String[] structure) {
 
@@ -119,7 +112,6 @@ public class PortfolioLoader {
     _fileName = fileName;
     _suggestedPortfolioName = portfolioName;
     _write = write;
-    _overwrite = overwrite;
     _securityType = securityType;
     _verbose = verbose;
     _mergePositions = mergePositions;
@@ -139,8 +131,9 @@ public class PortfolioLoader {
       // Get the name of the portfolio from the reader if it supplies one
       String name = portfolioReader.getPortfolioName();
 
-      PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, name != null ? name : _suggestedPortfolioName, _write, _overwrite,
-                                                                 _mergePositions, _keepCurrentPositions);
+      String portfolioName = name != null ? name : _suggestedPortfolioName;
+      PortfolioWriter portfolioWriter =
+          constructPortfolioWriter(_toolContext, portfolioName, _write, _mergePositions, _keepCurrentPositions);
       SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier(_structure);
 
       // Create visitor for verbose/quiet mode
@@ -156,8 +149,11 @@ public class PortfolioLoader {
     }
   }
 
-  private PortfolioWriter constructPortfolioWriter(ToolContext toolContext, String portfolioName, boolean write,
-                                                   boolean overwrite, boolean mergePositions, boolean keepCurrentPositions) {
+  private PortfolioWriter constructPortfolioWriter(ToolContext toolContext,
+                                                   String portfolioName,
+                                                   boolean write,
+                                                   boolean mergePositions,
+                                                   boolean keepCurrentPositions) {
 
     if (write) {
 

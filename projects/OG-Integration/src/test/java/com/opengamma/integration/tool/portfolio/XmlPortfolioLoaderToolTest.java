@@ -71,21 +71,21 @@ public class XmlPortfolioLoaderToolTest {
   public void testLoadingFileWithWrongRootElementFails() {
     String fileLocation = "src/test/resources/xml_portfolios/wrong_root_element.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testLoadingFileWithNoSchemaVersionFails() {
     String fileLocation = "src/test/resources/xml_portfolios/empty_portfolio_no_version";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testDuplicateExternalIds() {
     String fileLocation = "src/test/resources/xml_portfolios/duplicate_external_ids.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
   }
 
   @Test
@@ -94,7 +94,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a default portfolio and position automatically generated for the trades
     String fileLocation = "src/test/resources/xml_portfolios/empty_portfolio.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 0);
@@ -107,7 +107,7 @@ public class XmlPortfolioLoaderToolTest {
     String fileLocation = "src/test/resources/xml_portfolios/missing_trade_reference.xml";
     File file = new File(fileLocation);
     try {
-      new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true,
+      new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true,
                           true, null).execute();
     }
     catch (OpenGammaRuntimeException e) {
@@ -140,7 +140,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a default portfolio and position automatically generated for the trades
     String fileLocation = "src/test/resources/xml_portfolios/double_fx_option_no_position_no_portfolio.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
@@ -152,7 +152,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/single_irs.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -164,7 +164,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/single_fra.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -177,7 +177,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/single_fx_option.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -190,7 +190,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/single_fx_option_no_position.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -220,7 +220,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/fx_digital_option_no_position.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -233,7 +233,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/fx_forward_no_position.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -246,7 +246,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/ndf_fx_forward_no_position.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -259,7 +259,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/otc_equity_index_option.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
@@ -275,7 +275,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/listed_index_option.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
@@ -300,7 +300,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/listed_index_future.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
@@ -323,7 +323,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/listed_index_future_option.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     List<ManageablePosition> positions = _positionMaster.search(new PositionSearchRequest()).getPositions();
@@ -348,7 +348,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trade
     String fileLocation = "src/test/resources/xml_portfolios/swaption_no_position.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 1);
@@ -363,7 +363,7 @@ public class XmlPortfolioLoaderToolTest {
     // We should get a position automatically generated for the trades
     String fileLocation = "src/test/resources/xml_portfolios/double_fx_option_no_position.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
@@ -375,7 +375,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/triple_irs.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 3);
@@ -386,7 +386,7 @@ public class XmlPortfolioLoaderToolTest {
   public void testNestedPortfolios() {
     String fileLocation = "src/test/resources/xml_portfolios/nested_portfolios.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     List<ManageablePortfolio> portfolios = _portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios();
     assertEquals(portfolios.size(), 1);
@@ -402,7 +402,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/position_defined_securities_portfolio.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
@@ -414,7 +414,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/multi_portfolio.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 2);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
@@ -426,7 +426,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/multitype_portfolio.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
@@ -434,23 +434,6 @@ public class XmlPortfolioLoaderToolTest {
     assertEquals(tradeSet.size(), 2);
     assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
   }
-
-  @Test
-  public void testMultitypePortfolioWithResusedItemsLoad() {
-
-    String fileLocation = "src/test/resources/xml_portfolios/multitype_portfolio_with_reused_items.xml";
-    File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
-
-    assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 3);
-    assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), 2);
-    Set<ManageableTrade> tradeSet = extractTrades(_positionMaster);
-    assertEquals(tradeSet.size(), 2);
-    assertEquals(_securityMaster.search(new SecuritySearchRequest()).getSecurities().size(), 2);
-  }
-
-  
-  
   
   private Set<ManageableTrade> extractTrades(PositionMaster positionMaster) {
     Set<ManageableTrade> tradeSet = Sets.newHashSet();
@@ -465,7 +448,7 @@ public class XmlPortfolioLoaderToolTest {
 
     String fileLocation = "src/test/resources/xml_portfolios/double_portfolio_one_bad.xml";
     File file = new File(fileLocation);
-    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, true, false, false, false, true, true, null).execute();
+    new PortfolioLoader(_toolContext, "guff", null, file.getAbsolutePath(), true, false, false, false, true, true, null).execute();
 
     // Only one of the portfolios should ,make it in
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), 1);

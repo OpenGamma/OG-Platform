@@ -74,7 +74,7 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
     new PortfolioLoader(getToolContext(), portfolioName,
                         getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
                         getCommandLine().getOptionValue(FILE_NAME_OPT),
-                        write, overwrite,
+                        write,
                         getCommandLine().hasOption(VERBOSE_OPT),
                         getCommandLine().hasOption(MERGE_POSITIONS_OPT),
                         getCommandLine().hasOption(KEEP_CURRENT_POSITIONS_OPT),
