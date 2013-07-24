@@ -83,10 +83,6 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   @Override
   public InstrumentDefinition<?> visitSwapNode(final SwapNode swapNode) {
     final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
-    final Double rate = _marketData.getDataPoint(_dataId);
-    if (rate == null) {
-      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
-    }
     if (payLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
     }
@@ -97,7 +93,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final AnnuityDefinition<? extends PaymentDefinition> payLeg;
     final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
     if (payLegConvention instanceof SwapFixedLegConvention) {
-      payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, rate, true);
+      payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, true);
     } else if (payLegConvention instanceof VanillaIborLegConvention) {
       payLeg = getIborLeg((VanillaIborLegConvention) payLegConvention, swapNode, true);
     } else if (payLegConvention instanceof OISLegConvention) {
@@ -106,7 +102,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
     }
     if (receiveLegConvention instanceof SwapFixedLegConvention) {
-      receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, rate, false);
+      receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, false);
     } else if (receiveLegConvention instanceof VanillaIborLegConvention) {
       receiveLeg = getIborLeg((VanillaIborLegConvention) receiveLegConvention, swapNode, false);
     } else if (receiveLegConvention instanceof OISLegConvention) {
@@ -119,8 +115,12 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
 
 
   @SuppressWarnings("synthetic-access")
-  private AnnuityCouponFixedDefinition getFixedLeg(final SwapFixedLegConvention convention, final SwapNode swapNode, final double rate, final boolean isPayer) {
+  private AnnuityCouponFixedDefinition getFixedLeg(final SwapFixedLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getRegionCalendar());
+    final Double rate = _marketData.getDataPoint(_dataId);
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
+    }
     final Currency currency = convention.getCurrency();
     final DayCount dayCount = convention.getDayCount();
     final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();

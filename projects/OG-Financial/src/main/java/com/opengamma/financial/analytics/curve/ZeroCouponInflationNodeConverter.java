@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
@@ -32,6 +33,7 @@ import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -52,9 +54,11 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
   /** The region source */
   private final RegionSource _regionSource;
   /** The market data */
-  private final Double _marketData;
+  private final SnapshotDataBundle _marketData;
+  /** The data id */
+  private final ExternalId _dataId;
   /** The valuation time */
-  private final ZonedDateTime _now;
+  private final ZonedDateTime _valuationTime;
   /** The time series bundle */
   private final HistoricalTimeSeriesBundle _timeSeries;
 
@@ -62,21 +66,26 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
-   * @param marketData The market data, may be null
-   * @param now The valuation time, not null
+   * @param marketData The market data, not null
+   * @paran dataId The data id, not null
+   * @param valuationTime The valuation time, not null
    * @param timeSeries The time series, not null
    */
   public ZeroCouponInflationNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-      final Double marketData, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries) {
+      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final HistoricalTimeSeriesBundle timeSeries) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(marketData, "market data");
+    ArgumentChecker.notNull(dataId, "data id");
+    ArgumentChecker.notNull(valuationTime, "valuation time");
     ArgumentChecker.notNull(timeSeries, "time series");
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _marketData = marketData;
-    _now = now;
+    _dataId = dataId;
+    _valuationTime = valuationTime;
     _timeSeries = timeSeries;
   }
 
@@ -84,6 +93,10 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode inflationNode) {
     Convention convention = _conventionSource.getConvention(inflationNode.getFixedLegConvention());
+    final Double rate = _marketData.getDataPoint(_dataId);
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
+    }
     if (convention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getFixedLegConvention() + " was null");
     }
@@ -116,11 +129,11 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     final boolean endOfMonth = fixedLegConvention.isIsEOM();
     final Currency currency = priceIndexConvention.getCurrency();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, priceIndexConvention.getRegion());
-    final ZoneId zone = _now.getZone(); //TODO time zone set to midnight UTC
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_now, settlementDays, calendar).toLocalDate().atStartOfDay(zone);
+    final ZoneId zone = _valuationTime.getZone(); //TODO time zone set to midnight UTC
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar).toLocalDate().atStartOfDay(zone);
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, calendar, endOfMonth).toLocalDate().atStartOfDay(zone);
     final CouponFixedCompoundingDefinition fixedCoupon = CouponFixedCompoundingDefinition.from(currency, settlementDate, paymentDate, notional, tenor,
-        _marketData);
+        rate);
     final HistoricalTimeSeries ts = _timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, priceIndexConvention.getPriceIndexId());
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price index time series with id " + priceIndexConvention.getPriceIndexId());

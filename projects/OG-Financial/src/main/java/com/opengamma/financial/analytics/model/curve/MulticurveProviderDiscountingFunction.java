@@ -67,24 +67,18 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
-import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
-import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.FRANodeConverter;
-import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
-import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -378,13 +372,14 @@ public class MulticurveProviderDiscountingFunction extends AbstractFunction {
 
       private CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
           final Double marketData, final ZonedDateTime now) {
-        return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
-            .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
-            .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
-            .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
-            .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
-            .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
-            .create();
+        return null;
+//        return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
+//            .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+//            .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+//            .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+//            .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+//            .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, now))
+//            .create();
       }
     };
   }

@@ -93,13 +93,13 @@ public class CurveMarketDataFunction extends AbstractFunction {
                     marketData.setDataPoint(spreadIdentifiers, (Double) value.getValue() + (Double) base.getValue());
                   }
                 } else {
-                  s_logger.warn("Could not get market data for {}", pointsId.getUnderlyingIdentifier());
+                  s_logger.info("Could not get market data for {}", pointsId.getUnderlyingIdentifier());
                 }
               } else {
                 marketData.setDataPoint(identifiers, (Double) value.getValue());
               }
             } else {
-              s_logger.warn("Could not get market data for {}", id.getIdentifier());
+              s_logger.info("Could not get market data for {}", id.getIdentifier());
             }
           } else {
             final ComputedValue value = inputs.getComputedValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
@@ -107,7 +107,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
               final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
               marketData.setDataPoint(identifiers, (Double) value.getValue());
             } else {
-              s_logger.warn("Could not get market data for {}", id.getIdentifier());
+              s_logger.info("Could not get market data for {}", id.getIdentifier());
             }
           }
         }
@@ -138,7 +138,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
             } else {
               requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
             }
-          } catch (OpenGammaRuntimeException e) {
+          } catch (final OpenGammaRuntimeException e) {
             throw new OpenGammaRuntimeException(_curveName + " " + e.getMessage());
           }
         }

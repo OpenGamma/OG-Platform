@@ -77,13 +77,20 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Produces yield curves using the discounting method.
  */
-public class MultiCurveDiscountingFunction extends MultiCurveFunction<MulticurveProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve> {
+public class MultiCurveDiscountingFunction extends
+  MultiCurveFunction<MulticurveProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
+  /** The calculator */
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  /** The sensitivity calculator */
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
+  /** The maturity calculator */
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
+  /**
+   * @param configurationName The configuration name, not null
+   */
   public MultiCurveDiscountingFunction(final String configurationName) {
     super(configurationName);
   }
@@ -94,21 +101,25 @@ public class MultiCurveDiscountingFunction extends MultiCurveFunction<Multicurve
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
-  public class MyCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
+  /**
+   * Compiled function implementation.
+   */
+  protected class MyCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
     private final Set<ValueRequirement> _exogenousRequirements;
     private final CurveConstructionConfiguration _curveConstructionConfiguration;
 
-    public MyCompiledFunctionDefinition(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
+    protected MyCompiledFunctionDefinition(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
         final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
-      super(earliestInvokation, latestInvokation, curveNames, exogenousRequirements);
+      super(earliestInvokation, latestInvokation, curveNames, ValueRequirementNames.YIELD_CURVE, exogenousRequirements);
       _curveConstructionConfiguration = curveConstructionConfiguration;
       _exogenousRequirements = exogenousRequirements;
     }
 
     @Override
     @SuppressWarnings("synthetic-access")
-    public Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder,
-        final MulticurveProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource) {
+    protected Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
+        final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final ConventionSource conventionSource,
+        final HolidaySource holidaySource, final RegionSource regionSource) {
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -207,28 +218,28 @@ public class MultiCurveDiscountingFunction extends MultiCurveFunction<Multicurve
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess,
-          (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, PSMQC, PSMQCSC);
+          (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
       final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pair.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 
     @Override
-    public InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
+    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
       return PSMQC;
     }
 
     @Override
-    public InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
       return PSMQCSC;
     }
 
     @Override
-    public String getCurveTypeProperty() {
+    protected String getCurveTypeProperty() {
       return DISCOUNTING;
     }
 
     @Override
-    public MulticurveProviderInterface getKnownData(final FunctionInputs inputs) {
+    protected MulticurveProviderInterface getKnownData(final FunctionInputs inputs) {
       final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
       MulticurveProviderDiscount knownData;
       if (_exogenousRequirements.isEmpty()) {
@@ -241,12 +252,12 @@ public class MultiCurveDiscountingFunction extends MultiCurveFunction<Multicurve
     }
 
     @Override
-    public MulticurveDiscountBuildingRepository getBuilder(final double absoluteTolerance, final double relativeTolerance, final int maxIterations) {
+    protected MulticurveDiscountBuildingRepository getBuilder(final double absoluteTolerance, final double relativeTolerance, final int maxIterations) {
       return new MulticurveDiscountBuildingRepository(absoluteTolerance, relativeTolerance, maxIterations);
     }
 
     @Override
-    public GeneratorYDCurve getGenerator(final CurveDefinition definition) {
+    protected GeneratorYDCurve getGenerator(final CurveDefinition definition) {
       if (definition instanceof InterpolatedCurveDefinition) {
         final InterpolatedCurveDefinition interpolatedDefinition = (InterpolatedCurveDefinition) definition;
         final String interpolatorName = interpolatedDefinition.getInterpolatorName();
@@ -259,8 +270,9 @@ public class MultiCurveDiscountingFunction extends MultiCurveFunction<Multicurve
     }
 
     @Override
-    public CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime) {
+    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource,
+        final RegionSource regionSource, final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData,
+        final ZonedDateTime valuationTime) {
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
@@ -271,7 +283,8 @@ public class MultiCurveDiscountingFunction extends MultiCurveFunction<Multicurve
     }
 
     @Override
-    public Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueProperties bundleProperties, final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> pair) {
+    protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueProperties bundleProperties,
+        final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final MulticurveProviderDiscount provider = (MulticurveProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));

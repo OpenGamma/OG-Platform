@@ -104,7 +104,7 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, regionCalendar);
     final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, regionCalendar, eom);
     final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(_valuationTime, endPeriod, businessDayConvention, regionCalendar, eom);
-    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, iborIndex, _marketData, fixingCalendar);
+    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, iborIndex, rate, fixingCalendar);
   }
 
 }
