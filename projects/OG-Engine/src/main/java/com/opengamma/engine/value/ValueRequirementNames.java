@@ -280,7 +280,15 @@ public final class ValueRequirementNames {
   /**
    * A bundle of curves
    */
-  public static final String CURVE_BUNDLE = "CurveBundle"; 
+  public static final String CURVE_BUNDLE = "Curve Bundle"; 
+  /**
+   * A bundle of Jacobians
+   */
+  public static final String JACOBIAN_BUNDLE = "Jacobian Bundle";
+  /**
+   * The sensitivities to all curves in a bundle
+   */
+  public static final String BLOCK_CURVE_SENSITIVITIES = "Block Curve Sensitivities";
   /**
    * Currency pairs property metadata
    */
