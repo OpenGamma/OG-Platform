@@ -108,6 +108,29 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     BEAN_OPERATIONS_BY_TYPE.put(beanOperation.getSecurityType(), beanOperation);  
   }
 
+
+  /**
+   * Provides a way to add a bean operation to the hibernate configuration.
+   *
+   * Ideally this method should not be public but a way is needed of allowing this class to
+   * be extended (or composed with) such that other projecvts can add their own security types.
+   * Exposing this method is the simplest way to achieve this at the moment. Longer term we would
+   * expect hibernate to be removed in which case it will all become simpler.
+   *
+   * @param beanOperation the bean operation to be stored
+   */
+  public void addBeanOperation(final SecurityBeanOperation<?, ?> beanOperation) {
+    if (BEAN_OPERATIONS_BY_SECURITY.containsKey(beanOperation.getSecurityClass()) ||
+        BEAN_OPERATIONS_BY_BEAN.containsKey(beanOperation.getBeanClass()) ||
+        BEAN_OPERATIONS_BY_TYPE.containsKey(beanOperation.getSecurityType())) {
+
+      s_logger.warn(beanOperation.getBeanClass() + " is already registered");
+
+    } else {
+      loadBeanOperation(beanOperation);
+    }
+  }
+
   private static SecurityBeanOperation<?, ?> getBeanOperation(final ConcurrentMap<Class<?>, SecurityBeanOperation<?, ?>> map, final Class<?> clazz) {
     SecurityBeanOperation<?, ?> beanOperation = map.get(clazz);
     if (beanOperation != null) {

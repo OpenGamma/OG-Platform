@@ -409,7 +409,7 @@ public class DbTool {
     createTables(getTestCatalog(), getTestSchema(), callback);
   }
 
-  private void executeSQLScript(String catalog, String schema, DbScript dbScript) {
+  public void executeSQLScript(String catalog, String schema, DbScript dbScript) {
     String sql;
     try {
       sql = dbScript.getScript();
