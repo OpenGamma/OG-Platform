@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -43,7 +44,8 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testIborIndex() {
-    final IborIndex index = new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false);
+    final IborIndex index = new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "F");
     assertEquals(index, cycleObject(IborIndex.class, index));
   }
 
@@ -90,9 +92,11 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     discounting.put(Currency.USD, new YieldCurve("A", ConstantDoublesCurve.from(0.06, "a")));
     discounting.put(Currency.EUR, new DiscountCurve("B", ConstantDoublesCurve.from(0.99, "b")));
     final Map<IborIndex, YieldAndDiscountCurve> ibor = new LinkedHashMap<>();
-    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "F"),
         new YieldCurve("C", ConstantDoublesCurve.from(0.03, "c")));
-    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "D"),
         new YieldCurve("D", ConstantDoublesCurve.from(0.03, "d")));
     final Map<IndexON, YieldAndDiscountCurve> overnight = new LinkedHashMap<>();
     overnight.put(new IndexON("NAME1", Currency.USD, DayCountFactory.INSTANCE.getDayCount("Act/360"), 1), new YieldCurve("E", ConstantDoublesCurve.from(0.003, "e")));
@@ -117,9 +121,11 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     discounting.put(Currency.USD, new YieldCurve("A", ConstantDoublesCurve.from(0.06, "a")));
     discounting.put(Currency.EUR, new DiscountCurve("B", ConstantDoublesCurve.from(0.99, "b")));
     final Map<IborIndex, YieldAndDiscountCurve> ibor = new LinkedHashMap<>();
-    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "L"),
         new YieldCurve("C", ConstantDoublesCurve.from(0.03, "c")));
-    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "P"),
         new YieldCurve("D", ConstantDoublesCurve.from(0.03, "d")));
     final Map<IndexON, YieldAndDiscountCurve> overnight = new LinkedHashMap<>();
     overnight.put(new IndexON("NAME1", Currency.USD, DayCountFactory.INSTANCE.getDayCount("Act/360"), 1), new YieldCurve("E", ConstantDoublesCurve.from(0.003, "e")));
@@ -169,10 +175,17 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testHullWhiteParameters() {
-    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(0.04, new double[] {0.1, 0.2, 0.3, 0.4, 0.5}, new double[] {1, 2, 3, 4, 5});
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(0.04,
+        new double[] {0.1, 0.2, 0.3, 0.4, 0.5}, new double[] {1, 2, 3, 4, 5});
     assertEquals(parameters, cycleObject(HullWhiteOneFactorPiecewiseConstantParameters.class, parameters));
   }
 
+  @Test
+  public void testG2ppParameters() {
+    final G2ppPiecewiseConstantParameters parameters = new G2ppPiecewiseConstantParameters(new double[] {0.02, 0.01},
+        new double[][] {new double[] {0.03, 0.04, 0.05}, new double[] {0.06, 0.07, 0.08}}, new double[] {1, 2}, 0.9);
+    assertEquals(parameters, cycleObject(G2ppPiecewiseConstantParameters.class, parameters));
+  }
   @Test
   public void testHullWhiteOneFactorProviderDiscount() {
     final Map<Currency, Integer> map = new LinkedHashMap<>();
@@ -189,9 +202,11 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     discounting.put(Currency.USD, new YieldCurve("A", ConstantDoublesCurve.from(0.06, "a")));
     discounting.put(Currency.EUR, new DiscountCurve("B", ConstantDoublesCurve.from(0.99, "b")));
     final Map<IborIndex, YieldAndDiscountCurve> ibor = new LinkedHashMap<>();
-    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "T"),
         new YieldCurve("C", ConstantDoublesCurve.from(0.03, "c")));
-    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false),
+    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "U"),
         new YieldCurve("D", ConstantDoublesCurve.from(0.03, "d")));
     final Map<IndexON, YieldAndDiscountCurve> overnight = new LinkedHashMap<>();
     overnight.put(new IndexON("NAME1", Currency.USD, DayCountFactory.INSTANCE.getDayCount("Act/360"), 1), new YieldCurve("E", ConstantDoublesCurve.from(0.003, "e")));

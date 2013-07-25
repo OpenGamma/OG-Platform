@@ -44,6 +44,11 @@ public class CurveCalculationPropertyNamesAndValues {
   public static final String PROPERTY_HULL_WHITE_PARAMETERS = "HullWhiteOneFactorParameters";
 
   /**
+   * The property indicating the name of a set of G2++ parameters
+   */
+  public static final String PROPERTY_G2PP_PARAMETERS = "G2ppParameters";
+
+  /**
    * The mean reversion property
    */
   public static final String PROPERTY_HW_MEAN_REVERSION = "HullWhiteOneFactorMeanReversion";

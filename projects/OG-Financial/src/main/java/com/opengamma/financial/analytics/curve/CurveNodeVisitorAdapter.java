@@ -19,16 +19,29 @@ import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Adapter for visiting all concrete curve nodes types.
+ * Adapter for visiting all concrete curve node types.
  *
  * @param <T> The return type for this visitor.
  */
 public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
 
+  /**
+   * Creates builder for a {@link CurveNodeVisitor}. The underlying visitor
+   * has no implemented methods.
+   * @param <T> The return type of the visitor
+   * @return A builder
+   */
   public static <T> Builder<T> builder() {
     return new Builder<>();
   }
 
+  /**
+   * Creates builder for a {@link CurveNodeVisitor} that uses the supplied
+   * visitor as the initial underlying
+   * @param <T> The return type of the visitor
+   * @param visitor The underlying visitor, not null
+   * @return A builder
+   */
   public static <T> Builder<T> builder(final CurveNodeVisitor<T> visitor) {
     return new Builder<>(visitor);
   }

@@ -74,7 +74,6 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
     _valuationTime = valuationTime;
   }
 
-  @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitRateFutureNode(final RateFutureNode rateFuture) {
     final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());

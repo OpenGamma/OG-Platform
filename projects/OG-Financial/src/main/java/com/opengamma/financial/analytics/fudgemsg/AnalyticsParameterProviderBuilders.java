@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
@@ -356,15 +359,15 @@ public final class AnalyticsParameterProviderBuilders {
     public HullWhiteOneFactorPiecewiseConstantParameters buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double meanReversion = message.getDouble(MEAN_REVERSION_FIELD);
       final List<FudgeField> volatilityFields = message.getAllByName(VOLATILITY_FIELD);
-      final List<FudgeField> timeFields = message.getAllByName(TIME_FIELD);
-      final int n = volatilityFields.size();
-      if (n != timeFields.size()) {
-        throw new IllegalStateException("Should have same number of volatilities as times");
-      }
+      int n = volatilityFields.size();
       final double[] volatilities = new double[n];
-      final double[] times = new double[n];
       for (int i = 0; i < n; i++) {
         volatilities[i] = (Double) volatilityFields.get(i).getValue();
+      }
+      final List<FudgeField> timeFields = message.getAllByName(TIME_FIELD);
+      n = timeFields.size();
+      final double[] times = new double[n];
+      for (int i = 0; i < n; i++) {
         times[i] = (Double) timeFields.get(i).getValue();
       }
       return new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatilities, times);
@@ -383,4 +386,60 @@ public final class AnalyticsParameterProviderBuilders {
 
   }
 
+  /**
+   * Fudge builder for {@link G2ppPiecewiseConstantParameters}
+   */
+  @FudgeBuilderFor(G2ppPiecewiseConstantParameters.class)
+  public static class G2ppPiecewiseConstantParametersBuilder extends AbstractFudgeBuilder<G2ppPiecewiseConstantParameters> {
+    /** The mean reversion fields */
+    private static final String MEAN_REVERSION_FIELD = "meanReversion";
+    /** The volatility fields */
+    private static final String VOLATILITIES_FIELD = "volatilities";
+    /** The time fields */
+    private static final String TIME_FIELD = "times";
+    /** The correlation field */
+    private static final String CORRELATION_FIELD = "correlation";
+
+    @Override
+    public G2ppPiecewiseConstantParameters buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final List<FudgeField> meanReversionFields = message.getAllByName(MEAN_REVERSION_FIELD);
+      int n = meanReversionFields.size();
+      final double[] meanReversion = new double[n];
+      for (int i = 0; i < n; i++) {
+        meanReversion[i] = (Double) meanReversionFields.get(i).getValue();
+      }
+      final List<FudgeField> volatilityFields = message.getAllByName(VOLATILITIES_FIELD);
+      n = volatilityFields.size();
+      final double[][] volatilities = new double[n][];
+      for (int i = 0; i < n; i++) {
+        volatilities[i] = deserializer.fieldValueToObject(double[].class, volatilityFields.get(i));
+      }
+      final List<FudgeField> timeFields = message.getAllByName(TIME_FIELD);
+      n = timeFields.size();
+      final double[] times = new double[n];
+      for (int i = 0; i < n; i++) {
+        times[i] = (Double) timeFields.get(i).getValue();
+      }
+      final double correlation = message.getDouble(CORRELATION_FIELD);
+      return new G2ppPiecewiseConstantParameters(meanReversion, volatilities, times, correlation);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final G2ppPiecewiseConstantParameters object) {
+      final double[] meanReversion = object.getMeanReversion();
+      for (final double element : meanReversion) {
+        message.add(MEAN_REVERSION_FIELD, element);
+      }
+      final DoubleArrayList[] volatility = object.getVolatility();
+      for (final DoubleArrayList element : volatility) {
+        serializer.addToMessage(message, VOLATILITIES_FIELD, null, element.toDoubleArray());
+      }
+      final double[] volatilityTime = object.getVolatilityTime();
+      for (int i = 0; i < volatilityTime.length - 2; i++) {
+        message.add(TIME_FIELD, volatilityTime[i + 1]); //values added to front and back of times array on construction
+      }
+      message.add(CORRELATION_FIELD, object.getCorrelation());
+    }
+
+  }
 }

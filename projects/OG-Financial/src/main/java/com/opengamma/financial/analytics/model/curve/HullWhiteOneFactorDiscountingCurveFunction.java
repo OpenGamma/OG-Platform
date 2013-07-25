@@ -87,7 +87,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Produces yield curves using the Hull-White one-factor discounting method.
  */
-public class HullWhiteOneFactorDiscountingFunction extends
+public class HullWhiteOneFactorDiscountingCurveFunction extends
   MultiCurveFunction<HullWhiteOneFactorProviderInterface, HullWhiteProviderDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
   /** The calculator */
   private static final ParSpreadMarketQuoteHullWhiteCalculator PSMQHWC = ParSpreadMarketQuoteHullWhiteCalculator.getInstance();
@@ -99,7 +99,7 @@ public class HullWhiteOneFactorDiscountingFunction extends
   /**
    * @param configurationName The configuration name, not null
    */
-  public HullWhiteOneFactorDiscountingFunction(final String configurationName) {
+  public HullWhiteOneFactorDiscountingCurveFunction(final String configurationName) {
     super(configurationName);
   }
 

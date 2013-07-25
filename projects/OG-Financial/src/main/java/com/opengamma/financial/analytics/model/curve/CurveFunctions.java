@@ -112,7 +112,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
       functions.add(functionConfiguration(MultiCurveDiscountingFunction.class, curveConfigName));
       functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
-      functions.add(functionConfiguration(HullWhiteOneFactorDiscountingFunction.class, curveConfigName));
+      functions.add(functionConfiguration(HullWhiteOneFactorDiscountingCurveFunction.class, curveConfigName));
     }
 
     @Override
@@ -133,5 +133,6 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(HullWhiteOneFactorParametersFunction.class));
+    functions.add(functionConfiguration(G2ppParametersFunction.class));
   }
 }
