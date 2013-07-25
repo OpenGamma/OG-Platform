@@ -40,10 +40,14 @@ public abstract class AbstractFudgeBuilderTestCase {
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void createContexts() {
-    _context = OpenGammaFudgeContext.getInstance();
-    _serializer = new FudgeSerializer(_context);
-    _deserializer = new FudgeDeserializer(_context);
+    setContext(OpenGammaFudgeContext.getInstance());
     _proxy = new BuilderTestProxyFactory().getProxy();
+  }
+
+  protected void setContext(FudgeContext context) {
+    _context = context;
+    _serializer = new FudgeSerializer(context);
+    _deserializer = new FudgeDeserializer(context);
   }
 
   protected FudgeContext getFudgeContext() {
@@ -119,12 +123,6 @@ public abstract class AbstractFudgeBuilderTestCase {
     ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
     try (FudgeObjectReader reader = getFudgeContext().createObjectReader(input)) {
       return (T) reader.read();
-    }
-  }
-
-  protected static void isInstanceOf(Object parameter, Class<?> clazz) {
-    if (!clazz.isInstance(parameter)) {
-      throw new AssertionError("Expected an object to be instance of <" + clazz.getName() + "> but it was instance of <" + parameter.getClass().getName() + "> actually.");
     }
   }
 
