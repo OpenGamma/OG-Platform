@@ -18,7 +18,6 @@ import org.joda.convert.ToString;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable external identifier for an item.
@@ -46,9 +45,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @PublicAPI
 public final class ExternalId
     implements ExternalIdentifiable, Comparable<ExternalId>, Serializable {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.Identifier", ExternalId.class);
-  }
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

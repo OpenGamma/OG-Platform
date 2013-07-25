@@ -12,7 +12,6 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable external identifier with validity dates.
@@ -23,9 +22,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public final class ExternalIdWithDates
     implements ExternalIdentifiable, Comparable<ExternalIdWithDates>, Serializable {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.IdentifierWithDates", ExternalIdWithDates.class);
-  }
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

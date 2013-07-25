@@ -28,6 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 
@@ -159,6 +165,12 @@ public final class OpenGammaFudgeContext {
       td.registerClassRename("com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries", ImmutableLocalDateDoubleTimeSeries.class);
       td.registerClassRename("com.opengamma.timeseries.localdate.MapLocalDateDoubleTimeSeries", ImmutableLocalDateDoubleTimeSeries.class);
 
+      td.registerClassRename("com.opengamma.id.Identifier", ExternalId.class);
+      td.registerClassRename("com.opengamma.id.IdentifierBundleWithDates", ExternalIdBundleWithDates.class);
+      td.registerClassRename("com.opengamma.id.IdentifierBundle", ExternalIdBundle.class);
+      td.registerClassRename("com.opengamma.id.IdentifierWithDates", ExternalIdWithDates.class);
+      td.registerClassRename("com.opengamma.id.ObjectIdentifier", ObjectId.class);
+      td.registerClassRename("com.opengamma.id.UniqueIdentifier", UniqueId.class);
       return fudgeContext;
     }
   }

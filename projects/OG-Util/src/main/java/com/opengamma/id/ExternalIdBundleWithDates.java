@@ -19,7 +19,6 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A bundle of external identifiers with validity dates.
@@ -31,9 +30,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public final class ExternalIdBundleWithDates
     implements Iterable<ExternalIdWithDates>, Serializable, Comparable<ExternalIdBundleWithDates> {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.IdentifierBundleWithDates", ExternalIdBundleWithDates.class);
-  }
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable bundle of external identifiers.
@@ -37,9 +36,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @PublicAPI
 public final class ExternalIdBundle
     implements Iterable<ExternalId>, Serializable, Comparable<ExternalIdBundle>, ExternalBundleIdentifiable {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.IdentifierBundle", ExternalIdBundle.class);
-  }
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

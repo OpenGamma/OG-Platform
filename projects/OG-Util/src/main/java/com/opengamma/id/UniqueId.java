@@ -20,7 +20,6 @@ import org.joda.convert.ToString;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable unique identifier for an item within the OpenGamma installation.
@@ -51,9 +50,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @PublicAPI
 public final class UniqueId
     implements Comparable<UniqueId>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.UniqueIdentifier", UniqueId.class);
-  }
 
   /**
    * Identification scheme for the unique identifier.
