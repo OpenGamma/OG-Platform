@@ -16,9 +16,7 @@ import org.threeten.bp.Instant;
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.NormalizingWeakInstanceCache;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.WeakInstanceCache;
 
 /**
  * An immutable version-correction combination.
@@ -49,22 +47,6 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * Version-correction instance representing the latest version and correction.
    */
   public static final VersionCorrection LATEST = new VersionCorrection(null, null);
-
-  /**
-   * A weak instance cache for creating singleton forms; this may be used by caching strategies.
-   * If the singleton form of a version-correction is used for the duration of operations requiring that
-   * version-correction then temporary data may be cached using the version-correction instance as a weak key.
-   * 
-   * @return a new instance of a weak instance cache, not null
-   */
-  public static WeakInstanceCache<VersionCorrection> weakInstances() {
-    return new NormalizingWeakInstanceCache<VersionCorrection>() {
-      @Override
-      protected VersionCorrection normalize(final VersionCorrection value) {
-        return new VersionCorrection(value.getVersionAsOf(), value.getCorrectedTo());
-      }
-    };
-  }
 
   /**
    * The version instant.
