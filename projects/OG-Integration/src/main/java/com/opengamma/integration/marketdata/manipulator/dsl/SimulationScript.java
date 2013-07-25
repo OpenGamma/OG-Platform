@@ -5,10 +5,15 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 import groovy.lang.Binding;
@@ -26,6 +31,25 @@ public abstract class SimulationScript extends Script {
   private Simulation _simulation;
   /** The currently building scenario. */
   private Scenario _scenario;
+
+  public SimulationScript() {
+    initialize();
+  }
+
+  public SimulationScript(Binding binding) {
+    super(binding);
+    initialize();
+  }
+
+  // TODO is there a nicer way to do this?
+  private void initialize() {
+    InputStream scriptStream = SimulationScript.class.getResourceAsStream("InitializeScript.groovy");
+    try {
+      evaluate(IOUtils.toString(scriptStream));
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Failed to initialize DSL script", e);
+    }
+  }
 
   /**
    * Defines a method in the DSL taking a block to define the script parameters and their types. It checks the

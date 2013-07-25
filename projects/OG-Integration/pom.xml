@@ -29,6 +29,9 @@
       <resource>
         <directory>config</directory>
       </resource>
+      <resource>
+        <directory>src/main/groovy</directory>
+      </resource>
     </resources>
   </build>
 
