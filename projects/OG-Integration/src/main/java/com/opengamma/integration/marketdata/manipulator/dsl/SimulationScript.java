@@ -41,6 +41,7 @@ public abstract class SimulationScript extends Script {
   public void parameters(Closure body) {
     ParametersDelegate parametersDelegate = new ParametersDelegate();
     body.setDelegate(parametersDelegate);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
     // check the parameters are all in the binding and have the expected types
     Binding binding = getBinding();
@@ -91,12 +92,14 @@ public abstract class SimulationScript extends Script {
 
   /**
    * Defines a method in the DSL that takes a closure defining a simulation.
+   * @param name The simulation name
    * @param body The block that defines the simulation
    * @return The simulation
    */
-  public Simulation simulation(Closure body) {
-    _simulation = new Simulation();
+  public Simulation simulation(String name, Closure body) {
+    _simulation = new Simulation(name);
     body.setDelegate(_simulation);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
     return _simulation;
   }
@@ -115,6 +118,7 @@ public abstract class SimulationScript extends Script {
       _scenario = new Scenario(name);
     }
     body.setDelegate(_scenario);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
     return _scenario;
   }
@@ -126,6 +130,7 @@ public abstract class SimulationScript extends Script {
   public void curve(Closure body) {
     CurveBuilder selector = new CurveBuilder(_scenario);
     body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
   }
 
@@ -136,6 +141,7 @@ public abstract class SimulationScript extends Script {
   public void marketData(Closure body) {
     PointBuilder selector = new PointBuilder(_scenario);
     body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
   }
 
@@ -146,6 +152,7 @@ public abstract class SimulationScript extends Script {
   public void surface(Closure body) {
     SurfaceBuilder selector = new SurfaceBuilder(_scenario);
     body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
   }
 
@@ -161,6 +168,7 @@ public abstract class SimulationScript extends Script {
     public void apply(Closure body) {
       VolatilitySurfaceManipulatorBuilder builder = new VolatilitySurfaceManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }
@@ -177,6 +185,7 @@ public abstract class SimulationScript extends Script {
     public void apply(Closure body) {
       PointManipulatorBuilder builder = new PointManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }
@@ -193,6 +202,7 @@ public abstract class SimulationScript extends Script {
     public void apply(Closure body) {
       YieldCurveManipulatorBuilder builder = new YieldCurveManipulatorBuilder(getSelector(), getScenario());
       body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }

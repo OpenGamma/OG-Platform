@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Objects;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -47,5 +49,29 @@ public class YieldCurveParallelShift implements StructureManipulator<YieldAndDis
   public static YieldCurveParallelShift fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     Double shift = deserializer.fieldValueToObject(Double.class, msg.getByName(SHIFT));
     return new YieldCurveParallelShift(shift);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_shift);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final YieldCurveParallelShift other = (YieldCurveParallelShift) obj;
+    return Objects.equals(this._shift, other._shift);
+  }
+
+  @Override
+  public String toString() {
+    return "YieldCurveParallelShift [" +
+        "_shift=" + _shift +
+        "]";
   }
 }

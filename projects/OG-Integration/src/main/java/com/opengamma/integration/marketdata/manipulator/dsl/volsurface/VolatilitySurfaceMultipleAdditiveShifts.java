@@ -6,6 +6,7 @@
 package com.opengamma.integration.marketdata.manipulator.dsl.volsurface;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -64,32 +65,30 @@ public class VolatilitySurfaceMultipleAdditiveShifts implements StructureManipul
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    VolatilitySurfaceMultipleAdditiveShifts that = (VolatilitySurfaceMultipleAdditiveShifts) o;
-
-    if (!Arrays.equals(_shifts, that._shifts)) {
-      return false;
-    }
-    if (!Arrays.equals(_x, that._x)) {
-      return false;
-    }
-    if (!Arrays.equals(_y, that._y)) {
-      return false;
-    }
-    return true;
+  public int hashCode() {
+    return Objects.hash(_x, _y, _shifts);
   }
 
   @Override
-  public int hashCode() {
-    int result = Arrays.hashCode(_x);
-    result = 31 * result + Arrays.hashCode(_y);
-    result = 31 * result + Arrays.hashCode(_shifts);
-    return result;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final VolatilitySurfaceMultipleAdditiveShifts other = (VolatilitySurfaceMultipleAdditiveShifts) obj;
+    return Arrays.equals(this._x, other._x) &&
+        Arrays.equals(this._y, other._y) &&
+        Arrays.equals(this._shifts, other._shifts);
+  }
+
+  @Override
+  public String toString() {
+    return "VolatilitySurfaceMultipleAdditiveShifts [" +
+        "_x=" + Arrays.toString(_x) +
+        ", _y=" + Arrays.toString(_y) +
+        ", _shifts=" + Arrays.toString(_shifts) +
+        "]";
   }
 }

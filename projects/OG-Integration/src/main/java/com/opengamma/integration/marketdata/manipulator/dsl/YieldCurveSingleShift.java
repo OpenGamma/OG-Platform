@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Objects;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -58,32 +60,27 @@ public class YieldCurveSingleShift implements StructureManipulator<YieldAndDisco
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    YieldCurveSingleShift that = (YieldCurveSingleShift) o;
-
-    if (Double.compare(that._shift, _shift) != 0) {
-      return false;
-    }
-    if (Double.compare(that._t, _t) != 0) {
-      return false;
-    }
-    return true;
+  public int hashCode() {
+    return Objects.hash(_shift, _t);
   }
 
   @Override
-  public int hashCode() {
-    int result;
-    long temp;
-    temp = Double.doubleToLongBits(_shift);
-    result = (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_t);
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    return result;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final YieldCurveSingleShift other = (YieldCurveSingleShift) obj;
+    return Objects.equals(this._shift, other._shift) && Objects.equals(this._t, other._t);
+  }
+
+  @Override
+  public String toString() {
+    return "YieldCurveSingleShift [" +
+        "_shift=" + _shift +
+        ", _t=" + _t +
+        "]";
   }
 }

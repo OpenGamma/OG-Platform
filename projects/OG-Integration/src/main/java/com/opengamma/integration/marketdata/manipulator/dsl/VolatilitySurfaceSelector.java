@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -26,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Set<String> _calcConfigNames;
   private final Set<String> _names;
-  private final Pattern _nameRegex;
+  private final PatternWrapper _nameRegex;
   private final Set<String> _instrumentTypes;
   private final Set<String> _quoteTypes;
   private final Set<String> _quoteUnits;
@@ -39,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
                                           Set<String> quoteUnits) {
     _calcConfigNames = calcConfigNames;
     _names = names;
-    _nameRegex = nameRegex;
+    _nameRegex = PatternWrapper.wrap(nameRegex);
     _instrumentTypes = instrumentTypes;
     _quoteTypes = quoteTypes;
     _quoteUnits = quoteUnits;
@@ -65,7 +66,7 @@ import com.opengamma.util.ArgumentChecker;
     if (!contains(_names, key.getName())) {
       return null;
     }
-    if (_nameRegex != null && !_nameRegex.matcher(key.getName()).matches()) {
+    if (_nameRegex != null && !_nameRegex.pattern().matcher(key.getName()).matches()) {
       return null;
     }
     if (!contains(_instrumentTypes, key.getInstrumentType())) {
@@ -102,7 +103,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /* package */ Pattern getNameRegex() {
-    return _nameRegex;
+    return _nameRegex == null ? null : _nameRegex.pattern();
   }
 
   /* package */ Set<String> getInstrumentTypes() {
@@ -118,53 +119,25 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    VolatilitySurfaceSelector that = (VolatilitySurfaceSelector) o;
-
-    if (_calcConfigNames != null ? !_calcConfigNames.equals(that._calcConfigNames) : that._calcConfigNames != null) {
-      return false;
-    }
-    if (_instrumentTypes != null ? !_instrumentTypes.equals(that._instrumentTypes) : that._instrumentTypes != null) {
-      return false;
-    }
-    String thisPattern = _nameRegex == null ? null : _nameRegex.pattern();
-    String thatPattern = that._nameRegex == null ? null : that._nameRegex.pattern();
-    if (thisPattern != null) {
-      if (!thisPattern.equals(thatPattern)) {
-        return false;
-      }
-    } else {
-      if (thatPattern != null) {
-        return false;
-      }
-    }
-    if (_names != null ? !_names.equals(that._names) : that._names != null) {
-      return false;
-    }
-    if (_quoteTypes != null ? !_quoteTypes.equals(that._quoteTypes) : that._quoteTypes != null) {
-      return false;
-    }
-    if (_quoteUnits != null ? !_quoteUnits.equals(that._quoteUnits) : that._quoteUnits != null) {
-      return false;
-    }
-    return true;
+  public int hashCode() {
+    return Objects.hash(_calcConfigNames, _names, _nameRegex, _instrumentTypes, _quoteTypes, _quoteUnits);
   }
 
   @Override
-  public int hashCode() {
-    int result = _calcConfigNames != null ? _calcConfigNames.hashCode() : 0;
-    result = 31 * result + (_names != null ? _names.hashCode() : 0);
-    result = 31 * result + (_nameRegex != null ? _nameRegex.hashCode() : 0);
-    result = 31 * result + (_instrumentTypes != null ? _instrumentTypes.hashCode() : 0);
-    result = 31 * result + (_quoteTypes != null ? _quoteTypes.hashCode() : 0);
-    result = 31 * result + (_quoteUnits != null ? _quoteUnits.hashCode() : 0);
-    return result;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final VolatilitySurfaceSelector other = (VolatilitySurfaceSelector) obj;
+    return Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
+        Objects.equals(this._names, other._names) &&
+        Objects.equals(this._nameRegex, other._nameRegex) &&
+        Objects.equals(this._instrumentTypes, other._instrumentTypes) &&
+        Objects.equals(this._quoteTypes, other._quoteTypes) &&
+        Objects.equals(this._quoteUnits, other._quoteUnits);
   }
 
   @Override

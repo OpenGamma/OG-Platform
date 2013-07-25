@@ -8,9 +8,11 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -57,8 +59,6 @@ public class Scenario {
                          Instant valuationTime,
                          VersionCorrection resolverVersionCorrection) {
     ArgumentChecker.notEmpty(name, "name");
-    ArgumentChecker.notNull(valuationTime, "valuationTime");
-    ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
     _name = name;
     _calcConfigNames = calcConfigNames;
     _valuationTime = valuationTime;
@@ -106,6 +106,16 @@ public class Scenario {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     _valuationTime = valuationTime;
     return this;
+  }
+
+  /**
+   * Updates this scenario to use the specified valuation time.
+   * @param valuationTime The valuation time
+   * @return The modified scenario
+   */
+  public Scenario valuationTime(ZonedDateTime valuationTime) {
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    return valuationTime(valuationTime.toInstant());
   }
 
   /**
@@ -158,6 +168,27 @@ public class Scenario {
    */
   public String getName() {
     return _name;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_manipulations, _name, _calcConfigNames, _valuationTime, _resolverVersionCorrection);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final Scenario other = (Scenario) obj;
+    return Objects.equals(this._manipulations, other._manipulations) &&
+        Objects.equals(this._name, other._name) &&
+        Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
+        Objects.equals(this._valuationTime, other._valuationTime) &&
+        Objects.equals(this._resolverVersionCorrection, other._resolverVersionCorrection);
   }
 
   @Override

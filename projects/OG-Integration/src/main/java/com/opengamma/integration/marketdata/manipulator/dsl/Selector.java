@@ -6,6 +6,7 @@
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -26,7 +27,7 @@ import com.opengamma.util.money.Currency;
 
   private final Set<String> _names;
   private final Set<Currency> _currencies;
-  private final Pattern _namePattern;
+  private final PatternWrapper _namePattern;
   private final Set<String> _calcConfigNames;
   private final Class<T> _type;
   private final Set<StructureType> _structureTypes;
@@ -42,7 +43,7 @@ import com.opengamma.util.money.Currency;
     _calcConfigNames = calcConfigNames;
     _names = names;
     _currencies = currencies;
-    _namePattern = namePattern;
+    _namePattern = PatternWrapper.wrap(namePattern);
     _type = type;
     _structureTypes = ImmutableSet.of(structureType);
   }
@@ -56,7 +57,7 @@ import com.opengamma.util.money.Currency;
   }
 
   /* package */ Pattern getNamePattern() {
-    return _namePattern;
+    return _namePattern == null ? null : _namePattern.pattern();
   }
 
   /* package */ Set<String> getCalcConfigNames() {
@@ -70,7 +71,7 @@ import com.opengamma.util.money.Currency;
     if (_names != null && !_names.contains(name)) {
       return false;
     }
-    if (_namePattern != null && !_namePattern.matcher(name).matches()) {
+    if (_namePattern != null && !_namePattern.pattern().matcher(name).matches()) {
       return false;
     }
     if (_currencies != null && !_currencies.contains(currency)) {
@@ -111,53 +112,25 @@ import com.opengamma.util.money.Currency;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Selector selector = (Selector) o;
-
-    if (_calcConfigNames != null ? !_calcConfigNames.equals(selector._calcConfigNames) : selector._calcConfigNames != null) {
-      return false;
-    }
-    if (_currencies != null ? !_currencies.equals(selector._currencies) : selector._currencies != null) {
-      return false;
-    }
-    String thisPattern = _namePattern == null ? null : _namePattern.pattern();
-    String thatPattern = selector._namePattern == null ? null : selector._namePattern.pattern();
-    if (thisPattern != null) {
-      if (!thisPattern.equals(thatPattern)) {
-        return false;
-      }
-    } else {
-      if (thatPattern != null) {
-        return false;
-      }
-    }
-    if (_names != null ? !_names.equals(selector._names) : selector._names != null) {
-      return false;
-    }
-    if (!_structureTypes.equals(selector._structureTypes)) {
-      return false;
-    }
-    if (!_type.equals(selector._type)) {
-      return false;
-    }
-    return true;
+  public int hashCode() {
+    return Objects.hash(_names, _currencies, _namePattern, _calcConfigNames, _type, _structureTypes);
   }
 
   @Override
-  public int hashCode() {
-    int result = _names != null ? _names.hashCode() : 0;
-    result = 31 * result + (_currencies != null ? _currencies.hashCode() : 0);
-    result = 31 * result + (_namePattern != null ? _namePattern.hashCode() : 0);
-    result = 31 * result + (_calcConfigNames != null ? _calcConfigNames.hashCode() : 0);
-    result = 31 * result + _type.hashCode();
-    result = 31 * result + _structureTypes.hashCode();
-    return result;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final Selector other = (Selector) obj;
+    return Objects.equals(this._names, other._names) &&
+        Objects.equals(this._currencies, other._currencies) &&
+        Objects.equals(this._namePattern, other._namePattern) &&
+        Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
+        Objects.equals(this._type, other._type) &&
+        Objects.equals(this._structureTypes, other._structureTypes);
   }
 
   @Override

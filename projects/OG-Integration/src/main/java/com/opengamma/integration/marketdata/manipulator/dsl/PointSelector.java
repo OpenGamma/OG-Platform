@@ -6,6 +6,7 @@
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -35,7 +36,7 @@ public class PointSelector implements DistinctMarketDataSelector {
   /** External ID scheme used when pattern matching ID value. */
   private final ExternalScheme _idMatchScheme;
   /** Regex pattern for matching ID value. */
-  private final Pattern _idValuePattern;
+  private final PatternWrapper _idValuePattern;
   /** Security type names - matches if the ID identifies a security of the specified type. */
   private final Set<String> _securityTypes;
 
@@ -49,7 +50,7 @@ public class PointSelector implements DistinctMarketDataSelector {
     }
     _securityTypes = securityTypes;
     _idMatchScheme = idMatchScheme;
-    _idValuePattern = idValuePattern;
+    _idValuePattern = PatternWrapper.wrap(idValuePattern);
     _calcConfigNames = calcConfigNames;
     _ids = ids;
   }
@@ -78,7 +79,7 @@ public class PointSelector implements DistinctMarketDataSelector {
       if (!_idMatchScheme.equals(id.getScheme())) {
         return null;
       }
-      if (!_idValuePattern.matcher(id.getValue()).matches()) {
+      if (!_idValuePattern.pattern().matcher(id.getValue()).matches()) {
         return null;
       }
     }
@@ -109,7 +110,7 @@ public class PointSelector implements DistinctMarketDataSelector {
   }
 
   /* package */ Pattern getIdValuePattern() {
-    return _idValuePattern;
+    return _idValuePattern == null ? null : _idValuePattern.pattern();
   }
 
   /* package */ Set<String> getSecurityTypes() {
@@ -117,50 +118,24 @@ public class PointSelector implements DistinctMarketDataSelector {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    PointSelector that = (PointSelector) o;
-
-    if (_calcConfigNames != null ? !_calcConfigNames.equals(that._calcConfigNames) : that._calcConfigNames != null) {
-      return false;
-    }
-    if (_idMatchScheme != null ? !_idMatchScheme.equals(that._idMatchScheme) : that._idMatchScheme != null) {
-      return false;
-    }
-    String thisPattern = _idValuePattern == null ? null : _idValuePattern.pattern();
-    String thatPattern = that._idValuePattern == null ? null : that._idValuePattern.pattern();
-    if (thisPattern != null) {
-      if (!thisPattern.equals(thatPattern)) {
-        return false;
-      }
-    } else {
-      if (thatPattern != null) {
-        return false;
-      }
-    }
-    if (_ids != null ? !_ids.equals(that._ids) : that._ids != null) {
-      return false;
-    }
-    if (_securityTypes != null ? !_securityTypes.equals(that._securityTypes) : that._securityTypes != null) {
-      return false;
-    }
-    return true;
+  public int hashCode() {
+    return Objects.hash(_calcConfigNames, _ids, _idMatchScheme, _idValuePattern, _securityTypes);
   }
 
   @Override
-  public int hashCode() {
-    int result = _ids != null ? _ids.hashCode() : 0;
-    result = 31 * result + (_calcConfigNames != null ? _calcConfigNames.hashCode() : 0);
-    result = 31 * result + (_idMatchScheme != null ? _idMatchScheme.hashCode() : 0);
-    result = 31 * result + (_idValuePattern != null ? _idValuePattern.pattern().hashCode() : 0);
-    result = 31 * result + (_securityTypes != null ? _securityTypes.hashCode() : 0);
-    return result;
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final PointSelector other = (PointSelector) obj;
+    return Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
+        Objects.equals(this._ids, other._ids) &&
+        Objects.equals(this._idMatchScheme, other._idMatchScheme) &&
+        Objects.equals(this._idValuePattern, other._idValuePattern) &&
+        Objects.equals(this._securityTypes, other._securityTypes);
   }
 
   @Override
