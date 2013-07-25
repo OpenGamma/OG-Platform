@@ -1,4 +1,4 @@
-package com.opengamma.financial.analytics.model.credit.idanew;
+package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import org.threeten.bp.LocalDate;
 

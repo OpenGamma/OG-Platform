@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.idanew;
+package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import java.util.Arrays;
 
@@ -34,7 +34,7 @@ public class ISDACompliantParallelCS01CDSFunction extends AbstractISDACompliantW
       CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
     CDSQuoteConvention convention = quotes[Math.abs(Arrays.binarySearch(bucketDates, maturity))];
     double cs01 = _pricer.parallelCS01(analytic, convention, yieldCurve, getTenminus4());
-   
+
     // SELL protection reverses directions of legs
     return Double.valueOf(cs01 * notional * getTenminus4());
   }

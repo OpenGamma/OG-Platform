@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.idanew;
+package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import java.util.Collection;
 import java.util.Collections;

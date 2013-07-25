@@ -3,33 +3,30 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.idanew;
+package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  *
  */
-public class ISDACompliantDirtyPresentValueCDSFunction extends AbstractISDACompliantWithCreditCurveCDSFunction {
+public class ISDACompliantCleanPriceCDSFunction extends AbstractISDACompliantWithCreditCurveCDSFunction {
 
-  private AnalyticCDSPricer _pricer = new AnalyticCDSPricer();
+  private PointsUpFrontConverter _pricer = new PointsUpFrontConverter();
 
-  public ISDACompliantDirtyPresentValueCDSFunction() {
-    super(ValueRequirementNames.DIRTY_PRESENT_VALUE);
+  public ISDACompliantCleanPriceCDSFunction() {
+    super(ValueRequirementNames.CLEAN_PRICE);
   }
 
   @Override
   protected Object compute(final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantCreditCurve creditCurve,
       final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic) {
-    final double pv = notional * _pricer.pv(analytic, yieldCurve, creditCurve, parSpread * getTenminus4(), PriceType.DIRTY);
-    // SELL protection reverses directions of legs
-    return Double.valueOf(buySellProtection == BuySellProtection.SELL ? -pv : pv);
+    return Double.valueOf(100.0 * _pricer.cleanPrice(analytic, yieldCurve, creditCurve, parSpread * getTenminus4()));
   }
 
 }

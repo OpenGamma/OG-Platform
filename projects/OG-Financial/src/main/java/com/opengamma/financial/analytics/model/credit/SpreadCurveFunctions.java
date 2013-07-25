@@ -19,7 +19,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
@@ -29,7 +28,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
-import com.opengamma.financial.analytics.model.credit.idanew.CDSAnalyticConverter;
+import com.opengamma.financial.analytics.model.credit.isdanew.CDSAnalyticConverter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 

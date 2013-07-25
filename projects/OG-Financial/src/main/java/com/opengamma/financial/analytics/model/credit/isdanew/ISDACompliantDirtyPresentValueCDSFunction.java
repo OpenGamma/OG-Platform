@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.idanew;
+package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;
@@ -16,18 +16,18 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  *
  */
-public class ISDACompliantCleanPresentValueCDSFunction extends AbstractISDACompliantWithCreditCurveCDSFunction {
+public class ISDACompliantDirtyPresentValueCDSFunction extends AbstractISDACompliantWithCreditCurveCDSFunction {
 
   private AnalyticCDSPricer _pricer = new AnalyticCDSPricer();
 
-  public ISDACompliantCleanPresentValueCDSFunction() {
-    super(ValueRequirementNames.CLEAN_PRESENT_VALUE);
+  public ISDACompliantDirtyPresentValueCDSFunction() {
+    super(ValueRequirementNames.DIRTY_PRESENT_VALUE);
   }
 
   @Override
   protected Object compute(final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantCreditCurve creditCurve,
       final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic) {
-    final double pv = notional * _pricer.pv(analytic, yieldCurve, creditCurve, parSpread * getTenminus4(), PriceType.CLEAN);
+    final double pv = notional * _pricer.pv(analytic, yieldCurve, creditCurve, parSpread * getTenminus4(), PriceType.DIRTY);
     // SELL protection reverses directions of legs
     return Double.valueOf(buySellProtection == BuySellProtection.SELL ? -pv : pv);
   }

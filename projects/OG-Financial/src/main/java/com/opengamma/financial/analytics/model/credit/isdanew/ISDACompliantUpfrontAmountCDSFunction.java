@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.credit.idanew;
+package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import java.util.Arrays;
 
@@ -11,12 +11,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
@@ -54,7 +51,7 @@ public class ISDACompliantUpfrontAmountCDSFunction extends AbstractISDACompliant
       throw new OpenGammaRuntimeException("Unknown quote type " + convention);
     }
     // SELL protection reverses directions of legs
-    return Double.valueOf(buySellProtection == BuySellProtection.SELL ? - cash : cash);
+    return Double.valueOf(buySellProtection == BuySellProtection.SELL ? -cash : cash);
   }
 
 }
