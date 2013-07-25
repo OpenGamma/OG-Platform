@@ -72,12 +72,23 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAdapter<T> implements FinancialSecurityVisitor<T> {
 
-  @SuppressWarnings("synthetic-access")
+  /**
+   * Creates builder for a {@link FinancialSecurityVisitor}. The underlying visitor
+   * has no implemented methods.
+   * @param <T> The return type of the visitor
+   * @return A builder
+   */
   public static <T> Builder<T> builder() {
     return new Builder<>();
   }
 
-  @SuppressWarnings("synthetic-access")
+  /**
+   * Creates a builder for a {@link FinancialSecurityVisitor} that uses the
+   * supplied visitor as the initial underlying.
+   * @param <T> The return type of the visitor
+   * @param visitor The underlying visitor, not null
+   * @return A builder
+   */
   public static <T> Builder<T> builder(final FinancialSecurityVisitor<T> visitor) {
     return new Builder<>(visitor);
   }
@@ -317,8 +328,6 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
-
-
   /**
    * Generic message for unsupported methods in FinancialSecurityVisitor implementations
    *
@@ -337,13 +346,20 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
    *
    * @param <T> Return type for the visitor
    */
-  public static final class Builder<T> {
+  public static class Builder<T> {
 
-    private Builder() {
+    /**
+     * Creates a builder with an underlying visitor that has no methods implemented.
+     */
+    protected Builder() {
       _visitor = new FinancialSecurityVisitorAdapter<>();
     }
 
-    private Builder(final FinancialSecurityVisitor<T> visitor) {
+    /**
+     * Creates a builder with this underlying visitor.
+     * @param visitor The visitor, not null
+     */
+    protected Builder(final FinancialSecurityVisitor<T> visitor) {
       _visitor = visitor;
     }
 
@@ -1732,6 +1748,10 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    /**
+     * Creates the {@link FinancialSecurityVisitor}
+     * @return The visitor
+     */
     public FinancialSecurityVisitor<T> create() {
       return new FinancialSecurityVisitorDelegate<>(_visitor);
     }

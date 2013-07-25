@@ -63,17 +63,22 @@ import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Adapter for visiting all concrete asset classes.
  *
  * @param <T> Return type for visitor.
  */
-class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T> {
+public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T> {
   /** The delegate */
   private final FinancialSecurityVisitor<T> _delegate;
 
+  /**
+   * @param delegate The delegate, not null
+   */
   public FinancialSecurityVisitorDelegate(final FinancialSecurityVisitor<T> delegate) {
+    ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
   }
 
