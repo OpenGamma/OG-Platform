@@ -9,6 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
@@ -19,6 +22,18 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class CompareUtilsTest {
 
+  @SuppressWarnings("unchecked")
+  public void test_constructor() throws Exception {
+    Constructor<?>[] cons = CompareUtils.class.getDeclaredConstructors();
+    assertEquals(1, cons.length);
+    assertEquals(0, cons[0].getParameterTypes().length);
+    assertEquals(true, Modifier.isPrivate(cons[0].getModifiers()));
+    Constructor<CompareUtils> con = (Constructor<CompareUtils>) cons[0];
+    con.setAccessible(true);
+    con.newInstance();
+  }
+
+  //-------------------------------------------------------------------------
   public void test_max() {
     assertEquals(null, CompareUtils.<String>max(null, null));
     assertEquals("A", CompareUtils.max(null, "A"));
@@ -27,6 +42,7 @@ public class CompareUtilsTest {
     Integer b = new Integer(1); // need to use new, not autoboxing
     assertSame(a, CompareUtils.max(a, b));  // as we test for same here
     assertEquals("B", CompareUtils.max("A", "B"));
+    assertEquals("B", CompareUtils.max("B", "A"));
   }
 
   public void test_min() {
@@ -37,6 +53,7 @@ public class CompareUtilsTest {
     Integer b = new Integer(1); // need to use new, not autoboxing
     assertSame(a, CompareUtils.min(a, b));  // as we test for same here
     assertEquals("A", CompareUtils.min("A", "B"));
+    assertEquals("A", CompareUtils.min("B", "A"));
   }
 
   public void test_compareWithNullLow() {

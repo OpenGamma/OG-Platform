@@ -105,6 +105,7 @@ public final class UniqueId
    * @return the unique identifier, not null
    */
   public static UniqueId of(ObjectId objectId, String version) {
+    ArgumentChecker.notNull(objectId, "objectId");
     return new UniqueId(objectId.getScheme(), objectId.getValue(), version);
   }
 
