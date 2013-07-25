@@ -221,6 +221,20 @@ public class MultipleCurrencyAmountTest {
     array = new CurrencyAmount[] {CurrencyAmount.of(CCY1, A1), CurrencyAmount.of(CCY2, A1), CurrencyAmount.of(CCY3, A1) };
     other = MultipleCurrencyAmount.of(array);
     assertFalse(MULTIPLE.equals(other));
+    assertTrue(MULTIPLE.equals(MULTIPLE));
+  }
+
+  @Test
+  public void testEqualsRubbish() {
+    assertFalse(MULTIPLE.equals(""));
+    assertFalse(MULTIPLE.equals(null));
+  }
+
+  @Test
+  public void testToString() {
+    assertTrue(MULTIPLE.toString().contains(CA1.toString()));
+    assertTrue(MULTIPLE.toString().contains(CA2.toString()));
+    assertTrue(MULTIPLE.toString().contains(CA3.toString()));
   }
 
   @Test
@@ -297,7 +311,20 @@ public class MultipleCurrencyAmountTest {
     assertSameData(expected, test);
   }
 
+  @Test
+  public void testPlus_CurrencyAmount() {
+    CurrencyAmount ca = CurrencyAmount.of(Currency.AUD, 117);
+    CurrencyAmount cb = CurrencyAmount.of(Currency.USD, 12);
+    CurrencyAmount cc = CurrencyAmount.of(Currency.AUD, 3);
+    CurrencyAmount cd = CurrencyAmount.of(Currency.NZD, 3);
+    MultipleCurrencyAmount mc1 = MultipleCurrencyAmount.of(ca, cb);
+    MultipleCurrencyAmount mc2 = MultipleCurrencyAmount.of(cc, cd);
+    Set<CurrencyAmount> expected = Sets.newHashSet(cb, cd, CurrencyAmount.of(Currency.AUD, 120));
+    MultipleCurrencyAmount test = mc1.plus(mc2);
+    assertSameData(expected, test);
+  }
 
+  //-------------------------------------------------------------------------
   @Test
   public void testMultipliedBy() {
     final double factor = 2.5;
@@ -364,7 +391,7 @@ public class MultipleCurrencyAmountTest {
     final CurrencyAmount[] amounts = actual.getCurrencyAmounts();
     assertEquals(amounts.length, expected.size());
     for (final CurrencyAmount amount : amounts) {
-      assertTrue(expected.contains(amount));
+      assertTrue(expected.contains(amount), "Expected: " + expected + " but found: " + amount);
     }
   }
 }

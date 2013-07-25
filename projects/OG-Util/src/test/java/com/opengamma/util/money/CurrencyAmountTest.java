@@ -32,9 +32,25 @@ public class CurrencyAmountTest {
     assertEquals(A1, CCY_AMOUNT.getAmount(), 0);
   }
 
+  //-------------------------------------------------------------------------
+  // factories
+  //-------------------------------------------------------------------------
+  public void test_of_Currency() {
+    CurrencyAmount test = CurrencyAmount.of(Currency.USD, A1);
+    assertEquals(Currency.USD, test.getCurrency());
+    assertEquals(A1, test.getAmount(), 0.0001d);
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_Currency_nullCurrency() {
     CurrencyAmount.of((Currency) null, A1);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_of_String() {
+    CurrencyAmount test = CurrencyAmount.of("USD", A1);
+    assertEquals(Currency.USD, test.getCurrency());
+    assertEquals(A1, test.getAmount(), 0.0001d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -106,6 +122,12 @@ public class CurrencyAmountTest {
     assertFalse(CCY_AMOUNT.equals(other));
     other = CurrencyAmount.of(CCY1, A2);
     assertFalse(CCY_AMOUNT.equals(other));
+  }
+
+  @Test
+  public void testEqualsRubbish() {
+    assertFalse(CCY_AMOUNT.equals(""));
+    assertFalse(CCY_AMOUNT.equals(null));
   }
 
 }

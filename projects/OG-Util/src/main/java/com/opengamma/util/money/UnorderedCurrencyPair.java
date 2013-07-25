@@ -61,6 +61,7 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
    * 
    * @param uniqueId  the unique identifier, not null
    * @return the pair, not null
+   * @throws IllegalArgumentException if the input is invalid
    */
   public static UnorderedCurrencyPair of(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "unique id");
@@ -73,7 +74,7 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
         return new UnorderedCurrencyPair(ccy1, ccy2);
       }
     }
-    throw new UnsupportedOperationException("Cannot create an UnorderedCurrencyPair from this UniqueId; need an ObjectScheme of UnorderedCurrencyPair, have " + uniqueId.getScheme());
+    throw new IllegalArgumentException("Cannot create an UnorderedCurrencyPair from this UniqueId; need an ObjectScheme of UnorderedCurrencyPair, have " + uniqueId.getScheme());
   }
 
   /**

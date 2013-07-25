@@ -89,22 +89,6 @@ public final class CurrencyAmount implements Serializable {
     }
   }
 
-  /**
-   * Creates a currency amount for the specified currency and amount,
-   * handling null inputs by returning null.
-   *
-   * @param currency  the currency the amount is in, may be null
-   * @param amount  the amount of the currency to represent, may be null
-   * @return the currency amount, may be null
-   */
-  public static CurrencyAmount create(final Currency currency, final Double amount) {
-    if (currency != null && amount != null) {
-      return new CurrencyAmount(currency, amount);
-    } else {
-      return null;
-    }
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.

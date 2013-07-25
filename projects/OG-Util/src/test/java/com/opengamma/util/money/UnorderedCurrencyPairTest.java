@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -96,6 +98,27 @@ public class UnorderedCurrencyPairTest {
     assertEquals(a.equals(null), false);
     assertEquals(a.equals("String"), false);
     assertEquals(a.equals(new Object()), false);
+  }
+
+  //-----------------------------------------------------------------------
+  // uniqueId
+  //-----------------------------------------------------------------------
+  public void test_of_UniqueId() {
+    UnorderedCurrencyPair test = UnorderedCurrencyPair.of(UniqueId.of(UnorderedCurrencyPair.OBJECT_SCHEME, "USDGBP"));
+    assertEquals(Currency.GBP, test.getFirstCurrency());
+    assertEquals(Currency.USD, test.getSecondCurrency());
+    assertEquals(ObjectId.of(UnorderedCurrencyPair.OBJECT_SCHEME, "GBPUSD"), test.getObjectId());
+    assertEquals(UniqueId.of(UnorderedCurrencyPair.OBJECT_SCHEME, "GBPUSD"), test.getUniqueId());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_of_UniqueId_wrongScheme() {
+    UnorderedCurrencyPair.of(UniqueId.of("Foo", "USDGBP"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_of_UniqueId_wrongValue() {
+    UnorderedCurrencyPair.of(UniqueId.of(UnorderedCurrencyPair.OBJECT_SCHEME, "USD"));
   }
 
 }
