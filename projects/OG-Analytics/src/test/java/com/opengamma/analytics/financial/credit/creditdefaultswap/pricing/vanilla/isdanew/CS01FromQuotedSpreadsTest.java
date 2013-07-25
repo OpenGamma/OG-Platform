@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.model.BumpType;
 
 public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
 
+  private static final PointsUpFrontConverter PUF_CONVERTER = new PointsUpFrontConverter();
   protected static final double NOTIONAL = 1e6;
   private static final LocalDate TRADE_DATE = LocalDate.of(2013, 6, 4); //today
   private static final LocalDate EFFECTIVE_DATE = TRADE_DATE.plusDays(1); // AKA stepin date
@@ -41,6 +42,10 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
   private static final double[] YIELD_CURVE_RATES = new double[] {0.00194, 0.002292, 0.002733, 0.004153, 0.006902, 0.004575, 0.006585, 0.00929, 0.012175, 0.0149, 0.01745, 0.019595, 0.02144, 0.023045,
     0.02567, 0.02825, 0.03041, 0.031425, 0.03202 };
   private static final ISDACompliantYieldCurve YIELD_CURVE = makeYieldCurve(TRADE_DATE, SPOT_DATE, YIELD_CURVE_POINTS, YIELD_CURVE_INSTRUMENTS, YIELD_CURVE_RATES);
+
+  //BBG numbers 
+  private static final double[] CASH_PAYMENTS = new double[] {-2543, -4843, -7065, -9182, -11284, -13161, -14922, -16610, -18279, -19651, -20847, -22077, -23201, -24307, -25336, -26417, -27396,
+    -27969, -28493, -28968, -29401, -29395, -29335, -29217, -29027, -28767, -28439, -28087, -27647, -27501, -27287, -27083, -26866, -26725, -26370, -26140, -25895, -25707, -25414, -25014, -24925 };
 
   // These numbers come from The ISDA excel plugin
   private static final double[] PARELLEL_CS01 = new double[] {4.44388460893843, 30.033640328983, 55.3853989749605, 80.4665679983788, 106.113611507615, 131.76855171026, 157.157114109902,
@@ -109,6 +114,20 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
       900.5743294133033, 0.0, 0.0, 0.0 } };
 
   @Test
+  public void cashPaymentTest() {
+    final double coupon = COUPON * ONE_BP;
+
+    final int n = MATURITIES.length;
+    for (int i = 0; i < n; i++) {
+      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final PointsUpFront puf = PUF_CONVERTER.toPointsUpFront(cds, new QuotedSpread(coupon, QUOTED_SPREADS[i] * ONE_BP), YIELD_CURVE);
+      final double cash = (puf.getPointsUpFront() - cds.getAccruedPremium(coupon)) * NOTIONAL;
+      // System.out.println(cash);
+      assertEquals(CASH_PAYMENTS[i], cash, 1e-0); //no dps given on BBG numbers
+    }
+  }
+
+  @Test
   public void parellelCS01Test() {
     final double coupon = COUPON * ONE_BP;
     final double scale = NOTIONAL * ONE_BP;
@@ -116,7 +135,7 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double cs01 = scale * CS01_CAL.parallelCS01FromQuotedSpread(cds, coupon, YIELD_CURVE, QUOTED_SPREADS[i] * ONE_BP, ONE_BP, BumpType.ADDITIVE);
+      final double cs01 = scale * CS01_CAL.parallelCS01FromSpread(cds, coupon, YIELD_CURVE, QUOTED_SPREADS[i] * ONE_BP, ONE_BP, BumpType.ADDITIVE);
       assertEquals(MATURITIES[i].toString(), PARELLEL_CS01[i], cs01, 1e-14 * NOTIONAL);
     }
   }

@@ -10,6 +10,8 @@ import java.util.Arrays;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -46,6 +48,28 @@ public abstract class IMMDateLogic {
     final LocalDate[] res = new LocalDate[n];
     for (int i = 0; i < n; i++) {
       res[i] = nextIMM.plus(tenors[i]);
+    }
+    return res;
+  }
+
+  /**
+   * Get a complete set of IMM dates from some starting IMM date
+   * @param start The starting IMM date (this will be the first entry)
+   * @param size number of dates 
+   * @return set of IMM dates
+   */
+  public static LocalDate[] getIMMDateSet(final LocalDate start, final int size) {
+    ArgumentChecker.isTrue(isIMMDate(start), "start is not an IMM date");
+    final LocalDate[] res = new LocalDate[size];
+    res[0] = start;
+    for (int i = 1; i < size; i++) {
+      final int tMonth = res[i - 1].getMonthValue();
+      final int tYear = res[i - 1].getYear();
+      if (tMonth != 12) {
+        res[i] = LocalDate.of(tYear, tMonth + 3, IMM_DAY);
+      } else {
+        res[i] = LocalDate.of(tYear + 1, 3, IMM_DAY);
+      }
     }
     return res;
   }

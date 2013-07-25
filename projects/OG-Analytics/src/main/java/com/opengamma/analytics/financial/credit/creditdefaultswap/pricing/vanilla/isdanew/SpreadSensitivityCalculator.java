@@ -26,6 +26,32 @@ public class SpreadSensitivityCalculator {
   private static final ISDACompliantCreditCurveBuilder BUILDER = new FastCreditCurveBuilder();
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
 
+  //***************************************************************************************************************
+  // parallel CS01 of a CDS from single market quote of that CDS
+  //***************************************************************************************************************
+
+  /**
+   * The CS01 (or credit DV01)  of a CDS - the sensitivity of the PV to a finite increase of market spread (on NOT the CDS's 
+   * coupon). If the CDS is quoted as points up-front, this is first converted to a quoted spread, and <b>this</b> is bumped 
+   * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
+   * @param quote The market quote for the CDS - these can be ParSpread, PointsUpFront or QuotedSpread
+   * @param yieldCurve The yield (or discount) curve 
+   * @param fracBumpAmount The fraction bump amount of the spread so a 1pb bump is 1e-4 
+   * @return
+   */
+  public double parallelCS01(final CDSAnalytic cds, final CDSQuoteConvention quote, final ISDACompliantYieldCurve yieldCurve, final double fracBumpAmount) {
+    if (quote instanceof QuotedSpread) {
+      final QuotedSpread qSpread = (QuotedSpread) quote;
+      return parallelCS01FromParSpreads(cds, qSpread.getCoupon(), yieldCurve, new CDSAnalytic[] {cds }, new double[] {qSpread.getQuotedSpread() }, fracBumpAmount, BumpType.ADDITIVE);
+    } else if (quote instanceof PointsUpFront) {
+      final PointsUpFront puf = (PointsUpFront) quote;
+      return parallelCS01FromPUF(cds, puf.getCoupon(), yieldCurve, puf.getPointsUpFront(), fracBumpAmount);
+    } else if (quote instanceof ParSpread) {
+      return parallelCS01FromParSpreads(cds, quote.getCoupon(), yieldCurve, new CDSAnalytic[] {cds }, new double[] {quote.getCoupon() }, fracBumpAmount, BumpType.ADDITIVE);
+    }
+    throw new IllegalArgumentException("unknow type " + quote.getClass());
+  }
+
   /**
    *The CS01 (or credit DV01) by a shift of the quoted (or flat) spread of the CDS <b>when the CDS is quoted as points up-front (PUF)</b>.<br>
    *This simply converts the PUF quote to a quoted (or flat) spread then calls parallelCS01FromQuotedSpread
@@ -37,33 +63,39 @@ public class SpreadSensitivityCalculator {
    * @return  The credit DV01
    */
   public double parallelCS01FromPUF(final CDSAnalytic cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final double puf, final double fracBumpAmount) {
-    final double qSpread = PUF_CONVERTER.pufToQuotedSpread(cds, coupon, yieldCurve, puf);
-    return parallelCS01FromQuotedSpread(cds, coupon, yieldCurve, qSpread, fracBumpAmount, BumpType.ADDITIVE);
+    final double bumpedQSpread = PUF_CONVERTER.pufToQuotedSpread(cds, coupon, yieldCurve, puf) + fracBumpAmount;
+    final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(cds, bumpedQSpread, yieldCurve);
+    final double bumpedPrice = PRICER.pv(cds, yieldCurve, bumpedCurve, coupon);
+    return (bumpedPrice - puf) / fracBumpAmount;
   }
 
   /**
-   * The CS01 (or credit DV01) by a shift of the quoted (or flat) spread of the CDS. This finds two flat credit/hazard curves from  
-   * the CDS with its original quoted (or flat) spread and with the spread bumped. The traded CDS is then priced off both curves, using its coupon,
-   * and the difference (divided by the bump size) is the credit DV01 
+   * The CS01 (or credit DV01) by a shift of the market spread of the CDS (the coupon is unchanged). This finds two flat
+   *  credit/hazard curves from  the CDS with its original spread and with the spread bumped. The traded CDS is then priced
+   * off both curves, using its coupon, and the difference (divided by the bump size) is the credit DV01 
    * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
    * @param coupon the of the traded CDS  (expressed as <b>fractions not basis points</b>)
    * @param yieldCurve  The yield (or discount) curve 
-   * @param quotedSpread the quoted (or flat) spread of the reference CDS
+   * @param marketSpread the market spread of the reference CDS (in this case it is irrelevant whether this is par or quoted spread)
    * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
    * @param bumpType ADDITIVE or MULTIPLICATIVE
    * @return The credit DV01
    */
-  public double parallelCS01FromQuotedSpread(final CDSAnalytic cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final double quotedSpread, final double fracBumpAmount,
+  public double parallelCS01FromSpread(final CDSAnalytic cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final double marketSpread, final double fracBumpAmount,
       final BumpType bumpType) {
-    return parallelCS01FromParSpreads(cds, coupon, yieldCurve, new CDSAnalytic[] {cds }, new double[] {quotedSpread }, fracBumpAmount, bumpType);
+    return parallelCS01FromParSpreads(cds, coupon, yieldCurve, new CDSAnalytic[] {cds }, new double[] {marketSpread }, fracBumpAmount, bumpType);
   }
+
+  //***************************************************************************************************************
+  // parallel CS01 of CDS from single market quote of (potentially) different CDS 
+  //***************************************************************************************************************
 
   /**
    * The CS01 (or credit DV01) by a shift of the quoted (or flat) spread of the reference CDS. This finds two flat credit/hazard curves from  
    * a reference CDS with its original quoted (or flat) spread and with the spread bumped. The traded CDS is then priced off both curves, using its coupon, 
    * and the difference (divided by the bump size) is the credit DV01 
    * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
-   * @param coupon the of the traded CDS  (expressed as <b>fractions not basis points</b>)
+   * @param coupon the coupon of the traded CDS  (expressed as <b>fractions not basis points</b>)
    * @param yieldCurve  The yield (or discount) curve 
    * @param referenceCDS the reference CDS use to find the flat credit/hazard curve (this is often the same as the traded CDS)
    * @param quotedSpread the quoted (or flat) spread of the reference CDS
@@ -79,6 +111,46 @@ public class SpreadSensitivityCalculator {
     ArgumentChecker.notNull(bumpType, "bumpType");
     ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
     return parallelCS01FromParSpreads(cds, coupon, yieldCurve, new CDSAnalytic[] {referenceCDS }, new double[] {quotedSpread }, fracBumpAmount, bumpType);
+  }
+
+  //***************************************************************************************************************
+  // parallel CS01 of a CDS from a set of market quotes at pillar dates (e.g. 6M, 1Y, 3Y, 5Y, 10Y)  
+  //***************************************************************************************************************
+
+  /**
+   * The CS01 (or credit DV01) by a parallel shift of the market spreads (CDS spread curve). This takes an extraneous yield curve,
+   *  a set of reference CDSs (marketCDSs) and their market quotes and bootstraps a credit (hazard) curve - 
+   * the target CDS is then priced with this credit curve. This is then repeated with the market spreads bumped in parallel by 
+   * some amount. The result is the difference (bumped minus base price) is divided by the bump amount.<br>
+   * This can take quotes as ParSpread, PointsUpFront or QuotedSpread (or some mix).  For par-spreads, these are bumped and a 
+   * new credit curve built; for quoted-spreads, there are bumped and a new curve build be first converting to PUF; and finally 
+   * for PUF, these are converted to quoted spreads, bumped and converted back to build the credit curve. 
+   * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
+   * @param cdsCoupon the coupon of the traded CDS  (expressed as <b>fractions not basis points</b>)
+   * @param yieldCurve The yield (or discount) curve 
+   * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
+   * @param quotes The quotes for the market CDSs - these can be ParSpread, PointsUpFront or QuotedSpread (or any mixture of these)
+   * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4
+   * @return  The credit DV01
+   */
+  public double parallelCS01FromPillarQuotes(final CDSAnalytic cds, final double cdsCoupon, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
+      final CDSQuoteConvention[] quotes, final double fracBumpAmount) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.noNulls(marketCDSs, "curvePoints");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.noNulls(quotes, "quotes");
+    ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
+    final int n = marketCDSs.length;
+    ArgumentChecker.isTrue(n == quotes.length, "speads length does not match curvePoints");
+
+    final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(marketCDSs, quotes, yieldCurve);
+    final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, cdsCoupon);
+
+    final CDSQuoteConvention[] bumpedQuotes = bumpQuotes(marketCDSs, quotes, yieldCurve, fracBumpAmount);
+    final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(marketCDSs, bumpedQuotes, yieldCurve);
+    final double bumpedPrice = PRICER.pv(cds, yieldCurve, bumpedCurve, cdsCoupon);
+
+    return (bumpedPrice - basePrice) / fracBumpAmount;
   }
 
   /**
@@ -110,6 +182,50 @@ public class SpreadSensitivityCalculator {
     final double[] bumpedSpreads = makeBumpedSpreads(parSpreads, fracBumpAmount, bumpType);
     final double diff = fdCreditDV01(cds, cdsFracSpread, marketCDSs, bumpedSpreads, parSpreads, yieldCurve, PriceType.DIRTY);
     return diff / fracBumpAmount;
+  }
+
+  //***************************************************************************************************************
+  // bucked CS01 - the sensitivity of the CDS's PV to the market spreads used to build the credit curve - these are
+  // the pillar dates (e.g. 6M, 1Y, 3Y, 5Y, 10Y) 
+  //***************************************************************************************************************
+
+  /**
+   * The bucked CS01 (or credit DV01) by a shift of each the market spread in turn. This takes an extraneous yield curve,
+   *  a set of reference CDSs (marketCDSs) and their market quotes and bootstraps a credit (hazard) curve - 
+   * the target CDS is then priced with this credit curve. This is then repeated with each market spreads bumped in turn by 
+   * some amount. The result is the array of differences (bumped minus base price) is divided by the bump amount.<br>
+   * This can take quotes as ParSpread, PointsUpFront or QuotedSpread (or some mix).  For par-spreads, these are bumped and a 
+   * new credit curve built; for quoted-spreads, there are bumped and a new curve build be first converting to PUF; and finally 
+   * for PUF, these are converted to quoted spreads, bumped and converted back to build the credit curve. 
+   * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
+   * @param cdsCoupon the coupon of the traded CDS  (expressed as <b>fractions not basis points</b>)
+   * @param yieldCurve The yield (or discount) curve 
+   * @param marketCDSs The market CDSs - these are the reference instruments used to build the credit curve 
+   * @param quotes The quotes for the market CDSs - these can be ParSpread, PointsUpFront or QuotedSpread (or any mixture of these)
+   * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4
+   * @return  The bucketed credit DV01
+   */
+  public double[] bucketedCS01FromPillarQuotes(final CDSAnalytic cds, final double cdsCoupon, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] marketCDSs,
+      final CDSQuoteConvention[] quotes, final double fracBumpAmount) {
+
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.noNulls(marketCDSs, "curvePoints");
+    ArgumentChecker.noNulls(quotes, "quotes");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
+    final int n = marketCDSs.length;
+    ArgumentChecker.isTrue(n == quotes.length, "speads length does not match curvePoints");
+
+    final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(marketCDSs, quotes, yieldCurve);
+    final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, cdsCoupon);
+    final double[] res = new double[n];
+    for (int i = 0; i < n; i++) {
+      final CDSQuoteConvention[] bumpedQuotes = bumpQuoteAtIndex(marketCDSs, quotes, yieldCurve, fracBumpAmount, i);
+      final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(marketCDSs, bumpedQuotes, yieldCurve);
+      final double price = PRICER.pv(cds, yieldCurve, bumpedCurve, cdsCoupon);
+      res[i] = (price - basePrice) / fracBumpAmount;
+    }
+    return res;
   }
 
   /**
@@ -386,6 +502,38 @@ public class SpreadSensitivityCalculator {
     } else {
       throw new IllegalArgumentException("BumpType " + bumpType + " is not supported");
     }
+    return res;
+  }
+
+  private CDSQuoteConvention bumpQuote(final CDSAnalytic cds, final CDSQuoteConvention quote, final ISDACompliantYieldCurve yieldCurve, final double eps) {
+    if (quote instanceof ParSpread) {
+      return new ParSpread(quote.getCoupon() + eps);
+    } else if (quote instanceof QuotedSpread) {
+      final QuotedSpread qSpread = (QuotedSpread) quote;
+      return new QuotedSpread(qSpread.getCoupon(), qSpread.getQuotedSpread() + eps);
+    } else if (quote instanceof PointsUpFront) {
+      final PointsUpFront puf = (PointsUpFront) quote;
+      final double bumpedQSpread = PUF_CONVERTER.pufToQuotedSpread(cds, puf.getCoupon(), yieldCurve, puf.getPointsUpFront()) + eps;
+      return new PointsUpFront(puf.getCoupon(), PUF_CONVERTER.quotedSpreadToPUF(cds, puf.getCoupon(), yieldCurve, bumpedQSpread));
+    } else {
+      throw new IllegalArgumentException("unknow type " + quote.getClass());
+    }
+  }
+
+  private CDSQuoteConvention[] bumpQuotes(final CDSAnalytic[] cds, final CDSQuoteConvention[] quotes, final ISDACompliantYieldCurve yieldCurve, final double eps) {
+    final int n = cds.length;
+    final CDSQuoteConvention[] res = new CDSQuoteConvention[n];
+    for (int i = 0; i < n; i++) {
+      res[i] = bumpQuote(cds[i], quotes[i], yieldCurve, eps);
+    }
+    return res;
+  }
+
+  private CDSQuoteConvention[] bumpQuoteAtIndex(final CDSAnalytic[] cds, final CDSQuoteConvention[] quotes, final ISDACompliantYieldCurve yieldCurve, final double eps, final int index) {
+    final int n = cds.length;
+    final CDSQuoteConvention[] res = new CDSQuoteConvention[n];
+    System.arraycopy(quotes, 0, res, 0, n);
+    res[index] = bumpQuote(cds[index], quotes[index], yieldCurve, eps);
     return res;
   }
 
