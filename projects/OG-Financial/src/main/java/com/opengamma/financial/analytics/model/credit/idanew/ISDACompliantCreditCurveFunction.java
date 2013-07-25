@@ -20,6 +20,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
@@ -62,7 +63,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Function to return hazard (credit) curve for a security
+ * Function to return spreads modified for a given security
  */
 public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -94,7 +95,7 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
       LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
-      final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(creditCurveReq.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION));
+      final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(spreadsRequriement.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION));
       final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
       if (spreadCurve == null) {
         throw new OpenGammaRuntimeException("Bucketed spreads not available for " +  AbstractISDACompliantWithCreditCurveCDSFunction.getSpreadCurveIdentifier(
@@ -108,34 +109,31 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       }
 
       // modify curve as needed
-      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now,
-                                                                           spreadsRequriement.getConstraint(
-                                                                               ISDAFunctionConstants.ISDA_BUCKET_TENORS));
-      double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, yieldCurve, cds.getStartDate());
-      //double[] spreads = SpreadCurveFunctions.getSpreadCurveNew(spreadCurve, bucketDates, security.getStartDate());
+      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, spreadsRequriement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
+      //double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, yieldCurve, cds.getStartDate());
+      double[] spreads = SpreadCurveFunctions.getSpreadCurveNew(spreadCurve, bucketDates, security.getStartDate(), quoteConvention);
       Tenor[] tenors = SpreadCurveFunctions.getBuckets(spreadsRequriement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
       final NodalTenorDoubleCurve modifiedSpreadCurve = new NodalTenorDoubleCurve(tenors, ArrayUtils.toObject(spreads), true);
+      final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), bucketDates, spreads, security.getParSpread(), quoteConvention);
 
       // CDS analytics for credit curve
-      final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);
+      //final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);
       final CDSAnalytic[] creditAnalytics = new CDSAnalytic[spreads.length];
       for (int i = 0; i < creditAnalytics.length; i++) {
         final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), bucketDates[i].toLocalDate());
-        //creditAnalytics[i] = security.accept(visitor);
-        creditAnalytics[i] = CDSAnalyticConverter.create(curveCDS, now.toLocalDate(), bucketDates[i].toLocalDate());
+        creditAnalytics[i] = security.accept(visitor);
+        //creditAnalytics[i] = CDSAnalyticConverter.create(curveCDS, now.toLocalDate(), bucketDates[i].toLocalDate());
       }
 
-      //FIXME: Proper handling of PUF and quote types, send to analytoics and let that handle
-
-
       final FastCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder();
-      final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics, spreads, yieldCurve);
+      final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics, quotes, yieldCurve);
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), creditCurveReq.getConstraints());
 
       // spreads
       final ValueSpecification spreadSpec = new ValueSpecification(ValueRequirementNames.BUCKETED_SPREADS, target.toSpecification(), spreadsRequriement.getConstraints());
 
-      return Sets.newHashSet(new ComputedValue(spec, creditCurve), new ComputedValue(spreadSpec, modifiedSpreadCurve));
+      return Sets.newHashSet(new ComputedValue(spec, creditCurve),
+                             new ComputedValue(spreadSpec, modifiedSpreadCurve));
     }
 
     @Override

@@ -18,10 +18,10 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpT
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCreditCurveFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantAccruedDaysCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantAccruedPremiumCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCleanPriceCDSFunction;
-import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCreditCurveFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantBucketedCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantCleanPresentValueCDSFunction;
 import com.opengamma.financial.analytics.model.credit.idanew.ISDACompliantDirtyPresentValueCDSFunction;

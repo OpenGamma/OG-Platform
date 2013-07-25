@@ -252,13 +252,17 @@ public class SpreadCurveFunctions {
    *
    * @param spreadCurve the spread curve
    * @param bucketDates the bucket dates
+   * @param quoteConvention the convention, spread or puf
    * @return the spread curve
    */
-  public static double[] getSpreadCurveNew(final NodalTenorDoubleCurve spreadCurve, final ZonedDateTime[] bucketDates, final ZonedDateTime startDate) {
+  public static double[] getSpreadCurveNew(final NodalTenorDoubleCurve spreadCurve, final ZonedDateTime[] bucketDates,
+                                           final ZonedDateTime startDate, final StandardCDSQuotingConvention quoteConvention) {
     ArgumentChecker.notNull(spreadCurve, "spread curve");
     ArgumentChecker.notNull(bucketDates, "bucket dates");
     ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
     final double[] spreads = new double[bucketDates.length];
+    // PUF normalised to 1%, spreads to 1 BP
+    final double multiplier = StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention) ? 1e-2 : s_tenminus4;
 
     // take spreads from subset of dates that we want
     int i = 0;
@@ -266,7 +270,7 @@ public class SpreadCurveFunctions {
       final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
       final int index = Arrays.binarySearch(bucketDates, bucketDate);
       if (index >= 0) {
-        spreads[i++] = spreadCurve.getYValue(tenor) * s_tenminus4;
+        spreads[i++] = spreadCurve.getYValue(tenor) * multiplier;
       }
     }
     // if spread curve ends before required buckets take last spread entry
@@ -298,9 +302,9 @@ public class SpreadCurveFunctions {
     final CDSQuoteConvention[] result = new CDSQuoteConvention[dates.length];
     for (int i = 0; i < dates.length; i++) {
       if (StandardCDSQuotingConvention.SPREAD.equals(quoteConvention)) {
-        result[i] = IMMDateGenerator.isIMMDate(pricedCDSMaturity) ? new QuotedSpread(coupon, values[i]) : new ParSpread(values[i]);
+        result[i] = IMMDateGenerator.isIMMDate(pricedCDSMaturity) ? new QuotedSpread(coupon * s_tenminus4, values[i]) : new ParSpread(values[i]);
       } else if (StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention)) {
-        result[i] = new PointsUpFront(values[i], coupon);
+        result[i] = new PointsUpFront(coupon * s_tenminus4, values[i]);
       } else {
         throw new OpenGammaRuntimeException("Unsupported quote type: " + quoteConvention);
       }
