@@ -156,7 +156,7 @@ public class Simulation {
     if (_scenarios.containsKey(name)) {
       return _scenarios.get(name);
     } else {
-      Scenario scenario = new Scenario(name, _calcConfigNames, _valuationTime, _resolverVersionCorrection);
+      Scenario scenario = new Scenario(this, name);
       _scenarios.put(name, scenario);
       return scenario;
     }
@@ -178,7 +178,7 @@ public class Simulation {
       throw new IllegalArgumentException("Cannot add a base scenario named " + name + ", a scenario already exists " +
                                              "with that name");
     }
-    Scenario base = new Scenario(name, _calcConfigNames, _valuationTime, _resolverVersionCorrection);
+    Scenario base = new Scenario(this, name);
     _scenarios.put(name, base);
     _baseScenarioName = name;
     return this;
@@ -285,6 +285,22 @@ public class Simulation {
     } finally {
       viewClient.shutdown();
     }
+  }
+
+  /* package */ Set<String> getCalcConfigNames() {
+    return _calcConfigNames;
+  }
+
+  /* package */ Instant getValuationTime() {
+    return _valuationTime;
+  }
+
+  /* package */ VersionCorrection getResolverVersionCorrection() {
+    return _resolverVersionCorrection;
+  }
+
+  /* package */ Map<String, Scenario> getScenarios() {
+    return Collections.unmodifiableMap(_scenarios);
   }
 
   @Override

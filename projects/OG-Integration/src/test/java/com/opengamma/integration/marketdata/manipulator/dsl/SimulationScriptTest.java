@@ -19,6 +19,7 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.function.FunctionParameters;
@@ -97,5 +98,24 @@ public class SimulationScriptTest {
   public void wrongParameterType() {
     Map<String, Object> params = ImmutableMap.<String, Object>of("foo", "FOO", "bar", "BAR");
     SimulationUtils.createScenarioFromDsl("src/test/groovy/ParametersTest.groovy", params);
+  }
+
+  /**
+   * Checks that simulation properties are picked up be scenarios even if the scenario has already been created.
+   * otherwise there would be ordering issues in the scripts.
+   */
+  @Test
+  public void updateSimulationAfterScenario() {
+    Simulation simulation = SimulationUtils.createSimulationFromDsl("src/test/groovy/SimulationPropertiesTest.groovy", null);
+    Map<String, Scenario> scenarios = simulation.getScenarios();
+    Scenario scenario1 = scenarios.get("scen1");
+    assertEquals(VersionCorrection.ofVersionAsOf(Instant.EPOCH), scenario1.getResolverVersionCorrection());
+    assertEquals(ImmutableSet.of("config2", "config3"), scenario1.getCalcConfigNames());
+    assertEquals(ZonedDateTime.of(1972, 3, 10, 21, 30, 0, 0, ZoneOffset.UTC).toInstant(), scenario1.getValuationTime());
+
+    Scenario scenario2 = scenarios.get("scen2");
+    assertEquals(null, scenario2.getResolverVersionCorrection());
+    assertEquals(ImmutableSet.of("config0", "config1"), scenario2.getCalcConfigNames());
+    assertEquals(ZonedDateTime.of(1972, 3, 10, 21, 30, 0, 0, ZoneOffset.UTC).toInstant(), scenario2.getValuationTime());
   }
 }

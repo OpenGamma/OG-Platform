@@ -37,12 +37,15 @@ public class Scenario {
 
   /** This scenario's name. */
   private final String _name;
+  /** The simulation to which this scenario belongs, possibly null */
+  private final Simulation _simulation;
+
   /** Calc configs to which this scenario will be applied, null will match any config. */
   private Set<String> _calcConfigNames;
   /** Valuation time of this scenario's calculation cycle. */
-  private Instant _valuationTime = Instant.now();
+  private Instant _valuationTime;
   /** Version correction used by the resolver. */
-  private VersionCorrection _resolverVersionCorrection = VersionCorrection.LATEST;
+  private VersionCorrection _resolverVersionCorrection;
 
   /**
    * Creates a new scenario with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
@@ -50,20 +53,19 @@ public class Scenario {
    * @param name The scenario name, not null
    */
   public Scenario(String name) {
-    ArgumentChecker.notEmpty(name, "name"); // should this be allowed to be null? should there be a no-arg constructor?
+    ArgumentChecker.notEmpty(name, "name");
+    _name = name;
+    _simulation = null;
+  }
+
+  /* package */ Scenario(Simulation simulation, String name) {
+    ArgumentChecker.notEmpty(name, "name");
+    ArgumentChecker.notNull(simulation, "simulation");
+    _simulation = simulation;
     _name = name;
   }
 
-  /* package */ Scenario(String name,
-                         Set<String> calcConfigNames,
-                         Instant valuationTime,
-                         VersionCorrection resolverVersionCorrection) {
-    ArgumentChecker.notEmpty(name, "name");
-    _name = name;
-    _calcConfigNames = calcConfigNames;
-    _valuationTime = valuationTime;
-    _resolverVersionCorrection = resolverVersionCorrection;
-  }
+
 
   /**
    * @return A object for specifying which curves should be transformed
@@ -152,15 +154,34 @@ public class Scenario {
   }
 
   /* package */ Instant getValuationTime() {
-    return _valuationTime;
+    if (_valuationTime != null) {
+      return _valuationTime;
+    } else if (_simulation != null) {
+      return _simulation.getValuationTime();
+    } else {
+      return null;
+    }
   }
 
   /* package */ VersionCorrection getResolverVersionCorrection() {
-    return _resolverVersionCorrection;
+    if (_resolverVersionCorrection != null) {
+      return _resolverVersionCorrection;
+    } else if (_simulation != null) {
+      return _simulation.getResolverVersionCorrection();
+    } else {
+      return null;
+    }
   }
 
+  // TODO get from simulation if null
   /* package */ Set<String> getCalcConfigNames() {
-    return _calcConfigNames;
+    if (_calcConfigNames != null) {
+      return _calcConfigNames;
+    } else if (_simulation != null) {
+      return _simulation.getCalcConfigNames();
+    } else {
+      return null;
+    }
   }
 
   /**
