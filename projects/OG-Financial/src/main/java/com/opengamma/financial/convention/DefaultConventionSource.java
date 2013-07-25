@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -63,5 +63,44 @@ public class DefaultConventionSource implements ConventionSource {
       return doc.getValue();
     }
     return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalId identifier) {
+    final Convention convention = getConvention(identifier);
+    if (convention == null) {
+      return null;
+    }
+    if (clazz.isAssignableFrom(convention.getClass())) {
+      return (T) convention;
+    }
+    throw new OpenGammaRuntimeException("Convention for " + identifier + " was not of expected type " + clazz);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalIdBundle identifiers) {
+    final Convention convention = getConvention(identifiers);
+    if (convention == null) {
+      return null;
+    }
+    if (clazz.isAssignableFrom(convention.getClass())) {
+      return (T) convention;
+    }
+    throw new OpenGammaRuntimeException("Convention for " + identifiers + " was not of expected type " + clazz);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final UniqueId identifier) {
+    final Convention convention = getConvention(identifier);
+    if (convention == null) {
+      return null;
+    }
+    if (clazz.isAssignableFrom(convention.getClass())) {
+      return (T) convention;
+    }
+    throw new OpenGammaRuntimeException("Convention for " + identifier + " was not of expected type " + clazz);
   }
 }

@@ -738,7 +738,7 @@ public class FixedIncomeConverterDataProvider {
       }
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (ts == null) {
-        s_logger.warn("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
+        s_logger.info("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
         return ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(now.getZone());
       }
       if (ts.getTimeSeries().isEmpty()) {

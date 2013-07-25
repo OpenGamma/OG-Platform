@@ -38,4 +38,19 @@ public class TestConventionSource implements ConventionSource {
     return null;
   }
 
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalId identifier) {
+    return null;
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalIdBundle identifiers) {
+    return null;
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final UniqueId identifier) {
+    return null;
+  }
+
 }
