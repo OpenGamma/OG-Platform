@@ -186,9 +186,6 @@
             <version>1.2.2</version>
           </dependency>
         </dependencies>
-        <configuration>
-          <failsOnError>true</failsOnError>
-        </configuration>
       </plugin>
       <!-- attach site -->
       <plugin>
@@ -1032,6 +1029,25 @@
                 </goals>
                 <configuration>
                   <stopOnError>true</stopOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- validate no checkstyle violations -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce-checkstyle</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <logViolationsToConsole>true</logViolationsToConsole>
+                  <failOnViolation>true</failOnViolation>
+                  <violationSeverity>error</violationSeverity>
                 </configuration>
               </execution>
             </executions>
