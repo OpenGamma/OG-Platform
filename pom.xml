@@ -761,14 +761,10 @@
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging-api</artifactId>
-          </exclusion>
+	        <exclusion>
+	          <groupId>org.slf4j</groupId>
+	          <artifactId>slf4j-api</artifactId>
+	        </exclusion>
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
