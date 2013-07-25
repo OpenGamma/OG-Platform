@@ -14,8 +14,8 @@ import org.threeten.bp.DateTimeException;
 import org.threeten.bp.Instant;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Ordering;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -292,11 +292,11 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    */
   @Override
   public int compareTo(VersionCorrection other) {
-    int cmp = CompareUtils.compareWithNullHigh(_versionAsOf, other._versionAsOf);
+    int cmp = Ordering.natural().nullsLast().compare(_versionAsOf, other._versionAsOf);
     if (cmp != 0) {
       return cmp;
     }
-    return CompareUtils.compareWithNullHigh(_correctedTo, other._correctedTo);
+    return Ordering.natural().nullsLast().compare(_correctedTo, other._correctedTo);
   }
 
   @Override
