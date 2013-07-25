@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
+import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRICE_INDEX_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
@@ -30,7 +31,8 @@ public class CurveDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     YIELD_CURVE,
     PRICE_INDEX_CURVE,
-    CURVE_BUNDLE
+    CURVE_BUNDLE,
+    JACOBIAN_BUNDLE
   };
   /** The absolute tolerance for the root-finder */
   private final String _absoluteTolerance;

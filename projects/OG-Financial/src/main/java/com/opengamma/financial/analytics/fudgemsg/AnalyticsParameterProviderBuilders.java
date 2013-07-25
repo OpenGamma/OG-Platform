@@ -25,18 +25,14 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Contains builders for the objects that analytics needs to perform pricing.
@@ -345,97 +341,6 @@ public final class AnalyticsParameterProviderBuilders {
   }
 
   /**
-   * Fudge builder for {@link CurveBuildingBlock}
-   */
-  @FudgeBuilderFor(CurveBuildingBlock.class)
-  public static class CurveBuilderBlockBuilder extends AbstractFudgeBuilder<CurveBuildingBlock> {
-    /** The curve names */
-    private static final String CURVE_NAME_FIELD = "curve";
-    /** The start index for a curve */
-    private static final String START_INDEX_FIELD = "startIndex";
-    /** The number of parameters for a curve */
-    private static final String NUMBER_FIELD = "number";
-
-    @Override
-    public CurveBuildingBlock buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final List<FudgeField> curveNames = message.getAllByName(CURVE_NAME_FIELD);
-      final List<FudgeField> startIndices = message.getAllByName(START_INDEX_FIELD);
-      final int n = curveNames.size();
-      if (startIndices.size() != n) {
-        throw new IllegalStateException("Should have one start index for each curve name; have " + curveNames + " and " + startIndices);
-      }
-      final List<FudgeField> numbers = message.getAllByName(NUMBER_FIELD);
-      if (numbers.size() != n) {
-        throw new IllegalStateException("Should have one parameter number for each curve name; have " + curveNames + " and " + numbers);
-      }
-      final LinkedHashMap<String, Pair<Integer, Integer>> data = new LinkedHashMap<>();
-      for (int i = 0; i < n; i++) {
-        final String curveName = (String) curveNames.get(i).getValue();
-        final Integer startIndex = ((Number) startIndices.get(i).getValue()).intValue();
-        final Integer number = ((Number) numbers.get(i).getValue()).intValue();
-        data.put(curveName, Pair.of(startIndex, number));
-      }
-      return new CurveBuildingBlock(data);
-    }
-
-    @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final CurveBuildingBlock object) {
-      final Map<String, Pair<Integer, Integer>> data = object.getData();
-      for (final Map.Entry<String, Pair<Integer, Integer>> entry : data.entrySet()) {
-        message.add(CURVE_NAME_FIELD, entry.getKey());
-        message.add(START_INDEX_FIELD, entry.getValue().getFirst());
-        message.add(NUMBER_FIELD, entry.getValue().getSecond());
-      }
-    }
-
-  }
-
-  /**
-   * Fudge builder for {@link CurveBuildingBlockBundle}
-   */
-  @FudgeBuilderFor(CurveBuildingBlockBundle.class)
-  public static class CurveBuildingBlockBundleBuilder extends AbstractFudgeBuilder<CurveBuildingBlockBundle> {
-    /** Curve name field */
-    private static final String CURVE_NAME_FIELD = "curve";
-    /** Block name field */
-    private static final String BLOCK_FIELD = "block";
-    /** Matrix field */
-    private static final String MATRIX_FIELD = "matrix";
-
-    @Override
-    public CurveBuildingBlockBundle buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final List<FudgeField> curveNames = message.getAllByName(CURVE_NAME_FIELD);
-      final List<FudgeField> blocks = message.getAllByName(BLOCK_FIELD);
-      final List<FudgeField> matrices = message.getAllByName(MATRIX_FIELD);
-      final int n = curveNames.size();
-      if (blocks.size() != n) {
-        throw new IllegalStateException("Should have one block for each curve name; have " + curveNames + " and " + blocks);
-      }
-      if (matrices.size() != n) {
-        throw new IllegalStateException("Should have one matrix for each curve name; have " + curveNames + " and " + matrices);
-      }
-      final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> data = new LinkedHashMap<>();
-      for (int i = 0; i < n; i++) {
-        final String curveName = (String) curveNames.get(i).getValue();
-        final CurveBuildingBlock block = deserializer.fieldValueToObject(CurveBuildingBlock.class, blocks.get(i));
-        final DoubleMatrix2D m = new DoubleMatrix2D(deserializer.fieldValueToObject(double[][].class, matrices.get(i)));
-        data.put(curveName, Pair.of(block, m));
-      }
-      return new CurveBuildingBlockBundle(data);
-    }
-
-    @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final CurveBuildingBlockBundle object) {
-      final Map<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> data = object.getData();
-      for (final Map.Entry<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> entry : data.entrySet()) {
-        message.add(CURVE_NAME_FIELD, entry.getKey());
-        serializer.addToMessageWithClassHeaders(message, BLOCK_FIELD, null, entry.getValue().getFirst());
-        serializer.addToMessageWithClassHeaders(message, MATRIX_FIELD, null, entry.getValue().getSecond().getData());
-      }
-    }
-  }
-
-  /**
    * Fudge builder for {@link HullWhiteOneFactorPiecewiseConstantParameters}
    */
   @FudgeBuilderFor(HullWhiteOneFactorPiecewiseConstantParameters.class)
@@ -477,4 +382,5 @@ public final class AnalyticsParameterProviderBuilders {
     }
 
   }
+
 }

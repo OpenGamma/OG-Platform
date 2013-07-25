@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
@@ -67,9 +67,9 @@ public class MultipleCurrencyParameterSensitivity {
    * @return The multiple currency sensitivity.
    */
   public static MultipleCurrencyParameterSensitivity of(final SimpleParameterSensitivity single, final Currency ccy) {
-    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensi = new LinkedHashMap<>();
-    for (String name : single.getAllNames()) {
-      sensi.put(new ObjectsPair<String, Currency>(name, ccy), single.getSensitivity(name));
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensi = new LinkedHashMap<>();
+    for (final String name : single.getAllNames()) {
+      sensi.put(new ObjectsPair<>(name, ccy), single.getSensitivity(name));
     }
     return MultipleCurrencyParameterSensitivity.of(sensi);
   }

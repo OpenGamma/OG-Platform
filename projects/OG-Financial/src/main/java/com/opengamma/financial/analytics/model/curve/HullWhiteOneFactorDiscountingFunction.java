@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.curve;
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.HULL_WHITE_DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -342,16 +343,17 @@ public class HullWhiteOneFactorDiscountingFunction extends
     }
 
     @Override
-    protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueProperties bundleProperties,
+    protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec, final ValueProperties bundleProperties,
         final Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final HullWhiteOneFactorProviderDiscount provider = (HullWhiteOneFactorProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, pair.getFirst()));
+      result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
             .with(CURVE, curveName)
             .get();
-        final ValueSpecification curveSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
+        final ValueSpecification curveSpec = new ValueSpecification(YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
         result.add(new ComputedValue(curveSpec, provider.getMulticurveProvider().getCurve(curveName)));
       }
       return result;

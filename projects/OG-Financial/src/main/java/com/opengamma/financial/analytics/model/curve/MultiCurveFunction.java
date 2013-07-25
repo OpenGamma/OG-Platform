@@ -8,6 +8,13 @@ package com.opengamma.financial.analytics.model.curve;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_MARKET_DATA;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_SPECIFICATION;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
+import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.ROOT_FINDING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
@@ -46,7 +53,6 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -105,7 +111,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         final ValueProperties properties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, name)
             .get();
-        exogenousRequirements.add(new ValueRequirement(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+        exogenousRequirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
     }
     final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
@@ -157,7 +163,8 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         final ValueProperties curveProperties = getCurveProperties(curveName);
         _results.add(new ValueSpecification(curveRequirement, ComputationTargetSpecification.NULL, curveProperties));
       }
-      _results.add(new ValueSpecification(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+      _results.add(new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+      _results.add(new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
     }
 
     @Override
@@ -168,7 +175,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       ValueProperties bundleProperties = null;
       for (final ValueRequirement desiredValue : desiredValues) {
-        if (desiredValue.getValueName().equals(ValueRequirementNames.CURVE_BUNDLE)) {
+        if (desiredValue.getValueName().equals(CURVE_BUNDLE)) {
           bundleProperties = desiredValue.getConstraints();
           break;
         } else if (desiredValue.getValueName().equals(_curveRequirement)) {
@@ -188,8 +195,9 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
       final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, conventionSource, holidaySource, regionSource);
-      final ValueSpecification bundleSpec = new ValueSpecification(ValueRequirementNames.CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
-      return getResults(bundleSpec, bundleProperties, pair);
+      final ValueSpecification bundleSpec = new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
+      final ValueSpecification jacobianSpec = new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
+      return getResults(bundleSpec, jacobianSpec, bundleProperties, pair);
     }
 
     @Override
@@ -222,15 +230,15 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         final ValueProperties properties = ValueProperties.builder()
             .with(CURVE, curveName)
             .get();
-        requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
+        requirements.add(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
+        requirements.add(new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
+        requirements.add(new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
       }
       final ValueProperties properties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
           .get();
-      requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
-      requirements.add(new ValueRequirement(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties));
+      requirements.add(new ValueRequirement(CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
+      requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, properties));
       requirements.addAll(_exogenousRequirements);
       return requirements;
     }
@@ -319,12 +327,14 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         ConventionSource conventionSource, HolidaySource holidaySource, RegionSource regionSource);
 
     /**
-     * @param bundleSpec The value specification for the bundle
-     * @param bundleProperties The properties for the bundle
+     * @param bundleSpec The value specification for the curve bundle
+     * @param jacobianSpec The value specification for the block of Jacobian matrices
+     * @param bundleProperties The properties for the curve bundle
      * @param pair The results
      * @return A set of results
      */
-    protected abstract Set<ComputedValue> getResults(ValueSpecification bundleSpec, ValueProperties bundleProperties, Pair<T, CurveBuildingBlockBundle> pair);
+    protected abstract Set<ComputedValue> getResults(ValueSpecification bundleSpec, ValueSpecification jacobianSpec,
+        ValueProperties bundleProperties, Pair<T, CurveBuildingBlockBundle> pair);
 
     /**
      * Gets the result properties for a curve

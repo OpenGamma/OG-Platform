@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -283,16 +284,17 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueProperties bundleProperties,
-        final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> pair) {
+    protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
+        final ValueProperties bundleProperties, final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final MulticurveProviderDiscount provider = (MulticurveProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));
+      result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
             .with(CURVE, curveName)
             .get();
-        final ValueSpecification curveSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
+        final ValueSpecification curveSpec = new ValueSpecification(YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
         result.add(new ComputedValue(curveSpec, provider.getCurve(curveName)));
       }
       return result;

@@ -30,7 +30,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   * 
+   *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static FunctionConfigurationSource instance() {
@@ -39,7 +39,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Adds an aggregation function for the given requirement name that produces the sum of the child position values.
-   * 
+   *
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -56,7 +56,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Adds a unit scaling function to deliver the value from position's underlying security or trade at the position level. This is normally used for positions in OTC instruments that are stored with a
    * quantity of 1 in OpenGamma.
-   * 
+   *
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -73,7 +73,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Adds a scaling function to deliver the value from a position's underlying security or trade multiplied by the quantity at the position level. This is used for positions in exchange traded
    * instruments.
-   * 
+   *
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -254,6 +254,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
     addSummingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.ZETA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZETA_BLEED);

@@ -7,6 +7,10 @@ package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_MARKET_DATA;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_SPECIFICATION;
+import static com.opengamma.engine.value.ValueRequirementNames.PRICE_INDEX_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -142,11 +146,11 @@ public class InflationProviderDiscountingFunction extends
           final String curveName = entry.getKey();
           final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();
           final CurveSpecification specification =
-              (CurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
+              (CurveSpecification) inputs.getValue(new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
           final CurveDefinition definition =
-              (CurveDefinition) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
+              (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
           final SnapshotDataBundle snapshot =
-              (SnapshotDataBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
+              (SnapshotDataBundle) inputs.getValue(new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
           final int nNodes = specification.getNodes().size();
           final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
           final double[] marketDataForCurve = new double[nNodes];
@@ -257,15 +261,17 @@ public class InflationProviderDiscountingFunction extends
     }
 
     @Override
-    protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueProperties bundleProperties, final Pair<InflationProviderInterface, CurveBuildingBlockBundle> pair) {
+    protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
+        final ValueProperties bundleProperties, final Pair<InflationProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final InflationProviderDiscount provider = (InflationProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));
+      result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
             .with(CURVE, curveName)
             .get();
-        final ValueSpecification curveSpec = new ValueSpecification(ValueRequirementNames.PRICE_INDEX_CURVE, ComputationTargetSpecification.NULL, curveProperties);
+        final ValueSpecification curveSpec = new ValueSpecification(PRICE_INDEX_CURVE, ComputationTargetSpecification.NULL, curveProperties);
         result.add(new ComputedValue(curveSpec, provider.getCurve(curveName)));
       }
       return result;
