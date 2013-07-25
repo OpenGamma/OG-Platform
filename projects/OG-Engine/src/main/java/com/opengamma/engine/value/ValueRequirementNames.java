@@ -196,6 +196,10 @@ public final class ValueRequirementNames {
    */
   public static final String HULL_WHITE_ONE_FACTOR_PARAMETERS = "Hull-White One Factor Parameters";
   /**
+   * A set of parameters for the G2++ model.
+   */
+  public static final String G2PP_PARAMETERS = "G2pp Parameters";
+  /**
    * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
    * ignoring the type of instrument etc.).
    */
