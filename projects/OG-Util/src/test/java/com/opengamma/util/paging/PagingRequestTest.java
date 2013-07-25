@@ -146,6 +146,14 @@ public final class PagingRequestTest {
     assertEquals(Arrays.asList("Hello", "World", "Test"), coll);
   }
 
+  public void test_select_beyondListSize() {
+    PagingRequest test = PagingRequest.ofPage(3, 2);
+    List<String> coll = Arrays.asList("Hello", "World", "Test");
+    List<String> result = test.select(coll);
+    assertEquals(0, result.size());
+    assertEquals(Arrays.asList("Hello", "World", "Test"), coll);
+  }
+
   //-------------------------------------------------------------------------
   public void test_equals_equal() {
     PagingRequest test1 = PagingRequest.ofPage(1, 20);
