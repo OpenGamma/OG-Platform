@@ -52,7 +52,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       final String curveSpecificationName = node.getCurveNodeIdMapperName();
       final CurveNodeIdMapper builderConfig = getBuilderConfig(valuationTime, cache, curveSpecificationName);
       if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
+        throw new OpenGammaRuntimeException("Could not get curve node id mapper " + curveSpecificationName + " for curve named " + curveName);
       }
       final CurveNodeWithIdentifierBuilder identifierBuilder = new CurveNodeWithIdentifierBuilder(curveDate, builderConfig);
       identifiers.add(node.accept(identifierBuilder));

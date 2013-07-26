@@ -107,12 +107,18 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       return _configMaster;
     }
 
-    protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions, final String curveConfigName) {
+    protected void addInterpolatedCurveBuildingFunctions(final List<FunctionConfiguration> functions,
+                                                         final String curveConfigName) {
       functions.add(functionConfiguration(FXMatrixFunction.class, curveConfigName));
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
       functions.add(functionConfiguration(MultiCurveDiscountingFunction.class, curveConfigName));
       functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
       functions.add(functionConfiguration(HullWhiteOneFactorDiscountingCurveFunction.class, curveConfigName));
+    }
+
+    protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions,
+                                                         final String curveConfigName) {
+      functions.add(functionConfiguration(ISDACompliantCurveFunction.class, curveConfigName));
     }
 
     @Override
@@ -124,8 +130,14 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         searchRequest.setType(klass);
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
           final String documentName = configDocument.getName();
-          addCurveBuildingFunctions(functions, documentName);
+          addInterpolatedCurveBuildingFunctions(functions, documentName);
         }
+      }
+
+      searchRequest.setType(CurveDefinition.class);
+      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
+        final String documentName = configDocument.getName();
+        addCurveBuildingFunctions(functions, documentName);
       }
     }
   }
