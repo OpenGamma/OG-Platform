@@ -17,8 +17,10 @@ public abstract class LatticeSpecification {
    * @param timeToExpiry Time to expiry of option
    * @param volatility Volatility
    * @param interestRate Interest rate
+   * @param nSteps Number of Steps
+   * @param dt Time step, that is, dt * N = tiemToExpiry
    * @return {up Factor, down Factor, up Probability, down Probability}
    */
-  public abstract double[] getParameters(final double spot, final double strike, final double timeToExpiry, final double dt, final double volatility, final double interestRate);
+  public abstract double[] getParameters(final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate, final int nSteps, final double dt);
 
 }

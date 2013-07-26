@@ -14,7 +14,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       final int nSteps, final boolean isCall) {
     final double dt = timeToExpiry / nSteps;
     final double discount = Math.exp(-interestRate * dt);
-    final double[] params = lattice.getParameters(spot, strike, timeToExpiry, dt, volatility, interestRate);
+    final double[] params = lattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate, nSteps, dt);
     final double upFactor = params[0];
     final double downFactor = params[1];
     final double upProbability = params[2];

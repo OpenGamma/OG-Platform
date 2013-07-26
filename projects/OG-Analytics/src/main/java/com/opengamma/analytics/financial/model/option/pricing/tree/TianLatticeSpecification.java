@@ -8,15 +8,17 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
 /**
  * 
  */
-public class CoxRossRubinsteinLatticeSpecification extends LatticeSpecification {
+public class TianLatticeSpecification extends LatticeSpecification {
 
   @Override
   public double[] getParameters(final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate, final int nSteps, final double dt) {
-    final double upFactor = Math.exp(volatility * Math.sqrt(dt));
-    final double downFactor = 1. / upFactor;
+    final double sigSqT = volatility * volatility * dt;
+    final double rv = Math.exp(interestRate * dt + sigSqT);
+    final double v = Math.exp(sigSqT);
+    final double upFactor = 0.5 * rv * (v + 1. + Math.sqrt(v * v + 2. * v - 3.));
+    final double downFactor = 0.5 * rv * (v + 1. - Math.sqrt(v * v + 2. * v - 3.));
     final double upProbability = (Math.exp(interestRate * dt) - downFactor) / (upFactor - downFactor);
 
-    return new double[] {upFactor, downFactor, upProbability, 1. - upProbability };
+    return new double[] {upFactor, downFactor, upProbability, 1 - upProbability };
   }
-
 }
