@@ -132,7 +132,11 @@ import com.opengamma.util.ArgumentChecker;
      */
     private static boolean isFungible(Security security) {
       if (security instanceof FinancialSecurity) {
-        return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
+        Boolean isOTC = ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
+        if (isOTC == null) {
+          return false;
+        }
+        return !isOTC;
       } else {
         return false;
       }
