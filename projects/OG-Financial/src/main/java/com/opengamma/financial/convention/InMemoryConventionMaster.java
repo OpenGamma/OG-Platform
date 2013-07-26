@@ -20,7 +20,7 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 
 /**
- *
+ * In-memory convention master.
  */
 public class InMemoryConventionMaster implements ConventionMaster {
   /** In-memory scheme */
@@ -29,7 +29,7 @@ public class InMemoryConventionMaster implements ConventionMaster {
   private final ExternalIdBundleMapper<Convention> _mapper = new ExternalIdBundleMapper<>(IN_MEMORY_UNIQUE_SCHEME.getName());
 
   /**
-   *
+   * Initializes the conventions.
    */
   public InMemoryConventionMaster() {
     init();
@@ -85,7 +85,7 @@ public class InMemoryConventionMaster implements ConventionMaster {
     return uid;
   }
 
-  private Collection<ConventionDocument> wrapConventionsWithDocuments(final Collection<Convention> collection) {
+  private static Collection<ConventionDocument> wrapConventionsWithDocuments(final Collection<Convention> collection) {
     final Collection<ConventionDocument> results = new ArrayList<>(collection.size());
     for (final Convention convention : collection) {
       results.add(new ConventionDocument(convention));
