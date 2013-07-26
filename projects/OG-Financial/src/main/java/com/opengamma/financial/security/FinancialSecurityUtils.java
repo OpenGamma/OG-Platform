@@ -327,7 +327,7 @@ public class FinancialSecurityUtils {
    * @param security the security to be examined.
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
-  public static Currency getCurrency(final Security security) {
+  public static Currency getCurrency(final Security security) {  // CSIGNORE
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
 
@@ -670,7 +670,7 @@ public class FinancialSecurityUtils {
    * @param securitySource a security source
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
    */
-  public static Collection<Currency> getCurrencies(final Security security, final SecuritySource securitySource) {
+  public static Collection<Currency> getCurrencies(final Security security, final SecuritySource securitySource) {  // CSIGNORE
 
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
