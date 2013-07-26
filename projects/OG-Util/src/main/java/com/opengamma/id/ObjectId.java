@@ -215,7 +215,7 @@ public final class ObjectId
     if (obj instanceof ObjectId) {
       ObjectId other = (ObjectId) obj;
       return _scheme.equals(other._scheme) &&
-              _value.equals(other._value);
+          _value.equals(other._value);
     }
     return false;
   }

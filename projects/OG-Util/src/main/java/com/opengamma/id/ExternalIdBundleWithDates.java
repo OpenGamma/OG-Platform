@@ -129,7 +129,7 @@ public final class ExternalIdBundleWithDates
       _externalIds = ImmutableSortedSet.copyOf(externalIds);
     }
   }
-  
+
   /**
    * Creates a bundle from a collection of identifiers with a given comparator to specify ordering.
    * Note that the comparator is not preserved over Fudge encoding.
@@ -156,11 +156,6 @@ public final class ExternalIdBundleWithDates
   }
 
   //-------------------------------------------------------------------------
-  
-  public ExternalIdBundleWithDates withCustomIdOrdering(Comparator<ExternalIdWithDates> comparator) {
-    return new ExternalIdBundleWithDates(_externalIds, comparator);
-  }
-  
   /**
    * Returns a new bundle with the specified identifier added.
    * This instance is immutable and unaffected by this method call.
@@ -208,6 +203,17 @@ public final class ExternalIdBundleWithDates
       }
     }
     return create(ids);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a new bundle using a custom comparator for ordering. Primarily useful for display.
+   * 
+   * @param comparator comparator specifying how to order the ExternalIds
+   * @return the new copy of the bundle, ordered by the comparator
+   */
+  public ExternalIdBundleWithDates withCustomIdOrdering(Comparator<ExternalIdWithDates> comparator) {
+    return new ExternalIdBundleWithDates(_externalIds, comparator);
   }
 
   //-------------------------------------------------------------------------

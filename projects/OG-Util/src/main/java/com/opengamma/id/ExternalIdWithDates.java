@@ -50,7 +50,7 @@ public final class ExternalIdWithDates
   public static ExternalIdWithDates of(ExternalId identifier, LocalDate validFrom, LocalDate validTo) {
     return new ExternalIdWithDates(identifier, validFrom, validTo);
   }
-  
+
   /**
    * Obtains an {@code ExternalIdWithDates} from an {@code ExternalId}.
    * @param identifier the identifier, not empty, not null
@@ -182,8 +182,8 @@ public final class ExternalIdWithDates
     if (obj instanceof ExternalIdWithDates) {
       ExternalIdWithDates other = (ExternalIdWithDates) obj;
       return ObjectUtils.equals(_identifier, other._identifier) &&
-              ObjectUtils.equals(_validFrom, other._validFrom) &&
-              ObjectUtils.equals(_validTo, other._validTo);
+          ObjectUtils.equals(_validFrom, other._validFrom) &&
+          ObjectUtils.equals(_validTo, other._validTo);
     }
     return false;
   }

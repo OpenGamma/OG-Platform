@@ -222,7 +222,7 @@ public final class ExternalId
     if (obj instanceof ExternalId) {
       ExternalId other = (ExternalId) obj;
       return _scheme.equals(other._scheme) &&
-              _value.equals(other._value);
+          _value.equals(other._value);
     }
     return false;
   }
