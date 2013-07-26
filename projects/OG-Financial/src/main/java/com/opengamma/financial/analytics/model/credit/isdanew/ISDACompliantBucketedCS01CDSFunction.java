@@ -35,34 +35,33 @@ public class ISDACompliantBucketedCS01CDSFunction extends AbstractISDACompliantW
   }
 
   @Override
-  protected Object compute(final ZonedDateTime maturity, final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
-    CDSQuoteConvention convention = quotes[Math.abs(Arrays.binarySearch(bucketDates, maturity))];
+  protected Object compute(final ZonedDateTime maturity, CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
     double[] cs01;
-    if (convention instanceof PointsUpFront) {
+    if (quote instanceof PointsUpFront) {
       //TODO: This should be in analytics..
       final double[] quoteValues = new double[quotes.length];
       for (int i = 0; i < quotes.length; i++) {
-        quoteValues[i] = _puf.pufToQuotedSpread(analytic, parSpread * getTenminus4(), yieldCurve,
-            ((PointsUpFront) convention).getPointsUpFront());
+        quoteValues[i] = _puf.pufToQuotedSpread(analytic, quote.getCoupon(), yieldCurve,
+            ((PointsUpFront) quote).getPointsUpFront());
       }
-      cs01 = _pricer.bucketedCS01FromQuotedSpreads(analytic, parSpread * getTenminus4(), yieldCurve, curveAnalytics,
+      cs01 = _pricer.bucketedCS01FromQuotedSpreads(analytic, quote.getCoupon(), yieldCurve, curveAnalytics,
                                                    quoteValues, getTenminus4(), BumpType.ADDITIVE);
-    } else if (convention instanceof QuotedSpread) {
+    } else if (quote instanceof QuotedSpread) {
       final double[] quoteValues = new double[quotes.length];
       for (int i = 0; i < quotes.length; i++) {
         quoteValues[i] = ((QuotedSpread) quotes[i]).getQuotedSpread();
       }
-      cs01 = _pricer.bucketedCS01FromQuotedSpreads(analytic, parSpread * getTenminus4(), yieldCurve, curveAnalytics,
+      cs01 = _pricer.bucketedCS01FromQuotedSpreads(analytic, quote.getCoupon(), yieldCurve, curveAnalytics,
                                                    quoteValues, getTenminus4(), BumpType.ADDITIVE);
-    } else if (convention instanceof ParSpread) {
+    } else if (quote instanceof ParSpread) {
       final double[] quoteValues = new double[quotes.length];
       for (int i = 0; i < quotes.length; i++) {
         quoteValues[i] = ((ParSpread) quotes[i]).getCoupon();
       }
-      cs01 = _pricer.bucketedCS01FromParSpreads(analytic, parSpread * getTenminus4(), yieldCurve, curveAnalytics,
+      cs01 = _pricer.bucketedCS01FromParSpreads(analytic, quote.getCoupon(), yieldCurve, curveAnalytics,
                                                 quoteValues, getTenminus4(), BumpType.ADDITIVE);
     } else {
-      throw new OpenGammaRuntimeException("Unknown quote type " + convention);
+      throw new OpenGammaRuntimeException("Unknown quote type " + quote);
     }
     for (int i = 0; i < cs01.length; i++) {
       cs01[i] *= notional * getTenminus4();

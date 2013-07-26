@@ -82,20 +82,12 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-      ValueRequirement creditCurveReq = null;
-      ValueRequirement spreadsRequriement = null;
-      for (final ValueRequirement entry : desiredValues) {
-        if (entry.getValueName().equals(ValueRequirementNames.HAZARD_RATE_CURVE)) {
-          creditCurveReq = entry;
-        } else if (entry.getValueName().equals(ValueRequirementNames.BUCKETED_SPREADS)) {
-          spreadsRequriement = entry;
-        }
-      }
+      ValueRequirement requirement = desiredValues.iterator().next();
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
       LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
-      final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(spreadsRequriement.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION));
+      final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(requirement.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION));
       final NodalTenorDoubleCurve spreadCurve = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
       if (spreadCurve == null) {
         throw new OpenGammaRuntimeException("Bucketed spreads not available for " +  AbstractISDACompliantWithCreditCurveCDSFunction.getSpreadCurveIdentifier(
@@ -109,12 +101,12 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
       }
 
       // modify curve as needed
-      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, spreadsRequriement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
+      final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getIMMDates(now, requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
       //double[] spreads = SpreadCurveFunctions.getSpreadCurve(cds, spreadCurve, bucketDates, quoteConvention, now, yieldCurve, cds.getStartDate());
       double[] spreads = SpreadCurveFunctions.getSpreadCurveNew(spreadCurve, bucketDates, security.getStartDate(), quoteConvention);
-      Tenor[] tenors = SpreadCurveFunctions.getBuckets(spreadsRequriement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
+      Tenor[] tenors = SpreadCurveFunctions.getBuckets(requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS));
       final NodalTenorDoubleCurve modifiedSpreadCurve = new NodalTenorDoubleCurve(tenors, ArrayUtils.toObject(spreads), true);
-      final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), bucketDates, spreads, security.getParSpread(), quoteConvention);
+      final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), spreads, security.getParSpread(), quoteConvention);
 
       // CDS analytics for credit curve
       //final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);
@@ -127,10 +119,10 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
 
       final FastCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder();
       final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics, quotes, yieldCurve);
-      final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), creditCurveReq.getConstraints());
+      final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), requirement.getConstraints());
 
       // spreads
-      final ValueSpecification spreadSpec = new ValueSpecification(ValueRequirementNames.BUCKETED_SPREADS, target.toSpecification(), spreadsRequriement.getConstraints());
+      final ValueSpecification spreadSpec = new ValueSpecification(ValueRequirementNames.BUCKETED_SPREADS, target.toSpecification(), requirement.getConstraints());
 
       return Sets.newHashSet(new ComputedValue(spec, creditCurve),
                              new ComputedValue(spreadSpec, modifiedSpreadCurve));

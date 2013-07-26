@@ -1,13 +1,16 @@
 package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
+import com.opengamma.financial.convention.businessday.BusinessDayDateUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -58,20 +61,23 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
     final ExternalId regionId = security.getRegionId();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final StubType stubType = security.getStubType().toAnalyticsType();
+    final Period period = (IMMDateGenerator.isIMMDate(security.getMaturityDate())) ? getPeriodFrequency(security.getCouponFrequency()).getPeriod() :
+        Period.ofMonths(6); // non IMM forced to semi annual
     final CDSAnalytic cdsAnalytic = new CDSAnalytic(_valuationDate,
                                                     security.getEffectiveDate().toLocalDate(),
-                                                    _valuationDate.plusDays(3), //FIXME: Hard code or get from somewhere else?
+                                                    // Hard code or get from somewhere?
+                                                    BusinessDayDateUtils.addWorkDays(_valuationDate, 3, calendar),
                                                     _startDate == null ? security.getStartDate().toLocalDate() : _startDate,
                                                     _maturityDate == null ? security.getMaturityDate().toLocalDate() : _maturityDate,
-                                                    true, //FIXME: Do we have this info anywhere?
-                                                    getPeriodFrequency(security.getCouponFrequency()).getPeriod(),
+                                                    true, // Do we have this info anywhere?
+                                                    period,
                                                     stubType,
                                                     security.isProtectionStart(),
                                                     security.getRecoveryRate(),
                                                     security.getBusinessDayConvention(),
                                                     calendar,
                                                     security.getDayCount()
-    );
+                                                    );
     return cdsAnalytic;
   }
 

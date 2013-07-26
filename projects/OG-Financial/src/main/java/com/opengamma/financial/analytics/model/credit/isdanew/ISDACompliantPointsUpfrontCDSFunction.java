@@ -32,26 +32,25 @@ public class ISDACompliantPointsUpfrontCDSFunction extends AbstractISDACompliant
   }
 
   @Override
-  protected Object compute(final ZonedDateTime maturiy, final double parSpread, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
-    CDSQuoteConvention convention = quotes[Math.abs(Arrays.binarySearch(bucketDates, maturiy))];
+  protected Object compute(final ZonedDateTime maturiy, final CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
     double puf = 0.0;
     //TODO: Move to analytics
-    if (convention instanceof PointsUpFront) {
-      puf = ((PointsUpFront) convention).getPointsUpFront();
-    } else if (convention instanceof QuotedSpread) {
+    if (quote instanceof PointsUpFront) {
+      puf = ((PointsUpFront) quote).getPointsUpFront();
+    } else if (quote instanceof QuotedSpread) {
       puf = 100.0 * _puf.quotedSpreadToPUF(analytic,
-                                                        parSpread * getTenminus4(),
+                                                        quote.getCoupon(),
                                                         yieldCurve,
-                                                        ((QuotedSpread) convention).getQuotedSpread());
+                                                        ((QuotedSpread) quote).getQuotedSpread());
       // SELL protection reverses directions of legs
       return Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
-    } else if (convention instanceof ParSpread) {
+    } else if (quote instanceof ParSpread) {
       puf = 100.0 * _puf.parSpreadsToPUF(new CDSAnalytic[] {analytic},
-                                                        parSpread * getTenminus4(),
+                                                        quote.getCoupon(),
                                                         yieldCurve,
-                                                        new double[] {((ParSpread) convention).getCoupon()})[0];
+                                                        new double[] {((ParSpread) quote).getCoupon()})[0];
     } else {
-      throw new OpenGammaRuntimeException("Unknown quote type " + convention);
+      throw new OpenGammaRuntimeException("Unknown quote type " + quote);
     }
     return puf;
   }

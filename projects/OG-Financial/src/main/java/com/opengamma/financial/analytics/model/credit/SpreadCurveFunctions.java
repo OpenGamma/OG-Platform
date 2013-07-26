@@ -42,6 +42,7 @@ public class SpreadCurveFunctions {
 
   private static final Collection<Tenor> BUCKET_TENORS = new ArrayList<>();
   private static final double s_tenminus4 = 1e-4;
+  private static final double s_tenminus2 = 1e-2;
   private static PointsUpFrontConverter PUF_converter = new PointsUpFrontConverter();
 
   static {
@@ -260,8 +261,6 @@ public class SpreadCurveFunctions {
     ArgumentChecker.notNull(bucketDates, "bucket dates");
     ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
     final double[] spreads = new double[bucketDates.length];
-    // PUF normalised to 1%, spreads to 1 BP
-    final double multiplier = StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention) ? 1e-2 : s_tenminus4;
 
     // take spreads from subset of dates that we want
     int i = 0;
@@ -269,12 +268,12 @@ public class SpreadCurveFunctions {
       final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
       final int index = Arrays.binarySearch(bucketDates, bucketDate);
       if (index >= 0) {
-        spreads[i++] = spreadCurve.getYValue(tenor) * multiplier;
+        spreads[i++] = spreadCurve.getYValue(tenor);
       }
     }
     // if spread curve ends before required buckets take last spread entry
     for (int j = spreads.length - 1; j >= 0; j--) {
-      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1] * s_tenminus4;
+      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1];
       if (spreads[j] == 0) {
         spreads[j] = lastspread;
       } else {
@@ -291,19 +290,19 @@ public class SpreadCurveFunctions {
    * If quoteConvention is SPREAD, set quoted vs. par spread based on IMM maturity
    *
    * @param pricedCDSMaturity the maturity of the priced cds
-   * @param dates the dates we have quotes for
    * @param values the quotes
    * @param quoteConvention the quote convention e.g. SPREAD or PUF
    * @return the cds quote conventions
    */
-  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime pricedCDSMaturity, final ZonedDateTime[] dates, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention) {
-    ArgumentChecker.isTrue(dates.length == values.length, "Dates and values arrays must be equal length");
-    final CDSQuoteConvention[] result = new CDSQuoteConvention[dates.length];
-    for (int i = 0; i < dates.length; i++) {
+  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime pricedCDSMaturity, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention) {
+    final CDSQuoteConvention[] result = new CDSQuoteConvention[values.length];
+    // PUF normalised to 1%, spreads to 1 BP
+    final double multiplier = StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention) ? s_tenminus2 : s_tenminus4;
+    for (int i = 0; i < values.length; i++) {
       if (StandardCDSQuotingConvention.SPREAD.equals(quoteConvention)) {
-        result[i] = IMMDateGenerator.isIMMDate(pricedCDSMaturity) ? new QuotedSpread(coupon * s_tenminus4, values[i]) : new ParSpread(values[i]);
+        result[i] = IMMDateGenerator.isIMMDate(pricedCDSMaturity) ? new QuotedSpread(coupon * s_tenminus4, values[i] * multiplier) : new ParSpread(values[i] * multiplier);
       } else if (StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention)) {
-        result[i] = new PointsUpFront(coupon * s_tenminus4, values[i]);
+        result[i] = new PointsUpFront(coupon * s_tenminus4, values[i] * multiplier);
       } else {
         throw new OpenGammaRuntimeException("Unsupported quote type: " + quoteConvention);
       }
