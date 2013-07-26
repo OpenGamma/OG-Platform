@@ -20,6 +20,21 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
   private CubicSplineSolver _solver;
 
   /**
+   * 
+   */
+  public NaturalSplineInterpolator() {
+    _solver = new CubicSplineNaturalSolver();
+  }
+
+  /**
+   * 
+   * @param inherit 
+   */
+  public NaturalSplineInterpolator(final CubicSplineSolver inherit) {
+    _solver = inherit;
+  }
+
+  /**
    * @param xValues X values of data
    * @param yValues Y values of data
    * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline
@@ -53,20 +68,20 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
 
     xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     yValuesSrt = Arrays.copyOf(yValues, nDataPts);
-    _solver = new CubicSplineNaturalSolver();
     ParallelArrayBinarySort.parallelBinarySort(xValuesSrt, yValuesSrt);
 
-    final DoubleMatrix2D coefMatrix = _solver.solve(xValuesSrt, yValuesSrt);
+    final DoubleMatrix2D coefMatrix = this._solver.solve(xValuesSrt, yValuesSrt);
     final int nCoefs = coefMatrix.getNumberOfColumns();
 
-    for (int i = 0; i < _solver.getKnotsMat1D(xValuesSrt).getNumberOfElements() - 1; ++i) {
+    final int nInts = this._solver.getKnotsMat1D(xValuesSrt).getNumberOfElements() - 1;
+    for (int i = 0; i < nInts; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
         ArgumentChecker.isFalse(Double.isNaN(coefMatrix.getData()[i][j]), "Too large input");
         ArgumentChecker.isFalse(Double.isInfinite(coefMatrix.getData()[i][j]), "Too large input");
       }
     }
 
-    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), coefMatrix, nCoefs, 1);
+    return new PiecewisePolynomialResult(this._solver.getKnotsMat1D(xValuesSrt), coefMatrix, nCoefs, 1);
 
   }
 
@@ -108,7 +123,6 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     double[] xValuesSrt = new double[nDataPts];
     double[][] yValuesMatrixSrt = new double[dim][nDataPts];
 
-    _solver = new CubicSplineNaturalSolver();
     for (int i = 0; i < dim; ++i) {
       xValuesSrt = Arrays.copyOf(xValues, nDataPts);
       double[] yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
@@ -117,7 +131,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       yValuesMatrixSrt[i] = Arrays.copyOf(yValuesSrt, nDataPts);
     }
 
-    DoubleMatrix2D[] coefMatrix = _solver.solveMultiDim(xValuesSrt, new DoubleMatrix2D(yValuesMatrixSrt));
+    DoubleMatrix2D[] coefMatrix = this._solver.solveMultiDim(xValuesSrt, new DoubleMatrix2D(yValuesMatrixSrt));
 
     final int nIntervals = coefMatrix[0].getNumberOfRows();
     final int nCoefs = coefMatrix[0].getNumberOfColumns();
@@ -136,7 +150,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(this._solver.getKnotsMat1D(xValuesSrt), new DoubleMatrix2D(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -165,8 +179,7 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    _solver = new CubicSplineNaturalSolver();
-    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(xValues, yValues);
+    final DoubleMatrix2D[] resMatrix = this._solver.solveWithSensitivity(xValues, yValues);
     final int len = resMatrix.length;
     for (int k = 0; k < len; k++) {
       DoubleMatrix2D m = resMatrix[k];
@@ -184,6 +197,6 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, len - 1);
     final int nCoefs = coefMatrix.getNumberOfColumns();
 
-    return new PiecewisePolynomialResultsWithSensitivity(_solver.getKnotsMat1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+    return new PiecewisePolynomialResultsWithSensitivity(this._solver.getKnotsMat1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 }
