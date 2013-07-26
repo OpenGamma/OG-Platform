@@ -189,6 +189,11 @@ public final class Interpolator1DFactory {
   /**Instance of C2 shape preserving cubic interpolation*/
   public static final ShapePreservingCubicSplineInterpolator1D C2_SHAPE_PRESERVING_CUBIC_INSTANCE = new ShapePreservingCubicSplineInterpolator1D();
 
+  /**Log natural cubic interpolation with monotonicity filter*/
+  public static final String LOG_NATURAL_CUBIC_MONOTONE = "LogNaturalCubicWithMonotonicity";
+  /**Instance of log natural cubic interpolation with monotonicity filter*/
+  public static final LogNaturalCubicMonotonicityPreservingInterpolator1D LOG_NATURAL_CUBIC_MONOTONE_INSTANCE = new LogNaturalCubicMonotonicityPreservingInterpolator1D();
+
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
@@ -276,6 +281,9 @@ public final class Interpolator1DFactory {
 
     staticInstances.put(C2_SHAPE_PRESERVING_CUBIC, C2_SHAPE_PRESERVING_CUBIC_INSTANCE);
     instanceNames.put(ShapePreservingCubicSplineInterpolator1D.class, C2_SHAPE_PRESERVING_CUBIC);
+
+    staticInstances.put(LOG_NATURAL_CUBIC_MONOTONE, LOG_NATURAL_CUBIC_MONOTONE_INSTANCE);
+    instanceNames.put(LogNaturalCubicMonotonicityPreservingInterpolator1D.class, LOG_NATURAL_CUBIC_MONOTONE);
 
     s_staticInstances = new HashMap<>(staticInstances);
     s_instanceNames = new HashMap<>(instanceNames);

@@ -293,8 +293,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         final double sig2 = Math.signum(pSlopes[i - 1][0]);
         final double sig3 = Math.signum(slopes[i - 1] - slopes[i - 2]);
         final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
-        if (Math.abs(sig1 - sig2) <= 1. && Math.abs(sig1 - sig3) <= 1. && Math.abs(sig1 - sig4) <= 1. && Math.abs(sig2 - sig3) <= 1. && Math.abs(sig2 - sig4) <= 1. && Math.abs(sig3 - sig4) <= 1.) {
-          refValue = 3. * Math.max(refValue, 1.5 * Math.min(Math.abs(pSlopes[i - 1][0]), Math.abs(pSlopes[i - 1][1])));
+        if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
+          refValue = Math.max(refValue, 1.5 * Math.min(Math.abs(pSlopes[i - 1][0]), Math.abs(pSlopes[i - 1][1])));
         }
       }
       if (i < nDataPts - 2) {
@@ -302,8 +302,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         final double sig2 = Math.signum(-pSlopes[i - 1][2]);
         final double sig3 = Math.signum(slopes[i + 1] - slopes[i]);
         final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
-        if (Math.abs(sig1 - sig2) <= 1. && Math.abs(sig1 - sig3) <= 1. && Math.abs(sig1 - sig4) <= 1. && Math.abs(sig2 - sig3) <= 1. && Math.abs(sig2 - sig4) <= 1. && Math.abs(sig3 - sig4) <= 1.) {
-          refValue = 3. * Math.max(refValue, 1.5 * Math.min(Math.abs(pSlopes[i - 1][2]), Math.abs(pSlopes[i - 1][1])));
+        if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
+          refValue = Math.max(refValue, 1.5 * Math.min(Math.abs(pSlopes[i - 1][2]), Math.abs(pSlopes[i - 1][1])));
         }
       }
       res[i] = Math.signum(initialFirst[i]) != Math.signum(pSlopes[i - 1][1]) ? 0. : Math.signum(initialFirst[i]) * Math.min(Math.abs(initialFirst[i]), refValue);
@@ -338,7 +338,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
           final double sig2 = Math.signum(pSlopes[i - 1][0]);
           final double sig3 = Math.signum(slopes[i - 1] - slopes[i - 2]);
           final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
-          if (Math.abs(sig1 - sig2) <= 1. && Math.abs(sig1 - sig3) <= 1. && Math.abs(sig1 - sig4) <= 1. && Math.abs(sig2 - sig3) <= 1. && Math.abs(sig2 - sig4) <= 1. && Math.abs(sig3 - sig4) <= 1.) {
+          if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
             refValueWithSense = modifyRefValueWithSensitivity(refValueWithSense[0], refSense, Math.abs(pSlopes[i - 1][0]), pSlopesAbsSensitivity[0].getData()[i - 2], Math.abs(pSlopes[i - 1][1]),
                 pSlopesAbsSensitivity[1].getData()[i - 1]);
           }
@@ -348,7 +348,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
           final double sig2 = Math.signum(-pSlopes[i - 1][2]);
           final double sig3 = Math.signum(slopes[i + 1] - slopes[i]);
           final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
-          if (Math.abs(sig1 - sig2) <= 1. && Math.abs(sig1 - sig3) <= 1. && Math.abs(sig1 - sig4) <= 1. && Math.abs(sig2 - sig3) <= 1. && Math.abs(sig2 - sig4) <= 1. && Math.abs(sig3 - sig4) <= 1.) {
+          if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
             refValueWithSense = modifyRefValueWithSensitivity(refValueWithSense[0], refSense, Math.abs(pSlopes[i - 1][2]), pSlopesAbsSensitivity[2].getData()[i - 1], Math.abs(pSlopes[i - 1][1]),
                 pSlopesAbsSensitivity[1].getData()[i - 1]);
           }
@@ -614,20 +614,20 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     }
 
     if (refVal == tmpRef) {
-      res[0] = 3. * refVal;
+      res[0] = refVal;
       for (int i = 0; i < nData; ++i) {
-        res[i + 1] = 1.5 * (refValSensitivity[i] + tmpSensitivity[i]);
+        res[i + 1] = 0.5 * (refValSensitivity[i] + tmpSensitivity[i]);
       }
     } else {
       if (refVal > tmpRef) {
-        res[0] = 3. * refVal;
+        res[0] = refVal;
         for (int i = 0; i < nData; ++i) {
-          res[i + 1] = 3. * refValSensitivity[i];
+          res[i + 1] = refValSensitivity[i];
         }
       } else {
-        res[0] = 3. * tmpRef;
+        res[0] = tmpRef;
         for (int i = 0; i < nData; ++i) {
-          res[i + 1] = 3. * tmpSensitivity[i];
+          res[i + 1] = tmpSensitivity[i];
         }
       }
     }
@@ -638,7 +638,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
   private boolean checkSymm(final double[] slopes) {
     final int nDataM2 = slopes.length - 1;
     for (int i = 0; i < nDataM2; ++i) {
-      if (Math.abs(slopes[i]) == Math.abs(slopes[i + 1])) {
+      if (Math.abs(Math.abs(slopes[i]) - Math.abs(slopes[i + 1])) < SMALL) {
         return true;
       }
     }
