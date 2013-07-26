@@ -8,6 +8,7 @@ package com.opengamma.util;
 import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.springframework.beans.factory.DisposableBean;
@@ -169,17 +170,20 @@ public final class ReflectionUtils {
       return true;
     }
     try {
-      if (Modifier.isPublic(type.getMethod("close").getModifiers())) {
+      Method method = type.getMethod("close");
+      if (Modifier.isPublic(method.getModifiers()) && method.isSynthetic() == false) {
         return true;
       }
     } catch (Exception ex) {
       try {
-        if (Modifier.isPublic(type.getMethod("stop").getModifiers())) {
+        Method method = type.getMethod("stop");
+        if (Modifier.isPublic(method.getModifiers()) && method.isSynthetic() == false) {
           return true;
         }
       } catch (Exception ex2) {
         try {
-          if (Modifier.isPublic(type.getMethod("shutdown").getModifiers())) {
+          Method method = type.getMethod("shutdown");
+          if (Modifier.isPublic(method.getModifiers()) && method.isSynthetic() == false) {
             return true;
           }
         } catch (Exception ex3) {

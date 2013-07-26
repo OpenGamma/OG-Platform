@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -119,7 +120,7 @@ public class CurveNodeIdMapper {
   private static List<String> getCurveIdMapperNames() {
     final List<String> list = new ArrayList<>();
     for (final Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
-      if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+      if (Modifier.isStatic(field.getModifiers()) && field.isSynthetic() == false) {
         field.setAccessible(true);
         try {
           list.add((String) field.get(null));

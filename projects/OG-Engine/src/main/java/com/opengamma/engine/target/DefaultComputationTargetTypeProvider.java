@@ -58,7 +58,8 @@ public final class DefaultComputationTargetTypeProvider implements ComputationTa
     try {
       final Class<?> c = ComputationTargetType.class;
       for (Field field : c.getDeclaredFields()) {
-        if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers()) && c.isAssignableFrom(field.getType())) {
+        if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers()) &&
+            field.isSynthetic() == false && c.isAssignableFrom(field.getType())) {
           final ComputationTargetType type = (ComputationTargetType) field.get(null);
           final Boolean simple = type.accept(isSimple, null);
           if (simple != null) {

@@ -51,7 +51,8 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
       try {
         final Class<?> c = ComputationTargetType.class;
         for (final Field field : c.getDeclaredFields()) {
-          if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers()) && c.isAssignableFrom(field.getType())) {
+          if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers()) &&
+              field.isSynthetic() == false && c.isAssignableFrom(field.getType())) {
             final ComputationTargetType type = (ComputationTargetType) field.get(null);
             s_data.put(type.toString(), type);
           }

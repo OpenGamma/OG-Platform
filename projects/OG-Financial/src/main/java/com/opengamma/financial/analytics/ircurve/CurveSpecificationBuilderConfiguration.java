@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -107,7 +108,7 @@ public class CurveSpecificationBuilderConfiguration {
   private static List<String> getCurveSpecBuilderConfigurationNames() {
     final List<String> list = new ArrayList<String>();
     for (final Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
-      if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+      if (Modifier.isStatic(field.getModifiers()) && field.isSynthetic() == false) {
         field.setAccessible(true);
         try {
           list.add((String) field.get(null));
