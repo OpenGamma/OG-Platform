@@ -39,6 +39,7 @@ public class SimulationScriptTest {
 
   @Test
   public void createSimulationFromDsl() {
+    // TODO also test the expected values of the scenario fields. make sure delegation to the simulation works
     Simulation scriptSim = SimulationUtils.createSimulationFromDsl("src/test/groovy/SimulationDslTest.groovy", null);
     assertNotNull(scriptSim);
     Simulation sim = new Simulation("test simulation")

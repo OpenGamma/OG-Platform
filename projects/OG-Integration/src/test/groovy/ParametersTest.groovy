@@ -6,7 +6,7 @@
 
 parameters {
   foo String
-  bar Double
+  bar Number
 }
 
 scenario 'scenarioName', {

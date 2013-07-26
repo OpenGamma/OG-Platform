@@ -30,8 +30,8 @@ public class PointManipulatorBuilder {
    * @return This builder
    * TODO should this be named multiplicativeShift?
    */
-  public PointManipulatorBuilder scaling(double scalingFactor) {
-    _scenario.add(_selector, new Scaling(scalingFactor));
+  public PointManipulatorBuilder scaling(Number scalingFactor) {
+    _scenario.add(_selector, new Scaling(scalingFactor.doubleValue()));
     return this;
   }
 
@@ -40,8 +40,8 @@ public class PointManipulatorBuilder {
    * @param shift The shift amount
    * @return This builder
    */
-  public PointManipulatorBuilder shift(double shift) {
-    _scenario.add(_selector, new Shift(shift));
+  public PointManipulatorBuilder shift(Number shift) {
+    _scenario.add(_selector, new Shift(shift.doubleValue()));
     return this;
   }
 
@@ -50,8 +50,8 @@ public class PointManipulatorBuilder {
    * @param value The replacement value
    * @return This builder
    */
-  public PointManipulatorBuilder replace(double value) {
-    _scenario.add(_selector, new Replace(value));
+  public PointManipulatorBuilder replace(Number value) {
+    _scenario.add(_selector, new Replace(value.doubleValue()));
     return this;
   }
 }

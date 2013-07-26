@@ -33,6 +33,7 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
     Map<String,Object> parameters = scenarioParameters.getParameters();
     assertEquals("foo", parameters.get("aString"));
     assertEquals(Lists.newArrayList(1, 2, 3), parameters.get("aList"));
+    assertEquals(1.234, ((Number) parameters.get("aDouble")).doubleValue());
     assertEquals(ImmutableMap.of("key1", "value1", "key2", "value2"), parameters.get("aMap"));
     assertEquals(LocalDate.of(2011, 3, 8), parameters.get("aLocalDate"));
   }
