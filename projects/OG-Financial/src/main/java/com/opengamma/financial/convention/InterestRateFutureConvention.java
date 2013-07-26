@@ -39,6 +39,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
    * For the builder.
    */
   /* package */ InterestRateFutureConvention() {
+    super();
   }
 
   /**

@@ -44,7 +44,8 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
   /**
    * For the builder.
    */
-  /* package */ ExchangeTradedFutureAndOptionConvention() {
+  protected ExchangeTradedFutureAndOptionConvention() {
+    super();
   }
 
   /**
