@@ -208,6 +208,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     return "Deposit " + _currency + " [" + _startDate + " - " + _endDate + "] - notional: " + _notional + " - rate: " + _rate;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public Cash toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_endDate), "date {} is after end date {}", date, _endDate);

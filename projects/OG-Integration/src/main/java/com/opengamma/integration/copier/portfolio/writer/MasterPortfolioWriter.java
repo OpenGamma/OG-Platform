@@ -375,7 +375,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       SecurityDocument result = _securityMaster.add(addDoc);
       return result.getSecurity();
     } catch (Exception e) {
-      s_logger.error("Failed to write security " + security + " to the security master");
+      s_logger.error("Failed to write security " + security + " to the security master", e);
       return null;
     }
   }

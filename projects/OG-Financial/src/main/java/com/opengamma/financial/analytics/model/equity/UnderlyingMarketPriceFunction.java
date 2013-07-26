@@ -6,13 +6,11 @@
 package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -69,7 +67,11 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getPositionOrTrade().getSecurity();
-    return security.accept(s_judgeOfMarketSecurities);
+    try {
+      return security.accept(s_judgeOfMarketSecurities);
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @Override

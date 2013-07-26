@@ -97,6 +97,17 @@ public class DepositIborDefinition extends CashDefinition {
   }
 
   @Override
+  public DepositIbor toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");
+    final double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
+    if (startTime < 0) {
+      return new DepositIbor(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _index);
+    }
+    return new DepositIbor(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(),
+        _index);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
