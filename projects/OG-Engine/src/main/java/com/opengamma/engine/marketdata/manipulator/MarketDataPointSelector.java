@@ -16,26 +16,38 @@ import com.opengamma.id.ExternalId;
 /**
  * Selector for market data points in a dependency graph.
  */
-public class MarketDataPointSelector extends ExactMatchMarketDataSelector<ExternalId> {
-
-  private MarketDataPointSelector(ExternalId dataPointId) {
-    this(StructureIdentifier.of(dataPointId));
-  }
-
-  private MarketDataPointSelector(StructureIdentifier<ExternalId> structureId) {
-    super(structureId);
-  }
+public final class MarketDataPointSelector extends ExactMatchMarketDataSelector<ExternalId> {
 
   /**
    * Construct a selector for the supplied external id.
    *
-   * @param dataPointId the external id of the market data point to be selected, not null
-   * @return a new MarketDataSelector for themarket data point
+   * @param dataPointId  the external id of the market data point to be selected, not null
+   * @return a new MarketDataSelector for the market data point, not null
    */
   public static DistinctMarketDataSelector of(ExternalId dataPointId) {
     return new MarketDataPointSelector(dataPointId);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param dataPointId  the data point id, not null
+   */
+  private MarketDataPointSelector(ExternalId dataPointId) {
+    this(StructureIdentifier.of(dataPointId));
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param structureId  the structure id, not null
+   */
+  private MarketDataPointSelector(StructureIdentifier<ExternalId> structureId) {
+    super(structureId);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Set<StructureType> getApplicableStructureTypes() {
     return ImmutableSet.of(StructureType.MARKET_DATA_POINT);
@@ -45,4 +57,5 @@ public class MarketDataPointSelector extends ExactMatchMarketDataSelector<Extern
   public static MarketDataSelector fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     return new MarketDataPointSelector(msg.getValue(StructureIdentifier.class, "structureId"));
   }
+
 }

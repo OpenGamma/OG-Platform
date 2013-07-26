@@ -93,7 +93,8 @@ public class FunctionRepositoryFactory {
 
   protected static AbstractFunction createParameterizedFunction(final Class<?> definitionClass, final List<String> parameterList) {
     try {
-      constructors: for (final Constructor<?> constructor : definitionClass.getConstructors()) {
+    constructors:
+      for (final Constructor<?> constructor : definitionClass.getConstructors()) {
         final Class<?>[] parameters = constructor.getParameterTypes();
         final Object[] args = new Object[parameters.length];
         int used = 0;
