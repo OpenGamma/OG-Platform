@@ -6,17 +6,21 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureOptionPremiumTransactionBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * InstrumentDerivativeVisitor that calculates {@link ValueRequirementNames#POSITION_VEGA}, the vega of a Transaction, Trade or Position.<p>
+ * The Position-level Greek is scaled by both Quantity and Notional.
  */
 public class PresentValueBlackVegaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
   private static final PresentValueBlackVegaCalculator INSTANCE = new PresentValueBlackVegaCalculator();
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
-
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  
   public static PresentValueBlackVegaCalculator getInstance() {
     return INSTANCE;
   }
@@ -26,6 +30,15 @@ public class PresentValueBlackVegaCalculator extends InstrumentDerivativeVisitor
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return PREMIUM_BOND_FUTURE_OPTION.presentValueDelta(transaction, (YieldCurveWithBlackCubeBundle) curves);
+    return PREMIUM_BOND_FUTURE_OPTION.presentValueVega(transaction, (YieldCurveWithBlackCubeBundle) curves);
   }
+  
+  @Override
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(transaction, "transaction");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return IR_FUTURE_OPTION.vega(transaction, (YieldCurveWithBlackCubeBundle) curves);
+  }
+  
 }
