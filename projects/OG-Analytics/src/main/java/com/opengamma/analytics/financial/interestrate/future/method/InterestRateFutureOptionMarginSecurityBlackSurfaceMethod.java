@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -212,7 +213,9 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
    * @return Lognormal Implied Volatility
    */
   public double impliedVolatility(InterestRateFutureOptionMarginSecurity security, YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black Cube");
     return impliedVolatility(security, (YieldCurveWithBlackCubeBundle) curves);
   }
 
@@ -224,6 +227,8 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
    * @return Lognormal Implied Volatility.
    */
   public double impliedVolatility(InterestRateFutureOptionMarginSecurity security, YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(blackData, "blackData");
     return blackData.getVolatility(security.getExpirationTime(), security.getStrike());
   }
 

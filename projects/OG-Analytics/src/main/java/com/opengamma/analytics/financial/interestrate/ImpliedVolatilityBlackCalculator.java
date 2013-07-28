@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
@@ -39,6 +41,7 @@ public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivative
    */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_IR_FUTURE_OPTION_TXN = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
 
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
@@ -48,5 +51,10 @@ public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivative
   @Override
   public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
     return METHOD_SWAPTION_CASH.impliedVolatility(swaption, curves);
+  }
+  
+  @Override
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
+    return METHOD_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);
   }
 }
