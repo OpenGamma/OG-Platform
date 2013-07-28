@@ -168,6 +168,11 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackDeltaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionVegaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackForwardFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));

@@ -8,6 +8,7 @@ package com.opengamma.engine.value;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.TargetSourcingFunction;
+import com.opengamma.core.position.Position;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -591,7 +592,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_CARRY_RHO = "PositionCarryRho";
   /**
-   * The aggregate delta of an option (first order derivative of price with respect to the spot).
+   * The aggregate delta of an option position (change in the value of the {@link Position} with respect to the underlying).
    */
   public static final String POSITION_DELTA = "PositionDelta";
   /**

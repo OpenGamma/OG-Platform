@@ -35,14 +35,19 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.DELTA,
     ValueRequirementNames.GAMMA,
     ValueRequirementNames.VEGA,
-    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.POSITION_DELTA,
+    ValueRequirementNames.POSITION_GAMMA,
+    ValueRequirementNames.POSITION_VEGA,
+    ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.IMPLIED_VOLATILITY,
     ValueRequirementNames.SECURITY_MODEL_PRICE,
     ValueRequirementNames.UNDERLYING_MODEL_PRICE,
-    ValueRequirementNames.DAILY_PRICE
+    ValueRequirementNames.DAILY_PRICE,
+    ValueRequirementNames.FORWARD
   };
   private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 

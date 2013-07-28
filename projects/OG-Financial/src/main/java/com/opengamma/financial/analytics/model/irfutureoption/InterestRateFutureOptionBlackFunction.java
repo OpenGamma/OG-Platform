@@ -200,7 +200,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
    */
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec);
 
-  private ValueProperties getResultProperties(final String currency) {
+  protected ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -208,7 +208,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
         .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
-  private ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName) {
+  protected ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
@@ -216,7 +216,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
         .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
-  private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
+  protected ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();

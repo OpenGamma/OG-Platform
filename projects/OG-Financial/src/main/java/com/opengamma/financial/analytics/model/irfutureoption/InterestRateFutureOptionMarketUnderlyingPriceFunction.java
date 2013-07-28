@@ -41,12 +41,12 @@ public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends Abstr
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.POSITION_OR_TRADE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getPosition().getSecurity() instanceof IRFutureOptionSecurity;
+    return target.getPositionOrTrade().getSecurity() instanceof IRFutureOptionSecurity;
   }
 
   @Override
@@ -62,7 +62,7 @@ public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends Abstr
   }
 
   private ValueSpecification getSpecification(ComputationTarget target) {
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     ValueProperties valueProperties;
     if (ccy == null) {
       valueProperties = createValueProperties().get();
