@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.cache.MissingInput;
@@ -358,7 +359,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
       // Get function params configured through the view definition
       Map<DistinctMarketDataSelector, FunctionParameters> functionParameters =
-          calculationConfiguration.getMarketDataSelectionFunctionParameters();
+          Maps.newHashMap(calculationConfiguration.getMarketDataSelectionFunctionParameters());
       s_logger.info("Added in function parameters from view definition - now have {} entries", functionParameters.size());
 
       // Add the function params passed through the execution options which will
@@ -376,10 +377,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         Set<ValueSpecification> matchingSpecifications = entry.getValue();
 
         for (ValueSpecification valueSpecification : matchingSpecifications) {
-
-          FunctionParameters parameters = functionParameters.containsKey(selector) ?
-              functionParameters.get(selector) : new EmptyFunctionParameters();
-
+          FunctionParameters parameters;
+          if (functionParameters.containsKey(selector)) {
+            parameters = functionParameters.get(selector);
+          } else {
+            parameters = new EmptyFunctionParameters();
+          }
           DependencyNode node = graph.getNodeProducing(valueSpecification);
           node.setFunction(new ParameterizedFunction(node.getFunction().getFunction(), parameters));
           nodeCount++;
