@@ -23,4 +23,17 @@ public abstract class LatticeSpecification {
    */
   public abstract double[] getParameters(final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate, final int nSteps, final double dt);
 
+  /**
+   * If (up factor)*(down factor)=1 is satisfied, e.g., CRR and Tian specifications, simpler approximation can be used
+   * @param spot Spot
+   * @param volatility Volatility
+   * @param interestRate Interest rate
+   * @param dt Time step
+   * @param greeksTmp {price_{0,0}, delta_{0,0}, gamma_{0,0}, price_{2,1}}
+   * @return Theta 
+   */
+  public double getTheta(final double spot, final double volatility, final double interestRate, final double dt, final double[] greeksTmp) {
+
+    return interestRate * greeksTmp[0] - interestRate * spot * greeksTmp[1] - 0.5 * volatility * volatility * spot * spot * greeksTmp[2];
+  }
 }
