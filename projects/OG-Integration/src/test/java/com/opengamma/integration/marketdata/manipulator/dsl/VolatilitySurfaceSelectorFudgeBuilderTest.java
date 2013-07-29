@@ -23,6 +23,7 @@ public class VolatilitySurfaceSelectorFudgeBuilderTest extends AbstractFudgeBuil
         Sets.newHashSet("Default", "ccn1"),
         Sets.newHashSet("surface1", "surface2"),
         Pattern.compile("\\d*"),
+        Pattern.compile("\\w*"),
         Sets.newHashSet("type1", "type2", "type3"),
         Sets.newHashSet("quoteType1", "quoteType2"),
         Sets.newHashSet("quoteUnits1", "quoteUnits2"));
