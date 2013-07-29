@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.DataNotFoundException;
@@ -27,6 +28,7 @@ import com.opengamma.id.VersionCorrection;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
+import groovy.transform.TimedInterrupt;
 
 /**
  * Utilities for creating and running {@link Simulation}s and {@link Scenario}s.
@@ -105,7 +107,10 @@ public class SimulationUtils {
    * @return The return value of the script, not null
    */
   private static <T> T runGroovyDslScript(Reader scriptReader, Class<T> expectedType, Map<String, Object> parameters) {
+    Map<String, Object> timeoutArgs = ImmutableMap.<String, Object>of("value", 2);
+    ASTTransformationCustomizer customizer = new ASTTransformationCustomizer(timeoutArgs, TimedInterrupt.class);
     CompilerConfiguration config = new CompilerConfiguration();
+    config.addCompilationCustomizers(customizer);
     config.setScriptBaseClass(SimulationScript.class.getName());
     Binding binding = new Binding(parameters);
     GroovyShell shell = new GroovyShell(binding, config);

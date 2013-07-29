@@ -9,7 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.io.StringReader;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,5 +120,11 @@ public class SimulationScriptTest {
     assertEquals(null, scenario2.getResolverVersionCorrection());
     assertEquals(ImmutableSet.of("config0", "config1"), scenario2.getCalcConfigNames());
     assertEquals(ZonedDateTime.of(1972, 3, 10, 21, 30, 0, 0, ZoneOffset.UTC).toInstant(), scenario2.getValuationTime());
+  }
+
+  @Test(expectedExceptions = TimeoutException.class)
+  public void timeout() {
+    String script = "while (true) {}";
+    SimulationUtils.createScenarioFromDsl(new StringReader(script), null);
   }
 }
