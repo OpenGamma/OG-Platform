@@ -1,5 +1,5 @@
-// Automatically created - do not modify
-///CLOVER:OFF - CSOFF
+// Automatically created - do not modify - CSOFF
+///CLOVER:OFF
 package com.opengamma.engine.cache.msg;
 public class CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { throw new UnsupportedOperationException (); }
