@@ -64,4 +64,18 @@ public final class PatternWrapper {
     }
     return new PatternWrapper(pattern);
   }
+
+  @Override
+  public String toString() {
+    String pattern;
+    Integer flags;
+    if (_pattern == null) {
+      pattern = null;
+      flags = null;
+    } else {
+      pattern = _pattern.pattern();
+      flags = _pattern.flags();
+    }
+    return "PatternWrapper [pattern=" + pattern + ", flags=" + flags + "]";
+  }
 }

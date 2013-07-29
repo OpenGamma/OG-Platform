@@ -13,12 +13,22 @@ import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Selects volatility cubes for manipulation.
  */
 public class VolatilityCubeSelector extends Selector<VolatilityCubeKey> {
 
-  /* package */ VolatilityCubeSelector(Set<String> calcConfigNames, Set<String> names, Set<Currency> currencies, Pattern namePattern) {
-    super(calcConfigNames, names, currencies, namePattern, VolatilityCubeKey.class, StructureType.VOLATILITY_CUBE);
+  /* package */ VolatilityCubeSelector(Set<String> calcConfigNames,
+                                       Set<String> names,
+                                       Set<Currency> currencies,
+                                       Pattern nameMatchPattern,
+                                       Pattern nameLikePattern) {
+    super(calcConfigNames,
+          names,
+          currencies,
+          nameMatchPattern,
+          nameLikePattern,
+          VolatilityCubeKey.class,
+          StructureType.VOLATILITY_CUBE);
   }
 
   @Override
@@ -26,10 +36,12 @@ public class VolatilityCubeSelector extends Selector<VolatilityCubeKey> {
     return matches(key.getName(), key.getCurrency());
   }
 
-
+  /**
+   * Mutable builder for {@link VolatilityCubeSelector} instances.
+   */
   public static class Builder extends Selector.Builder {
 
-    /* package */ Builder(Scenario scenario, String calcConfigName) {
+    /* package */ Builder(Scenario scenario) {
       super(scenario);
     }
 
@@ -60,7 +72,11 @@ public class VolatilityCubeSelector extends Selector<VolatilityCubeKey> {
      * @return A selector built from this builder's data
      */
     /* package */ VolatilityCubeSelector selector() {
-      return new VolatilityCubeSelector(getScenario().getCalcConfigNames(), getNames(), getCurrencies(), getNamePattern());
+      return new VolatilityCubeSelector(getScenario().getCalcConfigNames(),
+                                        getNames(),
+                                        getCurrencies(),
+                                        getNameMatchPattern(),
+                                        getNameLikePattern());
     }
   }
 }

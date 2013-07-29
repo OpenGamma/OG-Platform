@@ -22,7 +22,8 @@ public class YieldCurveSelectorFudgeBuilderTest extends AbstractFudgeBuilderTest
     Set<String> names = Sets.newHashSet("name1", "name2");
     Set<Currency> currencies = Sets.newHashSet(Currency.AUD, Currency.CAD);
     HashSet<String> calcConfigNames = Sets.newHashSet("ccn1", "ccn2");
-    YieldCurveSelector selector = new YieldCurveSelector(calcConfigNames, names, currencies, Pattern.compile("\\d.*"));
+    YieldCurveSelector selector =
+        new YieldCurveSelector(calcConfigNames, names, currencies, Pattern.compile("\\d.*"), Pattern.compile("\\w.*"));
     assertEncodeDecodeCycle(YieldCurveSelector.class, selector);
   }
 }
