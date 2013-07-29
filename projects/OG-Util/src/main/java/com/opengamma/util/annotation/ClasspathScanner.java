@@ -108,7 +108,8 @@ public final class ClasspathScanner {
   @SuppressWarnings("rawtypes")
   public AnnotationCache scan(Class<? extends Annotation> annotationClass) {
     AnnotationReflector reflector = new AnnotationReflector(null, null,
-        new TypeAnnotationsScanner(), new FieldAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner());
+        new TypeAnnotationsScanner(), new FieldAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner(),
+        ClasspathScanner.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
     Set<String> classNames = reflector.getReflector().getStore().getTypesAnnotatedWith(annotationClass.getName());
     Set<Field> fields = reflector.getReflector().getFieldsAnnotatedWith(annotationClass);
     for (Field field : fields) {

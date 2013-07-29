@@ -7,9 +7,10 @@ package com.opengamma.util.fudgemsg;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.fudgemsg.AnnotationReflector;
 import org.fudgemsg.FudgeContext;
@@ -63,61 +64,6 @@ public final class OpenGammaFudgeContext {
     return ContextHolder.INSTANCE;
   }
 
-  private static final String DEFAULT_ANNOTATION_REFLECTOR_FILTER =
-      "-java., " +
-      "-javax., " +
-      "-sun., " +
-      "-sunw., " +
-      "-com.sun., " +
-      "-org.springframework., " +
-      "-org.eclipse., " +
-      "-org.apache., " +
-      "-org.antlr., " +
-      "-org.hibernate., " +
-      "-org.fudgemsg., " +
-      "-org.threeten., " +
-      "-org.reflections., " +
-      "-org.joda., " +
-      "-cern.clhep., " +
-      "-cern.colt., " +
-      "-cern.jet.math., " +
-      "-ch.qos.logback., " +
-      "-com.codahale.metrics., " +
-      "-com.mongodb., " +
-      "-com.sleepycat., " +
-      "-com.yahoo.platform.yui., " +
-      "-de.odysseus.el., " +
-      "-freemarker., " +
-      "-groovy., " +
-      "-groovyjar, " +
-      "-it.unimi.dsi.fastutil., " +
-      "-jargs.gnu., " +
-      "-javassist., " +
-      "-jsr166y., " +
-      "-net.sf.ehcache., " +
-      "-org.bson., " +
-      "-org.codehaus.groovy., " +
-      "-org.cometd., " +
-      "-com.google.common., " +
-      "-org.hsqldb., " +
-      "-com.jolbox., " +
-      "-edu.emory.mathcs., " +
-      "-info.ganglia., " +
-      "-org.aopalliance., " +
-      "-org.dom4j., " +
-      "-org.mozilla.javascript., " +
-      "-org.mozilla.classfile., " +
-      "-org.objectweb.asm., " +
-      "-org.osgi., " +
-      "-org.postgresql., " +
-      "-org.quartz., " +
-      "-org.slf4j., " +
-      "-org.w3c.dom, " +
-      "-org.xml.sax., " +
-      "-org.jcsp., " +
-      "-org.json., " +
-      "-redis.";
-
   /**
    * Avoid double-checked-locking using the Initialization-on-demand holder idiom.
    */
@@ -133,8 +79,8 @@ public final class OpenGammaFudgeContext {
       urlTypes.add(0, new OGFileUrlType());
       Vfs.setDefaultURLTypes(urlTypes);
       
-      // hack to try to get a better classpath
-      List<ClassLoader> loaders = new ArrayList<>();
+      // init annotation reflector, which needs this class loader
+      Set<ClassLoader> loaders = new HashSet<>();
       loaders.add(OpenGammaFudgeContext.class.getClassLoader());
       try {
         loaders.add(Thread.currentThread().getContextClassLoader());
@@ -144,10 +90,11 @@ public final class OpenGammaFudgeContext {
       Configuration config = new ConfigurationBuilder()
         .setUrls(ClasspathHelper.forManifest(ClasspathHelper.forJavaClassPath()))
         .setScanners(new TypeAnnotationsScanner(), new FieldAnnotationsScanner())
-        .filterInputsBy(FilterBuilder.parse(DEFAULT_ANNOTATION_REFLECTOR_FILTER))
+        .filterInputsBy(FilterBuilder.parse(AnnotationReflector.DEFAULT_ANNOTATION_REFLECTOR_FILTER))
         .addClassLoaders(loaders)
         .useParallelExecutor();
-      AnnotationReflector reflector = new AnnotationReflector(config);
+      AnnotationReflector.initDefaultReflector(new AnnotationReflector(config));
+      AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
       
       fudgeContext.getObjectDictionary().addAllAnnotatedBuilders(reflector);
       fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes(reflector);
