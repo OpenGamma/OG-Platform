@@ -11,9 +11,11 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -94,6 +96,14 @@ public class SimulationUtils {
     return runGroovyDslScript(groovyScript, Scenario.class, parameters);
   }
 
+  /**
+   * Runs a Groovy DSL script and returns the value returned by the script.
+   * @param scriptReader For reading the script text
+   * @param expectedType The expected type of the return value
+   * @param parameters Parameters used by the script, null or empty if the script doesn't need any
+   * @param <T> The expected type of the return value
+   * @return The return value of the script, not null
+   */
   private static <T> T runGroovyDslScript(Reader scriptReader, Class<T> expectedType, Map<String, Object> parameters) {
     CompilerConfiguration config = new CompilerConfiguration();
     config.setScriptBaseClass(SimulationScript.class.getName());
@@ -112,5 +122,37 @@ public class SimulationUtils {
                                              "actual type: " + scriptOutput.getClass().getName() + ", " +
                                              "actual value: " + scriptOutput);
     }
+  }
+
+  /**
+   * Creates a regular expression pattern from a simple glob string. The special characters recognized in the glob
+   * string are ? (match any character), * (match any number of characters) and % (same as *). The other characters
+   * in the glob string are escaped before the pattern is created so it can safely contain regular expression
+   * characters. Escaping is not supported in the glob string, i.e. there's no way to match any of the special
+   * characters themselves.
+   * @param glob The glob string
+   * @return A pattern for matching the glob
+   */
+  /* package */ static Pattern patternForGlob(String glob) {
+    Map<Character, String> replacements = ImmutableMap.of('?', ".", '*', ".*?", '%', ".*?");
+    StringBuilder builder = new StringBuilder();
+    StringBuilder tokenBuilder = new StringBuilder();
+    for (int i = 0; i < glob.length(); i++) {
+      char c = glob.charAt(i);
+      if (!replacements.containsKey(c)) {
+        tokenBuilder.append(c);
+      } else {
+        if (tokenBuilder.length() != 0) {
+          String quotedToken = Pattern.quote(tokenBuilder.toString());
+          builder.append(quotedToken);
+          tokenBuilder.setLength(0);
+        }
+        builder.append(replacements.get(c));
+      }
+    }
+    if (tokenBuilder.length() != 0) {
+      builder.append(Pattern.quote(tokenBuilder.toString()));
+    }
+    return Pattern.compile(builder.toString());
   }
 }
