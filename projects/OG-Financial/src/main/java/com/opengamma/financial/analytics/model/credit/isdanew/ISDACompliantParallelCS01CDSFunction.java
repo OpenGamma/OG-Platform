@@ -16,8 +16,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.engine.value.ValueRequirementNames;
 
-import ch.qos.logback.classic.net.SyslogAppender;
-
 /**
  *
  */
@@ -38,7 +36,7 @@ public class ISDACompliantParallelCS01CDSFunction extends AbstractISDACompliantW
     double cs01;
     if (quote instanceof ParSpread) {
       // use a slightly different methodology on non IMM dates
-      final double spreads[] = new double[quotes.length];
+      final double[] spreads = new double[quotes.length];
       for (int i = 0; i < spreads.length; i++) {
         spreads [i] = quotes[i].getCoupon();
       }
