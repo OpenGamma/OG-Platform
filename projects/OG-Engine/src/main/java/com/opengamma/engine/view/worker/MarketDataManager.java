@@ -6,10 +6,9 @@
 package com.opengamma.engine.view.worker;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -20,13 +19,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.Instant;
+import org.threeten.bp.Duration;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.ChronoUnit;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.google.common.primitives.Ints;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataListener;
-import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -46,11 +46,22 @@ public class MarketDataManager implements MarketDataListener {
    */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataManager.class);
 
-
   /**
    * Maximum number of subscriptions to make in a single request.
    */
   private static final int MAX_SUBSCRIPTION_BATCH_SIZE = 10000;
+
+  /**
+   * How long do wait for a subscription response to come back before giving up on it. Note that
+   * retries may well have occurred depnding on the value of {@link #SUBSCRIPTION_RETRY_DURATION}
+   */
+  public static final Duration SUBSCRIPTION_ABANDONMENT_DURATION = Duration.ofMinutes(15);
+
+  /**
+   * How long to wait before for a subscription response to come back before retrying a subscription.
+   * Note that the scheduler runs at this period too.
+   */
+  public static final Duration SUBSCRIPTION_RETRY_DURATION = Duration.ofMinutes(5);
 
   /**
    * The current set of market data subscriptions.
@@ -58,10 +69,16 @@ public class MarketDataManager implements MarketDataListener {
   private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<>();
 
   /**
-   * Subscriptions which have been requested but not yet been satisfied by the market data provider.
+   * Subscriptions which have been requested but not yet been satisfied by the market data
+   * provider. The time indicates when the subscription was first requested.
    */
-  private final Set<ValueSpecification> _pendingSubscriptions =
-      Collections.newSetFromMap(new ConcurrentHashMap<ValueSpecification, Boolean>());
+  private final Map<ValueSpecification, ZonedDateTime> _pendingSubscriptions = new ConcurrentHashMap<>();
+
+  /**
+   * Lock for safely adding and removing items from the {@link #_marketDataSubscriptions} and
+   * {@link #_pendingSubscriptions} collections.
+   */
+  private final Lock _subscriptionsLock = new ReentrantLock();
 
   /**
    * The listener to notify of market data changes.
@@ -84,62 +101,142 @@ public class MarketDataManager implements MarketDataListener {
    */
   private boolean _marketDataProviderDirty;
 
-  private final Lock _pendingSubscriptionsLock = new ReentrantLock();
+  private static final ScheduledExecutorService s_submonitor = Executors.newScheduledThreadPool(1, new NamedThreadPoolFactory("Subscription Monitor"));
 
-  private static final ScheduledExecutorService s_submonitor = Executors.newScheduledThreadPool(1,
-                                                                                                new NamedThreadPoolFactory(
-                                                                                                    "Subscription Monitor"));
-
-  {
-    if (s_logger.isInfoEnabled()) {
-      s_submonitor.execute(new Runnable() {
-
-        @Override
-        public void run() {
-          s_logger.info("Pending subscriptions for '" + MarketDataManager.this + "': " + _pendingSubscriptions.size());
-          if (!_pendingSubscriptions.isEmpty()) {
-            logSpecs(_pendingSubscriptions);
-          }
-          s_submonitor.schedule(this, 15, TimeUnit.SECONDS);
-        }
-
-        private void logSpecs(Set<ValueSpecification> specs) {
-          s_logger.info(specs.size() > 20 ? "First 20 pending: " : "All " + specs.size() + " pending: ");
-          Iterator<ValueSpecification> iterator = specs.iterator();
-          for (int i = 0; i < Ints.min(specs.size(), 20); i++) {
-            s_logger.info(" - " + iterator.next());
-          }
-        }
-      });
-    }
-  }
-
-
+  /**
+   * Create the manager for the market data.
+   *
+   * @param listener the listener for market data changes, not null
+   * @param marketDataProviderResolver the provider resolver, not null
+   */
   public MarketDataManager(MarketDataChangeListener listener,
                            MarketDataProviderResolver marketDataProviderResolver) {
+
+    ArgumentChecker.notNull(listener, "listener");
+    ArgumentChecker.notNull(marketDataProviderResolver, "marketDataProviderResolver");
     _marketDataChangeListener = listener;
     _marketDataProviderResolver = marketDataProviderResolver;
+    s_submonitor.scheduleAtFixedRate(createSubscriptionMonitorLogging(), 0, 15, TimeUnit.SECONDS);
+    s_submonitor.scheduleAtFixedRate(createSubscriptionMonitor(), 0, SUBSCRIPTION_RETRY_DURATION.get(ChronoUnit.SECONDS), TimeUnit.SECONDS);
   }
 
+
+  private Runnable createSubscriptionMonitorLogging() {
+    return new Runnable() {
+
+      @Override
+      public void run() {
+
+        if (s_logger.isInfoEnabled()) {
+          _subscriptionsLock.lock();
+
+          try {
+            s_logger.info("Pending subscriptions for {}: {}", MarketDataManager.this, _pendingSubscriptions.size());
+
+            if (!_pendingSubscriptions.isEmpty()) {
+
+              s_logger.info(_pendingSubscriptions.size() > 20 ? "First 20 pending: " : "All {} pending: ", _pendingSubscriptions.size());
+              for (Map.Entry<ValueSpecification, ZonedDateTime> entry : Iterables.limit(_pendingSubscriptions.entrySet(), 20)) {
+                s_logger.info(" - {} in cache since: {}", entry.getKey(), entry.getValue());
+              }
+            }
+          } finally {
+            _subscriptionsLock.unlock();
+          }
+        }
+      }
+    };
+  }
+
+  private Runnable createSubscriptionMonitor() {
+    return new Runnable() {
+
+      @Override
+      public void run() {
+
+        _subscriptionsLock.lock();
+
+        try {
+
+          ZonedDateTime abandonLimit = ZonedDateTime.now().minus(SUBSCRIPTION_ABANDONMENT_DURATION);
+          ZonedDateTime retryLimit = ZonedDateTime.now().minus(SUBSCRIPTION_RETRY_DURATION);
+
+          Set<ValueSpecification> toAbandon = new HashSet<>();
+          Set<ValueSpecification> toRetry = new HashSet<>();
+
+          for (Map.Entry<ValueSpecification, ZonedDateTime> entry : _pendingSubscriptions.entrySet()) {
+
+            if (entry.getValue().isBefore(abandonLimit)) {
+              toAbandon.add(entry.getKey());
+            } else if (entry.getValue().isBefore(retryLimit)) {
+              toRetry.add(entry.getKey());
+            }
+            // else it's on the pending list but we're still waiting for it to come back
+            // so do nothing
+          }
+
+          if (!toAbandon.isEmpty()) {
+            s_logger.warn("Giving up waiting on {} subscriptions - maybe they don't exist", toAbandon.size());
+            s_logger.info("No longer waiting for subscriptions: {}", toAbandon);
+            removePendingSubscriptions(toAbandon);
+          }
+
+          if (!toRetry.isEmpty()) {
+            s_logger.info("Retrying {} subscriptions as no responses received yet", toRetry.size());
+            s_logger.info("Retrying subscriptions: {}", toRetry);
+            makeSubscriptionRequest(toRetry);
+          }
+        } finally {
+          _subscriptionsLock.unlock();
+        }
+      }
+    };
+  }
+
+  /**
+   * Create a snapshot manager for use in the current cycle.
+   *
+   * @param marketDataUser the market data user, not null
+   * @param marketDataSpecifications the market data required for the cycle (and hence
+   * to be included in any snapshot created), not null
+   * @return new snapshot manager, not null
+   */
   public SnapshotManager createSnapshotManagerForCycle(UserPrincipal marketDataUser,
                                                        List<MarketDataSpecification> marketDataSpecifications) {
 
-    if (_marketDataProvider == null || !_marketDataProvider.getSpecifications().equals(marketDataSpecifications)) {
+    ArgumentChecker.notNull(marketDataUser, "marketDataUser");
+    ArgumentChecker.notNull(marketDataSpecifications, "marketDataSpecifications");
 
-      replaceMarketDataProvider(marketDataUser, marketDataSpecifications);
-      if (_marketDataProvider == null) {
-        throw new OpenGammaRuntimeException("Market data specifications " + marketDataSpecifications + "invalid");
+    _subscriptionsLock.lock();
+    try {
+      if (_marketDataProvider == null || !_marketDataProvider.getSpecifications().equals(marketDataSpecifications)) {
+
+        replaceMarketDataProvider(marketDataUser, marketDataSpecifications);
+        if (_marketDataProvider == null) {
+          throw new OpenGammaRuntimeException("Market data specifications " + marketDataSpecifications + "invalid");
+        }
       }
+      // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
+      return new SnapshotManager(_marketDataProvider.snapshot(), this);
+    } finally {
+      _subscriptionsLock.unlock();
     }
-    // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
-    return new SnapshotManager(_marketDataProvider.snapshot());
   }
 
+  /**
+   * Return the current market data provider.
+   *
+   * @return the current market data provider, may be null
+   */
   public SnapshottingViewExecutionDataProvider getMarketDataProvider() {
-    return _marketDataProvider;
-  }
 
-  // MarketDataListener
+    _subscriptionsLock.lock();
+    try {
+      return _marketDataProvider;
+    } finally {
+      _subscriptionsLock.unlock();
+    }
+  }
 
   @Override
   public void subscriptionsSucceeded(final Collection<ValueSpecification> valueSpecifications) {
@@ -151,7 +248,7 @@ public class MarketDataManager implements MarketDataListener {
   public void subscriptionFailed(final ValueSpecification valueSpecification, final String msg) {
     removePendingSubscription(valueSpecification);
     s_logger.info("Market data subscription to {} failed. This market data may be missing from computation cycles.",
-                   valueSpecification);
+                  valueSpecification);
     s_logger.info("{} pending subscriptions remaining", _pendingSubscriptions.size());
   }
 
@@ -169,36 +266,21 @@ public class MarketDataManager implements MarketDataListener {
 
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
 
+    // Lock has been obtained by calling method
     _marketDataSubscriptions.addAll(requiredSubscriptions);
-    _pendingSubscriptionsLock.lock();
-
-
-    try {
-      _pendingSubscriptions.addAll(requiredSubscriptions);
-
-      Set<Set<ValueSpecification>> batches = partitionSet(requiredSubscriptions, MAX_SUBSCRIPTION_BATCH_SIZE);
-
-      for (Set<ValueSpecification> batch : batches) {
-        _marketDataProvider.subscribe(batch);
-      }
-
-
-      //try {
-      //  synchronized (_pendingSubscriptions) {
-      //    if (!_pendingSubscriptions.isEmpty()) {
-      //      _pendingSubscriptions.wait();
-      //    }
-      //  }
-      //} catch (final InterruptedException ex) {
-      //  s_logger.info("Interrupted while waiting for subscription results.");
-      //} finally {
-      //  _pendingSubscriptions.clear();
-      //}
-    } finally {
-      _pendingSubscriptionsLock.unlock();
+    for (ValueSpecification subscription : requiredSubscriptions) {
+      _pendingSubscriptions.put(subscription, ZonedDateTime.now());
     }
 
+    makeSubscriptionRequest(requiredSubscriptions);
     timer.finished();
+  }
+
+  private void makeSubscriptionRequest(Set<ValueSpecification> requiredSubscriptions) {
+
+    for (Set<ValueSpecification> batch : partitionSet(requiredSubscriptions, MAX_SUBSCRIPTION_BATCH_SIZE)) {
+      _marketDataProvider.subscribe(batch);
+    }
   }
 
   private <T> Set<Set<T>> partitionSet(Set<T> originalSet, int maxBatchSize) {
@@ -225,69 +307,70 @@ public class MarketDataManager implements MarketDataListener {
 
   private void removePendingSubscription(final ValueSpecification specification) {
 
-    _pendingSubscriptionsLock.lock();
+    _subscriptionsLock.lock();
     try {
-      if (_pendingSubscriptions.remove(specification)) {
-        //notifyIfPendingSubscriptionsDone();
-      }
+      _pendingSubscriptions.remove(specification);
     } finally {
-      _pendingSubscriptionsLock.unlock();
+      _subscriptionsLock.unlock();
     }
   }
 
   private void removePendingSubscriptions(final Collection<ValueSpecification> specifications) {
 
-    _pendingSubscriptionsLock.lock();
-    boolean removalPerformed;
+    // Previously, this method used _pendingSubscriptions.removeAll, but as specifications may
+    // be a list and the JDK may invert iteration order, it was observed that we may end up
+    // terating over _pendingSubscriptions and calling contains() on specifications, resulting
+    // in long wait times for a view to load (PLAT-3508)
+
+    _subscriptionsLock.lock();
 
     try {
-      // Previously, this used removeAll, but as specifications may be a list, it was observed
-      // that we may end up iterating over _pendingSubscriptions and calling contains() on
-      // specifications, resulting in long wait times for a view to load (PLAT-3508)
-      removalPerformed = false;
       for (ValueSpecification specification : specifications) {
-        removalPerformed = _pendingSubscriptions.remove(specification) || removalPerformed;
+        _pendingSubscriptions.remove(specification);
       }
     } finally {
-      _pendingSubscriptionsLock.unlock();
+      _subscriptionsLock.unlock();
     }
-
-    if (removalPerformed) {
-      //notifyIfPendingSubscriptionsDone();
-    }
-  }
-
-  private void notifyIfPendingSubscriptionsDone() {
-    if (_pendingSubscriptions.isEmpty()) {
-      synchronized (_pendingSubscriptions) {
-        if (_pendingSubscriptions.isEmpty()) {
-          _pendingSubscriptions.notifyAll();
-        }
-      }
-    }
-  }
-
-  private void removeMarketDataSubscriptions() {
-    removeMarketDataSubscriptions(_marketDataSubscriptions);
   }
 
   private void removeMarketDataSubscriptions(final Set<ValueSpecification> unusedSubscriptions) {
+
     final OperationTimer timer = new OperationTimer(s_logger, "Removing {} market data subscriptions", unusedSubscriptions.size());
-    _marketDataProvider.unsubscribe(unusedSubscriptions);
-    _marketDataSubscriptions.removeAll(unusedSubscriptions);
+
+    _subscriptionsLock.lock();
+    try {
+      _marketDataProvider.unsubscribe(unusedSubscriptions);
+      _marketDataSubscriptions.removeAll(unusedSubscriptions);
+    } finally {
+      _subscriptionsLock.unlock();
+    }
     timer.finished();
   }
 
+  /**
+   * Replace the market data provider if required. It will be replaced if it is not already
+   * setup or if the user has changed.
+   *
+   * @param marketDataUser the market data user, not null
+   */
   public void replaceMarketDataProviderIfRequired(UserPrincipal marketDataUser) {
 
-    if (_marketDataProvider != null && !_marketDataProvider.getMarketDataUser().equals(marketDataUser)) {
-      // [PLAT-3186] Not a huge overhead, but we could check compatability with the new specs and keep the same provider
-      replaceMarketDataProvider(marketDataUser, _marketDataProvider.getSpecifications());
+    ArgumentChecker.notNull(marketDataUser, "marketDataUser");
+
+    _subscriptionsLock.lock();
+    try {
+      if (_marketDataProvider != null && !_marketDataProvider.getMarketDataUser().equals(marketDataUser)) {
+        // [PLAT-3186] Not a huge overhead, but we could check compatability with the new specs and keep the same provider
+        replaceMarketDataProvider(marketDataUser, _marketDataProvider.getSpecifications());
+      }
+    } finally {
+      _subscriptionsLock.unlock();
     }
   }
 
   private void replaceMarketDataProvider(UserPrincipal marketDataUser, List<MarketDataSpecification> specifications) {
 
+    // Lock held by calling methods
     if (_marketDataProvider != null) {
       s_logger.info("Replacing market data provider between cycles");
     }
@@ -295,17 +378,28 @@ public class MarketDataManager implements MarketDataListener {
     setMarketDataProvider(marketDataUser, specifications);
   }
 
+  /**
+   * Removes the current market data provider and all market data subscriptions.
+   */
   public void removeMarketDataProvider() {
-    if (_marketDataProvider == null) {
-      return;
+
+    _subscriptionsLock.lock();
+    try {
+      if (_marketDataProvider == null) {
+        return;
+      }
+      removeMarketDataSubscriptions(_marketDataSubscriptions);
+      _marketDataProvider.removeListener(this);
+      _marketDataProvider = null;
+      _marketDataProviderDirty = true;
+    } finally {
+      _subscriptionsLock.unlock();
     }
-    removeMarketDataSubscriptions();
-    _marketDataProvider.removeListener(this);
-    _marketDataProvider = null;
-    _marketDataProviderDirty = true;
   }
 
   private void setMarketDataProvider(UserPrincipal marketDataUser, final List<MarketDataSpecification> marketDataSpecs) {
+
+    // Lock held by calling methods
     try {
       _marketDataProvider = new SnapshottingViewExecutionDataProvider(marketDataUser,
                                                                       marketDataSpecs, _marketDataProviderResolver);
@@ -319,11 +413,20 @@ public class MarketDataManager implements MarketDataListener {
     _marketDataProviderDirty = true;
   }
 
-  private void setMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
+  /**
+   * Request subscriptions for required market data. The request is checked against current
+   * subscriptions ensuring subscriptions are only sent for new requests. Any previously
+   * requested subscriptions that are no longer required will be removed.
+   *
+   * @param requiredSubscriptions the required subscriptions, not null
+   */
+  public void requestMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
 
-    _pendingSubscriptionsLock.lock();
+    ArgumentChecker.notNull(requiredSubscriptions, "requiredSubscriptions");
+
+    _subscriptionsLock.lock();
     try {
-      final Set<ValueSpecification> currentSubscriptions = Sets.difference(_marketDataSubscriptions, _pendingSubscriptions).immutableCopy();
+      final Set<ValueSpecification> currentSubscriptions = Sets.difference(_marketDataSubscriptions, _pendingSubscriptions.keySet()).immutableCopy();
       final Set<ValueSpecification> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions).immutableCopy();
       if (!unusedMarketData.isEmpty()) {
         s_logger.info("{} unused market data subscriptions", unusedMarketData.size());
@@ -335,7 +438,7 @@ public class MarketDataManager implements MarketDataListener {
         addMarketDataSubscriptions(newMarketData);
       }
     } finally {
-      _pendingSubscriptionsLock.unlock();
+      _subscriptionsLock.unlock();
     }
   }
 
@@ -345,70 +448,39 @@ public class MarketDataManager implements MarketDataListener {
    * @return the market data availability provider, may be null.
    */
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    return _marketDataProvider != null ? _marketDataProvider.getAvailabilityProvider() : null;
+
+    _subscriptionsLock.lock();
+    try {
+      return _marketDataProvider != null ? _marketDataProvider.getAvailabilityProvider() : null;
+    } finally {
+      _subscriptionsLock.unlock();
+    }
   }
 
+  /**
+   * Indicates if the current market data provider is dirty and thus any nodes sourcing market
+   * data into the dependency graph may now be invalid.
+   *
+   * @return true if the market data provider is dirty
+   */
   public boolean isMarketDataProviderDirty() {
-    return _marketDataProviderDirty;
+    _subscriptionsLock.lock();
+    try {
+      return _marketDataProviderDirty;
+    } finally {
+      _subscriptionsLock.unlock();
+    }
   }
 
+  /**
+   * Marks the current market data provider as clean.
+   */
   public void markMarketDataProviderClean() {
-    _marketDataProviderDirty = false;
-  }
-
-
-  public class SnapshotManager {
-
-    private final MarketDataSnapshot _snapshot;
-    private final Set<ValueSpecification> _cycleMarketDataRequirements = new HashSet<>();
-
-    /**
-     *
-     * @param snapshot unititialized market data snapshot
-     */
-    public SnapshotManager(MarketDataSnapshot snapshot) {
-      //
-      _snapshot = snapshot;
+    _subscriptionsLock.lock();
+    try {
+      _marketDataProviderDirty = false;
+    } finally {
+      _subscriptionsLock.unlock();
     }
-
-    public Instant getSnapshotTimeIndication() {
-      return _snapshot.getSnapshotTimeIndication();
-    }
-
-    public void requestSubscriptions() {
-      setMarketDataSubscriptions(_cycleMarketDataRequirements);
-    }
-
-    public void initialiseSnapshot() {
-      _snapshot.init();
-    }
-
-    public void initialiseSnapshotWithSubscriptionResults() {
-      requestSubscriptions();
-      // REVIEW jonathan/andrew -- 2013-03-28 -- if the user wants to wait for market data, then assume they mean
-      // it and wait as long as it takes. There are mechanisms for cancelling the job.
-      _snapshot.init(_cycleMarketDataRequirements, Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-    }
-
-    public Instant getSnapshotTime() {
-
-      if (_snapshot == null) {
-        throw new IllegalStateException("Snapshot has not yet been initialised");
-      }
-      return _snapshot.getSnapshotTime();
-    }
-
-    public MarketDataSnapshot getSnapshot() {
-      return _snapshot;
-    }
-
-    public void addMarketDataRequirements(Set<ValueSpecification> marketDataRequirements) {
-
-      _cycleMarketDataRequirements.addAll(marketDataRequirements);
-    }
-  }
-
-  public interface MarketDataChangeListener {
-    void onMarketDataValuesChanged(Collection<ValueSpecification> valueSpecifications);
   }
 }

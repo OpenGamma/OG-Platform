@@ -109,7 +109,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * The job which schedules and executes computation cycles for a view process. See {@link SingleThreadViewProcessWorkerFactory} for a more detailed description.
  */
-public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketDataManager.MarketDataChangeListener {
+public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketDataChangeListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
@@ -449,7 +449,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         return;
       }
 
-      MarketDataManager.SnapshotManager snapshotManager;
+      SnapshotManager snapshotManager;
 
       try {
         snapshotManager = _marketDataManager.createSnapshotManagerForCycle(getViewDefinition().getMarketDataUser(), executionOptions.getMarketDataSpecifications());
