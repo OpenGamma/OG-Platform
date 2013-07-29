@@ -49,7 +49,7 @@ public final class PatternWrapper {
   /**
    * @return The wrapped pattern, not null
    */
-  public Pattern pattern() {
+  public Pattern getPattern() {
     return _pattern;
   }
 

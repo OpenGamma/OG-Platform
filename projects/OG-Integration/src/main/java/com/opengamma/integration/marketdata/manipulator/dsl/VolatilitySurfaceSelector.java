@@ -66,7 +66,7 @@ import com.opengamma.util.ArgumentChecker;
     if (!contains(_names, key.getName())) {
       return null;
     }
-    if (_nameRegex != null && !_nameRegex.pattern().matcher(key.getName()).matches()) {
+    if (_nameRegex != null && !_nameRegex.getPattern().matcher(key.getName()).matches()) {
       return null;
     }
     if (!contains(_instrumentTypes, key.getInstrumentType())) {
@@ -103,7 +103,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /* package */ Pattern getNameRegex() {
-    return _nameRegex == null ? null : _nameRegex.pattern();
+    return _nameRegex == null ? null : _nameRegex.getPattern();
   }
 
   /* package */ Set<String> getInstrumentTypes() {

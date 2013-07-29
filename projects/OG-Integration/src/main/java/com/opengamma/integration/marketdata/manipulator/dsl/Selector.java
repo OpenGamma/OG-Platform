@@ -57,7 +57,7 @@ import com.opengamma.util.money.Currency;
   }
 
   /* package */ Pattern getNamePattern() {
-    return _namePattern == null ? null : _namePattern.pattern();
+    return _namePattern == null ? null : _namePattern.getPattern();
   }
 
   /* package */ Set<String> getCalcConfigNames() {
@@ -71,7 +71,7 @@ import com.opengamma.util.money.Currency;
     if (_names != null && !_names.contains(name)) {
       return false;
     }
-    if (_namePattern != null && !_namePattern.pattern().matcher(name).matches()) {
+    if (_namePattern != null && !_namePattern.getPattern().matcher(name).matches()) {
       return false;
     }
     if (_currencies != null && !_currencies.contains(currency)) {

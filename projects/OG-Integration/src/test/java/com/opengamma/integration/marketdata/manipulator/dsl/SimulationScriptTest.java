@@ -81,7 +81,7 @@ public class SimulationScriptTest {
     assertNotNull(scenario);
     ScenarioDefinition scenarioDefinition = scenario.createDefinition();
     Map<DistinctMarketDataSelector, FunctionParameters> definitionMap = scenarioDefinition.getDefinitionMap();
-    PointSelector selector = new PointSelector(null, Sets.newHashSet(ExternalId.of("SCHEME", "FOO")), null, null, null);
+    PointSelector selector = new PointSelector(null, Sets.newHashSet(ExternalId.of("SCHEME", "FOO")), null, null, null, null, null);
     assertTrue(definitionMap.containsKey(selector));
     SimpleFunctionParameters functionParameters = (SimpleFunctionParameters) definitionMap.get(selector);
     CompositeStructureManipulator<?> composite = functionParameters.getValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME);

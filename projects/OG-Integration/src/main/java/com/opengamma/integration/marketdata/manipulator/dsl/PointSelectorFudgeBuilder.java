@@ -30,7 +30,11 @@ public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
   /** Field name for Fudge message. */
   private static final String ID_MATCH_SCHEME = "idMatchScheme";
   /** Field name for Fudge message. */
-  private static final String ID_MATCH_REGEX = "idMatchRegex";
+  private static final String ID_MATCH_PATTERN = "idMatchPattern";
+  /** Field name for Fudge message. */
+  private static final String ID_LIKE_SCHEME = "idLikeScheme";
+  /** Field name for Fudge message. */
+  private static final String ID_LIKE_PATTERN = "idLikePattern";
   /** Field name for Fudge message. */
   private static final String SECURITY_TYPES = "securityTypes";
 
@@ -54,8 +58,14 @@ public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
     if (selector.getIdMatchScheme() != null) {
       serializer.addToMessage(msg, ID_MATCH_SCHEME, null, selector.getIdMatchScheme().toString());
     }
-    if (selector.getIdValuePattern() != null) {
-      serializer.addToMessage(msg, ID_MATCH_REGEX, null, selector.getIdValuePattern().pattern());
+    if (selector.getIdMatchPattern() != null) {
+      serializer.addToMessage(msg, ID_MATCH_PATTERN, null, selector.getIdMatchPattern().pattern());
+    }
+    if (selector.getIdLikeScheme() != null) {
+      serializer.addToMessage(msg, ID_LIKE_SCHEME, null, selector.getIdLikeScheme().toString());
+    }
+    if (selector.getIdLikePattern() != null) {
+      serializer.addToMessage(msg, ID_LIKE_PATTERN, null, selector.getIdLikePattern().pattern());
     }
     if (selector.getSecurityTypes() != null) {
       MutableFudgeMsg securityTypesMsg = serializer.newMessage();
@@ -89,12 +99,28 @@ public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
       idMatchScheme = null;
     }
 
-    Pattern idValuePattern;
-    if (msg.hasField(ID_MATCH_REGEX)) {
-      String idValuePatternStr = deserializer.fieldValueToObject(String.class, msg.getByName(ID_MATCH_REGEX));
-      idValuePattern = Pattern.compile(idValuePatternStr);
+    Pattern idMatchPattern;
+    if (msg.hasField(ID_MATCH_PATTERN)) {
+      String idMatchPatternStr = deserializer.fieldValueToObject(String.class, msg.getByName(ID_MATCH_PATTERN));
+      idMatchPattern = Pattern.compile(idMatchPatternStr);
     } else {
-      idValuePattern = null;
+      idMatchPattern = null;
+    }
+
+    ExternalScheme idLikeScheme;
+    if (msg.hasField(ID_LIKE_SCHEME)) {
+      String idLikeSchemeStr = deserializer.fieldValueToObject(String.class, msg.getByName(ID_LIKE_SCHEME));
+      idLikeScheme = ExternalScheme.of(idLikeSchemeStr);
+    } else {
+      idLikeScheme = null;
+    }
+
+    Pattern idLikePattern;
+    if (msg.hasField(ID_LIKE_PATTERN)) {
+      String idLikePatternStr = deserializer.fieldValueToObject(String.class, msg.getByName(ID_LIKE_PATTERN));
+      idLikePattern = Pattern.compile(idLikePatternStr);
+    } else {
+      idLikePattern = null;
     }
 
     Set<String> calcConfigNames;
@@ -119,6 +145,6 @@ public class PointSelectorFudgeBuilder implements FudgeBuilder<PointSelector> {
     } else {
       securityTypes = null;
     }
-    return new PointSelector(calcConfigNames, ids, idMatchScheme, idValuePattern, securityTypes);
+    return new PointSelector(calcConfigNames, ids, idMatchScheme, idMatchPattern, idLikeScheme, idLikePattern, securityTypes);
   }
 }

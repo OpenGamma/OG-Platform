@@ -56,7 +56,7 @@ public class PointSelectorTest {
 
   @Test
   public void calcConfigNames() {
-    PointSelector selector = new PointSelector(Sets.newHashSet("default", "cc1"), null, null, null, null);
+    PointSelector selector = new PointSelector(Sets.newHashSet("default", "cc1"), null, null, null, null, null, null);
     assertNotNull(selector.findMatchingSelector(_structureId, "default", _noOpResolver));
     assertNotNull(selector.findMatchingSelector(_structureId, "cc1", _noOpResolver));
     assertNull(selector.findMatchingSelector(_structureId, "cc2", _noOpResolver));
@@ -68,6 +68,24 @@ public class PointSelectorTest {
     assertNotNull(selector.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
     assertNotNull(selector.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
     assertNull(selector.findMatchingSelector(structureId("scheme", "value"), "default", _noOpResolver));
+  }
+
+  @Test
+  public void idLike() {
+    PointSelector selector1 = builder().idLike("scheme", "value?").getSelector();
+    assertNotNull(selector1.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
+    assertNotNull(selector1.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
+    assertNull(selector1.findMatchingSelector(structureId("scheme", "value"), "default", _noOpResolver));
+
+    PointSelector selector2 = builder().idLike("scheme", "val*").getSelector();
+    assertNotNull(selector2.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
+    assertNotNull(selector2.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
+    assertNull(selector2.findMatchingSelector(structureId("scheme", "xvalue"), "default", _noOpResolver));
+
+    PointSelector selector3 = builder().idLike("scheme", "val%").getSelector();
+    assertNotNull(selector3.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
+    assertNotNull(selector3.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
+    assertNull(selector3.findMatchingSelector(structureId("scheme", "xvalue"), "default", _noOpResolver));
   }
 
   @Test
