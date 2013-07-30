@@ -244,7 +244,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
     if (success) {
       return listener._responses;
     } else {
-      throw new OpenGammaRuntimeException("Timeout " + timeout + " ms reached when obtaining snapshot of " + subscriptionHandles.size() + " handles");
+      throw new OpenGammaRuntimeException("Timeout " + timeout + "ms reached when obtaining snapshot of " + subscriptionHandles.size() + " handles");
     }
   }
 
