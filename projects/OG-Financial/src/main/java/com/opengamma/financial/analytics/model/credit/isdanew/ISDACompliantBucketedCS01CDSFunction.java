@@ -35,7 +35,7 @@ public class ISDACompliantBucketedCS01CDSFunction extends AbstractISDACompliantW
   }
 
   @Override
-  protected Object compute(final ZonedDateTime maturity, CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
+  protected Object compute(final ZonedDateTime maturity, PointsUpFront puf, CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
     double[] cs01;
     if (quote instanceof PointsUpFront) {
       //TODO: This should be in analytics..
