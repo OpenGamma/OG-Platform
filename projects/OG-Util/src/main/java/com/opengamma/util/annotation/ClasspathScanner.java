@@ -13,11 +13,8 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -26,11 +23,7 @@ import org.fudgemsg.FudgeRuntimeException;
 import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.MethodParameterScanner;
-import org.reflections.scanners.Scanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 import org.threeten.bp.Instant;
 
 /**
@@ -106,44 +99,6 @@ public final class ClasspathScanner {
   }
 
   /**
-   * Temporary fix for a fault in the helper method in Fudge.
-   * 
-   * @deprecated Only use this until Fudge is fixed, and then get rid of this method
-   */
-  @Deprecated
-  private static AnnotationReflector newAnnotationReflector(String filter, Set<URL> urlsToScan, Object... configurationObjects) {
-    List<Object> objects = new ArrayList<>(Arrays.asList(configurationObjects));
-    // null filter uses our default, empty uses no filter
-    if (filter == null) {
-      filter = AnnotationReflector.DEFAULT_ANNOTATION_REFLECTOR_FILTER;
-    }
-    if (filter.length() > 0) {
-      objects.add(FilterBuilder.parse(filter));
-    }
-    // null URLs uses our default
-    if (urlsToScan == null) {
-      urlsToScan = ClasspathHelper.forManifest(ClasspathHelper.forJavaClassPath());
-    }
-    objects.add(urlsToScan);
-    // no scanners uses our default
-    boolean found = false;
-    for (Object object : objects) {
-      if (object instanceof Scanner) {
-        found = true;
-        break;
-      }
-    }
-    if (found == false) {
-      objects.add(new TypeAnnotationsScanner());
-      objects.add(new FieldAnnotationsScanner());
-    }
-    // create parallel builder
-    ConfigurationBuilder builder = ConfigurationBuilder.build(objects.toArray(new Object[objects.size()]));
-    builder.useParallelExecutor();
-    return new AnnotationReflector(builder);
-  }
-
-  /**
    * Scans the classpath to produce a populated cache.
    * 
    * @param annotationClass the annotation to search for
@@ -180,7 +135,7 @@ public final class ClasspathScanner {
     }
     config[scanners++] = ClasspathScanner.class.getClassLoader();
     config[scanners++] = Thread.currentThread().getContextClassLoader();
-    AnnotationReflector reflector = newAnnotationReflector(null, _urls, config);
+    AnnotationReflector reflector = new AnnotationReflector(null, _urls, config);
     final HashSet<String> classNames = new HashSet<String>();
     if (isScanClassAnnotations()) {
       classNames.addAll(reflector.getReflector().getStore().getTypesAnnotatedWith(annotationClass.getName()));
