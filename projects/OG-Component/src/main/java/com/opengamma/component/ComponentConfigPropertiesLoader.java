@@ -125,7 +125,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
     }
     
     // load and merge
-    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including file: " + include);
+    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including item: " + ResourceUtils.getLocation(include));
     load(include, depth + 1);
   }
 

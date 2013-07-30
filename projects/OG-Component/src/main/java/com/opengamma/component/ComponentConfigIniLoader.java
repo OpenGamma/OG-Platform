@@ -151,7 +151,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
     }
     
     // load and merge
-    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including file: " + include);
+    getLogger().logInfo(StringUtils.repeat(" ", depth) + "   Including item: " + ResourceUtils.getLocation(include));
     try {
       doLoad(include, depth + 1, config);
     } catch (RuntimeException ex) {

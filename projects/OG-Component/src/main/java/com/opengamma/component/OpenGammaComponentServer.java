@@ -158,7 +158,7 @@ public class OpenGammaComponentServer {
   protected boolean run(String configFile, Map<String, String> properties) {
     long start = System.nanoTime();
     _logger.logInfo("======== STARTING OPENGAMMA ========");
-    _logger.logDebug(" Config file: " + configFile);
+    _logger.logDebug(" Config locator: " + configFile);
     
     // extract the server name from the file name
     String serverName = extractServerName(configFile);

@@ -144,4 +144,38 @@ public final class ResourceUtils {
     return org.springframework.util.ResourceUtils.getURL(resourceLocator);
   }
 
+  /**
+   * Gets the location of the resource, typically for logging.
+   * 
+   * @param resource  the resource, may be null
+   * @return the description of the resource location, not null
+   */
+  public static String getLocation(Resource resource) {
+    if (resource == null) {
+      return "null";
+    }
+    if (resource instanceof FileSystemResource) {
+      try {
+        return "file: " + resource.getFile().getCanonicalPath();
+      } catch (IOException ex) {
+        return resource.getDescription();
+      }
+    }
+    if (resource instanceof ClassPathResource) {
+      try {
+        return "classpath: " + resource.getURL().toExternalForm();
+      } catch (IOException ex) {
+        return resource.getDescription();
+      }
+    }
+    if (resource instanceof UrlResource) {
+      try {
+        return "url: " + resource.getURL().toExternalForm();
+      } catch (IOException ex) {
+        return resource.getDescription();
+      }
+    }
+    return resource.getDescription();
+  }
+
 }

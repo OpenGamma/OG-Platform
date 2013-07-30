@@ -184,7 +184,7 @@ public class ComponentManager {
    * @return the created repository, not null
    */
   public ComponentRepository start(Resource resource) {
-    _logger.logInfo("  Using file: " + resource.getDescription());
+    _logger.logInfo("  Using item: " + ResourceUtils.getLocation(resource));
     
     if (resource.getFilename().endsWith(".properties")) {
       String nextConfig = loadProperties(resource);
