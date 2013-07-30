@@ -42,7 +42,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CapFloorZeroCouponCalibrationObjectiveTest {
 
-  //Cap/floor description
+  //Cap/floor description details
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 9, 7);
@@ -70,6 +70,7 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
   private static final CapFloorInflationZeroCouponMonthlyBlackSmileMethod METHOD = CapFloorInflationZeroCouponMonthlyBlackSmileMethod.getInstance();
   double[][] marketPrices = new double[6][30];
 
+  // volatility matrix details
   private static double[] expiryTimes1 = new double[30];
   private static final double[] strikes = {-.01, .00, .01, .02, .03, .04 };
   private static final double[][] volatilities = { {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 },
@@ -90,7 +91,7 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
    * Tests the correctness of INFLATION YEAR ON YEAR CAP/FLOOR calibration to market prices.
    */
   public void calibration() {
-
+    // creation of the basket of the calibration instruments.
     for (int loop1 = 0; loop1 < STRIKES.length; loop1++) {
       for (int loop2 = 0; loop2 < availabelTenor.length; loop2++) {
         final Period tenor = Period.ofYears(availabelTenor[loop2]);
@@ -100,6 +101,8 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
         CAPS[loop1][loop2] = CAP_DEFINITIONS[loop1][loop2].toDerivative(REFERENCE_DATE, CURVES_NAME);
       }
     }
+
+    // expiry times = reference end time. Y
     for (int loopexp = 0; loopexp < CAPS[0].length; loopexp++) {
       expiryTimes1[loopexp] = CAPS[0][loopexp].getReferenceEndTime();
     }
