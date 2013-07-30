@@ -175,7 +175,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     assertEquals("Inflation zero-coupon : from", constructor, from);
   }
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the first based on indexation lag.
    */

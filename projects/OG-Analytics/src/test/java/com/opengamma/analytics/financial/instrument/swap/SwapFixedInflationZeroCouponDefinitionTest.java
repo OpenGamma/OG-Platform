@@ -124,7 +124,7 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
     assertTrue("Swap zero-coupon inflation constructor", swap.getSecondLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {inflationCpn })));
   }
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the construction of zero-coupon inflation swaps.
    */
@@ -139,7 +139,7 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
     assertEquals("Swap zero-coupon inflation constructor", swap, swapFrom);
   }
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the construction of zero-coupon inflation swaps.
    */

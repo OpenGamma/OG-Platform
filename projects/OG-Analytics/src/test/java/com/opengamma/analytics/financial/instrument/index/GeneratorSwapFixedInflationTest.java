@@ -157,7 +157,7 @@ public class GeneratorSwapFixedInflationTest {
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(CUR));
   }
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the construction of zero-coupon inflation swaps.
    */
