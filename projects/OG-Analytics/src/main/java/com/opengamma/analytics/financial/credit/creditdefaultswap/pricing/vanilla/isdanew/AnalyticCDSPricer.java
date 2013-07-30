@@ -50,6 +50,9 @@ public class AnalyticCDSPricer {
    * @return The PV on unit notional 
    */
   public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread, final PriceType cleanOrDirty) {
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      return 0.0;
+    }
     // TODO check for any repeat calculations
     final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, cleanOrDirty);
     final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
@@ -80,6 +83,9 @@ public class AnalyticCDSPricer {
    */
   public double pvCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread,
       final int creditCurveNode) {
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      return 0.0;
+    }
     final double rpv01Sense = pvPremiumLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
     final double proLegSense = protectionLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
     return proLegSense - fractionalSpread * rpv01Sense;
@@ -93,6 +99,10 @@ public class AnalyticCDSPricer {
    * @return the par spread
    */
   public double parSpread(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      throw new IllegalArgumentException("CDSs has expired - cannot compute a par spread for it");
+    }
+
     final double rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
     final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
     return proLeg / rpv01;
@@ -108,6 +118,10 @@ public class AnalyticCDSPricer {
    * @return Par spread sensitivity to one node (knot) on the credit (hazard rate/survival) curve
    */
   public double parSpreadCreditSensitivity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      throw new IllegalArgumentException("CDSs has expired - cannot compute a par spread sensitivity for it");
+    }
+
     final double a = protectionLeg(cds, yieldCurve, creditCurve);
     final double b = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
     final double spread = a / b;
@@ -130,6 +144,9 @@ public class AnalyticCDSPricer {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      return 0.0;
+    }
 
     final int n = cds.getNumPayments();
     double pv = 0.0;
@@ -175,6 +192,9 @@ public class AnalyticCDSPricer {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      return 0.0;
+    }
 
     final int n = cds.getNumPayments();
     double pvSense = 0.0;
@@ -367,6 +387,9 @@ public class AnalyticCDSPricer {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      return 0.0;
+    }
 
     final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
 
@@ -425,6 +448,9 @@ public class AnalyticCDSPricer {
     if ((creditCurveNode != 0 && cds.getProtectionEnd() <= creditCurve.getTimeAtIndex(creditCurveNode - 1)) ||
         (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
       return 0.0; // can't have any sensitivity in this case
+    }
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+      return 0.0;
     }
 
     final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);

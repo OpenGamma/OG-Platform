@@ -29,7 +29,6 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
     super(t, r);
   }
 
-
   /**
    * A curve in which the knots are measured (in fractions of a year) from a particular base-date but the curve is 'observed'
    * from a different base-date. As an example<br>
@@ -58,8 +57,16 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
    * @{inheritDoc}
    */
   @Deprecated
-  public ISDACompliantYieldCurve(final double[] t, final double[] r, final double[] rt, final double[] df,  final double offsetTime, final double offsetRT) {
+  public ISDACompliantYieldCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
     super(t, r, rt, df, offsetTime, offsetRT);
+  }
+
+  /**
+   * {@inheritDoc}
+    */
+  @Override
+  public ISDACompliantYieldCurve withOffset(final double offsetFromNewBaseDate) {
+    return new ISDACompliantYieldCurve(super.withOffset(offsetFromNewBaseDate));
   }
 
   /**

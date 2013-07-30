@@ -124,6 +124,9 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
       final double cash = (puf.getPointsUpFront() - cds.getAccruedPremium(coupon)) * NOTIONAL;
       // System.out.println(cash);
       assertEquals(CASH_PAYMENTS[i], cash, 1e-0); //no dps given on BBG numbers
+
+      //double check
+
     }
   }
 
@@ -135,7 +138,8 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
       final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double cs01 = scale * CS01_CAL.parallelCS01FromSpread(cds, coupon, YIELD_CURVE, QUOTED_SPREADS[i] * ONE_BP, ONE_BP, BumpType.ADDITIVE);
+      final CDSQuoteConvention quote = new QuotedSpread(coupon, QUOTED_SPREADS[i] * ONE_BP);
+      final double cs01 = scale * CS01_CAL.parallelCS01(cds, quote, YIELD_CURVE, ONE_BP);
       assertEquals(MATURITIES[i].toString(), PARELLEL_CS01[i], cs01, 1e-14 * NOTIONAL);
     }
   }
