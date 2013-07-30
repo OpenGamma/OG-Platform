@@ -1040,7 +1040,7 @@
           <!-- validate Joda-Beans -->
           <plugin>
             <groupId>org.joda</groupId>
-            <artifactId>maven-joda-beans-plugin</artifactId>
+            <artifactId>joda-beans-maven-plugin</artifactId>
             <executions>
               <execution>
                 <phase>validate</phase>
