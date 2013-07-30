@@ -5,60 +5,98 @@
  */
 package com.opengamma.analytics.math.interpolation.data;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialInterpolator;
+import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResult;
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResultsWithSensitivity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Data bundle for PiecewisePolynomialInterpolator1D
+ * For certain methods of {@link PiecewisePolynomialInterpolator} introducing extra breakpoints, {@link PiecewisePolynomialResultsWithSensitivity} is not well-defined
+ * In this case, finite difference approximation is used to derive node sensitivity
  */
-public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1DDataBundle {
+public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements Interpolator1DDataBundle {
 
-  private final PiecewisePolynomialResultsWithSensitivity _poly;
+  private final PiecewisePolynomialResult _poly;
+  private final PiecewisePolynomialResult[] _polyUp;
+  private final PiecewisePolynomialResult[] _polyDw;
   private final Interpolator1DDataBundle _underlyingData;
+
+  private final double _eps;
+  private final double _small;
 
   /**
    * Constructor where coefficients for interpolant and its node sensitivity are computed 
    * @param underlyingData Contains sorted data (x,y)
    * @param method {@link PiecewisePolynomialInterpolator}
    */
-  public Interpolator1DPiecewisePoynomialDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method) {
+  public Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method) {
     ArgumentChecker.notNull(underlyingData, "underlying data");
     ArgumentChecker.notNull(method, "method");
 
-    _underlyingData = underlyingData;
-    _poly = method.interpolateWithSensitivity(underlyingData.getKeys(), underlyingData.getValues());
-  }
-
-  /**
-   * @param underlyingData Contains sorted data (x,y)
-   * @param method  {@link PiecewisePolynomialInterpolator}
-   * @param leftCond  Condition on left endpoint
-   * @param rightCond  Condition on right endpoint
-   */
-  public Interpolator1DPiecewisePoynomialDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method, final double leftCond, final double rightCond) {
-    ArgumentChecker.notNull(underlyingData, "underlying data");
-    ArgumentChecker.notNull(method, "method");
+    _eps = 1.e-7;
+    _small = 1.e-14;
 
     _underlyingData = underlyingData;
+    _poly = method.interpolate(underlyingData.getKeys(), underlyingData.getValues());
+
     final double[] yValues = underlyingData.getValues();
     final int nData = yValues.length;
-    final double[] yValuesMod = new double[nData + 2];
-    yValuesMod[0] = leftCond;
-    yValuesMod[nData + 1] = rightCond;
-    System.arraycopy(yValues, 0, yValuesMod, 1, nData);
-
-    _poly = method.interpolateWithSensitivity(underlyingData.getKeys(), yValuesMod);
+    _polyUp = new PiecewisePolynomialResult[nData];
+    _polyDw = new PiecewisePolynomialResult[nData];
+    double[] yValuesUp = Arrays.copyOf(yValues, nData);
+    double[] yValuesDw = Arrays.copyOf(yValues, nData);
+    for (int i = 0; i < nData; ++i) {
+      yValuesUp[i] = Math.abs(yValues[i]) < _small ? _eps : yValues[i] * (1. + _eps);
+      yValuesDw[i] = Math.abs(yValues[i]) < _small ? -_eps : yValues[i] * (1. - _eps);
+      _polyUp[i] = method.interpolate(underlyingData.getKeys(), yValuesUp);
+      _polyDw[i] = method.interpolate(underlyingData.getKeys(), yValuesDw);
+      yValuesUp[i] = yValues[i];
+      yValuesDw[i] = yValues[i];
+    }
   }
 
   /**
-   * Access PiecewisePolynomialResultsWithSensitivity
-   * @return PiecewisePolynomialResultsWithSensitivity
+   * Access PiecewisePolynomialResult
+   * @return PiecewisePolynomialResult
    */
-  public PiecewisePolynomialResultsWithSensitivity getPiecewisePolynomialResultsWithSensitivity() {
+  public PiecewisePolynomialResult getPiecewisePolynomialResult() {
     return _poly;
+  }
+
+  /**
+   * Access PiecewisePolynomialResult with yValuesUp
+   * @return PiecewisePolynomialResult
+   */
+  public PiecewisePolynomialResult[] getPiecewisePolynomialResultUp() {
+    return _polyUp;
+  }
+
+  /**
+   * Access PiecewisePolynomialResult with yValuesDw
+   * @return PiecewisePolynomialResult
+   */
+  public PiecewisePolynomialResult[] getPiecewisePolynomialResultDw() {
+    return _polyDw;
+  }
+
+  /**
+   * Access a fixed parameter for the finite difference approximation
+   * @return _eps
+   */
+  public double getEps() {
+    return _eps;
+  }
+
+  /**
+   * Access a fixed parameter for the finite difference approximation
+   * @return SMALL
+   */
+  public double getSmall() {
+    return _small;
   }
 
   /**
@@ -160,5 +198,4 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
   public void setYValueAtIndex(int index, double y) {
     throw new NotImplementedException();
   }
-
 }

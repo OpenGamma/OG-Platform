@@ -40,30 +40,6 @@ public class CubicSplineNaturalSolver extends CubicSplineSolver {
     return coefMatrix;
   }
 
-  //  /**
-  //   * @param xValues X values of Data
-  //   * @param yValues Y values of Data
-  //   * @param intervals {xValues[1]-xValues[0], xValues[2]-xValues[1],...}
-  //   * @param solnVector Values of second derivative at knots
-  //   * @return Coefficient matrix whose i-th row vector is (a_0,a_1,...) for i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
-  //   */
-  //  private DoubleMatrix2D getSplineCoeffs(final double[] xValues, final double[] yValues, final double[] intervals, final double[] solnVector) {
-  //
-  //    final int nData = xValues.length;
-  //
-  //    if (nData == 2) {
-  //      final double[][] res = new double[][] {{
-  //          yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * solnVector[0] / 2. - intervals[0] * solnVector[1] / 6. + intervals[0] * solnVector[0] / 6., yValues[0] } };
-  //      return new DoubleMatrix2D(res);
-  //    }
-  //    if (nData == 3) {
-  //      final double[][] res = new double[][] {{solnVector[0] / 2., yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * solnVector[0] / 2., yValues[0] } };
-  //      return new DoubleMatrix2D(res);
-  //    } else {
-  //      return getCommonSplineCoeffs(xValues, yValues, intervals, solnVector);
-  //    }
-  //  }
-
   /**
    * Cubic spline is obtained by solving a linear problem Ax=b where A is a square matrix and x,b are vector
    * @param intervals {xValues[1]-xValues[0], xValues[2]-xValues[1],...}

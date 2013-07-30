@@ -11,15 +11,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
 public class NotAKnotCubicSplineInterpolator1DTest {
-  private static final Interpolator1D INTERPOLATOR_R = new NaturalCubicSplineInterpolator1D();
-  private static final PiecewisePolynomialInterpolator INTE = new CubicSplineInterpolator();
 
   //  private static final Random randObj = new Random();
   private static final CubicSplineInterpolator INTERP = new CubicSplineInterpolator();
@@ -48,12 +45,9 @@ public class NotAKnotCubicSplineInterpolator1DTest {
 
     for (int i = 0; i < nData; ++i) {
       xValues[i] = 0.1 * i * i + i - 8.;
-      //      xValues[i] = i + 1;
       yValues1[i] = 0.5 * xValues[i] * xValues[i] * xValues[i] - 1.5 * xValues[i] * xValues[i] + xValues[i] - 2.;
       yValues2[i] = Math.exp(0.1 * xValues[i] - 6.);
       yValues3[i] = (2. * xValues[i] * xValues[i] + xValues[i]) / (xValues[i] * xValues[i] + xValues[i] * xValues[i] * xValues[i] + 5. * xValues[i] + 2.);
-      //      yValues3[i] = xValues[i] * xValues[i];
-      //      System.out.println(yValues1[i] + "\t" + yValues2[i] + "\t" + yValues3[i]);
       yValues1Up[i] = yValues1[i];
       yValues2Up[i] = yValues2[i];
       yValues3Up[i] = yValues3[i];
@@ -72,8 +66,8 @@ public class NotAKnotCubicSplineInterpolator1DTest {
     final double[] resPrim2 = INTERP.interpolate(xValues, yValues2, xKeys).getData();
     final double[] resPrim3 = INTERP.interpolate(xValues, yValues3, xKeys).getData();
 
-    Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues1);
-    Interpolator1DDataBundle dataBund2 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues2);
+    Interpolator1DDataBundle dataBund1 = INTERP1D.getDataBundle(xValues, yValues1);
+    Interpolator1DDataBundle dataBund2 = INTERP1D.getDataBundle(xValues, yValues2);
     Interpolator1DDataBundle dataBund3 = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues3);
     for (int i = 0; i < 10 * nData; ++i) {
       assertEquals(resPrim1[i], INTERP1D.interpolate(dataBund1, xKeys[i]), 1.e-15);
@@ -101,10 +95,6 @@ public class NotAKnotCubicSplineInterpolator1DTest {
         double res1 = 0.5 * (INTERP1D.interpolate(dataBund1Up, xKeys[i]) - INTERP1D.interpolate(dataBund1Dw, xKeys[i])) / ref1;
         double res2 = 0.5 * (INTERP1D.interpolate(dataBund2Up, xKeys[i]) - INTERP1D.interpolate(dataBund2Dw, xKeys[i])) / ref2;
         double res3 = 0.5 * (INTERP1D.interpolate(dataBund3Up, xKeys[i]) - INTERP1D.interpolate(dataBund3Dw, xKeys[i])) / ref3;
-        //        System.out.println(res1 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j]);
-        //        System.out.println(res2 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j]);
-        //        System.out.println(res3 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j]);
-        //        System.out.println(i + "\t" + j);
         assertEquals(res1, INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues1[j]) * EPS, EPS) * 10.);
         assertEquals(res2, INTERP1D.getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j], Math.max(Math.abs(yValues2[j]) * EPS, EPS) * 10.);
         assertEquals(res3, INTERP1D.getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j], Math.max(Math.abs(yValues3[j]) * EPS, EPS) * 10.);
@@ -144,9 +134,6 @@ public class NotAKnotCubicSplineInterpolator1DTest {
       Interpolator1DDataBundle dataBundDw = INTERP1D.getDataBundleFromSortedArrays(xValues, yValuesDw);
       for (int i = 0; i < 10 * nData; ++i) {
         double res0 = 0.5 * (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        //        double res1 = (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBund, xKeys[i])) / EPS / yValues[j];
-        //        double res2 = (INTERP1D.interpolate(dataBund, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        //        System.out.println(res0 + "\t" + res1 + "\t" + res2 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j]);
         assertEquals(res0, INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[j]) * EPS, EPS));
       }
       yValuesUp[j] = yValues[j];
@@ -180,9 +167,6 @@ public class NotAKnotCubicSplineInterpolator1DTest {
       Interpolator1DDataBundle dataBundDw = INTERP1D.getDataBundle(xValues, yValuesDw);
       for (int i = 0; i < 10 * nData; ++i) {
         double res0 = 0.5 * (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        //        double res1 = (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBund, xKeys[i])) / EPS / yValues[j];
-        //        double res2 = (INTERP1D.interpolate(dataBund, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[j];
-        //        System.out.println(res0 + "\t" + res1 + "\t" + res2 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j]);
         assertEquals(res0, INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[j]) * EPS, EPS));
       }
       yValuesUp[j] = yValues[j];
@@ -250,10 +234,6 @@ public class NotAKnotCubicSplineInterpolator1DTest {
         final double ref2 = yValuesForLin2[j] == 0. ? EPS : yValuesForLin2[j] * EPS;
         double res1 = 0.5 * (INTERP1D.interpolate(dataBund1Up, xKeys[i]) - INTERP1D.interpolate(dataBund1Dw, xKeys[i])) / ref1;
         double res2 = 0.5 * (INTERP1D.interpolate(dataBund2Up, xKeys[i]) - INTERP1D.interpolate(dataBund2Dw, xKeys[i])) / ref2;
-        //        System.out.println(res1 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j]);
-        //        System.out.println(res2 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j]);
-        //        System.out.println(res3 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j]);
-        //        System.out.println(i + "\t" + j);
         assertEquals(res1, INTERP1D.getNodeSensitivitiesForValue(dataBundLin1, xKeys[i])[j], Math.max(Math.abs(yValuesForLin1[j]) * EPS, EPS));
         assertEquals(res2, INTERP1D.getNodeSensitivitiesForValue(dataBundLin2, xKeys[i])[j], Math.max(Math.abs(yValuesForLin2[j]) * EPS, EPS));
       }
@@ -295,10 +275,6 @@ public class NotAKnotCubicSplineInterpolator1DTest {
         final double ref2 = yValuesForQuad2[j] == 0. ? EPS : yValuesForQuad2[j] * EPS;
         double res1 = 0.5 * (INTERP1D.interpolate(dataBund1Up, xKeys[i]) - INTERP1D.interpolate(dataBund1Dw, xKeys[i])) / ref1;
         double res2 = 0.5 * (INTERP1D.interpolate(dataBund2Up, xKeys[i]) - INTERP1D.interpolate(dataBund2Dw, xKeys[i])) / ref2;
-        //        System.out.println(res1 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j]);
-        //        System.out.println(res2 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund2, xKeys[i])[j]);
-        //        System.out.println(res3 + "\t" + INTERP1D.getNodeSensitivitiesForValue(dataBund3, xKeys[i])[j]);
-        //        System.out.println(i + "\t" + j);
         assertEquals(res1, INTERP1D.getNodeSensitivitiesForValue(dataBundQuad1, xKeys[i])[j], Math.max(Math.abs(yValuesForQuad1[j]) * EPS, EPS));
         assertEquals(res2, INTERP1D.getNodeSensitivitiesForValue(dataBundQuad2, xKeys[i])[j], Math.max(Math.abs(yValuesForQuad2[j]) * EPS, EPS));
       }
@@ -310,40 +286,25 @@ public class NotAKnotCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Endpoint condition is not relevant for constrained cubic spline
    */
-  @Test(enabled = false)
-  public void preTimeTest() {
-    double[] x = new double[] {0.0, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0 };
-    double[] y = new double[] {0, 0.145000000000000, 0.190000000000000, 0.200000000000000, 0.250000000000000, 0.700000000000000, 1.000000000000000 };
-    final double grad = 1. / 12.;
-    Interpolator1DDataBundle nat = INTERPOLATOR_R.getDataBundleFromSortedArrays(x, y);
-    Interpolator1DCubicSplineDataBundle cub = new Interpolator1DCubicSplineDataBundle(nat, grad, grad);
-    long start = System.currentTimeMillis();
-    double[] yy2 = new double[12000001];
-    for (int i = 0; i < 12000001; i++) {
-      double xx = i / 1000000.0;
-      yy2[i] = INTERPOLATOR_R.interpolate(cub, xx);
-    }
-    long end = System.currentTimeMillis();
-    System.out.println((end - start) + "ms");
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void boundaryConditionTest() {
+    final double[] xValues = new double[] {0., 1., 2., 3., };
+    final double[] yValues = new double[] {0., 1., 2., 3., };
+
+    INTERP1D.getDataBundle(xValues, yValues, 0., 0.);
   }
 
   /**
    * 
    */
-  @Test(enabled = false)
-  public void bareTimeTest() {
-    double[] x = new double[] {0.0, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0 };
-    double[] y = new double[] {1. / 12., 0, 0.145000000000000, 0.190000000000000, 0.200000000000000, 0.250000000000000, 0.700000000000000, 1.000000000000000, 1. / 12. };
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void boundaryConditionSortedTest() {
+    final double[] xValues = new double[] {0., 1., 2., 3., };
+    final double[] yValues = new double[] {0., 1., 2., 3., };
 
-    long start = System.currentTimeMillis();
-    double[] xx = new double[12000001];
-    for (int i = 0; i < 12000001; i++) {
-      xx[i] = i / 1000000.0;
-    }
-    INTE.interpolate(x, y, xx);
-    long end = System.currentTimeMillis();
-    System.out.println((end - start) + "ms");
+    INTERP1D.getDataBundleFromSortedArrays(xValues, yValues, 0., 0.);
   }
+
 }

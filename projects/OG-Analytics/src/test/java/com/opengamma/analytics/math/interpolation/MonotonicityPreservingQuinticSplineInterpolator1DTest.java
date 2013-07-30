@@ -16,18 +16,14 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
-public class MonotonicityPreservingCubicSplineInterpolator1DTest {
+public class MonotonicityPreservingQuinticSplineInterpolator1DTest {
 
-  private static final MonotonicityPreservingCubicSplineInterpolator INTERP_NAT = new MonotonicityPreservingCubicSplineInterpolator(new NaturalSplineInterpolator());
-  private static final MonotonicityPreservingCubicSplineInterpolator1D INTERP1D_NAT = new MonotonicityPreservingCubicSplineInterpolator1D();
-  private static final MonotonicityPreservingCubicSplineInterpolator INTERP_NAK = new MonotonicityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
-  private static final MonotonicityPreservingCubicSplineInterpolator1D INTERP1D_NAK = new MonotonicityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
-  private static final MonotonicityPreservingCubicSplineInterpolator INTERP_AKIMA = new MonotonicityPreservingCubicSplineInterpolator(new SemiLocalCubicSplineInterpolator());
-  private static final MonotonicityPreservingCubicSplineInterpolator1D INTERP1D_AKIMA = new MonotonicityPreservingCubicSplineInterpolator1D(new SemiLocalCubicSplineInterpolator());
-  private static final MonotonicityPreservingCubicSplineInterpolator INTERP_CONSTRAINED = new MonotonicityPreservingCubicSplineInterpolator(new ConstrainedCubicSplineInterpolator());
-  private static final MonotonicityPreservingCubicSplineInterpolator1D INTERP1D_CONSTRAINED = new MonotonicityPreservingCubicSplineInterpolator1D(new ConstrainedCubicSplineInterpolator());
+  private static final MonotonicityPreservingQuinticSplineInterpolator INTERP_NAT = new MonotonicityPreservingQuinticSplineInterpolator(new NaturalSplineInterpolator());
+  private static final MonotonicityPreservingQuinticSplineInterpolator1D INTERP1D_NAT = new MonotonicityPreservingQuinticSplineInterpolator1D();
+  private static final MonotonicityPreservingQuinticSplineInterpolator INTERP_NAK = new MonotonicityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
+  private static final MonotonicityPreservingQuinticSplineInterpolator1D INTERP1D_NAK = new MonotonicityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
 
-  private static final double EPS = 1.e-7;
+  private static final double EPS = 1.e-6;
 
   /**
    * Recovery test on polynomial, rational, exponential functions, and node sensitivity test by finite difference method
@@ -78,6 +74,7 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
       yValues5Up[i] = yValues5[i];
       yValues5Dw[i] = yValues5[i];
     }
+    //    System.out.println(new DoubleMatrix1D(xValues));
 
     final double xMin = xValues[0];
     final double xMax = xValues[nData - 1];
@@ -85,8 +82,8 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final MonotonicityPreservingCubicSplineInterpolator[] bareInterp = new MonotonicityPreservingCubicSplineInterpolator[] {INTERP_NAT, INTERP_NAK, INTERP_AKIMA };
-    final MonotonicityPreservingCubicSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK, INTERP1D_AKIMA };
+    final MonotonicityPreservingQuinticSplineInterpolator[] bareInterp = new MonotonicityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
+    final MonotonicityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
@@ -96,9 +93,9 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
       final double[] resPrim4 = bareInterp[k].interpolate(xValues, yValues4, xKeys).getData();
       final double[] resPrim5 = bareInterp[k].interpolate(xValues, yValues5, xKeys).getData();
 
-      Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues1);
-      Interpolator1DDataBundle dataBund2 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues2);
-      Interpolator1DDataBundle dataBund3 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues3);
+      Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundle(xValues, yValues1);
+      Interpolator1DDataBundle dataBund2 = wrappedInterp[k].getDataBundle(xValues, yValues2);
+      Interpolator1DDataBundle dataBund3 = wrappedInterp[k].getDataBundle(xValues, yValues3);
       Interpolator1DDataBundle dataBund4 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues4);
       Interpolator1DDataBundle dataBund5 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues5);
       for (int i = 0; i < 10 * nData; ++i) {
@@ -115,7 +112,6 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
       }
 
       for (int j = 0; j < nData; ++j) {
-        //      for (int j = 1; j < nData; ++j) {
         yValues1Up[j] = yValues1[j] * (1. + EPS);
         yValues2Up[j] = yValues2[j] * (1. + EPS);
         yValues3Up[j] = yValues3[j] * (1. + EPS);
@@ -165,7 +161,7 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
   }
 
   /**
-   * Primary interpolator is cubic spline with clamped endpoint condition
+   * Primary interpolation with Clamped endpoint condition
    */
   @Test
   public void clampedTest() {
@@ -224,8 +220,8 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
 
     final double[] bdConds = new double[] {-1., -0.1, 0., 1. / 3., 0.9 };
     final int nConds = bdConds.length;
-    final MonotonicityPreservingCubicSplineInterpolator bare = new MonotonicityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
-    final MonotonicityPreservingCubicSplineInterpolator1D wrap = new MonotonicityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
+    final MonotonicityPreservingQuinticSplineInterpolator bare = new MonotonicityPreservingQuinticSplineInterpolator(new CubicSplineInterpolator());
+    final MonotonicityPreservingQuinticSplineInterpolator1D wrap = new MonotonicityPreservingQuinticSplineInterpolator1D(new CubicSplineInterpolator());
     for (int l = 0; l < nConds; ++l) {
       for (int m = 0; m < nConds; ++m) {
         yValues1Clamped[0] = bdConds[l];
@@ -310,6 +306,7 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
         }
       }
     }
+
   }
 
   /**
@@ -349,8 +346,8 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final MonotonicityPreservingCubicSplineInterpolator[] bareInterp = new MonotonicityPreservingCubicSplineInterpolator[] {INTERP_NAT, INTERP_NAK, INTERP_AKIMA, INTERP_CONSTRAINED };
-    final MonotonicityPreservingCubicSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK, INTERP1D_AKIMA, INTERP1D_CONSTRAINED };
+    final MonotonicityPreservingQuinticSplineInterpolator[] bareInterp = new MonotonicityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
+    final MonotonicityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
@@ -365,9 +362,9 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
         final double ref1 = resPrim1[i];
         final double ref2 = resPrim2[i];
         final double ref3 = resPrim3[i];
-        assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-        assertEquals(ref2, wrappedInterp[k].interpolate(dataBund2, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref2), 1.));
-        assertEquals(ref3, wrappedInterp[k].interpolate(dataBund3, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref3), 1.));
+        assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref1), 1.));
+        assertEquals(ref2, wrappedInterp[k].interpolate(dataBund2, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref2), 1.));
+        assertEquals(ref3, wrappedInterp[k].interpolate(dataBund3, xKeys[i]), 1.e-14 * Math.max(Math.abs(ref3), 1.));
       }
 
       for (int j = 0; j < nData; ++j) {
@@ -441,8 +438,8 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final MonotonicityPreservingCubicSplineInterpolator[] bareInterp = new MonotonicityPreservingCubicSplineInterpolator[] {INTERP_NAT, INTERP_NAK, INTERP_AKIMA };
-    final MonotonicityPreservingCubicSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK, INTERP1D_AKIMA };
+    final MonotonicityPreservingQuinticSplineInterpolator[] bareInterp = new MonotonicityPreservingQuinticSplineInterpolator[] {INTERP_NAT, INTERP_NAK };
+    final MonotonicityPreservingQuinticSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingQuinticSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK };
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
@@ -495,126 +492,4 @@ public class MonotonicityPreservingCubicSplineInterpolator1DTest {
       }
     }
   }
-
-  /**
-   * Checking (sub-)branches
-   */
-  @Test
-  public void branch1test() {
-    final int nData = 10;
-    final double[] xValues = new double[nData];
-    double[][] yValues;
-    final double[] xKeys = new double[10 * nData];
-
-    yValues = new double[][] { {3.0, 1.0, 1.0, 2.0, 1.0, 0.0, 0.0, 3.0, 1.0, 1.0 }, {0.0, 3.0, 0.0, 0.0, 1.0, 3.0, 3.0, 1.0, 4.0, 3.0 }, {2.0, 2.0, 1.0, 1.0, 0.0, 3.0, 4.0, 4.0, 0.0, 2.0 },
-        {2.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 0.0, 2.0 }, {8.0, 9.0, 0.0, 6.0, 1.0, 1.0, 2.0, 1.0, 0.0, 0.0 }, {4.0, 1.0, 0.0, 7.0, 7.0, 1.0, 9.0, 1.0, 1.0, 7.0 } };
-    final int dim = yValues.length;
-
-    for (int l = 0; l < dim; ++l) {
-
-      final double[] yValuesUp = new double[nData];
-      final double[] yValuesDw = new double[nData];
-      for (int i = 0; i < nData; ++i) {
-        xValues[i] = i + 1;
-        yValuesUp[i] = yValues[l][i];
-        yValuesDw[i] = yValues[l][i];
-      }
-
-      final double xMin = xValues[0];
-      final double xMax = xValues[nData - 1];
-      for (int i = 0; i < 10 * nData; ++i) {
-        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-      }
-
-      final MonotonicityPreservingCubicSplineInterpolator[] bareInterp = new MonotonicityPreservingCubicSplineInterpolator[] {INTERP_NAT, INTERP_NAK, INTERP_AKIMA };
-      final MonotonicityPreservingCubicSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK, INTERP1D_AKIMA };
-      final int nMethods = bareInterp.length;
-
-      for (int k = 0; k < nMethods; ++k) {
-        final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues[l], xKeys).getData();
-
-        Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues[l]);
-        for (int i = 0; i < 10 * nData; ++i) {
-          final double ref1 = resPrim1[i];
-          assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-        }
-
-        for (int j = 0; j < nData; ++j) {
-          final double den1 = Math.abs(yValues[l][j]) == 0. ? EPS : yValues[l][j] * EPS;
-          yValuesUp[j] = Math.abs(yValues[l][j]) == 0. ? EPS : yValues[l][j] * (1. + EPS);
-          yValuesDw[j] = Math.abs(yValues[l][j]) == 0. ? -EPS : yValues[l][j] * (1. - EPS);
-          Interpolator1DDataBundle dataBund1Up = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValuesUp);
-          Interpolator1DDataBundle dataBund1Dw = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValuesDw);
-          for (int i = 0; i < 10 * nData; ++i) {
-            double res1 = 0.5 * (wrappedInterp[k].interpolate(dataBund1Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund1Dw, xKeys[i])) / den1;
-            assertEquals(res1, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues[l][j]) * EPS, EPS) * 10.);
-          }
-          yValuesUp[j] = yValues[l][j];
-          yValuesDw[j] = yValues[l][j];
-        }
-      }
-
-    }
-  }
-
-  /**
-   * Another test for touching branches
-   */
-  @Test
-  public void branch2Test() {
-    final int nData = 10;
-    double[] xValues;
-    double[][] yValues;
-    final double[] xKeys = new double[10 * nData];
-
-    xValues = new double[] {1., 2., 3.5, 5.5, 8., 11., 13., 14., 16., 17. };
-    yValues = new double[][] { {3.0, 3.0, 5.25, 1.25, 1.0, 2.0, 4.0, 3.0, 1.0, 1.0 }, {3.0, 6.0, 4.0, 5.0, 9.0, 3.0, 4.0, 8.0, 0.0, 2.0 }, {5.0, 8.0, 1.0, 5.0, 9.0, 3.0, 9.0, 0.0, 6.0, 7.0 } };
-    final int dim = yValues.length;
-
-    for (int l = 0; l < dim; ++l) {
-
-      final double[] yValuesUp = new double[nData];
-      final double[] yValuesDw = new double[nData];
-      for (int i = 0; i < nData; ++i) {
-        yValuesUp[i] = yValues[l][i];
-        yValuesDw[i] = yValues[l][i];
-      }
-
-      final double xMin = xValues[0];
-      final double xMax = xValues[nData - 1];
-      for (int i = 0; i < 10 * nData; ++i) {
-        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
-      }
-
-      final MonotonicityPreservingCubicSplineInterpolator[] bareInterp = new MonotonicityPreservingCubicSplineInterpolator[] {INTERP_NAT, INTERP_NAK, INTERP_AKIMA };
-      final MonotonicityPreservingCubicSplineInterpolator1D[] wrappedInterp = new MonotonicityPreservingCubicSplineInterpolator1D[] {INTERP1D_NAT, INTERP1D_NAK, INTERP1D_AKIMA };
-      final int nMethods = bareInterp.length;
-
-      for (int k = 0; k < nMethods; ++k) {
-        final double[] resPrim1 = bareInterp[k].interpolate(xValues, yValues[l], xKeys).getData();
-
-        Interpolator1DDataBundle dataBund1 = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValues[l]);
-        for (int i = 0; i < 10 * nData; ++i) {
-          final double ref1 = resPrim1[i];
-          assertEquals(ref1, wrappedInterp[k].interpolate(dataBund1, xKeys[i]), 1.e-15 * Math.max(Math.abs(ref1), 1.));
-        }
-
-        for (int j = 0; j < nData; ++j) {
-          final double den1 = Math.abs(yValues[l][j]) == 0. ? EPS : yValues[l][j] * EPS;
-          yValuesUp[j] = Math.abs(yValues[l][j]) == 0. ? EPS : yValues[l][j] * (1. + EPS);
-          yValuesDw[j] = Math.abs(yValues[l][j]) == 0. ? -EPS : yValues[l][j] * (1. - EPS);
-          Interpolator1DDataBundle dataBund1Up = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValuesUp);
-          Interpolator1DDataBundle dataBund1Dw = wrappedInterp[k].getDataBundleFromSortedArrays(xValues, yValuesDw);
-          for (int i = 0; i < 10 * nData; ++i) {
-            double res1 = 0.5 * (wrappedInterp[k].interpolate(dataBund1Up, xKeys[i]) - wrappedInterp[k].interpolate(dataBund1Dw, xKeys[i])) / den1;
-            assertEquals(res1, wrappedInterp[k].getNodeSensitivitiesForValue(dataBund1, xKeys[i])[j], Math.max(Math.abs(yValues[l][j]) * EPS, EPS) * 10.);
-          }
-          yValuesUp[j] = yValues[l][j];
-          yValuesDw[j] = yValues[l][j];
-        }
-      }
-
-    }
-  }
-
 }

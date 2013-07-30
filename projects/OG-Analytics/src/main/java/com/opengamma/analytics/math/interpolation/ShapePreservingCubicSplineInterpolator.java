@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -90,7 +91,7 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
         ArgumentChecker.isFalse(Double.isInfinite(coefMatrix[i][j]), "Too large input");
       }
       final double yVal = i == coefMatrix.length - 1 ? yValues[nDataPts - 1] : coefMatrix[i + 1][3];
-      final double bound = Math.abs(ref) + Math.abs(yVal) < ERROR ? 1.e-1 : Math.abs(ref) + Math.abs(yVal);
+      final double bound = Math.max(Math.abs(ref) + Math.abs(yVal), 1.e-1);
       ArgumentChecker.isTrue(Math.abs(ref - yVal) < ERROR * bound, "Input is too large/small or data points are too close");
     }
 
@@ -102,10 +103,16 @@ public class ShapePreservingCubicSplineInterpolator extends PiecewisePolynomialI
     throw new IllegalArgumentException("Method with multidimensional yValues is not supported");
   }
 
+  /**
+   * Since this interpolation method introduces new breakpoints in certain cases, {@link PiecewisePolynomialResultsWithSensitivity} is not well-defined
+   * Instead the node sensitivity is computed in {@link MonotoneConvexSplineInterpolator1D} via {@link Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle}
+   * @param xValues 
+   * @param yValues 
+   * @return NotImplementedException
+   */
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
     throw new NotImplementedException();
-    //TODO Implement sensitivity calculator
   }
 
   /**

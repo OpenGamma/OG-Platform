@@ -43,12 +43,11 @@ public class PiecewisePolynomialFunction1D {
     final int dim = pp.getDimensions();
 
     double[] res = new double[dim];
-    
+
     int indicator = FunctionUtils.getLowerBoundIndex(knots, xKey);
     if (indicator == nKnots - 1) {
       indicator--; //there is 1 less interval that knots 
     }
-
 
     for (int j = 0; j < dim; ++j) {
       final double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
@@ -87,11 +86,11 @@ public class PiecewisePolynomialFunction1D {
     for (int k = 0; k < dim; ++k) {
       for (int j = 0; j < keyLength; ++j) {
         int indicator = 0;
-        if (xKeys[j] <= knots[1]) {
+        if (xKeys[j] < knots[1]) {
           indicator = 0;
         } else {
           for (int i = 1; i < nKnots - 1; ++i) {
-            if (knots[i] < xKeys[j]) {
+            if (knots[i] <= xKeys[j]) {
               indicator = i;
             }
           }
@@ -102,6 +101,7 @@ public class PiecewisePolynomialFunction1D {
         ArgumentChecker.isFalse(Double.isNaN(res[k][j]), "Too large input");
       }
     }
+
     return new DoubleMatrix2D(res);
   }
 
@@ -136,11 +136,11 @@ public class PiecewisePolynomialFunction1D {
       for (int l = 0; l < keyDim; ++l) {
         for (int j = 0; j < keyLength; ++j) {
           int indicator = 0;
-          if (xKeys[l][j] <= knots[1]) {
+          if (xKeys[l][j] < knots[1]) {
             indicator = 0;
           } else {
             for (int i = 1; i < nKnots - 1; ++i) {
-              if (knots[i] < xKeys[l][j]) {
+              if (knots[i] <= xKeys[l][j]) {
                 indicator = i;
               }
             }

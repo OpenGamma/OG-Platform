@@ -122,6 +122,7 @@ public class HermiteCoefficientsProvider {
 
     for (int i = 0; i < nData - 1; ++i) {
       final double[][] coefSense = new double[6][nData];
+      Arrays.fill(coefSense[5], 0.);
       coefSense[5][i] = 1.;
       for (int k = 0; k < nData; ++k) {
         coefSense[0][k] = 0.5 * (secondWithSensitivity[i + 2].getData()[k] - secondWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i] / intervals[i] + 3. *

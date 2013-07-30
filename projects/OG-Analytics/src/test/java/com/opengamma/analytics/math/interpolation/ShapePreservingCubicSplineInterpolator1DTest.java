@@ -16,12 +16,12 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
-public class SemiLocalCubicSplineInterpolator1DTest {
+public class ShapePreservingCubicSplineInterpolator1DTest {
 
-  private static final SemiLocalCubicSplineInterpolator INTERP = new SemiLocalCubicSplineInterpolator();
-  private static final SemiLocalCubicSplineInterpolator1D INTERP1D = new SemiLocalCubicSplineInterpolator1D();
+  private static final ShapePreservingCubicSplineInterpolator INTERP = new ShapePreservingCubicSplineInterpolator();
+  private static final ShapePreservingCubicSplineInterpolator1D INTERP1D = new ShapePreservingCubicSplineInterpolator1D();
 
-  private static final double EPS = 1.e-6;
+  private static final double EPS = 1.e-7;
 
   /**
    * Recovery test on polynomial, rational, exponential functions, and node sensitivity test by finite difference method
@@ -107,7 +107,7 @@ public class SemiLocalCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data contain zero yValues
    */
   @Test
   public void zeroValuetest() {
@@ -143,8 +143,8 @@ public class SemiLocalCubicSplineInterpolator1DTest {
       xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
     }
 
-    final SemiLocalCubicSplineInterpolator[] bareInterp = new SemiLocalCubicSplineInterpolator[] {INTERP };
-    final SemiLocalCubicSplineInterpolator1D[] wrappedInterp = new SemiLocalCubicSplineInterpolator1D[] {INTERP1D };
+    final ShapePreservingCubicSplineInterpolator[] bareInterp = new ShapePreservingCubicSplineInterpolator[] {INTERP };
+    final ShapePreservingCubicSplineInterpolator1D[] wrappedInterp = new ShapePreservingCubicSplineInterpolator1D[] {INTERP1D };
     final int nMethods = bareInterp.length;
 
     for (int k = 0; k < nMethods; ++k) {
@@ -199,12 +199,48 @@ public class SemiLocalCubicSplineInterpolator1DTest {
   }
 
   /**
-   * 
+   * Data are constant or linearly increasing/decreasing
    */
   @Test
   public void linearDataTest() {
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8. };
     final double[][] yValues = new double[][] { {1., 3., 5., 7., 9., 11., 13., 15. }, {1., 1., 1., 1., 1., 1., 1., 1. }, {1., -1., -3., -5., -7., -9., -11., -13. } };
+    final int nData = xValues.length;
+    final int nDim = yValues.length;
+    for (int k = 0; k < nDim; ++k) {
+      double[] yValuesUp = Arrays.copyOf(yValues[k], nData);
+      double[] yValuesDw = Arrays.copyOf(yValues[k], nData);
+      final double[] xKeys = new double[10 * nData];
+      final double xMin = xValues[0];
+      final double xMax = xValues[nData - 1];
+      for (int i = 0; i < 10 * nData; ++i) {
+        xKeys[i] = xMin + (xMax - xMin) / (10 * nData - 1) * i;
+      }
+
+      Interpolator1DDataBundle dataBund = INTERP1D.getDataBundleFromSortedArrays(xValues, yValues[k]);
+
+      for (int j = 0; j < nData; ++j) {
+        yValuesUp[j] = yValues[k][j] * (1. + EPS);
+        yValuesDw[j] = yValues[k][j] * (1. - EPS);
+        Interpolator1DDataBundle dataBundUp = INTERP1D.getDataBundle(xValues, yValuesUp);
+        Interpolator1DDataBundle dataBundDw = INTERP1D.getDataBundle(xValues, yValuesDw);
+        for (int i = 0; i < 10 * nData; ++i) {
+          double res0 = 0.5 * (INTERP1D.interpolate(dataBundUp, xKeys[i]) - INTERP1D.interpolate(dataBundDw, xKeys[i])) / EPS / yValues[k][j];
+          assertEquals(res0, INTERP1D.getNodeSensitivitiesForValue(dataBund, xKeys[i])[j], Math.max(Math.abs(yValues[k][j]) * EPS, EPS));
+        }
+        yValuesUp[j] = yValues[k][j];
+        yValuesDw[j] = yValues[k][j];
+      }
+    }
+  }
+
+  /**
+   * Data are monotone
+   */
+  @Test
+  public void monotoneDataTest() {
+    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8. };
+    final double[][] yValues = new double[][] { {-1., 3.5, 5.0, 7.1, 9.9, 14., 33. / 2.1, 17. }, {11., 9.9, 9.8, 9.8, 9.8, -1.1, -1.1, -1.1 } };
     final int nData = xValues.length;
     final int nDim = yValues.length;
     for (int k = 0; k < nDim; ++k) {
@@ -275,5 +311,4 @@ public class SemiLocalCubicSplineInterpolator1DTest {
       }
     }
   }
-
 }

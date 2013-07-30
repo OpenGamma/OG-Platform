@@ -639,7 +639,7 @@ public class BicubicSplineInterpolatorTest {
   public void notKnotRevoveredTests() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1.e-20, 3.e-120, 5.e-20 }, {2.e-20, 3.e-120, 4.e-120 }, {1.e-20, 1.e-120, 1.e-20 }, {4.e-120, 3.e-20, 2.e-20 } };
+    double[][] yValues = new double[][] { {1.e-20, 3.e-120, 5.e120 }, {2.e-20, 3.e-120, 4.e-120 }, {1.e-20, 1.e-120, 1.e-20 }, {4.e-120, 3.e-20, 2.e-20 } };
 
     BicubicSplineInterpolator intp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     intp.interpolate(x0Values, x1Values, yValues);
