@@ -138,6 +138,9 @@ import com.opengamma.util.tuple.Pair;
       } else {
         return;
       }
+      if (uid == null) {
+        throw new IllegalArgumentException("Provided a SecurityLink " + link + " where the UniqueId could not be identified. Error in underlying Source/Master.");
+      }
       final UniqueId existing = _resolutions.putIfAbsent(MemoryUtils.instance(key), uid);
       assert (existing == null) || existing.equals(uid);
     }
