@@ -17,6 +17,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.ExternalId;
+
 /**
  *
  */
@@ -33,10 +35,10 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
   private String _reference;
 
   /**
-   * The price index name.
+   * The price index convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _priceIndex;
+  private ExternalId _priceIndex;
 
   /**
    * For the builder.
@@ -49,7 +51,7 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
    * @param reference The code for this curve (e.g. a currency), not null
    * @param priceIndex The price index for this curve, not null
    */
-  public InflationCurveTypeConfiguration(final String reference, final String priceIndex) {
+  public InflationCurveTypeConfiguration(final String reference, final ExternalId priceIndex) {
     super();
     setReference(reference);
     setPriceIndex(priceIndex);
@@ -92,7 +94,7 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
         setReference((String) newValue);
         return;
       case -1483674359:  // priceIndex
-        setPriceIndex((String) newValue);
+        setPriceIndex((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -155,18 +157,18 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the price index name.
+   * Gets the price index convention.
    * @return the value of the property, not null
    */
-  public String getPriceIndex() {
+  public ExternalId getPriceIndex() {
     return _priceIndex;
   }
 
   /**
-   * Sets the price index name.
+   * Sets the price index convention.
    * @param priceIndex  the new value of the property, not null
    */
-  public void setPriceIndex(String priceIndex) {
+  public void setPriceIndex(ExternalId priceIndex) {
     JodaBeanUtils.notNull(priceIndex, "priceIndex");
     this._priceIndex = priceIndex;
   }
@@ -175,7 +177,7 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
    * Gets the the {@code priceIndex} property.
    * @return the property, not null
    */
-  public final Property<String> priceIndex() {
+  public final Property<ExternalId> priceIndex() {
     return metaBean().priceIndex().createProperty(this);
   }
 
@@ -197,8 +199,8 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
     /**
      * The meta-property for the {@code priceIndex} property.
      */
-    private final MetaProperty<String> _priceIndex = DirectMetaProperty.ofReadWrite(
-        this, "priceIndex", InflationCurveTypeConfiguration.class, String.class);
+    private final MetaProperty<ExternalId> _priceIndex = DirectMetaProperty.ofReadWrite(
+        this, "priceIndex", InflationCurveTypeConfiguration.class, ExternalId.class);
     /**
      * The meta-properties.
      */
@@ -252,7 +254,7 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
      * The meta-property for the {@code priceIndex} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> priceIndex() {
+    public final MetaProperty<ExternalId> priceIndex() {
       return _priceIndex;
     }
 

@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.instrument.inflation;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -138,11 +139,11 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
+
   public static CouponInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final int conventionalMonthLag, final int monthlag, final boolean payNotional) {
     final ZonedDateTime refInterpolatedDate = accrualStartDate.minusMonths(monthlag);
-    final ZonedDateTime referenceStartDate;
-    referenceStartDate = refInterpolatedDate.withDayOfMonth(1);
+    final ZonedDateTime referenceStartDate = refInterpolatedDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); //TODO check this
     final Double indexStartValue = priceIndexTimeSeries.getValue(referenceStartDate);
     ArgumentChecker.notNull(indexStartValue, "price index fixing"); // Fixing not known
     return from(accrualStartDate, paymentDate, notional, priceIndex, indexStartValue, conventionalMonthLag, monthlag, payNotional);

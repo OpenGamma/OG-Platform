@@ -17,9 +17,10 @@ public class PerCurrencyConventionHelper {
   public static final String SCHEME_NAME = "CONVENTION";
   /** Overnight Index string **/
   public static final String OVERNIGHT = "Overnight";
-  /** Libor Index string **/
+  /** Libor (London interbank offered rate) index string **/
   public static final String LIBOR = "Libor";
-  public static final String JIBOR = "Jibor";
+  /** Jibar (Johannesburg interbank agreed rate) index string */
+  public static final String JIBOR = "Jibar";
   /** Deposit convention string **/
   public static final String DEPOSIT = "Deposit";
   /** Deposit Overnight convention string **/
@@ -34,8 +35,11 @@ public class PerCurrencyConventionHelper {
   public static final String IRS_FIXED_LEG = "IRS Fixed Leg";
   /** IRS Ibor leg convention string **/
   public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
+  /** Quarterly Eurodollar futures string */
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
+  /** Inflation swap leg string */
   public static final String INFLATION_LEG = "Inflation Swap Leg";
+  /** Price index string */
   public static final String PRICE_INDEX = "Price Index";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {

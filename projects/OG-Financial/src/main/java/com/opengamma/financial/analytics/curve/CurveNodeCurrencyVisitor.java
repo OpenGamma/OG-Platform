@@ -55,6 +55,14 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     _conventionSource = conventionSource;
   }
 
+  /**
+   * Gets the convention source.
+   * @return The convention source
+   */
+  protected ConventionSource getConventionSource() {
+    return _conventionSource;
+  }
+
   @Override
   public Set<Currency> visitCashNode(final CashNode node) {
     final Convention convention = _conventionSource.getConvention(node.getConvention());
@@ -139,7 +147,8 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     return getCurrencies(priceIndexConvention);
   }
 
-  private Set<Currency> getCurrencies(final Convention convention) {
+  protected Set<Currency> getCurrencies(final Convention convention) {
+    ArgumentChecker.notNull(convention, "convention");
     if (convention instanceof CMSLegConvention) {
       final Convention underlyingConvention = _conventionSource.getConvention(((CMSLegConvention) convention).getSwapIndexConvention());
       if (underlyingConvention == null) {
