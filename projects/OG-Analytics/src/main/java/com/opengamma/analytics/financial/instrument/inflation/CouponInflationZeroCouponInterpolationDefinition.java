@@ -183,8 +183,8 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     final ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     final ZonedDateTime refInterpolatedDate = paymentDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
+    referenceEndDate[0] = refInterpolatedDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
     return from(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag, monthLag, referenceStartDate, indexStartValue, referenceEndDate,
         payNotional);
   }
@@ -207,7 +207,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     final ZonedDateTime refInterpolatedDate = accrualStartDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
     referenceStartDate[0] = refInterpolatedDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-    referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
+    referenceStartDate[1] = referenceStartDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
     final double weightStart = 1.0 - (refInterpolatedDate.getDayOfMonth() - 1.0) / refInterpolatedDate.toLocalDate().lengthOfMonth();
     final Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceStartDate[0]), priceIndexTimeSeries.getValue(referenceStartDate[1]) };
     double indexStartValue = 0;
