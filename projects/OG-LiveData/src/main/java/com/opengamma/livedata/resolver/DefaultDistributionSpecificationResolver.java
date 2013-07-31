@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -25,7 +28,9 @@ import com.opengamma.util.ArgumentChecker;
 public class DefaultDistributionSpecificationResolver 
   extends AbstractResolver<LiveDataSpecification, DistributionSpecification> 
   implements DistributionSpecificationResolver {
-  
+
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultDistributionSpecificationResolver.class);
+
   private final IdResolver _idResolver;
   private final NormalizationRuleResolver _normalizationRuleResolver;
   private final JmsTopicNameResolver _jmsTopicNameResolver;
@@ -111,6 +116,8 @@ public class DefaultDistributionSpecificationResolver
       NormalizationRuleSet normalizationRule = liveDataSec2NormalizationRule.get(liveDataSpec);
       String jmsTopicName = liveDataSec2JmsTopicName.get(liveDataSpec);
       if (identifier == null || normalizationRule == null || jmsTopicName == null) {
+        s_logger.info("Unable to resolve liveDataSpec: {} - identifier: {}, normalizationRule: {}, jmsTopicName: {}",
+                      liveDataSpec, identifier, normalizationRule, jmsTopicName);
         returnValue.put(liveDataSpec, null);
       } else {
         DistributionSpecification distributionSpec = new DistributionSpecification(
