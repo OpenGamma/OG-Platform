@@ -49,6 +49,22 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     _nodeIdMapper = nodeIdMapper;
   }
 
+  /**
+   * Gets the curve date.
+   * @return The curve date
+   */
+  public LocalDate getCurveDate() {
+    return _curveDate;
+  }
+
+  /**
+   * Gets the curve node id mapper.
+   * @return The curve node id mapper
+   */
+  public CurveNodeIdMapper getCurveNodeIdMapper() {
+    return _nodeIdMapper;
+  }
+
   @Override
   public CurveNodeWithIdentifier visitCashNode(final CashNode node) {
     final Tenor tenor = node.getMaturityTenor();
