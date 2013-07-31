@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -51,14 +52,26 @@ import com.opengamma.util.ArgumentChecker;
    * @param viewportListener  the listener for changes to this grid's viewports, not null
    * @param callbackId  the ID that is passed to listeners when the grid structure changes, any unique value, not null
    * @param viewports a map of the viewports to be associated with the grid
+   * @param gridStructure current grid structure to be given to the viewports
    */
-  /* package */ AnalyticsGrid(ViewportListener viewportListener, String callbackId, Map<Integer, V> viewports) {
+  /* package */ AnalyticsGrid(ViewportListener viewportListener,
+                              String callbackId,
+                              Map<Integer, V> viewports,
+                              MainGridStructure gridStructure) {
     ArgumentChecker.notNull(viewportListener, "viewportListener");
     ArgumentChecker.notNull(callbackId, "callbackId");
     ArgumentChecker.notNull(viewports, "viewports");
     _viewportListener = viewportListener;
     _callbackId = callbackId;
     _viewports = viewports;
+    updateGridStructures(gridStructure);
+  }
+
+  private void updateGridStructures(MainGridStructure gridStructure) {
+
+    for (V value : _viewports.values()) {
+      value.updateGridStructure(gridStructure);
+    }
   }
 
   /**

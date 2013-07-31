@@ -114,4 +114,9 @@ public class DependencyGraphViewport implements Viewport {
     return _state;
   }
 
+  @Override
+  public void updateGridStructure(MainGridStructure gridStructure) {
+    //TODO should the depgraph update grid structure?
+  }
+
 }

@@ -66,7 +66,7 @@ import com.opengamma.util.tuple.Pair;
                                  ComputationTargetResolver targetResolver,
                                  ViewportListener viewportListener,
                                  Map<Integer, MainGridViewport> viewports) {
-    super(viewportListener, gridId, viewports);
+    super(viewportListener, gridId, viewports, gridStructure);
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(targetResolver, "targetResolver");

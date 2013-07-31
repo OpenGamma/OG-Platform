@@ -62,14 +62,6 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Updates the grid structure in the viewport.
-   * @param gridStructure The latest structure of the grid
-   */
-  /* package */ void updateGridStructure(MainGridStructure gridStructure) {
-    _gridStructure = gridStructure;
-  }
-
-  /**
    * Updates the viewport definition (e.g. in response to the user scrolling the grid and changing the visible area).
    * @param viewportDefinition The new viewport definition
    * @param viewCycle The view cycle from the previous calculation cycle
@@ -104,5 +96,10 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public State getState() {
     return _state;
+  }
+
+  @Override
+  public void updateGridStructure(MainGridStructure gridStructure) {
+      _gridStructure = gridStructure;
   }
 }
