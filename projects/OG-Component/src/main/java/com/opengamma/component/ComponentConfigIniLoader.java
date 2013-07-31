@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ResourceUtils;
 
 /**
@@ -59,12 +60,14 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * 
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
-   * @return the config, not null
+   * @param config  the config being loaded, not null
    */
-  public ComponentConfig load(final Resource resource, final int depth) {
+  public void load(final Resource resource, final int depth, final ComponentConfig config) {
+    ArgumentChecker.notNull(resource, "resource");
+    ArgumentChecker.notNull(config, "config");
     try {
-      ComponentConfig config = doLoad(resource, depth, new ComponentConfig());
-      return overrideProperties(config);
+      doLoad(resource, depth, config);
+      overrideProperties(config);
       
     } catch (RuntimeException ex) {
       throw new OpenGammaRuntimeException("Unable to load INI file: " + resource, ex);
@@ -81,7 +84,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param config  the config being loaded, not null
    * @return the config, not null
    */
-  private ComponentConfig doLoad(final Resource resource, final int depth, ComponentConfig config) {
+  private void doLoad(final Resource resource, final int depth, final ComponentConfig config) {
     List<String> lines = readLines(resource);
     String group = null;
     int lineNum = 0;
@@ -126,7 +129,6 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
         }
       }
     }
-    return config;
   }
 
   /**
@@ -137,7 +139,7 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * @param depth  the depth of the properties file, used for logging
    * @param config  the config being loaded, not null
    */
-  private void handleInclude(final Resource baseResource, String includeFile, final int depth, ComponentConfig config) {
+  private void handleInclude(final Resource baseResource, String includeFile, final int depth, final ComponentConfig config) {
     // find resource
     Resource include;
     try {
@@ -167,16 +169,14 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
    * specified key within the group.
    * 
    * @param config  the config to update, not null
-   * @return the updated config, not null
    */
-  private ComponentConfig overrideProperties(ComponentConfig config) {
+  private void overrideProperties(final ComponentConfig config) {
     List<String[]> iniProperties = extractIniOverrideProperties();
     for (String[] array : iniProperties) {
       config.getGroup(array[0]);  // validate group (but returns a copy of the inner map)
       config.put(array[0], array[1], array[2]);
       getLogger().logDebug("  Replacing group property: [" + array[0] + "]." + array[1] + "=" + array[2]);
     }
-    return config;
   }
 
   /**
