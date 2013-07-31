@@ -373,15 +373,15 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Sets the listener to receive resolution failures. ResolutionFailureVisitors can also be registered here.
-   * If not set, a synthetic exception is created for each failure in the miscellaneous exception set.
+   * Sets the listener to receive resolution failures. ResolutionFailureVisitors can also be registered here. If not set, a synthetic exception is created for each failure in the miscellaneous
+   * exception set.
    * 
    * @param failureListener the listener to use, or null to create synthetic exceptions
    */
   public void setResolutionFailureListener(final ResolutionFailureListener failureListener) {
     getTerminalValuesCallback().setFailureListener(failureListener);
   }
-  
+
   /**
    * Check that the market data availability provider, the function resolver and the calc config name are non-null
    */
@@ -533,7 +533,13 @@ public final class DependencyGraphBuilder implements Cancelable {
         cancelled += task.cancelLoopMembers(context, checked);
       }
       getContext().mergeThreadContext(context);
-      s_logger.info("Cancelled {} looped task(s)", cancelled);
+      if (s_logger.isInfoEnabled()) {
+        if (cancelled > 0) {
+          s_logger.info("Cancelled {} looped task(s)", cancelled);
+        } else {
+          s_logger.info("No looped tasks to cancel");
+        }
+      }
     } finally {
       s_abortLoops.end();
     }
@@ -788,6 +794,8 @@ public final class DependencyGraphBuilder implements Cancelable {
         synchronized (_activeJobs) {
           if (!_cancelled) {
             _activeJobs.add(job);
+          } else {
+            throw new CancellationException();
           }
         }
         job.run();

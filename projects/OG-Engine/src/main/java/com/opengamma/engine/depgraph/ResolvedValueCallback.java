@@ -36,6 +36,9 @@ import com.opengamma.engine.value.ValueRequirement;
    */
   void recursionDetected();
 
+  /**
+   * Convenience interface that combines both the callback and the "chain" service for detecting loops.
+   */
   interface ResolvedValueCallbackChain extends ResolvedValueCallback, ResolvedValueProducer.Chain {
 
   }
