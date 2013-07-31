@@ -33,6 +33,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionMaster;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -119,6 +120,12 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private MarketDataSnapshotMaster _marketDataSnapshotMaster;
+
+  /**
+   * The convention master.
+   */
+  @PropertyDefinition
+  private ConventionMaster _conventionMaster;
 
   /**
    * The config source.
@@ -248,7 +255,6 @@ public class ToolContext extends DirectBean implements Closeable {
   public static ToolContext.Meta meta() {
     return ToolContext.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(ToolContext.Meta.INSTANCE);
   }
@@ -285,6 +291,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getHistoricalTimeSeriesMaster();
       case 2090650860:  // marketDataSnapshotMaster
         return getMarketDataSnapshotMaster();
+      case 41113907:  // conventionMaster
+        return getConventionMaster();
       case 195157501:  // configSource
         return getConfigSource();
       case -467239906:  // exchangeSource
@@ -362,6 +370,9 @@ public class ToolContext extends DirectBean implements Closeable {
       case 2090650860:  // marketDataSnapshotMaster
         setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
         return;
+      case 41113907:  // conventionMaster
+        setConventionMaster((ConventionMaster) newValue);
+        return;
       case 195157501:  // configSource
         setConfigSource((ConfigSource) newValue);
         return;
@@ -436,6 +447,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
           JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
@@ -472,6 +484,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
@@ -782,6 +795,31 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   public final Property<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
     return metaBean().marketDataSnapshotMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the convention master.
+   * @return the value of the property
+   */
+  public ConventionMaster getConventionMaster() {
+    return _conventionMaster;
+  }
+
+  /**
+   * Sets the convention master.
+   * @param conventionMaster  the new value of the property
+   */
+  public void setConventionMaster(ConventionMaster conventionMaster) {
+    this._conventionMaster = conventionMaster;
+  }
+
+  /**
+   * Gets the the {@code conventionMaster} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionMaster> conventionMaster() {
+    return metaBean().conventionMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1280,6 +1318,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
         this, "marketDataSnapshotMaster", ToolContext.class, MarketDataSnapshotMaster.class);
     /**
+     * The meta-property for the {@code conventionMaster} property.
+     */
+    private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
+        this, "conventionMaster", ToolContext.class, ConventionMaster.class);
+    /**
      * The meta-property for the {@code configSource} property.
      */
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
@@ -1381,6 +1424,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "organizationMaster",
         "historicalTimeSeriesMaster",
         "marketDataSnapshotMaster",
+        "conventionMaster",
         "configSource",
         "exchangeSource",
         "holidaySource",
@@ -1432,6 +1476,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _historicalTimeSeriesMaster;
         case 2090650860:  // marketDataSnapshotMaster
           return _marketDataSnapshotMaster;
+        case 41113907:  // conventionMaster
+          return _conventionMaster;
         case 195157501:  // configSource
           return _configSource;
         case -467239906:  // exchangeSource
@@ -1580,6 +1626,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
       return _marketDataSnapshotMaster;
+    }
+
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionMaster> conventionMaster() {
+      return _conventionMaster;
     }
 
     /**

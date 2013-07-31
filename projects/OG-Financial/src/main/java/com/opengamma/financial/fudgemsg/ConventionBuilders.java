@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.fudgemsg;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -18,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
+import com.opengamma.financial.convention.ConventionDocument;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
@@ -132,10 +134,12 @@ public final class ConventionBuilders {
       final Tenor paymentTenor = Tenor.of(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, compoundingType,
           exchangeNotional);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -184,9 +188,11 @@ public final class ConventionBuilders {
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final ExternalId regionCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final DepositConvention convention = new DepositConvention(name, externalIdBundle, dayCount, businessDayConvention, settlementDays, isEOM, currency, regionCalendar);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
 
@@ -228,9 +234,11 @@ public final class ConventionBuilders {
       final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final ExternalId settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final FXForwardAndSwapConvention convention = new FXForwardAndSwapConvention(name, externalIdBundle, spotConvention, businessDayConvention, isEOM, settlementRegion);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -263,9 +271,11 @@ public final class ConventionBuilders {
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
       final ExternalId settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final FXSpotConvention convention = new FXSpotConvention(name, externalIdBundle, settlementDays, settlementRegion);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -330,10 +340,12 @@ public final class ConventionBuilders {
       final ExternalId fixingCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FIXING_CALENDAR_FIELD));
       final ExternalId regionCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
       final String fixingPage = message.getString(FIXING_PAGE_FIELD);
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final IborIndexConvention convention = new IborIndexConvention(name, externalIdBundle, dayCount, businessDayConvention, settlementDays, isEOM, currency,
           fixingTime, fixingTimeZone, fixingCalendar, regionCalendar, fixingPage);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -370,9 +382,11 @@ public final class ConventionBuilders {
       final ExternalId expiryConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXPIRY_CONVENTION_FIELD));
       final ExternalId exchangeCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXCHANGE_CALENDAR_FIELD));
       final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INDEX_CONVENTION_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final InterestRateFutureConvention convention = new InterestRateFutureConvention(name, externalIdBundle, expiryConvention, exchangeCalendar, indexConvention);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -429,10 +443,12 @@ public final class ConventionBuilders {
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
       final StubType stubType = StubType.valueOf(message.getString(STUB_TYPE_FIELD));
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final OISLegConvention convention = new OISLegConvention(name, externalIdBundle, overnightIndexConvention, paymentTenor,
           businessDayConvention, settlementDays, isEOM, stubType, exchangeNotional, paymentLag);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -473,9 +489,11 @@ public final class ConventionBuilders {
       final int publicationLag = message.getInt(PUBLICATION_LAG_FIELD);
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final ExternalId region = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final OvernightIndexConvention convention = new OvernightIndexConvention(name, externalIdBundle, dayCount, publicationLag, currency, region);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -512,9 +530,11 @@ public final class ConventionBuilders {
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final ExternalId region = deserializer.fieldValueToObject(ExternalId.class, message.getByName(REGION_FIELD));
       final ExternalId priceIndexId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PRICE_INDEX_ID_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final PriceIndexConvention convention = new PriceIndexConvention(name, externalIdBundle, currency, region, priceIndexId);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
 
@@ -548,9 +568,11 @@ public final class ConventionBuilders {
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_FIELD));
       final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final SwapConvention convention = new SwapConvention(name, externalIdBundle, payLegConvention, receiveLegConvention);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -615,10 +637,12 @@ public final class ConventionBuilders {
       final StubType stubType = StubType.valueOf(message.getString(STUB_TYPE_FIELD));
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final int paymentLag = message.getInt(PAYMENT_LAG_FIELD);
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final SwapFixedLegConvention convention = new SwapFixedLegConvention(name, externalIdBundle, paymentTenor, dayCount, businessDayConvention, currency,
           regionCalendar, settlementDays, isEOM, stubType, exchangeNotional, paymentLag);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -651,9 +675,11 @@ public final class ConventionBuilders {
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final LocalTime fixingTime = LocalTime.parse(message.getString(FIXING_TIME_FIELD));
       final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_CONVENTION_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final SwapIndexConvention convention = new SwapIndexConvention(name, externalIdBundle, fixingTime, receiveLegConvention);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -705,7 +731,6 @@ public final class ConventionBuilders {
     public VanillaIborLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final ExternalId iborIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IBOR_INDEX_CONVENTION_FIELD));
       final boolean isAdvanceFixing = message.getBoolean(ADVANCE_FIXING_FIELD);
       final StubType stubType = StubType.valueOf(message.getString(STUB_TYPE_FIELD));
@@ -717,7 +742,10 @@ public final class ConventionBuilders {
       final int paymentLag = message.getInt(PAYMENT_LAG_FIELD);
       final VanillaIborLegConvention convention = new VanillaIborLegConvention(name, externalIdBundle, iborIndexConvention, isAdvanceFixing, interpolatorName,
           resetTenor, settlementDays, isEOM, stubType, exchangeNotional, paymentLag);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
     }
   }
@@ -760,7 +788,6 @@ public final class ConventionBuilders {
     public InflationLegConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
-      final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID_FIELD));
       final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
       final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAYCOUNT_FIELD));
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
@@ -769,8 +796,35 @@ public final class ConventionBuilders {
       final ExternalId priceIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PRICE_INDEX_FIELD));
       final InflationLegConvention convention = new InflationLegConvention(name, externalIdBundle, businessDayConvention, dayCount,
           isEOM, monthLag, spotLag, priceIndexConvention);
-      convention.setUniqueId(uniqueId);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
       return convention;
+    }
+
+  }
+
+  /**
+   * Fudge builder for convention document.
+   */
+  @FudgeBuilderFor(ConventionDocument.class)
+  public static class ConventionDocumentBuilder implements FudgeBuilder<ConventionDocument> {
+    /** The convention field */
+    private static final String CONVENTION_FIELD = "convention";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ConventionDocument object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, ConventionDocument.class);
+      serializer.addToMessageWithClassHeaders(message, CONVENTION_FIELD, null, object.getConvention(), object.getConvention().getClass());
+      return message;
+    }
+
+    @Override
+    public ConventionDocument buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Convention convention = (Convention) deserializer.fieldValueToObject(message.getByName(CONVENTION_FIELD));
+      return new ConventionDocument(convention);
     }
 
   }

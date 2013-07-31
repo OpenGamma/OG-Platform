@@ -6,11 +6,12 @@
 package com.opengamma.financial.convention;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.AbstractChangeProvidingMaster;
 
 /**
  * Repository for conventions and associated metadata.
  */
-public interface ConventionMaster {
+public interface ConventionMaster extends AbstractChangeProvidingMaster<ConventionDocument> {
 
   /**
    * Search the master for matching conventions.
