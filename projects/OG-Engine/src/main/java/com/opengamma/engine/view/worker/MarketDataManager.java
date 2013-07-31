@@ -206,7 +206,9 @@ public class MarketDataManager implements MarketDataListener {
 
     ArgumentChecker.notNull(marketDataUser, "marketDataUser");
     ArgumentChecker.notNull(marketDataSpecifications, "marketDataSpecifications");
-
+    
+    marketDataUser = ensureUserNameNonEmpty(marketDataUser);
+    
     _subscriptionsLock.lock();
     try {
       if (_marketDataProvider == null || !_marketDataProvider.getSpecifications().equals(marketDataSpecifications)) {
@@ -356,7 +358,9 @@ public class MarketDataManager implements MarketDataListener {
   public void replaceMarketDataProviderIfRequired(UserPrincipal marketDataUser) {
 
     ArgumentChecker.notNull(marketDataUser, "marketDataUser");
-
+    
+    marketDataUser = ensureUserNameNonEmpty(marketDataUser);
+    
     _subscriptionsLock.lock();
     try {
       if (_marketDataProvider != null && !_marketDataProvider.getMarketDataUser().equals(marketDataUser)) {
@@ -482,5 +486,23 @@ public class MarketDataManager implements MarketDataListener {
     } finally {
       _subscriptionsLock.unlock();
     }
+  }
+  
+  /**
+   * Switches {@link UserPrincipal#getTestUser()}  for the given userPrincipal if
+   * {@link UserPrincipal#getUserName()} is null or empty.
+   * @param userPrincipal the object to check
+   * @return the resolved object
+   */
+  private UserPrincipal ensureUserNameNonEmpty(UserPrincipal userPrincipal) {
+    String userName = userPrincipal.getUserName();
+    if (userName == null || "".equals(userName)) {
+      UserPrincipal testUser = UserPrincipal.getTestUser();
+      s_logger.info("UserName undefined for {}. Will use test user {} instead.", userPrincipal, UserPrincipal.getTestUser());
+      return testUser;
+    } else {
+      return userPrincipal;
+    }
+    
   }
 }
