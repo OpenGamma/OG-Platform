@@ -115,7 +115,11 @@ $.register_module({
                         data['clientId'] = api.id;
                         method[1] = config.view_id;
                         method[2] = config.grid_type;
-                        fields.forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
+                        fields.forEach(function (val, idx) {
+                            if (val = str(config[val])) {
+                                data[fields[idx]] = val;
+                            }
+                        });
                         return api.request(method, {data: data, meta: meta}, promise);
                     },
                     viewports: {
@@ -194,6 +198,7 @@ $.register_module({
                 viewports: {
                     root: 'views/{{view_id}}/{{grid_type}}/viewports',
                     get: function (config) {
+                        console.log('get', config);
                         config = config || {};
                         var root = this.root, method = root.split('/'), data = {}, meta;
                         meta = check({
@@ -206,6 +211,7 @@ $.register_module({
                         return api.request(method, {data: data, meta: meta});
                     },
                     put: function (config) {
+                        console.log('put', config);
                         config = config || {};
                         var promise = new common.Promise, root = this.root, method = root.split('/'),
                             data = {}, meta, fields = ['cells', 'rows', 'cols', 'format', 'log'],
@@ -224,13 +230,18 @@ $.register_module({
                         data.version = promise.id;
                         method[1] = config.view_id;
                         method[2] = config.grid_type;
-                        if (config.viewport_id) // use the promise id as viewport_version
-                            (meta.type = 'PUT'), method.push(config.viewport_id);
-                        else // the response will come back in fire_updates
-                            (promise.ignore = true), (data['requestId'] = promise.id);
+                        if (config.viewport_id) {// use the promise id as viewport_version
+                            meta.type = 'PUT';
+                            method.push(config.viewport_id);
+                        }
+                        else {// the response will come back in fire_updates
+                            promise.ignore = true;
+                            data['requestId'] = promise.id;
+                        }
                         return api.request(method, {data: data, meta: meta}, promise);
                     },
                     del: function (config) {
+                        console.log('del', config);
                         config = config || {};
                         var root = this.root, method = root.split('/'), data = {}, meta;
                         meta = check({

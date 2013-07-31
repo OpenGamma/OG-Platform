@@ -10,33 +10,42 @@ $.register_module({
         var ConnectionPool = new function () {
             var pool, children = [], parents = [];
             $(window).on('beforeunload', function () {
-                children.forEach(function (child){try {child.kill();} catch (error) {}});//should be no parents left
-                parents.forEach(function (parent){try {parent.kill();} catch (error) {}});//but just in case
+                children.forEach(function (child) {try {child.kill(); } catch (error) {} });//should be no parents left
+                parents.forEach(function (parent) {try {parent.kill(); } catch (error) {} });//but just in case
             });
             return pool = {
-                add : function (data) {children.push(data);},
+                add : function (data) {children.push(data); },
                 parent : function (data) {
                     var parent, source = Object.clone(data.source);
-                    if (data.pool) return null;
-                    ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]});// normalize sources
-                    parent = parents.filter(function (parent) {return Object.equals(parent.source, source);});
-                    if (parent.length && (parent = parent[0])) return parent.refcount.push(data.id), parent;
+                    if (data.pool) {
+                        return null;
+                    }
+                    ['col', 'depgraph', 'row', 'type'].forEach(function (key) {delete source[key]; });// normalize sources
+                    parent = parents.filter(function (parent) {return Object.equals(parent.source, source); });
+                    if (parent.length && (parent = parent[0])) {
+                        parent.refcount.push(data.id);
+                        return parent;
+                    }
                     parent = new og.analytics.Data(source, {pool: true, label: 'pool'});
                     parent.refcount = [data.id];
                     parents.push(parent);
                     return parent;
                 },
                 parents : function () {
-                    return parents
+                    return parents;
                 },
                 remove : function (data) {
-                    children = children.filter(function (child) {return child.id !== data.id;});
-                    if (!data.parent) return; else if (data.parent.refcount) {
-                        data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id;});
-                        if (data.parent.refcount.length) return;
+                    children = children.filter(function (child) {return child.id !== data.id; });
+                    if (!data.parent) {
+                        return;
+                    } else if (data.parent.refcount) {
+                        data.parent.refcount = data.parent.refcount.filter(function (id) {return id !== data.id; });
+                        if (data.parent.refcount.length) {
+                            return;
+                        }
                     }
                     data.parent.kill();
-                    parents = parents.filter(function (parent) {return parent.id !== data.parent.id;});
+                    parents = parents.filter(function (parent) {return parent.id !== data.parent.id; });
                 }
             };
         };
@@ -65,6 +74,7 @@ $.register_module({
                 if (!view_id || !viewport) return;
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 subscribed = true;
+                console.log('viewport_id', viewport_id);
                 (viewport_id ? viewports.get({
                     view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                     viewport_id: viewport_id, update: data_setup
@@ -78,6 +88,7 @@ $.register_module({
                         if (result.error) {
                             data.prefix = module.name + ' (' + label + view_id + '-dead):\n';
                             data.connection = view_id = graph_id = viewport_id = subscribed = null;
+                            console.log('viewport is now null');
                             return result;
                         }
                         viewport_id = result.meta.id; viewport_version = promise.id;
@@ -88,7 +99,10 @@ $.register_module({
                     })
                 ).pipe(data_handler);
             };
-            var disconnect_handler = function () {fire('disconnect'), data.disconnect(data.prefix + 'disconnected');};
+            var disconnect_handler = function () {
+                fire('disconnect');
+                data.disconnect(data.prefix + 'disconnected');
+            };
             var fire = (function () {
                 var fatal_fired = false;
                 return function (type) {
@@ -98,37 +112,70 @@ $.register_module({
                             return (fatal_fired = true), og.common.events.fire.apply(data, args);
                         og.common.events.fire.apply(data, args);
                     } catch (error) {og.dev.warn(data.prefix + 'a ' + type + ' handler threw ', error);}
-                }
+                };
             })();
             var initialize = function () {
-                var message, put_options = ['viewdefinition', 'aggregators', 'providers','valuation', 'version', 'correction']
+                var put_options = ['viewdefinition', 'aggregators', 'providers','valuation', 'version', 'correction']
                     .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
-                if (!!source.blotter) put_options.blotter = true;
-                if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup
-                if (view_id && grid_type && data.parent.connection.structure) // if parent connection supplies structure
+                if (!!source.blotter) {
+                    put_options.blotter = true;
+                }
+                if (depgraph || bypass_types) { // don't bother with type_setup
+                    grid_type = source.type;
+                }
+                if (view_id && grid_type && data.parent.connection.structure) {//if parent connection supplies structure
                     return structure_handler(data.parent.connection.structure);
-                if (view_id && grid_type) return structure_setup(data.parent.connection);
-                if (view_id) return type_setup();
-                if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
-                try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
-                catch (error) {fire('fatal', data.prefix + error.message);}
+                }
+                if (view_id && grid_type) {
+                    return structure_setup(data.parent.connection);
+                }
+                if (view_id) {
+                    return type_setup();
+                }
+                if (grid_type) {
+                    return api.put(put_options).pipe(view_handler).pipe(structure_handler);
+                }
+                try { // initial request params come from outside so try/catch
+                    api.put(put_options).pipe(view_handler);
+                } catch (error) {
+                    fire('fatal', data.prefix + error.message);
+                }
             };
             var nonsensical_viewport = function (viewport) {
                 return !(viewport.cells && viewport.cells.length) &&
                     (!viewport.rows || !viewport.rows.length || !viewport.cols || !viewport.cols.length);
             };
             var parent_meta_handler = function (meta, connection) {
-                data.disconnect();
+                console.log('parent meta hander', meta, connection);
+                //var state = '';
+                //if (connection.view_id == "0") {
+                //    state = 'state init';
+                //    if (connection.structure) {
+                //       state = 'state reconnect';
+                //    }
+                //}
+                //console.log(state);
+                //data.disconnect();
+
                 view_id = connection.view_id;
                 graph_id = connection.graph_id;
                 data.prefix = module.name + ' (' + label + view_id + '):\n';
                 initialize();
             };
-            var reconnect_handler = function () {initialize();};
+            var reconnect_handler = function () {
+                console.log('init - reconnect handler');
+                initialize();
+            };
             var structure_handler = function (result) {
-                if (!result || !grid_type || (depgraph && !graph_id)) return;
-                if (result.error) return fire('fatal', data.prefix + result.message);
-                if (!result.data[SETS].length) return;
+                if (!result || !grid_type || (depgraph && !graph_id)) {
+                    return;
+                }
+                if (result.error) {
+                    return fire('fatal', data.prefix + result.message);
+                }
+                if (!result.data[SETS].length) {
+                    return;
+                }
                 meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
                 meta.structure = result.data[ROOT] || [];
                 meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
@@ -136,15 +183,19 @@ $.register_module({
                 data.connection = {grid_type: grid_type, view_id: view_id, graph_id: graph_id, structure: result};
                 if (config.pool) ['grid_type', 'structure'].forEach(function (key) {delete data.connection[key];});
                 fire('meta', meta, data.connection);
-                if (!subscribed) return data_setup();
+                if (!subscribed) {
+                    return data_setup();
+                }
             };
             var structure_setup = function (update) {
-                if (update && viewport_id) {
-                    (depgraph ? api.grid.depgraphs : api.grid).viewports.del({ // remove the old registrations
-                        grid_type: grid_type, view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, dry: true
-                    });
-                    viewport_id = subscribed = null; // create a new viewport because things have changed
-                }
+                console.log(viewport_id, update);
+                //if (update && viewport_id) {
+                //    (depgraph ? api.grid.depgraphs : api.grid).viewports.del({ // remove the old registrations
+                //        grid_type: grid_type, view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, dry: true
+                //    });
+                //    viewport_id = subscribed = null; // create a new viewport because things have changed
+                //    console.log('Structure setup viewport is now null');
+                //}
                 api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
                     .pipe(function (result) {
                         if (result.error) return fire('fatal', data.prefix + result.message);
@@ -155,10 +206,10 @@ $.register_module({
                             return api.grid.depgraphs.structure
                                 .get({view_id: view_id, grid_type: grid_type, graph_id: (graph_id = result.meta.id)})
                                 .pipe(structure_handler);
-                        })
+                        });
                     });
             };
-            var type_setup = function (update) {
+            var type_setup = function () {
                 var port_request, prim_request, initial = config.pool && grid_type === null;
                 grid_type = source.type;
                 port_request = api.grid.structure
@@ -172,8 +223,12 @@ $.register_module({
                         primitives = prim_struct.data &&
                             !!(prim_struct.data[ROOT] && prim_struct.data[ROOT].length ? prim_struct.data[ROOT][1] + 1
                                 : prim_struct.data[ROWS]);
-                    if (!grid_type) grid_type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
-                    if (data.parent) source.type = grid_type; // keep parent connections' sources immutable
+                    if (!grid_type) {
+                        grid_type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                    }
+                    if (data.parent) { // keep parent connections' sources immutable
+                        source.type = grid_type;
+                    }
                     api.grid.structure
                         .get({dry: true, view_id: view_id, grid_type: grid_type, update: structure_setup});
                     structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);
@@ -186,23 +241,33 @@ $.register_module({
                 return grid_type ? structure_setup() : type_setup();
             };
             data.disconnect = function () {
-                if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
-                if (view_id && !data.parent) api.del({view_id: view_id});
-                if (config.pool)        // if pool disconnects, reset grid type so parent connection goes through entire
+                if (arguments.length) {
+                    og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
+                }
+                if (view_id && !data.parent) {
+                    api.del({view_id: view_id});
+                }
+                if (config.pool) {      // if pool disconnects, reset grid type so parent connection goes through entire
                     grid_type = null;   // handshake process again when reconnected
+                }
                 if (data.parent) {
-                    data.viewport(null); // at least delete the viewport
-                    if (graph_id) // delete graph_id if it exists
+                    console.log('disconnect', data);
+                    data.viewport(null);// at least delete the viewport
+                    if (graph_id) {     // delete graph_id if it exists
                         api.grid.depgraphs.del({view_id: view_id, graph_id: graph_id, grid_type: grid_type});
+                    }
                 }
                 data.prefix = module.name + ' (' + label + view_id + '-dead' + '):\n';
                 data.connection = view_id = graph_id = viewport_id = subscribed = null;
+                console.log('disconnect viewport is now null');
             };
             data.id = og.common.id('data');
             data.kill = function () {
                 data.disconnect.apply(data, Array.prototype.slice.call(arguments));
                 ConnectionPool.remove(data);
-                if (!data.parent) og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+                if (!data.parent) {
+                    og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+                }
             };
             data.meta = meta = {columns: {}};
             data.source = source;
@@ -213,20 +278,35 @@ $.register_module({
             data.parent = config.parent || ConnectionPool.parent(data);
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
             data.viewport = function (new_viewport) {
+                console.log('viewport', new_viewport, viewport_id);
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 if (new_viewport === null) {
-                    if (viewport_id) viewports
-                        .del({view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id});
-                    viewport = viewport_cache = viewport_id = null;
-                    if (meta.viewport) (meta.viewport.cols = []), (meta.viewport.rows = []);
+                    if (viewport_id) {
+                        //viewports.del({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
+                        //                  viewport_id: viewport_id});
+                        //viewport = viewport_cache = viewport_id = null;
+                        //console.log('viewport - viewport is now null');
+                    }
+                    if (meta.viewport) {
+                        meta.viewport.cols = [];
+                        meta.viewport.rows = [];
+                    }
                     return data;
                 }
-                if (nonsensical_viewport(new_viewport))
-                    return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
-                if (Object.equals(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
+                if (nonsensical_viewport(new_viewport)) {
+                    og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport);
+                    return data;
+                }
+                if (Object.equals(viewport_cache, new_viewport)) { // duplicate viewport, do nothing
+                    return data;
+                }
                 viewport_cache = Object.clone(data.meta.viewport = viewport = new_viewport);
-                if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
+                if (!viewport_id) { //if no viewport id get data, unless we are in already loading viewport
+                    loading_viewport_id ? data : data_setup();
+                    return data;
+                }
                 try { // viewport definitions come from outside, so try/catch
+                    console.log('viewport_id', viewport_id);
                     (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
                         rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
@@ -237,14 +317,19 @@ $.register_module({
                         if (result.error) fire('fatal', data.prefix + result.message);
                     });
                     viewport_version = promise.id;
-                } catch (error) {fire('fatal', data.prefix + error.message);}
+                } catch (error) {
+                    fire('fatal', data.prefix + error.message);
+                }
                 return data;
             };
             data.on('fatal', function (message) {data.kill(message);});
             if (data.parent) { // use parent's connection information
-                if (data.parent.connection) parent_meta_handler(null, data.parent.connection);
-                data.parent.on('meta', parent_meta_handler)
-                    .on('fatal', function (message) {fire('fatal', data.prefix + ' caught fatal error: ' + message);});
+                if (data.parent.connection) {
+                    parent_meta_handler(null, data.parent.connection);
+                }
+                data.parent.on('meta', parent_meta_handler).on('fatal', function (message) {
+                    fire('fatal', data.prefix + ' caught fatal error: ' + message);
+                });
             } else {
                 og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
                 setTimeout(initialize); // allow events to be attached
