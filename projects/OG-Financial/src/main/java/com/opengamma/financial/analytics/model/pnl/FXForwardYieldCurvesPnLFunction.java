@@ -80,22 +80,21 @@ public class FXForwardYieldCurvesPnLFunction extends AbstractFunction {
 
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.all()));
+      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.all().withoutAny(ValuePropertyNames.CURVE_CURRENCY)));
     }
 
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();      
+      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
       final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
       final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
       final ValueRequirement fxSpotRequirement = ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(payCurrency, receiveCurrency);
-      
       final ValueProperties baseConstraints = desiredValue.getConstraints().copy()
           .withoutAny(ValuePropertyNames.CURRENCY)
           .get();
       final ComputationTargetSpecification targetSpec = target.toSpecification();
       final ValueRequirement payPnLSeriesRequirement = getPnLSeriesRequirement(payCurrency, targetSpec, baseConstraints);
-      final ValueRequirement receivePnLSeriesRequirement = getPnLSeriesRequirement(receiveCurrency, targetSpec, baseConstraints);      
+      final ValueRequirement receivePnLSeriesRequirement = getPnLSeriesRequirement(receiveCurrency, targetSpec, baseConstraints);
       return ImmutableSet.of(fxSpotRequirement, payPnLSeriesRequirement, receivePnLSeriesRequirement);
     }
 
@@ -169,7 +168,7 @@ public class FXForwardYieldCurvesPnLFunction extends AbstractFunction {
       final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
       return Collections.singleton(new ComputedValue(resultSpec, result));
     }
-    
+
     private ValueRequirement getPnLSeriesRequirement(Currency currency, ComputationTargetSpecification targetSpec, ValueProperties baseConstraints) {
       ValueProperties constraints = baseConstraints.copy()
           .with(ValuePropertyNames.CURRENCY, currency.getCode())
