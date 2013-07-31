@@ -48,10 +48,10 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   // Total swap - 5Y semi bond vs quarterly money
   private static final Period FORWARD_TENOR = Period.ofYears(1);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, FORWARD_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period SWAP_TENOR = Period.ofYears(10);  // <<<<======================
   private static final double NOTIONAL = 123000000;
   private static final boolean FIXED_IS_PAYER = true;
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6); // <<<<======================
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
@@ -92,7 +92,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
    */
   public void presentValue() {
     final CurrencyAmount pv = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, BUNDLE_HW);
-    final double pvPrevious = 3596267.552; // Hard-coded - previous run
+    final double pvPrevious = 8215343.371671409; // Hard-coded - previous run
     assertEquals("Bermuda swaption vs European", pvPrevious, pv.getAmount(), TOLERANCE_PRICE);
     // European swaptions
     final SwaptionPhysicalFixedIborDefinition[] swaptionEuropeanDefinition = new SwaptionPhysicalFixedIborDefinition[NB_EXPIRY];
@@ -126,7 +126,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 20;
+    final int nbTest = 100000;
     // Creates different swaptions
     final SwapFixedIborDefinition[] swapDefinition = new SwapFixedIborDefinition[nbTest];
     final SwapFixedIborDefinition[][] swapExpiryDefinition = new SwapFixedIborDefinition[nbTest][NB_EXPIRY];
@@ -156,4 +156,53 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     }
     assertEquals("Bermuda swaption pv performance", pv[nbTest / 2].getAmount(), total / nbTest, 1.0E+5);
   }
+  
+  @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performanceLessStorage() {
+    long startTime, endTime;
+    final int nbTest = 10000;
+    CurrencyAmount totalPv = CurrencyAmount.of(CUR, 0.0);
+    
+    // Creates swaption
+    final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
+    final SwapFixedIborDefinition[] swapExpiryDefinition = new SwapFixedIborDefinition[NB_EXPIRY];
+    for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
+      swapExpiryDefinition[loopexp] = swapDefinition.trimStart(EXPIRY_DATE[loopexp]);
+    }
+    final SwaptionBermudaFixedIborDefinition swaptionBermudaDefinition = new SwaptionBermudaFixedIborDefinition(swapExpiryDefinition, IS_LONG, EXPIRY_DATE);
+    final SwaptionBermudaFixedIbor swaptionBermuda = swaptionBermudaDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+
+    // Loop for pricing
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      totalPv = totalPv.plus(METHOD_BERMUDA.presentValue(swaptionBermuda, BUNDLE_HW));
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " pv Bermuda swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
+    // Performance note: HW price: 19-Jan-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 440 ms for 20 swaptions.
+    
+    // 5Y Bermudan Swaption with 6m looks (Hull-White Gaussian Integration) = 10 expiries ~ 3.7ms/price
+    //10000 pv Bermuda swaption Hull-White numerical integration method: 37545 ms
+    //100000 pv Bermuda swaption Hull-White numerical integration method: 363339 ms
+    //1000000 pv Bermuda swaption Hull-White numerical integration method: 3720939 ms
+
+    //30Y Bermudan Swaption with 6m looks (Hull-White Gaussian Integration) = 60 expiries ~ 87ms/price
+    //10000 pv Bermuda swaption Hull-White numerical integration method: 867701 ms
+    
+    CurrencyAmount singlePV = METHOD_BERMUDA.presentValue(swaptionBermuda, BUNDLE_HW);
+    assertEquals("Bermuda swaption pv performance", totalPv.getAmount() / nbTest, singlePV.getAmount(), 1.0E+5);
+    
+    // Loop for pricing
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      totalPv = totalPv.plus(METHOD_BERMUDA.presentValue(swaptionBermuda, BUNDLE_HW));
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " pv Bermuda swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
+    
+  }
+  
 }
