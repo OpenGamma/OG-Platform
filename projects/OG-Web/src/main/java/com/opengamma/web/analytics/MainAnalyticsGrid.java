@@ -60,6 +60,22 @@ import com.opengamma.util.tuple.Pair;
     _targetResolver = targetResolver;
   }
 
+  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
+                                 MainGridStructure gridStructure,
+                                 String gridId,
+                                 ComputationTargetResolver targetResolver,
+                                 ViewportListener viewportListener,
+                                 Map<Integer, MainGridViewport> viewports) {
+    super(viewportListener, gridId, viewports);
+    ArgumentChecker.notNull(gridType, "gridType");
+    ArgumentChecker.notNull(gridStructure, "gridStructure");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(viewports, "viewports");
+    _gridType = gridType;
+    _gridStructure = gridStructure;
+    _targetResolver = targetResolver;
+  }
+
   /**
    * Updates the data in the viewports of the main grid and all dependency graph grids when new results arrive from the calculation engine.
    *

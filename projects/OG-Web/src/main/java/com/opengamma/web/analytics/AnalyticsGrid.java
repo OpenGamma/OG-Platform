@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsGrid.class);
 
   /** Viewports keyed by ID. */
-  private final Map<Integer, V> _viewports = Maps.newHashMap();
+  private final Map<Integer, V> _viewports;
 
   private final ViewportListener _viewportListener;
 
@@ -42,6 +42,23 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(callbackId, "callbackId");
     _viewportListener = viewportListener;
     _callbackId = callbackId;
+    _viewports = Maps.newHashMap();
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param viewportListener  the listener for changes to this grid's viewports, not null
+   * @param callbackId  the ID that is passed to listeners when the grid structure changes, any unique value, not null
+   * @param viewports a map of the viewports to be associated with the grid
+   */
+  /* package */ AnalyticsGrid(ViewportListener viewportListener, String callbackId, Map<Integer, V> viewports) {
+    ArgumentChecker.notNull(viewportListener, "viewportListener");
+    ArgumentChecker.notNull(callbackId, "callbackId");
+    ArgumentChecker.notNull(viewports, "viewports");
+    _viewportListener = viewportListener;
+    _callbackId = callbackId;
+    _viewports = viewports;
   }
 
   /**

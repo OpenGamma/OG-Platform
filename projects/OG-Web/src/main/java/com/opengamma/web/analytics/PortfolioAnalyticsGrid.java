@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
@@ -29,6 +30,15 @@ import com.opengamma.id.ObjectId;
     _gridStructure = gridStructure;
   }
 
+  /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
+                                       String gridId,
+                                       ComputationTargetResolver targetResolver,
+                                       ViewportListener viewportListener,
+                                       Map<Integer, MainGridViewport> viewports) {
+    super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener, viewports);
+    _gridStructure = gridStructure;
+  }
+
   /* package */ PortfolioAnalyticsGrid withUpdatedRows(Portfolio portfolio) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedRows(portfolio);
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
@@ -36,7 +46,11 @@ import com.opengamma.id.ObjectId;
 
   /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef, portfolio);
-    return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
+    return new PortfolioAnalyticsGrid(updatedStructure,
+                                      getCallbackId(),
+                                      getTargetResolver(),
+                                      getViewportListener(),
+                                      getViewports());
   }
 
   /* package */ PortfolioAnalyticsGrid withUpdatedStructure(ResultsCache cache) {
