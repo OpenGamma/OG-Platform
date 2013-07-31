@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.util.ArgumentChecker;
 
@@ -131,6 +133,22 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       }
       functions.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, args));
     }
+
+    // TODO Needs improvement: defaultNumberOfDaysForward should not be hardcoded here
+    protected void addIRFutureOptionBlackThetaDefaults(final List<FunctionConfiguration> functions) {
+
+      int defaultNumberOfDaysForward = 1;       // TODO !!! Hardcode
+      
+      final String[] daysPlusBlackArgs = new String[getPerCurrencyInfo().size() * 3 + 1];
+      int i = 0;
+      daysPlusBlackArgs[i++] = Integer.toString(defaultNumberOfDaysForward);
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        daysPlusBlackArgs[i++] = e.getKey();
+        daysPlusBlackArgs[i++] = e.getValue().getCurveConfiguration();
+        daysPlusBlackArgs[i++] = e.getValue().getSurfaceName();
+      }
+      functions.add(functionConfiguration(InterestRateFutureOptionBlackThetaDefaults.class, daysPlusBlackArgs));
+    }
     
     protected void addIRFutureOptionBlackCurveSpecificDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[getPerCurrencyInfo().size() * 4];
@@ -172,6 +190,7 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       if (!getPerCurrencyInfo().isEmpty()) {
         addIRFutureOptionBlackDefaults(functions);
         addIRFutureOptionBlackCurveSpecificDefaults(functions);
+        addIRFutureOptionBlackThetaDefaults(functions);
         addIRFutureOptionSABRDefaults(functions);
         addIRFutureOptionHestonDefaults(functions);
       }
