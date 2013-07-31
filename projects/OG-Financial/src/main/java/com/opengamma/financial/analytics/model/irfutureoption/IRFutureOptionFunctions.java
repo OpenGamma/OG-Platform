@@ -133,11 +133,13 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     }
     
     protected void addIRFutureOptionBlackCurveSpecificDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[getPerCurrencyInfo().size() * 2];
+      final String[] args = new String[getPerCurrencyInfo().size() * 4];
       int i = 0;
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
-        args[i++] = e.getKey();
+        args[i++] = e.getKey();        
         args[i++] = e.getValue().getCurveName();
+        args[i++] = e.getValue().getCurveConfiguration();
+        args[i++] = e.getValue().getSurfaceName();
       }
       functions.add(functionConfiguration(InterestRateFutureOptionBlackCurveSpecificDefaults.class, args));
     }

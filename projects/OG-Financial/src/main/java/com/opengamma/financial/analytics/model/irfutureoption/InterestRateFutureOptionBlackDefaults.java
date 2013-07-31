@@ -51,7 +51,12 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.DAILY_PRICE,
     ValueRequirementNames.FORWARD
   };
-  private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
+  
+  /** 
+   * This map from currency to curve configuration and surface names 
+   * may be accessed and set from child classes.
+   */
+  private HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
   public InterestRateFutureOptionBlackDefaults(final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.TRADE, true);
@@ -103,6 +108,22 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
   @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.FUTURE_OPTION_BLACK;
+  }
+
+  protected HashMap<String, Pair<String, String>> getCurrencyCurveConfigAndSurfaceNames() {
+    return _currencyCurveConfigAndSurfaceNames;
+  }
+
+  protected void setCurrencyCurveConfigAndSurfaceNames(HashMap<String, Pair<String, String>> currencyCurveConfigAndSurfaceNames) {
+    _currencyCurveConfigAndSurfaceNames = currencyCurveConfigAndSurfaceNames;
+  }
+
+  public static Logger getsLogger() {
+    return s_logger;
+  }
+
+  public static String[] getsValuerequirements() {
+    return s_valueRequirements;
   }
 
 }

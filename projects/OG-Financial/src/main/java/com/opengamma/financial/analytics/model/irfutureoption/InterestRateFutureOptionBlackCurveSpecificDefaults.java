@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Adds {@link ValuePropertyNames#CURVE} to the {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
@@ -33,18 +34,21 @@ public class InterestRateFutureOptionBlackCurveSpecificDefaults extends Interest
   
   private final HashMap<String, String> _currencyCurveNames;
 
-  public InterestRateFutureOptionBlackCurveSpecificDefaults(final String[] currencyCurveNames, final String[] currencyCurveConfigAndSurfaceNames) {
-    super(currencyCurveConfigAndSurfaceNames);
-    
-    ArgumentChecker.notNull(currencyCurveNames, "currency, curve names");
-    final int nPairs = currencyCurveNames.length;
-    ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve name per currency");
+  public InterestRateFutureOptionBlackCurveSpecificDefaults(final String[] currencyCurveConfigAndSurfaceNames) {
+    ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve names");
+    final int argLenth = currencyCurveConfigAndSurfaceNames.length;
+    ArgumentChecker.isTrue(argLenth % 4 == 0, "Must have one curve, one curv config and one surface name per currency");
     _currencyCurveNames = new HashMap<String, String>();
-    for (int i = 0; i < currencyCurveNames.length; i += 2) {
-      final String currency = currencyCurveNames[i];
-      final String curveName = currencyCurveNames[i + 1];
-      _currencyCurveNames.put(currency, curveName);
+    final HashMap<String, Pair<String, String>> currencyConfigAndSurfaceMap = new HashMap<String, Pair<String, String>>();
+    for (int i = 0; i < argLenth; i += 4) {
+      final String currency = currencyCurveConfigAndSurfaceNames[i];
+      final String curve = currencyCurveConfigAndSurfaceNames[i + 1];
+      final String config = currencyCurveConfigAndSurfaceNames[i + 2];
+      final String surface = currencyCurveConfigAndSurfaceNames[i + 3];      
+      _currencyCurveNames.put(currency, curve);
+      currencyConfigAndSurfaceMap.put(currency, Pair.of(config, surface));
     }
+    setCurrencyCurveConfigAndSurfaceNames(currencyConfigAndSurfaceMap);
   }
 
   @Override
