@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,20 +14,25 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PV01Calculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- *
+ * Function computes the {@link ValueRequirementNames#POSITION_RHO}, 
+ * first order derivative of {@link Position} price with respect to the continuously compounded discount rates of the provided {@link ValuePropertyNames#CURVE},
+ * for interest rate future options in the Black world.<p>
+ * This is equivalent to {@link InterestRateFutureOptionBlackPV01Function}, though Rho is intended to have the curve set by default. 
  */
-public class InterestRateFutureOptionBlackPV01Function extends InterestRateFutureOptionBlackCurveSpecificFunction {
+public class InterestRateFutureOptionBlackPositionRhoFunction extends InterestRateFutureOptionBlackCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 
-  public InterestRateFutureOptionBlackPV01Function() {
-    super(ValueRequirementNames.PV01);
+  public InterestRateFutureOptionBlackPositionRhoFunction() {
+    super(ValueRequirementNames.POSITION_RHO);
   }
 
   @Override
@@ -40,5 +45,4 @@ public class InterestRateFutureOptionBlackPV01Function extends InterestRateFutur
     }
     return Collections.singleton(new ComputedValue(spec, pv01.get(fullCurveName)));
   }
-
 }

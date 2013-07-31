@@ -26,7 +26,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Adds {@link ValuePropertyNames#SURFACE} and {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} to the available
+ * {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
  */
 public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
@@ -38,6 +39,7 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.POSITION_DELTA,
     ValueRequirementNames.POSITION_GAMMA,
     ValueRequirementNames.POSITION_VEGA,
+    ValueRequirementNames.POSITION_RHO,
     ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VALUE_VEGA,

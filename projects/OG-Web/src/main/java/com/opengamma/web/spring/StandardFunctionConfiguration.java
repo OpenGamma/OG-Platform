@@ -1016,6 +1016,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   protected void setIRFutureOptionDefaults(final CurrencyInfo i, final IRFutureOptionFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/irfutureoption"));
     defaults.setSurfaceName(i.getSurfaceName("model/irfutureoption"));
+    defaults.setCurveName(i.getCurveName("model/irfutureoption"));
   }
 
   protected void setIRFutureOptionDefaults(final IRFutureOptionFunctions.Defaults defaults) {

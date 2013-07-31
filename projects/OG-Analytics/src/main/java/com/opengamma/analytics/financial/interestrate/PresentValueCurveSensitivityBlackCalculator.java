@@ -52,7 +52,7 @@ public final class PresentValueCurveSensitivityBlackCalculator extends PresentVa
    */
   private static final SwaptionPhysicalFixedIborBlackMethod PHYSICAL_SWAPTION = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod CASH_SWAPTION = SwaptionCashFixedIborBlackMethod.getInstance();
-  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINNED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
 
   @Override
@@ -81,7 +81,7 @@ public final class PresentValueCurveSensitivityBlackCalculator extends PresentVa
   public Map<String, List<DoublesPair>> visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
-    return MARGINNED_IR_FUTURE_OPTION.presentValueCurveSensitivity(transaction, curves).getSensitivities();
+    return MARGINED_IR_FUTURE_OPTION.presentValueCurveSensitivity(transaction, curves).getSensitivities();
   }
 
   //TODO check this
@@ -93,7 +93,7 @@ public final class PresentValueCurveSensitivityBlackCalculator extends PresentVa
     final InterestRateFutureOptionMarginSecurity underlyingOption = new InterestRateFutureOptionMarginSecurity(premiumUnderlying.getUnderlyingFuture(),
         premiumUnderlying.getExpirationTime(), premiumUnderlying.getStrike(), premiumUnderlying.isCall());
     final InterestRateFutureOptionMarginTransaction marginTransaction = new InterestRateFutureOptionMarginTransaction(underlyingOption, transaction.getQuantity(), transaction.getTradePrice());
-    return MARGINNED_IR_FUTURE_OPTION.presentValueCurveSensitivity(marginTransaction, curves).getSensitivities();
+    return MARGINED_IR_FUTURE_OPTION.presentValueCurveSensitivity(marginTransaction, curves).getSensitivities();
   }
 
   //TODO check this

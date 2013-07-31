@@ -57,9 +57,18 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
      */
     public static class CurrencyInfo implements InitializingBean {
 
+      private String _curveName;
       private String _curveConfiguration;
       private String _surfaceName;
       private String _smileFittingMethod = SmileFittingProperties.NON_LINEAR_LEAST_SQUARES;
+   
+      public String getCurveName() {
+        return _curveName;
+      }
+      
+      public void setCurveName(final String curveName) {
+        _curveName = curveName;
+      }
 
       public String getCurveConfiguration() {
         return _curveConfiguration;
@@ -91,7 +100,6 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
         ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
         ArgumentChecker.notNullInjected(getSmileFittingMethod(), "smileFittingMethod");
       }
-
     }
 
     private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
@@ -123,6 +131,16 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       }
       functions.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, args));
     }
+    
+    protected void addIRFutureOptionBlackCurveSpecificDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[getPerCurrencyInfo().size() * 2];
+      int i = 0;
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();
+        args[i++] = e.getValue().getCurveName();
+      }
+      functions.add(functionConfiguration(InterestRateFutureOptionBlackCurveSpecificDefaults.class, args));
+    }
 
     protected void addIRFutureOptionSABRDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[getPerCurrencyInfo().size() * 4];
@@ -151,6 +169,7 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
         addIRFutureOptionBlackDefaults(functions);
+        addIRFutureOptionBlackCurveSpecificDefaults(functions);
         addIRFutureOptionSABRDefaults(functions);
         addIRFutureOptionHestonDefaults(functions);
       }
@@ -171,6 +190,7 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateFutureOptionBlackDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionVegaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionRhoFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackForwardFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
