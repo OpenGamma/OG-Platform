@@ -252,7 +252,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
    */
   public void priceYieldExternalValues1() {
     final double m1 = 1000000; // Notional of the external figures.
-    final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 17); // Spot 18-Aug-2011
+    final ZonedDateTime pricingDate20110817 = DateUtils.getUTCDate(2011, 8, 16); // Spot 18-Aug-2011
     final InflationIssuerProviderDiscount market = MulticurveProviderDiscountDataSets.createMarket1(pricingDate20110817);
     final double cleanRealPrice = 1.00;
     final BondCapitalIndexedSecurity<Coupon> bond_110817 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(pricingDate20110817, US_CPI, "Not used");

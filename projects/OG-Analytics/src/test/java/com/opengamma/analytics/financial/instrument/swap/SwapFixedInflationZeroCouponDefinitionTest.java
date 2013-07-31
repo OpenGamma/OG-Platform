@@ -51,7 +51,7 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
   private static final double INDEX_MAY_2008_INTERPOLATED = 108.45483870967742; // May index: 108.23 - June Index = 108.64
   private static final double INDEX_MAY_2008 = 108.23;
   private static final ZonedDateTime REFERENCE_START_DATE = DateUtils.getUTCDate(2008, 5, 18);
-  private static final ZonedDateTime REFERENCE_START_DATE_MONTHLY = DateUtils.getUTCDate(2008, 5, 1);
+  private static final ZonedDateTime REFERENCE_START_DATE_MONTHLY = DateUtils.getUTCDate(2008, 4, 30);
   private static final ZonedDateTime[] REFERENCE_END_DATE = new ZonedDateTime[2];
   static {
     REFERENCE_END_DATE[0] = PAYMENT_DATE.minusMonths(MONTH_LAG + 1).with(TemporalAdjusters.lastDayOfMonth());
@@ -76,8 +76,8 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
         PRICE_INDEX_EUR, MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008_INTERPOLATED, REFERENCE_END_DATE, false);
     final CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     final SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
-    assertTrue("Swap zero-coupon inflation constructor", swap.getFirstLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {fixedCpn })));
-    assertTrue("Swap zero-coupon inflation constructor", swap.getSecondLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {inflationCpn })));
+    assertTrue("Swap zero-coupon inflation constructor", swap.getFirstLeg().equals(new AnnuityDefinition<>(new PaymentDefinition[] {fixedCpn })));
+    assertTrue("Swap zero-coupon inflation constructor", swap.getSecondLeg().equals(new AnnuityDefinition<>(new PaymentDefinition[] {inflationCpn })));
   }
 
   @Test
@@ -121,11 +121,11 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
         MONTH_LAG, MONTH_LAG, REFERENCE_START_DATE, INDEX_MAY_2008, REFERENCE_END_DATE[0], false);
     final CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(CUR, START_DATE, PAYMENT_DATE, NOTIONAL, COUPON_TENOR_YEAR, zeroCpnRate);
     final SwapFixedInflationZeroCouponDefinition swap = new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
-    assertTrue("Swap zero-coupon inflation constructor", swap.getFirstLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {fixedCpn })));
-    assertTrue("Swap zero-coupon inflation constructor", swap.getSecondLeg().equals(new AnnuityDefinition<PaymentDefinition>(new PaymentDefinition[] {inflationCpn })));
+    assertTrue("Swap zero-coupon inflation constructor", swap.getFirstLeg().equals(new AnnuityDefinition<>(new PaymentDefinition[] {fixedCpn })));
+    assertTrue("Swap zero-coupon inflation constructor", swap.getSecondLeg().equals(new AnnuityDefinition<>(new PaymentDefinition[] {inflationCpn })));
   }
 
-  @Test(enabled = false)
+  @Test
   /**
    * Tests the construction of zero-coupon inflation swaps.
    */
@@ -140,7 +140,7 @@ public class SwapFixedInflationZeroCouponDefinitionTest {
     assertEquals("Swap zero-coupon inflation constructor", swap, swapFrom);
   }
 
-  @Test(enabled = false)
+  @Test
   /**
    * Tests the construction of zero-coupon inflation swaps.
    */

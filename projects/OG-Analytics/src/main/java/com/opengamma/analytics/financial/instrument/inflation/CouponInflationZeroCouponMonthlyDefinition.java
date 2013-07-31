@@ -119,8 +119,8 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
       final IndexPrice priceIndex, final double indexStartValue, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
-    referenceStartDate = referenceStartDate.withDayOfMonth(1);
-    referenceEndDate = referenceEndDate.withDayOfMonth(1);
+    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CouponInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
         monthLag, referenceStartDate, indexStartValue, referenceEndDate, payNotional);

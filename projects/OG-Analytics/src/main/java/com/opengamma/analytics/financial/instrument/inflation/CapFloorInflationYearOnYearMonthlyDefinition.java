@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.instrument.inflation;
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -110,8 +111,8 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
       final IndexPrice priceIndex, final int conventionalMonthLag, final ZonedDateTime lastKnownFixingDate, final double strike, final boolean isCap) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
-    referenceStartDate = referenceStartDate.withDayOfMonth(1);
-    referenceEndDate = referenceEndDate.withDayOfMonth(1);
+    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CapFloorInflationYearOnYearMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, lastKnownFixingDate, conventionalMonthLag,
         conventionalMonthLag, referenceStartDate, referenceEndDate, strike, isCap);
@@ -134,8 +135,8 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final ZonedDateTime lastKnownFixingDate, final double strike, final boolean isCap) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
-    referenceStartDate = referenceStartDate.withDayOfMonth(1);
-    referenceEndDate = referenceEndDate.withDayOfMonth(1);
+    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CapFloorInflationYearOnYearMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, lastKnownFixingDate, conventionalMonthLag,
         monthLag, referenceStartDate, referenceEndDate, strike, isCap);

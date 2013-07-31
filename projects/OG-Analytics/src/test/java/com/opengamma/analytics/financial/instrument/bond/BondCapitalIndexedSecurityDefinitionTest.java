@@ -108,7 +108,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     assertEquals("Capital Index Bond: constructor", bond, bondFrom);
   }
 
-  @Test(enabled = false)
+  @Test
   /**
    * Tests the toDerivative method.
    */
@@ -119,7 +119,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
         PRICE_INDEX_UKRPI, MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1,
         NOTIONAL_GILT_1, REAL_RATE_GILT_1, BUSINESS_DAY_GBP, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP, DAY_COUNT_GILT_1, YIELD_CONVENTION_GILT_1, IS_EOM_GILT_1, ISSUER_UK);
     final BondCapitalIndexedSecurity<Coupon> bond = bondFromDefinition.toDerivative(pricingDate, ukRpi, "Not used");
-    final ZonedDateTime referenceDateNextCoupon = DateUtils.getUTCDate(2011, 5, 31); // May 11
+    final ZonedDateTime referenceDateNextCoupon = DateUtils.getUTCDate(2011, 4, 30); // May 11
     final double referenceIndexNextCoupon = ukRpi.getValue(referenceDateNextCoupon);
     final double amountNextCoupon = referenceIndexNextCoupon / INDEX_START_GILT_1 * NOTIONAL_GILT_1 * REAL_RATE_GILT_1;
     assertEquals("Capital Index Bond: toDerivative", amountNextCoupon, ((CouponFixed) bond.getCoupon().getNthPayment(0)).getAmount());
@@ -151,7 +151,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     assertEquals("Capital Index Bond: toDerivative", bondSecurityExpected, bond);
   }
 
-  @Test(enabled = false)
+  @Test
   /**
    * Tests the toDerivative method.
    */
@@ -162,7 +162,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
         PRICE_INDEX_UKRPI, MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1,
         NOTIONAL_GILT_1, REAL_RATE_GILT_1, BUSINESS_DAY_GBP, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP, DAY_COUNT_GILT_1, YIELD_CONVENTION_GILT_1, IS_EOM_GILT_1, ISSUER_UK);
     final BondCapitalIndexedSecurity<Coupon> bond = bondFromDefinition.toDerivative(pricingDate, ukRpi);
-    final ZonedDateTime[] referenceDateNextCoupon = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2011, 5, 1) }; // Nov 10, May 11
+    final ZonedDateTime[] referenceDateNextCoupon = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 10, 31), DateUtils.getUTCDate(2011, 4, 30) }; // Nov 10, May 11
     final double[] referenceIndexNextCoupon = new double[] {ukRpi.getValue(referenceDateNextCoupon[0]), ukRpi.getValue(referenceDateNextCoupon[1]) };
     for (int loopcpn = 0; loopcpn < 2; loopcpn++) {
       final double amountNextCoupon = referenceIndexNextCoupon[loopcpn] / INDEX_START_GILT_1 * NOTIONAL_GILT_1 * REAL_RATE_GILT_1;
