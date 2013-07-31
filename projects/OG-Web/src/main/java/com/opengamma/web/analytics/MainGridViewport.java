@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -15,7 +18,7 @@ import com.opengamma.util.tuple.Pair;
 /* package */ class MainGridViewport implements Viewport {
 
   /** Row and column structure of the grid. */
-  private final MainGridStructure _gridStructure;
+  private MainGridStructure _gridStructure;
   /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
   private final String _callbackId;
 
@@ -25,6 +28,8 @@ import com.opengamma.util.tuple.Pair;
   private ViewportResults _latestResults;
   /** The current state. */
   private State _state = State.EMPTY;
+  /** The current expanded node paths visible in the viewport **/
+  private Set<String> _currentNodePaths;
 
   /**
    * @param gridStructure Row and column structure of the grid
@@ -42,6 +47,7 @@ import com.opengamma.util.tuple.Pair;
     ArgumentChecker.notEmpty(callbackId, "callbackId");
     _callbackId = callbackId;
     _gridStructure = gridStructure;
+    _currentNodePaths = new HashSet<>();
     update(viewportDefinition, cycle, cache);
   }
 
@@ -56,7 +62,15 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Updates the viewport definition (e.g. in reponse to the user scrolling the grid and changing the visible area).
+   * Updates the grid structure in the viewport.
+   * @param gridStructure The latest structure of the grid
+   */
+  /* package */ void updateGridStructure(MainGridStructure gridStructure) {
+    _gridStructure = gridStructure;
+  }
+
+  /**
+   * Updates the viewport definition (e.g. in response to the user scrolling the grid and changing the visible area).
    * @param viewportDefinition The new viewport definition
    * @param viewCycle The view cycle from the previous calculation cycle
    * @param cache The current results
