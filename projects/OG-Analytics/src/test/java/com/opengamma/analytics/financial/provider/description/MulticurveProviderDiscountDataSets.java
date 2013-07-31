@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
@@ -302,8 +303,8 @@ public class MulticurveProviderDiscountDataSets {
     final ZonedDateTime spotUs = ScheduleCalculator.getAdjustedDate(pricingDate, SPOT_LAG_US, CALENDAR_USD);
     final ZonedDateTime referenceInterpolatedDate = spotUs.minusMonths(MONTH_LAG_US);
     final ZonedDateTime[] referenceDate = new ZonedDateTime[2];
-    referenceDate[0] = referenceInterpolatedDate.withDayOfMonth(1);
-    referenceDate[1] = referenceDate[0].plusMonths(1);
+    referenceDate[0] = referenceInterpolatedDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceDate[1] = referenceDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
     final int[] yearUs = new int[] {1, 5, 10, 20, 50 };
     final double[] indexValueUs = new double[2 + 2 * yearUs.length];
     final double[] timeValueUs = new double[2 + 2 * yearUs.length];
