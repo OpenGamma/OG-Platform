@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.inflation.method;
@@ -144,7 +144,7 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
     AssertSensivityObjects.assertEquals("Zero-coupon inflation DiscountingMethod: presentValueMarketSensitivity", pvcisMethod, pvcisCalculator, TOLERANCE_PV_DELTA);
   }
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the present value for curves with seasonal adjustment.
    */

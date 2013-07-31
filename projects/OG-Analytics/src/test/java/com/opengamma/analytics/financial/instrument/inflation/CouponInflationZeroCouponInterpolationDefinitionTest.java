@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.inflation;
@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -49,8 +50,8 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final ZonedDateTime REFERENCE_START_DATE = DateUtils.getUTCDate(2008, 5, 18);
   private static final ZonedDateTime[] REFERENCE_END_DATE = new ZonedDateTime[2];
   static {
-    REFERENCE_END_DATE[0] = PAYMENT_DATE.minusMonths(MONTH_LAG).withDayOfMonth(1);
-    REFERENCE_END_DATE[1] = PAYMENT_DATE.minusMonths(MONTH_LAG - 1).withDayOfMonth(1);
+    REFERENCE_END_DATE[0] = PAYMENT_DATE.minusMonths(MONTH_LAG + 1).with(TemporalAdjusters.lastDayOfMonth());
+    REFERENCE_END_DATE[1] = PAYMENT_DATE.minusMonths(MONTH_LAG).with(TemporalAdjusters.lastDayOfMonth());
   }
   final static double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1.0) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
   private static final CouponInflationZeroCouponInterpolationDefinition ZERO_COUPON_DEFINITION = new CouponInflationZeroCouponInterpolationDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE,
@@ -220,7 +221,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
     referenceEndTime[0] = TimeCalculator.getTimeBetween(pricingDate, REFERENCE_END_DATE[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(pricingDate, REFERENCE_END_DATE[1]);
     final double naturalPaymentPaymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
-    CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
+    final CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
         naturalPaymentPaymentTime, ZERO_COUPON_DEFINITION.getWeight(), false);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
@@ -228,7 +229,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   @Test
   public void toDerivativesInterpolatedKnown() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2018, 7, 25);
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1) },
+    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 4, 30), DateUtils.getUTCDate(2018, 5, 31) },
         new double[] {
             128.23, 128.43 });
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponInterpolated = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
@@ -254,7 +255,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
     referenceEndTime[0] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[0], pricingDate);
     referenceEndTime[1] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[1], pricingDate);
     final double naturalPaymentPaymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
-    CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
+    final CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
         naturalPaymentPaymentTime, ZERO_COUPON_DEFINITION.getWeight(), false);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
@@ -273,7 +274,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
     referenceEndTime[0] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[0], pricingDate);
     referenceEndTime[1] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[1], pricingDate);
     final double naturalPaymentPaymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
-    CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
+    final CouponInflationZeroCouponInterpolation zeroCoupon = new CouponInflationZeroCouponInterpolation(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008, referenceEndTime,
         naturalPaymentPaymentTime, ZERO_COUPON_DEFINITION.getWeight(), false);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }

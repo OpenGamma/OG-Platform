@@ -139,7 +139,7 @@ public class BondinterestIndexedSecurityDefinitionTest {
     assertEquals("Interest Index Bond: constructor", bond, bondFrom);
   }
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the toDerivative method.
    */
@@ -182,7 +182,7 @@ public class BondinterestIndexedSecurityDefinitionTest {
     assertEquals("Interest Index Bond: toDerivative", bondSecurityExpected, bond);
   }
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the toDerivative method.
    */
