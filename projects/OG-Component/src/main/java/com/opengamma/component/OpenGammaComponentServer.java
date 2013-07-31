@@ -139,16 +139,6 @@ public class OpenGammaComponentServer {
 
   //-------------------------------------------------------------------------
   /**
-   * Called just before the server is started. The default implementation here
-   * creates a monitor thread that allows the server to be stopped remotely.
-   * 
-   * @param manager the component manager
-   */
-  protected void serverStarting(final ComponentManager manager) {
-    OpenGammaComponentServerMonitor.create(manager.getRepository());
-  }
-  
-  /**
    * Runs the server with config file.
    * 
    * @param configFile  the config file, not null
@@ -206,6 +196,16 @@ public class OpenGammaComponentServer {
     return first + "-" + second;
   }
 
+  /**
+   * Called just before the server is started. The default implementation here
+   * creates a monitor thread that allows the server to be stopped remotely.
+   * 
+   * @param manager the component manager
+   */
+  protected void serverStarting(final ComponentManager manager) {
+    OpenGammaComponentServerMonitor.create(manager.getRepository());
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Creates the logger.

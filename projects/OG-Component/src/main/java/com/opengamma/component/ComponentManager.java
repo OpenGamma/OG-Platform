@@ -271,20 +271,6 @@ public class ComponentManager {
 
   //-------------------------------------------------------------------------
   /**
-   * Starts the components.
-   */
-  protected void start() {
-    _logger.logInfo("--- Starting Lifecycle ---");
-    long startInstant = System.nanoTime();
-    
-    getRepository().start();
-    
-    long endInstant = System.nanoTime();
-    _logger.logInfo("--- Started Lifecycle in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Initialize the component.
    * 
    * @param groupName  the group name, not null
@@ -512,6 +498,20 @@ public class ComponentManager {
     if (remainingConfig.size() > 0) {
       throw new IllegalStateException("Configuration was specified but not used: " + remainingConfig);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Starts the components.
+   */
+  public void start() {
+    _logger.logInfo("--- Starting Lifecycle ---");
+    long startInstant = System.nanoTime();
+    
+    getRepository().start();
+    
+    long endInstant = System.nanoTime();
+    _logger.logInfo("--- Started Lifecycle in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
   }
 
 }
