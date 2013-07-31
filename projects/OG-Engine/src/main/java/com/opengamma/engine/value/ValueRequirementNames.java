@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.position.Position;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.TargetSourcingFunction;
-import com.opengamma.core.position.Position;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -218,6 +218,10 @@ public final class ValueRequirementNames {
    * The raw market data that is used in yield curve construction.
    */
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
+  /**
+   * The yield curve specification and raw market data used in its construction.
+   */
+  public static final String YIELD_CURVE_DATA = "YieldCurveData";
   /**
    * The raw market data that is used in curve construction.
    */

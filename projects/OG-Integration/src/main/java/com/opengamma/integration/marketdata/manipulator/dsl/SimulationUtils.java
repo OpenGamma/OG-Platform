@@ -33,7 +33,7 @@ import groovy.transform.TimedInterrupt;
 /**
  * Utilities for creating and running {@link Simulation}s and {@link Scenario}s.
  */
-public class SimulationUtils {
+public final class SimulationUtils {
 
   private SimulationUtils() {
   }

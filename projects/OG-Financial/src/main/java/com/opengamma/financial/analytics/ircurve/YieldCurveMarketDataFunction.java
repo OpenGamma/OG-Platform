@@ -6,13 +6,13 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -27,6 +27,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.marketdata.ExternalIdBundleResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -84,16 +85,39 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-        final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-      final SnapshotDataBundle map = buildMarketDataMap(executionContext, inputs);
+    public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
+                                      FunctionInputs inputs,
+                                      ComputationTarget target,
+                                      Set<ValueRequirement> desiredValues) {
+      // TODO create YieldCurveData instead
+      InterpolatedYieldCurveSpecificationWithSecurities spec =
+          (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
+      SnapshotDataBundle map = buildMarketDataMap(executionContext, inputs);
       return Sets.newHashSet(new ComputedValue(_marketDataResult, map));
     }
 
     @Override
-    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
-        final ValueRequirement desiredValue) {
-      return _requirements;
+    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context,
+                                                 ComputationTarget target,
+                                                 ValueRequirement desiredValue) {
+      Set<ValueRequirement> requirements = Sets.newHashSet(_requirements);
+      ValueProperties constraints = desiredValue.getConstraints();
+      Set<String> curveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+      if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
+        return null;
+      }
+      String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
+      String curveName = _helper.getCurveName();
+      ValueProperties properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+          .withOptional(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+          .get();
+      ComputationTargetSpecification currencySpec = ComputationTargetSpecification.of(_helper.getCurrency());
+      ValueRequirement curveSpecRequirement =
+          new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, currencySpec, properties);
+      //requirements.add(curveSpecRequirement);
+      return requirements;
     }
 
     @Override
@@ -113,11 +137,12 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
 
   }
 
-  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification,
-      final FunctionCompilationContext context) {
-    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+  private Set<ValueRequirement> buildMarketDataRequirements(InterpolatedYieldCurveSpecification specification) {
+    Set<ValueRequirement> result = Sets.newHashSet();
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
-      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getSecurity()));
+      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+                                      ComputationTargetType.PRIMITIVE,
+                                      strip.getSecurity()));
     }
     return Collections.unmodifiableSet(result);
   }
@@ -143,9 +168,10 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     try {
       final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
-      return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
+      return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildMarketDataRequirements(compile.getThird()));
     } catch (final OpenGammaRuntimeException ogre) {
-      s_logger.error("Function {} calculating {} on {} couldn't compile, rethrowing...", new Object[] {getShortName(), _helper.getCurveName(), _helper.getCurrency() });
+      s_logger.error("Function {} calculating {} on {} couldn't compile, rethrowing...",
+                     getShortName(), _helper.getCurveName(), _helper.getCurrency());
       throw ogre;
     }
 
