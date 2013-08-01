@@ -12,11 +12,11 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponMonthlyDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.model.interestrate.definition.InflationZeroCouponCapFloorParameters;
 import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationZeroCouponParameters;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -36,9 +36,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Tests related to the calibration engine for inflation zero coupon cap/floor calibration.
+ * 
  */
-public class CapFloorZeroCouponCalibrationObjectiveTest {
+public class CapFloorZeroCouponInterpolationCalibrationObjectiveTest {
 
   //Cap/floor description details
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -63,7 +63,7 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
-  private static final CapFloorInflationZeroCouponMonthlyBlackSmileMethod METHOD = CapFloorInflationZeroCouponMonthlyBlackSmileMethod.getInstance();
+  private static final CapFloorInflationZeroCouponInterpolationBlackSmileMethod METHOD = CapFloorInflationZeroCouponInterpolationBlackSmileMethod.getInstance();
   double[][] marketPrices = new double[6][30];
 
   // volatility matrix first guess details
@@ -79,8 +79,8 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
     {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 }, {.01, .01, .01, .01, .01, .01 },
     {.01, .01, .01, .01, .01, .01 } };
   private static final int[] availabelTenor = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30 };
-  CapFloorInflationZeroCouponMonthlyDefinition[][] CAP_DEFINITIONS = new CapFloorInflationZeroCouponMonthlyDefinition[6][availabelTenor.length];
-  CapFloorInflationZeroCouponMonthly[][] CAPS = new CapFloorInflationZeroCouponMonthly[6][availabelTenor.length];
+  CapFloorInflationZeroCouponInterpolationDefinition[][] CAP_DEFINITIONS = new CapFloorInflationZeroCouponInterpolationDefinition[6][availabelTenor.length];
+  CapFloorInflationZeroCouponInterpolation[][] CAPS = new CapFloorInflationZeroCouponInterpolation[6][availabelTenor.length];
 
   @Test
   /**
@@ -92,7 +92,7 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
       for (int loop2 = 0; loop2 < availabelTenor.length; loop2++) {
         final Period tenor = Period.ofYears(availabelTenor[loop2]);
         final ZonedDateTime payementDate = ScheduleCalculator.getAdjustedDate(START_DATE, tenor, BUSINESS_DAY, CALENDAR_EUR);
-        CAP_DEFINITIONS[loop1][loop2] = CapFloorInflationZeroCouponMonthlyDefinition.from(SETTLEMENT_DATE, payementDate, NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, MONTH_LAG,
+        CAP_DEFINITIONS[loop1][loop2] = CapFloorInflationZeroCouponInterpolationDefinition.from(SETTLEMENT_DATE, payementDate, NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, MONTH_LAG,
             availabelTenor[loop2], LAST_KNOWN_FIXING_DATE, INDEX_START_VALUE, STRIKES[loop1], IS_CAP);
         CAPS[loop1][loop2] = CAP_DEFINITIONS[loop1][loop2].toDerivative(REFERENCE_DATE, CURVES_NAME);
       }
@@ -101,7 +101,7 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
     // Creation of the expiry vector used for the interpolation in the volatility matrix 
     // expiry times = reference end time. (for inflation option)
     for (int loopexp = 0; loopexp < CAPS[0].length; loopexp++) {
-      expiryTimes1[loopexp] = CAPS[0][loopexp].getReferenceEndTime();
+      expiryTimes1[loopexp] = CAPS[0][loopexp].getReferenceEndTime()[1];
     }
 
     // parameters bundle that we want to calibrate
@@ -145,5 +145,4 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
       }
     }
   }
-
 }

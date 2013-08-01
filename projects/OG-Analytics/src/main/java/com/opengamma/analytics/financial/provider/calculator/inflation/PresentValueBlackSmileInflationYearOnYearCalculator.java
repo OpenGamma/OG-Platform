@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.priceindexmarketmodel.BlackSmileCapInflationYearOnYearProviderAdapter;
@@ -47,7 +47,7 @@ public final class PresentValueBlackSmileInflationYearOnYearCalculator extends I
    * Pricing methods.
    */
 
-  private static final CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod METHOD_CAPFLOOR_INTERPOLATION = CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod.getInstance();
+  private static final CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod METHOD_CAPFLOOR_INTERPOLATION = CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod.getInstance();
   private static final CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod METHOD_CAPFLOOR_YEAR_ON_YEAR_MONTHLY = CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod.getInstance();
 
   //-----     Caplet/Floorlet year on year     -----

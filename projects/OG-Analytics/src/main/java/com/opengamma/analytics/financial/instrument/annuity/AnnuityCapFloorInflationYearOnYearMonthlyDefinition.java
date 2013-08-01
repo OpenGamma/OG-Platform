@@ -34,7 +34,7 @@ public class AnnuityCapFloorInflationYearOnYearMonthlyDefinition extends Annuity
    * @param priceIndex The price index.
    * @param settlementDate The settlement date.
    * @param notional The notional.
-   * @param totalTemor The  period of the deal.
+   * @param totalTenor The  period of the deal.
    * @param paymentPeriod The period between each coupons (basically it is most of the 1Y).
    * @param businessDayConvention the business day convention. 
    * @param calendar the calendar.
@@ -47,12 +47,12 @@ public class AnnuityCapFloorInflationYearOnYearMonthlyDefinition extends Annuity
    * @return The Year on year coupon leg.
    */
   public static AnnuityCapFloorInflationYearOnYearMonthlyDefinition from(final IndexPrice priceIndex, final ZonedDateTime settlementDate,
-      final double notional, final Period totalTemor, final Period paymentPeriod, final BusinessDayConvention businessDayConvention, final Calendar calendar,
+      final double notional, final Period totalTenor, final Period paymentPeriod, final BusinessDayConvention businessDayConvention, final Calendar calendar,
       final boolean endOfMonth, int conventionalMonthLag, final int monthLag, final ZonedDateTime lastKnownFixingDate, final double strike, final boolean isCap) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(paymentPeriod, "Payment period");
     Validate.notNull(lastKnownFixingDate, "Last known fixing date");
-    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, totalTemor, paymentPeriod,  true, false, businessDayConvention, calendar, endOfMonth);
+    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, totalTenor, paymentPeriod,  true, false, businessDayConvention, calendar, endOfMonth);
 
     final CapFloorInflationYearOnYearMonthlyDefinition[] coupons = new CapFloorInflationYearOnYearMonthlyDefinition[paymentDates.length];
     coupons[0] = CapFloorInflationYearOnYearMonthlyDefinition.from(settlementDate, paymentDates[0], notional, priceIndex, conventionalMonthLag, monthLag, lastKnownFixingDate, strike, isCap);
