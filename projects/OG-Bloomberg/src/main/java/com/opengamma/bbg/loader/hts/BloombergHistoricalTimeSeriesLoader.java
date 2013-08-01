@@ -195,7 +195,11 @@ public class BloombergHistoricalTimeSeriesLoader extends AbstractHistoricalTimeS
     // fetch time-series and store to master
     if (bundle2WithDates.size() > 0) {
       int identifiersSize = bundle2WithDates.keySet().size();
-      System.out.printf("Loading %d ts  dataField: %s dataProvider: %s startDate: %s endDate: %s\n", identifiersSize, dataField, dataProvider, startDate, endDate);
+      if (bundle2WithDates.size() == 1) {
+        System.out.printf("Loading ts for %s: dataField: %s dataProvider: %s startDate: %s endDate: %s\n", Iterables.get(bundle2WithDates.keySet(), 0), dataField, dataProvider, startDate, endDate);
+      } else {
+        System.out.printf("Loading %d ts:  dataField: %s dataProvider: %s startDate: %s endDate: %s\n", identifiersSize, dataField, dataProvider, startDate, endDate);
+      }
       OperationTimer timer = new OperationTimer(s_logger, " loading " + identifiersSize + " timeseries from Bloomberg");
       Map<ExternalIdBundle, LocalDateDoubleTimeSeries> tsMap = provideTimeSeries(bundle2WithDates.keySet(), dataField, dataProvider, startDate, endDate);
       timer.finished();
