@@ -64,7 +64,9 @@ public class DistributedEntitlementChecker {
     // The entitlement check completely and utterly screws up the market data
     // server for Activ, wiping out valid resolved ids. As the result of the
     // entitlement check is currently ignored, we'll just avoid doing it at all!
-    if (true) return ImmutableMap.of();
+    if (true) {
+      return ImmutableMap.of();
+    }
 
     final Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
 
