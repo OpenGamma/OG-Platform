@@ -7,7 +7,15 @@ package com.opengamma.financial.convention;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.threeten.bp.Instant;
+
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -17,16 +25,24 @@ import com.opengamma.financial.convention.percurrency.ZAConventions;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * In-memory convention master.
+ *
+ * Versioning is *NOT* supported.
+ * Attempting a version correction will throw an exception.
+ * Only VersionCorrection.LATEST is supported for retrieval.
  */
 public class InMemoryConventionMaster implements ConventionMaster {
   /** In-memory scheme */
   public static final ExternalScheme IN_MEMORY_UNIQUE_SCHEME = ExternalScheme.of("In-memory");
   /** Maps from external ids to unique ids */
   private final ExternalIdBundleMapper<Convention> _mapper = new ExternalIdBundleMapper<>(IN_MEMORY_UNIQUE_SCHEME.getName());
+  /** Change manager */
+  private final ChangeManager _changeManager = new BasicChangeManager();
 
   /**
    * Initializes the conventions.
@@ -82,6 +98,7 @@ public class InMemoryConventionMaster implements ConventionMaster {
   public UniqueId add(final Convention convention) {
     final UniqueId uid = _mapper.add(convention.getExternalIdBundle(), convention);
     convention.setUniqueId(uid);
+    _changeManager.entityChanged(ChangeType.ADDED, convention.getUniqueId().getObjectId(), Instant.now(), null, Instant.now());
     return uid;
   }
 
@@ -91,5 +108,85 @@ public class InMemoryConventionMaster implements ConventionMaster {
       results.add(new ConventionDocument(convention));
     }
     return results;
+  }
+
+  @Override
+  public ConventionDocument get(UniqueId uniqueId) {
+    return getConvention(uniqueId);
+  }
+
+  @Override
+  public ConventionDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    if (!VersionCorrection.LATEST.equals(versionCorrection)) {
+      throw new UnsupportedOperationException("InMemoryConventionMaster only supports VersionCorrection.LATEST");
+    }
+    return getConvention(UniqueId.of(objectId.getObjectId(), null));
+  }
+
+  @Override
+  public Map<UniqueId, ConventionDocument> get(Collection<UniqueId> uniqueIds) {
+    final Map<UniqueId, ConventionDocument> map = new HashMap<>();
+    for (final UniqueId id : uniqueIds) {
+      ConventionDocument doc = getConvention(id);
+      map.put(id, doc);
+    }
+    return map;
+  }
+
+  @Override
+  public ConventionDocument add(ConventionDocument document) {
+    add(document.getConvention());
+    return new ConventionDocument(document.getConvention());
+  }
+
+  @Override
+  public ConventionDocument update(ConventionDocument document) {
+    add(document.getConvention());
+    return new ConventionDocument(document.getConvention());
+  }
+
+  @Override
+  public void remove(ObjectIdentifiable oid) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support deletion.");
+  }
+
+  @Override
+  public ConventionDocument correct(ConventionDocument document) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support versioning.");
+  }
+
+  @Override
+  public List<UniqueId> replaceVersion(UniqueId uniqueId, List<ConventionDocument> replacementDocuments) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support versioning.");
+  }
+
+  @Override
+  public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<ConventionDocument> replacementDocuments) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support versioning.");
+  }
+
+  @Override
+  public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<ConventionDocument> replacementDocuments) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support versioning.");
+  }
+
+  @Override
+  public UniqueId replaceVersion(ConventionDocument replacementDocument) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support versioning.");
+  }
+
+  @Override
+  public void removeVersion(UniqueId uniqueId) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support versioning.");
+  }
+
+  @Override
+  public UniqueId addVersion(ObjectIdentifiable objectId, ConventionDocument documentToAdd) {
+    throw new UnsupportedOperationException("InMemoryConventionMaster does not support versioning.");
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 }

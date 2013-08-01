@@ -23,6 +23,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
+import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -30,7 +31,7 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -64,15 +65,29 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Function computes the amount a position is expected to gain or lose over a horizon specified by {@link ThetaPropertyNamesAndValues#PROPERTY_DAYS_TO_MOVE_FORWARD}.
+ * Horizon calculation is specified in {@link ConstantSpreadHorizonThetaCalculator}.<p>
+ * For interest rate future options, {@link PresentValueBlackCalculator} is currently used.<p>
  */
 public class InterestRateFutureOptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionConstantSpreadThetaFunction.class);
 
   private InterestRateFutureOptionTradeConverter _converter;
+  private String _valueRequirement;
+  
+  public InterestRateFutureOptionConstantSpreadThetaFunction() {
+    setValueRequirement(ValueRequirementNames.VALUE_THETA);
+  }
+  
+  public String getValueRequirement() {
+    return _valueRequirement;
+  }
+
+  protected void setValueRequirement(String valueRequiremnt) {
+    _valueRequirement = valueRequiremnt;
+  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -87,7 +102,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final SimpleTrade trade = (SimpleTrade) target.getTrade();
+    final Trade trade = target.getTrade();
     final IRFutureOptionSecurity security = (IRFutureOptionSecurity) trade.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -99,6 +114,14 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    // Append _CCY to be consistent with curve names from YieldCurveFunctionUtils.getAllYieldCurves
+    final String[] fullCurveNames = new String[Math.max(2, curveNames.length)];
+    for (int i = 0; i < curveNames.length; i++) {
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+    }
+    if (curveNames.length == 1) { // MultiCurveCalculationConfig contains just a single curve for discounting and forwarding
+      fullCurveNames[1] = fullCurveNames[0];
+    }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String surfaceNameWithPrefix = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
@@ -122,11 +145,21 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
 
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
-    final MultipleCurrencyAmount theta = calculator.getTheta((InterestRateFutureOptionMarginTransactionDefinition) irFutureOptionDefinition, now, curveNames, data, lastMarginPrice,
+    final MultipleCurrencyAmount theta = calculator.getTheta((InterestRateFutureOptionMarginTransactionDefinition) irFutureOptionDefinition, now, fullCurveNames, data, lastMarginPrice,
         Integer.parseInt(daysForward));
-    return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, surfaceName, currency.getCode(), daysForward), theta));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, surfaceName, currency.getCode(), daysForward), getValue(theta, currency)));
   }
 
+  /** 
+   * This aids child classes to return value in different format, eg Double 
+   * @param theta ConstantSpreadHorizonThetaCalculator produced MultipleCurrencyAmount
+   * @param currency Allows for function to pull out specified currency
+   * @return theta in desired format
+   */
+  protected Object getValue(final MultipleCurrencyAmount theta, final Currency currency) {
+    return theta;
+  }
+  
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.TRADE;
@@ -141,7 +174,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     final ValueProperties.Builder properties = getResultProperties(currency);
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get()));
+    return Collections.singleton(new ValueSpecification(getValueRequirement(), target.toSpecification(), properties.get()));
   }
 
   @Override
@@ -207,7 +240,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   }
 
   private ValueSpecification getResultSpec(final ComputationTarget target, final String curveCalculationConfig, final String surfaceName, final String currency, final String daysForward) {
-    return new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), getResultProperties(currency, curveCalculationConfig, surfaceName, daysForward).get());
+    return new ValueSpecification(getValueRequirement(), target.toSpecification(), getResultProperties(currency, curveCalculationConfig, surfaceName, daysForward).get());
   }
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {

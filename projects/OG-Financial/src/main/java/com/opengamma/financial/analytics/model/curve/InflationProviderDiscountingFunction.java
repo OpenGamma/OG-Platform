@@ -72,6 +72,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -170,11 +171,11 @@ public class InflationProviderDiscountingFunction extends
             if (type instanceof InflationCurveTypeConfiguration) {
               final InflationCurveTypeConfiguration inflationConfiguration = (InflationCurveTypeConfiguration) type;
               final String reference = inflationConfiguration.getReference();
-              final String indexName = inflationConfiguration.getPriceIndex();
+              final PriceIndexConvention priceIndexConvention = conventionSource.getConvention(PriceIndexConvention.class, inflationConfiguration.getPriceIndex());
               try {
                 final Currency currency = Currency.of(reference);
                 //should this map check that the curve name has not already been entered?
-                inflation.add(new IndexPrice(indexName, currency));
+                inflation.add(new IndexPrice(priceIndexConvention.getName(), currency));
               } catch (final IllegalArgumentException e) {
                 throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for inflation curves");
               }

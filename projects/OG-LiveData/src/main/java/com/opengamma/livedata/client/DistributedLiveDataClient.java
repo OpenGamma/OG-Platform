@@ -54,7 +54,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
    * An exception will be thrown when doing a snapshot if no reply is received from the server
    * within this time. Milliseconds.
    */
-  private static final long TIMEOUT = 30000;
+  private static final long TIMEOUT = 300000;
   
   public DistributedLiveDataClient(
       FudgeRequestSender subscriptionRequestSender,

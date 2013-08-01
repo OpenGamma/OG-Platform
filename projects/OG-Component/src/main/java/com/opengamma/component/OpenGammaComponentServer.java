@@ -53,6 +53,14 @@ public class OpenGammaComponentServer {
    */
   private static final String QUIET_OPTION = "quiet";
   /**
+   * Load-only command line option.
+   */
+  private static final String LOAD_ONLY_OPTION = "load-only";
+  /**
+   * Property-display command line option.
+   */
+  private static final String PROPERTY_DISPLAY_OPTION = "property-display";
+  /**
    * Command line options.
    */
   private static final Options OPTIONS = getOptions();
@@ -134,20 +142,65 @@ public class OpenGammaComponentServer {
     }
     String configFile = args[0];
     
-    return run(configFile, properties);
+    if (cmdLine.hasOption(PROPERTY_DISPLAY_OPTION)) {
+      return displayProperty(configFile, properties, cmdLine.getOptionValue(PROPERTY_DISPLAY_OPTION));
+    } else if (cmdLine.hasOption(LOAD_ONLY_OPTION)) {
+      return loadOnly(configFile, properties);
+    } else {
+      return run(configFile, properties);
+    }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Called just before the server is started. The default implementation here
-   * creates a monitor thread that allows the server to be stopped remotely.
+   * Loads the config files without starting the server.
    * 
-   * @param manager the component manager
+   * @param configFile  the config file, not null
+   * @param properties  the properties read from the command line, not null
+   * @return false always
    */
-  protected void serverStarting(final ComponentManager manager) {
-    OpenGammaComponentServerMonitor.create(manager.getRepository());
+  protected boolean loadOnly(String configFile, Map<String, String> properties) {
+    _logger.logDebug(" Config locator: " + configFile);
+    
+    try {
+      ComponentManager manager = buildManager(configFile, properties);
+      manager.load(configFile);
+      
+    } catch (Exception ex) {
+      _logger.logError(ex);
+      return false;
+    }
+    return false;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Displays the value of the property from the config files without starting the server.
+   * 
+   * @param configFile  the config file, not null
+   * @param properties  the properties read from the command line, not null
+   * @param property  the property to display, not null
+   * @return false always
+   */
+  protected boolean displayProperty(String configFile, Map<String, String> properties, String property) {
+    try {
+      ComponentManager manager = buildManager(configFile, properties);
+      manager.load(configFile);
+      String value = manager.getProperties().get(property);
+      if (value == null) {
+        System.out.println("NO-SUCH-PROPERTY");
+      } else {
+        System.out.println(value);
+      }
+      
+    } catch (Exception ex) {
+      _logger.logError(ex);
+      return false;
+    }
+    return false;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Runs the server with config file.
    * 
@@ -158,18 +211,10 @@ public class OpenGammaComponentServer {
   protected boolean run(String configFile, Map<String, String> properties) {
     long start = System.nanoTime();
     _logger.logInfo("======== STARTING OPENGAMMA ========");
-    _logger.logDebug(" Config file: " + configFile);
+    _logger.logDebug(" Config locator: " + configFile);
     
-    // extract the server name from the file name
-    String serverName = extractServerName(configFile);
-    System.setProperty(OPENGAMMA_SERVER_NAME, serverName);
-    
-    // create the manager
-    ComponentManager manager = createManager(serverName);
-    manager.getProperties().putAll(properties);
-    
-    // start server
     try {
+      ComponentManager manager = buildManager(configFile, properties);
       serverStarting(manager);
       manager.start(configFile);
       
@@ -182,6 +227,22 @@ public class OpenGammaComponentServer {
     long end = System.nanoTime();
     _logger.logInfo("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     return true;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds the component manager.
+   *
+   * @param configFile  the config file, not null
+   * @param properties  the properties read from the command line, not null
+   * @return the manager, not null
+   */
+  protected ComponentManager buildManager(String configFile, Map<String, String> properties) {
+    String serverName = extractServerName(configFile);
+    System.setProperty(OPENGAMMA_SERVER_NAME, serverName);
+    ComponentManager manager = createManager(serverName);
+    manager.getProperties().putAll(properties);
+    return manager;
   }
 
   /**
@@ -206,6 +267,16 @@ public class OpenGammaComponentServer {
     return first + "-" + second;
   }
 
+  /**
+   * Called just before the server is started. The default implementation here
+   * creates a monitor thread that allows the server to be stopped remotely.
+   * 
+   * @param manager the component manager
+   */
+  protected void serverStarting(final ComponentManager manager) {
+    OpenGammaComponentServerMonitor.create(manager.getRepository());
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Creates the logger.
@@ -237,6 +308,9 @@ public class OpenGammaComponentServer {
   private static Options getOptions() {
     Options options = new Options();
     options.addOption(new Option("h", HELP_OPTION, false, "print this help message"));
+    options.addOptionGroup(new OptionGroup()
+        .addOption(new Option("l", LOAD_ONLY_OPTION, false, "load the config, but do not start the server"))
+        .addOption(new Option("p", PROPERTY_DISPLAY_OPTION, true, "displays the calculated value of a property")));
     options.addOptionGroup(new OptionGroup()
         .addOption(new Option("q", QUIET_OPTION, false, "be quiet during startup"))
         .addOption(new Option("v", VERBOSE_OPTION, false, "be verbose during startup")));

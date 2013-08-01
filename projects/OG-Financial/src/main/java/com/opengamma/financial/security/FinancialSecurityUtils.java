@@ -1068,6 +1068,8 @@ public class FinancialSecurityUtils {
           equityBarrierOptionVisitor(true).
           bondFutureOptionSecurityVisitor(true).
           equityIndexFutureOptionVisitor(true).
+          irfutureOptionVisitor(true).
+          interestRateFutureSecurityVisitor(true).
           create());
 
       result = isExchangeTraded == null ? false : isExchangeTraded;

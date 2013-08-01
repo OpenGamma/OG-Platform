@@ -69,7 +69,6 @@ import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -183,21 +182,13 @@ public class MultiCurveDiscountingFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final Convention convention = conventionSource.getConvention(ibor.getConvention());
-              if (!(convention instanceof IborIndexConvention)) {
-                throw new OpenGammaRuntimeException("Expecting convention of type IborIndexConvention; have " + convention.getClass());
-              }
-              final IborIndexConvention iborIndexConvention = (IborIndexConvention) convention;
+              final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ibor.getConvention());
               final int spotLag = 0; //TODO
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final Convention convention = conventionSource.getConvention(overnight.getConvention());
-              if (!(convention instanceof OvernightIndexConvention)) {
-                throw new OpenGammaRuntimeException("Expecting convention of type OvernightIndexConvention; have " + convention.getClass());
-              }
-              final OvernightIndexConvention overnightConvention = (OvernightIndexConvention) convention;
+              final OvernightIndexConvention overnightConvention = conventionSource.getConvention(OvernightIndexConvention.class, overnight.getConvention());
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());

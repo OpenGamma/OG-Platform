@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -182,8 +183,8 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     final ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     final ZonedDateTime refInterpolatedDate = paymentDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
+    referenceEndDate[0] = refInterpolatedDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
     return from(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag, monthLag, referenceStartDate, indexStartValue, referenceEndDate,
         payNotional);
   }
@@ -205,15 +206,15 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
       final IndexPrice priceIndex, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
     final ZonedDateTime refInterpolatedDate = accrualStartDate.minusMonths(monthLag);
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
-    referenceStartDate[0] = refInterpolatedDate.withDayOfMonth(1);
-    referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
+    referenceStartDate[0] = refInterpolatedDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDate[1] = referenceStartDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
     final double weightStart = 1.0 - (refInterpolatedDate.getDayOfMonth() - 1.0) / refInterpolatedDate.toLocalDate().lengthOfMonth();
     final Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceStartDate[0]), priceIndexTimeSeries.getValue(referenceStartDate[1]) };
     double indexStartValue = 0;
     if ((knownIndex[0] != null) && (knownIndex[1] != null)) { // Fixing fully known
       indexStartValue = weightStart * knownIndex[0] + (1 - weightStart) * knownIndex[1]; // Interpolated index
     } else {
-      ArgumentChecker.isTrue(false, "Required price index fixing unavailable");
+      throw new IllegalArgumentException("Required price index fixing unavailable");
     }
     return from(accrualStartDate, paymentDate, notional, priceIndex, indexStartValue, conventionalMonthLag, monthLag, payNotional);
   }

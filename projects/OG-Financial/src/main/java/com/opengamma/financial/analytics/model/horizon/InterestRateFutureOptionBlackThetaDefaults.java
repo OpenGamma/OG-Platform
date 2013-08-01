@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.horizon;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
@@ -21,16 +22,18 @@ import com.opengamma.util.ArgumentChecker;
 public class InterestRateFutureOptionBlackThetaDefaults extends InterestRateFutureOptionBlackDefaults {
   private final String _defaultNumberOfDays;
 
-  public InterestRateFutureOptionBlackThetaDefaults(final String defaultNumberOfDays, final String[] currencyCurveConfigAndSurfaceNames) {
-    super(currencyCurveConfigAndSurfaceNames);
-    ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");
-    _defaultNumberOfDays = defaultNumberOfDays;
+  public InterestRateFutureOptionBlackThetaDefaults(final String... daysCurrencyCurveConfigAndSurfaceNames) {
+    super(Arrays.copyOfRange(daysCurrencyCurveConfigAndSurfaceNames, 1, daysCurrencyCurveConfigAndSurfaceNames.length));
+    ArgumentChecker.isTrue((daysCurrencyCurveConfigAndSurfaceNames.length - 1) % 3 == 0, 
+        "Input array must begin with a number of days then follow with one curve config and surface name per currency");
+    _defaultNumberOfDays = daysCurrencyCurveConfigAndSurfaceNames[0];
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
     defaults.addValuePropertyName(ValueRequirementNames.VALUE_THETA, ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD);
+    defaults.addValuePropertyName(ValueRequirementNames.POSITION_THETA, ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD);
   }
 
   @Override
@@ -40,6 +43,4 @@ public class InterestRateFutureOptionBlackThetaDefaults extends InterestRateFutu
     }
     return super.getDefaultValue(context, target, desiredValue, propertyName);
   }
-
-
 }

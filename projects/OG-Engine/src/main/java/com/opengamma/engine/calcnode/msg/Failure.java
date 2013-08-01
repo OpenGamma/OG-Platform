@@ -1,5 +1,5 @@
-// Automatically created - do not modify
-///CLOVER:OFF - CSOFF
+// Automatically created - do not modify - CSOFF
+///CLOVER:OFF
 package com.opengamma.engine.calcnode.msg;
 public class Failure extends com.opengamma.engine.calcnode.msg.RemoteCalcNodeMessage implements java.io.Serializable {
   public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitFailureMessage (this); }

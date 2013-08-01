@@ -13,10 +13,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.ParallelArrayBinarySort;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class ParallelArrayBinarySortTest {
   private static final Float[] F1 = new Float[] {1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f };
   private static final Double[] Y3 = new Double[] {2.1, 4.1, 6.1, 8.1, 10.1, 12.1, 14.1, 16.1, 18.1, 20.1 };

@@ -307,13 +307,35 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 5000;
+    final int nbTest = 1000000;
     final MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbTest];
     final MultipleCurrencyMulticurveSensitivity[] pvcs = new MultipleCurrencyMulticurveSensitivity[nbTest];
     final PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
     @SuppressWarnings("unused")
     Triple<MultipleCurrencyAmount, MultipleCurrencyMulticurveSensitivity, PresentValueSABRSensitivityDataBundle> pvad;
 
+
+//    // 1. Separately compute: Price plus Curve Sensitivity and SABR Parameter Sensitivity
+//    startTime = System.currentTimeMillis();
+//    for (int looptest = 0; looptest < nbTest; looptest++) {
+//      pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+//      pvcs[looptest] = METHOD_SWPT_SABR.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+//      pvss[looptest] = METHOD_SWPT_SABR.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+//    }
+//    endTime = System.currentTimeMillis();
+//    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega separately): " + (endTime - startTime) + " ms");
+//    // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
+//    
+//    // 2. Together compute: Price plus Curve Sensitivity and SABR Parameter Sensitivity
+//    startTime = System.currentTimeMillis();
+//    for (int looptest = 0; looptest < nbTest; looptest++) {
+//      pvad = METHOD_SWPT_SABR.presentValueAD(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+//    }
+//    endTime = System.currentTimeMillis();
+//    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega together): " + (endTime - startTime) + " ms");
+//    // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 210 ms for 5000 swaptions.
+    
+    // 3. Compute only Present Value
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
@@ -322,23 +344,16 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
     // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 5000 swaptions.
 
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      pvad = METHOD_SWPT_SABR.presentValueAD(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
-    // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 210 ms for 5000 swaptions.
-
+    // 3. Compute only Present Value
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-      pvcs[looptest] = METHOD_SWPT_SABR.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-      pvss[looptest] = METHOD_SWPT_SABR.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
+    System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
+    // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 5000 swaptions.
+
+
 
     final int nbTest2 = 10;
     final PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,8 +8,13 @@ package com.opengamma.financial.analytics.model.irfutureoption;
 import java.util.Collections;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackGammaCalculator;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -31,9 +36,17 @@ public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutu
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
-    final Double gamma = irFutureOption.accept(CALCULATOR, data) / 1e8; // REVIEW: jim 31-Aug-2012 - represents change in PV01 per basis-point now.
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+    Double gamma = null;
+    if (irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction) {
+      InterestRateFutureOptionMarginSecurity irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
+      gamma = irFutureOptionSecurity.accept(CALCULATOR, data);
+    } else {
+      s_logger.error("Unexpected security type! {}", irFutureOptionTransaction.getClass());
+    }
     return Collections.singleton(new ComputedValue(spec, gamma));
   }
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackGammaFunction.class);
 
 }

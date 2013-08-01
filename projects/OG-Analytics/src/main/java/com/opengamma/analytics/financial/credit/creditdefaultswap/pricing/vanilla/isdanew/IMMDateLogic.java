@@ -104,11 +104,46 @@ public abstract class IMMDateLogic {
           }
         }
       } else {
-        final int i = -(index + 1);
-        if (i < 4) {
-          return LocalDate.of(year, IMM_MONTHS[i], IMM_DAY);
+        return LocalDate.of(year, IMM_MONTHS[-(index + 1)], IMM_DAY);
+      }
+    }
+  }
+
+  /**
+   * IMM dates are 20th March, June, September and December. This returns the previous IMM date from the given date - if the date
+   * is an IMM date the previous IMM date (i.e. 3 months before) is returned.  
+   * @param date a given date
+   * @return the next IMM date
+   */
+  public static LocalDate getPrevIMMDate(final LocalDate date) {
+
+    final int day = date.getDayOfMonth();
+    final int month = date.getMonthValue();
+    final int year = date.getYear();
+    if (isIMMDate(date)) { //on an IMM date 
+      if (month != 3) {
+        return LocalDate.of(year, month - 3, IMM_DAY);
+      } else {
+        return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
+      }
+    } else {
+      final int index = Arrays.binarySearch(IMM_MONTHS, month);
+      if (index >= 0) { //in an IMM month
+        if (day > IMM_DAY) {
+          return LocalDate.of(year, month, IMM_DAY);
         } else {
-          return LocalDate.of(year + 1, IMM_MONTHS[0], IMM_DAY);
+          if (month != 3) {
+            return LocalDate.of(year, month - 3, IMM_DAY);
+          } else {
+            return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
+          }
+        }
+      } else {
+        final int i = -(index + 1);
+        if (i == 0) {
+          return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
+        } else {
+          return LocalDate.of(year, IMM_MONTHS[i - 1], IMM_DAY);
         }
       }
     }

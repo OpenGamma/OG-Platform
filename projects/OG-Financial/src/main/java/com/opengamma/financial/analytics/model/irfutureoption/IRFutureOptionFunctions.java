@@ -14,6 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.util.ArgumentChecker;
 
@@ -57,9 +58,18 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
      */
     public static class CurrencyInfo implements InitializingBean {
 
+      private String _curveName;
       private String _curveConfiguration;
       private String _surfaceName;
       private String _smileFittingMethod = SmileFittingProperties.NON_LINEAR_LEAST_SQUARES;
+   
+      public String getCurveName() {
+        return _curveName;
+      }
+      
+      public void setCurveName(final String curveName) {
+        _curveName = curveName;
+      }
 
       public String getCurveConfiguration() {
         return _curveConfiguration;
@@ -91,7 +101,6 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
         ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
         ArgumentChecker.notNullInjected(getSmileFittingMethod(), "smileFittingMethod");
       }
-
     }
 
     private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
@@ -124,6 +133,34 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, args));
     }
 
+    // TODO Needs improvement: defaultNumberOfDaysForward should not be hardcoded here
+    protected void addIRFutureOptionBlackThetaDefaults(final List<FunctionConfiguration> functions) {
+
+      int defaultNumberOfDaysForward = 1;       // TODO !!! Hardcode
+      
+      final String[] daysPlusBlackArgs = new String[getPerCurrencyInfo().size() * 3 + 1];
+      int i = 0;
+      daysPlusBlackArgs[i++] = Integer.toString(defaultNumberOfDaysForward);
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        daysPlusBlackArgs[i++] = e.getKey();
+        daysPlusBlackArgs[i++] = e.getValue().getCurveConfiguration();
+        daysPlusBlackArgs[i++] = e.getValue().getSurfaceName();
+      }
+      functions.add(functionConfiguration(InterestRateFutureOptionBlackThetaDefaults.class, daysPlusBlackArgs));
+    }
+    
+    protected void addIRFutureOptionBlackCurveSpecificDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[getPerCurrencyInfo().size() * 4];
+      int i = 0;
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();        
+        args[i++] = e.getValue().getCurveName();
+        args[i++] = e.getValue().getCurveConfiguration();
+        args[i++] = e.getValue().getSurfaceName();
+      }
+      functions.add(functionConfiguration(InterestRateFutureOptionBlackCurveSpecificDefaults.class, args));
+    }
+
     protected void addIRFutureOptionSABRDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[getPerCurrencyInfo().size() * 4];
       int i = 0;
@@ -151,6 +188,8 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
         addIRFutureOptionBlackDefaults(functions);
+        addIRFutureOptionBlackCurveSpecificDefaults(functions);
+        addIRFutureOptionBlackThetaDefaults(functions);
         addIRFutureOptionSABRDefaults(functions);
         addIRFutureOptionHestonDefaults(functions);
       }
@@ -170,14 +209,17 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionGammaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionVegaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionWeightedVegaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionRhoFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackForwardFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueDeltaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackValueGammaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRYCNSFunction.class));
-    // TODO: add functions from package
   }
 
 }

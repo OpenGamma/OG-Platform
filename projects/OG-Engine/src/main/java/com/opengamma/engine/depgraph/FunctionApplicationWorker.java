@@ -88,17 +88,13 @@ import com.opengamma.engine.value.ValueSpecification;
     synchronized (this) {
       _inputs = null;
       if (_inputHandles != null) {
-        if (_inputHandles.isEmpty()) {
-          unsubscribes = null;
-        } else {
+        if (!_inputHandles.isEmpty()) {
           unsubscribes = _inputHandles.values();
         }
         _inputHandles = null;
       }
       if (_pumps != null) {
-        if (_pumps.isEmpty()) {
-          pumps = null;
-        } else {
+        if (!_pumps.isEmpty()) {
           pumps = _pumps;
         }
         _pumps = null;

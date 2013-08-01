@@ -56,6 +56,7 @@ import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
@@ -64,11 +65,8 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
 /**
- * FIXME PROTOTYPE Function that computes the profit or loss since previous close.
- * <p>
+ * Function that computes the profit or loss since previous close.<p>
  * As the name MarkToMarket implies, this simple Function applies to Trades on Exchange-Traded Securities.
- * 
- * @author casey
  */
 public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -217,7 +215,9 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     } else if (security instanceof EquityIndexFutureOptionSecurity) {
       final EquityIndexFutureOptionSecurity optionSecurity = (EquityIndexFutureOptionSecurity) security;
       dailyValueMove *= optionSecurity.getPointValue();
-
+    } else if (security instanceof IRFutureOptionSecurity) {
+      final IRFutureOptionSecurity optionSecurity = (IRFutureOptionSecurity) security;
+      dailyValueMove *= optionSecurity.getPointValue();
     }
     // Multiply by the Trade's Quantity
     final Double dailyPnL = target.getTrade().getQuantity().doubleValue() * dailyValueMove;

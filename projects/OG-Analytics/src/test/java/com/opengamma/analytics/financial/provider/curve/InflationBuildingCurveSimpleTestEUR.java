@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -78,9 +78,9 @@ public class InflationBuildingCurveSimpleTestEUR {
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
-  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {200, 200 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
+  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 30),
+      DateUtils.getUTCDate(2011, 9, 30) }, new double[] {200, 200 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 30) },
       new double[] {100 });
 
   @SuppressWarnings("rawtypes")

@@ -42,12 +42,9 @@ public class ISDABaseTest {
   protected static final boolean PROCTECTION_START = true;
   protected static final double RECOVERY_RATE = 0.4;
 
-  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates) {
-    final DayCount moneyMarketDCC = ACT360;
-    final DayCount swapDCC = D30360;
+  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval) {
     final DayCount curveDCC = ACT365;
-    final Period swapInterval = Period.ofMonths(6);
-
     final int nInstruments = maturities.length;
     final Period[] tenors = new Period[nInstruments];
     final ISDAInstrumentTypes[] types = new ISDAInstrumentTypes[nInstruments];
@@ -73,6 +70,14 @@ public class ISDABaseTest {
       }
     }
     return YIELD_CURVE_BUILDER.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+
+  }
+
+  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates) {
+    final DayCount moneyMarketDCC = ACT360;
+    final DayCount swapDCC = D30360;
+    final Period swapInterval = Period.ofMonths(6);
+    return makeYieldCurve(today, spotDate, maturities, type, rates, moneyMarketDCC, swapDCC, swapInterval);
   }
 
   protected static LocalDate parseDateString(final String ddmmyyyy) {

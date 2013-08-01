@@ -41,6 +41,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
+              <useUniqueVersions>false</useUniqueVersions>
             </manifest>
           </archive>
         </configuration>

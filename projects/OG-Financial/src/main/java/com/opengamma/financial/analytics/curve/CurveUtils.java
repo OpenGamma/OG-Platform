@@ -78,18 +78,19 @@ public class CurveUtils {
    * @param configSource The config source that contains information about any exogenous curve configurations, not null
    * @param valuationTime The valuation time, not null
    * @param conventionSource The convention source, not null
+   * @param curveNodeCurrencyVisitor The curve node currency visitor, not null
    * @return An ordered set of currencies for these curves
    * @throws OpenGammaRuntimeException if any of the definitions are not found
    */
   public static Set<Currency> getCurrencies(final CurveConstructionConfiguration configuration, final ConfigSource configSource, final Instant valuationTime,
-      final ConventionSource conventionSource) {
+      final ConventionSource conventionSource, final CurveNodeVisitor<Set<Currency>> curveNodeCurrencyVisitor) {
     ArgumentChecker.notNull(configuration, "configuration");
     ArgumentChecker.notNull(configSource, "config source");
     ArgumentChecker.notNull(valuationTime, "valuation time");
     ArgumentChecker.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(curveNodeCurrencyVisitor, "curve node currency visitor");
     final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
-    final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
     final Set<Currency> currencies = new TreeSet<>();
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
       for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
@@ -99,7 +100,7 @@ public class CurveUtils {
           throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
         }
         for (final CurveNode node : curveDefinition.getNodes()) {
-          currencies.addAll(node.accept(visitor));
+          currencies.addAll(node.accept(curveNodeCurrencyVisitor));
         }
       }
     }
@@ -108,7 +109,7 @@ public class CurveUtils {
       final CurveConstructionConfigurationSource source = new ConfigDBCurveConstructionConfigurationSource(configSource);
       for (final String name : exogenousConfigurations) {
         final CurveConstructionConfiguration exogenousConfiguration = source.getCurveConstructionConfiguration(name, VersionCorrection.of(versionTime, versionTime));
-        currencies.addAll(getCurrencies(exogenousConfiguration, configSource, valuationTime, conventionSource));
+        currencies.addAll(getCurrencies(exogenousConfiguration, configSource, valuationTime, conventionSource, curveNodeCurrencyVisitor));
       }
     }
     return currencies;

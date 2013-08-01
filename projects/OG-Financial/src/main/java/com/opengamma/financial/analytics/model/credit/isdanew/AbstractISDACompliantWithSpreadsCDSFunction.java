@@ -23,6 +23,10 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuo
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
@@ -69,6 +73,7 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
   private static double s_tenminus4 = 1e-4; // fractional 1 BPS
   private HolidaySource _holidaySource; //OpenGammaCompilationContext.getHolidaySource(context);
   private RegionSource _regionSource;
+  private final PointsUpFrontConverter _puf = new PointsUpFrontConverter();
 
   public AbstractISDACompliantWithSpreadsCDSFunction(final String valueRequirement) {
     _valueRequirement = valueRequirement;
@@ -86,7 +91,7 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     //_converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
   }
 
-  protected abstract Object compute(final ZonedDateTime maturity, final CDSQuoteConvention quote, final double notional, final
+  protected abstract Object compute(final ZonedDateTime maturity, final PointsUpFront puf, final CDSQuoteConvention quote, final double notional, final
                                     BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic,
                                     final CDSAnalytic[] curveAnalytics, final CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates);
 
@@ -138,8 +143,10 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
       throw new OpenGammaRuntimeException("Couldn't get spread for " + security);
     }
     final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention)[0];
+    // TODO: Only do this once
+    final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic);
 
-    final Object result = compute(security.getMaturityDate(), quote, security.getNotional().getAmount(),
+    final Object result = compute(security.getMaturityDate(), puf, quote, security.getNotional().getAmount(),
         buySellProtection, yieldCurve, analytic, creditAnalytics, quotes, bucketDates);
 
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
@@ -252,6 +259,25 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     final CreditCurveIdentifier curveIdentifier = CreditCurveIdentifier.of(name + security.getReferenceEntity().getValue(), security.getNotional().getCurrency(),
         security.getDebtSeniority().toString(), security.getRestructuringClause().toString());
     return curveIdentifier;
+  }
+
+  public PointsUpFront getPointsUpfront(CDSQuoteConvention quote, BuySellProtection buySellProtection, ISDACompliantYieldCurve yieldCurve, CDSAnalytic analytic) {
+    double puf = 0.0;
+    if (quote instanceof PointsUpFront) {
+      return (PointsUpFront) quote;
+    } else if (quote instanceof QuotedSpread) {
+      puf = _puf.quotedSpreadToPUF(analytic,
+                                           quote.getCoupon(),
+                                           yieldCurve,
+                                           ((QuotedSpread) quote).getQuotedSpread());
+      // SELL protection reverses directions of legs
+      puf = Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
+    } else if (quote instanceof ParSpread) {
+      puf = 0.0;
+    } else {
+      throw new OpenGammaRuntimeException("Unknown quote type " + quote);
+    }
+    return new PointsUpFront(quote.getCoupon(), puf);
   }
 
   public static ManageableRegion getTestRegion() {

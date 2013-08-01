@@ -36,7 +36,7 @@ public class InterestRateFutureOptionBlackPV01Function extends InterestRateFutur
     final Map<String, Double> pv01 = CALCULATOR.visit(irFutureOption, data);
     final String fullCurveName = curveName + "_" + FinancialSecurityUtils.getCurrency(security).getCode();
     if (!pv01.containsKey(fullCurveName)) {
-      throw new OpenGammaRuntimeException("Could not get PV01 for " + curveName);
+      throw new OpenGammaRuntimeException("Could not get sensitivity for " + curveName);
     }
     return Collections.singleton(new ComputedValue(spec, pv01.get(fullCurveName)));
   }

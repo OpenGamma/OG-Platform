@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -26,6 +27,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
@@ -95,7 +97,12 @@ public class PositionGreeksFunction extends AbstractFunction.NonCompiledInvoker 
     if (secGreekSpec.getValueName() != getSecurityReqName()) {
       return null;
     }
-    final ValueProperties properties = secGreekSpec.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    Security security = target.getPositionOrTrade().getSecurity();
+    String currency = FinancialSecurityUtils.getCurrency(security).getCode();
+    final ValueProperties properties = secGreekSpec.getProperties().copy()
+        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .withoutAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURRENCY, currency)
+        .get();
     return Collections.singleton(new ValueSpecification(getPositionReqName(), target.toSpecification(), properties));
   }
   

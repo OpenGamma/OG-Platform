@@ -1,5 +1,5 @@
-// Automatically created - do not modify
-///CLOVER:OFF - CSOFF
+// Automatically created - do not modify - CSOFF
+///CLOVER:OFF
 package com.opengamma.engine.marketdata.spec;
 public class LatestHistoricalMarketDataSpecification extends com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification implements java.io.Serializable {
   private static final long serialVersionUID = 1l;

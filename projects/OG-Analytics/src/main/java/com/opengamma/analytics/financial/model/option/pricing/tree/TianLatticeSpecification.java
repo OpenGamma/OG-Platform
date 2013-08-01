@@ -22,8 +22,4 @@ public class TianLatticeSpecification extends LatticeSpecification {
     return new double[] {upFactor, downFactor, upProbability, 1 - upProbability };
   }
 
-  @Override
-  public double getTheta(final double spot, final double volatility, final double interestRate, final double dt, final double[] greeksTmp) {
-    return 0.5 * (greeksTmp[3] - greeksTmp[0]) / dt;
-  }
 }

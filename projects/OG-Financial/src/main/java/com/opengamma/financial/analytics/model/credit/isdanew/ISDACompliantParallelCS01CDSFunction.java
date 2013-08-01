@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.SpreadSensitivityCalculator;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -28,14 +29,12 @@ public class ISDACompliantParallelCS01CDSFunction extends AbstractISDACompliantW
   }
 
   @Override
-
-  protected Object compute(final ZonedDateTime maturity, CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection,
+  protected Object compute(final ZonedDateTime maturity, PointsUpFront puf, CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection,
       final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final
       CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
-
     double cs01;
     if (quote instanceof ParSpread) {
-      // use a slightly different methodology on non IMM dates
+      // use a slightly different methodology on non IMM dates (signaled by a ParSpread)
       final double[] spreads = new double[quotes.length];
       for (int i = 0; i < spreads.length; i++) {
         spreads [i] = quotes[i].getCoupon();

@@ -80,9 +80,13 @@ public class ComponentManager {
    */
   private final ComponentLogger _logger;
   /**
-   * The component properties.
+   * The component properties, updated as properties are discovered.
    */
   private final ConcurrentMap<String, String> _properties = new ConcurrentHashMap<String, String>();
+  /**
+   * The component INI, updated as configuration is discovered.
+   */
+  private ComponentConfig _configIni = new ComponentConfig();
 
   /**
    * Creates an instance that does not log.
@@ -139,6 +143,15 @@ public class ComponentManager {
     return _properties;
   }
 
+  /**
+   * Gets the component INI.
+   * 
+   * @return the component INI, not null
+   */
+  public ComponentConfig getConfigIni() {
+    return _configIni;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sets the server name property.
@@ -165,11 +178,13 @@ public class ComponentManager {
 
   //-------------------------------------------------------------------------
   /**
-   * Initializes the components based on the specified resource.
+   * Loads, initializes and starts the components based on the specified resource.
    * <p>
    * See {@link #createResource(String)} for the valid resource location formats.
+   * <p>
+   * Calls {@link #start(Resource)}.
    * 
-   * @param resourceLocation  the resource location, not null
+   * @param resourceLocation  the configuration resource location, not null
    * @return the created repository, not null
    */
   public ComponentRepository start(String resourceLocation) {
@@ -178,25 +193,54 @@ public class ComponentManager {
   }
 
   /**
-   * Initializes the components based on the specified resource.
+   * Loads, initializes and starts the components based on the specified resource.
+   * <p>
+   * Calls {@link #load(Resource)}, {@link #init()} and {@link #start()}.
    * 
-   * @param resource  the config resource to load, not null
+   * @param resource  the configuration resource to load, not null
    * @return the created repository, not null
    */
   public ComponentRepository start(Resource resource) {
-    _logger.logInfo("  Using file: " + resource.getDescription());
-    
+    load(resource);
+    init();
+    start();
+    return getRepository();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Loads the component configuration based on the specified resource.
+   * <p>
+   * See {@link #createResource(String)} for the valid resource location formats.
+   * <p>
+   * Calls {@link #load(Resource)}.
+   * 
+   * @param resourceLocation  the configuration resource location, not null
+   * @return this manager, for chaining, not null
+   */
+  public ComponentManager load(String resourceLocation) {
+    Resource resource = ResourceUtils.createResource(resourceLocation);
+    return load(resource);
+  }
+
+  /**
+   * Loads the component configuration based on the specified resource.
+   * 
+   * @param resource  the configuration resource to load, not null
+   * @return this manager, for chaining, not null
+   */
+  public ComponentManager load(Resource resource) {
+    _logger.logInfo("  Using item: " + ResourceUtils.getLocation(resource));
     if (resource.getFilename().endsWith(".properties")) {
       String nextConfig = loadProperties(resource);
       if (nextConfig == null) {
         throw new OpenGammaRuntimeException("The properties file must contain the key '" + MANAGER_NEXT_FILE + "' to specify the next file to load: " + resource);
       }
-      return start(nextConfig);
+      return load(nextConfig);
     }
     if (resource.getFilename().endsWith(".ini")) {
       loadIni(resource);
-      start();
-      return getRepository();
+      return this;
     }
     throw new OpenGammaRuntimeException("Unknown file format: " + resource);
   }
@@ -223,15 +267,14 @@ public class ComponentManager {
    */
   protected void loadIni(Resource resource) {
     ComponentConfigIniLoader loader = new ComponentConfigIniLoader(_logger, getProperties());
-    ComponentConfig config = loader.load(resource, 0);
-    
+    loader.load(resource, 0, _configIni);
     logProperties();
-    getRepository().pushThreadLocal();
-    initGlobal(config);
-    init(config);
   }
 
-  private void logProperties() {
+  /**
+   * Logs the properties to be used.
+   */
+  protected void logProperties() {
     _logger.logDebug("--- Using merged properties ---");
     Map<String, String> properties = new TreeMap<String, String>(getProperties());
     for (String key : properties.keySet()) {
@@ -244,8 +287,20 @@ public class ComponentManager {
   }
 
   //-------------------------------------------------------------------------
-  protected void initGlobal(ComponentConfig config) {
-    LinkedHashMap<String, String> global = config.getGroup("global");
+  /**
+   * Initializes the repository from the config.
+   */
+  public void init() {
+    getRepository().pushThreadLocal();
+    initGlobal();
+    initComponents();
+  }
+
+  /**
+   * Initializes the global definitions from the config.
+   */
+  protected void initGlobal() {
+    LinkedHashMap<String, String> global = _configIni.getGroup("global");
     if (global != null) {
       PlatformConfigUtils.configureSystemProperties();
       String zoneId = global.get("time.zone");
@@ -256,31 +311,15 @@ public class ComponentManager {
   }
 
   /**
-   * Initializes the repository from the config.
-   * 
-   * @param config  the loaded config, not null
+   * Initializes the component definitions from the config.
    */
-  protected void init(ComponentConfig config) {
-    for (String groupName : config.getGroups()) {
-      LinkedHashMap<String, String> groupData = config.getGroup(groupName);
+  protected void initComponents() {
+    for (String groupName : _configIni.getGroups()) {
+      LinkedHashMap<String, String> groupData = _configIni.getGroup(groupName);
       if (groupData.containsKey("factory")) {
         initComponent(groupName, groupData);
       }
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Starts the components.
-   */
-  protected void start() {
-    _logger.logInfo("--- Starting Lifecycle ---");
-    long startInstant = System.nanoTime();
-    
-    getRepository().start();
-    
-    long endInstant = System.nanoTime();
-    _logger.logInfo("--- Started Lifecycle in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
   }
 
   //-------------------------------------------------------------------------
@@ -512,6 +551,20 @@ public class ComponentManager {
     if (remainingConfig.size() > 0) {
       throw new IllegalStateException("Configuration was specified but not used: " + remainingConfig);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Starts the components.
+   */
+  public void start() {
+    _logger.logInfo("--- Starting Lifecycle ---");
+    long startInstant = System.nanoTime();
+    
+    getRepository().start();
+    
+    long endInstant = System.nanoTime();
+    _logger.logInfo("--- Started Lifecycle in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
   }
 
 }

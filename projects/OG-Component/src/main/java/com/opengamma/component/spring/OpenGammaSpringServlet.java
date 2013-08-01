@@ -17,7 +17,6 @@ import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.component.ComponentManager;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.util.rest.HttpMethodFilter;
 import com.opengamma.util.rest.NoCachingFilter;
@@ -40,7 +39,7 @@ public class OpenGammaSpringServlet extends SpringServlet {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ComponentManager.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(OpenGammaSpringServlet.class);
 
   public OpenGammaSpringServlet() {
     super();

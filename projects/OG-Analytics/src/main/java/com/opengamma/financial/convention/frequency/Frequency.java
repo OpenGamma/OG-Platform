@@ -44,6 +44,10 @@ public interface Frequency {
    */
   String TWENTY_EIGHT_DAYS_NAME = "Twenty Eight Days";
   /**
+   * Three-weekly convention name
+   */
+  String THREE_WEEK_NAME = "Three week";
+  /**
    * Bi-weekly convention name
    */
   String BIWEEKLY_NAME = "Bi-weekly";

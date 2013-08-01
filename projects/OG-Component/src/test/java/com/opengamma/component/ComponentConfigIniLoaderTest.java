@@ -44,7 +44,8 @@ public class ComponentConfigIniLoaderTest {
     );
     properties.put("input", "text");
     
-    ComponentConfig test = loader.load(resource, 0);
+    ComponentConfig test = new ComponentConfig();
+    loader.load(resource, 0, test);
     assertEquals(2, test.getGroups().size());
     
     LinkedHashMap<String, String> testGlobal = test.getGroup("global");
@@ -69,7 +70,7 @@ public class ComponentConfigIniLoaderTest {
         "m = s" + NEWLINE
     );
     
-    loader.load(resource, 0);
+    loader.load(resource, 0, new ComponentConfig());
   }
 
   @Test(expectedExceptions = RuntimeException.class)
@@ -81,7 +82,7 @@ public class ComponentConfigIniLoaderTest {
         "m = ${notFound}" + NEWLINE
     );
     
-    loader.load(resource, 0);
+    loader.load(resource, 0, new ComponentConfig());
   }
 
   @Test(expectedExceptions = RuntimeException.class)
@@ -92,7 +93,7 @@ public class ComponentConfigIniLoaderTest {
         "m = foo" + NEWLINE
     );
     
-    loader.load(resource, 0);
+    loader.load(resource, 0, new ComponentConfig());
   }
 
   @Test(expectedExceptions = RuntimeException.class)
@@ -104,7 +105,7 @@ public class ComponentConfigIniLoaderTest {
         "m" + NEWLINE
     );
     
-    loader.load(resource, 0);
+    loader.load(resource, 0, new ComponentConfig());
   }
 
   @Test(expectedExceptions = RuntimeException.class)
@@ -116,7 +117,7 @@ public class ComponentConfigIniLoaderTest {
         "= foo" + NEWLINE
     );
     
-    loader.load(resource, 0);
+    loader.load(resource, 0, new ComponentConfig());
   }
 
 }

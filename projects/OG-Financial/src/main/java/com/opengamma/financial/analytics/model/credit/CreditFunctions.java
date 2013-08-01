@@ -24,10 +24,8 @@ import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantAccru
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCleanPriceCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantBucketedCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCleanPresentValueCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantDirtyPresentValueCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantParallelCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantPointsUpfrontCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantPrincipalCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantUpfrontAmountCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
@@ -466,7 +464,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
 
     functions.add(functionConfiguration(ISDACompliantYieldCurveFunction.class));
     functions.add(functionConfiguration(ISDACompliantCleanPresentValueCDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantDirtyPresentValueCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantParallelCS01CDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantBucketedCS01CDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantUpfrontAmountCDSFunction.class));
@@ -474,7 +471,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACompliantAccruedDaysCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantAccruedPremiumCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantCleanPriceCDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantPrincipalCDSFunction.class));
   }
 
 }

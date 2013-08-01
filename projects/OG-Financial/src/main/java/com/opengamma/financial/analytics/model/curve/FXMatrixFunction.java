@@ -38,7 +38,10 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
@@ -61,6 +64,15 @@ public class FXMatrixFunction extends AbstractFunction {
     _configurationName = configurationName;
   }
 
+  /**
+   * Gets a visitor that returns all currencies associated with a {@link CurveNode}.
+   * @param conventionSource The convention source, not null
+   * @return A visitor that returns all currencies associated with a node
+   */
+  protected CurveNodeVisitor<Set<Currency>> getCurveNodeCurrencyVisitor(final ConventionSource conventionSource) {
+    return new CurveNodeCurrencyVisitor(conventionSource);
+  }
+
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
@@ -74,7 +86,8 @@ public class FXMatrixFunction extends AbstractFunction {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
-    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, versionTime, conventionSource);
+    final CurveNodeVisitor<Set<Currency>> visitor = getCurveNodeCurrencyVisitor(conventionSource);
+    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, versionTime, conventionSource, visitor);
     final ValueProperties properties = createValueProperties()
         .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
         .get();
