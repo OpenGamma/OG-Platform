@@ -162,7 +162,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
             requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
           }
         } catch (final OpenGammaRuntimeException e) {
-          throw new OpenGammaRuntimeException(_curveName + " " + e.getMessage());
+          s_logger.error(_curveName + " " + e.getMessage());
+          return null;
         }
       }
       return requirements;

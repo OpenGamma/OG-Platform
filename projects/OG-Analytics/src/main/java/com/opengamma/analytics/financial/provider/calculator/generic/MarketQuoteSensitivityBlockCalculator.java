@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.generic;
@@ -82,6 +82,9 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
    * @return The market quote sensitivity.
    */
   public MultipleCurrencyParameterSensitivity fromInstrument(final InstrumentDerivative instrument, final DATA_TYPE provider, final CurveBuildingBlockBundle units) {
+    ArgumentChecker.notNull(instrument, "instrument");
+    ArgumentChecker.notNull(provider, "provider");
+    ArgumentChecker.notNull(units, "units");
     final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, provider, provider.getMulticurveProvider().getAllNames());
     return fromParameterSensitivity(parameterSensitivity, units);
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swap;
@@ -242,7 +242,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, indexDataTS[0]);
     return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

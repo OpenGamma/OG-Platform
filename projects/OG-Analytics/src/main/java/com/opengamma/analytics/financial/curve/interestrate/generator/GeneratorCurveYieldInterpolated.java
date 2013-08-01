@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -22,7 +22,7 @@ public class GeneratorCurveYieldInterpolated extends GeneratorYDCurve {
   /**
    * Calculator of the node associated to instruments.
    */
-  private final InstrumentDerivativeVisitorAdapter<Object, Double> _nodeTimeCalculator;
+  private final InstrumentDerivativeVisitor<Object, Double> _nodeTimeCalculator;
   /**
    * The interpolator used for the curve.
    */
@@ -33,7 +33,7 @@ public class GeneratorCurveYieldInterpolated extends GeneratorYDCurve {
    * @param nodeTimeCalculator Calculator of the node associated to instruments.
    * @param interpolator The interpolator used for the curve.
    */
-  public GeneratorCurveYieldInterpolated(final InstrumentDerivativeVisitorAdapter<Object, Double> nodeTimeCalculator, final Interpolator1D interpolator) {
+  public GeneratorCurveYieldInterpolated(final InstrumentDerivativeVisitor<Object, Double> nodeTimeCalculator, final Interpolator1D interpolator) {
     _nodeTimeCalculator = nodeTimeCalculator;
     _interpolator = interpolator;
   }

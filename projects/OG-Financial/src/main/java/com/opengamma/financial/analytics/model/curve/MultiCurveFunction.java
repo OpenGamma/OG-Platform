@@ -36,6 +36,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.core.config.ConfigSource;
@@ -56,6 +57,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -80,8 +82,12 @@ import com.opengamma.util.tuple.Pair;
  * @param <W> The type of the sensitivity results
  */
 public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U, V, W> extends AbstractFunction {
+  /** The curve node converter */
+  private static final CurveNodeConverter CURVE_NODE_CONVERTER = new CurveNodeConverter();
   /** The curve configuration name */
   private final String _configurationName;
+  /** The maturity calculator */
+  private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
   /**
    * @param configurationName The configuration name, not null
@@ -335,6 +341,22 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      */
     protected abstract Set<ComputedValue> getResults(ValueSpecification bundleSpec, ValueSpecification jacobianSpec,
         ValueProperties bundleProperties, Pair<T, CurveBuildingBlockBundle> pair);
+
+    /**
+     * Gets the curve node converter.
+     * @return The curve node converter
+     */
+    protected CurveNodeConverter getCurveNodeConverter() {
+      return CURVE_NODE_CONVERTER;
+    }
+
+    /**
+     * Gets the maturity calculator.
+     * @return The maturity calculator
+     */
+    protected InstrumentDerivativeVisitor<Object, Double> getMaturityCalculator() {
+      return MATURITY_CALCULATOR;
+    }
 
     /**
      * Gets the result properties for a curve

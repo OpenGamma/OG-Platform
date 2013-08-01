@@ -1,34 +1,35 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
-import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableSecurityHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableSecurityHullWhiteMethod;
+import com.opengamma.analytics.financial.provider.calculator.discounting.MarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 
 /**
  * Calculate the market quote of instruments dependent of a Hull-White one factor provider.
  */
-public final class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, Double> {
+public class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, Double> {
 
   /**
-   * The unique instance of the calculator.
+   * An instance of the calculator.
    */
   private static final MarketQuoteHullWhiteCalculator INSTANCE = new MarketQuoteHullWhiteCalculator();
 
   /**
    * Constructor.
    */
-  private MarketQuoteHullWhiteCalculator() {
+  protected MarketQuoteHullWhiteCalculator() {
   }
 
   /**
@@ -48,7 +49,7 @@ public final class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVi
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final HullWhiteOneFactorProviderInterface multicurves) {
-    return derivative.accept(this, multicurves);
+    return derivative.accept(MarketQuoteDiscountingCalculator.getInstance(), multicurves.getMulticurveProvider());
   }
 
   //     -----     Futures     -----

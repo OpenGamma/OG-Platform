@@ -11,6 +11,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
@@ -34,7 +35,7 @@ public class CurveNodeConverter {
    * @return A derivative instrument
    */
   @SuppressWarnings("unchecked")
-  public static InstrumentDerivative getDerivative(final CurveNodeWithIdentifier node, final InstrumentDefinition<?> definition, final ZonedDateTime now,
+  public InstrumentDerivative getDerivative(final CurveNodeWithIdentifier node, final InstrumentDefinition<?> definition, final ZonedDateTime now,
       final HistoricalTimeSeriesBundle timeSeries) {
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(definition, "definition");
@@ -43,7 +44,11 @@ public class CurveNodeConverter {
       if (node.getCurveNode() instanceof RateFutureNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
         final ExternalId id = node.getIdentifier();
-        final DoubleTimeSeries<?> ts = timeSeries.get(node.getDataField(), id).getTimeSeries();
+        final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), id);
+        if (historicalTimeSeries == null) {
+          throw new OpenGammaRuntimeException("Could not get price time series for " + id);
+        }
+        final DoubleTimeSeries<?> ts = historicalTimeSeries.getTimeSeries();
         if (ts == null) {
           throw new OpenGammaRuntimeException("Could not get price time series for " + id);
         }
@@ -52,11 +57,11 @@ public class CurveNodeConverter {
           throw new OpenGammaRuntimeException("Price time series for " + id + " was empty");
         }
         final double lastMarginPrice = ts.getLatestValue();
-        return ((InstrumentDefinitionWithData<?, Double>) definition).toDerivative(now, lastMarginPrice, new String[] {"", "", ""});
+        return ((InstrumentDefinitionWithData<?, Double>) definition).toDerivative(now, lastMarginPrice);
       }
       throw new OpenGammaRuntimeException("Cannot handle swaps with fixings");
     }
-    return definition.toDerivative(now, new String[] {"", "", ""});
+    return definition.toDerivative(now);
   }
 
   private static boolean requiresFixingSeries(final CurveNode node) {
