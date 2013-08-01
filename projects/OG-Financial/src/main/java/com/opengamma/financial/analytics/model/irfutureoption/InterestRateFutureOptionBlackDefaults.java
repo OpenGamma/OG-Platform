@@ -42,6 +42,7 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.POSITION_VEGA,
     ValueRequirementNames.POSITION_THETA,
     ValueRequirementNames.POSITION_RHO,
+    ValueRequirementNames.POSITION_WEIGHTED_VEGA,
     ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VALUE_VEGA,

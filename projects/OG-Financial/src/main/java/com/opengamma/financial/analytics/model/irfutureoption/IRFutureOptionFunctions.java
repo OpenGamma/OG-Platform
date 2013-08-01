@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -211,6 +210,7 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(InterestRateFutureOptionBlackDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionVegaFunction.class));
+    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionWeightedVegaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionRhoFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackForwardFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueDeltaFunction.class));
