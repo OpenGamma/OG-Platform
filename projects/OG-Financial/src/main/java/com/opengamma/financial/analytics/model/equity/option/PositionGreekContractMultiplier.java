@@ -45,7 +45,7 @@ public final class PositionGreekContractMultiplier extends FinancialSecurityVisi
   
   @Override
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
