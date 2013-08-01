@@ -56,7 +56,6 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
     }
 
     protected void addYieldCurveFunctions(final List<FunctionConfiguration> functions, final String currency, final String curveName) {
-      System.err.println(currency + "\t" + curveName);
       functions.add(functionConfiguration(YieldCurveMarketDataFunction.class, currency, curveName));
       functions.add(functionConfiguration(YieldCurveInterpolatingFunction.class, currency, curveName));
       functions.add(functionConfiguration(YieldCurveSpecificationFunction.class, currency, curveName));
