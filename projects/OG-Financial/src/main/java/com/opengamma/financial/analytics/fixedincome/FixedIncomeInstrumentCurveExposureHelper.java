@@ -34,6 +34,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_12M:
         return new String[] {fundingCurveName, forwardCurveName };
+      case SWAP_28D:
+        return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
         return new String[] {fundingCurveName };
       case FRA_3M:
@@ -78,6 +80,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       case SWAP_6M:
         return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_12M:
+        return new String[] {fundingCurveName, forwardCurveName };
+      case SWAP_28D:
         return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
         return new String[] {forwardCurveName };

@@ -93,6 +93,9 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
         final ValueRequirement desiredValue) {
+      if (target.getValue().equals(Currency.of("USD"))) {
+        System.err.println(_requirements);
+      }
       return _requirements;
     }
 
