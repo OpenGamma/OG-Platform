@@ -54,7 +54,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
    * An exception will be thrown when doing a snapshot if no reply is received from the server
    * within this time. Milliseconds.
    */
-  private static final long TIMEOUT = 300000;
+  private static final long TIMEOUT = 1800000;
   
   public DistributedLiveDataClient(
       FudgeRequestSender subscriptionRequestSender,
@@ -106,8 +106,10 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     UserPrincipal user = null;
     SubscriptionType type = null;
     
-    ArrayList<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
+    ArrayList<LiveDataSpecification> specs = new ArrayList<>();
     for (SubscriptionHandle subHandle : subHandles) {
+
+      // TODO - as a LiveDataSpec is immutable, why do we copy rather than just use it?
       specs.add(new LiveDataSpecification(subHandle.getRequestedSpecification()));
       
       if (user == null) {
@@ -145,18 +147,18 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     
     private final Map<LiveDataSpecification, SubscriptionHandle> _spec2SubHandle;
     
-    private final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _successResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
-    private final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _failedResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
+    private final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _successResponses = new HashMap<>();
+    private final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _failedResponses = new HashMap<>();
     
     private UserPrincipal _user;
     
     public AbstractSubscriptionResponseReceiver(Collection<SubscriptionHandle> subHandles) {
-      _spec2SubHandle = new HashMap<LiveDataSpecification, SubscriptionHandle>();
+      _spec2SubHandle = new HashMap<>();
       for (SubscriptionHandle subHandle : subHandles) {
-        _spec2SubHandle.put(subHandle.getRequestedSpecification(), subHandle);        
+        _spec2SubHandle.put(subHandle.getRequestedSpecification(), subHandle);
       }
     }
-    
+
     public UserPrincipal getUser() {
       return _user;
     }
@@ -230,7 +232,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
           throw new OpenGammaRuntimeException("Not all usernames are equal");
         }
         setUser(handle.getUser());
-        
+
         if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
           getSuccessResponses().put(handle, response);
         } else {
@@ -246,19 +248,19 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     
     protected void sendResponse() {
       
-      Map<SubscriptionHandle, LiveDataSubscriptionResponse> responses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>(); 
+      Map<SubscriptionHandle, LiveDataSubscriptionResponse> responses = new HashMap<>();
       responses.putAll(getSuccessResponses());
       responses.putAll(getFailedResponses());
       
       int total = responses.size();
       s_logger.info("{} subscription responses received", total);
-      Map<LiveDataListener, Collection<LiveDataSubscriptionResponse>> batch = new HashMap<LiveDataListener, Collection<LiveDataSubscriptionResponse>>();
+      Map<LiveDataListener, Collection<LiveDataSubscriptionResponse>> batch = new HashMap<>();
       for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> successEntry : responses.entrySet()) {
         SubscriptionHandle handle = successEntry.getKey();
         LiveDataSubscriptionResponse response = successEntry.getValue();
         Collection<LiveDataSubscriptionResponse> responseBatch = batch.get(handle.getListener());
         if (responseBatch == null) {
-          responseBatch = new LinkedList<LiveDataSubscriptionResponse>();
+          responseBatch = new LinkedList<>();
           batch.put(handle.getListener(), responseBatch);
         }
         responseBatch.add(response);
@@ -331,7 +333,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     
     private void snapshot() {
       
-      ArrayList<LiveDataSpecification> successLiveDataSpecs = new ArrayList<LiveDataSpecification>();
+      ArrayList<LiveDataSpecification> successLiveDataSpecs = new ArrayList<>();
       for (LiveDataSubscriptionResponse response : getSuccessResponses().values()) {
         successLiveDataSpecs.add(response.getRequestedSpecification());                
       }
