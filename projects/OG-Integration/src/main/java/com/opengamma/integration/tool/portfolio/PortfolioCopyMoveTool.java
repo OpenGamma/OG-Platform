@@ -6,15 +6,11 @@
 package com.opengamma.integration.tool.portfolio;
 
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -26,8 +22,6 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class PortfolioCopyMoveTool extends AbstractTool<IntegrationToolContext> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioCopyMoveTool.class);
-
   private static final String ORIGINAL_PORTFOLIO_NAME = "n";
   private static final String NEW_PORTFOLIO_NAME = "m";
   private static final String COPY_OPT = "d";
@@ -38,7 +32,8 @@ public class PortfolioCopyMoveTool extends AbstractTool<IntegrationToolContext> 
    * @param args  empty arguments
    */
   public static void main(String[] args) {  // CSIGNORE
-    new PortfolioCopyMoveTool().initAndRun(args, IntegrationToolContext.class);
+    boolean success = new PortfolioCopyMoveTool().initAndRun(args, IntegrationToolContext.class);
+    System.exit(success ? 0 : 1);
   }
 
   @Override
