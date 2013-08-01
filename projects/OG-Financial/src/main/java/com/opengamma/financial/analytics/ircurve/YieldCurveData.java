@@ -69,4 +69,11 @@ public class YieldCurveData {
     }
     return null;
   }
+
+  /**
+   * @return The specification that defines the yield curve
+   */
+  public InterpolatedYieldCurveSpecificationWithSecurities getCurveSpecification() {
+    return _curveSpec;
+  }
 }

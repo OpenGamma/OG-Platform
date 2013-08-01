@@ -216,7 +216,9 @@ public final class ValueRequirementNames {
   public static final String FX_IMPLIED_TRANSITION_MATRIX = "FXImpliedTransitionMatrix";
   /**
    * The raw market data that is used in yield curve construction.
+   * @deprecated Use {@link #YIELD_CURVE_DATA} instead, values using this constant can't be manipulated in scenarios.
    */
+  @Deprecated
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
   /**
    * The yield curve specification and raw market data used in its construction.

@@ -46,7 +46,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -68,6 +67,7 @@ import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeO
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.analytics.ircurve.YieldCurveData;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -240,7 +240,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, fundingCurveName).get()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_DATA, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, fundingCurveName).get()));
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).get()));
     if (forwardCurveName.equals(fundingCurveName)) {
@@ -250,7 +250,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
           .withOptional(REQUIREMENT_PROPERTY_TYPE).with(REQUIREMENT_PROPERTY_TYPE, TYPE_FUNDING).get()));
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, forwardCurveName)
           .withOptional(REQUIREMENT_PROPERTY_TYPE).with(REQUIREMENT_PROPERTY_TYPE, TYPE_FORWARD).get()));
-      requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, forwardCurveName).get()));
+      requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_DATA, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, forwardCurveName).get()));
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, ValueProperties
           .with(ValuePropertyNames.CURVE, forwardCurveName)
           .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).get()));
@@ -338,29 +338,24 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     assert fundingCurveName != null;
     InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = null;
     InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpecificationWithSecurities = null;
-    SnapshotDataBundle fundingMarketData = null;
-    SnapshotDataBundle forwardMarketData = null;
+    YieldCurveData fundingCurveData = null;
+    YieldCurveData forwardCurveData = null;
     HistoricalTimeSeriesBundle fundingTimeSeries = null;
     HistoricalTimeSeriesBundle forwardTimeSeries = null;
     for (final ComputedValue input : inputs.getAllValues()) {
       final String curveName = input.getSpecification().getProperty(ValuePropertyNames.CURVE);
-      if (ValueRequirementNames.YIELD_CURVE_SPEC.equals(input.getSpecification().getValueName())) {
+      if (ValueRequirementNames.YIELD_CURVE_DATA.equals(input.getSpecification().getValueName())) {
         if (curveName.equals(fundingCurveName)) {
+          assert fundingCurveData == null;
           assert fundingCurveSpecificationWithSecurities == null;
-          fundingCurveSpecificationWithSecurities = (InterpolatedYieldCurveSpecificationWithSecurities) input.getValue();
+          fundingCurveData = (YieldCurveData) input.getValue();
+          fundingCurveSpecificationWithSecurities = fundingCurveData.getCurveSpecification();
         }
         if (curveName.equals(forwardCurveName)) {
+          assert forwardCurveData == null;
           assert forwardCurveSpecificationWithSecurities == null;
-          forwardCurveSpecificationWithSecurities = (InterpolatedYieldCurveSpecificationWithSecurities) input.getValue();
-        }
-      } else if (ValueRequirementNames.YIELD_CURVE_MARKET_DATA.equals(input.getSpecification().getValueName())) {
-        if (curveName.equals(fundingCurveName)) {
-          assert fundingMarketData == null;
-          fundingMarketData = (SnapshotDataBundle) input.getValue();
-        }
-        if (curveName.equals(forwardCurveName)) {
-          assert forwardMarketData == null;
-          forwardMarketData = (SnapshotDataBundle) input.getValue();
+          forwardCurveData = (YieldCurveData) input.getValue();
+          forwardCurveSpecificationWithSecurities = forwardCurveData.getCurveSpecification();
         }
       } else if (ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
         if (curveName.equals(fundingCurveName)) {
@@ -375,33 +370,55 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     }
     assert fundingCurveSpecificationWithSecurities != null;
     assert forwardCurveSpecificationWithSecurities != null;
-    assert fundingMarketData != null;
-    assert forwardMarketData != null;
+    assert fundingCurveData != null;
+    assert forwardCurveData != null;
     if (forwardCurveName.equals(fundingCurveName)) {
-      return execute(executionContext, target.toSpecification(), forwardCurveName, forwardCurveSpecificationWithSecurities, forwardMarketData, forwardTimeSeries, createForward, createJacobian,
-          createSensitivities);
+      return execute(executionContext,
+                     target.toSpecification(),
+                     forwardCurveName,
+                     forwardCurveData,
+                     forwardTimeSeries,
+                     createForward,
+                     createJacobian,
+                     createSensitivities);
     }
-    return execute(executionContext, target.toSpecification(), forwardCurveName, forwardCurveSpecificationWithSecurities, forwardMarketData, forwardTimeSeries, fundingCurveName,
-        fundingCurveSpecificationWithSecurities, fundingMarketData, fundingTimeSeries, createForward, createFunding, createJacobian, createSensitivities);
+    return execute(executionContext,
+                   target.toSpecification(),
+                   forwardCurveName,
+                   forwardCurveData,
+                   forwardTimeSeries,
+                   fundingCurveName,
+                   fundingCurveData,
+                   fundingTimeSeries,
+                   createForward,
+                   createFunding,
+                   createJacobian,
+                   createSensitivities);
   }
 
   private static Interpolator1D getInterpolator(final InterpolatedYieldCurveSpecificationWithSecurities specification) {
     return specification.getInterpolator();
   }
 
-  private Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final ComputationTargetSpecification targetSpec, final String curveName,
-      final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities, final SnapshotDataBundle marketData, final HistoricalTimeSeriesBundle timeSeries,
-      final boolean createYieldCurve, final boolean createJacobian, final boolean createSensitivities) {
+  private Set<ComputedValue> execute(final FunctionExecutionContext executionContext,
+                                     final ComputationTargetSpecification targetSpec,
+                                     final String curveName,
+                                     final YieldCurveData curveData,
+                                     final HistoricalTimeSeriesBundle timeSeries,
+                                     final boolean createYieldCurve,
+                                     final boolean createJacobian,
+                                     final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
+    final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities = curveData.getCurveSpecification();
     final int n = specificationWithSecurities.getStrips().size();
     final double[] initialRatesGuess = new double[n];
     final double[] nodeTimes = new double[n];
     final double[] marketValues = new double[n];
     int i = 0;
     for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
-      Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
+      Double marketValue = curveData.getDataPoint(strip.getSecurityIdentifier());
       if (marketValue == null) {
         throw new NullPointerException("Could not get market data for " + strip);
       }
@@ -495,30 +512,41 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     return result;
   }
 
-  private Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final ComputationTargetSpecification targetSpec, final String forwardCurveName,
-      final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpecificationWithSecurities, final SnapshotDataBundle forwardMarketData,
-      final HistoricalTimeSeriesBundle forwardTimeSeries, final String fundingCurveName, final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities,
-      final SnapshotDataBundle fundingMarketData, final HistoricalTimeSeriesBundle fundingTimeSeries, final boolean createForwardYieldCurve, final boolean createFundingYieldCurve,
-      final boolean createJacobian, final boolean createSensitivities) {
+  private Set<ComputedValue> execute(final FunctionExecutionContext executionContext,
+                                     final ComputationTargetSpecification targetSpec,
+                                     final String forwardCurveName,
+                                     final YieldCurveData forwardCurveData,
+                                     final HistoricalTimeSeriesBundle forwardTimeSeries,
+                                     final String fundingCurveName,
+                                     final YieldCurveData fundingCurveData,
+                                     final HistoricalTimeSeriesBundle fundingTimeSeries,
+                                     final boolean createForwardYieldCurve,
+                                     final boolean createFundingYieldCurve,
+                                     final boolean createJacobian,
+                                     final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
-    final int nFunding = fundingCurveSpecificationWithSecurities.getStrips().size();
-    final int nForward = forwardCurveSpecificationWithSecurities.getStrips().size();
+    InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = fundingCurveData.getCurveSpecification();
+    InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpec = forwardCurveData.getCurveSpecification();
+    final int nFunding = fundingCurveSpec.getStrips().size();
+    final int nForward = forwardCurveSpec.getStrips().size();
     final double[] initialRatesGuess = new double[nFunding + nForward];
     final double[] fundingNodeTimes = new double[nFunding];
     final double[] forwardNodeTimes = new double[nForward];
     final double[] marketValues = new double[nFunding + nForward];
     int i = 0, fundingIndex = 0, forwardIndex = 0;
-    for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
-      final Double fundingMarketValue = fundingMarketData.getDataPoint(strip.getSecurityIdentifier());
+    for (final FixedIncomeStripWithSecurity strip : fundingCurveSpec.getStrips()) {
+      final Double fundingMarketValue = fundingCurveData.getDataPoint(strip.getSecurityIdentifier());
       if (fundingMarketValue == null) {
         throw new OpenGammaRuntimeException("Could not get funding market data for " + strip);
       }
       final double marketValue = fundingMarketValue;
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
       InstrumentDerivative derivative;
-      final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), fundingCurveName, forwardCurveName);
+      final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(),
+                                                                                                                  fundingCurveName,
+                                                                                                                  forwardCurveName);
       final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
         throw new OpenGammaRuntimeException("We do not currently support FundingCurves containing FUTURES. Contact QR if you desire this.");
@@ -537,8 +565,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       fundingNodeTimes[fundingIndex] = derivative.accept(LAST_DATE_CALCULATOR);
       fundingIndex++;
     }
-    for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
-      final Double forwardMarketValue = forwardMarketData.getDataPoint(strip.getSecurityIdentifier());
+    for (final FixedIncomeStripWithSecurity strip : forwardCurveSpec.getStrips()) {
+      final Double forwardMarketValue = forwardCurveData.getDataPoint(strip.getSecurityIdentifier());
       if (forwardMarketValue == null) {
         throw new OpenGammaRuntimeException("Could not get forward market data for " + strip);
       }
@@ -575,9 +603,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     curveNodes.put(fundingCurveName, fundingNodeTimes);
-    interpolators.put(fundingCurveName, getInterpolator(fundingCurveSpecificationWithSecurities));
+    interpolators.put(fundingCurveName, getInterpolator(fundingCurveSpec));
     curveNodes.put(forwardCurveName, forwardNodeTimes);
-    interpolators.put(forwardCurveName, getInterpolator(forwardCurveSpecificationWithSecurities));
+    interpolators.put(forwardCurveName, getInterpolator(forwardCurveSpec));
     // TODO have use finite difference or not as an input [FIN-147]
     final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, false, new FXMatrix(currency));
@@ -598,14 +626,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final YieldAndDiscountCurve fundingCurve;
     if (createSensitivities || createFundingYieldCurve) {
       final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
-      fundingCurve = YieldCurve.from(InterpolatedDoublesCurve.from(fundingNodeTimes, fundingYields, getInterpolator(fundingCurveSpecificationWithSecurities)));
+      fundingCurve = YieldCurve.from(InterpolatedDoublesCurve.from(fundingNodeTimes, fundingYields, getInterpolator(fundingCurveSpec)));
     } else {
       fundingCurve = null;
     }
     final YieldAndDiscountCurve forwardCurve;
     if (createSensitivities || createForwardYieldCurve) {
       final double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);
-      forwardCurve = YieldCurve.from(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, getInterpolator(forwardCurveSpecificationWithSecurities)));
+      forwardCurve = YieldCurve.from(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, getInterpolator(forwardCurveSpec)));
     } else {
       forwardCurve = null;
     }
