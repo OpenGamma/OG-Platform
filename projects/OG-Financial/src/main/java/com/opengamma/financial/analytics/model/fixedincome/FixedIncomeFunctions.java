@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.fixedincome.deprecated.DeprecatedFunctions;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,7 +31,7 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
   }
 
   public static FunctionConfigurationSource deprecated() {
-    return new DeprecatedFunctions().getObjectCreating();
+    return null;
   }
 
   /**
