@@ -81,7 +81,7 @@ import com.opengamma.util.tuple.Pair;
    *
    * @param cache Cache of calculation results
    * @param cycle Calculation cycle that calculated the latest results
-   * @return List of IDs specifiying the viewports whose data has changed as a result of the new update
+   * @return List of IDs specifying the viewports whose data has changed as a result of the new update
    */
   /* package */List<String> updateResults(ResultsCache cache, ViewCycle cycle) {
     _cycle = cycle;
@@ -234,7 +234,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
+   * @return The IDs for all dependency graph grids that are sent to listeners when the grid structure changes
    */
   /* package */List<String> getDependencyGraphCallbackIds() {
     List<String> gridIds = Lists.newArrayList();

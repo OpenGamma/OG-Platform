@@ -99,7 +99,7 @@ import com.opengamma.util.ArgumentChecker;
    * Returns a viewport that represents part of the grid that a user is viewing.
    * 
    * @param viewportId  the ID of the viewport
-   * @return the viewort, not null
+   * @return the viewport, not null
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
   /* package */ V getViewport(int viewportId) {
