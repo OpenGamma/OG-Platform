@@ -23,7 +23,7 @@
   <dependencies>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-master</artifactId>
+      <artifactId>og-financial-types</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

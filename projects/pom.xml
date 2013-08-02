@@ -34,6 +34,7 @@
     <module>OG-Core</module>
     <module>OG-Engine</module>
     <module>OG-Financial</module>
+    <module>OG-FinancialTypes</module>
     <module>OG-Integration</module>
     <module>OG-LiveData</module>
     <module>OG-Master</module>
