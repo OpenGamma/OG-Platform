@@ -21,6 +21,7 @@ import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
+import com.opengamma.financial.analytics.model.discounting.DiscountingFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
@@ -79,8 +80,13 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return EquityFunctions.instance();
   }
 
+  @Deprecated
   protected FunctionConfigurationSource fixedIncomeFunctionConfiguration() {
     return com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.instance();
+  }
+
+  protected FunctionConfigurationSource discountingFunctionConfiguration() {
+    return DiscountingFunctions.instance();
   }
 
   protected FunctionConfigurationSource yieldCurveFunctionConfiguration() {
@@ -159,7 +165,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
         pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
         swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration(), yieldCurveFunctionConfiguration(), forwardFunctionConfiguration(),
-        futureCurveFunctionConfiguration());
+        futureCurveFunctionConfiguration(), discountingFunctionConfiguration());
   }
 
 }

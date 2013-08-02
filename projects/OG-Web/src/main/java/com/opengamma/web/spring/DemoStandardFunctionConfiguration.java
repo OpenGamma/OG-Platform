@@ -203,8 +203,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyInfo mxnCurrencyInfo() {
     final CurrencyInfo i = super.mxnCurrencyInfo();
-    i.setCurveConfiguration(null, "DefaultCashCurveMXNConfig");
-    i.setCurveName(null, "Cash");
+    i.setCurveConfiguration(null, "SingleCurveMXNConfig");
+    i.setCurveName(null, "Forward28D");
     return i;
   }
 
