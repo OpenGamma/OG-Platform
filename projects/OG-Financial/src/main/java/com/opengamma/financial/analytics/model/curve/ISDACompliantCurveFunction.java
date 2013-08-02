@@ -136,7 +136,7 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURVE)
+        .with(ValuePropertyNames.CURVE, _curveName)
         //.withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         //.withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
         .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_NEW)
