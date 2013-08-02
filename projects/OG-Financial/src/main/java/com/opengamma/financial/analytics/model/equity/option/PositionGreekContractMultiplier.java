@@ -50,27 +50,27 @@ public final class PositionGreekContractMultiplier extends FinancialSecurityVisi
   
   @Override
   public Double visitEquityFutureSecurity(final EquityFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitIndexFutureSecurity(final IndexFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitStockFutureSecurity(final StockFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitMetalFutureSecurity(final MetalFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
