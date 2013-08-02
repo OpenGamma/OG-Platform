@@ -29,11 +29,11 @@ import com.opengamma.util.ArgumentChecker;
   /** Immediate child nodes. */
   private final List<AnalyticsNode> _children;
   /** Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades. */
-  private final boolean _collapseByDefault;
+  private final boolean _collapsed;
 
-  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean collapseByDefault) {
+  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean collapsed) {
     ArgumentChecker.notNull(children, "children");
-    _collapseByDefault = collapseByDefault;
+    _collapsed = collapsed;
     _startRow = startRow;
     _endRow = endRow;
     _children = children;
@@ -75,10 +75,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * @return Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades
+   * @return Whether this node is collapsed
    */
-  public boolean isCollapseByDefault() {
-    return _collapseByDefault;
+  public boolean isCollapsed() {
+    return _collapsed;
   }
 
   @Override

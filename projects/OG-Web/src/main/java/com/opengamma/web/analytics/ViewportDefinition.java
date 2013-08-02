@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 
@@ -84,4 +85,6 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
   /* package */ boolean enableLogging() {
     return _enableLogging;
   }
+
+  /* package */ abstract Pair<Integer,Boolean> getChangedNode(ViewportDefinition viewportDefinition);
 }

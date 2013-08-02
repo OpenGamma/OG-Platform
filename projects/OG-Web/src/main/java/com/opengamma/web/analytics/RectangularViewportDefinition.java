@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -70,6 +71,22 @@ public class RectangularViewportDefinition extends ViewportDefinition {
       }
     }
     return true;
+  }
+
+  @Override
+  Pair<Integer, Boolean> getChangedNode(ViewportDefinition viewportDefinition) {
+    if (!(viewportDefinition instanceof RectangularViewportDefinition)) {
+      throw new IllegalArgumentException("Unexpected viewport definition type " +
+                                             viewportDefinition.getClass().getSimpleName() + ", expected " +
+                                             RectangularViewportDefinition.class.getSimpleName());
+    }
+    // TODO if the first rows aren't equal the user has scrolled, return null
+    // if the first rows are equal and the viewport has changed then the user has either expanded or collapsed a node
+    // or resized the window - if the window has resized the row lists will be different lengths
+    // TODO walk down the 2 lists of rows until they're not equal
+    // if this object's row index is greater then the node has collapsed
+    // the the other object's row index is greater then the node has expanded
+    // the expanded / collapsed node is the row before the unequal row
   }
 
   /* package */ List<Integer> getColumns() {
