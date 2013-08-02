@@ -210,10 +210,10 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
         s_logger.info("Subscribing {} to {} live data specifications", _marketDataUser, toSubscribe.size());
         _liveDataClient.subscribe(_marketDataUser, toSubscribe, this);
       }
-      if (!alreadySubscribed.isEmpty()) {
-        s_logger.info("Already subscribed {} to {} live data specifications", _marketDataUser, alreadySubscribed.size());
-        subscriptionsSucceeded(alreadySubscribed);
-      }
+    }
+    if (!alreadySubscribed.isEmpty()) {
+      s_logger.info("Already subscribed {} to {} live data specifications", _marketDataUser, alreadySubscribed.size());
+      subscriptionsSucceeded(alreadySubscribed);
     }
   }
 
