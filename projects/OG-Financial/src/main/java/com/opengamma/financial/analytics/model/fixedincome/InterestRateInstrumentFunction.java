@@ -66,8 +66,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base function for pricing interest-rate instruments without optionality.
  */
+@Deprecated
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentFunction.class);
   private FixedIncomeConverterDataProvider _definitionConverter;

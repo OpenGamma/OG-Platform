@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -17,8 +17,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * 
+ * Function that calculates the par rate.
  */
+@Deprecated
 public class InterestRateInstrumentParRateFunction extends InterestRateInstrumentFunction {
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
 

@@ -22,6 +22,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of a cross-currency swap.
  */
+@Deprecated
 public class CrossCurrencySwapFXPVFunction extends CrossCurrencySwapFunction {
 
   /** Present value calculator */

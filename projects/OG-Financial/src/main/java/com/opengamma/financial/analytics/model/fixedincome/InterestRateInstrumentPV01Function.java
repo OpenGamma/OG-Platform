@@ -27,6 +27,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Computes the PV01 of interest rate instruments.
  */
+@Deprecated
 public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCurveSpecificFunction {
   /** The calculator */
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();

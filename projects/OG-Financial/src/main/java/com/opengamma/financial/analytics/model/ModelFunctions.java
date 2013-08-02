@@ -22,7 +22,6 @@ import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
-import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
@@ -81,7 +80,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   }
 
   protected FunctionConfigurationSource fixedIncomeFunctionConfiguration() {
-    return FixedIncomeFunctions.instance();
+    return com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.instance();
   }
 
   protected FunctionConfigurationSource yieldCurveFunctionConfiguration() {

@@ -70,6 +70,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Base class for cross-currency swap analytics
  */
+@Deprecated
 public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(CrossCurrencySwapFunction.class);
@@ -156,7 +157,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
         curveNames.add(curveName + "_" + receiveCurveSuffix);
       }
     }
-    String[] curveNamesArray = curveNames.toArray(new String[0]);
+    final String[] curveNamesArray = curveNames.toArray(new String[0]);
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesArray, timeSeries);
     final YieldCurveBundle payCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, payCurveCalculationConfig, curveCalculationConfigSource);
     final YieldCurveBundle receiveCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, receiveCurveCalculationConfig, curveCalculationConfigSource);

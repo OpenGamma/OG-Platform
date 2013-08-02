@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -30,10 +29,6 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
     return new FixedIncomeFunctions().getObjectCreating();
   }
 
-  public static FunctionConfigurationSource deprecated() {
-    return null;
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -44,19 +39,8 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
      */
     public static class CurrencyInfo implements InitializingBean {
 
-      private String _curveCalculationConfig;
-
-      public void setCurveCalculationConfig(final String curveCalculationConfig) {
-        _curveCalculationConfig = curveCalculationConfig;
-      }
-
-      public String getCurveCalculationConfig() {
-        return _curveCalculationConfig;
-      }
-
       @Override
       public void afterPropertiesSet() {
-        ArgumentChecker.notNullInjected(getCurveCalculationConfig(), "curveCalculationConfig");
       }
 
     }
@@ -90,46 +74,18 @@ public class FixedIncomeFunctions extends AbstractFunctionConfigurationBean {
     }
 
     protected void addInterestRateInstrumentDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
-      int i = 0;
-      args[i++] = Boolean.toString(isIncludeIRFutures());
-      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
-        args[i++] = e.getKey();
-        args[i++] = e.getValue().getCurveCalculationConfig();
-      }
-      functions.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, args));
     }
 
     protected void addCrossCurrencySwapDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[getPerCurrencyInfo().size() * 2];
-      int i = 0;
-      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
-        args[i++] = e.getKey();
-        args[i++] = e.getValue().getCurveCalculationConfig();
-      }
-      functions.add(functionConfiguration(CrossCurrencySwapDefaults.class, args));
     }
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      if (!getPerCurrencyInfo().isEmpty()) {
-        addInterestRateInstrumentDefaults(functions);
-        addCrossCurrencySwapDefaults(functions);
-      }
     }
   }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(BondTradePV01Function.class));
-    functions.add(functionConfiguration(BondTradeYCNSFunction.class));
-    functions.add(functionConfiguration(InterestRateInstrumentParRateCurveSensitivityFunction.class));
-    functions.add(functionConfiguration(InterestRateInstrumentParRateFunction.class));
-    functions.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));
-    functions.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
-    functions.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
-    functions.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
-    functions.add(functionConfiguration(CrossCurrencySwapFXPVFunction.class));
   }
 
 }
