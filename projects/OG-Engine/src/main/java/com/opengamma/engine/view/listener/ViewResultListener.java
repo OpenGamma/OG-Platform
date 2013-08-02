@@ -67,21 +67,23 @@ public interface ViewResultListener {
   void cycleStarted(ViewCycleMetadata cycleMetadata);
 
   /**
-   * Called following the successful completion of a fragment of a computation cycle.
+   * Called following the successful completion of a fragment of a computation cycle. One of the results objects
+   * may be null depending on the result mode but they will never both be null.
    * <p>
    * A computation cycle may be broken into many fragments, each representing internal groups of calculations. This
    * allows the results to be received as they are calculated, without waiting for the cycle to complete.
    *
-   * @param fullFragment  the full computation cycle result fragment
-   * @param deltaFragment  the delta fragment representing only the differences since the previous cycle
+   * @param fullFragment  the full computation cycle result fragment, possibly null
+   * @param deltaFragment  the delta fragment representing only the differences since the previous cycle, possibly null
    */
   void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment);
   
   /**
-   * Called following the successful completion of a computation cycle.
+   * Called following the successful completion of a computation cycle. One of the results objects may be null
+   * depending on the result mode but they will never both be null.
    * 
-   * @param fullResult  the entire computation cycle result
-   * @param deltaResult  the delta result representing only the differences since the previous result
+   * @param fullResult  the entire computation cycle result, possibly null
+   * @param deltaResult  the delta result representing only the differences since the previous result, possibly null
    */
   void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
 
