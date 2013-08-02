@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.worker;
+package com.opengamma.engine.view.compilation;
 
 import java.util.Set;
 
@@ -14,7 +14,7 @@ import com.opengamma.id.UniqueId;
 /**
  * Filters a dependency graph to exclude any nodes that have targets in an invalid set.
  */
-/* package */final class InvalidTargetDependencyNodeFilter implements DependencyNodeFilter {
+public final class InvalidTargetDependencyNodeFilter implements DependencyNodeFilter {
 
   private final Set<UniqueId> _invalidTargets;
 
