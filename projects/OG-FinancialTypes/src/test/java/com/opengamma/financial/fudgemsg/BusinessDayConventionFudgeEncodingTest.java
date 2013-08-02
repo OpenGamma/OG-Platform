@@ -13,13 +13,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class BusinessDayConventionFudgeEncodingTest extends FinancialTestBase {
+public class BusinessDayConventionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final BusinessDayConvention s_ref = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
 
