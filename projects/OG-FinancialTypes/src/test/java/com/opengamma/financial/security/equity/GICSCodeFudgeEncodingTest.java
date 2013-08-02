@@ -11,14 +11,14 @@ import org.fudgemsg.UnmodifiableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.fudgemsg.FinancialTestBase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Test.
  */
 @Test(groups = TestGroup.UNIT)
-public class GICSCodeFudgeEncodingTest extends FinancialTestBase {
+public class GICSCodeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final GICSCode GICS = GICSCode.of("10203040");
 
@@ -28,7 +28,7 @@ public class GICSCodeFudgeEncodingTest extends FinancialTestBase {
   }
 
   @Test
-  public void testFromInteger () {
+  public void testFromInteger() {
     assertEquals(GICS, getFudgeContext().getFieldValue(GICSCode.class,
         UnmodifiableFudgeField.of(FudgeWireType.INT, GICS.getCodeInt())));
   }
