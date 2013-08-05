@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.cashflow;
@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
-import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FRASecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
@@ -50,13 +50,13 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ *
  */
 public abstract class FixedCashFlowFunction extends AbstractFunction {
   private final String _valueRequirementName;
   private final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> _cashFlowVisitor;
 
-  public FixedCashFlowFunction(final String valueRequirementName, InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> cashFlowVisitor) {
+  public FixedCashFlowFunction(final String valueRequirementName, final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> cashFlowVisitor) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     ArgumentChecker.notNull(cashFlowVisitor, "cash-flow visitor");
     _valueRequirementName = valueRequirementName;
@@ -71,7 +71,7 @@ public abstract class FixedCashFlowFunction extends AbstractFunction {
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
+    final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
@@ -109,7 +109,7 @@ public abstract class FixedCashFlowFunction extends AbstractFunction {
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-      InstrumentDefinition<?> definition = security.accept(_visitor);
+      final InstrumentDefinition<?> definition = security.accept(_visitor);
       return _definitionConverter.getConversionTimeSeriesRequirements(security, definition);
     }
 
@@ -123,7 +123,7 @@ public abstract class FixedCashFlowFunction extends AbstractFunction {
       if (inputs.getAllValues().isEmpty()) {
         cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
       } else {
-        HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
+        final HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
         if (fixingSeries == null) {
           cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
         } else {

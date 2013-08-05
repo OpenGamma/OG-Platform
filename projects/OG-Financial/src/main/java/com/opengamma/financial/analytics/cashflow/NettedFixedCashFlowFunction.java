@@ -36,7 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
-import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FRASecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
@@ -69,7 +69,7 @@ public class NettedFixedCashFlowFunction extends AbstractFunction {
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
+    final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
