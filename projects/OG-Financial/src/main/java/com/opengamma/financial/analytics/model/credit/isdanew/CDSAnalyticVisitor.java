@@ -17,6 +17,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -81,7 +82,32 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
     return cdsAnalytic;
   }
 
-  private PeriodFrequency getPeriodFrequency(final Frequency frequency) {
+  @Override
+  public CDSAnalytic visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
+    final ExternalId regionId = security.getRegionId();
+    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
+    final StubType stubType = security.getStubType().toAnalyticsType();
+    final Period period = (IMMDateGenerator.isIMMDate(security.getMaturityDate())) ? getPeriodFrequency(security.getCouponFrequency()).getPeriod() :
+        Period.ofMonths(6); // non IMM forced to semi annual
+    final CDSAnalytic cdsAnalytic = new CDSAnalytic(_valuationDate,
+                                                    security.getEffectiveDate().toLocalDate(),
+                                                    // Hard code or get from somewhere?
+                                                    BusinessDayDateUtils.addWorkDays(_valuationDate, 3, calendar),
+                                                    _startDate == null ? security.getStartDate().toLocalDate() : _startDate,
+                                                    _maturityDate == null ? security.getMaturityDate().toLocalDate() : _maturityDate,
+                                                    true, // Do we have this info anywhere?
+                                                    period,
+                                                    stubType,
+                                                    security.isProtectionStart(),
+                                                    security.getRecoveryRate(),
+                                                    security.getBusinessDayConvention(),
+                                                    calendar,
+                                                    security.getDayCount()
+    );
+    return cdsAnalytic;
+  }
+
+  public static PeriodFrequency getPeriodFrequency(final Frequency frequency) {
     if (frequency instanceof PeriodFrequency) {
       return (PeriodFrequency) frequency;
     }
