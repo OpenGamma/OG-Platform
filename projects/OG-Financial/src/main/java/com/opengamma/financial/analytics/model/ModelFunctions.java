@@ -21,13 +21,13 @@ import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
-import com.opengamma.financial.analytics.model.discounting.DiscountingFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.horizon.HorizonFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
+import com.opengamma.financial.analytics.model.multicurve.MulticurvePricingFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
@@ -86,7 +86,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   }
 
   protected FunctionConfigurationSource discountingFunctionConfiguration() {
-    return DiscountingFunctions.instance();
+    return MulticurvePricingFunctions.instance();
   }
 
   protected FunctionConfigurationSource yieldCurveFunctionConfiguration() {
