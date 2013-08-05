@@ -42,20 +42,6 @@ public class FutureFunctions extends AbstractFunctionConfigurationBean {
    */
   public static class Deprecated extends AbstractFunctionConfigurationBean {
 
-    @Override
-    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      functions.add(functionConfiguration(InterestRateFuturePresentValueFunctionDeprecated.class));
-      functions.add(functionConfiguration(InterestRateFuturePV01FunctionDeprecated.class));
-      functions.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated.class));
-    }
-
-  }
-
-  /**
-   * Function repository configuration source for the default functions contained in this package.
-   */
-  public static class Defaults extends AbstractFunctionConfigurationBean {
-
     /**
      * Currency specific data.
      */
@@ -112,8 +98,10 @@ public class FutureFunctions extends AbstractFunctionConfigurationBean {
       if (!getPerCurrencyInfo().isEmpty()) {
         addInterestRateFutureDefaults(functions);
       }
+      functions.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
+      functions.add(functionConfiguration(InterestRateFuturePV01Function.class));
+      functions.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
     }
-
   }
 
   /**
@@ -179,17 +167,11 @@ public class FutureFunctions extends AbstractFunctionConfigurationBean {
     }
 
   }
-  
-  
-  
-  
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
     functions.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
-    functions.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
-    functions.add(functionConfiguration(InterestRateFuturePV01Function.class));
-    functions.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
 
     functions.add(functionConfiguration(FutureSecurityDeltaFunction.class));
     functions.add(functionConfiguration(FutureSecurityValueDeltaFunction.class));

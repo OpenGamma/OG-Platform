@@ -153,7 +153,8 @@ public abstract class HullWhiteFunction extends MultiCurvePricingFunction {
     }
 
     @Override
-    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final ComputationTarget target, final InstrumentDefinition<?> definition) {
+    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+        final InstrumentDefinition<?> definition) {
       return _definitionToDerivativeConverter.getConversionTimeSeriesRequirements(getSecurityFromTarget(target), definition);
     }
 

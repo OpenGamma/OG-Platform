@@ -48,6 +48,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -59,8 +60,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base function for calculating curve-specific risk factors for interest-rate futures.
+ * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
+@Deprecated
 public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureCurveSpecificFunction.class);
   private final String _valueRequirement;
@@ -157,13 +160,13 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
-    FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
     final String[] availableCurveNames = curveCalculationConfig.getYieldCurveNames();
-    if ((requestedCurveNames == null) || requestedCurveNames.isEmpty()) {
+    if (requestedCurveNames.isEmpty()) {
       requestedCurveNames = Sets.newHashSet(availableCurveNames);
     } else {
       final Set<String> intersection = YieldCurveFunctionUtils.intersection(requestedCurveNames, availableCurveNames);
@@ -179,7 +182,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
       s_logger.debug("{} {} security is not sensitive to the curves {}", new Object[] {currency, security.getClass(), curveNames });
       return null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getCurveSpecRequirement(target, Iterables.getOnlyElement(requestedCurveNames)));
     final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));

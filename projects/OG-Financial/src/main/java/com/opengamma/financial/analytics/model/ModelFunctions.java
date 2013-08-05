@@ -80,12 +80,17 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return EquityFunctions.instance();
   }
 
+  /**
+   * Adds deprecated interest rate instrument functions.
+   * @return A configuration source containing the deprecated interest rate instrument functions
+   * @deprecated The current versions of these functions are added in {@link #multiCurvePricingFunctionConfiguration()}
+   */
   @Deprecated
   protected FunctionConfigurationSource fixedIncomeFunctionConfiguration() {
     return com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.instance();
   }
 
-  protected FunctionConfigurationSource discountingFunctionConfiguration() {
+  protected FunctionConfigurationSource multiCurvePricingFunctionConfiguration() {
     return MulticurvePricingFunctions.instance();
   }
 
@@ -113,10 +118,26 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return HorizonFunctions.instance();
   }
 
+  /**
+   * Adds interest rate future-specific functions.
+   * @return A configuration source containing the deprecated interest rate future functions.
+   * @deprecated The current versions of these functions are added in {@link #multiCurvePricingFunctionConfiguration()}
+   */
+  @Deprecated
+  protected FunctionConfigurationSource interestRateFutureFunctionConfiguration() {
+    return FutureFunctions.deprecated();
+  }
+
   protected FunctionConfigurationSource irFutureOptionFunctionConfiguration() {
     return IRFutureOptionFunctions.instance();
   }
 
+  /**
+   * Adds general option functions.
+   * @return A configuration source containing option functions
+   * @deprecated The underlying-specific functions should be used
+   */
+  @Deprecated
   protected FunctionConfigurationSource optionFunctionConfiguration() {
     return OptionFunctions.instance();
   }
@@ -165,7 +186,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
         pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
         swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration(), yieldCurveFunctionConfiguration(), forwardFunctionConfiguration(),
-        futureCurveFunctionConfiguration(), discountingFunctionConfiguration());
+        futureCurveFunctionConfiguration(), multiCurvePricingFunctionConfiguration(), interestRateFutureFunctionConfiguration());
   }
 
 }

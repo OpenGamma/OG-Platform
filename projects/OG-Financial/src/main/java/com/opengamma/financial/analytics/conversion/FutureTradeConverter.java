@@ -64,7 +64,7 @@ public class FutureTradeConverter {
     ArgumentChecker.notNull(trade, "trade");
     final Security security = trade.getSecurity();
     if (security instanceof FutureSecurity) {
-      InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
+      final InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
       double tradePremium = 0.0;
       if (trade.getPremium() != null) {
         tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
@@ -73,8 +73,8 @@ public class FutureTradeConverter {
       if ((trade.getTradeDate() != null) && (trade.getTradeTime().toLocalTime() != null)) {
         tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
       }
-      int quantity = trade.getQuantity().intValue();
-      InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate, quantity);
+      final int quantity = trade.getQuantity().intValue();
+      final InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate, quantity);
       return tradeDefinition;
     }
     throw new IllegalArgumentException("Can only handle FutureSecurity");
@@ -87,7 +87,7 @@ public class FutureTradeConverter {
    * @param tradeDate The trade date.
    * @return The tradeDefinition.
    */
-  private InstrumentDefinitionWithData<?, Double> securityToTrade(InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice,
+  private static InstrumentDefinitionWithData<?, Double> securityToTrade(final InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice,
       final ZonedDateTime tradeDate, final int quantity) {
 
     final InstrumentDefinitionVisitorAdapter<InstrumentDefinitionWithData<?, Double>, InstrumentDefinitionWithData<?, Double>> visitor =
