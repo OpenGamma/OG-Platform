@@ -39,7 +39,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     Validate.notNull(regionSource, "region source");
     Validate.notNull(securitySource, "security source");
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
+    final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, forCurves);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureOptionSecurityConverter irFutureOptionConverter = new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
