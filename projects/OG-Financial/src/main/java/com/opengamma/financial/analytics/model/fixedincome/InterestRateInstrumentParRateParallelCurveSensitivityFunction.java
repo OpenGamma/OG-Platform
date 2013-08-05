@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Function that calculates the sensitivity of the par rate to a parallel curve shift.
+ * @deprecated The parent function is deprecated
  */
 @Deprecated
 public class InterestRateInstrumentParRateParallelCurveSensitivityFunction extends InterestRateInstrumentCurveSpecificFunction {

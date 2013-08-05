@@ -14,10 +14,12 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingPVFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
  * Function that calculated the present value.
+ * @deprecated Use {@link LinearFIDiscountingPVFunction}
  */
 @Deprecated
 public class InterestRateInstrumentPresentValueFunction extends InterestRateInstrumentFunction {

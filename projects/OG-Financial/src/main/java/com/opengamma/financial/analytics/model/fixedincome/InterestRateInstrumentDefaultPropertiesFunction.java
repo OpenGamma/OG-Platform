@@ -20,6 +20,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -30,6 +31,8 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
+ * @deprecated These properties are no longer needed when using {@link MultiCurvePricingFunction}
+ * and related classes.
  */
 @Deprecated
 public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultPropertyFunction {

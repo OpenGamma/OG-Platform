@@ -23,6 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Function that calculates the sensitivity to the pricing curves of the par rate.
+ * @deprecated The parent function is deprecated
  */
 @Deprecated
 public class InterestRateInstrumentParRateCurveSensitivityFunction extends InterestRateInstrumentCurveSpecificFunction {
