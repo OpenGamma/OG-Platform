@@ -33,6 +33,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * the discounting method.
  */
 public class LinearFIDiscountingParRateFunction extends DiscountingFunction {
+  /** The par rate calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> CALCULATOR = ParRateDiscountingCalculator.getInstance();
 
   /**

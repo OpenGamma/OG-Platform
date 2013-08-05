@@ -45,10 +45,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the yield curve node sensitivities of swaps, cash and FRAs using curves constructed using
- * the discounting method.
+ * Calculates the yield curve node sensitivities of bond futures, interest rate futures and
+ * deliverable swap futures using curves constructed using the discounting method.
  */
-public class LinearFIDiscountingYCNSFunction extends DiscountingFunction {
+public class LinearFIDiscountingYCNSFunction extends FutureTradeDiscountingFunction {
   /** The curve sensitivity calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -68,7 +68,7 @@ public class LinearFIDiscountingYCNSFunction extends DiscountingFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new FutureTradeDiscountingCompiledFunction(getTargetToDefinitionConverter(context), true) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative) {

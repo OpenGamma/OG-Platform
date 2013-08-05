@@ -74,7 +74,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
   }
 
   /**
-   * Constructs and object capable of converting from {@link InstrumentDefinition} to {@link InstrumentDerivative}.
+   * Constructs an object capable of converting from {@link InstrumentDefinition} to {@link InstrumentDerivative}.
    * @param context The compilation context, not null
    * @return The converter
    */
@@ -151,7 +151,8 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
     }
 
     @Override
-    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final ComputationTarget target, final InstrumentDefinition<?> definition) {
+    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+        final InstrumentDefinition<?> definition) {
       return _definitionToDerivativeConverter.getConversionTimeSeriesRequirements(getSecurityFromTarget(target), definition);
     }
 

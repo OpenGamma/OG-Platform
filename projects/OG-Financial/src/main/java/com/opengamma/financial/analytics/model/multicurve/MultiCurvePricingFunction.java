@@ -119,7 +119,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       }
       try {
         final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
-        final Set<ValueRequirement> timeSeriesRequirements = getConversionTimeSeriesRequirements(target, definition);
+        final Set<ValueRequirement> timeSeriesRequirements = getConversionTimeSeriesRequirements(context, target, definition);
         if (timeSeriesRequirements == null) {
           return null;
         }
@@ -178,11 +178,13 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     /**
      * Gets a conversion time-series for an instrument definition. If no time-series are required,
      * returns an empty set.
+     * @param compilationContext The compilation context, not null
      * @param target The target, not null
      * @param definition The definition, not null
      * @return A set of time-series requirements
      */
-    protected abstract Set<ValueRequirement> getConversionTimeSeriesRequirements(ComputationTarget target, InstrumentDefinition<?> definition);
+    protected abstract Set<ValueRequirement> getConversionTimeSeriesRequirements(FunctionCompilationContext compilationContext, ComputationTarget target,
+        InstrumentDefinition<?> definition);
 
     /**
      * Gets an {@link InstrumentDerivative}.

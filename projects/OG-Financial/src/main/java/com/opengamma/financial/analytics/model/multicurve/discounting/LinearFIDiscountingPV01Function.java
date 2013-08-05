@@ -39,6 +39,7 @@ import com.opengamma.util.tuple.Pair;
  * the discounting method.
  */
 public class LinearFIDiscountingPV01Function extends DiscountingFunction {
+  /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       PV01CurveParametersCalculator.getInstance();
 

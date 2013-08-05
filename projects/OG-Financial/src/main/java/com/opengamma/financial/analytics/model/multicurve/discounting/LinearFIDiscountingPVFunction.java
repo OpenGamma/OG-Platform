@@ -36,6 +36,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * the discounting method.
  */
 public class LinearFIDiscountingPVFunction extends DiscountingFunction {
+  /** The present value calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR = PresentValueDiscountingCalculator.getInstance();
 
   /**
