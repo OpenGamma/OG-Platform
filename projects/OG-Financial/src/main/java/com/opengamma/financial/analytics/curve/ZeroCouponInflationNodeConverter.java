@@ -67,7 +67,7 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
    * @param marketData The market data, not null
-   * @paran dataId The data id, not null
+   * @param dataId The data id, not null
    * @param valuationTime The valuation time, not null
    * @param timeSeries The time series, not null
    */
