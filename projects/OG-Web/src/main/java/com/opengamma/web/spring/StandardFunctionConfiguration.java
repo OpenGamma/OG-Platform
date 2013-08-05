@@ -935,15 +935,15 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return getRepository(defaults);
   }
 
-  protected void setFutureDefaults(final CurrencyInfo i, final FutureFunctions.Defaults.CurrencyInfo defaults) {
+  protected void setFutureDefaults(final CurrencyInfo i, final FutureFunctions.Deprecated.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/future"));
   }
 
-  protected void setFutureDefaults(final FutureFunctions.Defaults defaults) {
-    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FutureFunctions.Defaults.CurrencyInfo>() {
+  protected void setFutureDefaults(final FutureFunctions.Deprecated defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FutureFunctions.Deprecated.CurrencyInfo>() {
       @Override
-      public FutureFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        final FutureFunctions.Defaults.CurrencyInfo d = new FutureFunctions.Defaults.CurrencyInfo();
+      public FutureFunctions.Deprecated.CurrencyInfo execute(final CurrencyInfo i) {
+        final FutureFunctions.Deprecated.CurrencyInfo d = new FutureFunctions.Deprecated.CurrencyInfo();
         setFutureDefaults(i, d);
         return d;
       }
@@ -957,7 +957,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   protected FunctionConfigurationSource futureFunctions() {
     final FutureFunctions.Calculators calculators = new FutureFunctions.Calculators();
     setFutureFunctionCalculators(calculators);
-    final FutureFunctions.Defaults defaults = new FutureFunctions.Defaults();
+    final FutureFunctions.Deprecated defaults = new FutureFunctions.Deprecated();
     setFutureDefaults(defaults);
     return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }

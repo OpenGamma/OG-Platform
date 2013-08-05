@@ -10,6 +10,9 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.multicurve.discounting.FutureTradeDiscountingPV01Function;
+import com.opengamma.financial.analytics.model.multicurve.discounting.FutureTradeDiscountingPVFunction;
+import com.opengamma.financial.analytics.model.multicurve.discounting.FutureTradeDiscountingYCNSFunction;
 import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingPV01Function;
 import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingPVFunction;
 import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingParRateFunction;
@@ -31,6 +34,9 @@ public class MulticurvePricingFunctions extends AbstractFunctionConfigurationBea
     functions.add(functionConfiguration(LinearFIDiscountingParRateFunction.class));
     functions.add(functionConfiguration(LinearFIDiscountingPV01Function.class));
     functions.add(functionConfiguration(LinearFIDiscountingYCNSFunction.class));
+    functions.add(functionConfiguration(FutureTradeDiscountingPVFunction.class));
+    functions.add(functionConfiguration(FutureTradeDiscountingPV01Function.class));
+    functions.add(functionConfiguration(FutureTradeDiscountingYCNSFunction.class));
     functions.add(functionConfiguration(LinearFixedIncomeHullWhitePVFunction.class));
   }
 }
