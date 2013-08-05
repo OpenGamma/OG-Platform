@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of an ...
+ * Calculates the present value of an instruments using issuer-specific curves.
  */
 public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MultipleCurrencyAmount> {
 
@@ -45,7 +45,7 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
    * Constructor.
    */
   private PresentValueIssuerCalculator() {
-    super(new IssuerProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new IssuerProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cash;
@@ -141,6 +141,16 @@ public class DepositCounterpartDefinition extends CashDefinition {
       return new DepositCounterpart(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _name, yieldCurveNames[0]);
     }
     return new DepositCounterpart(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(), _name, yieldCurveNames[0]);
+  }
+
+  @Override
+  public DepositCounterpart toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");
+    final double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
+    if (startTime < 0) {
+      return new DepositCounterpart(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _name);
+    }
+    return new DepositCounterpart(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(), _name);
   }
 
   @Override
