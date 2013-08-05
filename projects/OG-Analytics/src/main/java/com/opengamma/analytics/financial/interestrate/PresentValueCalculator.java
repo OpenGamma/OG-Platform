@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -49,10 +49,13 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISD
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to)
+ * @deprecated Use the present values calculators that reference {@link ParameterProviderInterface}
  */
+@Deprecated
 public class PresentValueCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
