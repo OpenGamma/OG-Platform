@@ -61,7 +61,7 @@ docs.sqlite3
 *.pid
 *.pyc
 .settings/
-target/
+/target/
 
 # IntelliJ config files
 *.iws
