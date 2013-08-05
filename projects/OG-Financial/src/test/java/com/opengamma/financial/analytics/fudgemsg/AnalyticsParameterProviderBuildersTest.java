@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -167,6 +169,39 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     curves.put(new IndexPrice("CPI2", Currency.EUR), new PriceIndexCurve(ConstantDoublesCurve.from(0.03, "B")));
     final InflationProviderDiscount inflation = new InflationProviderDiscount(provider, curves);
     assertEquals(inflation, cycleObject(InflationProviderDiscount.class, inflation));
+  }
+
+  @Test
+  public void testIssuerProviderDiscount() {
+    final Map<Currency, Integer> map = new LinkedHashMap<>();
+    final Currency[] currencies = new Currency[] {Currency.AUD, Currency.CAD, Currency.CHF, Currency.FRF, Currency.DEM, Currency.USD, Currency.GBP, Currency.EUR, Currency.HKD, Currency.DKK};
+    final double[][] fxRates = new double[10][10];
+    for (int i = 0; i < 10; i++) {
+      map.put(currencies[i], i);
+      for (int j = 0; j < 10; j++) {
+        fxRates[i][j] = Math.random();
+      }
+    }
+    final FXMatrix matrix = new FXMatrix(map, fxRates);
+    final Map<Currency, YieldAndDiscountCurve> discounting = new LinkedHashMap<>();
+    discounting.put(Currency.USD, new YieldCurve("A", ConstantDoublesCurve.from(0.06, "a")));
+    discounting.put(Currency.EUR, new DiscountCurve("B", ConstantDoublesCurve.from(0.99, "b")));
+    final Map<IborIndex, YieldAndDiscountCurve> ibor = new LinkedHashMap<>();
+    ibor.put(new IborIndex(Currency.USD, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "L"),
+        new YieldCurve("C", ConstantDoublesCurve.from(0.03, "c")));
+    ibor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), 1, DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, "P"),
+        new YieldCurve("D", ConstantDoublesCurve.from(0.03, "d")));
+    final Map<IndexON, YieldAndDiscountCurve> overnight = new LinkedHashMap<>();
+    overnight.put(new IndexON("NAME1", Currency.USD, DayCountFactory.INSTANCE.getDayCount("Act/360"), 1), new YieldCurve("E", ConstantDoublesCurve.from(0.003, "e")));
+    overnight.put(new IndexON("NAME2", Currency.EUR, DayCountFactory.INSTANCE.getDayCount("Act/360"), 0), new YieldCurve("F", ConstantDoublesCurve.from(0.006, "f")));
+    final MulticurveProviderDiscount provider = new MulticurveProviderDiscount(discounting, ibor, overnight, matrix);
+    final Map<Pair<String, Currency>, YieldAndDiscountCurve> curves = new HashMap<>();
+    curves.put(Pair.of("E", Currency.USD), new YieldCurve("L", ConstantDoublesCurve.from(0.1234, "l")));
+    curves.put(Pair.of("F", Currency.EUR), new YieldCurve("P", ConstantDoublesCurve.from(0.1234, "p")));
+    final IssuerProviderDiscount issuer = new IssuerProviderDiscount(provider, curves);
+    assertEquals(issuer, cycleObject(IssuerProviderDiscount.class, issuer));
   }
 
   @Test
