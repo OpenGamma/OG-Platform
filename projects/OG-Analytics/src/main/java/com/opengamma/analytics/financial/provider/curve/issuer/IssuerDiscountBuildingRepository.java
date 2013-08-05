@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.issuer;
@@ -36,8 +36,8 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Functions to build curves.
- * TODO: REVIEW: Embed in a better object.
  */
+// TODO: REVIEW: Embed in a better object.
 public class IssuerDiscountBuildingRepository {
 
   /**

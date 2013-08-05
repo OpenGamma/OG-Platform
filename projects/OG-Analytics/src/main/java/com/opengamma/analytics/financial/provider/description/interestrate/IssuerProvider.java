@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -157,7 +156,7 @@ public class IssuerProvider implements IssuerProviderInterface {
   }
 
   public Map<Pair<String, Currency>, YieldAndDiscountCurve> getIssuerCurves() {
-    return Collections.unmodifiableMap(_issuerCurves);
+    return _issuerCurves;
   }
 
   public YieldAndDiscountCurve getCurve(final Pair<String, Currency> ic) {
