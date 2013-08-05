@@ -13,6 +13,12 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
+import com.opengamma.engine.target.logger.LoggedResolutionPortfolio;
+import com.opengamma.engine.target.logger.LoggedResolutionPortfolioNode;
+import com.opengamma.engine.target.logger.LoggedResolutionPosition;
+import com.opengamma.engine.target.logger.LoggedResolutionTrade;
+import com.opengamma.engine.target.logger.ResolutionLogger;
+import com.opengamma.engine.target.resolver.DeepResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.target.resolver.Resolver;
 import com.opengamma.id.ExternalIdBundle;
@@ -33,7 +39,7 @@ public interface LazyResolver {
   /**
    * Base class of {@link ObjectResolver} instances that are owned by a parent {@link LazyResolver}.
    */
-  public abstract static class ObjectResolverImpl<T extends UniqueIdentifiable> implements ObjectResolver<T> {
+  public abstract static class ObjectResolverImpl<T extends UniqueIdentifiable> implements ObjectResolver<T>, DeepResolver {
 
     private final LazyResolver _parent;
     private final ObjectResolver<T> _underlying;
@@ -64,8 +70,8 @@ public interface LazyResolver {
     }
 
     @Override
-    public boolean isDeepResolver() {
-      return true;
+    public DeepResolver deepResolver() {
+      return this;
     }
 
   }
@@ -115,9 +121,22 @@ public interface LazyResolver {
       super(parent, underlying);
     }
 
+    // ObjectResolverImpl
+
     @Override
     public Portfolio lazy(final Portfolio object, final LazyResolveContext.AtVersionCorrection context) {
       return new LazyResolvedPortfolio(context, object);
+    }
+
+    // DeepResolver
+
+    @Override
+    public UniqueIdentifiable withLogger(final UniqueIdentifiable underlying, final ResolutionLogger logger) {
+      if (underlying instanceof Portfolio) {
+        return new LoggedResolutionPortfolio((Portfolio) underlying, logger);
+      } else {
+        return null;
+      }
     }
 
   }
@@ -131,9 +150,22 @@ public interface LazyResolver {
       super(parent, underlying);
     }
 
+    // ObjectResolverImpl
+
     @Override
     public PortfolioNode lazy(final PortfolioNode object, final LazyResolveContext.AtVersionCorrection context) {
       return new LazyResolvedPortfolioNode(context, object);
+    }
+
+    // DeepResolver
+
+    @Override
+    public UniqueIdentifiable withLogger(final UniqueIdentifiable underlying, final ResolutionLogger logger) {
+      if (underlying instanceof PortfolioNode) {
+        return new LoggedResolutionPortfolioNode((PortfolioNode) underlying, logger);
+      } else {
+        return null;
+      }
     }
 
   }
@@ -154,6 +186,17 @@ public interface LazyResolver {
       return new LazyResolvedPosition(context, object);
     }
 
+    // DeepResolver
+
+    @Override
+    public UniqueIdentifiable withLogger(final UniqueIdentifiable underlying, final ResolutionLogger logger) {
+      if (underlying instanceof Position) {
+        return new LoggedResolutionPosition((Position) underlying, logger);
+      } else {
+        return null;
+      }
+    }
+
   }
 
   /**
@@ -165,9 +208,22 @@ public interface LazyResolver {
       super(parent, underlying);
     }
 
+    // ObjectResolverImpl
+
     @Override
     public Trade lazy(final Trade object, final LazyResolveContext.AtVersionCorrection context) {
       return new LazyResolvedTrade(context, object);
+    }
+
+    // DeepResolver
+
+    @Override
+    public UniqueIdentifiable withLogger(final UniqueIdentifiable underlying, final ResolutionLogger logger) {
+      if (underlying instanceof Trade) {
+        return new LoggedResolutionTrade((Trade) underlying, logger);
+      } else {
+        return null;
+      }
     }
 
   }

@@ -161,7 +161,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     if (resolver == null) {
       return null;
     }
-    final boolean isDeep = resolver.isDeepResolver();
+    final boolean isDeep = resolver.deepResolver() != null;
     ComputationTarget result = isDeep ? _frontTargetCacheDeep.get(versionCorrection, specification) : _frontTargetCache.get(specification);
     if (result != null) {
       return result;
@@ -223,6 +223,11 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
       @Override
       public ComputationTarget resolve(final ComputationTargetSpecification specification) {
         return DefaultCachingComputationTargetResolver.this.resolve(specification, versionCorrection);
+      }
+
+      @Override
+      public ObjectResolver<?> getResolver(final ComputationTargetSpecification specification) {
+        return DefaultCachingComputationTargetResolver.this.getResolver(specification);
       }
 
       @Override

@@ -71,8 +71,8 @@ public class SecuritySourceResolver extends AbstractIdentifierResolver implement
   }
 
   @Override
-  public boolean isDeepResolver() {
-    return false;
+  public DeepResolver deepResolver() {
+    return null;
   }
 
   @Override

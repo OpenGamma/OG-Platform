@@ -10,6 +10,7 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.engine.target.resolver.DeepResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -56,8 +57,8 @@ public class MapComputationTargetResolver extends DefaultComputationTargetResolv
         }
 
         @Override
-        public boolean isDeepResolver() {
-          return false;
+        public DeepResolver deepResolver() {
+          return null;
         }
 
       };

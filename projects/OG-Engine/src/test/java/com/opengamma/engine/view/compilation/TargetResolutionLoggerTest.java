@@ -6,7 +6,9 @@
 package com.opengamma.engine.view.compilation;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
@@ -31,8 +33,12 @@ import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.Primitive;
+import com.opengamma.engine.target.logger.ResolutionLogger;
+import com.opengamma.engine.target.resolver.DeepResolver;
+import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
 
@@ -42,15 +48,51 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class TargetResolutionLoggerTest {
 
-  public void testResolve() {
+  @SuppressWarnings("unchecked")
+  public void testResolve_shallow() {
     final ComputationTargetResolver.AtVersionCorrection underlying = Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class);
     final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>();
     final Set<UniqueId> expiredResolutions = new HashSet<UniqueId>();
     final ComputationTargetResolver.AtVersionCorrection resolver = TargetResolutionLogger.of(underlying, resolutions, expiredResolutions);
     final ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Foo", "Bar"));
-    final ComputationTarget target = new ComputationTarget(spec, new Primitive(UniqueId.of("Foo", "Bar")));
+    final ComputationTarget target = new ComputationTarget(spec.replaceIdentifier(UniqueId.of("Foo", "Bar", "Cow")), new Primitive(UniqueId.of("Foo", "Bar", "Cow")));
     Mockito.when(underlying.resolve(spec)).thenReturn(target);
+    final ObjectResolver shallowResolver = Mockito.mock(ObjectResolver.class);
+    Mockito.when(underlying.getResolver(spec)).thenReturn(shallowResolver);
     assertSame(resolver.resolve(spec), target);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void testResolve_deep() {
+    final ComputationTargetResolver.AtVersionCorrection underlying = Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class);
+    final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>();
+    final Set<UniqueId> expiredResolutions = new HashSet<UniqueId>();
+    final ComputationTargetResolver.AtVersionCorrection resolver = TargetResolutionLogger.of(underlying, resolutions, expiredResolutions);
+    final ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Foo", "Bar"));
+    final ComputationTarget target = new ComputationTarget(spec.replaceIdentifier(UniqueId.of("Foo", "Bar", "Cow")), new Primitive(UniqueId.of("Foo", "Bar", "Cow")));
+    Mockito.when(underlying.resolve(spec)).thenReturn(target);
+    final ObjectResolver deepResolver = Mockito.mock(ObjectResolver.class);
+    Mockito.when(deepResolver.deepResolver()).thenReturn(new DeepResolver() {
+      @SuppressWarnings("serial")
+      @Override
+      public UniqueIdentifiable withLogger(final UniqueIdentifiable underlying, final ResolutionLogger logger) {
+        assertSame(underlying, target.getValue());
+        return new Primitive(UniqueId.of("Foo", "Bar", "Cow")) {
+          @Override
+          public int hashCode() {
+            // Pretend that this is a deep-resolving operation
+            logger.log(spec, underlying.getUniqueId());
+            return super.hashCode();
+          }
+        };
+      }
+    });
+    Mockito.when(underlying.getResolver(spec)).thenReturn(deepResolver);
+    final ComputationTarget resolvedTarget = resolver.resolve(spec);
+    assertNotSame(resolvedTarget, target);
+    assertTrue(resolutions.isEmpty());
+    resolvedTarget.getValue().hashCode();
+    assertFalse(resolutions.isEmpty());
   }
 
   private Map<ComputationTargetReference, ComputationTargetSpecification> targets() {
