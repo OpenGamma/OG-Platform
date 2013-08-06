@@ -1,5 +1,5 @@
-// Automatically created - do not modify
-///CLOVER:OFF - CSOFF
+// Automatically created - do not modify - CSOFF
+///CLOVER:OFF
 package com.opengamma.livedata.msg;
 public class EntitlementRequest implements java.io.Serializable {
   private static final long serialVersionUID = 702824259518l;

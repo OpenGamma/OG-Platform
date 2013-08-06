@@ -6,14 +6,20 @@
 package com.opengamma.engine.target.resolver;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertNull;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
@@ -21,6 +27,7 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.engine.target.logger.ResolutionLogger;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -65,6 +72,10 @@ public class PositionSourceResolverTest {
     assertEquals(resolver().trade().resolveObject(BAD_ID, VersionCorrection.LATEST), null);
   }
 
+  public void trade_deep() {
+    assertNull(resolver().trade().deepResolver());
+  }
+
   public void position_object_resolved() {
     assertEquals(resolver().position().resolveObject(POSITION.getUniqueId(), VersionCorrection.LATEST), POSITION);
   }
@@ -94,6 +105,10 @@ public class PositionSourceResolverTest {
     request.add(POSITION.getUniqueId().getObjectId());
     request.add(BAD_ID.getObjectId());
     assertEquals(resolver().position().resolveObjectIds(request, VersionCorrection.LATEST), Collections.singletonMap(POSITION.getUniqueId().getObjectId(), POSITION.getUniqueId()));
+  }
+
+  public void position_deep() {
+    assertNull(resolver().position().deepResolver());
   }
 
   public void portfolio_object_resolved() {
@@ -127,12 +142,32 @@ public class PositionSourceResolverTest {
     assertEquals(resolver().portfolio().resolveObjectIds(request, VersionCorrection.LATEST), Collections.singletonMap(PORTFOLIO.getUniqueId().getObjectId(), PORTFOLIO.getUniqueId()));
   }
 
+  public void portfolio_deep() {
+    final DeepResolver deep = resolver().portfolio().deepResolver();
+    assertNotNull(deep);
+    ResolutionLogger logger = Mockito.mock(ResolutionLogger.class);
+    final Portfolio portfolio = (Portfolio) deep.withLogger(PORTFOLIO, logger);
+    assertNotNull(portfolio);
+    assertNotSame(portfolio, PORTFOLIO);
+    assertEquals(portfolio.getUniqueId(), PORTFOLIO.getUniqueId());
+  }
+
   public void node_object_resolved() {
     assertEquals(resolver().portfolioNode().resolveObject(NODE.getUniqueId(), VersionCorrection.LATEST), NODE);
   }
 
   public void node_object_unresolved() {
     assertEquals(resolver().portfolioNode().resolveObject(BAD_ID, VersionCorrection.LATEST), null);
+  }
+
+  public void node_deep() {
+    final DeepResolver deep = resolver().portfolioNode().deepResolver();
+    assertNotNull(deep);
+    ResolutionLogger logger = Mockito.mock(ResolutionLogger.class);
+    final PortfolioNode node = (PortfolioNode) deep.withLogger(NODE, logger);
+    assertNotNull(node);
+    assertNotSame(node, NODE);
+    assertEquals(node.getUniqueId(), NODE.getUniqueId());
   }
 
 }

@@ -48,6 +48,10 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /**
    * A frequency with a period of two weeks.
    */
+  public static final PeriodFrequency THREE_WEEKS = new PeriodFrequency(THREE_WEEK_NAME, Period.ofDays(21));
+  /**
+   * A frequency with a period of two weeks.
+   */
   public static final PeriodFrequency BIWEEKLY = new PeriodFrequency(BIWEEKLY_NAME, Period.ofDays(14));
   /**
    * A frequency with a period of one week.

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -22,8 +22,10 @@ import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Function that calculates the sensitivity to the pricing curves of the par rate.
+ * @deprecated The parent function is deprecated
  */
+@Deprecated
 public class InterestRateInstrumentParRateCurveSensitivityFunction extends InterestRateInstrumentCurveSpecificFunction {
   private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 

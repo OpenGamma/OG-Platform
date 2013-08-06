@@ -113,16 +113,15 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
 
   }
 
-  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification,
-      final FunctionCompilationContext context) {
-    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+  public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification) {
+    final Set<ValueRequirement> result = new HashSet<>();
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, strip.getSecurity()));
     }
     return Collections.unmodifiableSet(result);
   }
 
-  private SnapshotDataBundle buildMarketDataMap(final FunctionExecutionContext context, final FunctionInputs inputs) {
+  private static SnapshotDataBundle buildMarketDataMap(final FunctionExecutionContext context, final FunctionInputs inputs) {
     final SnapshotDataBundle marketData = new SnapshotDataBundle();
     final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(context.getComputationTargetResolver());
     for (final ComputedValue value : inputs.getAllValues()) {
@@ -143,7 +142,7 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     try {
       final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
-      return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
+      return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird()));
     } catch (final OpenGammaRuntimeException ogre) {
       s_logger.error("Function {} calculating {} on {} couldn't compile, rethrowing...", new Object[] {getShortName(), _helper.getCurveName(), _helper.getCurrency() });
       throw ogre;

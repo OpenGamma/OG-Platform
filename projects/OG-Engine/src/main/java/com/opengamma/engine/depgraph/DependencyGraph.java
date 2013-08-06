@@ -33,7 +33,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Represents a directed graph of nodes describing how to execute a view to produce the required terminal outputs.
+ * Represents a directed, acyclic, graph of nodes describing how to execute a view to produce the required terminal outputs.
+ * <p>
+ * Code using a graph instance may assume that it is well formed - that is, the nodes are linked to each other in a consistent fashion and no cycles are present. It is the responsibility of code that
+ * creates (or modifies) graphs to ensure that invalid graphs are not produced as the presence of such a graph would break other components.
  */
 @PublicAPI
 public class DependencyGraph {

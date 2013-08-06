@@ -36,7 +36,7 @@ public class DefaultConventionSource implements ConventionSource {
       case 0:
         return null;
       case 1:
-        return Iterables.getOnlyElement(result.getResults()).getValue();
+        return Iterables.getOnlyElement(result.getResults()).getConvention();
       default:
         throw new OpenGammaRuntimeException("Multiple matches (" + size + ") to " + identifier + "; expecting one");
     }
@@ -50,7 +50,7 @@ public class DefaultConventionSource implements ConventionSource {
       case 0:
         return null;
       case 1:
-        return Iterables.getOnlyElement(result.getResults()).getValue();
+        return Iterables.getOnlyElement(result.getResults()).getConvention();
       default:
         throw new OpenGammaRuntimeException("Multiple matches (" + size + ") to " + identifiers + "; expecting one");
     }
@@ -60,7 +60,7 @@ public class DefaultConventionSource implements ConventionSource {
   public Convention getConvention(final UniqueId identifier) {
     final ConventionDocument doc = _conventionMaster.getConvention(identifier);
     if (doc != null) {
-      return doc.getValue();
+      return doc.getConvention();
     }
     return null;
   }

@@ -25,6 +25,13 @@ public class ComponentConfig {
   private final LinkedHashMap<String, LinkedHashMap<String, String>> _config = new LinkedHashMap<String, LinkedHashMap<String, String>>();
 
   /**
+   * Creates an instance.
+   */
+  public ComponentConfig() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the group names.
    * 
    * @return the group names, not null

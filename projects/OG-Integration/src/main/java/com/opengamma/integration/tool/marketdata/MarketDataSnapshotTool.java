@@ -5,7 +5,7 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
 import java.net.InetAddress;
@@ -14,27 +14,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+import java.util.Set;
 
-import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractComponentTool;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceReference;
@@ -94,16 +93,6 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
 
   @Override
   protected void doRun() throws Exception {
-    // REVIEW jonathan 2012-05-16 -- refactored to use AbstractComponentTool but retained the original logic. However,
-    // this needs some work:
-    // 
-    //  - the RemoteComponentFactory is probably the way forward for tools, but we need to identify the main instance
-    //    of the components rather than iterating over everything there
-    //  - it's not clear how many snapshots will be created because of the above, but only one will be saved
-    //  - since only one snapshot is eventually saved, no point creating multiple or using executor service
-    //  - needs to do some logging in the normal case to provide feedback about what's happening
-    //  - searching by view definition _name_ may not be unique enough or may pull out a deleted view definition
-
     final String viewDefinitionName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
 
     final String valuationTimeArg = getCommandLine().getOptionValue(VALUATION_TIME_OPTION);
@@ -135,28 +124,36 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
       return;
     }
 
-    final int cores = Math.max(1, Runtime.getRuntime().availableProcessors());
-    final ExecutorService executor = Executors.newFixedThreadPool(cores);
-
     final RemoteViewProcessor viewProcessor = viewProcessors.get(0);
     final MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
-    FutureTask<List<StructuredMarketDataSnapshot>> task = null;
+    
+    Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
+    
     for (final ConfigMaster configMaster : configMasters) {
       final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
       request.setName(viewDefinitionName);
-      for (final ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
-        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, (ViewDefinition) doc.getConfig().getValue(), viewExecutionOptions, task));
-        executor.execute(task);
-      }
+      Iterables.addAll(viewDefinitions, ConfigSearchIterator.iterable(configMaster, request));
     }
+    
+    if (viewDefinitions.isEmpty()) {
+      endWithError("Unable to resolve any view definitions with name '%s'", viewDefinitionName);
+    }
+    
+    if (viewDefinitions.size() > 1) {
+      endWithError("Multiple view definitions resolved when searching for string '%s': %s", viewDefinitionName, viewDefinitions);
+    }
+    ConfigItem<?> value = Iterables.get(viewDefinitions, 0).getValue();
+    StructuredMarketDataSnapshot snapshot = makeSnapshot(marketDataSnapshotter, viewProcessor, (ViewDefinition) value.getValue(), viewExecutionOptions);
+    
+    final ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
+    manageableMarketDataSnapshot.setName(snapshot.getBasisViewName() + "/" + valuationInstant);
+    marketDataSnapshotMaster.add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
+  }
 
-    if (task != null) {
-      for (final StructuredMarketDataSnapshot snapshot : task.get()) {
-        final ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
-        manageableMarketDataSnapshot.setName(snapshot.getBasisViewName() + "/" + valuationInstant);
-        marketDataSnapshotMaster.add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
-      }
-    }
+  private void endWithError(String message, Object... messageArgs) {
+    System.err.println(format(message, messageArgs));
+    s_logger.error(message, messageArgs);
+    System.exit(1);
   }
 
   //-------------------------------------------------------------------------
@@ -254,36 +251,6 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     } finally {
       cycleReference.release();
       vc.shutdown();
-    }
-  }
-
-  private static class SingleSnapshotter implements Callable<List<StructuredMarketDataSnapshot>> {
-    private final ViewDefinition _viewDefinition;
-    private final MarketDataSnapshotter _marketDataSnapshotter;
-    private final ViewProcessor _viewProcessor;
-    private final ViewExecutionOptions _viewExecutionOptions;
-    private final FutureTask<List<StructuredMarketDataSnapshot>> _prev;
-
-    SingleSnapshotter(final MarketDataSnapshotter marketDataSnapshotter, final ViewProcessor viewProcessor,
-        final ViewDefinition viewDefinition, final ViewExecutionOptions viewExecutionOptions, final FutureTask<List<StructuredMarketDataSnapshot>> prev) {
-      _marketDataSnapshotter = marketDataSnapshotter;
-      _viewProcessor = viewProcessor;
-      _viewExecutionOptions = viewExecutionOptions;
-      _viewDefinition = viewDefinition;
-      _prev = prev;
-    }
-
-    @Override
-    public List<StructuredMarketDataSnapshot> call() throws Exception {
-      final StructuredMarketDataSnapshot snapshot = makeSnapshot(_marketDataSnapshotter, _viewProcessor, _viewDefinition, _viewExecutionOptions);
-      if (_prev == null) {
-        return newArrayList(snapshot);
-      } else {
-        _prev.get();
-        final List<StructuredMarketDataSnapshot> result = newArrayList(snapshot);
-        result.addAll(_prev.get());
-        return result;
-      }
     }
   }
 

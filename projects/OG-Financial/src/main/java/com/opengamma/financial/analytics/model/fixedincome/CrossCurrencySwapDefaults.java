@@ -30,15 +30,15 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Default properties for cross-currency swaps.
  */
+@Deprecated
 public class CrossCurrencySwapDefaults extends DefaultPropertyFunction {
-
   private static final Logger s_logger = LoggerFactory.getLogger(CrossCurrencySwapDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.FX_PRESENT_VALUE,
-      ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-      ValueRequirementNames.PV01,
-      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-      ValueRequirementNames.PRESENT_VALUE
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.PRESENT_VALUE
   };
   private final Map<String, String> _currencyAndCurveConfigNames; // Ccy - config
 
@@ -47,7 +47,7 @@ public class CrossCurrencySwapDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     final int nPairs = currencyAndCurveConfigNames.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
-    _currencyAndCurveConfigNames = new HashMap<String, String>();
+    _currencyAndCurveConfigNames = new HashMap<>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -43,7 +43,7 @@ public class IssuerProviderDiscount extends IssuerProvider {
 
   @Override
   public IssuerProviderDiscount copy() {
-    Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>(getIssuerCurves());
+    final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(getIssuerCurves());
     return new IssuerProviderDiscount(getMulticurveProvider().copy(), issuerCurvesNew);
   }
 
@@ -76,7 +76,7 @@ public class IssuerProviderDiscount extends IssuerProvider {
 
   @Override
   public IssuerProviderDiscount withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
-    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(getIssuerCurves());
+    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(getIssuerCurves());
     newIssuerCurves.put(ic, replacement);
     return new IssuerProviderDiscount(getMulticurveProvider(), newIssuerCurves);
   }

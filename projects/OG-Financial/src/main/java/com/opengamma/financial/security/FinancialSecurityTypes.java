@@ -25,6 +25,7 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -133,6 +134,11 @@ public class FinancialSecurityTypes {
    * The credit default swap option security type.
    */
   public static final ObjectComputationTargetType<CreditDefaultSwapOptionSecurity> CREDIT_DEFAULT_SWAP_OPTION_SECURITY = ObjectComputationTargetType.of(CreditDefaultSwapOptionSecurity.class);
+
+  /**
+   * A deliverable swap future security type.
+   */
+  public static final ObjectComputationTargetType<DeliverableSwapFutureSecurity> DELIVERABLE_SWAP_FUTURE_SECURITY = ObjectComputationTargetType.of(DeliverableSwapFutureSecurity.class);
 
   /**
    * The Energy Future Option security type.

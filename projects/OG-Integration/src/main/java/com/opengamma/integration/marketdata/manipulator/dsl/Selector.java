@@ -27,7 +27,8 @@ import com.opengamma.util.money.Currency;
 
   private final Set<String> _names;
   private final Set<Currency> _currencies;
-  private final PatternWrapper _namePattern;
+  private final PatternWrapper _nameMatchPattern;
+  private final PatternWrapper _nameLikePattern;
   private final Set<String> _calcConfigNames;
   private final Class<T> _type;
   private final Set<StructureType> _structureTypes;
@@ -35,15 +36,16 @@ import com.opengamma.util.money.Currency;
   /* package */ Selector(Set<String> calcConfigNames,
                          Set<String> names,
                          Set<Currency> currencies,
-                         Pattern namePattern,
-                         Class<T> type,
+                         Pattern nameMatchPattern,
+                         Pattern nameLikePattern, Class<T> type,
                          StructureType structureType) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(structureType, "structureType");
     _calcConfigNames = calcConfigNames;
     _names = names;
     _currencies = currencies;
-    _namePattern = PatternWrapper.wrap(namePattern);
+    _nameMatchPattern = PatternWrapper.wrap(nameMatchPattern);
+    _nameLikePattern = PatternWrapper.wrap(nameLikePattern);
     _type = type;
     _structureTypes = ImmutableSet.of(structureType);
   }
@@ -56,8 +58,12 @@ import com.opengamma.util.money.Currency;
     return _currencies;
   }
 
-  /* package */ Pattern getNamePattern() {
-    return _namePattern == null ? null : _namePattern.pattern();
+  /* package */ Pattern getNameMatchPattern() {
+    return _nameMatchPattern == null ? null : _nameMatchPattern.getPattern();
+  }
+
+  /* package */ Pattern getNameLikePattern() {
+    return _nameLikePattern == null ? null : _nameLikePattern.getPattern();
   }
 
   /* package */ Set<String> getCalcConfigNames() {
@@ -71,7 +77,10 @@ import com.opengamma.util.money.Currency;
     if (_names != null && !_names.contains(name)) {
       return false;
     }
-    if (_namePattern != null && !_namePattern.pattern().matcher(name).matches()) {
+    if (_nameMatchPattern != null && !_nameMatchPattern.getPattern().matcher(name).matches()) {
+      return false;
+    }
+    if (_nameLikePattern != null && !_nameLikePattern.getPattern().matcher(name).matches()) {
       return false;
     }
     if (_currencies != null && !_currencies.contains(currency)) {
@@ -113,7 +122,13 @@ import com.opengamma.util.money.Currency;
 
   @Override
   public int hashCode() {
-    return Objects.hash(_names, _currencies, _namePattern, _calcConfigNames, _type, _structureTypes);
+    return Objects.hash(_names,
+                        _currencies,
+                        _nameMatchPattern,
+                        _nameLikePattern,
+                        _calcConfigNames,
+                        _type,
+                        _structureTypes);
   }
 
   @Override
@@ -127,7 +142,8 @@ import com.opengamma.util.money.Currency;
     final Selector other = (Selector) obj;
     return Objects.equals(this._names, other._names) &&
         Objects.equals(this._currencies, other._currencies) &&
-        Objects.equals(this._namePattern, other._namePattern) &&
+        Objects.equals(this._nameMatchPattern, other._nameMatchPattern) &&
+        Objects.equals(this._nameLikePattern, other._nameLikePattern) &&
         Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
         Objects.equals(this._type, other._type) &&
         Objects.equals(this._structureTypes, other._structureTypes);
@@ -138,7 +154,8 @@ import com.opengamma.util.money.Currency;
     return "Selector [" +
         "_names=" + _names +
         ", _currencies=" + _currencies +
-        ", _namePattern=" + _namePattern +
+        ", _nameMatchPattern=" + _nameMatchPattern +
+        ", _nameLikePattern=" + _nameLikePattern +
         ", _calcConfigNames=" + _calcConfigNames +
         ", _type=" + _type +
         ", _structureTypes=" + _structureTypes +
@@ -151,7 +168,8 @@ import com.opengamma.util.money.Currency;
 
     private Set<String> _names;
     private Set<Currency> _currencies;
-    private Pattern _namePattern;
+    private Pattern _nameMatchPattern;
+    private Pattern _nameLikePattern;
 
     /* package */ Builder(Scenario scenario) {
       ArgumentChecker.notNull(scenario, "scenario");
@@ -163,7 +181,10 @@ import com.opengamma.util.money.Currency;
       if (_names != null) {
         throw new IllegalStateException("named() can only be called once");
       }
-      if (_namePattern != null) {
+      if (_nameMatchPattern != null) {
+        throw new IllegalStateException("Only one of named() and nameMatches() can be used");
+      }
+      if (_nameLikePattern != null) {
         throw new IllegalStateException("Only one of named() and nameMatches() can be used");
       }
       _names = ImmutableSet.copyOf(names);
@@ -184,13 +205,30 @@ import com.opengamma.util.money.Currency;
     }
 
     /* package */ Builder nameMatches(String regex) {
-      if (_namePattern != null) {
+      if (_nameMatchPattern != null) {
+        throw new IllegalStateException("nameMatches() can only be called once");
+      }
+      if (_nameLikePattern != null) {
         throw new IllegalStateException("nameMatches() can only be called once");
       }
       if (_names != null) {
         throw new IllegalStateException("Only one of named() and nameMatches() can be used");
       }
-      _namePattern = Pattern.compile(regex);
+      _nameMatchPattern = Pattern.compile(regex);
+      return this;
+    }
+
+    /* package */ Builder nameLike(String glob) {
+      if (_nameLikePattern != null) {
+        throw new IllegalStateException("nameLike() can only be called once");
+      }
+      if (_names != null) {
+        throw new IllegalStateException("Only one of named() and nameMatches() and nameLike() can be used");
+      }
+      if (_nameMatchPattern != null) {
+        throw new IllegalStateException("Only one of named() and nameMatches() and nameLike() can be used");
+      }
+      _nameLikePattern = SimulationUtils.patternForGlob(glob);
       return this;
     }
 
@@ -206,8 +244,12 @@ import com.opengamma.util.money.Currency;
       return _currencies;
     }
 
-    /* package */ Pattern getNamePattern() {
-      return _namePattern;
+    /* package */ Pattern getNameMatchPattern() {
+      return _nameMatchPattern;
+    }
+
+    /* package */ Pattern getNameLikePattern() {
+      return _nameLikePattern;
     }
   }
 }

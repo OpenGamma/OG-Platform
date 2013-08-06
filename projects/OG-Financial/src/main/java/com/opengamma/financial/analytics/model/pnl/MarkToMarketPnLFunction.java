@@ -7,21 +7,16 @@ package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -43,7 +38,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
-import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -51,24 +46,18 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
 /**
- * FIXME PROTOTYPE Function that computes the profit or loss since previous close.
- * <p>
+ * Function that computes the profit or loss since previous close.<p>
  * As the name MarkToMarket implies, this simple Function applies to Trades on Exchange-Traded Securities.
- * 
- * @author casey
  */
 public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -137,7 +126,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String tradeType = desiredValue.getConstraint(PnLFunctionUtils.PNL_TRADE_TYPE_CONSTRAINT);
     if (tradeType == null) {
-      throw new OpenGammaRuntimeException("TradeType not set for: " + security.getName() +
+      s_logger.error("TradeType not set for: " + security.getName() +
           ". Choose one of {" + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_ALL + "}");
     }
 
@@ -204,10 +193,6 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     if (security instanceof FutureSecurity) {
       final FutureSecurity futureSecurity = (FutureSecurity) security;
       dailyValueMove *= futureSecurity.getUnitAmount();
-      if (security instanceof InterestRateFutureSecurity) {
-        InterestRateFutureSecurityDefinition defn = (InterestRateFutureSecurityDefinition) ((FutureSecurity) security).accept(_securityConverter);
-        dailyValueMove *= defn.getPaymentAccrualFactor();
-      }
     } else if (security instanceof EquityOptionSecurity) {
       final EquityOptionSecurity optionSecurity = (EquityOptionSecurity) security;
       dailyValueMove *= optionSecurity.getPointValue();
@@ -217,7 +202,9 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     } else if (security instanceof EquityIndexFutureOptionSecurity) {
       final EquityIndexFutureOptionSecurity optionSecurity = (EquityIndexFutureOptionSecurity) security;
       dailyValueMove *= optionSecurity.getPointValue();
-
+    } else if (security instanceof IRFutureOptionSecurity) {
+      final IRFutureOptionSecurity optionSecurity = (IRFutureOptionSecurity) security;
+      dailyValueMove *= optionSecurity.getPointValue();
     }
     // Multiply by the Trade's Quantity
     final Double dailyPnL = target.getTrade().getQuantity().doubleValue() * dailyValueMove;

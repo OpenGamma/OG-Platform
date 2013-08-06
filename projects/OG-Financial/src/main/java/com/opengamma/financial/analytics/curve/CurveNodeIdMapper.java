@@ -24,7 +24,7 @@ import com.opengamma.core.config.Config;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
-import com.opengamma.financial.fudgemsg.CurveSpecificationBuilderConfigurationFudgeBuilder;
+import com.opengamma.financial.fudgemsg.CurveNodeIdMapperBuilder;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -68,7 +68,7 @@ public class CurveNodeIdMapper {
    * @param fxForwardNodeIds The FX forward node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
-   * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
+   * @param zeroCouponInflationNodeIds The zero coupon inflation node ids
    */
   public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
       final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
@@ -117,9 +117,13 @@ public class CurveNodeIdMapper {
     _zeroCouponInflationNodeIds = zeroCouponInflationNodeIds;
   }
 
-  private static List<String> getCurveIdMapperNames() {
+  /**
+   * Gets all fields used by the Fudge builder.
+   * @return The fields
+   */
+  protected static List<String> getCurveIdMapperNames() {
     final List<String> list = new ArrayList<>();
-    for (final Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
+    for (final Field field : CurveNodeIdMapperBuilder.class.getDeclaredFields()) {
       if (Modifier.isStatic(field.getModifiers()) && field.isSynthetic() == false) {
         field.setAccessible(true);
         try {
@@ -643,7 +647,7 @@ public class CurveNodeIdMapper {
     return allTenors;
   }
 
-  private static ExternalId getId(final Map<Tenor, CurveInstrumentProvider> idMapper, final LocalDate curveDate, final Tenor tenor) {
+  protected static ExternalId getId(final Map<Tenor, CurveInstrumentProvider> idMapper, final LocalDate curveDate, final Tenor tenor) {
     final CurveInstrumentProvider mapper = idMapper.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor);
@@ -651,7 +655,7 @@ public class CurveNodeIdMapper {
     throw new OpenGammaRuntimeException("Cannot get id mapper definition for " + tenor);
   }
 
-  private static String getMarketDataField(final Map<Tenor, CurveInstrumentProvider> idMapper, final Tenor tenor) {
+  protected static String getMarketDataField(final Map<Tenor, CurveInstrumentProvider> idMapper, final Tenor tenor) {
     final CurveInstrumentProvider mapper = idMapper.get(tenor);
     if (mapper != null) {
       return mapper.getMarketDataField();
@@ -659,7 +663,7 @@ public class CurveNodeIdMapper {
     throw new OpenGammaRuntimeException("Cannot get id mapper definition for " + tenor);
   }
 
-  private static DataFieldType getDataFieldType(final Map<Tenor, CurveInstrumentProvider> idMapper, final Tenor tenor) {
+  protected static DataFieldType getDataFieldType(final Map<Tenor, CurveInstrumentProvider> idMapper, final Tenor tenor) {
     final CurveInstrumentProvider mapper = idMapper.get(tenor);
     if (mapper != null) {
       return mapper.getDataFieldType();

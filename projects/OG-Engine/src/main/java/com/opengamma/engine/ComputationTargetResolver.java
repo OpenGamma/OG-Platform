@@ -38,6 +38,14 @@ public interface ComputationTargetResolver extends ChangeProvider {
     ComputationTarget resolve(ComputationTargetSpecification specification);
 
     /**
+     * Returns an {@link ObjectResolver} instance that will correspond to the behavior used by the {@link #resolve} method.
+     * 
+     * @param specification the specification to resolve, not null
+     * @return the object resolver, or null if there is none ({@code resolve} would not resolve the object)
+     */
+    ObjectResolver<?> getResolver(ComputationTargetSpecification specification);
+
+    /**
      * Returns a specification resolver that can be used to produce strict target specifications from looser requirements. This is the resolver bound to the parent {@link ComputationTargetResolver}
      * that is applied to the same version/correction as this instance.
      * 
@@ -79,7 +87,7 @@ public interface ComputationTargetResolver extends ChangeProvider {
   ComputationTarget resolve(ComputationTargetSpecification specification, VersionCorrection versionCorrection);
 
   /**
-   * Returns an {@link ObjectResolver} instance that will correspond to the behaviour used by the {@link #resolve} method.
+   * Returns an {@link ObjectResolver} instance that will correspond to the behavior used by the {@link #resolve} method.
    * 
    * @param specification the specification to resolve, not null
    * @return the object resolver, or null if there is none ({@code resolve} would not resolve the object)

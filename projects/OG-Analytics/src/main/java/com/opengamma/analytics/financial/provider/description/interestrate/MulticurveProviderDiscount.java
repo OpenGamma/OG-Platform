@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -460,7 +460,6 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   public Map<IndexON, YieldAndDiscountCurve> getForwardONCurves() {
     return Collections.unmodifiableMap(_forwardONCurves);
   }
-
 
   public MulticurveProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     // REVIEW: Is this too slow for the pricing of cash-flows?

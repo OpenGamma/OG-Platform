@@ -8,14 +8,11 @@ package com.opengamma.financial.currency;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.PrimitiveComputationTargetType;
-import com.opengamma.engine.target.resolver.ObjectResolver;
+import com.opengamma.engine.target.resolver.AbstractPrimitiveResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -32,24 +29,11 @@ public final class CurrencyPair implements UniqueIdentifiable {
    * An OG-Engine type so an instance can be used as a target in a dependency graph.
    */
   public static final PrimitiveComputationTargetType<CurrencyPair> TYPE = PrimitiveComputationTargetType.of(ComputationTargetType.of(CurrencyPair.class), CurrencyPair.class,
-      new ObjectResolver<CurrencyPair>() {
+      new AbstractPrimitiveResolver<CurrencyPair>(OBJECT_SCHEME) {
 
         @Override
-        public ChangeManager changeManager() {
-          return DummyChangeManager.INSTANCE;
-        }
-
-        @Override
-        public CurrencyPair resolveObject(UniqueId uniqueId, VersionCorrection versionCorrection) {
-          if (!OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-            throw new IllegalArgumentException("Invalid scheme - " + uniqueId);
-          }
-          return parse(uniqueId.getValue());
-        }
-
-        @Override
-        public boolean isDeepResolver() {
-          return false;
+        protected CurrencyPair resolveObject(final String identifier) {
+          return parse(identifier);
         }
 
       });

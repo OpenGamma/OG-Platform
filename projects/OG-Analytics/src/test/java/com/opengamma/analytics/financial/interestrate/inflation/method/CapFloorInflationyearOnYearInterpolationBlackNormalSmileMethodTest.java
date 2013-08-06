@@ -77,7 +77,7 @@ public class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethodTest 
       LAST_KNOWN_FIXING_DATE, STRIKE, IS_CAP);
   private static final CapFloorInflationYearOnYearInterpolation YEAR_ON_YEAR_CAP = YEAR_ON_YEAR_DEFINITION_CAP.toDerivative(PRICING_DATE, "not used");
 
-  private static final CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod METHOD = CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod.getInstance();
+  private static final CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod METHOD = CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod.getInstance();
   private static final PresentValueBlackSmileInflationYearOnYearCalculator PVIC = PresentValueBlackSmileInflationYearOnYearCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSmileInflationYearOnYearCalculator PVCSDC = PresentValueCurveSensitivityBlackSmileInflationYearOnYearCalculator.getInstance();
   private static final ParameterInflationSensitivityParameterCalculator<BlackSmileCapInflationYearOnYearProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);

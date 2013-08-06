@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -93,6 +96,17 @@ public final class CapFloorInflationZeroCouponMonthlyConvexityAdjustmentMethod {
   }
 
   /**
+   * Computes the present value.
+   * @param instrument The instrument.
+   * @param black The Black implied volatility and multi-curve provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final BlackSmileCapInflationZeroCouponWithConvexityProviderInterface black) {
+    Validate.isTrue(instrument instanceof CapFloorInflationZeroCouponMonthly, "Inflation Zero Coupon  Cap/floor");
+    return presentValue((CapFloorInflationZeroCouponMonthly) instrument, black);
+  }
+
+  /**
    * Computes the present value rate sensitivity to rates of a cap/floor in the Black model.
    * No smile impact is taken into account; equivalent to a sticky strike smile description.
    * @param cap The caplet/floorlet.
@@ -102,7 +116,7 @@ public final class CapFloorInflationZeroCouponMonthlyConvexityAdjustmentMethod {
   public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CapFloorInflationZeroCouponMonthly cap, final BlackSmileCapInflationZeroCouponWithConvexityProviderInterface black) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(black, "Black provider");
-    InflationProviderInterface inflation = black.getInflationProvider();
+    final InflationProviderInterface inflation = black.getInflationProvider();
     final double timeToMaturity = cap.getReferenceEndTime() - cap.getLastKnownFixingTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(Math.pow(1 + cap.getStrike(), cap.getMaturity()), timeToMaturity, cap.isCap());
     final double convexityAdjustment = CONVEXITY_ADJUSTMENT_FUNCTION.getZeroCouponConvexityAdjustment(cap, black);

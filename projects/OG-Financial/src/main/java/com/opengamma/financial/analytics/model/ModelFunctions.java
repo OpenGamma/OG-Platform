@@ -22,12 +22,12 @@ import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
-import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.horizon.HorizonFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
+import com.opengamma.financial.analytics.model.multicurve.MulticurvePricingFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
@@ -80,8 +80,18 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return EquityFunctions.instance();
   }
 
+  /**
+   * Adds deprecated interest rate instrument functions.
+   * @return A configuration source containing the deprecated interest rate instrument functions
+   * @deprecated The current versions of these functions are added in {@link #multiCurvePricingFunctionConfiguration()}
+   */
+  @Deprecated
   protected FunctionConfigurationSource fixedIncomeFunctionConfiguration() {
-    return FixedIncomeFunctions.instance();
+    return com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.instance();
+  }
+
+  protected FunctionConfigurationSource multiCurvePricingFunctionConfiguration() {
+    return MulticurvePricingFunctions.instance();
   }
 
   protected FunctionConfigurationSource yieldCurveFunctionConfiguration() {
@@ -108,10 +118,26 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return HorizonFunctions.instance();
   }
 
+  /**
+   * Adds interest rate future-specific functions.
+   * @return A configuration source containing the deprecated interest rate future functions.
+   * @deprecated The current versions of these functions are added in {@link #multiCurvePricingFunctionConfiguration()}
+   */
+  @Deprecated
+  protected FunctionConfigurationSource interestRateFutureFunctionConfiguration() {
+    return FutureFunctions.deprecated();
+  }
+
   protected FunctionConfigurationSource irFutureOptionFunctionConfiguration() {
     return IRFutureOptionFunctions.instance();
   }
 
+  /**
+   * Adds general option functions.
+   * @return A configuration source containing option functions
+   * @deprecated The underlying-specific functions should be used
+   */
+  @Deprecated
   protected FunctionConfigurationSource optionFunctionConfiguration() {
     return OptionFunctions.instance();
   }
@@ -160,7 +186,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
         pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
         swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration(), yieldCurveFunctionConfiguration(), forwardFunctionConfiguration(),
-        futureCurveFunctionConfiguration());
+        futureCurveFunctionConfiguration(), multiCurvePricingFunctionConfiguration(), interestRateFutureFunctionConfiguration());
   }
 
 }

@@ -131,10 +131,38 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthlag, final int maturity, final ZonedDateTime lastKnownFixingDate, final double indexStartValue,
       final ZonedDateTime[] referenceEndDate, final double strike, final boolean isCap) {
     Validate.notNull(priceIndex, "Price index");
-    final double weight;
-    weight = 1.0 - (paymentDate.getDayOfMonth() - 1.0) / paymentDate.toLocalDate().lengthOfMonth();
+    final double weight = 1.0 - (paymentDate.getDayOfMonth() - 1.0) / paymentDate.toLocalDate().lengthOfMonth();
     return new CapFloorInflationZeroCouponInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
         notional, priceIndex, lastKnownFixingDate, conventionalMonthLag, monthlag, maturity, indexStartValue, referenceEndDate, weight, strike, isCap);
+  }
+
+  /**
+   * Builder from all the cap/floor details, using details inside the price index with standard reference end date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param paymentDate Coupon payment date.
+   * @param notional Coupon notional.
+   * @param priceIndex The price index associated to the coupon.
+   * @param conventionalMonthLag The lag in month between the index validity and the coupon dates.
+   * @param monthLag  The lag in month between the index validity and the coupon dates.
+   * @param maturity The cap/floor maturity in years.
+   * @param lastKnownFixingDate The fixing date (always the first of a month) of the last known fixing.
+   * @param indexStartValue The index value at the start of the coupon.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   * @return The cap/floor.
+   */
+  public static CapFloorInflationZeroCouponInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final int maturity, final ZonedDateTime lastKnownFixingDate, final double indexStartValue,
+      final double strike, final boolean isCap) {
+    Validate.notNull(priceIndex, "Price index");
+    final double weight = 1.0 - (paymentDate.getDayOfMonth() - 1.0) / paymentDate.toLocalDate().lengthOfMonth();
+    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
+    referenceEndDate[0] = paymentDate.minusMonths(conventionalMonthLag);
+    referenceEndDate[0] = referenceEndDate[0].withDayOfMonth(1);
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
+
+    return new CapFloorInflationZeroCouponInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0,
+        notional, priceIndex, lastKnownFixingDate, conventionalMonthLag, monthLag, maturity, indexStartValue, referenceEndDate, weight, strike, isCap);
   }
 
   /**
@@ -333,7 +361,6 @@ public class CapFloorInflationZeroCouponInterpolationDefinition extends CouponIn
     return new CapFloorInflationZeroCouponInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), lastKnownFixingTime, _indexStartValue, referenceEndTime,
         naturalPaymentEndTime, _maturity, _weight, _strike, _isCap);
   }
-
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {

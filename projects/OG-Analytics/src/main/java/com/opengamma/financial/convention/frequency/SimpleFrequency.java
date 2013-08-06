@@ -46,6 +46,10 @@ public final class SimpleFrequency implements Frequency, Serializable {
    */
   public static final SimpleFrequency TWENTY_EIGHT_DAYS = new SimpleFrequency(TWENTY_EIGHT_DAYS_NAME, 365. / 28);
   /**
+   * A frequency with a period of three weeks.
+   */
+  public static final SimpleFrequency THREE_WEEKS = new SimpleFrequency(THREE_WEEK_NAME, 365. / 21);
+  /**
    * A frequency with a period of two weeks.
    */
   public static final SimpleFrequency BIWEEKLY = new SimpleFrequency(BIWEEKLY_NAME, 26);
@@ -219,6 +223,9 @@ public final class SimpleFrequency implements Frequency, Serializable {
     }
     if (_name.equals(TWENTY_EIGHT_DAYS_NAME)) {
       return PeriodFrequency.TWENTY_EIGHT_DAYS;
+    }
+    if (_name.equals(THREE_WEEK_NAME)) {
+      return PeriodFrequency.THREE_WEEKS;
     }
     throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
   }

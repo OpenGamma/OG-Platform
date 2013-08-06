@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
@@ -97,6 +100,17 @@ public final class CapFloorInflationYearOnYearInterpolationConvexityAdjustmentMe
   }
 
   /**
+   * Computes the present value.
+   * @param instrument The instrument.
+   * @param black The Black implied volatility and multi-curve provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final BlackSmileCapInflationYearOnYearWithConvexityProviderInterface black) {
+    Validate.isTrue(instrument instanceof CapFloorInflationYearOnYearInterpolation, "Inflation Year on Year Cap/floor");
+    return presentValue((CapFloorInflationYearOnYearInterpolation) instrument, black);
+  }
+
+  /**
    * Computes the present value rate sensitivity to rates of a cap/floor in the Black model.
    * No smile impact is taken into account; equivalent to a sticky strike smile description.
    * @param cap The caplet/floorlet.
@@ -107,7 +121,7 @@ public final class CapFloorInflationYearOnYearInterpolationConvexityAdjustmentMe
       final BlackSmileCapInflationYearOnYearWithConvexityProviderInterface black) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(black, "Black provider");
-    InflationProviderInterface inflation = black.getInflationProvider();
+    final InflationProviderInterface inflation = black.getInflationProvider();
     final double timeToMaturity = cap.getReferenceEndTime()[1] - cap.getLastKnownFixingTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), timeToMaturity, cap.isCap());
     final double priceIndexStart0 = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), cap.getReferenceStartTime()[0]);
@@ -130,7 +144,7 @@ public final class CapFloorInflationYearOnYearInterpolationConvexityAdjustmentMe
     final double dfDr = -cap.getPaymentTime() * df;
     final double volatility = black.getBlackParameters().getVolatility(cap.getReferenceEndTime()[1], cap.getStrike());
     final NormalFunctionData dataBlack = new NormalFunctionData(forward, 1.0, volatility);
-    double[] priceDerivatives = new double[3];
+    final double[] priceDerivatives = new double[3];
     final double bsAdjoint = NORMAL_FUNCTION.getPriceAdjoint(option, dataBlack, priceDerivatives);
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));

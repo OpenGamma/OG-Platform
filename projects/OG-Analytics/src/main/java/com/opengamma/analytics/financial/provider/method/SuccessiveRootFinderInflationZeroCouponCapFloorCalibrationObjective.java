@@ -78,7 +78,7 @@ public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective
    * @param inflation The multi-curves provider.
    */
   @Override
-  public void setInflation(InflationProviderInterface inflation) {
+  public void setInflation(final InflationProviderInterface inflation) {
     _inflationCapZeroCouponProvider = new BlackSmileCapInflationZeroCouponProvider(inflation, new BlackSmileCapInflationZeroCouponParameters(_inflationCapZeroCouponParameters));
   }
 
@@ -98,15 +98,8 @@ public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective
     return _inflationCapZeroCouponProvider;
   }
 
-  /**
-   * Sets the calibration time for the next calibration.
-   * @param calibrationTime The calibration time.
-   */
-  public void setNextCalibrationTime(double calibrationTime) {
-  }
-
   @Override
-  public void setInstrument(InstrumentDerivative instrument) {
+  public void setInstrument(final InstrumentDerivative instrument) {
     super.setInstrument(instrument);
   }
 
@@ -122,7 +115,7 @@ public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective
    * Sets the expiry index.
    * @param index The expiry index.
    */
-  public void setExpiryIndex(int index) {
+  public void setExpiryIndex(final int index) {
     _expiryIndex = index;
   }
 
@@ -138,19 +131,19 @@ public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective
    * Sets the strike  index.
    * @param index The strike index.
    */
-  public void setStrikeIndex(int index) {
+  public void setStrikeIndex(final int index) {
     _strikeIndex = index;
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double evaluate(final Double x) {
 
     // setting the volatility in the volatility matrix
     _inflationCapZeroCouponParameters.setVolatility(x, _expiryIndex, _strikeIndex);
     // creating the new volatility surface using the new volatility matrix
-    Interpolator2D interpolator = _inflationCapZeroCouponProvider.getBlackParameters().getVolatilitySurface().getInterpolator();
-    BlackSmileCapInflationZeroCouponParameters blackSmileCapInflationZeroCouponParameters = new BlackSmileCapInflationZeroCouponParameters(_inflationCapZeroCouponParameters, interpolator);
-    BlackSmileCapInflationZeroCouponProvider blackSmileCapInflationZeroCouponProvider = new BlackSmileCapInflationZeroCouponProvider(_inflationCapZeroCouponProvider.getInflationProvider(),
+    final Interpolator2D interpolator = _inflationCapZeroCouponProvider.getBlackParameters().getVolatilitySurface().getInterpolator();
+    final BlackSmileCapInflationZeroCouponParameters blackSmileCapInflationZeroCouponParameters = new BlackSmileCapInflationZeroCouponParameters(_inflationCapZeroCouponParameters, interpolator);
+    final BlackSmileCapInflationZeroCouponProvider blackSmileCapInflationZeroCouponProvider = new BlackSmileCapInflationZeroCouponProvider(_inflationCapZeroCouponProvider.getInflationProvider(),
         blackSmileCapInflationZeroCouponParameters);
 
     return _inflationCapZeroCouponProvider.getMulticurveProvider().getFxRates().convert(getInstrument().accept(PVIC, blackSmileCapInflationZeroCouponProvider), _ccyInflationcapZeroCoupon).getAmount()

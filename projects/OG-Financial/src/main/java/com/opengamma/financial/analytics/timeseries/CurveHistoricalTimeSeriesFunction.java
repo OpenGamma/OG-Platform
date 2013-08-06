@@ -122,7 +122,7 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
           if (priceIndexSeries.getTimeSeries().isEmpty()) {
             s_logger.info("Time series for {} is empty", priceIndexId);
           } else {
-            bundle.add(dataField, priceIndexId, timeSeries);
+            bundle.add(dataField, priceIndexId, priceIndexSeries);
           }
         } else {
           s_logger.info("Couldn't get time series for {}", priceIndexId);

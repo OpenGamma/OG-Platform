@@ -148,8 +148,8 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
   }
 
   @Override
-  public boolean isDeepResolver() {
-    return false;
+  public DeepResolver deepResolver() {
+    return null;
   }
 
   @Override

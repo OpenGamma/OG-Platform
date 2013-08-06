@@ -169,14 +169,14 @@ import com.opengamma.util.time.Tenor;
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(REFERENCE_FIELD, object.getReference());
-      message.add(PRICE_INDEX_FIELD, object.getPriceIndex());
+      serializer.addToMessage(message, PRICE_INDEX_FIELD, null, object.getPriceIndex());
       return message;
     }
 
     @Override
     public InflationCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String reference = message.getString(REFERENCE_FIELD);
-      final String priceIndex = message.getString(PRICE_INDEX_FIELD);
+      final ExternalId priceIndex = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PRICE_INDEX_FIELD));
       final InflationCurveTypeConfiguration configuration = new InflationCurveTypeConfiguration(reference, priceIndex);
       return configuration;
     }

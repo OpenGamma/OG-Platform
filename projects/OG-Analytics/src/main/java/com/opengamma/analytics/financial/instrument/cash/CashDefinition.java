@@ -221,6 +221,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
 
   @Override
   public Cash toDerivative(final ZonedDateTime date) {
+//    return toDerivative(date, new String[] {""});
     ArgumentChecker.isTrue(!date.isAfter(_endDate), "date {} is after end date {}", date, _endDate);
     final double startTime = TimeCalculator.getTimeBetween(date, _startDate);
     if (startTime < 0) {

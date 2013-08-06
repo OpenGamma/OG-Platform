@@ -79,6 +79,14 @@ public class FixedIncomeConverterDataProvider {
     _timeSeriesResolver = timeSeriesResolver;
   }
 
+  public ConventionBundleSource getConventionBundleSource() {
+    return _conventionSource;
+  }
+
+  public HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver() {
+    return _timeSeriesResolver;
+  }
+
   /**
    * Implementation of the conversion for a given instrument.
    */

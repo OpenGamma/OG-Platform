@@ -13,12 +13,20 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 
 /**
- * 
+ *
  */
 public class YieldCurveLabelGenerator {
 
+  /**
+   * @param spec The interpolated curve specification
+   * @return The labels for this specification
+   * @deprecated This method references configurations that are obsolete
+   * @see MultiCurveUtils#getLabelledMatrix(com.opengamma.analytics.math.matrix.DoubleMatrix1D, com.opengamma.financial.analytics.curve.CurveDefinition)
+   */
+  @Deprecated
   public static Object[] getLabels(final InterpolatedYieldCurveSpecificationWithSecurities spec) {
     final Set<FixedIncomeStripWithSecurity> strips = spec.getStrips();
     final int n = strips.size();
@@ -30,6 +38,13 @@ public class YieldCurveLabelGenerator {
     return labels;
   }
 
+  /**
+   * @param spec The interpolated curve specification
+   * @return The labels for this specification
+   * @deprecated This method references configurations that are obsolete
+   * @see MultiCurveUtils#getLabelledMatrix(com.opengamma.analytics.math.matrix.DoubleMatrix1D, com.opengamma.financial.analytics.curve.CurveDefinition)
+   */
+  @Deprecated
   public static Object[] getHybridLabels(final InterpolatedYieldCurveSpecificationWithSecurities spec) {
     final Set<FixedIncomeStripWithSecurity> strips = spec.getStrips();
     final int n = strips.size();
@@ -45,6 +60,13 @@ public class YieldCurveLabelGenerator {
     return labels;
   }
 
+  /**
+   * @param spec The curve specification
+   * @return The labels for this specification
+   * @deprecated This method references does not use the curve node names that are available
+   * @see MultiCurveUtils#getLabelledMatrix(com.opengamma.analytics.math.matrix.DoubleMatrix1D, com.opengamma.financial.analytics.curve.CurveDefinition)
+   */
+  @Deprecated
   public static Object[] getHybridLabels(final CurveSpecification spec) {
     final Set<CurveNodeWithIdentifier> nodes = spec.getNodes();
     final int n = nodes.size();

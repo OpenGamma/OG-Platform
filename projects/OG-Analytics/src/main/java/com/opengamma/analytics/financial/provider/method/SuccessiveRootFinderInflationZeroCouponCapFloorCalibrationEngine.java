@@ -127,9 +127,6 @@ public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<DA
       objective.setStrikeIndex(_instrumentStrikeIndex.get(loopins + 1));
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
-      if (loopins < nbInstruments - 1) {
-        ((SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
-      }
     }
   }
 

@@ -50,6 +50,7 @@ import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
+import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingYCNSFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -57,8 +58,10 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Calculates the yield curve node sensitivities of an interest rate instrument
+ * @deprecated Use {@link LinearFIDiscountingYCNSFunction}
  */
+@Deprecated
 public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends InterestRateInstrumentCurveSpecificFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class);
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
@@ -209,7 +212,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     return requirements;
   }
 
-  private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName, final String curveCalculationMethod) {
+  private static ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName, final String curveCalculationMethod) {
     if (curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       final ValueProperties properties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, curveName)
@@ -221,7 +224,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
-  private ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod,
+  private static ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod,
       final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
@@ -230,7 +233,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency), properties);
   }
 
-  private ValueRequirement getCouponSensitivitiesRequirement(final Currency currency, final String curveCalculationConfigName) {
+  private static ValueRequirement getCouponSensitivitiesRequirement(final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING).get();

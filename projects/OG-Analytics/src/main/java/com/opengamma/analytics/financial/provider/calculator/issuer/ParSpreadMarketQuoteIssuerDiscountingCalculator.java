@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
@@ -35,7 +35,7 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
    * Constructor.
    */
   private ParSpreadMarketQuoteIssuerDiscountingCalculator() {
-    super(new IssuerProviderAdapter<Double>(ParSpreadMarketQuoteDiscountingCalculator.getInstance()));
+    super(new IssuerProviderAdapter<>(ParSpreadMarketQuoteDiscountingCalculator.getInstance()));
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
@@ -36,7 +36,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
    * Constructor.
    */
   private ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator() {
-    super(new IssuerProviderAdapter<MulticurveSensitivity>(ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
+    super(new IssuerProviderAdapter<>(ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
   /**

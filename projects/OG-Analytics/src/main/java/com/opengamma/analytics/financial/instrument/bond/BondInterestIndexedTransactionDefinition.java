@@ -28,7 +28,8 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Describes a capital inflation indexed bond transaction. Both the coupon and the nominal are indexed on a price index.
+ * Describes a interest inflation indexed bond transaction. Both the coupon and the nominal are indexed on a price index.
+ * @param <N> Type of  fix payment coupon.
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  * @param <N> Type of the fixed payment.
  */
@@ -36,18 +37,16 @@ public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefi
     implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
-   * Constructor of a Capital indexed bond transaction from all the transaction details.
-   * @param underlyingBond The capital indexed bond underlying the transaction.
+   * Constructor of a interest indexed bond transaction from all the transaction details.
+   * @param underlyingBond The interest indexed bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlementDate Transaction settlement date.
    * @param price The (clean quoted) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
   public BondInterestIndexedTransactionDefinition(final BondSecurityDefinition<N, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
     super(underlyingBond, quantity, settlementDate, price);
-    ArgumentChecker.isTrue(underlyingBond instanceof BondCapitalIndexedSecurityDefinition, "Capital Indexed bond");
+    ArgumentChecker.isTrue(underlyingBond instanceof BondInterestIndexedSecurityDefinition, "interest Indexed bond");
   }
-
-  //TODO: from clean price adjusted monthly (for UK linked-gilts pre-2005).
 
   @Override
   public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {

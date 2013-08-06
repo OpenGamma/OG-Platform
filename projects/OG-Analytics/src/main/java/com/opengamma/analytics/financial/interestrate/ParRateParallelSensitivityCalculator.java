@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -9,12 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the change in par rate of an instrument (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) due to a parallel move of each yield curve
- * that the instrument is sensitive to - dPar/dR where dR is a movement of the whole curve. The return format is a Map with curve names (String) as keys and a sensitivities as values. 
+ * that the instrument is sensitive to - dPar/dR where dR is a movement of the whole curve. The return format is a Map with curve names (String) as keys and a sensitivities as values.
+ * @deprecated Use the calculators that reference {@link ParameterProviderInterface}
  */
+@Deprecated
 public final class ParRateParallelSensitivityCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, Map<String, Double>> {
   private static final ParRateParallelSensitivityCalculator s_instance = new ParRateParallelSensitivityCalculator();
   private final ParRateCurveSensitivityCalculator _prcsc = ParRateCurveSensitivityCalculator.getInstance();
@@ -28,14 +31,14 @@ public final class ParRateParallelSensitivityCalculator extends InstrumentDeriva
 
   /**
    * Calculates the change in par rate of an instrument due to a parallel move of each yield curve the instrument is sensitive to
-   * @param ird instrument 
-   * @param curves bundle of relevant yield curves 
-   * @return a Map between curve name and sensitivity for that curve 
+   * @param ird instrument
+   * @param curves bundle of relevant yield curves
+   * @return a Map between curve name and sensitivity for that curve
    */
   @Override
   public Map<String, Double> visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> sensitivities = ird.accept(_prcsc, curves);
-    final Map<String, Double> result = new HashMap<String, Double>();
+    final Map<String, Double> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensitivities.entrySet()) {
       final String name = entry.getKey();
       final double temp = sumListPair(entry.getValue());
@@ -44,7 +47,7 @@ public final class ParRateParallelSensitivityCalculator extends InstrumentDeriva
     return result;
   }
 
-  private double sumListPair(final List<DoublesPair> list) {
+  private static double sumListPair(final List<DoublesPair> list) {
     double sum = 0.0;
     for (final DoublesPair pair : list) {
       sum += pair.getSecond();

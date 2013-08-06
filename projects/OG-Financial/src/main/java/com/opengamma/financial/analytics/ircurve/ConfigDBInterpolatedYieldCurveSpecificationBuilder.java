@@ -94,6 +94,9 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         case SWAP_12M:
           identifier = builderConfig.getSwap12MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
+        case SWAP_28D:
+          identifier = builderConfig.getSwap28DSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         case SWAP:
           // assume that all old swaps are 3m - shouldn't be used but just for consistency
           identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());

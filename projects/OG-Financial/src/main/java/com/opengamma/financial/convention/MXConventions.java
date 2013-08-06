@@ -16,6 +16,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -67,5 +69,12 @@ public class MXConventions {
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
       utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, dc, following, Period.ofYears(i), 0, false, mx);
     }
+
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("MPSW28T Curncy"), simpleNameSecurityId("MXN LIBOR 28d")),
+        "MXN LIBOR 28d", dc, following, Period.ofMonths(3), 2, false, mx);
+    final Frequency frequency = PeriodFrequency.TWENTY_EIGHT_DAYS;
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("MXN_28D_SWAP")), "MXN_28D_SWAP", dc, following,
+        frequency, 2, mx, dc, following, frequency, 2, simpleNameSecurityId("MXN LIBOR 28d"), mx, true);
+
   }
 }

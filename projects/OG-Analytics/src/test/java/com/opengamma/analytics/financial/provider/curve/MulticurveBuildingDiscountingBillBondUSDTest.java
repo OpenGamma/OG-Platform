@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -90,7 +90,7 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   private static final IndexON INDEX_ON_USD = GENERATOR_OIS_USD.getIndex();
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, INDEX_ON_USD.getDayCount());
   private static final String NAME_COUNTERPART = "US GOVT";
-  private static final Pair<String, Currency> US_USD = new ObjectsPair<String, Currency>(NAME_COUNTERPART, USD);
+  private static final Pair<String, Currency> US_USD = new ObjectsPair<>(NAME_COUNTERPART, USD);
   private static final DayCount DAY_COUNT_ON = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USGOVT = new GeneratorDepositONCounterpart("US GOVT Deposit ON", USD, NYC, DAY_COUNT_ON, NAME_COUNTERPART);
 
@@ -162,10 +162,10 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
   private static final MulticurveProviderDiscount KNOWN_MULTICURVES = new MulticurveProviderDiscount(FX_MATRIX);
   private static final IssuerProviderDiscount KNOWN_DATA = new IssuerProviderDiscount(KNOWN_MULTICURVES, new HashMap<Pair<String, Currency>, YieldAndDiscountCurve>());
-  private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<String, Currency>();
-  private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<String, IndexON[]>();
-  private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<String, IborIndex[]>();
-  private static final LinkedHashMap<String, Pair<String, Currency>> DSC_ISS_MAP = new LinkedHashMap<String, Pair<String, Currency>>();
+  private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, Pair<String, Currency>> DSC_ISS_MAP = new LinkedHashMap<>();
 
   static {
     DEFINITIONS_DSC_USD = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
@@ -190,6 +190,7 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -198,7 +199,7 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
     return definitions;
   }
 
-  private static List<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>>();
+  private static List<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<>();
 
   // Calculator
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
@@ -288,7 +289,6 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
         sensitivityCalculator);
   }
 
-  @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
     //    int nbDef = 0;
     //    for (final InstrumentDefinition<?>[] definition : definitions) {

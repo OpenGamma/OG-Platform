@@ -26,7 +26,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Adds {@link ValuePropertyNames#SURFACE} and {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} to the available
+ * {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
  */
 public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
@@ -35,12 +36,17 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.DELTA,
     ValueRequirementNames.GAMMA,
     ValueRequirementNames.VEGA,
+    ValueRequirementNames.THETA,
     ValueRequirementNames.POSITION_DELTA,
     ValueRequirementNames.POSITION_GAMMA,
     ValueRequirementNames.POSITION_VEGA,
+    ValueRequirementNames.POSITION_THETA,
+    ValueRequirementNames.POSITION_RHO,
+    ValueRequirementNames.POSITION_WEIGHTED_VEGA,
     ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.VALUE_THETA,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.IMPLIED_VOLATILITY,
@@ -49,7 +55,12 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.DAILY_PRICE,
     ValueRequirementNames.FORWARD
   };
-  private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
+  
+  /** 
+   * This map from currency to curve configuration and surface names 
+   * may be accessed and set from child classes.
+   */
+  private HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
   public InterestRateFutureOptionBlackDefaults(final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.TRADE, true);
@@ -101,6 +112,22 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
   @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.FUTURE_OPTION_BLACK;
+  }
+
+  protected HashMap<String, Pair<String, String>> getCurrencyCurveConfigAndSurfaceNames() {
+    return _currencyCurveConfigAndSurfaceNames;
+  }
+
+  protected void setCurrencyCurveConfigAndSurfaceNames(HashMap<String, Pair<String, String>> currencyCurveConfigAndSurfaceNames) {
+    _currencyCurveConfigAndSurfaceNames = currencyCurveConfigAndSurfaceNames;
+  }
+
+  public static Logger getsLogger() {
+    return s_logger;
+  }
+
+  public static String[] getsValuerequirements() {
+    return s_valueRequirements;
   }
 
 }

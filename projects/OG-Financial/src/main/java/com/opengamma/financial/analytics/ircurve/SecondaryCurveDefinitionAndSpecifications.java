@@ -28,7 +28,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -236,7 +235,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     }
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders,
         liborInstrumentProviders, euriborInstrumentProviders, cdorInstrumentProviders, ciborInstrumentProviders, stiborInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders,
-        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null);
+        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null, null);
     return config;
   }
 

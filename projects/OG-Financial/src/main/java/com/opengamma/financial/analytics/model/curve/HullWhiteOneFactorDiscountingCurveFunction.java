@@ -32,7 +32,6 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -57,7 +56,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -93,8 +91,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
   private static final ParSpreadMarketQuoteHullWhiteCalculator PSMQHWC = ParSpreadMarketQuoteHullWhiteCalculator.getInstance();
   /** The sensitivity calculator */
   private static final ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator PSMQCSHWC = ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
-  /** The maturity calculator */
-  private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
   /**
    * @param configurationName The configuration name, not null
@@ -176,7 +172,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             parameterGuessForCurves.add(marketData);
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
-            derivativesForCurve[k++] = CurveNodeConverter.getDerivative(node, definitionForNode, now, timeSeries);
+            derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);
           } // Node points - end
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
             if (type instanceof DiscountingCurveTypeConfiguration) {
@@ -191,6 +187,9 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
               final Convention convention = conventionSource.getConvention(ibor.getConvention());
+              if (convention == null) {
+                throw new OpenGammaRuntimeException("Convention " + ibor.getConvention() + " was null");
+              }
               if (!(convention instanceof IborIndexConvention)) {
                 throw new OpenGammaRuntimeException("Expecting convention of type IborIndexConvention; have " + convention.getClass());
               }
@@ -201,6 +200,9 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
               final Convention convention = conventionSource.getConvention(overnight.getConvention());
+              if (convention == null) {
+                throw new OpenGammaRuntimeException("Convention " + overnight.getConvention() + " was null");
+              }
               if (!(convention instanceof OvernightIndexConvention)) {
                 throw new OpenGammaRuntimeException("Expecting convention of type OvernightIndexConvention; have " + convention.getClass());
               }
@@ -325,7 +327,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
         final String leftExtrapolatorName = interpolatedDefinition.getLeftExtrapolatorName();
         final String rightExtrapolatorName = interpolatedDefinition.getRightExtrapolatorName();
         final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-        return new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, interpolator);
+        return new GeneratorCurveYieldInterpolated(getMaturityCalculator(), interpolator);
       }
       throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
     }
@@ -359,6 +361,15 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       return result;
     }
 
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return true;
+    }
+
+    @Override
+    public boolean canHandleMissingInputs() {
+      return true;
+    }
   }
 
 }

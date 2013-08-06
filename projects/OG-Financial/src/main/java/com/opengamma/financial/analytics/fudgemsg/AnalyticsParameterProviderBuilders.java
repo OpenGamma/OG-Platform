@@ -30,12 +30,16 @@ import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiece
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Contains builders for the objects that analytics needs to perform pricing.
@@ -275,6 +279,78 @@ public final class AnalyticsParameterProviderBuilders {
   }
 
   /**
+   * Fudge builder for {@link MulticurveProviderForward}
+   */
+  @FudgeBuilderFor(MulticurveProviderForward.class)
+  public static class MulticurveProviderForwardBuilder extends AbstractFudgeBuilder<MulticurveProviderForward> {
+    /** Currencies field */
+    private static final String CURRENCY_FIELD = "currency";
+    /** Discounting curves field */
+    private static final String DISCOUNTING_CURVE_FIELD = "discountingCurve";
+    /** Overnight indices field */
+    private static final String INDEX_ON_FIELD = "indexON";
+    /** Overnight curves field */
+    private static final String FORWARD_OVERNIGHT_CURVE_FIELD = "forwardOvernightCurve";
+    /** Index indices field */
+    private static final String INDEX_IBOR_FIELD = "iborIndex";
+    /** Ibor curves field */
+    private static final String FORWARD_IBOR_CURVE_FIELD = "forwardIborCurve";
+    /** FX matrix field */
+    private static final String FX_MATRIX_FIELD = "fxMatrix";
+
+    @Override
+    public MulticurveProviderForward buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Map<Currency, YieldAndDiscountCurve> discountingCurves = new LinkedHashMap<>();
+      final List<FudgeField> currencyFields = message.getAllByName(CURRENCY_FIELD);
+      final List<FudgeField> discountingCurveFields = message.getAllByName(DISCOUNTING_CURVE_FIELD);
+      for (int i = 0; i < currencyFields.size(); i++) {
+        final Currency currency = Currency.of((String) currencyFields.get(i).getValue());
+        final YieldAndDiscountCurve curve = deserializer.fudgeMsgToObject(YieldAndDiscountCurve.class, (FudgeMsg) discountingCurveFields.get(i).getValue());
+        discountingCurves.put(currency, curve);
+      }
+      final Map<IborIndex, DoublesCurve> forwardIborCurves = new LinkedHashMap<>();
+      final List<FudgeField> indexIborFields = message.getAllByName(INDEX_IBOR_FIELD);
+      final List<FudgeField> forwardIborCurveFields = message.getAllByName(FORWARD_IBOR_CURVE_FIELD);
+      for (int i = 0; i < currencyFields.size(); i++) {
+        final IborIndex index = deserializer.fudgeMsgToObject(IborIndex.class, (FudgeMsg) indexIborFields.get(i).getValue());
+        final DoublesCurve curve = deserializer.fudgeMsgToObject(DoublesCurve.class, (FudgeMsg) forwardIborCurveFields.get(i).getValue());
+        forwardIborCurves.put(index, curve);
+      }
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves = new LinkedHashMap<>();
+      final List<FudgeField> indexONFields = message.getAllByName(INDEX_ON_FIELD);
+      final List<FudgeField> forwardONCurveFields = message.getAllByName(FORWARD_OVERNIGHT_CURVE_FIELD);
+      for (int i = 0; i < currencyFields.size(); i++) {
+        final IndexON index = deserializer.fudgeMsgToObject(IndexON.class, (FudgeMsg) indexONFields.get(i).getValue());
+        final YieldAndDiscountCurve curve = deserializer.fudgeMsgToObject(YieldAndDiscountCurve.class, (FudgeMsg) forwardONCurveFields.get(i).getValue());
+        forwardONCurves.put(index, curve);
+      }
+      final FXMatrix fxMatrix = deserializer.fieldValueToObject(FXMatrix.class, message.getByName(FX_MATRIX_FIELD));
+      return new MulticurveProviderForward(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final MulticurveProviderForward object) {
+      final Map<Currency, YieldAndDiscountCurve> discountingCurves = object.getDiscountingCurves();
+      for (final Map.Entry<Currency, YieldAndDiscountCurve> entry : discountingCurves.entrySet()) {
+        message.add(CURRENCY_FIELD, entry.getKey().getCode());
+        serializer.addToMessageWithClassHeaders(message, DISCOUNTING_CURVE_FIELD, null, entry.getValue());
+      }
+      final Map<IborIndex, DoublesCurve> forwardIborCurves = object.getForwardIborCurves();
+      for (final Map.Entry<IborIndex, DoublesCurve> entry : forwardIborCurves.entrySet()) {
+        serializer.addToMessageWithClassHeaders(message, INDEX_IBOR_FIELD, null, entry.getKey());
+        serializer.addToMessageWithClassHeaders(message, FORWARD_IBOR_CURVE_FIELD, null, entry.getValue());
+      }
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves = object.getForwardONCurves();
+      for (final Map.Entry<IndexON, YieldAndDiscountCurve> entry : forwardONCurves.entrySet()) {
+        serializer.addToMessageWithClassHeaders(message, INDEX_ON_FIELD, null, entry.getKey());
+        serializer.addToMessageWithClassHeaders(message, FORWARD_OVERNIGHT_CURVE_FIELD, null, entry.getValue());
+      }
+      serializer.addToMessageWithClassHeaders(message, FX_MATRIX_FIELD, null, object.getFxRates());
+    }
+
+  }
+
+  /**
    * Fudge builder for {@link InflationProviderDiscount}
    */
   @FudgeBuilderFor(InflationProviderDiscount.class)
@@ -308,6 +384,48 @@ public final class AnalyticsParameterProviderBuilders {
       for (final Map.Entry<IndexPrice, PriceIndexCurve> entry : priceIndexCurves.entrySet()) {
         serializer.addToMessageWithClassHeaders(message, PRICE_INDEX_FIELD, null, entry.getKey());
         serializer.addToMessageWithClassHeaders(message, PRICE_INDEX_CURVE_FIELD, null, entry.getValue());
+      }
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link IssuerProviderDiscount}
+   */
+  @FudgeBuilderFor(IssuerProviderDiscount.class)
+  public static class IssuerProviderDiscountBuilder extends AbstractFudgeBuilder<IssuerProviderDiscount> {
+    /** The curve provider field */
+    private static final String CURVE_PROVIDER_FIELD = "curveProvider";
+    /** The issuer curve names field */
+    private static final String ISSUER_CURVE_NAMES_FIELD = "issuerName";
+    /** The issuer currencies field */
+    private static final String ISSUER_CURRENCIES_FIELD = "issuerCurrency";
+    /** The issuer yield curves field */
+    private static final String ISSUER_CURVES_FIELD = "issuerCurve";
+
+    @Override
+    public IssuerProviderDiscount buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final MulticurveProviderDiscount multicurves = deserializer.fieldValueToObject(MulticurveProviderDiscount.class, message.getByName(CURVE_PROVIDER_FIELD));
+      final List<FudgeField> issuerNameFields = message.getAllByName(ISSUER_CURVE_NAMES_FIELD);
+      final List<FudgeField> issuerCurrencyFields = message.getAllByName(ISSUER_CURRENCIES_FIELD);
+      final List<FudgeField> issuerCurveFields = message.getAllByName(ISSUER_CURVES_FIELD);
+      final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
+      for (int i = 0; i < issuerNameFields.size(); i++) {
+        final String issuerName = (String) issuerNameFields.get(i).getValue();
+        final Currency issuerCurrency = Currency.of((String) issuerCurrencyFields.get(i).getValue());
+        final YieldAndDiscountCurve curve = deserializer.fieldValueToObject(YieldAndDiscountCurve.class, issuerCurveFields.get(i));
+        issuerCurves.put(Pair.of(issuerName, issuerCurrency), curve);
+      }
+      return new IssuerProviderDiscount(multicurves, issuerCurves);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IssuerProviderDiscount object) {
+      serializer.addToMessageWithClassHeaders(message, CURVE_PROVIDER_FIELD, null, object.getMulticurveProvider());
+      for (final Map.Entry<Pair<String, Currency>, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
+        message.add(ISSUER_CURVE_NAMES_FIELD, entry.getKey().getFirst());
+        message.add(ISSUER_CURRENCIES_FIELD, entry.getKey().getSecond().getCode());
+        serializer.addToMessageWithClassHeaders(message, ISSUER_CURVES_FIELD, null, entry.getValue());
       }
     }
 

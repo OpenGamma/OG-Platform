@@ -42,13 +42,9 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final PortfolioNode node = target.getPortfolioNode();
-    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     BigDecimal currentSum = BigDecimal.ZERO;
-    for (final Position position : allPositions) {
-      final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
-          ComputationTargetType.POSITION, position.getUniqueId()));
-      currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
+    for (ComputedValue input : inputs.getAllValues()) {
+      currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(input.getValue())));
     }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), desiredValue.getConstraints());

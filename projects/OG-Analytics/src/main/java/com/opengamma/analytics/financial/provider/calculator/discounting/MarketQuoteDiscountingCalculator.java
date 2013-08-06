@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
@@ -42,7 +42,7 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final MulticurveProviderInterface multicurves) {
-    return derivative.accept(this, multicurves);
+    return derivative.accept(ParSpreadMarketQuoteDiscountingCalculator.getInstance(), multicurves);
   }
 
   // TODO: Add FRA, IRS, FX forward, FX swap

@@ -1,20 +1,22 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 
 /**
- * 
+ * @deprecated Use the calculators that reference {@link ParameterProviderInterface}
  */
+@Deprecated
 public final class InstrumentSensitivityCalculator {
 
   private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra(); //TODO make choice of algebra a parameter (also available: CommonsMatrixAlgebra)

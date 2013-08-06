@@ -25,9 +25,9 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final SecuritySource _securitySource;
-  private final SwapSecurityConverter _swapConverter;
+  private final SwapSecurityConverterDeprecated _swapConverter;
 
-  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverter swapConverter) {
+  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverterDeprecated swapConverter) {
     Validate.notNull(securitySource, "security source");
     Validate.notNull(swapConverter, "swap converter");
     _securitySource = securitySource;

@@ -56,7 +56,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 /**
  * Get the last time (in years from now) referenced in the instrument description.
  */
-public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
+public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
   /** Static instance of this class */
   private static final LastTimeCalculator CALCULATOR = new LastTimeCalculator();
 
@@ -67,7 +67,7 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
     return CALCULATOR;
   }
 
-  private LastTimeCalculator() {
+  protected LastTimeCalculator() {
   }
 
   @Override

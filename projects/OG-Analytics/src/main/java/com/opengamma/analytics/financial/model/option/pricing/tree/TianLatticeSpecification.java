@@ -21,4 +21,5 @@ public class TianLatticeSpecification extends LatticeSpecification {
 
     return new double[] {upFactor, downFactor, upProbability, 1 - upProbability };
   }
+
 }

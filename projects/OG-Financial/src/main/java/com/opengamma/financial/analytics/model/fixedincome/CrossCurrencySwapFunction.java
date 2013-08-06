@@ -44,10 +44,10 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
-import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FRASecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
@@ -70,6 +70,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Base class for cross-currency swap analytics
  */
+@Deprecated
 public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(CrossCurrencySwapFunction.class);
@@ -96,8 +97,8 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
+    final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
@@ -156,7 +157,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
         curveNames.add(curveName + "_" + receiveCurveSuffix);
       }
     }
-    String[] curveNamesArray = curveNames.toArray(new String[0]);
+    final String[] curveNamesArray = curveNames.toArray(new String[0]);
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesArray, timeSeries);
     final YieldCurveBundle payCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, payCurveCalculationConfig, curveCalculationConfigSource);
     final YieldCurveBundle receiveCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, receiveCurveCalculationConfig, curveCalculationConfigSource);

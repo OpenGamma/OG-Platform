@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.inflation.method;
@@ -149,10 +149,7 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
    * Tests the present value for curves with seasonal adjustment.
    */
   public void presentValueSeasonality() {
-    /**
-     * The Black function used in the pricing.
-     */
-    final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+    final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final InflationIssuerProviderDiscount marketSeason = MulticurveProviderDiscountDataSets.createMarket2(PRICING_DATE);
     final BlackSmileCapInflationZeroCouponProviderDiscount blackInflation = new BlackSmileCapInflationZeroCouponProviderDiscount(marketSeason.getInflationProvider(), BLACK_PARAM);
     final int tenorYear = 5;
@@ -177,7 +174,7 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(Math.pow(1 + capZeroCouponUsd.getStrike(), capZeroCouponUsd.getMaturity()), timeToMaturity, capZeroCouponUsd.isCap());
     final double volatility = blackInflation.getBlackParameters().getVolatility(capZeroCouponUsd.getReferenceEndTime()[1], capZeroCouponUsd.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
-    final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
+    final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     final double pvExpected = df * func.evaluate(dataBlack) * capZeroCouponUsd.getNotional() * capZeroCouponUsd.getPaymentYearFraction();
     assertEquals("PV in market with seasonal adjustment", pvExpected, pvInflation.getAmount(zeroCouponUsd.getCurrency()), 1E-2);
   }

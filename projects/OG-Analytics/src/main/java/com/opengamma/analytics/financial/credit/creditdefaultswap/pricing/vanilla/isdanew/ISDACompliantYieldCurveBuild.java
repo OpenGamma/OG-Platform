@@ -46,10 +46,10 @@ public class ISDACompliantYieldCurveBuild {
    * @param convention Specification of non-business days 
    * @return A yield curve observed from today
    */
-  public ISDACompliantYieldCurve build(final LocalDate today, final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, Period[] tenors, final double[] rates,
-      final DayCount moneyMarketDCC, final DayCount swapDCC, Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
+  public ISDACompliantYieldCurve build(final LocalDate today, final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
     // ArgumentChecker.isFalse(spotDate.isAfter(today), "Cannot build a curve with spot date in the futrue (i.e. after today");
-    ISDACompliantYieldCurve baseCurve = build(spotDate, instrumentTypes, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
+    final ISDACompliantYieldCurve baseCurve = build(spotDate, instrumentTypes, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
     if (spotDate.isEqual(today)) {
       return baseCurve;
     }
@@ -71,8 +71,8 @@ public class ISDACompliantYieldCurveBuild {
    * @param convention Specification of non-business days 
    * @return A yield curve 
    */
-  public ISDACompliantYieldCurve build(final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, Period[] tenors, final double[] rates, final DayCount moneyMarketDCC,
-      final DayCount swapDCC, Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
+  public ISDACompliantYieldCurve build(final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final double[] rates, final DayCount moneyMarketDCC,
+      final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
 
     final int n = tenors.length;
     final LocalDate[] matDates = new LocalDate[n];
@@ -143,10 +143,10 @@ public class ISDACompliantYieldCurveBuild {
     final int index1 = i1;
     final int index2 = i2;
 
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         final ISDACompliantCurve tempCurve = curve.withRate(x, curveIndex);
         double sum = 1.0 - cachedValues; // Floating leg at par
         for (int i = index1; i < index2; i++) {
@@ -157,10 +157,10 @@ public class ISDACompliantYieldCurveBuild {
       }
     };
 
-    Function1D<Double, Double> grad = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> grad = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         final ISDACompliantCurve tempCurve = curve.withRate(x, curveIndex);
         double sum = cachedSense;
         for (int i = index1; i < index2; i++) {
@@ -174,6 +174,9 @@ public class ISDACompliantYieldCurveBuild {
     };
 
     final double guess = curve.getZeroRateAtIndex(curveIndex);
+    if (guess == 0.0 && func.evaluate(guess) == 0.0) {
+      return curve;
+    }
     final double[] bracket = BRACKETER.getBracketedPoints(func, 0.8 * guess, 1.25 * guess, 0, Double.POSITIVE_INFINITY);
     // final double r = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
     final double r = ROOTFINDER.getRoot(func, grad, bracket[0], bracket[1]);
@@ -190,10 +193,11 @@ public class ISDACompliantYieldCurveBuild {
     private final double[] _swapPaymentTimes;
     private final double[] _paymentAmounts;
 
-    public BasicFixedLeg(final LocalDate spotDate, final LocalDate mat, Period swapInterval, final double rate, final DayCount swapDCC, final DayCount curveDCC, final BusinessDayConvention convention) {
+    public BasicFixedLeg(final LocalDate spotDate, final LocalDate mat, final Period swapInterval, final double rate, final DayCount swapDCC, final DayCount curveDCC,
+        final BusinessDayConvention convention) {
       ArgumentChecker.isFalse(swapInterval.getDays() > 0, "swap interval must be in months or years");
 
-      List<LocalDate> list = new ArrayList<>();
+      final List<LocalDate> list = new ArrayList<>();
       LocalDate tDate = mat;
       list.add(tDate);
       int step = 1;

@@ -6,6 +6,7 @@
 package com.opengamma.financial.temptarget;
 
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.engine.target.resolver.DeepResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -39,8 +40,8 @@ public class TempTargetResolver implements ObjectResolver<UniqueIdentifiable> {
   }
 
   @Override
-  public boolean isDeepResolver() {
-    return false;
+  public DeepResolver deepResolver() {
+    return null;
   }
 
 }

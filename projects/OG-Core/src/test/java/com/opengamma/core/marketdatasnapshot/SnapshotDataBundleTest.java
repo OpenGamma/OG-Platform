@@ -6,6 +6,7 @@
 package com.opengamma.core.marketdatasnapshot;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
@@ -130,6 +131,19 @@ public class SnapshotDataBundleTest {
     final Map.Entry<ExternalIdBundle, Double> e = object.getDataPointSet().iterator().next();
     assertEquals(e.getKey(), ExternalIdBundle.of(ExternalId.of("Foo", "Bar")));
     assertEquals(e.getValue(), 42d);
+  }
+
+  public void testEquals() {
+    SnapshotDataBundle snap = new SnapshotDataBundle();
+    snap.setDataPoint(ExternalId.parse("Snap~Test"), 1234.56);
+    SnapshotDataBundle snap2 = new SnapshotDataBundle();
+    snap2.setDataPoint(ExternalId.parse("Snap~Test"), 1234.56);
+    SnapshotDataBundle snap3 = new SnapshotDataBundle();
+    snap3.setDataPoint(ExternalId.parse("Snap~Test"), 1234);
+    assertEquals(snap, snap2);
+    assertEquals(snap.hashCode(), snap2.hashCode());
+    assertNotEquals(snap, snap3);
+    assertNotEquals(snap.hashCode(), snap3.hashCode());
   }
 
 }

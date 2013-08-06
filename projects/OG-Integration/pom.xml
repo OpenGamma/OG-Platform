@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform-public</artifactId>
-    <version>2.1.0-M1-SNAPSHOT</version>
+    <version>2.1.0-M2-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>og-integration</artifactId>
@@ -90,6 +90,40 @@
       <artifactId>groovy-all</artifactId>
     </dependency>
   </dependencies>
+
+  <!-- ==================================================================== -->
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>1.5</version>
+        <reportSets>
+          <reportSet>
+            <id>single</id>
+            <reports>
+              <report>third-party-report</report>
+            </reports>
+            <configuration>
+              <licenseMerges>
+                <licenseMerge>Apache Software License, v2.0|The Apache Software License, Version 2.0|Apache 2|Apache v2|Apache License 2.0|Apache License, Version 2.0|Apache 2.0|Apache License Version 2.0|Apache License|Apache Software License - Version 2.0</licenseMerge>
+                <licenseMerge>Eclipse Public License, v1.0|Eclipse Public License, Version 1.0|Eclipse Public License Version 1.0|Eclipse Public License - v 1.0|Eclipse Public License - Version 1.0</licenseMerge>
+                <licenseMerge>Academic Free License, v 2.1|The Academic Free License, v. 2.1</licenseMerge>
+                <licenseMerge>Mozilla Public License|MPL</licenseMerge>
+                <licenseMerge>Mozilla Public License, v1.1|MPL 1.1|MPL v1.1</licenseMerge>
+                <licenseMerge>LGPL|GNU Lesser General Public License|Lesser General Public License</licenseMerge>
+                <licenseMerge>LGPL, v2.1|Lesser General Public License (LGPL)|LGPL 2.1|LGPL v2.1</licenseMerge>
+                <licenseMerge>CDDL, v1.1|CDDL 1.1|CDDL v1.1</licenseMerge>
+                <licenseMerge>MIT License|MIT|The MIT License</licenseMerge>
+                <licenseMerge>New BSD License|BSD 3-clause</licenseMerge>
+              </licenseMerges>
+              <useMissingFile>true</useMissingFile>
+            </configuration>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <!-- ==================================================================== -->
   <properties>

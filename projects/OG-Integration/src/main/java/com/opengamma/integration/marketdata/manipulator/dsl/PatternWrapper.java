@@ -49,7 +49,7 @@ public final class PatternWrapper {
   /**
    * @return The wrapped pattern, not null
    */
-  public Pattern pattern() {
+  public Pattern getPattern() {
     return _pattern;
   }
 
@@ -63,5 +63,19 @@ public final class PatternWrapper {
       return null;
     }
     return new PatternWrapper(pattern);
+  }
+
+  @Override
+  public String toString() {
+    String pattern;
+    Integer flags;
+    if (_pattern == null) {
+      pattern = null;
+      flags = null;
+    } else {
+      pattern = _pattern.pattern();
+      flags = _pattern.flags();
+    }
+    return "PatternWrapper [pattern=" + pattern + ", flags=" + flags + "]";
   }
 }

@@ -38,7 +38,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
@@ -61,6 +63,14 @@ public class FXMatrixFunction extends AbstractFunction {
     _configurationName = configurationName;
   }
 
+  /**
+   * Gets the curve configuration name.
+   * @return The curve configuration names
+   */
+  public String getConfigurationName() {
+    return _configurationName;
+  }
+
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
@@ -74,54 +84,71 @@ public class FXMatrixFunction extends AbstractFunction {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
-    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, versionTime, conventionSource);
+    final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
+    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, versionTime, conventionSource, visitor);
     final ValueProperties properties = createValueProperties()
         .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
         .get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties);
-    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
-
-      @Override
-      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-          final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-        if (inputs.getAllValues().size() == 0) {
-          return Collections.singleton(new ComputedValue(spec, new FXMatrix()));
-        }
-        final FXMatrix matrix = new FXMatrix();
-        final Iterator<Currency> iter = currencies.iterator();
-        final Currency initialCurrency = iter.next();
-        while (iter.hasNext()) {
-          final Currency otherCurrency = iter.next();
-          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-              CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
-          matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
-        }
-        return Collections.singleton(new ComputedValue(spec, matrix));
-      }
-
-      @Override
-      public ComputationTargetType getTargetType() {
-        return ComputationTargetType.NULL;
-      }
-
-      @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        return Collections.singleton(spec);
-      }
-
-      @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
-        if (currencies == null || currencies.isEmpty() || currencies.size() == 1) {
-          return Collections.emptySet();
-        }
-        final Set<ValueRequirement> requirements = new HashSet<>();
-        final Iterator<Currency> iter = currencies.iterator();
-        final Currency initialCurrency = iter.next();
-        while (iter.hasNext()) {
-          requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(iter.next(), initialCurrency))));
-        }
-        return requirements;
-      }
-    };
+    return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000),
+        spec, currencies);
   }
+
+  /**
+   * Function that creates an {@link FXMatrix}
+   */
+  protected class MyCompiledFunction extends AbstractInvokingCompiledFunction {
+    /** The result specification */
+    private final ValueSpecification _spec;
+    /** The set of relevant currencies */
+    private final Set<Currency> _currencies;
+
+    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final ValueSpecification spec, final Set<Currency> currencies) {
+      super(earliestInvocation, latestInvocation);
+      _spec = spec;
+      _currencies = currencies;
+    }
+
+    @Override
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+      if (inputs.getAllValues().size() == 0) {
+        return Collections.singleton(new ComputedValue(_spec, new FXMatrix()));
+      }
+      final FXMatrix matrix = new FXMatrix();
+      final Iterator<Currency> iter = _currencies.iterator();
+      final Currency initialCurrency = iter.next();
+      while (iter.hasNext()) {
+        final Currency otherCurrency = iter.next();
+        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
+            CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+        matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+      }
+      return Collections.singleton(new ComputedValue(_spec, matrix));
+    }
+
+    @Override
+    public ComputationTargetType getTargetType() {
+      return ComputationTargetType.NULL;
+    }
+
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+      return Collections.singleton(_spec);
+    }
+
+    @Override
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
+      if (_currencies == null || _currencies.isEmpty() || _currencies.size() == 1) {
+        return Collections.emptySet();
+      }
+      final Set<ValueRequirement> requirements = new HashSet<>();
+      final Iterator<Currency> iter = _currencies.iterator();
+      final Currency initialCurrency = iter.next();
+      while (iter.hasNext()) {
+        requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(iter.next(), initialCurrency))));
+      }
+      return requirements;
+    }
+  };
 }

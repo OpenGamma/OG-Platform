@@ -18,7 +18,7 @@ import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Selects volatility surfaces for manipulation.
  */
 /* package */ class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
 
@@ -27,20 +27,23 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Set<String> _calcConfigNames;
   private final Set<String> _names;
-  private final PatternWrapper _nameRegex;
+  private final PatternWrapper _nameMatchPattern;
+  private final PatternWrapper _nameLikePattern;
   private final Set<String> _instrumentTypes;
   private final Set<String> _quoteTypes;
   private final Set<String> _quoteUnits;
 
   /* package */ VolatilitySurfaceSelector(Set<String> calcConfigNames,
                                           Set<String> names,
-                                          Pattern nameRegex,
+                                          Pattern nameMatchPattern,
+                                          Pattern nameLikePattern,
                                           Set<String> instrumentTypes,
                                           Set<String> quoteTypes,
                                           Set<String> quoteUnits) {
     _calcConfigNames = calcConfigNames;
     _names = names;
-    _nameRegex = PatternWrapper.wrap(nameRegex);
+    _nameMatchPattern = PatternWrapper.wrap(nameMatchPattern);
+    _nameLikePattern = PatternWrapper.wrap(nameLikePattern);
     _instrumentTypes = instrumentTypes;
     _quoteTypes = quoteTypes;
     _quoteUnits = quoteUnits;
@@ -66,7 +69,10 @@ import com.opengamma.util.ArgumentChecker;
     if (!contains(_names, key.getName())) {
       return null;
     }
-    if (_nameRegex != null && !_nameRegex.pattern().matcher(key.getName()).matches()) {
+    if (_nameMatchPattern != null && !_nameMatchPattern.getPattern().matcher(key.getName()).matches()) {
+      return null;
+    }
+    if (_nameLikePattern != null && !_nameLikePattern.getPattern().matcher(key.getName()).matches()) {
       return null;
     }
     if (!contains(_instrumentTypes, key.getInstrumentType())) {
@@ -102,8 +108,12 @@ import com.opengamma.util.ArgumentChecker;
     return _names;
   }
 
-  /* package */ Pattern getNameRegex() {
-    return _nameRegex == null ? null : _nameRegex.pattern();
+  /* package */ Pattern getNameMatchPattern() {
+    return _nameMatchPattern == null ? null : _nameMatchPattern.getPattern();
+  }
+
+  /* package */ Pattern getNameLikePattern() {
+    return _nameLikePattern == null ? null : _nameLikePattern.getPattern();
   }
 
   /* package */ Set<String> getInstrumentTypes() {
@@ -120,7 +130,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public int hashCode() {
-    return Objects.hash(_calcConfigNames, _names, _nameRegex, _instrumentTypes, _quoteTypes, _quoteUnits);
+    return Objects.hash(_calcConfigNames, _names, _nameMatchPattern, _nameLikePattern, _instrumentTypes, _quoteTypes, _quoteUnits);
   }
 
   @Override
@@ -134,7 +144,8 @@ import com.opengamma.util.ArgumentChecker;
     final VolatilitySurfaceSelector other = (VolatilitySurfaceSelector) obj;
     return Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
         Objects.equals(this._names, other._names) &&
-        Objects.equals(this._nameRegex, other._nameRegex) &&
+        Objects.equals(this._nameMatchPattern, other._nameMatchPattern) &&
+        Objects.equals(this._nameLikePattern, other._nameLikePattern) &&
         Objects.equals(this._instrumentTypes, other._instrumentTypes) &&
         Objects.equals(this._quoteTypes, other._quoteTypes) &&
         Objects.equals(this._quoteUnits, other._quoteUnits);
@@ -145,7 +156,8 @@ import com.opengamma.util.ArgumentChecker;
     return "VolatilitySurfaceSelector [" +
         "_calcConfigNames=" + _calcConfigNames +
         ", _names=" + _names +
-        ", _nameRegex=" + _nameRegex +
+        ", _nameMatchPattern=" + _nameMatchPattern +
+        ", _nameLikePattern=" + _nameLikePattern +
         ", _instrumentTypes=" + _instrumentTypes +
         ", _quoteTypes=" + _quoteTypes +
         ", _quoteUnits=" + _quoteUnits +
@@ -158,7 +170,8 @@ import com.opengamma.util.ArgumentChecker;
     private final Scenario _scenario;
 
     private Set<String> _names;
-    private Pattern _namePattern;
+    private Pattern _nameMatchPattern;
+    private Pattern _nameLikePattern;
     private Set<String> _instrumentTypes;
     private Set<String> _quoteTypes;
     private Set<String> _quoteUnits;
@@ -174,8 +187,13 @@ import com.opengamma.util.ArgumentChecker;
     }
 
     /* package */ VolatilitySurfaceSelector getSelector() {
-      return new VolatilitySurfaceSelector(_scenario.getCalcConfigNames(), _names, _namePattern,
-                                           _instrumentTypes, _quoteTypes, _quoteUnits);
+      return new VolatilitySurfaceSelector(_scenario.getCalcConfigNames(),
+                                           _names,
+                                           _nameMatchPattern,
+                                           _nameLikePattern,
+                                           _instrumentTypes,
+                                           _quoteTypes,
+                                           _quoteUnits);
     }
 
     public Builder named(String... names) {
@@ -183,8 +201,11 @@ import com.opengamma.util.ArgumentChecker;
       if (_names != null) {
         throw new IllegalStateException("named() can only be called once");
       }
-      if (_namePattern != null) {
-        throw new IllegalStateException("Can't specify exact name and a regular expression for the name");
+      if (_nameMatchPattern != null) {
+        throw new IllegalStateException("Can't specify exact name and a match for the name");
+      }
+      if (_nameLikePattern != null) {
+        throw new IllegalStateException("Can't specify exact name and a match for the name");
       }
       _names = ImmutableSet.copyOf(names);
       return this;
@@ -192,13 +213,31 @@ import com.opengamma.util.ArgumentChecker;
 
     public Builder nameMatches(String regex) {
       ArgumentChecker.notNull(regex, "regex");
-      if (_namePattern != null) {
+      if (_nameMatchPattern != null) {
         throw new IllegalStateException("nameMatches() can only be called once");
       }
       if (_names != null) {
         throw new IllegalStateException("Can't specify exact name and a regular expression for the name");
       }
-      _namePattern = Pattern.compile(regex);
+      if (_nameLikePattern != null) {
+        throw new IllegalStateException("Can't specify exact name and a regular expression for the name");
+      }
+      _nameMatchPattern = Pattern.compile(regex);
+      return this;
+    }
+
+    public Builder nameLike(String glob) {
+      ArgumentChecker.notEmpty(glob, "glob");
+      if (_nameLikePattern != null) {
+        throw new IllegalStateException("nameLike() can only be called once");
+      }
+      if (_names != null) {
+        throw new IllegalStateException("Can't specify exact name and a regular expression for the name");
+      }
+      if (_nameMatchPattern != null) {
+        throw new IllegalStateException("Can't specify exact name and a regular expression for the name");
+      }
+      _nameLikePattern = SimulationUtils.patternForGlob(glob);
       return this;
     }
 

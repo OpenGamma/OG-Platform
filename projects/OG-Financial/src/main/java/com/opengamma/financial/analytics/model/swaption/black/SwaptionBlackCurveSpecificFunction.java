@@ -42,7 +42,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
@@ -76,7 +76,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverter(securitySource, swapConverter);
   }
 

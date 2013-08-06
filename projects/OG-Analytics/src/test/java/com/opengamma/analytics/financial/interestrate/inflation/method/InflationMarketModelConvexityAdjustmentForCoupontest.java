@@ -38,6 +38,8 @@ import com.opengamma.util.time.DateUtils;
  */
 public class InflationMarketModelConvexityAdjustmentForCoupontest {
 
+  // Calibration of the volagtility used in the convextity adjutmnent.
+  // We use Zero coupon caps/floors to calibrate those volatilities.
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];

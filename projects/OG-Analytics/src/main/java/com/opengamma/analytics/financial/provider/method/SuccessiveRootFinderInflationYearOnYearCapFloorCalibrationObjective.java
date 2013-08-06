@@ -79,7 +79,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
    * @param inflation The multi-curves provider.
    */
   @Override
-  public void setInflation(InflationProviderInterface inflation) {
+  public void setInflation(final InflationProviderInterface inflation) {
     _inflationCapYearOnYearProvider = new BlackSmileCapInflationYearOnYearProvider(inflation, new BlackSmileCapInflationYearOnYearParameters(_inflationCapYearOnYearParameters));
   }
 
@@ -99,15 +99,8 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
     return _inflationCapYearOnYearProvider;
   }
 
-  /**
-   * Sets the calibration time for the next calibration.
-   * @param calibrationTime The calibration time.
-   */
-  public void setNextCalibrationTime(double calibrationTime) {
-  }
-
   @Override
-  public void setInstrument(InstrumentDerivative instrument) {
+  public void setInstrument(final InstrumentDerivative instrument) {
     super.setInstrument(instrument);
   }
 
@@ -123,7 +116,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
    * Sets the expiry index.
    * @param index The expiry index.
    */
-  public void setExpiryIndex(int index) {
+  public void setExpiryIndex(final int index) {
     _expiryIndex = index;
   }
 
@@ -139,19 +132,19 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective
    * Sets the strike  index.
    * @param index The strike index.
    */
-  public void setStrikeIndex(int index) {
+  public void setStrikeIndex(final int index) {
     _strikeIndex = index;
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double evaluate(final Double x) {
 
     // setting the volatility in the volatility matrix
     _inflationCapYearOnYearParameters.setVolatility(x, _expiryIndex, _strikeIndex);
     // creating the new volatility surface using the new volatility matrix
-    Interpolator2D interpolator = _inflationCapYearOnYearProvider.getBlackParameters().getVolatilitySurface().getInterpolator();
-    BlackSmileCapInflationYearOnYearParameters blackSmileCapInflationYearOnYearParameters = new BlackSmileCapInflationYearOnYearParameters(_inflationCapYearOnYearParameters, interpolator);
-    BlackSmileCapInflationYearOnYearProvider blackSmileCapInflationYearOnYearProvider = new BlackSmileCapInflationYearOnYearProvider(_inflationCapYearOnYearProvider.getInflationProvider(),
+    final Interpolator2D interpolator = _inflationCapYearOnYearProvider.getBlackParameters().getVolatilitySurface().getInterpolator();
+    final BlackSmileCapInflationYearOnYearParameters blackSmileCapInflationYearOnYearParameters = new BlackSmileCapInflationYearOnYearParameters(_inflationCapYearOnYearParameters, interpolator);
+    final BlackSmileCapInflationYearOnYearProvider blackSmileCapInflationYearOnYearProvider = new BlackSmileCapInflationYearOnYearProvider(_inflationCapYearOnYearProvider.getInflationProvider(),
         blackSmileCapInflationYearOnYearParameters);
 
     return _inflationCapYearOnYearProvider.getMulticurveProvider().getFxRates().convert(getInstrument().accept(PVIC, blackSmileCapInflationYearOnYearProvider), _ccyInflationcapYearOnYear).getAmount()

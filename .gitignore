@@ -22,6 +22,7 @@ common/deploy.properties
 !/projects/OG-Engine
 !/projects/OG-Examples
 !/projects/OG-Financial
+!/projects/OG-FinancialTypes
 !/projects/OG-Install
 !/projects/OG-Integration
 !/projects/OG-Language
@@ -60,7 +61,7 @@ docs.sqlite3
 *.pid
 *.pyc
 .settings/
-target/
+/target/
 
 # IntelliJ config files
 *.iws
@@ -75,6 +76,8 @@ target/
 .idea/dictionaries
 .idea/inspectionProfiles
 .idea/validation.xml
+.idea/sqldialects.xml
+.idea/dataSources.xml
 .idea/scopes/scope_settings.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/inspectionProfiles/Project_Default.xml

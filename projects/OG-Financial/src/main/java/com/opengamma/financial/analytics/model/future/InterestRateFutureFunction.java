@@ -41,6 +41,7 @@ import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConve
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -51,8 +52,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for functions that calculate price and risk for interest rate futures
+ * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
+@Deprecated
 public abstract class InterestRateFutureFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureFunction.class);
   private InterestRateFutureTradeConverter _converter;
@@ -140,7 +143,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade));
     if (timeSeriesRequirements == null) {

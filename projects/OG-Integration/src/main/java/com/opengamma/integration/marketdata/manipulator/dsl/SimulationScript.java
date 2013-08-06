@@ -57,7 +57,7 @@ public abstract class SimulationScript extends Script {
    * <pre>
    * parameters {
    *   foo String
-   *   bar Double
+   *   bar Number
    * }
    * </pre>
    * @param body The block that defines the script's parameters

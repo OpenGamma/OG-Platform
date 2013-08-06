@@ -59,8 +59,9 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Computes the yield curve node sensitivities of a bond trade.
  */
+@Deprecated
 public class BondTradeYCNSFunction extends BondTradeCurveSpecificFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(BondTradeYCNSFunction.class);
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.credit.isdanew;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -46,6 +47,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
+import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
@@ -56,6 +58,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.i18n.Country;
@@ -119,6 +122,15 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
 
       final FastCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder();
       final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics, quotes, yieldCurve);
+      //if (IMMDateGenerator.isIMMDate(security.getMaturityDate())) {
+      //  // form from single point instead of all
+      //  final int index = Arrays.binarySearch(spreadCurve, security.getMaturityDate());
+      //  ArgumentChecker.isTrue(index > 0, "cds maturity " + security + " not in pillar dates");
+      //  creditCurve = creditCurveBuilder.calibrateCreditCurve(new CDSAnalytic[] { creditAnalytics[index] },
+      //                                                        new CDSQuoteConvention[] { quotes[index] }, yieldCurve);
+      //} else {
+      //  creditCurve = creditCurveBuilder.calibrateCreditCurve(creditAnalytics, quotes, yieldCurve);
+      //}
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), requirement.getConstraints());
 
       // spreads

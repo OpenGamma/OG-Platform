@@ -32,27 +32,7 @@ public class ISDACompliantPointsUpfrontCDSFunction extends AbstractISDACompliant
   }
 
   @Override
-  protected Object compute(final ZonedDateTime maturiy, final CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
-    double puf = 0.0;
-    //TODO: Move to analytics
-    if (quote instanceof PointsUpFront) {
-      puf = ((PointsUpFront) quote).getPointsUpFront();
-    } else if (quote instanceof QuotedSpread) {
-      puf = 100.0 * _puf.quotedSpreadToPUF(analytic,
-                                                        quote.getCoupon(),
-                                                        yieldCurve,
-                                                        ((QuotedSpread) quote).getQuotedSpread());
-      // SELL protection reverses directions of legs
-      return Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
-    } else if (quote instanceof ParSpread) {
-      puf = 100.0 * _puf.parSpreadsToPUF(new CDSAnalytic[] {analytic},
-                                                        quote.getCoupon(),
-                                                        yieldCurve,
-                                                        new double[] {((ParSpread) quote).getCoupon()})[0];
-    } else {
-      throw new OpenGammaRuntimeException("Unknown quote type " + quote);
-    }
-    return puf;
+  protected Object compute(final ZonedDateTime maturiy, final PointsUpFront puf, final CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
+    return Double.valueOf(100.0 * puf.getPointsUpFront());
   }
-
 }

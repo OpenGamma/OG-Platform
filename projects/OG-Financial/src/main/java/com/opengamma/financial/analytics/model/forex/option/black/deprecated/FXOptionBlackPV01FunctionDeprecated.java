@@ -36,11 +36,11 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
+import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackPV01Function;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 

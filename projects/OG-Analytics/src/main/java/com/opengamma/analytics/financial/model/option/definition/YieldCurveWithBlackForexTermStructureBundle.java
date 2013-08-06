@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -12,7 +12,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing a yield curve bundle with Black term structure volatility for Forex options.
+ * @deprecated Parent class is deprecated
  */
+@Deprecated
 public class YieldCurveWithBlackForexTermStructureBundle extends ForexOptionDataBundle<BlackForexTermStructureParameters> {
 
   public static YieldCurveWithBlackForexTermStructureBundle from(final YieldCurveBundle ycBundle, final BlackForexTermStructureParameters termStructure, final Pair<Currency, Currency> currencyPair) {

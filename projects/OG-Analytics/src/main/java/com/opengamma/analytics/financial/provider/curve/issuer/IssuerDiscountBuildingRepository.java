@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.issuer;
@@ -36,8 +36,8 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Functions to build curves.
- * TODO: REVIEW: Embed in a better object.
  */
+// TODO: REVIEW: Embed in a better object.
 public class IssuerDiscountBuildingRepository {
 
   /**
@@ -102,7 +102,7 @@ public class IssuerDiscountBuildingRepository {
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new IssuerDiscountFinderJacobian(new ParameterSensitivityIssuerMatrixCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final IssuerProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<IssuerProviderDiscount, Double[]>(newCurves, ArrayUtils.toObject(parameters));
+    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -121,8 +121,8 @@ public class IssuerDiscountBuildingRepository {
   (usually ParSpreadMarketQuoteDiscountingProviderCalculator (recommended) or converted present value).
    * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
-   * TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
    */
+  // TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
   private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters, final IssuerProviderDiscount knownData,
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
       final LinkedHashMap<String, Pair<String, Currency>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -9,11 +9,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.description.interestrate.SABRSTIRFuturesProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
 
 /**
  * Class describing the data required to price interest rate derivatives with SABR (curves and parameters).
+ * @deprecated Use {@link SABRSwaptionProviderDiscount} and {@link SABRSTIRFuturesProviderDiscount}
  */
-//TODO as the constructor is written, this is more of a decorator
+@Deprecated
 public class SABRInterestRateDataBundle extends YieldCurveBundle {
 
   /**

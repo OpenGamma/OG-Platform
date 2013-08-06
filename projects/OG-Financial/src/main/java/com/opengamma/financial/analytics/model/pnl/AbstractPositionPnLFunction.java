@@ -26,8 +26,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MoneyCalculationUtils;
 

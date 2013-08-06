@@ -27,7 +27,6 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
-import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
@@ -759,15 +758,16 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return getRepository(defaults);
   }
 
-  protected void setXCcySwapFunctionDefaults(final CurrencyInfo i, final FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
+  protected void setXCcySwapFunctionDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveCalculationConfig(i.getCurveName("model/xccyswap"));
   }
 
-  protected void setXCcySwapFunctionDefaults(final FixedIncomeFunctions.Defaults defaults) {
-    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FixedIncomeFunctions.Defaults.CurrencyInfo>() {
+  protected void setXCcySwapFunctionDefaults(final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo>() {
       @Override
-      public FixedIncomeFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        final FixedIncomeFunctions.Defaults.CurrencyInfo d = new FixedIncomeFunctions.Defaults.CurrencyInfo();
+      public com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo d = 
+            new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo();
         setXCcySwapFunctionDefaults(i, d);
         return d;
       }
@@ -775,7 +775,8 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected FunctionConfigurationSource xCcySwapFunctions() {
-    final FixedIncomeFunctions.Defaults defaults = new FixedIncomeFunctions.Defaults();
+    final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults = 
+        new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults();
     setXCcySwapFunctionDefaults(defaults);
     return getRepository(defaults);
   }
@@ -819,15 +820,16 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
 
-  protected void setFixedIncomeDefaults(final CurrencyInfo i, final FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
+  protected void setFixedIncomeDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/fixedincome"));
   }
 
-  protected void setFixedIncomeDefaults(final FixedIncomeFunctions.Defaults defaults) {
-    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FixedIncomeFunctions.Defaults.CurrencyInfo>() {
+  protected void setFixedIncomeDefaults(final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo>() {
       @Override
-      public FixedIncomeFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        final FixedIncomeFunctions.Defaults.CurrencyInfo d = new FixedIncomeFunctions.Defaults.CurrencyInfo();
+      public com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo d = 
+            new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo();
         setFixedIncomeDefaults(i, d);
         return d;
       }
@@ -835,7 +837,8 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected FunctionConfigurationSource fixedIncomeFunctions() {
-    final FixedIncomeFunctions.Defaults defaults = new FixedIncomeFunctions.Defaults();
+    final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults = 
+        new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults();
     setFixedIncomeDefaults(defaults);
     return getRepository(defaults);
   }
@@ -932,15 +935,15 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return getRepository(defaults);
   }
 
-  protected void setFutureDefaults(final CurrencyInfo i, final FutureFunctions.Defaults.CurrencyInfo defaults) {
+  protected void setFutureDefaults(final CurrencyInfo i, final FutureFunctions.Deprecated.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/future"));
   }
 
-  protected void setFutureDefaults(final FutureFunctions.Defaults defaults) {
-    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FutureFunctions.Defaults.CurrencyInfo>() {
+  protected void setFutureDefaults(final FutureFunctions.Deprecated defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FutureFunctions.Deprecated.CurrencyInfo>() {
       @Override
-      public FutureFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        final FutureFunctions.Defaults.CurrencyInfo d = new FutureFunctions.Defaults.CurrencyInfo();
+      public FutureFunctions.Deprecated.CurrencyInfo execute(final CurrencyInfo i) {
+        final FutureFunctions.Deprecated.CurrencyInfo d = new FutureFunctions.Deprecated.CurrencyInfo();
         setFutureDefaults(i, d);
         return d;
       }
@@ -954,7 +957,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   protected FunctionConfigurationSource futureFunctions() {
     final FutureFunctions.Calculators calculators = new FutureFunctions.Calculators();
     setFutureFunctionCalculators(calculators);
-    final FutureFunctions.Defaults defaults = new FutureFunctions.Defaults();
+    final FutureFunctions.Deprecated defaults = new FutureFunctions.Deprecated();
     setFutureDefaults(defaults);
     return CombiningFunctionConfigurationSource.of(getRepository(calculators), getRepository(defaults));
   }
@@ -1016,6 +1019,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   protected void setIRFutureOptionDefaults(final CurrencyInfo i, final IRFutureOptionFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/irfutureoption"));
     defaults.setSurfaceName(i.getSurfaceName("model/irfutureoption"));
+    defaults.setCurveName(i.getCurveName("model/irfutureoption"));
   }
 
   protected void setIRFutureOptionDefaults(final IRFutureOptionFunctions.Defaults defaults) {
@@ -1230,7 +1234,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     setVolatilitySurfaceDefaults(d3);
     return CombiningFunctionConfigurationSource.of(getRepository(d1), getRepository(d2), getRepository(d3));
   }
-
+  
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), forexDigitalFunctions(), cdsFunctions(),

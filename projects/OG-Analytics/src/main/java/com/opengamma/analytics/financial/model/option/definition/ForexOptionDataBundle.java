@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -12,13 +12,16 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexFlatProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * @param <T> The type of the volatility model
+ * @deprecated Use {@link BlackForexFlatProviderInterface}
  */
+@Deprecated
 public abstract class ForexOptionDataBundle<T extends VolatilityModel<?>> extends YieldCurveBundle {
   /**
    * The volatility model for one currency pair.
