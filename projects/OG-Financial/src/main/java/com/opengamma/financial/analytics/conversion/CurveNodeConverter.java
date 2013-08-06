@@ -15,6 +15,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -41,6 +42,23 @@ public class CurveNodeConverter {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(now, "now");
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
+      if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
+        ArgumentChecker.notNull(timeSeries, "time series");
+        final ExternalId id = node.getIdentifier();
+        final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), id);
+        if (historicalTimeSeries == null) {
+          throw new OpenGammaRuntimeException("Could not get price time series for " + id);
+        }
+        final DoubleTimeSeries<?> ts = historicalTimeSeries.getTimeSeries();
+        if (ts == null) {
+          throw new OpenGammaRuntimeException("Could not get price time series for " + id);
+        }
+        final int length = ts.size();
+        if (length == 0) {
+          throw new OpenGammaRuntimeException("Price time series for " + id + " was empty");
+        }
+        return ((InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>>) definition).toDerivative(now, (DoubleTimeSeries<ZonedDateTime>) ts.multiply(100));
+      }
       if (node.getCurveNode() instanceof RateFutureNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
         final ExternalId id = node.getIdentifier();
