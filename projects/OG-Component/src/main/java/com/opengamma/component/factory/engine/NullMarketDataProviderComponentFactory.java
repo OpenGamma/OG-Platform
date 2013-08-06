@@ -77,6 +77,7 @@ public class NullMarketDataProviderComponentFactory extends AbstractComponentFac
   public static NullMarketDataProviderComponentFactory.Meta meta() {
     return NullMarketDataProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NullMarketDataProviderComponentFactory.Meta.INSTANCE);
   }
