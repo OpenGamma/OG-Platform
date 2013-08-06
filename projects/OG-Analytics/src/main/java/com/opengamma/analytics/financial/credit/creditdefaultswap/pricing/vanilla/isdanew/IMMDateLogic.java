@@ -36,15 +36,17 @@ public abstract class IMMDateLogic {
   }
 
   /**
-   * Get a set of IMM dates fixed periods from the stepin date. One first rolls to the next IMM date (this is true even if
-   * the stepin date is an IMM date), then counts periods forward from that date.  
-   * @param stepinDate The stepin date (this is normally the trade date plus 1 day)
+   * Get a set of IMM dates fixed periods from an initial IMM date. 
+   * @param startIMMDate The starting IMM date (this will be the first entry)
    * @param tenors The periods (typically this would look like 6M, 1Y, 2Y, 3Y, 5Y, 10Y) 
    * @return Set of IMM dates 
    */
-  public static LocalDate[] getIMMDateSet(final LocalDate stepinDate, final Period[] tenors) {
+  public static LocalDate[] getIMMDateSet(final LocalDate startIMMDate, final Period[] tenors) {
+    ArgumentChecker.notNull(startIMMDate, "startIMMDate");
+    ArgumentChecker.noNulls(tenors, "tenors");
     final int n = tenors.length;
-    final LocalDate nextIMM = getNextIMMDate(stepinDate);
+    ArgumentChecker.isTrue(isIMMDate(startIMMDate), "start is not an IMM date");
+    final LocalDate nextIMM = startIMMDate;
     final LocalDate[] res = new LocalDate[n];
     for (int i = 0; i < n; i++) {
       res[i] = nextIMM.plus(tenors[i]);
@@ -54,14 +56,14 @@ public abstract class IMMDateLogic {
 
   /**
    * Get a complete set of IMM dates from some starting IMM date
-   * @param start The starting IMM date (this will be the first entry)
+   * @param startIMMDate The starting IMM date (this will be the first entry)
    * @param size number of dates 
    * @return set of IMM dates
    */
-  public static LocalDate[] getIMMDateSet(final LocalDate start, final int size) {
-    ArgumentChecker.isTrue(isIMMDate(start), "start is not an IMM date");
+  public static LocalDate[] getIMMDateSet(final LocalDate startIMMDate, final int size) {
+    ArgumentChecker.isTrue(isIMMDate(startIMMDate), "start is not an IMM date");
     final LocalDate[] res = new LocalDate[size];
-    res[0] = start;
+    res[0] = startIMMDate;
     for (int i = 1; i < size; i++) {
       final int tMonth = res[i - 1].getMonthValue();
       final int tYear = res[i - 1].getYear();

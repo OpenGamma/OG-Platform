@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIMMDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.isIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 
@@ -75,7 +76,8 @@ public class ParVsQuotedSpreadTest extends ISDABaseTest {
     Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10) };
 
   //the bucket (or pillar) dates 
-  private static final LocalDate[] PILLAR_DATES = getIMMDateSet(EFFECTIVE_DATE, TENORS);
+  private static final LocalDate NEXT_IMM = getNextIMMDate(TRADE_DATE);
+  private static final LocalDate[] PILLAR_DATES = getIMMDateSet(NEXT_IMM, TENORS);
 
   //the spreads at the buckets (pillars) - it is not clear whether these are par or quoted spreads 
   private static final double[] PILLAR_SPREADS;

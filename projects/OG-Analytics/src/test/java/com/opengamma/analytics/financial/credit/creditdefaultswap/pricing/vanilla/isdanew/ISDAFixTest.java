@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIMMDate;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -28,8 +29,8 @@ public class ISDAFixTest extends ISDABaseTest {
   private static final LocalDate STARTDATE = LocalDate.of(2011, Month.MARCH, 20);
 
   private static final Period[] TENORS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) };
-  private static final LocalDate NEXT_IMM = getNextIMMDate(EFFECTIVE_DATE);
-  private static final LocalDate[] PILLAR_DATES = getIMMDateSet(EFFECTIVE_DATE, TENORS);
+  private static final LocalDate NEXT_IMM = getNextIMMDate(TODAY);
+  private static final LocalDate[] PILLAR_DATES = getIMMDateSet(NEXT_IMM, TENORS);
   private static final LocalDate[] MATURITIES = getIMMDateSet(NEXT_IMM, 41);
 
   //yield curve

@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIMMDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getPrevIMMDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.isIMMDate;
@@ -40,8 +41,8 @@ public class IMMDateLogicTest {
   @Test
   public void onIMMDateTest() {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 20);
-    final LocalDate stepin = today.plusDays(1);
-    final LocalDate[] dates = getIMMDateSet(stepin, TENORS);
+    final LocalDate nextIMM = getNextIMMDate(today);
+    final LocalDate[] dates = getIMMDateSet(nextIMM, TENORS);
     assertEquals(dates.length, TENORS.length);
     assertEquals(LocalDate.of(2013, Month.DECEMBER, 20), dates[0]);
   }
@@ -62,93 +63,93 @@ public class IMMDateLogicTest {
   @Test
   public void nonIMMDateTest() {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 26);
-    final LocalDate stepin = today.plusDays(1);
-    final LocalDate[] dates = getIMMDateSet(stepin, TENORS);
+    final LocalDate nextIMM = getNextIMMDate(today);
+    final LocalDate[] dates = getIMMDateSet(nextIMM, TENORS);
     assertEquals(dates.length, TENORS.length);
     assertEquals(LocalDate.of(2013, Month.DECEMBER, 20), dates[0]);
   }
 
   @Test
-  public void stepinIMMDateTest() {
+  public void IMMDateM1Test() {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 19);
-    final LocalDate stepin = today.plusDays(1);
-    final LocalDate[] dates = getIMMDateSet(stepin, TENORS);
+    final LocalDate nextIMM = getNextIMMDate(today);
+    final LocalDate[] dates = getIMMDateSet(nextIMM, TENORS);
     assertEquals(dates.length, TENORS.length);
-    assertEquals(LocalDate.of(2013, Month.DECEMBER, 20), dates[0]);
+    assertEquals(LocalDate.of(2013, Month.SEPTEMBER, 20), dates[0]);
   }
 
   @Test
-  public void stepinIMMDateM1Test() {
+  public void stepinIMMDateM2Test() {
     final LocalDate today = LocalDate.of(2013, Month.MARCH, 18);
-    final LocalDate stepin = today.plusDays(1);
-    final LocalDate[] dates = getIMMDateSet(stepin, TENORS);
+    final LocalDate nextIMM = getNextIMMDate(today);
+    final LocalDate[] dates = getIMMDateSet(nextIMM, TENORS);
     assertEquals(dates.length, TENORS.length);
     assertEquals(LocalDate.of(2013, Month.SEPTEMBER, 20), dates[0]);
   }
 
   @Test
   public void nextIMMTest() {
-    LocalDate stepin = LocalDate.of(2011, Month.JUNE, 21);
-    LocalDate nextIMM = getNextIMMDate(stepin);
+    LocalDate today = LocalDate.of(2011, Month.JUNE, 21);
+    LocalDate nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(2011, Month.SEPTEMBER, 20), nextIMM);
 
-    stepin = LocalDate.of(2011, Month.JUNE, 20);
-    nextIMM = getNextIMMDate(stepin);
+    today = LocalDate.of(2011, Month.JUNE, 20);
+    nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(2011, Month.SEPTEMBER, 20), nextIMM);
 
-    stepin = LocalDate.of(2011, Month.DECEMBER, 20);
-    nextIMM = getNextIMMDate(stepin);
+    today = LocalDate.of(2011, Month.DECEMBER, 20);
+    nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(2012, Month.MARCH, 20), nextIMM);
 
-    stepin = LocalDate.of(2011, Month.JUNE, 18);
-    nextIMM = getNextIMMDate(stepin);
+    today = LocalDate.of(2011, Month.JUNE, 18);
+    nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(2011, Month.JUNE, 20), nextIMM);
 
-    stepin = LocalDate.of(1976, Month.JULY, 30);
-    nextIMM = getNextIMMDate(stepin);
+    today = LocalDate.of(1976, Month.JULY, 30);
+    nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(1976, Month.SEPTEMBER, 20), nextIMM);
 
-    stepin = LocalDate.of(1977, Month.FEBRUARY, 13);
-    nextIMM = getNextIMMDate(stepin);
+    today = LocalDate.of(1977, Month.FEBRUARY, 13);
+    nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(1977, Month.MARCH, 20), nextIMM);
 
-    stepin = LocalDate.of(2013, Month.MARCH, 1);
-    nextIMM = getNextIMMDate(stepin);
+    today = LocalDate.of(2013, Month.MARCH, 1);
+    nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(2013, Month.MARCH, 20), nextIMM);
 
-    stepin = LocalDate.of(2013, Month.DECEMBER, 25);
-    nextIMM = getNextIMMDate(stepin);
+    today = LocalDate.of(2013, Month.DECEMBER, 25);
+    nextIMM = getNextIMMDate(today);
     assertEquals(LocalDate.of(2014, Month.MARCH, 20), nextIMM);
 
   }
 
   @Test
   public void prevIMMTest() {
-    LocalDate stepin = LocalDate.of(2011, Month.JUNE, 21);
-    LocalDate prevIMM = getPrevIMMDate(stepin);
+    LocalDate today = LocalDate.of(2011, Month.JUNE, 21);
+    LocalDate prevIMM = getPrevIMMDate(today);
     assertEquals(LocalDate.of(2011, Month.JUNE, 20), prevIMM);
 
-    stepin = LocalDate.of(2011, Month.JUNE, 20);
-    prevIMM = getPrevIMMDate(stepin);
+    today = LocalDate.of(2011, Month.JUNE, 20);
+    prevIMM = getPrevIMMDate(today);
     assertEquals(LocalDate.of(2011, Month.MARCH, 20), prevIMM);
 
     prevIMM = getPrevIMMDate(prevIMM);
     assertEquals(LocalDate.of(2010, Month.DECEMBER, 20), prevIMM);
 
-    stepin = LocalDate.of(2011, Month.JUNE, 18);
-    prevIMM = getPrevIMMDate(stepin);
+    today = LocalDate.of(2011, Month.JUNE, 18);
+    prevIMM = getPrevIMMDate(today);
     assertEquals(LocalDate.of(2011, Month.MARCH, 20), prevIMM);
 
-    stepin = LocalDate.of(1976, Month.JULY, 30);
-    prevIMM = getPrevIMMDate(stepin);
+    today = LocalDate.of(1976, Month.JULY, 30);
+    prevIMM = getPrevIMMDate(today);
     assertEquals(LocalDate.of(1976, Month.JUNE, 20), prevIMM);
 
-    stepin = LocalDate.of(1977, Month.FEBRUARY, 13);
-    prevIMM = getPrevIMMDate(stepin);
+    today = LocalDate.of(1977, Month.FEBRUARY, 13);
+    prevIMM = getPrevIMMDate(today);
     assertEquals(LocalDate.of(1976, Month.DECEMBER, 20), prevIMM);
 
-    stepin = LocalDate.of(2013, Month.MARCH, 1);
-    prevIMM = getPrevIMMDate(stepin);
+    today = LocalDate.of(2013, Month.MARCH, 1);
+    prevIMM = getPrevIMMDate(today);
     assertEquals(LocalDate.of(2012, Month.DECEMBER, 20), prevIMM);
 
   }

@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIMMDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getPrevIMMDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.isIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
@@ -125,8 +126,9 @@ public class RopemakerTest extends ISDABaseTest {
 
     final LocalDate stepinDate = tradeDate.plusDays(1); // AKA stepin date
     final LocalDate cashSettleDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR); // AKA valuation date
-    final LocalDate startDate = getPrevIMMDate(stepinDate);
-    final LocalDate[] pillarDates = getIMMDateSet(stepinDate, TENORS);
+    final LocalDate startDate = getPrevIMMDate(tradeDate);
+    final LocalDate nextIMM = getNextIMMDate(tradeDate);
+    final LocalDate[] pillarDates = getIMMDateSet(nextIMM, TENORS);
 
     final int nPillars = pillarDates.length;
     final double[] pillarSpreads = new double[nPillars];
