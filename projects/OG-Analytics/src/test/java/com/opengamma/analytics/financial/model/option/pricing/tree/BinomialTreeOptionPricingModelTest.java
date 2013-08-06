@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAdesiWhaleyModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
@@ -27,6 +28,8 @@ public class BinomialTreeOptionPricingModelTest {
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {-0.01, 0., 0.001, 0.005, 0.01 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
+
+  private static final double[] DIVIDENDS = new double[] {0., 0.005, 0.02 };
 
   @Test(enabled = false)
   //not to be changed, look into this later
@@ -49,10 +52,10 @@ public class BinomialTreeOptionPricingModelTest {
   @Test(enabled = false)
   public void aTest() {
     final LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
-    final double[] res = _model.getEuropeanGreeks(lattice, 120, 110, 1., 1., 1., 1001, true);
-    final double price = _model.getEuropeanPrice(lattice, 120, 110, 1., 1., 1., 1001, true);
-    System.out.println(new DoubleMatrix1D(res));
-    System.out.println(price);
+    //    final double[] res = _model.getEuropeanGreeks(lattice, 120, 110, 1., 1., 1., 1001, true);
+    final double price = _model.getEuropeanPrice(lattice, 120, 110, 1., 1., 1., 2000, true);
+    //    System.out.println(new DoubleMatrix1D(res));
+    //    System.out.println(price);
   }
 
   @Test(enabled = false)
@@ -75,8 +78,11 @@ public class BinomialTreeOptionPricingModelTest {
    */
   @Test
   public void EuropeanPriceLatticeTest() {
-    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
-        new LogEqualProbabiliesLatticeSpecification(), new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+
+    //    new LogEqualProbabiliesLatticeSpecification()  //removed
+
     //    long startTime = System.currentTimeMillis();
     //    int i = 0;
     //    while (i < 100) {
@@ -98,6 +104,56 @@ public class BinomialTreeOptionPricingModelTest {
                 final double res = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
                 final double ref = Math.max(exact, 1.) / Math.sqrt(nSteps);
                 assertEquals(res, exact, ref);
+                for (final double dividend : DIVIDENDS) {
+                  final double exactDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                  final double resDiv = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+                  final double refDiv = Math.max(exactDiv, 1.) / Math.sqrt(nSteps);
+                  //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + "\t" + dividend + "\t" + nSteps + "\t" + isCall);
+                  assertEquals(resDiv, exactDiv, refDiv);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * European option price with discrete dividend
+   * The dividend is cash or proportional to asset price
+   */
+  @Test
+  public void EuropeanPriceDiscreteDividendLatticeTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+
+    //    new LogEqualProbabiliesLatticeSpecification()  //removed
+
+    final double[] propDividends = new double[] {0.01, 0.01, 0.01 };
+    final double[] cashDividends = new double[] {5., 10., 8. };
+    final double[] dividendTimes = new double[] {TIME / 6., TIME / 3., TIME / 2. };
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              final int[] choicesSteps = new int[] {91, 312, 601 };
+              for (final int nSteps : choicesSteps) {
+                final double df = Math.exp(-interest * TIME);
+                final double resSpot = SPOT * Math.exp(interest * TIME) * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
+                final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
+                    Math.exp(-interest * dividendTimes[2]);
+                final double exactProp = df * BlackFormulaRepository.price(resSpot, strike, TIME, vol, isCall);
+                final double exactCash = BlackScholesFormulaRepository.price(modSpot, strike, TIME, vol, interest, interest, isCall);
+                final double resProp = _model.getEuropeanPricePropotinalDividends(lattice, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, nSteps, isCall);
+                final double refProp = Math.max(exactProp, 1.) / Math.sqrt(nSteps);
+                assertEquals(resProp, exactProp, refProp);
+                final double resCash = _model.getEuropeanPriceCashDividends(lattice, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, nSteps, isCall);
+                final double refCash = Math.max(exactCash, 1.) / Math.sqrt(nSteps);
+                assertEquals(resCash, exactCash, refCash);
               }
             }
           }
@@ -130,6 +186,55 @@ public class BinomialTreeOptionPricingModelTest {
                 final double res = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
                 final double ref = Math.max(exact, 1.) / nSteps / nSteps;
                 assertEquals(res, exact, ref);
+                for (final double dividend : DIVIDENDS) {
+                  final double exactDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                  final double resDiv = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+                  final double refDiv = Math.max(exactDiv, 1.) / nSteps / nSteps;
+                  assertEquals(resDiv, exactDiv, refDiv);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * European option price with discrete dividend
+   * The dividend is cash or proportional to asset price
+   */
+  @Test
+  public void EuropeanPriceDiscreteDividendLeisenReimerTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new LeisenReimerLatticeSpecification() };
+
+    final double[] propDividends = new double[] {0.01, 0.01, 0.01 };
+    final double[] cashDividends = new double[] {5., 10., 8. };
+    final double[] dividendTimes = new double[] {TIME / 6., TIME / 3., TIME / 2. };
+
+    /*
+     * Because the dividend time is not necessarily on a gird point, error can be bigger than the zero dividend case
+     */
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              final int[] choicesSteps = new int[] {91, 309, 601 };
+              for (final int nSteps : choicesSteps) {
+                final double df = Math.exp(-interest * TIME);
+                final double resSpot = SPOT * Math.exp(interest * TIME) * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
+                final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
+                    Math.exp(-interest * dividendTimes[2]);
+                final double exactProp = df * BlackFormulaRepository.price(resSpot, strike, TIME, vol, isCall);
+                final double exactCash = BlackScholesFormulaRepository.price(modSpot, strike, TIME, vol, interest, interest, isCall);
+                final double resProp = _model.getEuropeanPricePropotinalDividends(lattice, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, nSteps, isCall);
+                final double refProp = Math.max(exactProp, 1.) / Math.sqrt(nSteps);
+                assertEquals(resProp, exactProp, refProp);
+                final double resCash = _model.getEuropeanPriceCashDividends(lattice, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, nSteps, isCall);
+                final double refCash = Math.max(exactCash, 1.) / Math.sqrt(nSteps);
+                assertEquals(resCash, exactCash, refCash);
               }
             }
           }
@@ -141,7 +246,11 @@ public class BinomialTreeOptionPricingModelTest {
   @Test
   public void EuropeanGreekLatticesTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
-        new LogEqualProbabiliesLatticeSpecification(), new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+
+    //    new LogEqualProbabiliesLatticeSpecification(),//removed
+
+    //    
     //    long startTime = System.currentTimeMillis();
     //    int i = 0;
     //    while (i < 100) {
@@ -163,12 +272,25 @@ public class BinomialTreeOptionPricingModelTest {
                 final double gamma = BlackScholesFormulaRepository.gamma(SPOT, strike, TIME, vol, interest, interest);
                 final double theta = BlackScholesFormulaRepository.theta(SPOT, strike, TIME, vol, interest, interest, isCall);
                 final double[] res = _model.getEuropeanGreeks(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
-                final double refDelta = Math.max(delta, 1.) / Math.sqrt(nSteps);
-                final double refGamma = Math.max(gamma, 1.) / Math.sqrt(nSteps);
-                final double refTheta = Math.max(theta, 1.) / Math.sqrt(nSteps);
+                final double refDelta = Math.max(Math.abs(delta), 1.) / Math.sqrt(nSteps);
+                final double refGamma = Math.max(Math.abs(gamma), 1.) / Math.sqrt(nSteps);
+                final double refTheta = Math.max(Math.abs(theta), 1.) / Math.sqrt(nSteps);
                 assertEquals(res[1], delta, refDelta);
                 assertEquals(res[2], gamma, refGamma);
                 assertEquals(res[3], theta, refTheta * 10.);
+                for (final double dividend : DIVIDENDS) {
+                  final double[] resDiv = _model.getEuropeanGreeks(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+                  final double deltaDiv = BlackScholesFormulaRepository.delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                  final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 1.) / Math.sqrt(nSteps);
+                  assertEquals(resDiv[1], deltaDiv, refDeltaDiv);
+                  final double gammaDiv = BlackScholesFormulaRepository.gamma(SPOT, strike, TIME, vol, interest, interest - dividend);
+                  final double refGammaDiv = Math.max(Math.abs(gammaDiv), 1.) / Math.sqrt(nSteps);
+                  assertEquals(resDiv[2], gammaDiv, refGammaDiv);
+                  final double thetaDiv = BlackScholesFormulaRepository.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                  final double refThetaDiv = Math.max(Math.abs(thetaDiv), 1.) / Math.sqrt(nSteps);
+                  //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + "\t" + dividend + "\t" + nSteps + "\t" + isCall);
+                  assertEquals(resDiv[3], thetaDiv, refThetaDiv);
+                }
               }
             }
           }
@@ -212,6 +334,19 @@ public class BinomialTreeOptionPricingModelTest {
               //              assertEquals(res[1], deltaFinite, refDelta * 10.);
               //              assertEquals(res[2], gamma, refGamma);
               //              assertEquals(res[3], -thetaFinite, refTheta);
+              for (final double dividend : DIVIDENDS) {
+                final double[] resDiv = _model.getEuropeanGreeks(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+                final double deltaDiv = BlackScholesFormulaRepository.delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 1.) / nSteps;
+                assertEquals(resDiv[1], deltaDiv, refDeltaDiv);
+                final double gammaDiv = BlackScholesFormulaRepository.gamma(SPOT, strike, TIME, vol, interest, interest - dividend);
+                final double refGammaDiv = Math.max(Math.abs(gammaDiv), 1.) / nSteps;
+                assertEquals(resDiv[2], gammaDiv, refGammaDiv);
+                final double thetaDiv = BlackScholesFormulaRepository.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                final double refThetaDiv = Math.max(Math.abs(thetaDiv), 1.) / nSteps;
+                //                System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + "\t" + dividend + "\t" + nSteps + "\t" + isCall);
+                assertEquals(resDiv[3], thetaDiv, refThetaDiv * 10.);
+              }
             }
           }
         }
@@ -269,6 +404,61 @@ public class BinomialTreeOptionPricingModelTest {
         }
       }
     }
+  }
+
+  @Test(enabled = false)
+  public void americanPriceCashDividendsTest() {
+    final LatticeSpecification model = new CoxRossRubinsteinLatticeSpecification();
+    final double spot = 110.;
+    final double strike = 100.;
+    final double time = 0.1;
+    final double vol = 0.1;
+    final double interest = 0.05;
+    final double[] dividendTimes = new double[] {0.05 };
+    final double[] cashDividends = new double[] {0.2 };
+    double price = _model.getAmericanPriceCashDividends(model, spot, strike, time, vol, interest, dividendTimes, cashDividends, 1001, true);
+    System.out.println(price);
+
+    final double modSpot = spot - cashDividends[0] * Math.exp(-interest * dividendTimes[0]);
+    final double exactCash = BlackScholesFormulaRepository.price(modSpot, strike, time, vol, interest, interest, true);
+    System.out.println(exactCash);
+  }
+
+  @Test(enabled = false)
+  public void americanPriceCashMultipleDividendsTest() {
+    final LatticeSpecification model = new CoxRossRubinsteinLatticeSpecification();
+    final double spot = 110.;
+    final double strike = 100.;
+    final double time = 3.;
+    final double vol = 0.1;
+    final double interest = 0.04;
+    final double[] dividendTimes = new double[] {1., 2. };
+    final double[] cashDividends = new double[] {5., 5. };
+    double price = _model.getAmericanPriceCashDividends(model, spot, strike, time, vol, interest, dividendTimes, cashDividends, 1001, true);
+    System.out.println(price);
+
+    final double modSpot = spot - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]);
+    final double exactCash = BlackScholesFormulaRepository.price(modSpot, strike, time, vol, interest, interest, true);
+    System.out.println(exactCash);
+  }
+
+  @Test(enabled = false)
+  public void americanPricePropMultipleDividendsTest() {
+    final LatticeSpecification model = new CoxRossRubinsteinLatticeSpecification();
+    final double spot = 110.;
+    final double strike = 100.;
+    final double time = 0.01;
+    final double vol = 0.1;
+    final double interest = 0.04;
+    final double[] dividendTimes = new double[] {0.0098, 0.0099 };
+    final double[] propDividends = new double[] {0.05, 0.05 };
+    double price = _model.getAmericanPriceProportionalDividends(model, spot, strike, time, vol, interest, dividendTimes, propDividends, 11, true);
+    System.out.println(price);
+
+    final double resSpot = spot * (1. - propDividends[0]) * (1. - propDividends[1]);
+    System.out.println(_model.getAmericanPrice(model, spot, strike, time, vol, interest, 11, true));
+    final double exactCash = BlackScholesFormulaRepository.price(resSpot, strike, time, vol, interest, interest, true);
+    System.out.println(exactCash);
   }
 
   @Test

@@ -22,7 +22,7 @@ public class TrigeorgisLatticeSpecification extends LatticeSpecification {
   }
 
   @Override
-  public double getTheta(final double spot, final double volatility, final double interestRate, final double dt, final double[] greeksTmp) {
+  public double getTheta(final double spot, final double volatility, final double interestRate, final double dividend, final double dt, final double[] greeksTmp) {
     return 0.5 * (greeksTmp[3] - greeksTmp[0]) / dt;
   }
 }

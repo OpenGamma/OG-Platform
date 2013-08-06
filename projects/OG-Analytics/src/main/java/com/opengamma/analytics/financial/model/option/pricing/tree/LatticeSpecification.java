@@ -28,12 +28,13 @@ public abstract class LatticeSpecification {
    * @param spot Spot
    * @param volatility Volatility
    * @param interestRate Interest rate
+   * @param dividend Continuous dividend
    * @param dt Time step
    * @param greeksTmp {price_{0,0}, delta_{0,0}, gamma_{0,0}, price_{2,1}}
    * @return Theta 
    */
-  public double getTheta(final double spot, final double volatility, final double interestRate, final double dt, final double[] greeksTmp) {
+  public double getTheta(final double spot, final double volatility, final double interestRate, final double dividend, final double dt, final double[] greeksTmp) {
 
-    return interestRate * greeksTmp[0] - interestRate * spot * greeksTmp[1] - 0.5 * volatility * volatility * spot * spot * greeksTmp[2];
+    return interestRate * greeksTmp[0] - (interestRate - dividend) * spot * greeksTmp[1] - 0.5 * volatility * volatility * spot * spot * greeksTmp[2];
   }
 }
