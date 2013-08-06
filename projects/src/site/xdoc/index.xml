@@ -16,6 +16,7 @@ The OpenGamma platform produces a number of reports to aid understanding.
 <li>The latest <a href="apidocs/index.html">Javadoc</a></li>
 <li>The coding standards report from <a href="checkstyle-aggregate.html">Checkstyle</a></li>
 <li>The <a href="xref/index.html">source code</a> cross-reference</li>
+<li>The <a href="og-integration/third-party-report.html">licensing</a> information</li>
 </ul>
 </p>
 <p>
