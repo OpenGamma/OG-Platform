@@ -89,6 +89,10 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
   /** Property name for the discounting curve configuration */
   public static final String PROPERTY_DISCOUNTING_CURVE_CONFIG = "DiscountingCurveConfig";
 
+  private static final ComputationTargetType TARGET_TYPE = FinancialSecurityTypes.EQUITY_OPTION_SECURITY
+      .or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY)
+      .or(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY);
+
   /** The value requirement name */
   private final String[] _valueRequirementNames;
   /** Converts the security to the form used in analytics. Set in init(), not constructor */
@@ -104,9 +108,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY
-        .or(FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY);
+    return TARGET_TYPE;
   }
 
   @Override
@@ -149,7 +151,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
 
   /**
    * Calculates the result
-   *
+   * 
    * @param derivative The derivative
    * @param market The market data bundle
    * @param inputs The market data inputs
@@ -162,9 +164,9 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties);
 
   /**
-   * Constructs a market data bundle of type StaticReplicationDataBundle. In the {@link CalculationPropertyNamesAndValues#BLACK_BASIC_METHOD},
-   * the volatility surface is a constant inferred from the market price and the forward
-   *
+   * Constructs a market data bundle of type StaticReplicationDataBundle. In the {@link CalculationPropertyNamesAndValues#BLACK_BASIC_METHOD}, the volatility surface is a constant inferred from the
+   * market price and the forward
+   * 
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -253,12 +255,12 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
 
     // TODO: Have been running into problems, primarily from illiquid option prices, hence we test
     final double impliedVol;
-    final double intrinsic =  Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
+    final double intrinsic = Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
     if (intrinsic >= forwardOptionPrice) {
       s_logger.info("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
       impliedVol = 0.0;
     } else {
-      impliedVol =  BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
+      impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
     }
 
     final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol);
@@ -421,7 +423,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
 
   /**
    * Converts result properties with a currency property to one without.
-   *
+   * 
    * @param resultsWithCurrency The set of results with the currency property set
    * @return A set of results without a currency property
    */
@@ -458,7 +460,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
 
   /**
    * Instead of a volatility surface, we're just asking for the market_value of the option
-   *
+   * 
    * @param security the resolved option
    * @return market_value requirement for the option
    */
@@ -468,7 +470,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
 
   /**
    * Gets the value requirement names
-   *
+   * 
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {
@@ -477,14 +479,14 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
 
   /**
    * Gets the calculation method.
-   *
+   * 
    * @return The calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the model type.
-   *
+   * 
    * @return The model type
    */
   protected abstract String getModelType();

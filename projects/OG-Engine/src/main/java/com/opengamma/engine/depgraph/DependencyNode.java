@@ -339,6 +339,16 @@ public class DependencyNode {
   }
 
   /**
+   * Tests if a give value is a terminal output from this node.
+   * 
+   * @param specification the specification to test, not null
+   * @return true if the output is defined and is terminal, false otherwise
+   */
+  public boolean hasTerminalOutputValue(final ValueSpecification specification) {
+    return _outputValues.get(specification) == Boolean.TRUE;
+  }
+
+  /**
    * Returns the set of input values.
    * 
    * @return the set of input values

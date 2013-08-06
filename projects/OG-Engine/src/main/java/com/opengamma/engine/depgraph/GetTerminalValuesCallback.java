@@ -129,7 +129,7 @@ import com.opengamma.util.tuple.Pair;
    * Optional listener to process failures.
    */
   private ResolutionFailureListener _failureListener;
-  
+
   /**
    * Optional logic to collapse nodes on mutually compatible targets into a single node.
    */
@@ -165,7 +165,7 @@ import com.opengamma.util.tuple.Pair;
   public void setFailureListener(ResolutionFailureListener failureListener) {
     _failureListener = failureListener;
   }
-  
+
   public void setComputationTargetCollapser(final ComputationTargetCollapser collapser) {
     _computationTargetCollapser = collapser;
   }
@@ -183,11 +183,13 @@ import com.opengamma.util.tuple.Pair;
     if (node == null) {
       return null;
     }
-    // Can only use the specification if it is consumed by another node; i.e. it has been fully resolved
-    // and is not just an advisory used to merge tentative results to give a single node producing multiple
-    // outputs.
+    // Can only use the specification if it is consumed by another node (or is a terminal output); i.e. it has been fully resolved
+    // and is not just an advisory used to merge tentative results to give a single node producing multiple outputs.
     _readLock.lock();
     try {
+      if (node.hasTerminalOutputValue(specification)) {
+        return new ResolvedValue(specification, node.getFunction(), node.getInputValuesCopy(), node.getOutputValuesCopy());
+      }
       for (final DependencyNode dependent : node.getDependentNodes()) {
         if (dependent.hasInputValue(specification)) {
           return new ResolvedValue(specification, node.getFunction(), node.getInputValuesCopy(), node.getOutputValuesCopy());
@@ -806,6 +808,7 @@ import com.opengamma.util.tuple.Pair;
               outputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), node.getComputationTarget(), outputValue.getProperties()));
             }
             assert node.getOutputValues().contains(outputValue);
+            node.addTerminalOutputValue(outputValue);
             Collection<ValueRequirement> requirements = _resolvedValues.get(outputValue);
             if (requirements == null) {
               requirements = new ArrayList<ValueRequirement>();
