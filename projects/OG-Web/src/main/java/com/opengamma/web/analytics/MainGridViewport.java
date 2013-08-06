@@ -6,9 +6,8 @@
 package com.opengamma.web.analytics;
 
 import java.util.HashSet;
-import java.util.Set;
-
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
@@ -30,10 +29,10 @@ import com.opengamma.util.tuple.Pair;
   private ViewportResults _latestResults;
   /** The current state. */
   private State _state = State.EMPTY;
-  // TODO ViewportNodeStructure field
+  /** The node structure. */
   private final ViewportNodeStructure _nodeStructure;
-  /** The current expanded node paths visible in the viewport **/
-  private Set<String> _currentNodePaths;
+  /** The current expanded paths. */
+  private Set<List<String>> _currentExpandedPaths;
 
   /**
    * @param gridStructure Row and column structure of the grid
@@ -51,8 +50,19 @@ import com.opengamma.util.tuple.Pair;
     ArgumentChecker.notEmpty(callbackId, "callbackId");
     _callbackId = callbackId;
     _gridStructure = gridStructure;
-    _currentNodePaths = new HashSet<>();
+    _nodeStructure = new ViewportNodeStructure(_gridStructure.getRootNode(), _gridStructure.getTargetLookup());
+    _currentExpandedPaths = new HashSet<>(_nodeStructure.getPaths());
     update(viewportDefinition, cycle, cache);
+
+  }
+
+  @Override
+  public void updateResultsAndStructure(MainGridStructure gridStructure, ResultsCache cache) {
+    ViewportNodeStructure node = new ViewportNodeStructure(_gridStructure.getRootNode(),
+                                                   _gridStructure.getTargetLookup(),
+                                                   _currentExpandedPaths);
+    //_gridStructure = _gridStructure.withNode(node);
+    updateResults(cache);
   }
 
   /**
@@ -79,28 +89,25 @@ import com.opengamma.util.tuple.Pair;
       throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
                                              viewportDefinition + ", grid: " + _gridStructure);
     }
-    Pair<Integer, Boolean> changedNode = _viewportDefinition.getChangedNode(viewportDefinition);
-    // if this is null then the user scrolled the viewport and didn't expand or collapse a node
-    if (changedNode != null) {
-      Integer rowIndex = changedNode.getFirst();
-      // was it expanded or collapsed
-      Boolean expanded = changedNode.getSecond();
-      List<String> path = _nodeStructure.getPathForRow(rowIndex);
-      if (expanded) {
-        // TODO add node path to the expanded set
-      } else {
-        // TODO remove node path from the expanded set
+    if (_viewportDefinition != null) {
+      Pair<Integer, Boolean> changedNode = _viewportDefinition.getChangedNode(viewportDefinition);
+      // if this is null then the user scrolled the viewport and didn't expand or collapse a node
+      if (changedNode != null) {
+        Integer rowIndex = changedNode.getFirst();
+        // was it expanded or collapsed
+        Boolean expanded = changedNode.getSecond();
+        List<String> path = _nodeStructure.getPathForRow(rowIndex);
+        System.out.println("Row: " + rowIndex.toString() + " Expanded: " + expanded.toString() + " Path: " + path);
+        if (expanded) {
+          _currentExpandedPaths.add(path);
+        } else {
+          _currentExpandedPaths.remove(path);
+        }
+        System.out.println("Current: " + _currentExpandedPaths);
       }
     }
     _viewportDefinition = viewportDefinition;
-    updateResults(cache);
-  }
-
-  // TODO this will need to go on the interface
-  // called when the first set of results arrives after a view def recompilation
-  void updateResultsAndStructure(/*grid structure, cache*/) {
-    // TODO create a new grid structure using a node from ViewportNodeStructure, assign to _gridStructure
-    // TODO call updateResults(cache)
+    updateResultsAndStructure(_gridStructure, cache);
   }
 
   @Override
@@ -124,10 +131,12 @@ import com.opengamma.util.tuple.Pair;
 
   public GridStructure getGridStructure() {
     // TODO return the grid structure with a root node built using ViewportNodeBuilder
+    return null;
   }
 
   @Override
   public void updateGridStructure(MainGridStructure gridStructure) {
       _gridStructure = gridStructure;
   }
+
 }

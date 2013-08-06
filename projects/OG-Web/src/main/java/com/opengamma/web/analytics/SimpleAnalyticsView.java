@@ -65,7 +65,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * @param viewId client ID of the view
-   * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
+   * @param portfolioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
    * This class makes no assumptions about its value
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
  * This class makes no assumptions about its value
@@ -79,7 +79,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                     boolean primitivesOnly,
                                     VersionCorrection versionCorrection,
                                     String viewId,
-                                    String portoflioCallbackId,
+                                    String portfolioCallbackId,
                                     String primitivesCallbackId,
                                     ComputationTargetResolver targetResolver,
                                     ViewportListener viewportListener,
@@ -89,7 +89,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                     boolean showBlotterColumns) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notEmpty(viewId, "viewId");
-    ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
+    ArgumentChecker.notEmpty(portfolioCallbackId, "portfolioCallbackId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(viewportListener, "viewportListener");
@@ -111,13 +111,13 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
       portfolio = EMPTY_PORTFOLIO;
     }
     if (showBlotterColumns) {
-      _portfolioGrid = PortfolioAnalyticsGrid.forBlotter(portoflioCallbackId,
+      _portfolioGrid = PortfolioAnalyticsGrid.forBlotter(portfolioCallbackId,
                                                          portfolio,
                                                          targetResolver,
                                                          viewportListener,
                                                          blotterColumnMapper);
     } else {
-      _portfolioGrid = PortfolioAnalyticsGrid.forAnalytics(portoflioCallbackId,
+      _portfolioGrid = PortfolioAnalyticsGrid.forAnalytics(portfolioCallbackId,
                                                            portfolio,
                                                            targetResolver,
                                                            viewportListener);

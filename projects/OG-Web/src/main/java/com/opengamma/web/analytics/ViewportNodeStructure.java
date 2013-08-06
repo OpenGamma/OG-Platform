@@ -5,7 +5,9 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,13 +25,17 @@ import com.opengamma.util.ArgumentChecker;
   private final AnalyticsNode _rootNode;
   private final Map<Integer, List<String>> _rowToPath = Maps.newHashMap();
 
+  /* package */ ViewportNodeStructure(AnalyticsNode root, TargetLookup targetLookup) {
+    Set<List<String>>  expandedNodes = new HashSet<>();
+    _rootNode = createNode(root, targetLookup, expandedNodes);
+  }
+
   /* package */ ViewportNodeStructure(AnalyticsNode root, TargetLookup targetLookup, Set<List<String>> expandedNodes) {
     _rootNode = createNode(root, targetLookup, expandedNodes);
   }
 
   /* package */ AnalyticsNode createNode(AnalyticsNode root, TargetLookup targetLookup, Set<List<String>> expandedNodes) {
     ArgumentChecker.notNull(targetLookup, "targetLookup");
-    ArgumentChecker.notNull(expandedNodes, "expandedNodes");
     // root can be null if a view only contains primitives and doesn't have a portfolio
     if (root == null) {
       return null;
@@ -59,5 +65,10 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ List<String> getPathForRow(int rowIndex) {
     return _rowToPath.get(rowIndex);
+  }
+
+  /* package */ Collection<List<String>> getPaths() {
+    return _rowToPath.values();
+
   }
 }

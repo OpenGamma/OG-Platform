@@ -80,17 +80,49 @@ public class RectangularViewportDefinition extends ViewportDefinition {
                                              viewportDefinition.getClass().getSimpleName() + ", expected " +
                                              RectangularViewportDefinition.class.getSimpleName());
     }
-    // TODO if the first rows aren't equal the user has scrolled, return null
+    List<Integer> newRows = ((RectangularViewportDefinition) viewportDefinition).getRows();
+
+    //if the first rows aren't equal the user has scrolled, return null
+    if (_rows.get(0) != newRows.get(0)) {
+      return null;
+    }
     // if the first rows are equal and the viewport has changed then the user has either expanded or collapsed a node
+    // walk through the current and new list of rows
+    for (int i = 0; i < Math.max(_rows.size(), newRows.size()); i++) {
+      //if final node is expanded/collapsed then index will not be in list
+      if (i >= _rows.size()) {
+        return Pair.of(_rows.get(i-1), true);
+      }
+      if (i >= newRows.size() ) {
+        return Pair.of(newRows.get(i-1), false);
+      }
+      // if this object's row index is greater then the node has collapsed
+      // the the other object's row index is greater then the node has expanded
+      // the expanded / collapsed node is the row before the unequal row
+      int oldRow = _rows.get(i);
+      int newRow = newRows.get(i);
+      if (oldRow == newRow ) {
+        continue;
+      }
+      if (newRow < oldRow) {
+        return Pair.of(newRows.get(i-1), true);
+      }
+      else if (oldRow < newRow) {
+        return Pair.of(_rows.get(i-1), false);
+      }
+    }
+
     // or resized the window - if the window has resized the row lists will be different lengths
-    // TODO walk down the 2 lists of rows until they're not equal
-    // if this object's row index is greater then the node has collapsed
-    // the the other object's row index is greater then the node has expanded
-    // the expanded / collapsed node is the row before the unequal row
+
+    return null;
   }
 
   /* package */ List<Integer> getColumns() {
     return _columns;
+  }
+
+  /* package */ List<Integer> getRows() {
+    return _rows;
   }
 
   /* package */ TypeFormatter.Format getFormat() {

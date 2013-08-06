@@ -119,4 +119,9 @@ public class DependencyGraphViewport implements Viewport {
     //TODO should the depgraph update grid structure?
   }
 
+  @Override
+  public void updateResultsAndStructure(MainGridStructure gridStructure, ResultsCache cache) {
+    //TODO should the depgraph update tree structure?
+  }
+
 }

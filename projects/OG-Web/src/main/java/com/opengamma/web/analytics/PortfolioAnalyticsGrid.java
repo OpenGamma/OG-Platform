@@ -46,6 +46,7 @@ import com.opengamma.id.ObjectId;
 
   /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef, portfolio);
+
     return new PortfolioAnalyticsGrid(updatedStructure,
                                       getCallbackId(),
                                       getTargetResolver(),

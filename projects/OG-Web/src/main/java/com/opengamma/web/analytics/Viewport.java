@@ -61,4 +61,15 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * @param gridStructure The latest structure of the grid
    */
   void updateGridStructure(MainGridStructure gridStructure);
+
+  /**
+   * Updates the structure of the tree nodes in the viewport.
+   * called when the first set of results arrives after a view def recompilation
+   * @param gridStructure The latest structure of the grid
+   * @param cache Cache of calculation results
+   */
+  void updateResultsAndStructure(MainGridStructure gridStructure, ResultsCache cache);
+
 }
+
+

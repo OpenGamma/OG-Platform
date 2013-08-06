@@ -25,14 +25,33 @@ import com.opengamma.util.tuple.Pair;
   /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
 
+  /** The root node of the portfolio structure. */
+  private final AnalyticsNode _rootNode;
+
   /* package */ MainGridStructure() {
     _columnGroups = GridColumnGroups.empty();
     _targetLookup = new TargetLookup(new ValueMappings(), Collections.<Row>emptyList());
+    _rootNode = null;
   }
 
   // TODO refactor this to pass in columns instead of column keys?
   // column would need to return its key (null for static and blotter columns)
   // could pass all columns in a single List<GridColumnGroup> or GridColumnGroups instance
+  /* package */ MainGridStructure(GridColumnGroup fixedColumns,
+                                  GridColumnGroups nonFixedColumns,
+                                  TargetLookup targetLookup,
+                                  AnalyticsNode rootNode) {
+    ArgumentChecker.notNull(targetLookup, "targetLookup");
+    ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
+    ArgumentChecker.notNull(fixedColumns, "fixedColumns");
+    ArgumentChecker.notNull(rootNode, "rootNode");
+    List<GridColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
+    columnGroups.addAll(nonFixedColumns.getGroups());
+    _rootNode = rootNode;
+    _columnGroups = new GridColumnGroups(columnGroups);
+    _targetLookup = targetLookup;
+  }
+
   /* package */ MainGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
                                   TargetLookup targetLookup) {
@@ -43,7 +62,7 @@ import com.opengamma.util.tuple.Pair;
     columnGroups.addAll(nonFixedColumns.getGroups());
     _columnGroups = new GridColumnGroups(columnGroups);
     _targetLookup = targetLookup;
-
+    _rootNode = null;
   }
 
     /**
@@ -79,6 +98,13 @@ import com.opengamma.util.tuple.Pair;
 
   /* package */ TargetLookup getTargetLookup() {
     return _targetLookup;
+  }
+
+  /**
+   * @return The root node of the portfolio structure.
+   */
+  public AnalyticsNode getRootNode() {
+    return _rootNode;
   }
 
   @Override
