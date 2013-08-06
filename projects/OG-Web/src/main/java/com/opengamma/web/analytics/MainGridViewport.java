@@ -16,7 +16,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Viewport on one of the main analytics grids displaying portfolio or primitives data.
  */
-/* package */ class MainGridViewport implements Viewport {
+/* package */ abstract class MainGridViewport implements Viewport {
 
   /** Row and column structure of the grid. */
   private MainGridStructure _gridStructure;

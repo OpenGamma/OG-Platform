@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;

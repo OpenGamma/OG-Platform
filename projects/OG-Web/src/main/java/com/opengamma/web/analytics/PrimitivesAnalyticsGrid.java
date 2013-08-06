@@ -39,7 +39,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   protected MainGridViewport createViewport(ViewportDefinition viewportDefinition,
                                             String callbackId,
                                             ResultsCache cache) {
-    return new MainGridViewport((MainGridStructure) getGridStructure(), callbackId, viewportDefinition, getViewCycle(), cache);
+    return new PrimitivesGridViewport((MainGridStructure) getGridStructure(), callbackId, viewportDefinition, getViewCycle(), cache);
   }
 
   /**

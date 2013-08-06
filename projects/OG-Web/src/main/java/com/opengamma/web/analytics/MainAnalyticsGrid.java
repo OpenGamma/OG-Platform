@@ -190,7 +190,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
-    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, cache);
+    return new AnalyticsGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, cache);
   }
 
   /**
