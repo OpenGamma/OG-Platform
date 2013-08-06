@@ -307,15 +307,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     _suppressExecutionOnNoMarketData = executionOptions.getFlags().contains(ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA);
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
-
     _specificMarketDataSelectors = extractSpecificSelectors(viewDefinition);
-
     _marketDataManager = new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver());
-
     _marketDataSelectionGraphManipulator = createMarketDataManipulator(
         _executionOptions.getDefaultExecutionOptions(),
         _specificMarketDataSelectors);
-
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
     _deltaCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.delta");
@@ -405,6 +401,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
 
   private final class Job extends TerminatableJob {
 
+    @Override
+    protected void preStart() {
+      _marketDataManager.start();
+    }
+
     /**
      * Determines whether to run, and runs if required, a single computation cycle using the following rules:
      * <ul>
@@ -418,7 +419,6 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     protected void runOneCycle() {
       // Exception handling is important here to ensure that computation jobs do not just die quietly while consumers are
       // potentially blocked, waiting for results.
-
       ViewCycleType cycleType;
       try {
         cycleType = waitForNextCycle();
@@ -628,7 +628,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         _previousCycleReference.release();
       }
       unsubscribeFromTargetResolverChanges();
-      _marketDataManager.removeMarketDataProvider();
+      _marketDataManager.stop();
       _executionCacheKey = null;
       cacheCompiledViewDefinition(null);
     }
