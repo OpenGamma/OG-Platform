@@ -59,7 +59,7 @@ public class RopemakerTest extends ISDABaseTest {
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.001915, 0.002313, 0.002662, 0.004, 0.006842, 0.00475, 0.00752, 0.011185, 0.01487, 0.018215, 0.021005, 0.023305, 0.025315, 0.026945, 0.02962, 0.032075,
       0.034025, 0.03496, 0.03552 };
-    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
     runGrid(name, tradeDate, maturities, spreads, yieldCurve);
   }
@@ -87,7 +87,7 @@ public class RopemakerTest extends ISDABaseTest {
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.001915, 0.002313, 0.002662, 0.004, 0.006842, 0.00475, 0.00752, 0.011185, 0.01487, 0.018215, 0.021005, 0.023305, 0.025315, 0.026945, 0.02962, 0.032075,
       0.034025, 0.03496, 0.03552 };
-    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
     runGrid(name, tradeDate, maturities, spreads, yieldCurve);
   }
@@ -115,7 +115,7 @@ public class RopemakerTest extends ISDABaseTest {
     final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
     final double[] rates = new double[] {0.0019, 0.002305, 0.002659, 0.003965, 0.006759, 0.004895, 0.007625, 0.011265, 0.014985, 0.018315, 0.02115, 0.02347, 0.025395, 0.02705, 0.029725, 0.03222,
       0.034165, 0.03506, 0.035535 };
-    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
     runGrid(name, tradeDate, maturities, spreads, yieldCurve);
   }
@@ -160,14 +160,14 @@ public class RopemakerTest extends ISDABaseTest {
         final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
         final QuotedSpread quote = new QuotedSpread(COUPON, spreads[i]);
         puf[i] = PUF_CONVERTER.toPointsUpFront(pricingCDS, quote, yieldCurve).getPointsUpFront();
-        upfrontAmount[i] = (puf[i] + pricingCDS.getAccruedPremium(COUPON)) * NOTIONAL;
+        upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(COUPON)) * NOTIONAL;
         parellelCS01[i] = CS01_CAL.parallelCS01(pricingCDS, quote, yieldCurve, ONE_BP);
         bucketedCS01[i] = CS01_CAL.bucketedCS01FromPillarQuotes(pricingCDS, COUPON, yieldCurve, pillarCDSs_IMM, pillarQuotes, ONE_BP);
 
       } else {
         final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, NON_IMM_TENOR, STUB, PROCTECTION_START, RECOVERY);
         puf[i] = 0.0; //these are assumed to be at par 
-        upfrontAmount[i] = (puf[i] + pricingCDS.getAccruedPremium(spreads[i])) * NOTIONAL;
+        upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(spreads[i])) * NOTIONAL;
         parellelCS01[i] = CS01_CAL.parallelCS01FromParSpreads(pricingCDS, spreads[i], yieldCurve, pillarCDSs_nonIMM, pillarSpreads, ONE_BP, BumpType.ADDITIVE);
         bucketedCS01[i] = CS01_CAL.bucketedCS01FromParSpreads(pricingCDS, spreads[i], yieldCurve, pillarCDSs_nonIMM, pillarSpreads, ONE_BP, BumpType.ADDITIVE);
       }
