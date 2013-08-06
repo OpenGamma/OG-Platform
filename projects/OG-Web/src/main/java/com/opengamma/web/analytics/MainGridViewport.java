@@ -5,10 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -29,10 +25,6 @@ import com.opengamma.util.tuple.Pair;
   private ViewportResults _latestResults;
   /** The current state. */
   private State _state = State.EMPTY;
-  /** The node structure. */
-  private final ViewportNodeStructure _nodeStructure;
-  /** The current expanded paths. */
-  private Set<List<String>> _currentExpandedPaths;
 
   /**
    * @param gridStructure Row and column structure of the grid
@@ -50,19 +42,10 @@ import com.opengamma.util.tuple.Pair;
     ArgumentChecker.notEmpty(callbackId, "callbackId");
     _callbackId = callbackId;
     _gridStructure = gridStructure;
-    _nodeStructure = new ViewportNodeStructure(_gridStructure.getRootNode(), _gridStructure.getTargetLookup());
-    _currentExpandedPaths = new HashSet<>(_nodeStructure.getPaths());
+    _viewportDefinition = viewportDefinition;
     update(viewportDefinition, cycle, cache);
 
-  }
 
-  @Override
-  public void updateResultsAndStructure(MainGridStructure gridStructure, ResultsCache cache) {
-    ViewportNodeStructure node = new ViewportNodeStructure(_gridStructure.getRootNode(),
-                                                   _gridStructure.getTargetLookup(),
-                                                   _currentExpandedPaths);
-    //_gridStructure = _gridStructure.withNode(node);
-    updateResults(cache);
   }
 
   /**
@@ -70,49 +53,23 @@ import com.opengamma.util.tuple.Pair;
    * @param cache The latest results
    */
   /* package */ void updateResults(ResultsCache cache) {
-    Pair<ViewportResults, State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache);
+    Pair<ViewportResults, State> resultsAndState = getGridStructure().createResults(getDefinition() , cache);
     _latestResults = resultsAndState.getFirst();
     _state = resultsAndState.getSecond();
   }
 
-  /**
-   * Updates the viewport definition (e.g. in response to the user scrolling the grid and changing the visible area).
-   * @param viewportDefinition The new viewport definition
-   * @param viewCycle The view cycle from the previous calculation cycle
-   * @param cache The current results
-   */
-  @Override
-  public void update(ViewportDefinition viewportDefinition, ViewCycle viewCycle, ResultsCache cache) {
-    ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
-    ArgumentChecker.notNull(cache, "cache");
-    if (!viewportDefinition.isValidFor(_gridStructure)) {
-      throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
-                                             viewportDefinition + ", grid: " + _gridStructure);
-    }
-    if (_viewportDefinition != null) {
-      Pair<Integer, Boolean> changedNode = _viewportDefinition.getChangedNode(viewportDefinition);
-      // if this is null then the user scrolled the viewport and didn't expand or collapse a node
-      if (changedNode != null) {
-        Integer rowIndex = changedNode.getFirst();
-        // was it expanded or collapsed
-        Boolean expanded = changedNode.getSecond();
-        List<String> path = _nodeStructure.getPathForRow(rowIndex);
-        System.out.println("Row: " + rowIndex.toString() + " Expanded: " + expanded.toString() + " Path: " + path);
-        if (expanded) {
-          _currentExpandedPaths.add(path);
-        } else {
-          _currentExpandedPaths.remove(path);
-        }
-        System.out.println("Current: " + _currentExpandedPaths);
-      }
-    }
-    _viewportDefinition = viewportDefinition;
-    updateResultsAndStructure(_gridStructure, cache);
+
+  MainGridStructure getGridStructure() {
+    return _gridStructure;
   }
 
   @Override
   public ViewportResults getData() {
     return _latestResults;
+  }
+
+  void setViewportDefinition(ViewportDefinition viewportDefinition) {
+    _viewportDefinition = viewportDefinition;
   }
 
   @Override
@@ -127,11 +84,6 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public State getState() {
     return _state;
-  }
-
-  public GridStructure getGridStructure() {
-    // TODO return the grid structure with a root node built using ViewportNodeBuilder
-    return null;
   }
 
   @Override

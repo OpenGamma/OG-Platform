@@ -23,4 +23,10 @@ public class PrimitivesGridViewport extends MainGridViewport {
                          ResultsCache cache) {
     super(gridStructure, callbackId, viewportDefinition, cycle, cache);
   }
+
+  @Override
+  public void update(ViewportDefinition viewportDefinition, ViewCycle viewCycle, ResultsCache cache) {
+    //To change body of implemented methods use File | Settings | File Templates.
+  }
+
 }
