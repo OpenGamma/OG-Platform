@@ -13,7 +13,7 @@
   </parent>  
   <artifactId>og-platform-public</artifactId>
   <packaging>pom</packaging>
-  <name>OG-Platform public</name>
+  <name>OG-Platform-Public</name>
   <description>OpenGamma Platform public project</description>
 
   <!-- ==================================================================== -->
