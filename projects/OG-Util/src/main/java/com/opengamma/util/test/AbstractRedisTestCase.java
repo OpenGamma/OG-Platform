@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.util.redis;
+package com.opengamma.util.test;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
