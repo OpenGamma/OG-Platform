@@ -233,6 +233,11 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
         getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), referenceEndDate, payNotional(), getWeightStart(), getWeightEnd());
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponInflationYearOnYearInterpolation toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -256,6 +261,11 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
         naturalPaymentEndTime, _payNotional, _weightStart, _weightEnd);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -31,7 +31,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class used to compute the price and sensitivity of a cash-settled European swaption with SABR model and extrapolation to the right. 
+ * Class used to compute the price and sensitivity of a cash-settled European swaption with SABR model and extrapolation to the right.
  * Implemented only for the SABRHaganVolatilityFunction.
  * OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
@@ -71,8 +71,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
   public MultipleCurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final SABRSwaptionProviderInterface sabrData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(sabrData, "SABR swaption provider");
-    MulticurveProviderInterface multicurves = sabrData.getMulticurveProvider();
-    Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = sabrData.getMulticurveProvider();
+    final Currency ccy = swaption.getCurrency();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = swaption.getUnderlyingSwap().accept(PRDC, multicurves);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
@@ -108,8 +108,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionCashFixedIbor swaption, final SABRSwaptionProviderInterface sabrData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(sabrData, "SABR swaption provider");
-    MulticurveProviderInterface multicurves = sabrData.getMulticurveProvider();
-    Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = sabrData.getMulticurveProvider();
+    final Currency ccy = swaption.getCurrency();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = swaption.getUnderlyingSwap().accept(PRDC, multicurves);
     // Derivative of the forward with respect to the rates.
@@ -121,9 +121,9 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
     final double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final double dfDr = -swaption.getSettlementTime() * discountFactorSettle;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(swaption.getSettlementTime(), dfDr));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurves.getName(ccy), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
@@ -151,8 +151,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final SwaptionCashFixedIbor swaption, final SABRSwaptionProviderInterface sabrData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(sabrData, "SABR swaption provider");
-    MulticurveProviderInterface multicurves = sabrData.getMulticurveProvider();
-    Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = sabrData.getMulticurveProvider();
+    final Currency ccy = swaption.getCurrency();
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = swaption.getUnderlyingSwap().accept(PRDC, multicurves);

@@ -32,7 +32,7 @@ public class DepositCounterpart extends Cash {
    * @param accrualFactor The accrual factor (or year fraction).
    * @param nameCounterpart The counterpart name.
    * @param indexCurveName The name of the curve associated to the index.
-   * @deprecated Curve names should not be set in derivatives.
+   * @deprecated Use the constructor that does not take yield curve names
    */
   @Deprecated
   public DepositCounterpart(final Currency currency, final double startTime, final double endTime, final double notional, final double initialAmount, final double rate, final double accrualFactor,

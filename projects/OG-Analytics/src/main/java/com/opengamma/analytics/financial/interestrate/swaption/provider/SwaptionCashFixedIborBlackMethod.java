@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -111,9 +111,9 @@ public final class SwaptionCashFixedIborBlackMethod {
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
     final double sensiDF = -swaption.getSettlementTime() * discountFactorSettle * pvbp * bsAdjoint[0];
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(swaption.getSettlementTime(), sensiDF));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(annuityFixed.getNthPayment(0).getFundingCurveName(), list);
     MulticurveSensitivity result = forwardDr.multipliedBy(discountFactorSettle * (pvbpDf * bsAdjoint[0] + pvbp * bsAdjoint[1]));
     if (!swaption.isLong()) {
@@ -140,7 +140,7 @@ public final class SwaptionCashFixedIborBlackMethod {
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
-    final Map<DoublesPair, Double> sensitivity = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> sensitivity = new HashMap<>();
     sensitivity.put(point, bsAdjoint[2] * pvbp * discountFactorSettle * (swaption.isLong() ? 1.0 : -1.0));
     return new PresentValueBlackSwaptionSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
   }

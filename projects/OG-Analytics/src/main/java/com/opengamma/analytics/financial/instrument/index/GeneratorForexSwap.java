@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
@@ -59,16 +58,16 @@ public class GeneratorForexSwap extends GeneratorInstrument<GeneratorAttributeFX
   public GeneratorForexSwap(final String name, final Currency currency1, final Currency currency2, final Calendar calendar, final int spotLag,
       final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
     super(name);
-    Validate.notNull(currency1, "Currency 1");
-    Validate.notNull(currency2, "Currency 2");
-    Validate.notNull(calendar, "Calendar");
-    Validate.notNull(businessDayConvention, "Business day convention");
-    this._currency1 = currency1;
-    this._currency2 = currency2;
-    this._calendar = calendar;
-    this._spotLag = spotLag;
-    this._businessDayConvention = businessDayConvention;
-    this._endOfMonth = endOfMonth;
+    ArgumentChecker.notNull(currency1, "Currency 1");
+    ArgumentChecker.notNull(currency2, "Currency 2");
+    ArgumentChecker.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    _currency1 = currency1;
+    _currency2 = currency2;
+    _calendar = calendar;
+    _spotLag = spotLag;
+    _businessDayConvention = businessDayConvention;
+    _endOfMonth = endOfMonth;
   }
 
   /**
@@ -119,10 +118,11 @@ public class GeneratorForexSwap extends GeneratorInstrument<GeneratorAttributeFX
     return _endOfMonth;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The Forex swap starts at spot+startTenor and end at spot+endTenor.
    */
+  @Override
   public ForexSwapDefinition generateInstrument(final ZonedDateTime date, final double forwardPoints, final double notional, final GeneratorAttributeFX attribute) {
     ArgumentChecker.notNull(attribute, "Attribute");
     final double fx = attribute.getFXMatrix().getFxRate(_currency1, _currency2);

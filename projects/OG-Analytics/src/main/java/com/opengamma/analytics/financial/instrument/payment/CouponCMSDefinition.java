@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -148,6 +148,11 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     return super.toString() + ", Swap = " + _underlyingSwap.toString();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -164,6 +169,11 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -194,7 +204,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
     return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
   }
-  
+
   @Override
   public Coupon toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

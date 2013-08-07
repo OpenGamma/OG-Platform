@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -42,7 +41,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
    * Fixed coupon bond constructor from the nominal and the coupons.
    * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
    * @param coupon The bond fixed coupons. The coupons notional should be in line with the bond nominal.
-   * @param settlementTime The time (in years) to settlement date. 
+   * @param settlementTime The time (in years) to settlement date.
    * @param accruedInterest The accrued interest at the settlement date. The accrued interest is an amount (in line with the nominal).
    * @param factorToNextCoupon The factor from spot up to the next coupon.
    * @param yieldConvention The yield (to maturity) computation convention.
@@ -55,7 +54,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
   public BondFixedSecurity(final AnnuityPaymentFixed nominal, final AnnuityCouponFixed coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final YieldConvention yieldConvention, final int couponPerYear, final String repoCurveName, final String issuer) {
     super(nominal, coupon, settlementTime, repoCurveName, issuer);
-    Validate.notNull(yieldConvention, "Yield convention");
+    ArgumentChecker.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
     _accruedInterest = accruedInterest;
     _couponPerYear = couponPerYear;
@@ -66,19 +65,17 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
    * Fixed coupon bond constructor from the nominal and the coupons.
    * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
    * @param coupon The bond fixed coupons. The coupons notional should be in line with the bond nominal.
-   * @param settlementTime The time (in years) to settlement date. 
+   * @param settlementTime The time (in years) to settlement date.
    * @param accruedInterest The accrued interest at the settlement date. The accrued interest is an amount (in line with the nominal).
    * @param factorToNextCoupon The factor from spot up to the next coupon.
    * @param yieldConvention The yield (to maturity) computation convention.
    * @param couponPerYear Number of coupon per year.
    * @param issuer The bond issuer name.
-   * @deprecated Use the constructor that does not take curve names
    */
-  @Deprecated
   public BondFixedSecurity(final AnnuityPaymentFixed nominal, final AnnuityCouponFixed coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final YieldConvention yieldConvention, final int couponPerYear, final String issuer) {
     super(nominal, coupon, settlementTime, issuer);
-    Validate.notNull(yieldConvention, "Yield convention");
+    ArgumentChecker.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
     _accruedInterest = accruedInterest;
     _couponPerYear = couponPerYear;

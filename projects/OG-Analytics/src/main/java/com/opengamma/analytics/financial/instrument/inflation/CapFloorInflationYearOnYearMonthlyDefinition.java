@@ -223,6 +223,11 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CapFloorInflationYearOnYearMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -242,6 +247,11 @@ public class CapFloorInflationYearOnYearMonthlyDefinition extends CouponInflatio
         referenceStartTime, naturalPaymentStartTime, referenceEndTime, naturalPaymentEndTime, _strike, _isCap);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

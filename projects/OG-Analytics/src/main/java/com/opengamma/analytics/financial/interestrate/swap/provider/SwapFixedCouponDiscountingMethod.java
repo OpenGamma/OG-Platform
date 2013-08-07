@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -117,6 +118,29 @@ public class SwapFixedCouponDiscountingMethod {
   }
 
   /**
+   * Computes the physical annuity (also called PVBP or level) of the fixed leg of a swap modified by a day count.
+   * @param fixedCouponSwap The underlying swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param calendar The calendar
+   * @param multicurves The multi-curves provider.
+   * @return The physical annuity.
+   */
+  public double presentValueBasisPoint(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount, final Calendar calendar,
+      final MulticurveProviderInterface multicurves) {
+    ArgumentChecker.notNull(fixedCouponSwap, "swap");
+    ArgumentChecker.notNull(dayCount, "day count");
+    ArgumentChecker.notNull(multicurves, "Multi-curves provider");
+    final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    double pvbp = 0;
+    for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
+      pvbp += dayCount.getDayCountFraction(annuityFixed.getNthPayment(loopcpn).getAccrualStartDate(), annuityFixed.getNthPayment(loopcpn).getAccrualEndDate(), calendar)
+          * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional())
+          * multicurves.getDiscountFactor(annuityFixed.getNthPayment(loopcpn).getCurrency(), annuityFixed.getNthPayment(loopcpn).getPaymentTime());
+    }
+    return pvbp;
+  }
+
+  /**
    * Compute the sensitivity of the PVBP to the discounting curve.
    * @param fixedCouponSwap The swap.
    * @param multicurves The multi-curves provider.
@@ -126,16 +150,43 @@ public class SwapFixedCouponDiscountingMethod {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final Currency ccy = annuityFixed.getCurrency();
     double time;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
       time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
       final DoublesPair s = new DoublesPair(time, -time * multicurves.getDiscountFactor(ccy, time) * annuityFixed.getNthPayment(loopcpn).getPaymentYearFraction()
           * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
       list.add(s);
     }
-    Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     mapDsc.put(multicurves.getName(annuityFixed.getCurrency()), list);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
+    return result;
+  }
+
+  /**
+   * Compute the sensitivity of the PVBP to the discounting curve.
+   * @param fixedCouponSwap The swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param calendar The calendar
+   * @param multicurves The multi-curves provider.
+   * @return The sensitivity.
+   */
+  public MulticurveSensitivity presentValueBasisPointCurveSensitivity(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount,
+      final Calendar calendar, final MulticurveProviderInterface multicurves) {
+    final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    final Currency ccy = annuityFixed.getCurrency();
+    double time;
+    final List<DoublesPair> list = new ArrayList<>();
+    for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
+      time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
+      final DoublesPair s = new DoublesPair(time, -time * multicurves.getDiscountFactor(ccy, time)
+          * dayCount.getDayCountFraction(annuityFixed.getNthPayment(loopcpn).getAccrualStartDate(), annuityFixed.getNthPayment(loopcpn).getAccrualEndDate(), calendar)
+          * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
+      list.add(s);
+    }
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    mapDsc.put(multicurves.getName(annuityFixed.getCurrency()), list);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
     return result;
   }
 
@@ -146,12 +197,12 @@ public class SwapFixedCouponDiscountingMethod {
    * @param multicurves The multi-curves provider.
    * @return The sensitivity.
    */
-  public MulticurveSensitivity presentValueBasisPointCurveSensitivity(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount, 
+  public MulticurveSensitivity presentValueBasisPointCurveSensitivity(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount,
       final MulticurveProviderInterface multicurves) {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final Currency ccy = annuityFixed.getCurrency();
     double time;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
       time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
       final DoublesPair s = new DoublesPair(time, -time * multicurves.getDiscountFactor(ccy, time)
@@ -159,9 +210,9 @@ public class SwapFixedCouponDiscountingMethod {
           * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
       list.add(s);
     }
-    Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     mapDsc.put(multicurves.getName(annuityFixed.getCurrency()), list);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
     return result;
   }
 
@@ -191,11 +242,13 @@ public class SwapFixedCouponDiscountingMethod {
    * Computes the coupon equivalent of a swap (without margins).
    * @param fixedCouponSwap The underlying swap.
    * @param dayCount Day count convention for the PVBP modification.
+   * @param calendar The calendar
    * @param multicurves The multi-curves provider.
    * @return The coupon equivalent.
    */
-  public double couponEquivalent(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount, final MulticurveProviderInterface multicurves) {
-    final double pvbp = presentValueBasisPoint(fixedCouponSwap, dayCount, multicurves);
+  public double couponEquivalent(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount, final Calendar calendar,
+      final MulticurveProviderInterface multicurves) {
+    final double pvbp = presentValueBasisPoint(fixedCouponSwap, dayCount, calendar, multicurves);
     return couponEquivalent(fixedCouponSwap, pvbp, multicurves);
   }
 

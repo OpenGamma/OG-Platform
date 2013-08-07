@@ -53,7 +53,7 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     final AnnuityCouponONSimplifiedDefinition oisLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    return from(oisLeg, notionalSigned, fixedRate);
+    return from(oisLeg, notionalSigned, fixedRate, generator.getOvernightCalendar());
   }
 
   /**
@@ -71,7 +71,7 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     final AnnuityCouponONSimplifiedDefinition oisLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    return from(oisLeg, notionalSigned, fixedRate);
+    return from(oisLeg, notionalSigned, fixedRate, generator.getOvernightCalendar());
   }
 
   /**
@@ -90,7 +90,7 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     final AnnuityCouponONSimplifiedDefinition oisLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notionalFixed;
-    return from(oisLeg, notionalSigned, fixedRate);
+    return from(oisLeg, notionalSigned, fixedRate, generator.getOvernightCalendar());
   }
 
   /**
@@ -118,7 +118,7 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     final AnnuityCouponONSimplifiedDefinition oisLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    return from(oisLeg, notionalSigned, fixedRate);
+    return from(oisLeg, notionalSigned, fixedRate, generator.getOvernightCalendar());
   }
 
   /**
@@ -145,16 +145,17 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     final AnnuityCouponONSimplifiedDefinition oisLeg = AnnuityCouponONSimplifiedDefinition.from(settlementDate, maturityDate, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    return from(oisLeg, notionalSigned, fixedRate);
+    return from(oisLeg, notionalSigned, fixedRate, calendar);
   }
 
-  private static SwapFixedONSimplifiedDefinition from(final AnnuityCouponONSimplifiedDefinition oisLeg, final double notionalSigned, final double fixedRate) {
+  private static SwapFixedONSimplifiedDefinition from(final AnnuityCouponONSimplifiedDefinition oisLeg, final double notionalSigned, final double fixedRate,
+      final Calendar calendar) {
     final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[oisLeg.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
       cpnFixed[loopcpn] = new CouponFixedDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg.getNthPayment(
           loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), notionalSigned, fixedRate);
     }
-    return new SwapFixedONSimplifiedDefinition(new AnnuityCouponFixedDefinition(cpnFixed), oisLeg);
+    return new SwapFixedONSimplifiedDefinition(new AnnuityCouponFixedDefinition(cpnFixed, calendar), oisLeg);
   }
 
   /**
@@ -173,6 +174,11 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     return (AnnuityCouponONSimplifiedDefinition) getSecondLeg();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @SuppressWarnings({"unchecked" })
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {

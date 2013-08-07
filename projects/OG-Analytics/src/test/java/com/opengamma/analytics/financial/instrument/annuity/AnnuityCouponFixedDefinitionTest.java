@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -57,7 +57,7 @@ public class AnnuityCouponFixedDefinitionTest {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
           PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons, CALENDAR);
 
     assertEquals(fixedAnnuity.isPayer(), IS_PAYER);
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
@@ -67,7 +67,7 @@ public class AnnuityCouponFixedDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPayments() {
-    new AnnuityCouponFixedDefinition(null);
+    new AnnuityCouponFixedDefinition(null, null);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class AnnuityCouponFixedDefinitionTest {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
           PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons, CALENDAR);
     final AnnuityCouponFixedDefinition fixedAnnuity2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE,
         IS_PAYER);
     assertEquals(fixedAnnuity, fixedAnnuity2);
@@ -100,7 +100,7 @@ public class AnnuityCouponFixedDefinitionTest {
     bond2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, 2, true, true, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, !IS_PAYER);
     assertEquals(bond1, bond2);
     final CouponFixedDefinition[] payments = bond2.getPayments();
-    bond2 = new AnnuityCouponFixedDefinition(payments);
+    bond2 = new AnnuityCouponFixedDefinition(payments, CALENDAR);
     assertEquals(bond1, bond2);
   }
 
@@ -141,7 +141,7 @@ public class AnnuityCouponFixedDefinitionTest {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
           PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons, CALENDAR);
 
     //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     //    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), ZoneOffset.UTC);

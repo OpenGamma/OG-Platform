@@ -601,7 +601,6 @@ public class CalibrateHazardRateCurveTest {
     // -----------------------------------------------------------------------------------------------
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void testCalibrateHazardRateCurveData() {
 

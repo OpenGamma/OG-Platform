@@ -84,7 +84,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final CouponInflationZeroCouponMonthlyGearingDefinition nominalPayment = CouponInflationZeroCouponMonthlyGearingDefinition.from(START_DATE_GILT_1,
         MATURITY_DATE_GILT_1, NOTIONAL_GILT_1, PRICE_INDEX_UKRPI, INDEX_START_GILT_1, MONTH_LAG_GILT_1, MONTH_LAG_GILT_1, true, 1.0);
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
-        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment });
+        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment}, CALENDAR_GBP);
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1,
         true, false);
@@ -98,8 +98,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
       coupons[loopcpn + 1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1],
           paymentDatesUnadjusted[loopcpn], NOTIONAL_GILT_1, PRICE_INDEX_UKRPI, INDEX_START_GILT_1, MONTH_LAG_GILT_1, MONTH_LAG_GILT_1, true, REAL_RATE_GILT_1);
     }
-    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<>(
-        coupons);
+    final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, CALENDAR_GBP);
     final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> bond = new BondCapitalIndexedSecurityDefinition<>(
         nominalAnnuity, couponAnnuity, INDEX_START_GILT_1, 0, 2, CALENDAR_GBP, DAY_COUNT_GILT_1, YIELD_CONVENTION_GILT_1, IS_EOM_GILT_1, MONTH_LAG_GILT_1, ISSUER_UK);
     final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> bondFrom = BondCapitalIndexedSecurityDefinition.fromMonthly(
@@ -204,7 +203,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final CouponInflationZeroCouponInterpolationGearingDefinition nominalPayment = CouponInflationZeroCouponInterpolationGearingDefinition.from(START_DATE_TIPS_1,
         MATURITY_DATE_TIPS_1, NOTIONAL_TIPS_1, PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, 1.0);
     final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
-        new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment });
+        new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment}, CALENDAR_USD);
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(START_DATE_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, true,
         false);
@@ -216,8 +215,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
       coupons[loopcpn] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1],
           paymentDatesUnadjusted[loopcpn], NOTIONAL_TIPS_1, PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, REAL_RATE_TIPS_1);
     }
-    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> couponAnnuity = new AnnuityDefinition<>(
-        coupons);
+    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, CALENDAR_USD);
     final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> bond = new BondCapitalIndexedSecurityDefinition<>(
         nominalAnnuity, couponAnnuity, INDEX_START_TIPS_1, 0, 2, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, MONTH_LAG_TIPS_1, ISSUER_US);
     final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> bondFrom = BondCapitalIndexedSecurityDefinition

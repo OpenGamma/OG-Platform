@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.provider;
@@ -74,8 +74,7 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvCoupon = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
     final double settlementAmount = -(bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + bond.getBondTransaction().getAccruedInterest())
         * bond.getQuantity();
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
-        .getRepoCurveName());
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
     final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
     return pvNominal.plus(pvCoupon).multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
@@ -94,8 +93,7 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvCoupon = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
     final double settlementAmount = bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional(); //FIXME: add accrued.
     LOGGER.error("The FRN settlement amount does not include the accrued interests.");
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
-        .getRepoCurveName());
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
     final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
     return pvNominal.plus(pvCoupon).multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
@@ -139,8 +137,7 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyMulticurveSensitivity pvcsCoupon = bond.getBondTransaction().getCoupon().accept(PVSDC, multicurvesDecorated);
     final double settlementAmount = -(bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + bond.getBondTransaction().getAccruedInterest())
         * bond.getQuantity();
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
-        .getRepoCurveName());
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
     final MultipleCurrencyMulticurveSensitivity pvcsSettlement = settlement.accept(PVSDC, issuerMulticurves.getMulticurveProvider());
     return pvcsNominal.plus(pvcsCoupon).multipliedBy(bond.getQuantity()).plus(pvcsSettlement);
   }
@@ -153,8 +150,7 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyMulticurveSensitivity pvcsCoupon = bond.getBondTransaction().getCoupon().accept(PVSDC, multicurvesDecorated);
     final double settlementAmount = bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional(); //FIXME: add accrued.
     LOGGER.error("The FRN settlement amount does not include the accrued interests.");
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
-        .getRepoCurveName());
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
     final MultipleCurrencyMulticurveSensitivity pvcsSettlement = settlement.accept(PVSDC, issuerMulticurves.getMulticurveProvider());
     return pvcsNominal.plus(pvcsCoupon).multipliedBy(bond.getQuantity()).plus(pvcsSettlement);
   }

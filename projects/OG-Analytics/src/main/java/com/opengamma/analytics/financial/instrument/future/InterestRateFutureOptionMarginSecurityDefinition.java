@@ -48,9 +48,9 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   public InterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureSecurityDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     ArgumentChecker.notNull(expirationDate, "expiration");
-    this._underlyingFuture = underlyingFuture;
-    this._expirationDate = expirationDate;
-    this._strike = strike;
+    _underlyingFuture = underlyingFuture;
+    _expirationDate = expirationDate;
+    _strike = strike;
     _isCall = isCall;
   }
 
@@ -86,6 +86,11 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
     return _strike;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

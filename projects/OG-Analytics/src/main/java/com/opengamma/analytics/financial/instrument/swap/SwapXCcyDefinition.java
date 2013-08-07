@@ -39,7 +39,9 @@ public class SwapXCcyDefinition extends SwapDefinition {
    * @param date The system date.
    * @param yieldCurveNames The yield curve names. The first two curves are used for the first leg. The next two are used for the second leg.
    * @return The derivative.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
@@ -56,7 +58,9 @@ public class SwapXCcyDefinition extends SwapDefinition {
    * @param date The system date.
    * @param yieldCurveNames The yield curve names. The first two curves are used for the first leg. The next two are used for the second leg.
    * @return The derivative.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");

@@ -158,13 +158,6 @@ public class GeneratorSwapIborIbor extends GeneratorInstrument<GeneratorAttribut
   }
 
   @Override
-  /**
-   * The effective date is date+_spotLag. The maturity date is effective date+tenor.
-   * @param date The trade date.
-   * @param tenor The maturity tenor.
-   * @param spread The spread on the first Ibor leg.
-   * @param notional The swap notional.
-   */
   public SwapIborIborDefinition generateInstrument(final ZonedDateTime date, final double spread, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

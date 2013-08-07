@@ -165,6 +165,11 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
     return Math.max(omega * (fixing - _strike), 0);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -180,6 +185,11 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
     return new CapFloorCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");

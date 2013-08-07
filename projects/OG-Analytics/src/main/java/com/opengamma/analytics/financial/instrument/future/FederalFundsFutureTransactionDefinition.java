@@ -48,10 +48,10 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   public FederalFundsFutureTransactionDefinition(final FederalFundsFutureSecurityDefinition underlyingFuture, final int quantity, final ZonedDateTime tradeDate, final double tradePrice) {
     ArgumentChecker.notNull(underlyingFuture, "Future");
     ArgumentChecker.notNull(tradeDate, "Trade date");
-    this._underlyingFuture = underlyingFuture;
-    this._quantity = quantity;
-    this._tradeDate = tradeDate;
-    this._tradePrice = tradePrice;
+    _underlyingFuture = underlyingFuture;
+    _quantity = quantity;
+    _tradeDate = tradeDate;
+    _tradePrice = tradePrice;
   }
 
   /**
@@ -86,10 +86,16 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
     return _tradePrice;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of FederalFundsFutureTransactionDefinition does not support the two argument method (without ON fixing and margin price data).");
   }
+
 
   @Override
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date) {
@@ -102,7 +108,10 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
    * @param yieldCurveNames The yield curve names
    * The last closing price at a date strictly before "date" is used as last closing.
    * @return The derivative form
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Date");
@@ -118,6 +127,7 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   }
 
   /**
+   * {@inheritDoc}
    * @param date The reference date.
    * @param data Two time series. The first one with the ON index fixing; the second one with the future closing (margining) prices.
    * The last closing price at a date strictly before "date" is used as last closing.

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -43,16 +43,29 @@ public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefi
    * @param settlementDate Transaction settlement date.
    * @param price The (clean quoted) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondInterestIndexedTransactionDefinition(final BondSecurityDefinition<N, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
+  public BondInterestIndexedTransactionDefinition(final BondSecurityDefinition<N, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate,
+      final double price) {
     super(underlyingBond, quantity, settlementDate, price);
     ArgumentChecker.isTrue(underlyingBond instanceof BondInterestIndexedSecurityDefinition, "interest Indexed bond");
   }
 
+  //TODO: from clean price adjusted monthly (for UK linked-gilts pre-2005).
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return toDerivative(date);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
     return toDerivative(date, data);
@@ -85,7 +98,7 @@ public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefi
     final BondInterestIndexedTransaction<PaymentFixed, Coupon> result = new BondInterestIndexedTransaction<>(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

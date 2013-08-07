@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -128,7 +128,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 public class TestInstrumentDefinitionsAndDerivatives {
@@ -156,7 +156,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final IndexPrice INDEX_PRICE = new IndexPrice("CPI", CUR);
   public static final Convention CONVENTION = new Convention(2, FIXED_DAY_COUNT, BD, C, "");
   public static final ISDACDSPremiumDefinition ISDA_PREMIUM = ISDACDSPremiumDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(5), PeriodFrequency.SEMI_ANNUAL, CONVENTION, StubType.LONG_END, false,
-      NOTIONAL, SPREAD, CUR);
+      NOTIONAL, SPREAD, CUR, C);
 
   public static final CouponFixedDefinition COUPON_FIXED = CouponFixedDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE, SETTLE_DATE, SPOT_LAG, NOTIONAL, FIXED_RATE);
   public static final CouponIborDefinition COUPON_IBOR = CouponIborDefinition.from(NOTIONAL, SETTLE_DATE, IBOR_INDEX_1, C);
@@ -188,7 +188,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final DepositIborDefinition DEPOSIT_IBOR = DepositIborDefinition.fromStart(SETTLE_DATE, NOTIONAL, FIXED_RATE, IBOR_INDEX_1, C);
   public static final DepositZeroDefinition DEPOSIT_ZERO = DepositZeroDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE.plusDays(3), FIXED_DAY_COUNT, new ContinuousInterestRate(0.03), C);
 
-  public static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS });
+  public static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS }, C);
   public static final AnnuityCouponFixedDefinition ANNUITY_FIXED = AnnuityCouponFixedDefinition.from(CUR, SETTLE_DATE, TENOR, FIXED_PERIOD, C, FIXED_DAY_COUNT, BD, IS_EOM, NOTIONAL, FIXED_RATE,
       IS_PAYER);
   public static final AnnuityCouponFixedDefinition ANNUITY_FIXED_UNIT_NOTIONAL = AnnuityCouponFixedDefinition.from(CUR, SETTLE_DATE, TENOR, FIXED_PERIOD, C, FIXED_DAY_COUNT, BD, IS_EOM, 1,
@@ -198,7 +198,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_RECEIVE = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_2, SPREAD, !IS_PAYER, C);
   public static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_PAY = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_1, 0.0, IS_PAYER, C);
   public static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<>(new PaymentFixedDefinition[] {
-      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) });
+      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) }, C);
 
   public static final BillSecurityDefinition BILL_SECURITY = new BillSecurityDefinition(CUR, SETTLE_DATE.plusYears(1), NOTIONAL, 0, C, SimpleYieldConvention.BANK_OF_CANADA, FIXED_DAY_COUNT, "");
   public static final BillTransactionDefinition BILL_TRANSACTION = new BillTransactionDefinition(BILL_SECURITY, 100, SETTLE_DATE, -100);

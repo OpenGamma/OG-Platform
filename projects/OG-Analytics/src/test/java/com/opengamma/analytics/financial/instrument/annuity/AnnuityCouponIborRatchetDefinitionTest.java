@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -76,7 +76,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
       cpn[loopcpn] = new CouponIborRatchetDefinition(CUR, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], DAY_COUNT.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), NOTIONAL, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -SETTLEMENT_DAYS, CALENDAR), IBOR_INDEX, MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
     }
-    final AnnuityCouponIborRatchetDefinition annuity = new AnnuityCouponIborRatchetDefinition(cpn);
+    final AnnuityCouponIborRatchetDefinition annuity = new AnnuityCouponIborRatchetDefinition(cpn, CALENDAR);
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
       assertEquals("Annuity Ratchet Ibor: constructor", cpn[loopcpn], annuity.getNthPayment(loopcpn));
     }
@@ -94,7 +94,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
       cpn[loopcpn] = new CouponIborRatchetDefinition(CUR, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], DAY_COUNT.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), NOTIONAL, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -SETTLEMENT_DAYS, CALENDAR), IBOR_INDEX, MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
     }
-    final AnnuityCouponIborRatchetDefinition annuity = new AnnuityCouponIborRatchetDefinition(cpn);
+    final AnnuityCouponIborRatchetDefinition annuity = new AnnuityCouponIborRatchetDefinition(cpn, CALENDAR);
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
       assertEquals("Annuity Ratchet Ibor: constructor", cpn[loopcpn], annuity.getNthPayment(loopcpn));
     }

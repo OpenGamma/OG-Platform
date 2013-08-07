@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.fra.derivative;
@@ -104,7 +104,7 @@ public class ForwardRateAgreement extends CouponFloating {
     _forwardCurveName = null;
     _rate = rate;
   }
-  
+
   /**
    * Gets the Ibor index.
    * @return The index.
@@ -157,9 +157,13 @@ public class ForwardRateAgreement extends CouponFloating {
     }
     return _forwardCurveName;
   }
-  
+
   @Override
-  public ForwardRateAgreement withNotional(double notional) {
+  public ForwardRateAgreement withNotional(final double notional) {
+    if (_forwardCurveName == null) {
+      return new ForwardRateAgreement(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _index, getFixingTime(), _fixingPeriodStartTime, _fixingPeriodEndTime,
+          _fixingYearFraction, _rate);
+    }
     return new ForwardRateAgreement(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, getFixingTime(), _fixingPeriodStartTime, _fixingPeriodEndTime,
         _fixingYearFraction, _rate, _forwardCurveName);
   }

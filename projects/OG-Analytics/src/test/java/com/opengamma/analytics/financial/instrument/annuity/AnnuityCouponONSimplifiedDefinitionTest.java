@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -31,7 +31,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class AnnuityCouponONSimplifiedDefinitionTest {
 
@@ -69,7 +69,7 @@ public class AnnuityCouponONSimplifiedDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupons() {
-    new AnnuityCouponONSimplifiedDefinition(null, GENERATOR.getIndex());
+    new AnnuityCouponONSimplifiedDefinition(null, GENERATOR.getIndex(), null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

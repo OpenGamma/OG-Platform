@@ -48,9 +48,9 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
   public InterestRateFutureOptionPremiumSecurityDefinition(final InterestRateFutureSecurityDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     ArgumentChecker.notNull(expirationDate, "expiration");
-    this._underlyingFuture = underlyingFuture;
-    this._expirationDate = expirationDate;
-    this._strike = strike;
+    _underlyingFuture = underlyingFuture;
+    _expirationDate = expirationDate;
+    _strike = strike;
     _isCall = isCall;
   }
 
@@ -94,6 +94,11 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
     return _underlyingFuture.getCurrency();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");

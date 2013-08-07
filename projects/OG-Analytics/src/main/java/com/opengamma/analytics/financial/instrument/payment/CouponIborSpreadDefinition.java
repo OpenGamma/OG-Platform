@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -58,7 +58,7 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
 
   /**
    * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index.
-   * 
+   *
    * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -79,7 +79,7 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
     _index = index;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
     _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
-    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
+    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate, calendar);
     _spread = spread;
     _spreadAmount = spread * getNotional() * getPaymentYearFraction();
     _calendar = calendar;
@@ -229,6 +229,11 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -254,7 +259,9 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
    * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with spread is returned.
    * If the fixing date is strictly after the conversion date, a coupon Ibor with spread is returned.
    * All the comparisons are between dates without time.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");

@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
@@ -68,9 +67,9 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
   public GeneratorSwapFixedInflationZeroCoupon(final String name, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
       final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean isLinear) {
     super(name);
-    Validate.notNull(indexPrice, "index price");
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(businessDayConvention, "businessDayConvention");
+    ArgumentChecker.notNull(indexPrice, "index price");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(businessDayConvention, "businessDayConvention");
     _indexPrice = indexPrice;
     _priceIndexTimeSeries = priceIndexTimeSeries;
     _businessDayConvention = businessDayConvention;
@@ -145,10 +144,11 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
     return _isLinear;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The effective date is spot+startTenor. The maturity date is effective date + endTenor
    */
+  @Override
   public SwapFixedInflationZeroCouponDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -33,7 +33,8 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
    * @param settlementDate Transaction settlement date.
    * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
+  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate,
+      final double price) {
     super(underlyingBond, quantity, settlementDate, price);
     _accruedInterestAtSettlement = 0;
     final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
@@ -64,6 +65,11 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     return (BondFixedSecurityDefinition) super.getUnderlyingBond();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFixedTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.

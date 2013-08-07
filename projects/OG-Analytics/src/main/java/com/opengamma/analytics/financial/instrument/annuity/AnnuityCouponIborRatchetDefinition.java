@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -24,6 +23,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A wrapper class for a AnnuityDefinition containing mainly CouponIborRatchetDefinition. The first coupon should be a CouponFixedDefinition or a CouponIborGearingDefinition.
@@ -38,13 +38,14 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
   /**
    * Constructor from a list of Ibor-like coupons.
    * @param payments The Ibor coupons.
+   * @param calendar The calendar
    */
-  public AnnuityCouponIborRatchetDefinition(final CouponDefinition[] payments) {
-    super(payments);
-    Validate.isTrue((payments[0] instanceof CouponFixedDefinition) || (payments[0] instanceof CouponIborGearingDefinition),
+  public AnnuityCouponIborRatchetDefinition(final CouponDefinition[] payments, final Calendar calendar) {
+    super(payments, calendar);
+    ArgumentChecker.isTrue((payments[0] instanceof CouponFixedDefinition) || (payments[0] instanceof CouponIborGearingDefinition),
         "First coupon should be CouponFixedDefinition or a CouponIborGearingDefinition");
     for (int looppay = 1; looppay < payments.length; looppay++) {
-      Validate.isTrue((payments[looppay] instanceof CouponIborRatchetDefinition), "Next coupons should be CouponIborRatchetDefinition");
+      ArgumentChecker.isTrue((payments[looppay] instanceof CouponIborRatchetDefinition), "Next coupons should be CouponIborRatchetDefinition");
     }
   }
 
@@ -72,14 +73,15 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
         index.isEndOfMonth());
     final CouponDefinition[] coupons = new CouponDefinition[paymentDates.length];
     final double notionalSign = notional * (isPayer ? -1.0 : 1.0);
-    coupons[0] = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0]),
-        notionalSign, firstCouponFixedRate);
+    coupons[0] = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0],
+        index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0], calendar), notionalSign, firstCouponFixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], index.getDayCount().getDayCountFraction(
-          paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar), index,
-          mainCoefficients, floorCoefficients, capCoefficients, calendar);
+      coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          index.getDayCount().getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), notionalSign,
+          ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar), index, mainCoefficients, floorCoefficients,
+          capCoefficients, calendar);
     }
-    return new AnnuityCouponIborRatchetDefinition(coupons);
+    return new AnnuityCouponIborRatchetDefinition(coupons, calendar);
   }
 
   /**
@@ -102,19 +104,24 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
         index.isEndOfMonth());
     final CouponDefinition[] coupons = new CouponDefinition[paymentDates.length];
     final double notionalSign = notional * (isPayer ? -1.0 : 1.0);
-    coupons[0] = CouponIborGearingDefinition.from(settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0]), notionalSign, index, mainCoefficients[2],
-        mainCoefficients[1], calendar);
+    coupons[0] = CouponIborGearingDefinition.from(settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0], calendar),
+        notionalSign, index, mainCoefficients[2], mainCoefficients[1], calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], index.getDayCount().getDayCountFraction(
-          paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar), index,
-          mainCoefficients, floorCoefficients, capCoefficients, calendar);
+      coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          index.getDayCount().getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), notionalSign,
+          ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar), index, mainCoefficients, floorCoefficients, capCoefficients, calendar);
     }
-    return new AnnuityCouponIborRatchetDefinition(coupons);
+    return new AnnuityCouponIborRatchetDefinition(coupons, calendar);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public AnnuityCouponIborRatchet toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
     final List<Coupon> cpnList = new ArrayList<>();
     final List<Double> fixedCpn = new ArrayList<>();
     final boolean[] isFixed = new boolean[getNumberOfPayments()];
@@ -166,6 +173,66 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
               .get(loopcpn), cpn.getAccrualStartDate(), cpn.getAccrualEndDate()));
         } else {
           cpnList.add(((CouponIborRatchetDefinition) cpn).toDerivative(date, yieldCurveNames));
+        }
+      }
+    }
+    return new AnnuityCouponIborRatchet(cpnList.toArray(EMPTY_ARRAY_CPN));
+  }
+
+  @Override
+  public AnnuityCouponIborRatchet toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
+    ArgumentChecker.notNull(date, "date");
+    final List<Coupon> cpnList = new ArrayList<>();
+    final List<Double> fixedCpn = new ArrayList<>();
+    final boolean[] isFixed = new boolean[getNumberOfPayments()];
+
+    // List of fixing
+    if (getPayments()[0] instanceof CouponFixedDefinition) { // CouponFixedDefinition
+      isFixed[0] = true;
+    } else { // CouponIborGearingDefinition
+      isFixed[0] = (indexFixingTS.getValue(((CouponIborGearingDefinition) getPayments()[0]).getFixingDate())) != null;
+    }
+    for (int loopcpn = 1; loopcpn < getNumberOfPayments(); loopcpn++) {
+      isFixed[loopcpn] = (indexFixingTS.getValue(((CouponIborRatchetDefinition) getPayments()[loopcpn]).getFixingDate())) != null;
+    }
+    // Already fixed coupons
+    if (getPayments()[0] instanceof CouponFixedDefinition) { // CouponFixedDefinition
+      fixedCpn.add(((CouponFixedDefinition) getNthPayment(0)).getRate());
+    } else { // CouponIborDefinition
+      if (isFixed[0]) {
+        final CouponIborGearingDefinition cpnIbor = (CouponIborGearingDefinition) getPayments()[0];
+        fixedCpn.add(indexFixingTS.getValue(cpnIbor.getFixingDate()) * cpnIbor.getFactor() + cpnIbor.getSpread());
+      }
+    }
+    for (int loopcpn = 1; loopcpn < getNumberOfPayments(); loopcpn++) {
+      if (isFixed[loopcpn]) {
+        final CouponIborRatchetDefinition cpnRatchet = (CouponIborRatchetDefinition) getPayments()[loopcpn];
+        final double ibor = indexFixingTS.getValue(cpnRatchet.getFixingDate());
+        final double cpnMain = cpnRatchet.getMainCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getMainCoefficients()[1] * ibor + cpnRatchet.getMainCoefficients()[2];
+        final double cpnFloor = cpnRatchet.getFloorCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getFloorCoefficients()[1] * ibor + cpnRatchet.getFloorCoefficients()[2];
+        final double cpnCap = cpnRatchet.getCapCoefficients()[0] * fixedCpn.get(loopcpn - 1) + cpnRatchet.getCapCoefficients()[1] * ibor + cpnRatchet.getCapCoefficients()[2];
+        final double cpnActual = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
+        fixedCpn.add(cpnActual);
+      }
+    }
+    // Derivatives
+    final CouponDefinition cpn0 = getNthPayment(0);
+    if (!date.isAfter(cpn0.getPaymentDate())) {
+      if (isFixed[0]) {
+        cpnList.add(new CouponFixed(getCurrency(), TimeCalculator.getTimeBetween(date, cpn0.getPaymentDate()), cpn0.getPaymentYearFraction(), cpn0.getNotional(), fixedCpn.get(0),
+            cpn0.getAccrualStartDate(), cpn0.getAccrualEndDate()));
+      } else { // CouponIborGearingDefinition
+        cpnList.add(((CouponIborGearingDefinition) cpn0).toDerivative(date));
+      }
+    }
+    for (int loopcpn = 1; loopcpn < getNumberOfPayments(); loopcpn++) {
+      final CouponDefinition cpn = getNthPayment(loopcpn);
+      if (!date.isAfter(getNthPayment(loopcpn).getPaymentDate())) {
+        if (isFixed[loopcpn]) {
+          cpnList.add(new CouponFixed(getCurrency(), TimeCalculator.getTimeBetween(date, cpn.getPaymentDate()), cpn.getPaymentYearFraction(), cpn.getNotional(), fixedCpn
+              .get(loopcpn), cpn.getAccrualStartDate(), cpn.getAccrualEndDate()));
+        } else {
+          cpnList.add(((CouponIborRatchetDefinition) cpn).toDerivative(date));
         }
       }
     }

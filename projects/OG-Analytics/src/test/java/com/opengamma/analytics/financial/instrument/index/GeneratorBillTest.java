@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.index;
@@ -60,7 +60,7 @@ public class GeneratorBillTest {
     final GeneratorAttribute attribute = new GeneratorAttribute();
     final BillTransactionDefinition billGenerated = GENERATOR_BILL.generateInstrument(REFERENCE_DATE, marketQuote, notional, attribute);
     final ZonedDateTime dettleDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
-    final BillTransactionDefinition billExpected = BillTransactionDefinition.fromYield(BILL_BEL_SEC_DEFINITION, quantity, dettleDate, marketQuote);
+    final BillTransactionDefinition billExpected = BillTransactionDefinition.fromYield(BILL_BEL_SEC_DEFINITION, quantity, dettleDate, marketQuote, CALENDAR);
     assertEquals("Bill Generator: generate instrument", billExpected, billGenerated);
   }
 

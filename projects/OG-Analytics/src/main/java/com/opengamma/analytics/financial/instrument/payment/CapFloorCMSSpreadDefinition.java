@@ -62,6 +62,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   /**
    * The calendar associated with the second leg.
    */
+  @SuppressWarnings("unused")
   private final Calendar _calendar2;
 
   /**
@@ -241,6 +242,11 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -267,6 +273,11 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
         fundingCurveName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

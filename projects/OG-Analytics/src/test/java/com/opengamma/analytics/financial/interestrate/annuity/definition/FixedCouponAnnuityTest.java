@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity.definition;
@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class FixedCouponAnnuityTest {
   private static final double[] PAYMENT_TIMES = new double[] {0.5, 1, 1.5, 2, 2.5, 3};
@@ -61,7 +61,7 @@ public class FixedCouponAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
-    new AnnuityCouponFixed(CUR, PAYMENT_TIMES, NOTIONAL, COUPON_RATE, null, true);
+    new AnnuityCouponFixed(CUR, PAYMENT_TIMES, NOTIONAL, COUPON_RATE, (String) null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

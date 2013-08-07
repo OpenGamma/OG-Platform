@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -83,14 +82,15 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    * @param payNotional  The flag indicating if the inflation year on year coupons are paying the notional (TRUE) or not (FALSE).
    * @param isLinear The flag indicating if price index is interpolated linearly (TRUE) or piecewise constant (FALSE).
    */
-  public GeneratorSwapFixedInflationYearOnYear(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
-      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean payNotional, final boolean isLinear) {
+  public GeneratorSwapFixedInflationYearOnYear(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IndexPrice indexPrice,
+      final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final BusinessDayConvention businessDayConvention, final Calendar calendar,
+      final boolean endOfMonth, final int monthLag, final int spotLag, final boolean payNotional, final boolean isLinear) {
     super(name);
-    Validate.notNull(fixedLegPeriod, "fixed leg period");
-    Validate.notNull(fixedLegDayCount, "fixed leg day count");
-    Validate.notNull(indexPrice, "index price");
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(businessDayConvention, "businessDayConvention");
+    ArgumentChecker.notNull(fixedLegPeriod, "fixed leg period");
+    ArgumentChecker.notNull(fixedLegDayCount, "fixed leg day count");
+    ArgumentChecker.notNull(indexPrice, "index price");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(businessDayConvention, "businessDayConvention");
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _indexPrice = indexPrice;
@@ -192,10 +192,11 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     return _isLinear;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The effective date is spot+startTenor. The maturity date is effective date + endTenor
    */
+  @Override
   public SwapFixedInflationYearOnYearDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

@@ -204,9 +204,6 @@ public class GeneratorSwapIborON extends GeneratorInstrument<GeneratorAttributeI
   }
 
   @Override
-  /**
-   * The effective date is spot+startTenor. The end of fixing period is effective date+tenor.
-   */
   public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final double spread, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

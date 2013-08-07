@@ -31,9 +31,12 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    * Zero-coupon inflation swap constructor for the fixed and inflation coupons.
    * @param fixedCpn The swap fixed leg.
    * @param inflationCpn The swap inflation leg.
+   * @param calendar The holiday calendar
    */
-  public SwapFixedInflationZeroCouponDefinition(final CouponFixedCompoundingDefinition fixedCpn, final CouponInflationDefinition inflationCpn) {
-    super(new AnnuityDefinition<PaymentDefinition>(new CouponFixedCompoundingDefinition[] {fixedCpn }), new AnnuityDefinition<PaymentDefinition>(new CouponInflationDefinition[] {inflationCpn }));
+  public SwapFixedInflationZeroCouponDefinition(final CouponFixedCompoundingDefinition fixedCpn, final CouponInflationDefinition inflationCpn,
+      final Calendar calendar) {
+    super(new AnnuityDefinition<PaymentDefinition>(new CouponFixedCompoundingDefinition[] {fixedCpn}, calendar),
+        new AnnuityDefinition<PaymentDefinition>(new CouponInflationDefinition[] {inflationCpn}, calendar));
   }
 
   /**
@@ -65,7 +68,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
         fixedRate);
     final CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional, index,
         priceIndexTimeSeries, conventionalMonthLag, monthLag, false);
-    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
+    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn, calendar);
   }
 
   /**
@@ -92,7 +95,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
         fixedRate);
     final CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional,
         generator.getIndexPrice(), priceIndexTimeSeries, generator.getMonthLag(), generator.getMonthLag(), false);
-    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
+    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn, generator.getCalendar());
   }
 
   /**
@@ -125,7 +128,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
         fixedRate);
     final CouponInflationZeroCouponMonthlyDefinition inflationCpn = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional, index,
         priceIndexTimeSeries, conventionalMonthLag, monthLag, false);
-    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
+    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn, calendar);
   }
 
   /**
@@ -153,6 +156,6 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
     final CouponInflationZeroCouponMonthlyDefinition inflationCpn = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional,
         generator.getIndexPrice(),
         priceIndexTimeSeries, generator.getMonthLag(), generator.getMonthLag(), false);
-    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);
+    return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn, generator.getCalendar());
   }
 }

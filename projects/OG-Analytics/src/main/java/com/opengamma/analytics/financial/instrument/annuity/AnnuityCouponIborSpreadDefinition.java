@@ -40,9 +40,10 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
   /**
    * Constructor from a list of Ibor-like coupons.
    * @param payments The Ibor coupons.
+   * @param calendar The calendar
    */
-  public AnnuityCouponIborSpreadDefinition(final CouponIborSpreadDefinition[] payments) {
-    super(payments);
+  public AnnuityCouponIborSpreadDefinition(final CouponIborSpreadDefinition[] payments, final Calendar calendar) {
+    super(payments, calendar);
     _iborIndex = payments[0].getIndex();
     _calendar = payments[0].getCalendar();
   }
@@ -68,7 +69,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), spread);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons);
+    return new AnnuityCouponIborSpreadDefinition(coupons, calendar);
   }
 
   /**
@@ -99,14 +100,14 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, true, false, businessDayConvention, calendar, endOfMonth);
     final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[paymentDates.length];
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), calendar);
-    coupons[0] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional,
-        fixingDate, index, spread, calendar);
+    coupons[0] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0],
+        dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar), sign * notional, fixingDate, index, spread, calendar);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar);
-      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(
-          paymentDates[loopcpn - 1], paymentDates[loopcpn]), sign * notional, fixingDate, index, spread, calendar);
+      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, spread, calendar);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons);
+    return new AnnuityCouponIborSpreadDefinition(coupons, calendar);
   }
 
   /**
@@ -130,7 +131,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), spread);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons);
+    return new AnnuityCouponIborSpreadDefinition(coupons, calendar);
   }
 
   public static AnnuityCouponIborSpreadDefinition from(final AnnuityCouponIborDefinition iborAnnuity) {
@@ -138,7 +139,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), 0);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons);
+    return new AnnuityCouponIborSpreadDefinition(coupons, iborAnnuity.getCalendar());
   }
 
   /**
@@ -157,6 +158,11 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     return _calendar;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Annuity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -170,6 +176,11 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     return new Annuity<>(resultList.toArray(new Coupon[resultList.size()]));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Annuity<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

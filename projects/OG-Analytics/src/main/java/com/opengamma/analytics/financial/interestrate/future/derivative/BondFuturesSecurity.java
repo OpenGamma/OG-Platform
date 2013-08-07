@@ -1,17 +1,16 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -63,20 +62,20 @@ public class BondFuturesSecurity implements InstrumentDerivative {
    * @param deliveryBasket The basket of deliverable bonds.
    * @param conversionFactor The conversion factor of each bond in the basket.
    */
-  public BondFuturesSecurity(double tradingLastTime, double noticeFirstTime, double noticeLastTime, double deliveryFirstTime, double deliveryLastTime, double notional,
-      BondFixedSecurity[] deliveryBasket, double[] conversionFactor) {
-    Validate.notNull(deliveryBasket, "Delivery basket");
-    Validate.notNull(conversionFactor, "Conversion factors");
-    Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
-    Validate.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
-    this._tradingLastTime = tradingLastTime;
-    this._noticeFirstTime = noticeFirstTime;
-    this._noticeLastTime = noticeLastTime;
-    this._deliveryFirstTime = deliveryFirstTime;
-    this._deliveryLastTime = deliveryLastTime;
-    this._deliveryBasket = deliveryBasket;
-    this._conversionFactor = conversionFactor;
-    this._notional = notional;
+  public BondFuturesSecurity(final double tradingLastTime, final double noticeFirstTime, final double noticeLastTime, final double deliveryFirstTime,
+      final double deliveryLastTime, final double notional, final BondFixedSecurity[] deliveryBasket, final double[] conversionFactor) {
+    ArgumentChecker.notNull(deliveryBasket, "Delivery basket");
+    ArgumentChecker.notNull(conversionFactor, "Conversion factors");
+    ArgumentChecker.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
+    ArgumentChecker.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
+    _tradingLastTime = tradingLastTime;
+    _noticeFirstTime = noticeFirstTime;
+    _noticeLastTime = noticeLastTime;
+    _deliveryFirstTime = deliveryFirstTime;
+    _deliveryLastTime = deliveryLastTime;
+    _deliveryBasket = deliveryBasket;
+    _conversionFactor = conversionFactor;
+    _notional = notional;
   }
 
   /**
@@ -184,7 +183,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -194,7 +193,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFuturesSecurity other = (BondFuturesSecurity) obj;
+    final BondFuturesSecurity other = (BondFuturesSecurity) obj;
     if (!Arrays.equals(_conversionFactor, other._conversionFactor)) {
       return false;
     }

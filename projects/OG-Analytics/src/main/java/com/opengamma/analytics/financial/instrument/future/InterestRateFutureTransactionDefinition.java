@@ -68,9 +68,11 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
    * @param notional  The notional
    * @param paymentAccrualFactor The payment accrual factor, not negative or zero
    * @param name The name, not null
+   * @param calendar The holiday calendar, not null
    */
   public InterestRateFutureTransactionDefinition(final ZonedDateTime transactionDate, final double transactionPrice, final int quantity, final ZonedDateTime lastTradingDate,
-      final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor, final String name) {
+      final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor,
+      final String name, final Calendar calendar) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(fixingPeriodStartDate, "Fixing period start date");
     ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing period end date");
@@ -81,7 +83,8 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
     _transactionDate = transactionDate;
     _transactionPrice = transactionPrice;
     _quantity = quantity;
-    _underlying = new InterestRateFutureSecurityDefinition(lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex, notional, paymentAccrualFactor, name);
+    _underlying = new InterestRateFutureSecurityDefinition(lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex, notional, paymentAccrualFactor,
+        name, calendar);
   }
 
   /**
@@ -105,7 +108,7 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
     final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, -iborIndex.getSpotLag(), calendar);
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, iborIndex, calendar);
     return new InterestRateFutureTransactionDefinition(transactionDate, transactionPrice, quantity, lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex, notional,
-        paymentAccrualFactor, name);
+        paymentAccrualFactor, name, calendar);
   }
 
   /**
@@ -206,13 +209,15 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
 
   public InterestRateFutureTransactionDefinition withNewNotionalAndTransactionPrice(final double notional, final double transactionPrice) {
     return new InterestRateFutureTransactionDefinition(_transactionDate, transactionPrice, _quantity, getLastTradingDate(), getFixingPeriodStartDate(), getFixingPeriodEndDate(), getIborIndex(),
-        notional, getPaymentAccrualFactor(), getName());
+        notional, getPaymentAccrualFactor(), getName(), _underlying.getCalendar());
   }
 
   /**
    * {@inheritDoc}
    * @param lastMarginPrice The price on which the last margining was done.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public InterestRateFutureTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -264,6 +269,11 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
     return future;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");

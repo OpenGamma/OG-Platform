@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -120,7 +120,7 @@ public class BondFixedSecurityDefinitionTest {
   public void testPositiveNominal() {
     final AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true,
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, false);
-    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0) });
+    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)}, CALENDAR);
     new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   }
 
@@ -128,7 +128,7 @@ public class BondFixedSecurityDefinitionTest {
   public void testPositiveCoupon() {
     final AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true,
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, true);
-    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, 1.0) });
+    final AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, 1.0) }, CALENDAR);
     new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   }
 
@@ -144,7 +144,7 @@ public class BondFixedSecurityDefinitionTest {
         CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0, RATE, false);
     assertEquals(coupon, BOND_SECURITY_DEFINITION.getCoupons());
     final AnnuityDefinition<PaymentFixedDefinition> nominal = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR,
-        BUSINESS_DAY.adjustDate(CALENDAR, MATURITY_DATE), 1.0) });
+        BUSINESS_DAY.adjustDate(CALENDAR, MATURITY_DATE), 1.0) }, CALENDAR);
     assertEquals(nominal.getCurrency(), BOND_SECURITY_DEFINITION.getNominal().getCurrency());
     assertEquals(nominal.getNthPayment(0).getPaymentDate(), BOND_SECURITY_DEFINITION.getNominal().getNthPayment(0).getPaymentDate());
     assertEquals(nominal.getNthPayment(0).getReferenceAmount(), BOND_SECURITY_DEFINITION.getNominal().getNthPayment(0).getReferenceAmount());
@@ -265,7 +265,7 @@ public class BondFixedSecurityDefinitionTest {
     final CouponFixedDefinition[] couponDefinitionExArray = new CouponFixedDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 1, couponDefinitionExArray, 1, couponDefinition.getNumberOfPayments() - 1);
     couponDefinitionExArray[0] = new CouponFixedDefinition(couponDefinition.getNthPayment(0), 0.0);
-    final AnnuityCouponFixedDefinition couponDefinitionEx = new AnnuityCouponFixedDefinition(couponDefinitionExArray);
+    final AnnuityCouponFixedDefinition couponDefinitionEx = new AnnuityCouponFixedDefinition(couponDefinitionExArray, CALENDAR_G);
     final AnnuityPaymentFixed nominal = nominalDefinition.toDerivative(referenceDate2, CURVES_NAME);
     final AnnuityCouponFixed coupon = couponDefinitionEx.toDerivative(referenceDate2, CURVES_NAME);
     final double spotTime = ACT_ACT.getDayCountFraction(referenceDate2, spotDate);

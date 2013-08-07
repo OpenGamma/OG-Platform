@@ -78,7 +78,7 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
     while (currentDate.isBefore(fixingPeriodEndDate)) {
       nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, calendar);
       fixingDateList.add(nextDate);
-      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate));
+      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate, calendar));
       currentDate = nextDate;
     }
     _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[fixingDateList.size()]);
@@ -120,7 +120,7 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
       final int paymentLag, final Calendar calendar) {
     ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing Period End Date");
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, calendar);
-    final double paymentAccrualFactor = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate);
+    final double paymentAccrualFactor = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate, calendar);
     return new CouponArithmeticAverageONDefinition(index.getCurrency(), paymentDate, fixingPeriodStartDate, fixingPeriodEndDate, paymentAccrualFactor,
         notional, index, fixingPeriodStartDate, fixingPeriodEndDate, calendar);
   }
@@ -149,6 +149,11 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
     return _fixingPeriodAccrualFactor;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponArithmeticAverageON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!_fixingPeriodDate[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
@@ -157,6 +162,11 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
     return CouponArithmeticAverageON.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactor, 0);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     return null; // TODO

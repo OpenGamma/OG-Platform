@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -186,7 +186,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
     final double[] discountedCashFlowBar = new double[cfe.getNumberOfPayments()];
     final double[] dfBar = new double[cfe.getNumberOfPayments()];
     final double[] cfeAmountBar = new double[cfe.getNumberOfPayments()];
-    final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       discountedCashFlowBar[loopcf] = ncdf[loopcf] * pvBar;
       dfBar[loopcf] = cfe.getNthPayment(loopcf).getAmount() * discountedCashFlowBar[loopcf];
@@ -194,7 +194,7 @@ public final class SwaptionPhysicalFixedIborHullWhiteMethod {
       final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(hullWhite.getMulticurveProvider().getName(ccy), listDfSensi);
 
     MulticurveSensitivity sensitivity = MulticurveSensitivity.ofYieldDiscounting(pvsDF);

@@ -110,6 +110,11 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
     return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");

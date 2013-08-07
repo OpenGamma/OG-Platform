@@ -15,11 +15,10 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Finds a single root of a function using Ridder's method. This class is a wrapper for the 
+ * Finds a single root of a function using Ridder's method. This class is a wrapper for the
  * <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/analysis/solvers/RiddersSolver.html">Commons Math library implementation</a>
  * of Ridder's method.
  */
-@SuppressWarnings("deprecation")
 public class RidderSingleRootFinder extends RealSingleRootFinder {
 
   private static final int MAX_ITER = 10000;
@@ -52,17 +51,17 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
 
   /**
    * {@inheritDoc}
-   * @throws MathException If the Commons method could not evaluate the function; if the Commons method could not converge. 
+   * @throws MathException If the Commons method could not evaluate the function; if the Commons method could not converge.
    */
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double xLow, final Double xHigh) {
     checkInputs(function, xLow, xHigh);
-    UnivariateRealFunction wrapped = CommonsMathWrapper.wrapUnivariate(function);
+    final UnivariateRealFunction wrapped = CommonsMathWrapper.wrapUnivariate(function);
     try {
       return _ridder.solve(wrapped, xLow, xHigh);
-    } catch (MaxIterationsExceededException e) {
+    } catch (final MaxIterationsExceededException e) {
       throw new MathException(e);
-    } catch (FunctionEvaluationException e) {
+    } catch (final FunctionEvaluationException e) {
       throw new MathException(e);
     }
   }

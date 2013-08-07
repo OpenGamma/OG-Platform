@@ -66,10 +66,11 @@ public class GeneratorFRA extends GeneratorInstrument<GeneratorAttributeIR> {
     return _calendar;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The FRA is from spot+(endtenor-_iborIndex.getTenor()) to spot + endtenor. The start period is not used.
    */
+  @Override
   public ForwardRateAgreementDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

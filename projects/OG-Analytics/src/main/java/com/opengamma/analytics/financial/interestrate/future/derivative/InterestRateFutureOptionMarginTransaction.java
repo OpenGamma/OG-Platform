@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -39,10 +38,10 @@ public class InterestRateFutureOptionMarginTransaction implements InstrumentDeri
   * @param referencePrice The reference price.
   */
   public InterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginSecurity underlyingOption, final int quantity, final double referencePrice) {
-    Validate.notNull(underlyingOption, "underlying option");
-    this._underlyingOption = underlyingOption;
-    this._quantity = quantity;
-    this._referencePrice = referencePrice;
+    ArgumentChecker.notNull(underlyingOption, "underlying option");
+    _underlyingOption = underlyingOption;
+    _quantity = quantity;
+    _referencePrice = referencePrice;
   }
 
   /**

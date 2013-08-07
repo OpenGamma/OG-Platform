@@ -1,14 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -19,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborRatchet;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A wrapper class for a AnnuityDefinition containing mainly CouponIborRatchetDefinition. The first coupon should be a CouponFixed or a CouponIborGearing.
@@ -36,8 +35,6 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
     FORWARD_COUPON
   }
 
-  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-
   /**
    * Flag indicating if a coupon is already fixed.
    */
@@ -49,10 +46,10 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
   public AnnuityCouponIborRatchet(final Coupon[] payments) {
     super(payments);
     _isFixed = new boolean[payments.length];
-    Validate.isTrue((payments[0] instanceof CouponFixed) || (payments[0] instanceof CouponIborGearing), "First coupon should be CouponFixed or a CouponIborGearing");
+    ArgumentChecker.isTrue((payments[0] instanceof CouponFixed) || (payments[0] instanceof CouponIborGearing), "First coupon should be CouponFixed or a CouponIborGearing");
     _isFixed[0] = (payments[0] instanceof CouponFixed);
     for (int looppay = 1; looppay < payments.length; looppay++) {
-      Validate.isTrue((payments[looppay] instanceof CouponFixed) || (payments[looppay] instanceof CouponIborRatchet), "Next coupons should be CouponFixed or CouponIborRatchet");
+      ArgumentChecker.isTrue((payments[looppay] instanceof CouponFixed) || (payments[looppay] instanceof CouponIborRatchet), "Next coupons should be CouponFixed or CouponIborRatchet");
       _isFixed[looppay] = (payments[looppay] instanceof CouponFixed);
     }
   }
@@ -65,8 +62,16 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
     return _isFixed;
   }
 
+  /**
+   * @param type The calibration type
+   * @param curves The yield curves
+   * @return A list of coupons that are used in calibration
+   * @deprecated {@link YieldCurveBundle} is deprecated
+   */
+  @Deprecated
   public InstrumentDerivative[] calibrationBasket(final RatchetIborCalibrationType type, final YieldCurveBundle curves) {
     final ArrayList<InstrumentDerivative> calibration = new ArrayList<>();
+    final ParRateCalculator prc = ParRateCalculator.getInstance();
     switch (type) {
       case FORWARD_COUPON:
         final int nbCpn = getNumberOfPayments();
@@ -74,7 +79,7 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
         for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
           if (getNthPayment(loopcpn) instanceof CouponIborRatchet) {
             final CouponIborRatchet cpn = (CouponIborRatchet) getNthPayment(loopcpn);
-            final double ibor = PRC.visitCouponIborSpread(cpn, curves);
+            final double ibor = prc.visitCouponIborSpread(cpn, curves);
             final double cpnMain = cpn.getMainCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getMainCoefficients()[1] * ibor + cpn.getMainCoefficients()[2];
             final double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
             final double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];
@@ -87,7 +92,7 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
               cpnRate[loopcpn] = cpn.getFixedRate();
             } else {
               final CouponIborGearing cpn = (CouponIborGearing) getNthPayment(loopcpn);
-              final double ibor = PRC.visitCouponIborGearing(cpn, curves);
+              final double ibor = prc.visitCouponIborGearing(cpn, curves);
               cpnRate[loopcpn] = cpn.getFactor() * ibor + cpn.getSpread();
             }
           }

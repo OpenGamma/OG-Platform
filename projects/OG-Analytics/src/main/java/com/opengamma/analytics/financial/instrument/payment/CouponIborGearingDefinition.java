@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -57,7 +57,7 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
 
   /**
    * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index.
-   * 
+   *
    * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -78,7 +78,7 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
     _index = index;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
     _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
-    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
+    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate, calendar);
     _spread = spread;
     _spreadAmount = spread * getNotional() * getPaymentYearFraction();
     _factor = factor;
@@ -175,6 +175,11 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
     return _factor;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponIborGearing toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -194,13 +199,16 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
         getFixingPeriodAccrualFactor(), _spread, _factor, forwardCurveName);
   }
 
-  @Override
   /**
    * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned.
    * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with gearing is returned.
    * If the fixing date is strictly after the conversion date, a coupon Ibor with gearing is returned.
    * All the comparisons are between dates without time.
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
+  @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
@@ -247,13 +255,14 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
         getFixingPeriodAccrualFactor(), _spread, _factor);
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned.
    * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with gearing is returned.
    * If the fixing date is strictly after the conversion date, a coupon Ibor with gearing is returned.
    * All the comparisons are between dates without time.
    */
+  @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
@@ -280,7 +289,7 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
     return new CouponIborGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), _spread, _factor);
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

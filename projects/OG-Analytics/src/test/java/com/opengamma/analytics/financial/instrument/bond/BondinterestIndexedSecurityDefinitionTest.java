@@ -85,7 +85,7 @@ public class BondinterestIndexedSecurityDefinitionTest {
   public void constructorBondsWithFirstCouponDate() {
     // Nominal construction
     final PaymentFixedDefinition nominalPayment = new PaymentFixedDefinition(PRICE_INDEX_UKRPI.getCurrency(), BUSINESS_DAY_GBP.adjustDate(CALENDAR_GBP, MATURITY_DATE_1), NOTIONAL_1);
-    final AnnuityDefinition<PaymentFixedDefinition> nominalAnnuity = new AnnuityDefinition<>(new PaymentFixedDefinition[] {nominalPayment });
+    final AnnuityDefinition<PaymentFixedDefinition> nominalAnnuity = new AnnuityDefinition<>(new PaymentFixedDefinition[] {nominalPayment }, CALENDAR_GBP);
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(FIRST_COUPON_DATE_1, MATURITY_DATE_1, COUPON_PERIOD_1,
         true, false);
@@ -100,7 +100,7 @@ public class BondinterestIndexedSecurityDefinitionTest {
           NOTIONAL_1, PRICE_INDEX_UKRPI, MONTH_LAG_1, true);
     }
     final AnnuityDefinition<CouponInflationYearOnYearMonthlyWithMarginDefinition> couponAnnuity = new AnnuityDefinition<>(
-        coupons);
+        coupons, CALENDAR_GBP);
     final BondInterestIndexedSecurityDefinition<PaymentFixedDefinition, CouponInflationYearOnYearMonthlyWithMarginDefinition> bond = new BondInterestIndexedSecurityDefinition<>(
         nominalAnnuity, couponAnnuity, 0, 2, CALENDAR_GBP, DAY_COUNT_1, YIELD_CONVENTION_1, IS_EOM_1, MONTH_LAG_1, ISSUER_UK);
     final BondInterestIndexedSecurityDefinition<PaymentFixedDefinition, CouponInflationYearOnYearMonthlyWithMarginDefinition> bondFrom = BondInterestIndexedSecurityDefinition.fromMonthly(
@@ -116,7 +116,7 @@ public class BondinterestIndexedSecurityDefinitionTest {
   public void constructorBondsWithoutFirstCouponDate() {
     // Nominal construction
     final PaymentFixedDefinition nominalPayment = new PaymentFixedDefinition(PRICE_INDEX_UKRPI.getCurrency(), BUSINESS_DAY_GBP.adjustDate(CALENDAR_GBP, MATURITY_DATE_1), NOTIONAL_1);
-    final AnnuityDefinition<PaymentFixedDefinition> nominalAnnuity = new AnnuityDefinition<>(new PaymentFixedDefinition[] {nominalPayment });
+    final AnnuityDefinition<PaymentFixedDefinition> nominalAnnuity = new AnnuityDefinition<>(new PaymentFixedDefinition[] {nominalPayment }, CALENDAR_GBP);
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(START_DATE_1, MATURITY_DATE_1, COUPON_PERIOD_1,
         true, false);
@@ -130,7 +130,7 @@ public class BondinterestIndexedSecurityDefinitionTest {
           NOTIONAL_1, PRICE_INDEX_UKRPI, MONTH_LAG_1, true);
     }
     final AnnuityDefinition<CouponInflationYearOnYearMonthlyWithMarginDefinition> couponAnnuity = new AnnuityDefinition<>(
-        coupons);
+        coupons, CALENDAR_GBP);
     final BondInterestIndexedSecurityDefinition<PaymentFixedDefinition, CouponInflationYearOnYearMonthlyWithMarginDefinition> bond = new BondInterestIndexedSecurityDefinition<>(
         nominalAnnuity, couponAnnuity, 0, 2, CALENDAR_GBP, DAY_COUNT_1, YIELD_CONVENTION_1, IS_EOM_1, MONTH_LAG_1, ISSUER_UK);
     final BondInterestIndexedSecurityDefinition<PaymentFixedDefinition, CouponInflationYearOnYearMonthlyWithMarginDefinition> bondFrom = BondInterestIndexedSecurityDefinition.fromMonthly(

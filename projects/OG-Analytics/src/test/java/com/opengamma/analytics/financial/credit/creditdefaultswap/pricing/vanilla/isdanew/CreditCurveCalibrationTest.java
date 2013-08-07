@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -19,13 +19,12 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
- * 
+ *
  */
 public class CreditCurveCalibrationTest {
   private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   private static final FastCreditCurveBuilder BUILDER_NEW = new FastCreditCurveBuilder();
-  @SuppressWarnings("deprecation")
   private static final SimpleCreditCurveBuilder BUILDER_OLD = new SimpleCreditCurveBuilder();
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
@@ -60,14 +59,14 @@ public class CreditCurveCalibrationTest {
   protected static ISDACompliantCreditCurve CREDIT_CURVE = new ISDACompliantCreditCurve(CREDIT_CURVE_KNOTS, ZERO_HAZARD_RATES);
 
   static {
-    double flatrate = 0.05;
-    double t = 20.0;
+    final double flatrate = 0.05;
+    final double t = 20.0;
     YIELD_CURVE = new ISDACompliantYieldCurve(new double[] {t}, new double[] {flatrate});
 
-    boolean payAccOndefault = true;
-    Period tenor = Period.ofMonths(3);
-    StubType stubType = StubType.FRONTSHORT;
-    boolean protectionStart = true;
+    final boolean payAccOndefault = true;
+    final Period tenor = Period.ofMonths(3);
+    final StubType stubType = StubType.FRONTSHORT;
+    final boolean protectionStart = true;
 
     CDS = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, PROTECTION_STATE_DATE, PROTECTION_END_DATE, payAccOndefault, tenor, stubType, protectionStart, RECOVERY_RATE);
 
@@ -79,7 +78,6 @@ public class CreditCurveCalibrationTest {
   @Test
   // (enabled = false)
   public void simpleCreditCurveCalibrationTest() {
-    @SuppressWarnings("deprecation")
     final SimpleCreditCurveBuilder builder = BUILDER_OLD;
     creditCurveTest(builder);
   }
@@ -87,7 +85,6 @@ public class CreditCurveCalibrationTest {
   @Test
   // (enabled = false)
   public void fastCreditCurveCalibrationTest() {
-    @SuppressWarnings("deprecation")
     final FastCreditCurveBuilder builder = BUILDER_NEW;
     creditCurveTest(builder);
   }
@@ -98,7 +95,7 @@ public class CreditCurveCalibrationTest {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000.;
     }
 
-    ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(MARKET_CDS, mrkSpreads, YIELD_CURVE);
+    final ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(MARKET_CDS, mrkSpreads, YIELD_CURVE);
 
     final int n = creditCurve.getNumberOfKnots();
     assertEquals(CREDIT_CURVE_KNOTS.length, n);
