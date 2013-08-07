@@ -46,15 +46,16 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * 
    * @param name the name of the view calculation configuration, not null
    * @param computationTargets the computation targets, not null
-   * @param terminalOutputSpecifications the output specifications, not null
-   * @param marketDataSpecifications the market data specifications, not null
+   * @param terminalOutputSpecs the output specifications, not null
+   * @param marketDataSpecs the market data specifications, not null
    */
-  public CompiledViewCalculationConfigurationImpl(final String name, final Set<ComputationTargetSpecification> computationTargets,
-      final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
-      final Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications) {
-    this(name, computationTargets, terminalOutputSpecifications, marketDataSpecifications,
-         ImmutableMap.<DistinctMarketDataSelector, Set<ValueSpecification>>of(),
-         ImmutableMap.<DistinctMarketDataSelector, FunctionParameters>of());
+  public CompiledViewCalculationConfigurationImpl(String name,
+                                                  Set<ComputationTargetSpecification> computationTargets,
+                                                  Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecs,
+                                                  Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecs) {
+    this(name, computationTargets, terminalOutputSpecs, marketDataSpecs,
+         Collections.<DistinctMarketDataSelector, Set<ValueSpecification>>emptyMap(),
+         Collections.<DistinctMarketDataSelector, FunctionParameters>emptyMap());
   }
 
   /**
@@ -109,11 +110,15 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param marketDataSelectionFunctionParameters the function params to be used
    * for the market data selections
    */
-  public CompiledViewCalculationConfigurationImpl(final DependencyGraph graph,
-                                                  Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections,
-                                                  Map<DistinctMarketDataSelector, FunctionParameters> marketDataSelectionFunctionParameters) {
-    this(graph.getCalculationConfigurationName(), processComputationTargets(graph),
-         processTerminalOutputSpecifications(graph), processMarketDataRequirements(graph), marketDataSelections,
+  public CompiledViewCalculationConfigurationImpl(
+      DependencyGraph graph,
+      Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections,
+      Map<DistinctMarketDataSelector, FunctionParameters> marketDataSelectionFunctionParameters) {
+    this(graph.getCalculationConfigurationName(),
+         processComputationTargets(graph),
+         processTerminalOutputSpecifications(graph),
+         processMarketDataRequirements(graph),
+         marketDataSelections,
          marketDataSelectionFunctionParameters);
   }
 
