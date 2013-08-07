@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -16,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class removes the need to hand-code the {@code equals()} and {@code hashCode()} methods of any class that
  * holds a {@code Pattern}.
  */
-public final class PatternWrapper {
+public final class PatternWrapper implements Serializable {
 
   private final Pattern _pattern;
 

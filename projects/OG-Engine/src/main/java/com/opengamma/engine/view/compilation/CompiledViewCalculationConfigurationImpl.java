@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +33,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Default implementation of {@link CompiledViewCalculationConfiguration}.
  */
-public class CompiledViewCalculationConfigurationImpl implements CompiledViewCalculationConfiguration {
+public class CompiledViewCalculationConfigurationImpl implements CompiledViewCalculationConfiguration, Serializable {
 
   private final String _name;
   private final Set<ComputationTargetSpecification> _computationTargets;

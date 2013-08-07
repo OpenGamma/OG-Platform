@@ -34,6 +34,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.id.UniqueId;
@@ -133,7 +134,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
         _nodeParameters[i] = node.getFunction().getParameters();
         _nodeFunctions[i] = node.getFunction().getFunction().getFunctionDefinition().getUniqueId();
         _nodeInputs[i] = node.getInputValues();
-        _nodeOutputs[i] = new HashSet<ValueSpecification>(node.getOutputValues());
+        _nodeOutputs[i] = new HashSet<>(node.getOutputValues());
         i++;
       }
       _terminalOutputs = graph.getTerminalOutputs();
@@ -177,7 +178,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     private final Map<ComputationTargetReference, UniqueId> _resolutions;
     private final UniqueId _portfolio;
     private final long _functionInitId;
-    // TODO include compiled calc configs
+    private final Collection<CompiledViewCalculationConfiguration> _calcConfigs;
 
     public CompiledViewDefinitionWithGraphsReader(EHCacheViewExecutionCache parent, CompiledViewDefinitionWithGraphs viewDef) {
       _parent = parent.instance();
@@ -205,6 +206,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
       _resolutions = viewDef.getResolvedIdentifiers();
       _portfolio = viewDef.getPortfolio().getUniqueId();
       _functionInitId = ((CompiledViewDefinitionWithGraphsImpl) viewDef).getFunctionInitId();
+      _calcConfigs = viewDef.getCompiledCalculationConfigurations();
     }
 
     private Object readResolve() {
@@ -217,10 +219,9 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
       }
       final Portfolio portfolio = (Portfolio) parent.getFunctions().getFunctionCompilationContext().getRawComputationTargetResolver()
           .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, _portfolio), _versionCorrection).getValue();
-      // TODO this view def impl constructor loses market data selectors, need to use the calc configs
       CompiledViewDefinitionWithGraphsImpl compiledViewDef =
-          new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition,
-                                                   graphs, _resolutions, portfolio, _functionInitId);
+          new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition, graphs,
+                                                   _resolutions, portfolio, _functionInitId, _calcConfigs);
       return parent.new CompiledViewDefinitionWithGraphsHolder(compiledViewDef);
     }
   }
