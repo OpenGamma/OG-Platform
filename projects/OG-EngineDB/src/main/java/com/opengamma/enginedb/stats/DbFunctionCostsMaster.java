@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.engine.stats;
+package com.opengamma.enginedb.stats;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

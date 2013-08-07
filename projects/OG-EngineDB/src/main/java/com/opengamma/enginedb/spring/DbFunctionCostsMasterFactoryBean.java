@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.spring;
+package com.opengamma.enginedb.spring;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster;
+import com.opengamma.enginedb.stats.DbFunctionCostsMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.spring.SpringFactoryBean;
 
