@@ -45,6 +45,10 @@ public class BatchDbViewResultListener extends AbstractViewResultListener {
   }
 
   private RiskRun getRiskRun(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+    return _riskRuns.get(getCycleId(fullFragment, deltaFragment));
+  }
+
+  private static UniqueId getCycleId(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
     UniqueId cycleId;
     if (fullFragment != null) {
       cycleId = fullFragment.getViewCycleId();
@@ -53,7 +57,7 @@ public class BatchDbViewResultListener extends AbstractViewResultListener {
     } else {
       throw new OpenGammaRuntimeException("both results fragments were null");
     }
-    return _riskRuns.get(cycleId);
+    return cycleId;
   }
 
   @Override
@@ -64,13 +68,14 @@ public class BatchDbViewResultListener extends AbstractViewResultListener {
   @Override
   public void cycleStarted(ViewCycleMetadata cycleMetadata) {
     try {
+      s_logger.info("Starting new risk run for cycle ID {}", cycleMetadata.getViewCycleId());
       RiskRun riskRun = _batchRunWriter.startRiskRun(cycleMetadata,
                                                      Collections.<String, String>emptyMap(),
-                                                     RunCreationMode.AUTO,
+                                                     RunCreationMode.CREATE_NEW,
                                                      SnapshotMode.WRITE_THROUGH);
       _riskRuns.put(cycleMetadata.getViewCycleId(), riskRun);
-      s_logger.info("New risk run started with ID {}, {}, cycle ID {}",
-                    riskRun.getId(), riskRun.getObjectId(), cycleMetadata.getViewCycleId());
+      s_logger.info("New risk run started with ID {}, cycle ID {}",
+                    riskRun.getId(), cycleMetadata.getViewCycleId());
     } catch (Exception e) {
       s_logger.error("Failed to write start of batch job. No results will be recorded.", e);
     }
@@ -81,6 +86,8 @@ public class BatchDbViewResultListener extends AbstractViewResultListener {
     try {
       RiskRun riskRun = getRiskRun(fullResult, deltaResult);
       _batchRunWriter.endRiskRun(riskRun.getObjectId());
+      s_logger.info("Risk run ended, ID {}, cycle ID {}",
+                    riskRun.getId(), getCycleId(fullResult, deltaResult));
     } catch (Exception e) {
       s_logger.error("Failed to write end of batch job. Job will appear incomplete.", e);
     }
@@ -95,6 +102,8 @@ public class BatchDbViewResultListener extends AbstractViewResultListener {
     }
     try {
       _batchRunWriter.addJobResults(riskRun.getObjectId(), fullFragment);
+      s_logger.info("Added fragment results, ID {}, cycle ID {}",
+                    riskRun.getId(), getCycleId(fullFragment, deltaFragment));
     } catch (Exception e) {
       s_logger.error("Error writing batch result fragment", e);
     }
