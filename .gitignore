@@ -20,6 +20,7 @@ common/deploy.properties
 !/projects/OG-Core
 !/projects/OG-Client
 !/projects/OG-Engine
+!/projects/OG-EngineDB
 !/projects/OG-Examples
 !/projects/OG-Financial
 !/projects/OG-FinancialTypes

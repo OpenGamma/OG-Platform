@@ -33,6 +33,7 @@
     <module>OG-Component</module>
     <module>OG-Core</module>
     <module>OG-Engine</module>
+    <module>OG-EngineDB</module>
     <module>OG-Financial</module>
     <module>OG-FinancialTypes</module>
     <module>OG-Integration</module>
