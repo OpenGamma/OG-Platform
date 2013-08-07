@@ -11,6 +11,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
@@ -20,6 +22,8 @@ import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator
  * Uses {@link YieldAndDiscountCurve#withParallelShift(double)} to perform the transformation.
  */
 public class YieldCurveParallelShift implements StructureManipulator<YieldAndDiscountCurve> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveParallelShift.class);
 
   /** Field name for Fudge message */
   private static final String SHIFT = "shift";
@@ -32,6 +36,7 @@ public class YieldCurveParallelShift implements StructureManipulator<YieldAndDis
 
   @Override
   public YieldAndDiscountCurve execute(YieldAndDiscountCurve structure) {
+    s_logger.debug("Shifting curve {} by {}", structure.getName(), _shift);
     return structure.withParallelShift(_shift);
   }
 

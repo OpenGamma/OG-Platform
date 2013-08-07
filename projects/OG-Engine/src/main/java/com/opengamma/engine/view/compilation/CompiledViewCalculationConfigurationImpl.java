@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -67,12 +68,13 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param marketDataSelectionFunctionParameters the function params to be used
    * for the market data selections, not null
    */
-  public CompiledViewCalculationConfigurationImpl(final String name,
-                                                  final Set<ComputationTargetSpecification> computationTargets,
-                                                  final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
-                                                  final Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications,
-                                                  final Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections,
-                                                  final Map<DistinctMarketDataSelector, FunctionParameters> marketDataSelectionFunctionParameters) {
+  public CompiledViewCalculationConfigurationImpl(
+      String name,
+      Set<ComputationTargetSpecification> computationTargets,
+      Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
+      Map<ValueSpecification, Collection<ValueSpecification>> marketDataSpecifications,
+      Map<DistinctMarketDataSelector, Set<ValueSpecification>> marketDataSelections,
+      Map<DistinctMarketDataSelector, FunctionParameters> marketDataSelectionFunctionParameters) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(computationTargets, "computationTargets");
     ArgumentChecker.notNull(terminalOutputSpecifications, "terminalOutputSpecifications");
@@ -80,11 +82,11 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
     ArgumentChecker.notNull(marketDataSelections, "marketDataSelections");
     ArgumentChecker.notNull(marketDataSelectionFunctionParameters, "marketDataSelectionFunctionParameters");
     _name = name;
-    _computationTargets = computationTargets;
-    _terminalOutputSpecifications = terminalOutputSpecifications;
-    _marketDataAliases = marketDataSpecifications;
-    _marketDataSelections = marketDataSelections;
-    _marketDataSelectionFunctionParameters = marketDataSelectionFunctionParameters;
+    _computationTargets = ImmutableSet.copyOf(computationTargets);
+    _terminalOutputSpecifications = ImmutableMap.copyOf(terminalOutputSpecifications);
+    _marketDataAliases = ImmutableMap.copyOf(marketDataSpecifications);
+    _marketDataSelections = ImmutableMap.copyOf(marketDataSelections);
+    _marketDataSelectionFunctionParameters = ImmutableMap.copyOf(marketDataSelectionFunctionParameters);
   }
 
   /**

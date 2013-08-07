@@ -52,16 +52,72 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * @param portfolio the portfolio, possibly null
    * @param functionInitId the function init ID that was used when creating the dependency graphs
    */
-  public CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition,
-      final Collection<DependencyGraph> graphs, final Map<ComputationTargetReference, UniqueId> resolutions, final Portfolio portfolio, final long functionInitId) {
-    this(versionCorrection, identifier, viewDefinition, portfolio, processCompiledCalculationConfigurations(graphs),
-        processValidityRange(graphs), graphs, resolutions, functionInitId);
+  public CompiledViewDefinitionWithGraphsImpl(VersionCorrection versionCorrection,
+                                              String identifier,
+                                              ViewDefinition viewDefinition,
+                                              Collection<DependencyGraph> graphs,
+                                              Map<ComputationTargetReference, UniqueId> resolutions,
+                                              Portfolio portfolio,
+                                              long functionInitId) {
+    this(versionCorrection,
+         identifier,
+         viewDefinition,
+         graphs,
+         resolutions,
+         portfolio,
+         functionInitId,
+         processCompiledCalculationConfigurations(graphs),
+         processValidityRange(graphs)
+    );
   }
 
-  private CompiledViewDefinitionWithGraphsImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition, final Portfolio portfolio,
-      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Pair<Instant, Instant> validityRange, final Collection<DependencyGraph> graphs,
-      final Map<ComputationTargetReference, UniqueId> resolutions, final long functionInitId) {
-    super(versionCorrection, identifier, viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
+  /**
+   * Constructs an instance.
+   *
+   * @param versionCorrection the resolver version/correction, not null
+   * @param identifier the compilation identifier, not null
+   * @param viewDefinition the view definition, not null
+   * @param graphs the dependency graphs, not null
+   * @param resolutions the resolution mappings used to create the dependency graphs, not null
+   * @param portfolio the portfolio, possibly null
+   * @param functionInitId the function init ID that was used when creating the dependency graphs
+   * @param compiledCalcConfigs The compiled calculation configurations
+   */
+  public CompiledViewDefinitionWithGraphsImpl(VersionCorrection versionCorrection,
+                                               String identifier,
+                                               ViewDefinition viewDefinition,
+                                               Collection<DependencyGraph> graphs,
+                                               Map<ComputationTargetReference, UniqueId> resolutions,
+                                               Portfolio portfolio,
+                                               long functionInitId,
+                                               Collection<CompiledViewCalculationConfiguration> compiledCalcConfigs) {
+    this(versionCorrection,
+         identifier,
+         viewDefinition,
+         graphs,
+         resolutions,
+         portfolio,
+         functionInitId,
+         compiledCalcConfigs,
+         processValidityRange(graphs));
+  }
+
+  private CompiledViewDefinitionWithGraphsImpl(VersionCorrection versionCorrection,
+                                               String identifier,
+                                               ViewDefinition viewDefinition,
+                                               Collection<DependencyGraph> graphs,
+                                               Map<ComputationTargetReference, UniqueId> resolutions,
+                                               Portfolio portfolio,
+                                               long functionInitId,
+                                               Collection<CompiledViewCalculationConfiguration> compiledCalcConfigs,
+                                               Pair<Instant, Instant> validityRange) {
+    super(versionCorrection,
+          identifier,
+          viewDefinition,
+          portfolio,
+          compiledCalcConfigs,
+          validityRange.getFirst(),
+          validityRange.getSecond());
     ArgumentChecker.notNull(resolutions, "resolutions");
     _functionInitId = functionInitId;
     final Map<String, DependencyGraphExplorer> graphsByConfiguration = Maps.newHashMapWithExpectedSize(graphs.size());
@@ -79,12 +135,20 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     _resolutions = copyFrom._resolutions;
   }
 
-  private CompiledViewDefinitionWithGraphsImpl(final CompiledViewDefinitionWithGraphsImpl copyFrom,
-                                              final Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
-                                              Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
-    super(copyFrom.getResolverVersionCorrection(), copyFrom.getCompilationIdentifier(), copyFrom.getViewDefinition(), copyFrom.getPortfolio(),
-          processCompiledCalculationConfigurations(copyFrom.getCompiledCalculationConfigurationsMap(), copyFrom._graphsByConfiguration, selectionsByGraph, paramsByGraph),
-          copyFrom.getValidFrom(), copyFrom.getValidTo());
+  private CompiledViewDefinitionWithGraphsImpl(
+      CompiledViewDefinitionWithGraphsImpl copyFrom,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
+    super(copyFrom.getResolverVersionCorrection(),
+          copyFrom.getCompilationIdentifier(),
+          copyFrom.getViewDefinition(),
+          copyFrom.getPortfolio(),
+          processCompiledCalculationConfigurations(copyFrom.getCompiledCalculationConfigurationsMap(),
+                                                   copyFrom._graphsByConfiguration,
+                                                   selectionsByGraph,
+                                                   paramsByGraph),
+          copyFrom.getValidFrom(),
+          copyFrom.getValidTo());
     _graphsByConfiguration = copyFrom._graphsByConfiguration;
     _functionInitId = copyFrom._functionInitId;
     _resolutions = copyFrom._resolutions;
@@ -176,9 +240,9 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
 
   private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(
       Map<String, CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      Map<String, DependencyGraphExplorer> graphsByConfiguration, Map<DependencyGraph,
-      Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph, Map<DependencyGraph,
-      Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
+      Map<String, DependencyGraphExplorer> graphsByConfiguration,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, Set<ValueSpecification>>> selectionsByGraph,
+      Map<DependencyGraph, Map<DistinctMarketDataSelector, FunctionParameters>> paramsByGraph) {
 
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
     ArgumentChecker.notNull(selectionsByGraph, "selectionsByGraph");
@@ -224,7 +288,8 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     }
   }
 
-  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(final Collection<DependencyGraph> graphs) {
+  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(
+      final Collection<DependencyGraph> graphs) {
     ArgumentChecker.notNull(graphs, "graphs");
     final Collection<CompiledViewCalculationConfiguration> compiledViewCalculationConfigurations = new ArrayList<>();
     for (DependencyGraph graph : graphs) {

@@ -276,6 +276,7 @@ public class Simulation {
         s_logger.warn("Not running in batch mode and no listener specifed, the results would be ignored. Exiting.");
         return;
       }
+      s_logger.info("Attaching to view process, view def ID {}, exectution options {}", viewDefId, executionOptions);
       viewClient.attachToViewProcess(viewDefId, executionOptions, true);
       try {
         viewClient.waitForCompletion();

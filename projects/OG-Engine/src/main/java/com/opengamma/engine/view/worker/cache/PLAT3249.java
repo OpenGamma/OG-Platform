@@ -65,8 +65,14 @@ public final class PLAT3249 {
   }
 
   private CompiledViewDefinitionWithGraphs copy(final CompiledViewDefinitionWithGraphs copyFrom) {
-    return new CompiledViewDefinitionWithGraphsImpl(copyFrom.getResolverVersionCorrection(), copyFrom.getCompilationIdentifier(), copyFrom.getViewDefinition(),
-        copyGraphs(copyFrom.getDependencyGraphExplorers()), copyFrom.getResolvedIdentifiers(), copyFrom.getPortfolio(), ((CompiledViewDefinitionWithGraphsImpl) copyFrom).getFunctionInitId());
+    return new CompiledViewDefinitionWithGraphsImpl(copyFrom.getResolverVersionCorrection(),
+                                                    copyFrom.getCompilationIdentifier(),
+                                                    copyFrom.getViewDefinition(),
+                                                    copyGraphs(copyFrom.getDependencyGraphExplorers()),
+                                                    copyFrom.getResolvedIdentifiers(),
+                                                    copyFrom.getPortfolio(),
+                                                    ((CompiledViewDefinitionWithGraphsImpl) copyFrom).getFunctionInitId(),
+                                                    copyFrom.getCompiledCalculationConfigurations());
   }
 
   public static CompiledViewDefinitionWithGraphs deepClone(final CompiledViewDefinitionWithGraphs copyFrom) {
