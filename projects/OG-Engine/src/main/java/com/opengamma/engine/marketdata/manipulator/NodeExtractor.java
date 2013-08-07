@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
@@ -19,7 +20,7 @@ import com.opengamma.engine.value.ValueSpecification;
  *
  * @param <K> the underlying type of the structured identifier to be returned
  */
-public abstract class NodeExtractor<K> {
+public abstract class NodeExtractor<K extends Serializable> {
 
   /**
    * The name (on the value specification) that must be matched for
