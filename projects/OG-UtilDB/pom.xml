@@ -69,11 +69,6 @@
       <artifactId>sqljdbc</artifactId>
       <version>4.0</version>
     </dependency-->
-    <dependency>
-      <groupId>org.mongodb</groupId>
-      <artifactId>mongo-java-driver</artifactId>
-      <optional>true</optional>
-    </dependency>
 
     <dependency>
       <groupId>org.testng</groupId>
