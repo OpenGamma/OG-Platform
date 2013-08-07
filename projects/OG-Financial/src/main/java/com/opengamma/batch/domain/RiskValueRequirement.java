@@ -19,6 +19,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.value.ValueProperties;
 
+/**
+ * Data model for a risk value requirement.
+ */
 @BeanDefinition
 public class RiskValueRequirement extends RiskValueProperties {
 

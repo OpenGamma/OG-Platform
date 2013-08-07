@@ -20,6 +20,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
+/**
+ * Data model for a risk value.
+ */
 @BeanDefinition
 public class RiskValue extends DirectBean {
 

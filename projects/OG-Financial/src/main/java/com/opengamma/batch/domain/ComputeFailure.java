@@ -19,21 +19,24 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * Data model for a compute failure.
+ */
 @BeanDefinition
 public class ComputeFailure extends DirectBean {
-  
+
   @PropertyDefinition
   private long _id = -1;
-  
+
   @PropertyDefinition
   private String _functionId;
-  
+
   @PropertyDefinition
   private String _exceptionClass;
-  
+
   @PropertyDefinition
   private String _exceptionMsg;
-  
+
   @PropertyDefinition
   private String _stackTrace;
 

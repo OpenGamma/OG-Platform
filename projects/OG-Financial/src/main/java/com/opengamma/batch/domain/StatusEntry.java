@@ -5,12 +5,11 @@
  */
 package com.opengamma.batch.domain;
 
-
 /**
- * 
+ * Data model for a status entry.
  */
 public class StatusEntry {
-  
+
   /**
    * Status constants
    */
@@ -18,18 +17,18 @@ public class StatusEntry {
     /**
      * The computation for this target has succeeded so far, or completely if the run has finished.
      */
-    SUCCESS, 
-    
+    SUCCESS,
+
     /**
      * The computation has failed, wholly or partially. Successfully-calculated results for this target are still
      * present in the database.
      */
-    FAILURE, 
-    
+    FAILURE,
+
     /**
      * The computation is running. As of now, unused.
      */
-    RUNNING, 
+    RUNNING,
 
     /**
      * We know that this computation needs to be performed,
@@ -37,45 +36,44 @@ public class StatusEntry {
      */
     NOT_RUNNING
   }
-  
-  
+
   private long _id = -1;
   private long _calculationConfigurationId;
   private long _computationTargetId;
   private Status _status;
-  
+
   public long getId() {
     return _id;
   }
-  
+
   public void setId(long id) {
     _id = id;
   }
-  
+
   public long getCalculationConfigurationId() {
     return _calculationConfigurationId;
   }
-  
+
   public void setCalculationConfigurationId(long calculationConfigurationId) {
     _calculationConfigurationId = calculationConfigurationId;
   }
-  
+
   public long getComputationTargetId() {
     return _computationTargetId;
   }
-  
+
   public void setComputationTargetId(long computationTargetId) {
     _computationTargetId = computationTargetId;
   }
-  
+
   public Status getStatus() {
     return _status;
   }
-  
+
   public void setStatus(Status status) {
     _status = status;
   }
-  
+
   public void setStatus(int statusInt) {
     for (Status status : Status.values()) {
       if (status.ordinal() == statusInt) {

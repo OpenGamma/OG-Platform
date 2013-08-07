@@ -19,6 +19,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * Data model for a failure reason.
+ */
 @BeanDefinition
 public class FailureReason extends DirectBean {
 
