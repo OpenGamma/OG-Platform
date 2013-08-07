@@ -5,6 +5,9 @@
  */
 package com.opengamma.security.user;
 
+import com.opengamma.security.user.Authority;
+import com.opengamma.security.user.User;
+import com.opengamma.security.user.UserGroup;
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**

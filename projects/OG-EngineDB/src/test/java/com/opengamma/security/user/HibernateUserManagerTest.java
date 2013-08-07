@@ -17,6 +17,11 @@ import java.util.Set;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.security.user.Authority;
+import com.opengamma.security.user.HibernateUserManager;
+import com.opengamma.security.user.HibernateUserManagerFiles;
+import com.opengamma.security.user.User;
+import com.opengamma.security.user.UserGroup;
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.test.AbstractDbTest;
@@ -71,8 +76,7 @@ public class HibernateUserManagerTest extends AbstractDbTest {
     Set<UserGroup> userGroups = new HashSet<UserGroup>();
     UserGroup userGroup = _userManager.getUserGroup("testusergroup");
     if (userGroup == null) {
-      userGroup = new UserGroup();
-      userGroup.setName("testusergroup");
+      userGroup = new UserGroup(null, "testusergroup");
       userGroup.getAuthorities().add(new Authority("testauthority"));
     }
     userGroup.getUsers().add(user);
@@ -93,12 +97,7 @@ public class HibernateUserManagerTest extends AbstractDbTest {
   }
 
   private User getTestUser() {
-    User user;
-    user = new User();
-    user.setUsername("testuser");
-    user.setPasswordHash("testpw");
-    user.setLastLogin(new Date());
-    return user;
+    return new User(null, "testuser", "testpw", new HashSet<UserGroup>(), new Date());
   }
 
   @Test
@@ -114,8 +113,7 @@ public class HibernateUserManagerTest extends AbstractDbTest {
     }
     
     // Add
-    userGroup = new UserGroup();
-    userGroup.setName("testusergroup");
+    userGroup = new UserGroup(null, "testusergroup");
     
     Authority authority = _userManager.getAuthority("testauthority");
     if (authority == null) {

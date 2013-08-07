@@ -17,6 +17,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.opengamma.security.user.Authority;
+import com.opengamma.security.user.User;
+import com.opengamma.security.user.UserGroup;
+import com.opengamma.security.user.UserManager;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 

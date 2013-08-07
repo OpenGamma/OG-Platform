@@ -17,6 +17,9 @@ import java.util.Collection;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.security.auditlog.AuditLogEntry;
+import com.opengamma.security.auditlog.HibernateAuditLogger;
+import com.opengamma.security.auditlog.HibernateAuditLoggerFiles;
 import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.HibernateMappingFiles;
 import com.opengamma.util.test.AbstractDbTest;

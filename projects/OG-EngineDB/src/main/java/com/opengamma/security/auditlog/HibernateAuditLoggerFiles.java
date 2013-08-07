@@ -5,6 +5,7 @@
  */
 package com.opengamma.security.auditlog;
 
+import com.opengamma.security.auditlog.AuditLogEntry;
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**

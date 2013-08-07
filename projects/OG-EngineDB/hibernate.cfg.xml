@@ -9,9 +9,9 @@
         <property name="hibernate.connection.driver_class">${hibernate.connection.driver_class}</property>
         <property name="hibernate.connection.url">${hibernate.connection.url}</property>
         <property name="hibernate.dialect">${hibernate.dialect}</property>
-        <mapping resource="com/opengamma/security/user/User.hbm.xml"/>
-        <mapping resource="com/opengamma/security/user/UserGroup.hbm.xml"/>
-        <mapping resource="com/opengamma/security/user/Authority.hbm.xml"/>
-        <mapping resource="com/opengamma/security/auditlog/AuditLogEntry.hbm.xml"/>
+        <mapping resource="com/opengamma/enginedb/auth/user/User.hbm.xml"/>
+        <mapping resource="com/opengamma/enginedb/auth/user/UserGroup.hbm.xml"/>
+        <mapping resource="com/opengamma/enginedb/auth/user/Authority.hbm.xml"/>
+        <mapping resource="com/opengamma/enginedb/auth/auditlog/AuditLogEntry.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>
