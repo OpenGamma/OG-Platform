@@ -15,7 +15,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -29,8 +31,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.LabelledObjectMatrix1D;
+import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Converts a series of values from one currency to another, preserving all other properties.
@@ -90,6 +96,15 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     return values.divide(conversionRates);
   }
 
+  @VisibleForTesting
+  /* package */ TenorLabelledLocalDateDoubleTimeSeriesMatrix1D convertLabelledMatrix(final LabelledObjectMatrix1D<Tenor, LocalDateDoubleTimeSeries, Period> values, final DoubleTimeSeries<LocalDate> conversionRates) {
+    LocalDateDoubleTimeSeries[] convertedValues = new LocalDateDoubleTimeSeries[values.size()];
+    for (int i = 0; i < values.size(); i++) {
+      convertedValues[i] = (LocalDateDoubleTimeSeries) convertTimeSeries(values.getValues()[i], conversionRates);
+    }
+    return new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(values.getKeys(), values.getLabels(), values.getLabelsTitle(), convertedValues, values.getValuesTitle());
+  }
+
   protected DoubleTimeSeries<LocalDate> convertTimeSeries(final DoubleTimeSeries<LocalDate> values, final double conversionRate) {
     return values.divide(conversionRate);
   }
@@ -102,6 +117,9 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     } else if (value instanceof DoubleTimeSeries) {
       // TODO: Note the unchecked cast. We'll either get a zero intersection and empty result if the rates aren't the same type or a class cast exception.
       return convertTimeSeries((DoubleTimeSeries) value, conversionRates);
+    } else if (value instanceof TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) {
+      // Try to make this more generic
+      return convertLabelledMatrix((TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) value, conversionRates);
     } else {
       s_logger.error("Can't convert object with type {} to {}", inputValue.getValue().getClass(), desiredValue);
       return null;
