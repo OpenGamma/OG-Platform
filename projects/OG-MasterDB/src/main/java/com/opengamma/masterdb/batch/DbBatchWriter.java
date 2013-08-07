@@ -1223,7 +1223,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       StatusEntry statusEntry = getJdbcTemplate().queryForObject(
         getElSqlBundle().getSql("SelectStatusEntry"),
         args,
-        StatusEntry.ROW_MAPPER);
+        DbBatchUtils.ROW_MAPPER);
 
       // status entry in db found.
       statusCache.put(key, statusEntry);
@@ -1308,7 +1308,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       return computeFailure;
     }
     try {
-      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource(), Integer.class);
+      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), DbBatchUtils.toSqlParameterSource(computeFailureKey), Integer.class);
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
       computeFailure.setFunctionId(computeFailureKey.getFunctionId());
@@ -1339,7 +1339,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
     computeFailure.setStackTrace(computeFailureKey.getStackTrace());
 
-    int rowCount = getJdbcTemplate().update(getElSqlBundle().getSql("InsertComputeFailure"), computeFailure.toSqlParameterSource());
+    int rowCount = getJdbcTemplate().update(getElSqlBundle().getSql("InsertComputeFailure"), DbBatchUtils.toSqlParameterSource(computeFailure));
     if (rowCount == 1) {
       computeFailureCache.put(computeFailureKey, computeFailure);
       return computeFailure;

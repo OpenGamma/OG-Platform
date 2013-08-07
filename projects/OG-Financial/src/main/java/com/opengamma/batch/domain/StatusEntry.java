@@ -5,10 +5,6 @@
  */
 package com.opengamma.batch.domain;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  * 
@@ -89,20 +85,5 @@ public class StatusEntry {
     }
     throw new IllegalArgumentException(statusInt + " is not a valid status");
   }
-  
-  /**
-   * Spring ParameterizedRowMapper 
-   */
-  public static final RowMapper<StatusEntry> ROW_MAPPER = new RowMapper<StatusEntry>() {
-    @Override
-    public StatusEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
-      StatusEntry statusEntry = new StatusEntry();
-      statusEntry.setId(rs.getLong("id"));
-      statusEntry.setCalculationConfigurationId(rs.getInt("calculation_configuration_id"));
-      statusEntry.setComputationTargetId(rs.getInt("computation_target_id"));
-      statusEntry.setStatus(rs.getInt("status"));
-      return statusEntry;
-    }
-  };
-  
+
 }
