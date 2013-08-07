@@ -76,7 +76,6 @@ docs.sqlite3
 .idea/dictionaries
 .idea/inspectionProfiles
 .idea/validation.xml
-.idea/sqldialects.xml
 .idea/dataSources.xml
 .idea/scopes/scope_settings.xml
 .idea/inspectionProfiles/profiles_settings.xml
