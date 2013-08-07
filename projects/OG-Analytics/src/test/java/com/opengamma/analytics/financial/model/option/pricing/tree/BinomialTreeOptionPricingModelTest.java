@@ -424,41 +424,103 @@ public class BinomialTreeOptionPricingModelTest {
     System.out.println(exactCash);
   }
 
-  @Test(enabled = false)
+  @Test
   public void americanPriceCashMultipleDividendsTest() {
-    final LatticeSpecification model = new CoxRossRubinsteinLatticeSpecification();
-    final double spot = 110.;
-    final double strike = 100.;
-    final double time = 3.;
-    final double vol = 0.1;
-    final double interest = 0.04;
-    final double[] dividendTimes = new double[] {1., 2. };
-    final double[] cashDividends = new double[] {5., 5. };
-    double price = _model.getAmericanPriceCashDividends(model, spot, strike, time, vol, interest, dividendTimes, cashDividends, 1001, true);
-    System.out.println(price);
 
-    final double modSpot = spot - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]);
-    final double exactCash = BlackScholesFormulaRepository.price(modSpot, strike, time, vol, interest, interest, true);
-    System.out.println(exactCash);
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+
+    //    new LogEqualProbabiliesLatticeSpecification(),//removed
+
+    final int steps = 101;
+    final double[][] dividendTimesMat = new double[][] { {TIME * (steps - 4.) / (steps - 1), TIME * (steps - 3.) / (steps - 1), TIME * (steps - 2.) / (steps - 1) },
+        {TIME / (steps - 2), TIME * 2. / (steps - 2), TIME * 3. / (steps - 2) } };
+    final double[][] cashDividendsMat = new double[][] { {0.5, 0.5, 0.5 }, {0.5, 0.5, 0.5 } };
+    final int divDim = cashDividendsMat.length;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification model : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              for (int j = 0; j < divDim; ++j) {
+                final double[] dividendTimes = dividendTimesMat[j];
+                final double[] cashDividends = cashDividendsMat[j];
+
+                double priceDiv = _model.getAmericanPriceCashDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, steps, isCall);
+                //                System.out.println(priceDiv);
+                double modSpot = SPOT;
+                final int divTimes = cashDividends.length;
+                for (int i = 0; i < divTimes; ++i) {
+                  modSpot -= cashDividends[i] * Math.exp(-interest * dividendTimes[i]);
+                }
+                double priceMod = _model.getAmericanPrice(model, modSpot, strike, TIME, vol, interest, steps, isCall);
+                //                System.out.println(priceMod);
+                double price = _model.getAmericanPrice(model, SPOT, strike, TIME, vol, interest, steps, isCall);
+                //                System.out.println(price);
+
+                final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
+                if (interest > 0.) {
+                  //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + ";\t" + isCall);
+                  assertEquals(priceDiv, ref, Math.max(ref, 1.) * 1.e-1);
+                }
+                //                System.out.println("\n");
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
-  @Test(enabled = false)
+  @Test
   public void americanPricePropMultipleDividendsTest() {
-    final LatticeSpecification model = new CoxRossRubinsteinLatticeSpecification();
-    final double spot = 110.;
-    final double strike = 100.;
-    final double time = 0.01;
-    final double vol = 0.1;
-    final double interest = 0.04;
-    final double[] dividendTimes = new double[] {0.0098, 0.0099 };
-    final double[] propDividends = new double[] {0.05, 0.05 };
-    double price = _model.getAmericanPriceProportionalDividends(model, spot, strike, time, vol, interest, dividendTimes, propDividends, 11, true);
-    System.out.println(price);
 
-    final double resSpot = spot * (1. - propDividends[0]) * (1. - propDividends[1]);
-    System.out.println(_model.getAmericanPrice(model, spot, strike, time, vol, interest, 11, true));
-    final double exactCash = BlackScholesFormulaRepository.price(resSpot, strike, time, vol, interest, interest, true);
-    System.out.println(exactCash);
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+
+    //    new LogEqualProbabiliesLatticeSpecification(),//removed
+
+    final int steps = 101;
+    final double[][] dividendTimesMat = new double[][] { {TIME * (steps - 4.) / (steps - 1), TIME * (steps - 3.) / (steps - 1), TIME * (steps - 2.) / (steps - 1) },
+        {TIME / (steps - 2), TIME * 2. / (steps - 2), TIME * 3. / (steps - 2) } };
+    final double[][] ProportionalDividendsMat = new double[][] { {.001, .001, .001 }, {.001, .001, .001 } };
+    final int divDim = ProportionalDividendsMat.length;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification model : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              for (int j = 0; j < divDim; ++j) {
+                final double[] dividendTimes = dividendTimesMat[j];
+                final double[] ProportionalDividends = ProportionalDividendsMat[j];
+
+                double priceDiv = _model.getAmericanPriceProportionalDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, ProportionalDividends, steps, isCall);
+                //                System.out.println(priceDiv);
+                double modSpot = SPOT;
+                final int divTimes = ProportionalDividends.length;
+                for (int i = 0; i < divTimes; ++i) {
+                  modSpot -= ProportionalDividends[i] * Math.exp(-interest * dividendTimes[i]);
+                }
+                double priceMod = _model.getAmericanPrice(model, modSpot, strike, TIME, vol, interest, steps, isCall);
+                //                System.out.println(priceMod);
+                double price = _model.getAmericanPrice(model, SPOT, strike, TIME, vol, interest, steps, isCall);
+                //                System.out.println(price);
+                final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
+                if (interest > 0.) {
+                  //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + ";\t" + isCall);
+                  assertEquals(priceDiv, ref, Math.max(ref, 1.) * 1.e-1);
+                }
+                //                System.out.println("\n");
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   @Test

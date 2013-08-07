@@ -10,6 +10,14 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
  */
 public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
+  /*
+   * TODO error must be returned if dt > (dividend interval)
+   * TODO check 0<p<1, which is not necessarily satisfied with non-zero dividend
+   * TODO Other type payoff such as Binary type payoff, can be done with OptionDefinition
+   * TODO discrete dividends for Greeks
+   * TODO discrete dividends for other types of option
+   */
+
   public double getEuropeanPrice(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate,
       final int nSteps, final boolean isCall) {
     return getEuropeanPrice(lattice, spot, strike, timeToExpiry, volatility, interestRate, 0., nSteps, isCall);
@@ -172,9 +180,6 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     }
   }
 
-  /*
-   * TODO error must be returned if dt > (dividend interval)
-   */
   public double getAmericanPriceProportionalDividends(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility,
       final double interestRate, final double[] dividendTimes, final double[] dividends, final int nSteps, final boolean isCall) {
 
@@ -198,18 +203,20 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     for (int i = 0; i < nDivs; ++i) {
       assetPriceBase *= (1. - dividends[i]);
     }
-    double assetPrice = assetPriceBase * Math.pow(downFactor, nSteps);
-    final double[] values = getPayoffAtExpiry(assetPrice, strike, nSteps, sig, downFactor, upOverDown);
+    assetPriceBase = assetPriceBase * Math.pow(downFactor, nSteps);
+    final double[] values = getPayoffAtExpiry(assetPriceBase, strike, nSteps, sig, downFactor, upOverDown);
 
     int counter = 0;
     for (int i = nSteps - 1; i > -1; --i) {
-      assetPrice = assetPriceBase * Math.pow(downFactor, i);
       for (int k = nDivs - 1 - counter; k > -1; --k) {
         if (i == divSteps[k]) {
-          assetPrice /= (1. - dividends[k]);
+          assetPriceBase /= (1. - dividends[k]);
           ++counter;
         }
       }
+      assetPriceBase /= downFactor;
+      double assetPrice = assetPriceBase;
+
       for (int j = 0; j < i + 1; ++j) {
         values[j] = Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sig * (assetPrice - strike));
         assetPrice *= upOverDown;
@@ -314,7 +321,6 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     }
   }
 
-  // TODO Other type payoff such as Binary type payoff, can be done with OptionDefinition
   private double[] getPayoffAtExpiry(final double assetPrice, final double strike, final int nSteps, final double sig, final double downFactor, final double upOverDown) {
     final double[] values = new double[nSteps + 1];
     //    double assetPrice = spot * Math.pow(downFactor, nSteps);
