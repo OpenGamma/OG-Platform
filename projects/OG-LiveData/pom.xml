@@ -31,11 +31,6 @@
       <artifactId>og-security</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-utildb</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.activemq</groupId>
