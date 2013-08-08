@@ -71,4 +71,8 @@ import com.opengamma.util.ArgumentChecker;
     return _rowToPath.values();
 
   }
+
+  /* package */ AnalyticsNode getRootNode() {
+    return _rootNode;
+  }
 }

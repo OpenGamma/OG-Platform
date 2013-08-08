@@ -60,7 +60,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * Updates the grid structure in the viewport.
    * @param gridStructure The latest structure of the grid
    */
-  void updateGridStructure(MainGridStructure gridStructure);
+  //void updateGridStructure(MainGridStructure gridStructure);
 
 
 

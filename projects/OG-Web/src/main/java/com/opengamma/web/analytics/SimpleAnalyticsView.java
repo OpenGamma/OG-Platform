@@ -145,7 +145,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
       List<UniqueIdentifiable> entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
       _cache.put(entities);
     }
-    _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition, portfolio);
+    _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition, portfolio, _cache);
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
@@ -165,6 +165,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     List<String> updatedIds = Lists.newArrayList();
     boolean structureUpdated;
+    _cache.put(results);
     if (_pendingStructureChange != null) {
       doUpdateStructure(_pendingStructureChange, _pendingPortfolio);
       structureUpdated = true;
@@ -173,10 +174,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     } else {
       structureUpdated = false;
     }
-    _cache.put(results);    
     if (!structureUpdated) {
       // Individual cell updates
-      PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedStructure(_cache);
+      PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedTickAndPossiblyStructure(_cache);
       if (updatedPortfolioGrid == _portfolioGrid) {
         // no change to the grid structure, notify the data has changed
         updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));

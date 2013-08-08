@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.Pair;
  * portfolio
  * (primitives). This class isn't thread safe.
  */
-/* package */abstract class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
+/* package */abstract class MainAnalyticsGrid<T extends MainGridViewport> extends AnalyticsGrid<T> {
 
   /** Row and column structure of the grid. */
   private final MainGridStructure _gridStructure;
@@ -42,7 +42,6 @@ import com.opengamma.util.tuple.Pair;
   private final Map<Integer, DependencyGraphGrid> _depGraphs = Maps.newHashMap();
   /** For looking up calculation targets using their specifications. */
   private final ComputationTargetResolver _targetResolver;
-
   /** The calculation cycle used to calculate the most recent set of results. */
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
@@ -65,8 +64,8 @@ import com.opengamma.util.tuple.Pair;
                                  String gridId,
                                  ComputationTargetResolver targetResolver,
                                  ViewportListener viewportListener,
-                                 Map<Integer, MainGridViewport> viewports) {
-    super(viewportListener, gridId, viewports, gridStructure);
+                                 Map<Integer, T> viewports) {
+    super(viewportListener, gridId, viewports);
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
@@ -101,7 +100,7 @@ import com.opengamma.util.tuple.Pair;
   // -------- dependency graph grids --------
 
   /**
-   * Opens a depdency graph grid showing the steps used to calculate a cell's value.
+   * Opens a dependency graph grid showing the steps used to calculate a cell's value.
    *
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
@@ -189,9 +188,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
-    return new AnalyticsGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, cache);
-  }
+  abstract T createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache);
 
   /**
    * Updates an existing viewport on a dependency graph grid

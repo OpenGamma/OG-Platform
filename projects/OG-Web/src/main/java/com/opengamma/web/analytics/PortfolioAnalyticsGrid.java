@@ -18,7 +18,7 @@ import com.opengamma.id.ObjectId;
 /**
  * A grid for displaying portfolio analytics data.
  */
-/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid {
+/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid<PortfolioGridViewport> {
 
   private final PortfolioGridStructure _gridStructure;
 
@@ -34,7 +34,7 @@ import com.opengamma.id.ObjectId;
                                        String gridId,
                                        ComputationTargetResolver targetResolver,
                                        ViewportListener viewportListener,
-                                       Map<Integer, MainGridViewport> viewports) {
+                                       Map<Integer, PortfolioGridViewport> viewports) {
     super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener, viewports);
     _gridStructure = gridStructure;
   }
@@ -44,17 +44,26 @@ import com.opengamma.id.ObjectId;
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
   }
 
-  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
+  /**
+   * Updates with changed structure
+   * @param portfolio  the portfolio of positions
+   * @param compiledViewDef  the basic state required for computation of a view
+   * @returns new PortfolioAnalyticsGrid
+   */
+  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef,
+                                                            Portfolio portfolio, ResultsCache cache) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef, portfolio);
-
-    return new PortfolioAnalyticsGrid(updatedStructure,
-                                      getCallbackId(),
-                                      getTargetResolver(),
-                                      getViewportListener(),
-                                      getViewports());
+    for (PortfolioGridViewport viewport : getViewports().values()) {
+      viewport.updateResultsAndStructure(updatedStructure, cache);
+    }
+    return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener(), getViewports());
   }
 
-  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(ResultsCache cache) {
+  /**
+   * Updates on for each tick, returns this if structure remains the same
+   * @param cache  the result cache  @return PortfolioAnalyticsGrid
+   */
+  /* package */ PortfolioAnalyticsGrid withUpdatedTickAndPossiblyStructure(ResultsCache cache) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(cache);
     // TODO this smells bad but avoids throwing away any viewports, depgraphs etc
     // TODO implement equals()?
@@ -89,5 +98,10 @@ import com.opengamma.id.ObjectId;
       ids.add(viewport.getCallbackId());
     }
     return ids;
+  }
+
+  @Override
+  PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
+    return new PortfolioGridViewport(_gridStructure, callbackId, viewportDefinition, getViewCycle(), cache);
   }
 }
