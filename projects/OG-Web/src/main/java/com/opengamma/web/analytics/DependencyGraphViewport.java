@@ -114,9 +114,4 @@ public class DependencyGraphViewport implements Viewport {
     return _state;
   }
 
-  @Override
-  public void updateGridStructure(MainGridStructure gridStructure) {
-    //TODO IT Is this needed?
-  }
-
 }

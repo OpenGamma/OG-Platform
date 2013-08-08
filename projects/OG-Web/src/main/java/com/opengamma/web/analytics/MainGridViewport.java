@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -14,8 +13,6 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */ abstract class MainGridViewport implements Viewport {
 
-  /** Row and column structure of the grid. */
-  private MainGridStructure _gridStructure;
   /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
   private final String _callbackId;
 
@@ -27,25 +24,14 @@ import com.opengamma.util.tuple.Pair;
   private State _state = State.EMPTY;
 
   /**
-   * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
    * @param viewportDefinition The viewport definition
-   * @param cycle The view cycle from the previous calculation cycle
-   * @param cache The current results
    */
-  /* package */ MainGridViewport(MainGridStructure gridStructure,
-                                 String callbackId,
-                                 ViewportDefinition viewportDefinition,
-                                 ViewCycle cycle,
-                                 ResultsCache cache) {
-    ArgumentChecker.notNull(gridStructure, "gridStructure");
+  /* package */ MainGridViewport(String callbackId,
+                                 ViewportDefinition viewportDefinition) {
     ArgumentChecker.notEmpty(callbackId, "callbackId");
     _callbackId = callbackId;
-    _gridStructure = gridStructure;
     _viewportDefinition = viewportDefinition;
-    update(viewportDefinition, cycle, cache);
-
-
   }
 
   /**
@@ -58,10 +44,7 @@ import com.opengamma.util.tuple.Pair;
     _state = resultsAndState.getSecond();
   }
 
-
-  MainGridStructure getGridStructure() {
-    return _gridStructure;
-  }
+  abstract MainGridStructure getGridStructure();
 
   @Override
   public ViewportResults getData() {
@@ -84,11 +67,6 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public State getState() {
     return _state;
-  }
-
-  @Override
-  public void updateGridStructure(MainGridStructure gridStructure) {
-      _gridStructure = gridStructure;
   }
 
 }

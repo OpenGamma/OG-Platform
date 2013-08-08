@@ -6,8 +6,12 @@
 package com.opengamma.web.analytics;
 
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.util.ArgumentChecker;
 
 public class PrimitivesGridViewport extends MainGridViewport {
+
+  /** Row and column structure of the grid. */
+  private MainGridStructure _gridStructure;
 
   /**
    * @param gridStructure Row and column structure of the grid
@@ -21,12 +25,22 @@ public class PrimitivesGridViewport extends MainGridViewport {
                          ViewportDefinition viewportDefinition,
                          ViewCycle cycle,
                          ResultsCache cache) {
-    super(gridStructure, callbackId, viewportDefinition, cycle, cache);
+    super(callbackId, viewportDefinition);
+    _gridStructure = gridStructure;
+    update(viewportDefinition, cycle, cache);
+  }
+
+  @Override
+  MainGridStructure getGridStructure() {
+    return _gridStructure;
   }
 
   @Override
   public void update(ViewportDefinition viewportDefinition, ViewCycle viewCycle, ResultsCache cache) {
-    //To change body of implemented methods use File | Settings | File Templates.
+    ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
+    ArgumentChecker.notNull(cache, "cache");
+    setViewportDefinition(viewportDefinition);
+    updateResults(cache);
   }
 
 }
