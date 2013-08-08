@@ -19,6 +19,8 @@ public class PortfolioGridViewport extends MainGridViewport {
   private final ViewportNodeStructure _nodeStructure;
   /** The current expanded paths. */
   private Set<List<String>> _currentExpandedPaths;
+  /** Row and column structure of the grid. */
+  private MainGridStructure _gridStructure;
 
   /**
    * @param gridStructure Row and column structure of the grid
@@ -32,11 +34,17 @@ public class PortfolioGridViewport extends MainGridViewport {
                         ViewportDefinition viewportDefinition,
                         ViewCycle cycle,
                         ResultsCache cache) {
-    super(gridStructure, callbackId, viewportDefinition, cycle, cache);
+    super(callbackId, viewportDefinition);
+    _gridStructure = gridStructure;
     _nodeStructure = new ViewportNodeStructure(getGridStructure().getRootNode(), getGridStructure().getTargetLookup());
     _currentExpandedPaths = new HashSet<>(_nodeStructure.getPaths());
+    update(viewportDefinition, cycle, cache);
   }
 
+  @Override
+  MainGridStructure getGridStructure() {
+    return _gridStructure;
+  }
 
   /**
    * Updates the structure of the tree nodes in the viewport.
@@ -44,11 +52,11 @@ public class PortfolioGridViewport extends MainGridViewport {
    * @param gridStructure The latest structure of the grid
    * @param cache Cache of calculation results
    */
-  public void updateResultsAndStructure(MainGridStructure gridStructure, ResultsCache cache) {
+  public void updateResultsAndStructure(PortfolioGridStructure gridStructure, ResultsCache cache) {
     ViewportNodeStructure node = new ViewportNodeStructure(getGridStructure().getRootNode(),
                                                            getGridStructure().getTargetLookup(),
                                                            _currentExpandedPaths);
-    //_gridStructure = _gridStructure.withNode(node);
+    _gridStructure = gridStructure.withNode(node.getRootNode());
     updateResults(cache);
   }
 
