@@ -127,7 +127,7 @@ $.register_module({
                     return structure_handler(data.parent.connection.structure);
                 }
                 if (view_id && grid_type) {
-                    return structure_setup(data.parent.connection);
+                    return structure_setup(data.parent.connection, true);
                 }
                 if (view_id) {
                     return type_setup();
@@ -181,14 +181,16 @@ $.register_module({
                 meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
                 meta.columns.scroll = result.data[SETS].slice(1);
                 data.connection = {grid_type: grid_type, view_id: view_id, graph_id: graph_id, structure: result};
-                if (config.pool) ['grid_type', 'structure'].forEach(function (key) {delete data.connection[key];});
+                if (config.pool) {
+                    ['grid_type', 'structure'].forEach(function (key) {delete data.connection[key];});
+                }
                 fire('meta', meta, data.connection);
                 if (!subscribed) {
                     return data_setup();
                 }
             };
-            var structure_setup = function (update) {
-                console.log(viewport_id, update);
+            var structure_setup = function (update, init) {
+                console.log('init: ' + init, viewport_id, update);
                 //if (update && viewport_id) {
                 //    (depgraph ? api.grid.depgraphs : api.grid).viewports.del({ // remove the old registrations
                 //        grid_type: grid_type, view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, dry: true
@@ -197,18 +199,19 @@ $.register_module({
                 //    console.log('Structure setup viewport is now null');
                 //}
                 api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
-                    .pipe(function (result) {
-                        if (result.error) return fire('fatal', data.prefix + result.message);
-                        return !depgraph ? structure_handler(result) : api.grid.depgraphs.put({
-                            view_id: view_id, grid_type: grid_type, row: source.row, col: source.col
-                        }).pipe(function (result) {
-                            if (result.error) return fire('fatal', data.prefix + result.message);
-                            return api.grid.depgraphs.structure
-                                .get({view_id: view_id, grid_type: grid_type, graph_id: (graph_id = result.meta.id)})
-                                .pipe(structure_handler);
-                        });
-                    });
+                    .pipe(structure_setup_impl(result));
             };
+            var structure_setup_impl = function (result) {
+                if (result.error) return fire('fatal', data.prefix + result.message);
+                return !depgraph ? structure_handler(result) : api.grid.depgraphs.put({
+                    view_id: view_id, grid_type: grid_type, row: source.row, col: source.col
+                    }).pipe(function (result) {
+                        if (result.error) return fire('fatal', data.prefix + result.message);
+                        return api.grid.depgraphs.structure
+                            .get({view_id: view_id, grid_type: grid_type, graph_id: (graph_id = result.meta.id)})
+                            .pipe(structure_handler);
+                    });
+            }
             var type_setup = function () {
                 var port_request, prim_request, initial = config.pool && grid_type === null;
                 grid_type = source.type;

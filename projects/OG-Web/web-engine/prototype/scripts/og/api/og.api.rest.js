@@ -14,20 +14,17 @@ $.register_module({
             loading_end = common.loading_end, encode = window['encodeURIComponent'], str = common.str,
             outstanding_requests = {}, subscribe, post_processors = {},
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
-            singular = {
-                configs: 'config', exchanges: 'exchange', holidays: 'holiday',
+            singular = { configs: 'config', exchanges: 'exchange', holidays: 'holiday',
                 portfolios: 'portfolio', positions: 'position', regions: 'region', securities: 'security',
-                timeseries: 'timeseries'
-            },
-            has_id_search = {
-                configs: true, exchanges: true, holidays: true, portfolios: true,
-                positions: true, regions: true, securities: true, timeseries: false
-            },
-            TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000, /* 2h */
+                timeseries: 'timeseries'},
+            has_id_search = { configs: true, exchanges: true, holidays: true, portfolios: true, positions: true,
+                regions: true, securities: true, timeseries: false},
+            time_out_soon = 120000, /* 2m */
+            time_out_forever = 7200000, /* 2h */
             check = common.check, paginate = common.paginate;
-        var cache_get = function (key) {return common.cache_get(api.name + key);};
-        var cache_set = function (key, value) {return common.cache_set(api.name + key, value);};
-        var cache_del = function (key) {return common.cache_del(api.name + key);};
+        var cache_get = function (key) {return common.cache_get(api.name + key); };
+        var cache_set = function (key, value) {return common.cache_set(api.name + key, value); };
+        var cache_del = function (key) {return common.cache_del(api.name + key); };
         var default_del = function (config) {
             config = config || {};
             var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
@@ -58,17 +55,29 @@ $.register_module({
                     {condition: !has_id_search[root], label: 'id search unavailable for ' + root, fields: ['ids']}
                 ]
             });
-            if (meta_request) method.push('metaData');
-            if (search) data = paginate(config);
-            if (field_search) fields.forEach(function (val, idx) {
-                if (val = str(config[val])) data[(api_fields || fields)[idx]] = val;
-            });
-            if (id_search) data[singular[root] + 'Id'] = ids;
+            if (meta_request) {
+                method.push('metaData');
+            }
+            if (search) {
+                data = paginate(config);
+            }
+            if (field_search) {
+                fields.forEach(function (val, idx) {
+                    if (val = str(config[val])) {
+                        data[(api_fields || fields)[idx]] = val;
+                    }
+                });
+            }
+            if (id_search) {
+                data[singular[root] + 'Id'] = ids;
+            }
             version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
-            if (id) method = method.concat(version);
+            if (id) {
+                method = method.concat(version);
+            }
             return request(method, {data: data, meta: meta});
         };
-        var post_process = function (data, url) {return post_processors[url] ? post_processors[url](data) : data;};
+        var post_process = function (data, url) {return post_processors[url] ? post_processors[url](data) : data; };
         post_processors[live_data_root + 'compressor/compress'] = function (data) {
             return (data.data = data.data.replace(/\=/g, '-').replace(/\//g, '_').replace(/\+/g, '.')), data;
         };
@@ -104,7 +113,7 @@ $.register_module({
                     data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
                     headers: config.meta.headers || {'Accept': 'application/json', 'Cache-Control': 'no-cache'},
                     dataType: config.meta.datatype || 'json',
-                    timeout: config.meta.timeout || (is_get ? TIMEOUTSOON : TIMEOUTFOREVER),
+                    timeout: config.meta.timeout || (is_get ? time_out_soon : time_out_forever),
                     beforeSend: function (xhr, req) {
                         var aborted = !(promise.id in outstanding_requests),
                             message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
