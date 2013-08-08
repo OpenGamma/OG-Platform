@@ -13,7 +13,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
-public class AnalyticsGridViewport extends MainGridViewport {
+public class PortfolioGridViewport extends MainGridViewport {
 
   /** The node structure. */
   private final ViewportNodeStructure _nodeStructure;
@@ -27,7 +27,7 @@ public class AnalyticsGridViewport extends MainGridViewport {
    * @param cycle The view cycle from the previous calculation cycle
    * @param cache The current results
    */
-  AnalyticsGridViewport(MainGridStructure gridStructure,
+  PortfolioGridViewport(MainGridStructure gridStructure,
                         String callbackId,
                         ViewportDefinition viewportDefinition,
                         ViewCycle cycle,

@@ -29,9 +29,9 @@ import com.opengamma.web.analytics.ViewportResults;
 import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 
 /**
- *
+ * @Path at this point is "views/{viewId}/{gridType}/"
+ * for example "/jax/views/2/primitives"
  */
-@Path("views/{viewId}/{gridType}/")
 public class MainGridResource extends AbstractGridResource implements DependencyGraphOwnerResource {
   
   private static final DateTimeFormatter CSV_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
@@ -40,6 +40,10 @@ public class MainGridResource extends AbstractGridResource implements Dependency
     super(gridType, view);
   }
 
+  /**
+   * @return The initial row and column structure of the grid
+   * subsequent requests will need to be made to the viewport
+   */
   @Override
   public GridStructure getGridStructure() {
     return getView().getGridStructure(getGridType());

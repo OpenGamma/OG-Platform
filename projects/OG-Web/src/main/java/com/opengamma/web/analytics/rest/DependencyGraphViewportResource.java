@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.rest;
 
 import com.opengamma.web.analytics.AnalyticsView;
+import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
 
@@ -34,5 +35,10 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
   @Override
   public ViewportResults getData() {
     return getView().getData(getGridType(), _graphId, getViewportId());
+  }
+
+  // todo move this to the viewport resource
+  public GridStructure getGridStructure() {
+    return getView().getGridStructure(getGridType());
   }
 }

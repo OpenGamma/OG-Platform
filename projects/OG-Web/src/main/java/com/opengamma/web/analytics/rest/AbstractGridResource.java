@@ -75,7 +75,8 @@ public abstract class AbstractGridResource {
   }
 
   /**
-   * @return The row and column structure of the grid
+   * @return The initial row and column structure of the grid
+   * subsequent requests will need to be made to the viewport
    */
   @GET
   public abstract GridStructure getGridStructure();
