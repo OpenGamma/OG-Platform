@@ -631,6 +631,7 @@ import com.opengamma.util.tuple.Pair;
       }
       final String aName = a.getValueName();
       final ValueProperties aProperties = a.getProperties();
+      boolean mismatch = false;
       for (final ValueSpecification b : bs) {
         if (aName == b.getValueName()) {
           // Match the name; check the constraints
@@ -638,9 +639,12 @@ import com.opengamma.util.tuple.Pair;
             continue nextA;
           } else {
             // Mismatch found
-            return true;
+            mismatch = true;
           }
         }
+      }
+      if (mismatch) {
+        return true;
       }
     }
     return false;
@@ -661,13 +665,17 @@ import com.opengamma.util.tuple.Pair;
   private DependencyNode findExistingNode(final Set<DependencyNode> nodes, final ResolvedValue resolvedValue) {
     for (final DependencyNode node : nodes) {
       final Set<ValueSpecification> outputValues = node.getOutputValues();
-      if (!mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
+      if (mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
+        s_logger.debug("Can't reuse {} for {}", node, resolvedValue);
+      } else {
         s_logger.debug("Considering {} for {}", node, resolvedValue);
         // Update the output values for the node with the union. The input values will be dealt with by the caller.
         Map<ValueSpecification, ValueSpecification> replacements = null;
-        resolvedOutput: for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) { //CSIGNORE
+        boolean matched = false;
+        for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) {
           if (outputValues.contains(output)) {
             // Exact match found
+            matched = true;
             continue;
           }
           final String outputName = output.getValueName();
@@ -675,34 +683,28 @@ import com.opengamma.util.tuple.Pair;
           for (final ValueSpecification outputValue : outputValues) {
             if (outputName == outputValue.getValueName()) {
               if ((replacements != null) && replacements.containsKey(outputValue)) {
-                // The candidate output has already been re-written to match another of the resolved outputs
                 continue;
               }
               if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
-                // Found suitable match; check whether it needs rewriting
+                // Found match
+                matched = true;
                 final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
                 if (!composedProperties.equals(outputValue.getProperties())) {
                   final ValueSpecification newOutputValue = MemoryUtils
                       .instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
+                  s_logger.debug("Replacing {} with {} in reused node", outputValue, newOutputValue);
                   if (replacements == null) {
                     replacements = Maps.newHashMapWithExpectedSize(outputValues.size());
                   }
                   replacements.put(outputValue, newOutputValue);
                 }
-                continue resolvedOutput;
+                break;
               }
             }
           }
-          // This output was not matched. The "mismatchUnion" test means it is in addition to what the node was previously producing
-          // and should be able to produce once its got any extra inputs it needs.
-          if (_spec2Node.containsKey(output)) {
-            // Another node already produces this
-            s_logger.debug("Discarding output {} - already produced elsewhere in the graph", output);
-          } else {
-            s_logger.debug("Adding additional output {} to {}", output, node);
-            node.addOutputValue(output);
-            _spec2Node.put(output, node);
-          }
+        }
+        if (!matched) {
+          continue;
         }
         if (replacements != null) {
           for (Map.Entry<ValueSpecification, ValueSpecification> replacement : replacements.entrySet()) {
