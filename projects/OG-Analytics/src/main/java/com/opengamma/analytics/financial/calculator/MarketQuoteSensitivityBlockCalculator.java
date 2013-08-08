@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.calculator;
@@ -82,7 +82,9 @@ public final class MarketQuoteSensitivityBlockCalculator {
    * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @param units The curve building units data.
    * @return The market quote sensitivity.
+   * @deprecated {@link YieldCurveBundle} is deprecated
    */
+  @Deprecated
   public MultipleCurrencyParameterSensitivity fromInstrument(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle,
       final CurveBuildingBlockBundle units) {
     final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, fixedCurves, bundle);
