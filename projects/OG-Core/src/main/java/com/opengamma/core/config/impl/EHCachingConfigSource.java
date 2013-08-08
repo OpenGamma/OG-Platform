@@ -14,6 +14,8 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import com.opengamma.core.AbstractEHCachingSource;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -42,6 +44,28 @@ public class EHCachingConfigSource extends AbstractEHCachingSource<ConfigItem<?>
     EHCacheUtils.addCache(cacheManager, _classCacheName);
     _nameCache = EHCacheUtils.getCacheFromManager(cacheManager, _nameCacheName);
     _classCache = EHCacheUtils.getCacheFromManager(cacheManager, _classCacheName);
+    // this is not nice, but it's better than a stale cache.
+    getUnderlying().changeManager().addChangeListener(new ChangeListener() {
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        switch (event.getType()) {
+          case ADDED:
+            break;
+          case CHANGED:
+            _nameCache.flush();
+            _classCache.flush();
+            flush();
+            break;
+          case REMOVED:
+            _nameCache.flush();
+            _classCache.flush();
+            flush();
+            break;
+          default:
+            break;
+        }
+      }
+    });
   }
 
   private synchronized <R> void cacheNameHit(final Triple<Class<R>, String, VersionCorrection> key, final R value) {
@@ -50,6 +74,7 @@ public class EHCachingConfigSource extends AbstractEHCachingSource<ConfigItem<?>
       // Don't cache the single form if a collection (or another single) has already been written
       _nameCache.put(new Element(key, ConfigItem.of(value, key.getSecond(), key.getFirst())));
     }
+
   }
 
   private synchronized <R> void cacheNameHit(final Triple<Class<R>, String, VersionCorrection> key, final Collection<ConfigItem<R>> values) {
@@ -189,3 +214,4 @@ public class EHCachingConfigSource extends AbstractEHCachingSource<ConfigItem<?>
   }
 
 }
+

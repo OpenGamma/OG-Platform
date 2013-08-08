@@ -126,7 +126,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
+    final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant, this);
 
     final InterpolatedYieldCurveSpecification specification = compile.getThird();
 

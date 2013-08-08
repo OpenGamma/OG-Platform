@@ -13,7 +13,9 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This interface provides a simple view of vol cube definitions.
  * This may be backed by a full-featured master, or by a much simpler data structure.
+ * @deprecated config source
  */
+@Deprecated
 public interface VolatilityCubeDefinitionSource {
 
   /**

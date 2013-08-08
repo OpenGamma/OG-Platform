@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
@@ -14,7 +15,7 @@ import com.opengamma.util.money.Currency;
  * This interface provides a simple view of yield curve definitions.
  * This may be backed by a full-featured master, or by a much simpler data structure.
  */
-public interface InterpolatedYieldCurveDefinitionSource {
+public interface InterpolatedYieldCurveDefinitionSource extends ChangeProvider {
 
   /**
    * Gets a yield curve definition for a currency and name.

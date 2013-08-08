@@ -12,7 +12,9 @@ import com.opengamma.id.VersionCorrection;
  * <p>
  * This interface provides a simple view of volatility surface specifications.
  * This may be backed by a full-featured master, or by a much simpler data structure.
+ * @deprecated should use config source instead.
  */
+@Deprecated
 public interface VolatilitySurfaceSpecificationSource {
 
 

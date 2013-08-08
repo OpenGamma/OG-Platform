@@ -57,6 +57,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     EHCacheUtils.addCache(cacheManager, CONFIG_CACHE);
     _configCache = EHCacheUtils.getCacheFromManager(cacheManager, CONFIG_CACHE);
+    
   }
 
   //-------------------------------------------------------------------------
@@ -207,10 +208,10 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     }
 
     private void cleanCaches(final ChangeEvent event) {
-      final ObjectId objectId = event.getObjectId();
-      if (inCache(objectId)) {
-        _configCache.removeAll();
-      }
+//      final ObjectId objectId = event.getObjectId();
+      //if (inCache(objectId)) {
+        _configCache.removeAll(); // Jim - 5-Aug-2013 -- This was too conservative I think.  Just flush everything for the moment.
+      //}
     }
 
     private boolean inCache(final ObjectId objectId) {
