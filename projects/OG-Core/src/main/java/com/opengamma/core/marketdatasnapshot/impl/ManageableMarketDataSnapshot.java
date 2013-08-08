@@ -6,7 +6,6 @@
 package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;

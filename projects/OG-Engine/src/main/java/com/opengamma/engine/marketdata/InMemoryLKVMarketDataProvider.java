@@ -84,12 +84,8 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
 
   @Override
   public void addValue(final ValueSpecification specification, final Object value) {
-    if (value != null) {
-      _lastKnownValues.put(specification, value);
-      _availability.addAvailableData(specification);
-    } else {
-      _availability.addMissingData(specification);
-    }
+    _lastKnownValues.put(specification, value);
+    _availability.addAvailableData(specification);
     valueChanged(specification);
   }
 
