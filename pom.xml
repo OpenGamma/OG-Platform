@@ -8,7 +8,7 @@
   <artifactId>og-platform</artifactId>
   <packaging>pom</packaging>
   <name>OG-Platform</name>
-  <version>2.0.0-temple-SNAPSHOT</version>
+  <version>2.0.0-temple-alpha-07</version>
   <description>OpenGamma maven aggregator project</description>
   <url>http://developers.opengamma.com/</url>
 
