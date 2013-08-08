@@ -76,6 +76,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private InMemoryLKVMarketDataProvider _unstructured;
   private final StructuredMarketDataSnapshot _snapshot;
+  
 
   /**
    * Handler for a type of structured market data.
@@ -456,7 +457,8 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         for (final ExternalIdBundle target : globalValues.getTargets()) {
           final ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
           for (final Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
-            _unstructured.addValue(new ValueRequirement(valuePair.getKey(), targetRef), query(valuePair.getValue()));
+            ValueRequirement valueRequirement = new ValueRequirement(valuePair.getKey(), targetRef);
+            _unstructured.addValue(valueRequirement, query(valuePair.getValue()));
           }
         }
       }
@@ -531,6 +533,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
           return handler.resolve(targetSpec, target, desiredValue, getSnapshot());
         }
       }
+
 
       @Override
       public MarketDataAvailabilityFilter getAvailabilityFilter() {
