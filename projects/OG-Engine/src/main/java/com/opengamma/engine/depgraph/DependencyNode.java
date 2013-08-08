@@ -371,16 +371,32 @@ public class DependencyNode {
     return _inputValues.contains(specification);
   }
 
+  public boolean isMarketDataSourcingFunction() {
+    return _function.getFunction() instanceof MarketDataSourcingFunction;
+  }
+
   /**
-   * Returns the market data requirement of this node.
+   * Adds the market data requirements, if any, from this node into the given collection.
    * 
-   * @return the market data requirement, or null if none
+   * @param buffer the buffer to update, not null
    */
-  public ValueSpecification getRequiredMarketData() {
-    if (_function.getFunction() instanceof MarketDataSourcingFunction) {
-      return getOutputValues().iterator().next();
+  /* package */void addMarketDataRequirementsInto(final Collection<ValueSpecification> buffer) {
+    if (isMarketDataSourcingFunction()) {
+      for (Map.Entry<ValueSpecification, ?> output : _outputValues.entrySet()) {
+        buffer.add(output.getKey());
+      }
     }
-    return null;
+  }
+
+  /**
+   * Removes the market data requirements, if any, of this node from the collection.
+   */
+  /* package */void removeMarketDataRequirementsFrom(final Collection<ValueSpecification> buffer) {
+    if (isMarketDataSourcingFunction()) {
+      for (Map.Entry<ValueSpecification, ?> output : _outputValues.entrySet()) {
+        buffer.remove(output.getKey());
+      }
+    }
   }
 
   /**
