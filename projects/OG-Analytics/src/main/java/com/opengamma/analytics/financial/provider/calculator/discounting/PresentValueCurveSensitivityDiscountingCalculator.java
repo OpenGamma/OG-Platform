@@ -54,8 +54,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
  */
-public final class PresentValueCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
+public final class PresentValueCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> {
   /**
    * The unique instance of the calculator.
    */

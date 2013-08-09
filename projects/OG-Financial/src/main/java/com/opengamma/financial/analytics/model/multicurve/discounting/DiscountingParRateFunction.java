@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the par rate of swaps, cash and FRAs using curves constructed using
+ * Calculates the par rate of instruments using curves constructed using
  * the discounting method.
  */
 public class DiscountingParRateFunction extends DiscountingFunction {

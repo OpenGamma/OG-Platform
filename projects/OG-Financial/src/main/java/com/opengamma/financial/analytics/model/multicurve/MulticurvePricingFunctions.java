@@ -14,7 +14,10 @@ import com.opengamma.financial.analytics.model.multicurve.discounting.Discountin
 import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingPVFunction;
 import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingParRateFunction;
 import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingYCNSFunction;
+import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhitePV01Function;
 import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhitePVFunction;
+import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhiteParRateFunction;
+import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhiteYCNSFunction;
 
 /**
  *
@@ -31,6 +34,9 @@ public class MulticurvePricingFunctions extends AbstractFunctionConfigurationBea
     functions.add(functionConfiguration(DiscountingParRateFunction.class));
     functions.add(functionConfiguration(DiscountingPV01Function.class));
     functions.add(functionConfiguration(DiscountingYCNSFunction.class));
+    functions.add(functionConfiguration(HullWhiteParRateFunction.class));
     functions.add(functionConfiguration(HullWhitePVFunction.class));
+    functions.add(functionConfiguration(HullWhitePV01Function.class));
+    functions.add(functionConfiguration(HullWhiteYCNSFunction.class));
   }
 }

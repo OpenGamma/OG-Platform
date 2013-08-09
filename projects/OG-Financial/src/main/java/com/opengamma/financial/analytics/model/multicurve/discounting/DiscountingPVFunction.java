@@ -32,7 +32,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of swaps, cash and FRAs using curves constructed using
+ * Calculates the present value of instruments using curves constructed using
  * the discounting method.
  */
 public class DiscountingPVFunction extends DiscountingFunction {
