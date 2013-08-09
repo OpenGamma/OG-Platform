@@ -6,9 +6,22 @@
 package com.opengamma.analytics.financial.interestrate;
 
 /**
- * 
+ *
  */
 public abstract class InterestRate {
+
+  /**
+   * Enum describing the types of an interest rate
+   */
+  public enum Type {
+
+    /** Simple interest rate */
+    SIMPLE,
+    /** Periodic interest rate */
+    PERIODIC,
+    /** Continuously-compounded interest rate */
+    CONTINUOUS
+  }
 
   private final double _rate;
 

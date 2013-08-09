@@ -19,7 +19,9 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborD
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -93,7 +95,7 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Ins
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
   private static final FederalFundsFutureTransactionDiscountingMethod METHOD_FFFUT_TRA = FederalFundsFutureTransactionDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
-
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_STIR_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
   // -----     Deposit     ------
 
   @Override
@@ -205,6 +207,11 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Ins
   @Override
   public MultipleCurrencyMulticurveSensitivity visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction futures, final MulticurveProviderInterface multicurves) {
     return METHOD_FFFUT_TRA.presentValueCurveSensitivity(futures, multicurves);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
+    return METHOD_STIR_FUTURE.presentValueCurveSensitivity(futures, multicurves);
   }
 
   // -----     Forex     ------
