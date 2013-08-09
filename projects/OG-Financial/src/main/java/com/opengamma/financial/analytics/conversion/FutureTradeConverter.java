@@ -41,10 +41,10 @@ public class FutureTradeConverter {
   private final FutureSecurityConverter _futureSecurityConverter;
 
   /**
-   * Constructor.
    * @param securitySource The security source.
    * @param holidaySource The holiday source.
    * @param conventionSource The convention source.
+   * @param conventionBundleSource The convention bundle source.
    * @param regionSource The region source.
    */
   public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,

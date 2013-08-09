@@ -18,7 +18,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.model.multicurve.discounting.FutureTradeDiscountingPV01Function;
 
 /**
  * PV01 function for interest rate futures

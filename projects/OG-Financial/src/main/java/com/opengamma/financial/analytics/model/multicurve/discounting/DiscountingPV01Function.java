@@ -38,7 +38,7 @@ import com.opengamma.util.tuple.Pair;
  * Calculates the PV01 of swaps, cash and FRAs using curves constructed using
  * the discounting method.
  */
-public class LinearFIDiscountingPV01Function extends DiscountingFunction {
+public class DiscountingPV01Function extends DiscountingFunction {
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       PV01CurveParametersCalculator.getInstance();
@@ -46,7 +46,7 @@ public class LinearFIDiscountingPV01Function extends DiscountingFunction {
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PV01}
    */
-  public LinearFIDiscountingPV01Function() {
+  public DiscountingPV01Function() {
     super(PV01);
   }
 

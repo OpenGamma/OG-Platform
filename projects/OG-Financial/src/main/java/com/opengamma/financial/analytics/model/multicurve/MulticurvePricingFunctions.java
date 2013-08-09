@@ -10,14 +10,11 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.multicurve.discounting.FutureTradeDiscountingPV01Function;
-import com.opengamma.financial.analytics.model.multicurve.discounting.FutureTradeDiscountingPVFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.FutureTradeDiscountingYCNSFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingPV01Function;
-import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingPVFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingParRateFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingYCNSFunction;
-import com.opengamma.financial.analytics.model.multicurve.hullwhite.LinearFixedIncomeHullWhitePVFunction;
+import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingPV01Function;
+import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingPVFunction;
+import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingParRateFunction;
+import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingYCNSFunction;
+import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhitePVFunction;
 
 /**
  *
@@ -30,13 +27,10 @@ public class MulticurvePricingFunctions extends AbstractFunctionConfigurationBea
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(LinearFIDiscountingPVFunction.class));
-    functions.add(functionConfiguration(LinearFIDiscountingParRateFunction.class));
-    functions.add(functionConfiguration(LinearFIDiscountingPV01Function.class));
-    functions.add(functionConfiguration(LinearFIDiscountingYCNSFunction.class));
-    functions.add(functionConfiguration(FutureTradeDiscountingPVFunction.class));
-    functions.add(functionConfiguration(FutureTradeDiscountingPV01Function.class));
-    functions.add(functionConfiguration(FutureTradeDiscountingYCNSFunction.class));
-    functions.add(functionConfiguration(LinearFixedIncomeHullWhitePVFunction.class));
+    functions.add(functionConfiguration(DiscountingPVFunction.class));
+    functions.add(functionConfiguration(DiscountingParRateFunction.class));
+    functions.add(functionConfiguration(DiscountingPV01Function.class));
+    functions.add(functionConfiguration(DiscountingYCNSFunction.class));
+    functions.add(functionConfiguration(HullWhitePVFunction.class));
   }
 }

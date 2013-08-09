@@ -32,14 +32,14 @@ import com.opengamma.engine.value.ValueSpecification;
  * Calculates the par rate of swaps, cash and FRAs using curves constructed using
  * the discounting method.
  */
-public class LinearFIDiscountingParRateFunction extends DiscountingFunction {
+public class DiscountingParRateFunction extends DiscountingFunction {
   /** The par rate calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> CALCULATOR = ParRateDiscountingCalculator.getInstance();
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PAR_RATE}
    */
-  public LinearFIDiscountingParRateFunction() {
+  public DiscountingParRateFunction() {
     super(PAR_RATE);
   }
 

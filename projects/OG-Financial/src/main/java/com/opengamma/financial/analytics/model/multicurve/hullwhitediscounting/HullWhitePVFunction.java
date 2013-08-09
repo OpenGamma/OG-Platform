@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.multicurve.discounting;
+package com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting;
 
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
@@ -16,8 +16,8 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -33,29 +33,30 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of swaps, cash and FRAs using curves constructed using
- * the discounting method.
+ * the Hull-White one-factor method.
  */
-public class LinearFIDiscountingPVFunction extends DiscountingFunction {
+public class HullWhitePVFunction extends HullWhiteFunction {
   /** The present value calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR = PresentValueDiscountingCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+      PresentValueHullWhiteCalculator.getInstance();
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PRESENT_VALUE}
    */
-  public LinearFIDiscountingPVFunction() {
+  public HullWhitePVFunction() {
     super(PRESENT_VALUE);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context)) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative) {
-        final MulticurveProviderInterface data = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final HullWhiteOneFactorProviderInterface data = (HullWhiteOneFactorProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+        final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
         final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, data);
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));

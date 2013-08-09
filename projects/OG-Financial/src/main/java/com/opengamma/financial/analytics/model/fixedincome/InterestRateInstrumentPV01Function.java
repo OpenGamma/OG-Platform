@@ -23,11 +23,11 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingPV01Function;
+import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingPV01Function;
 
 /**
  * Computes the PV01 of interest rate instruments.
- * @deprecated Use {@link LinearFIDiscountingPV01Function}
+ * @deprecated Use {@link DiscountingPV01Function}
  */
 @Deprecated
 public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCurveSpecificFunction {
