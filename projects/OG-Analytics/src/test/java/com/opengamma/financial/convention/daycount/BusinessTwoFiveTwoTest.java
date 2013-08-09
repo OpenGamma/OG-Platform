@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -19,9 +19,9 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
-public class ActualTwoFiveTwoTest {
+public class BusinessTwoFiveTwoTest {
   private static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
   private static final ZonedDateTime D2 = DateUtils.getUTCDate(2010, 4, 1);
   private static final ZonedDateTime D3 = DateUtils.getUTCDate(2010, 7, 1);
@@ -32,7 +32,7 @@ public class ActualTwoFiveTwoTest {
   private static final int PAYMENTS = 4;
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final Calendar HOLIDAY_CALENDAR = new MyCalendar("Holiday");
-  private static final ActualTwoFiveTwo DC = new ActualTwoFiveTwo();
+  private static final BusinessTwoFiveTwo DC = new BusinessTwoFiveTwo();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstDate1() {
@@ -91,7 +91,7 @@ public class ActualTwoFiveTwoTest {
 
   @Test
   public void test() {
-    assertEquals(DC.getConventionName(), "Actual/252");
+    assertEquals(DC.getConventionName(), "Business/252");
     final LocalDate d1 = LocalDate.of(2012, 7, 16);
     final LocalDate d2 = LocalDate.of(2012, 7, 17);
     final LocalDate d3 = LocalDate.of(2012, 7, 23);
