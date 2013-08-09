@@ -456,6 +456,11 @@ public final class ValueRequirementNames {
   public static final String POINTS_UPFRONT = "Points Upfront";
 
   /**
+   * The spread for a credit default swap.
+   */
+  public static final String QUOTED_SPREAD = "Quoted Spread";
+
+  /**
    * The principal for a credit default swap.
    */
   public static final String PRINCIPAL = "Principal";
