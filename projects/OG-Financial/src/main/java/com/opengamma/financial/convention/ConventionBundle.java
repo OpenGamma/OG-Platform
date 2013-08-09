@@ -8,6 +8,7 @@ package com.opengamma.financial.convention;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -104,10 +105,22 @@ public interface ConventionBundle extends UniqueIdentifiable {
   BusinessDayConvention getSwapFixedLegBusinessDayConvention();
 
   /**
-   * Gets the swapFixedLegFrequency field.
-   * @return the swapFixedLegFrequency
+   * Gets the payment frequency of a fixed swap leg.
+   * @return The payment frequency of the fixed leg
    */
   Frequency getSwapFixedLegFrequency();
+
+  /**
+   * Gets the compounding frequency of a fixed swap leg.
+   * @return The compounding frequency of the fixed leg
+   */
+  Frequency getSwapFixedLegCompoundingFrequency();
+
+  /**
+   * Gets the compounding type of a fixed swap leg.
+   * @return The compounding type of the fixed leg
+   */
+  InterestRate.Type getSwapFixedLegCompoundingType();
 
   /**
    * Gets the swapFixedLegSettlementDays field.
@@ -134,10 +147,22 @@ public interface ConventionBundle extends UniqueIdentifiable {
   BusinessDayConvention getSwapFloatingLegBusinessDayConvention();
 
   /**
-   * Gets the swapFloatingLegFrequency field.
-   * @return the swapFloatingLegFrequency
+   * Gets the payment frequency of a floating swap leg.
+   * @return The payment frequency of the floating leg
    */
   Frequency getSwapFloatingLegFrequency();
+
+  /**
+   * Gets the compounding frequency of a swap floating leg.
+   * @return The compounding frequency of the floating leg
+   */
+  Frequency getSwapFloatingLegCompoundingFrequency();
+
+  /**
+   * Gets the compounding type of a swap floating leg.
+   * @return The compounding type of the floating leg
+   */
+  InterestRate.Type getSwapFloatingLegCompoundingType();
 
   /**
    * Gets the swapFloatingLegSettlementDays field.
