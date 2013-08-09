@@ -40,8 +40,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -89,10 +91,15 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
+    final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter)
         .fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter).create();
+        .swapSecurityVisitor(swapConverter)
+        .fxForwardVisitor(fxForwardSecurityConverter)
+        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter)
+        .create();
     final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
         regionSource);
     return new TradeConverter(futureTradeConverter, securityConverter);
@@ -198,7 +205,6 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
           return null;
         }
         requirements.addAll(timeSeriesRequirements);
-        final int i = 0;
         return requirements;
       } catch (final Exception e) {
         s_logger.error(e.getMessage());

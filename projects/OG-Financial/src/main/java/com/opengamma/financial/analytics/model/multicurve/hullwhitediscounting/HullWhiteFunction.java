@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.HULL_WHITE_DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 
 import java.util.Set;
@@ -19,7 +19,6 @@ import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
  * Base function for all pricing and risk functions that use the discounting curve
@@ -55,7 +54,7 @@ public abstract class HullWhiteFunction extends MultiCurvePricingFunction {
           .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
           .withAny(CURVE_EXPOSURES)
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-          .with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode()); //TODO really shouldn't be using CURRENCY for this
+          .withAny(PROPERTY_HULL_WHITE_CURRENCY);
     }
 
     @Override
@@ -68,16 +67,20 @@ public abstract class HullWhiteFunction extends MultiCurvePricingFunction {
       if (hullWhiteParameters == null || hullWhiteParameters.size() != 1) {
         return false;
       }
+      final Set<String> hullWhiteCurrencies = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
+      if (hullWhiteCurrencies == null || hullWhiteCurrencies.size() != 1) {
+        return false;
+      }
       return true;
     }
 
     @Override
     protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
-      final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
+      final Set<String> currency = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
       final Set<String> hullWhiteParameters = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
       return ValueProperties.builder()
           .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)
-          .with(CURRENCY, currency);
+          .with(PROPERTY_HULL_WHITE_CURRENCY, currency);
     }
 
   }
