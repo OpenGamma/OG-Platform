@@ -1115,12 +1115,12 @@ public class DbBatchWriter extends AbstractDbMaster {
 
       // this assumes that _searchKey2StatusEntry has already been populated
       // in getStatus()
-      // TODO need to include the run ID or will get dupes for multiple cycles in the same sequence
       Pair<Long, Long> key = Pair.of(calcConfId, computationTargetId);
       StatusEntry statusEntry = statusCache.get(key);
       if (statusEntry != null) {
         statusEntry.setStatus(status);
         params.addValue("id", statusEntry.getId());
+        params.addValue("run_id", runId);
         params.addValue("status", statusEntry.getStatus().ordinal());
         updates.add(params);
       } else {
@@ -1130,12 +1130,14 @@ public class DbBatchWriter extends AbstractDbMaster {
         insertArgs.addValue("ID", statusId);
         statusEntry = new StatusEntry();
         statusEntry.setId(statusId);
+        statusEntry.setRunId(runId);
         statusEntry.setStatus(status);
         statusEntry.setCalculationConfigurationId(calcConfId);
         statusEntry.setComputationTargetId(computationTargetId);
         statusCache.put(key, statusEntry);
 
         params.addValue("id", statusId);
+        params.addValue("run_id", runId);
         params.addValue("calculation_configuration_id", calcConfId);
         params.addValue("computation_target_id", computationTargetId);
         params.addValue("status", statusEntry.getStatus().ordinal());
