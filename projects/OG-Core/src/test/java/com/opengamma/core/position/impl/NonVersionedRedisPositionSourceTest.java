@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
@@ -28,10 +29,17 @@ import com.opengamma.util.test.AbstractRedisTestCase;
 @Test(enabled=false)
 public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
   
-  public void empty() {
+  @Test(expectedExceptions={DataNotFoundException.class})
+  public void emptyPortfolioSearch() {
     NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
     
     assertNull(source.getPortfolio(UniqueId.of("TEST", "NONE"), null));
+  }
+  
+  @Test(expectedExceptions={DataNotFoundException.class})
+  public void emptyPositionSearch() {
+    NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
+    
     assertNull(source.getPosition(UniqueId.of("TEST", "NONE")));
   }
   
