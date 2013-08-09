@@ -538,87 +538,79 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error initializing snapshot " + snapshotManager, e));
         }
 
-        EngineResourceReference<SingleComputationCycle> cycleReference;
-        try {
-          cycleReference = createCycle(executionOptions, compiledViewDefinition, versionCorrection);
-        } catch (final Exception e) {
-          s_logger.error("Error creating next view cycle for " + getWorkerContext(), e);
-          return;
-        }
-
         if (_executeCycles) {
+          EngineResourceReference<SingleComputationCycle> cycleReference;
           try {
-            final SingleComputationCycle singleComputationCycle = cycleReference.get();
-            final Map<String, Collection<ComputationTargetSpecification>> configToComputationTargets = new HashMap<>();
-            final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> configToTerminalOutputs = new HashMap<>();
-            final MarketDataSnapshot marketDataSnapshot = snapshotManager.getSnapshot();
-
-            for (DependencyGraphExplorer graphExp : compiledViewDefinition.getDependencyGraphExplorers()) {
-              final DependencyGraph graph = graphExp.getWholeGraph();
-              configToComputationTargets.put(graph.getCalculationConfigurationName(), graph.getAllComputationTargets());
-              configToTerminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs());
-            }
-            if (isTerminated()) {
-              cycleReference.release();
-              return;
-            }
-            cycleStarted(new DefaultViewCycleMetadata(
-                cycleReference.get().getUniqueId(),
-                marketDataSnapshot.getUniqueId(),
-                compiledViewDefinition.getViewDefinition().getUniqueId(),
-                versionCorrection,
-                executionOptions.getValuationTime(),
-                singleComputationCycle.getAllCalculationConfigurationNames(),
-                configToComputationTargets,
-                configToTerminalOutputs));
-            if (isTerminated()) {
-              cycleReference.release();
-              return;
-            }
-
-            // We may have started the cycle without setting up market data subscriptions, so we
-            // now need to set them up so that the data will start to be populated in future cycles
-            snapshotManager.requestSubscriptions();
-
-            executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
-
-          } catch (final InterruptedException e) {
-            // Execution interrupted - don't propagate as failure
-            s_logger.info("View cycle execution interrupted for {}", getWorkerContext());
-            cycleReference.release();
-            return;
+            cycleReference = createCycle(executionOptions, compiledViewDefinition, versionCorrection);
           } catch (final Exception e) {
-            // Execution failed
-            s_logger.error("View cycle execution failed for " + getWorkerContext(), e);
-            cycleReference.release();
-            cycleExecutionFailed(executionOptions, e);
+            s_logger.error("Error creating next view cycle for " + getWorkerContext(), e);
             return;
           }
-        }
-        // Don't push the results through if we've been terminated, since another computation job could be running already
-        // and the fact that we've been terminated means the view is no longer interested in the result. Just die quietly.
-        if (isTerminated()) {
-          cycleReference.release();
-          return;
-        }
-        if (_executeCycles) {
-          cycleCompleted(cycleReference.get());
-          // Any clients only expecting a single result may have disconnected, implicitly terminating us, or we may have
-          // been explicitly terminated as a result of completing the cycle. Terminate gracefully.
-          if (isTerminated()) {
-            cycleReference.release();
-            return;
-          }
-        }
+          try {
+            try {
+              final SingleComputationCycle singleComputationCycle = cycleReference.get();
+              final Map<String, Collection<ComputationTargetSpecification>> configToComputationTargets = new HashMap<>();
+              final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> configToTerminalOutputs = new HashMap<>();
+              final MarketDataSnapshot marketDataSnapshot = snapshotManager.getSnapshot();
 
+              for (DependencyGraphExplorer graphExp : compiledViewDefinition.getDependencyGraphExplorers()) {
+                final DependencyGraph graph = graphExp.getWholeGraph();
+                configToComputationTargets.put(graph.getCalculationConfigurationName(), graph.getAllComputationTargets());
+                configToTerminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs());
+              }
+              if (isTerminated()) {
+                return;
+              }
+              cycleStarted(new DefaultViewCycleMetadata(
+                  cycleReference.get().getUniqueId(),
+                  marketDataSnapshot.getUniqueId(),
+                  compiledViewDefinition.getViewDefinition().getUniqueId(),
+                  versionCorrection,
+                  executionOptions.getValuationTime(),
+                  singleComputationCycle.getAllCalculationConfigurationNames(),
+                  configToComputationTargets,
+                  configToTerminalOutputs));
+              if (isTerminated()) {
+                return;
+              }
+              // We may have started the cycle without setting up market data subscriptions, so we
+              // now need to set them up so that the data will start to be populated in future cycles
+              snapshotManager.requestSubscriptions();
+              executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
+            } catch (final InterruptedException e) {
+              // Execution interrupted - don't propagate as failure
+              s_logger.info("View cycle execution interrupted for {}", getWorkerContext());
+              return;
+            } catch (final Exception e) {
+              // Execution failed
+              s_logger.error("View cycle execution failed for " + getWorkerContext(), e);
+              cycleExecutionFailed(executionOptions, e);
+              return;
+            }
+            // Don't push the results through if we've been terminated, since another computation job could be running already
+            // and the fact that we've been terminated means the view is no longer interested in the result. Just die quietly.
+            if (isTerminated()) {
+              return;
+            }
+            cycleCompleted(cycleReference.get());
+            // Any clients only expecting a single result may have disconnected, implicitly terminating us, or we may have
+            // been explicitly terminated as a result of completing the cycle. Terminate gracefully.
+            if (isTerminated()) {
+              return;
+            }
+            if (_previousCycleReference != null) {
+              _previousCycleReference.release();
+            }
+            _previousCycleReference = cycleReference;
+            cycleReference = null;
+          } finally {
+            if (cycleReference != null) {
+              cycleReference.release();
+            }
+          }
+        }
         if (getExecutionOptions().getExecutionSequence().isEmpty()) {
           jobCompleted();
-        }
-        if (_executeCycles) {
-          if (_previousCycleReference != null) {
-            _previousCycleReference.release();
-          }
-          _previousCycleReference = cycleReference;
         }
       } finally {
         VersionCorrectionUtils.unlock(versionCorrection);
