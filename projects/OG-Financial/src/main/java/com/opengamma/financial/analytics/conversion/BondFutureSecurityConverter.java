@@ -58,7 +58,7 @@ public class BondFutureSecurityConverter extends FinancialSecurityVisitorAdapter
       if (bondSecurity == null) {
         throw new OpenGammaRuntimeException("No security found with identifiers " + deliverable.getIdentifiers() + " in bond future deliverable basket");
       }
-      deliverables[i] = (BondFixedSecurityDefinition) bondSecurity.accept(_bondConverter); //TODO check type
+      deliverables[i] = (BondFixedSecurityDefinition) bondSecurity.accept(_bondConverter);
       conversionFactor[i] = deliverable.getConversionFactor();
     }
     return new BondFutureDefinition(tradingLastDate, noticeFirstDate, noticeLastDate, notional, deliverables, conversionFactor);

@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -86,8 +87,9 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     }
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = security.getCurrency();
-    final ZonedDateTime firstAccrualDate = security.getInterestAccrualDate();
-    final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();
+    final ZoneId zone = security.getInterestAccrualDate().getZone();
+    final ZonedDateTime firstAccrualDate = ZonedDateTime.of(security.getInterestAccrualDate().toLocalDate().atStartOfDay(), zone);
+    final ZonedDateTime maturityDate = ZonedDateTime.of(security.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
     final double rate = security.getCouponRate() / 100;
     final DayCount dayCount = security.getDayCount();
     final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -104,11 +106,9 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     }
     final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
     final Period paymentPeriod = getTenor(security.getCouponFrequency());
-    final ZonedDateTime firstCouponDate = security.getFirstCouponDate();
+    final ZonedDateTime firstCouponDate = ZonedDateTime.of(security.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
     return BondFixedSecurityDefinition.from(currency, firstAccrualDate, firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
         yieldConvention, isEOM, security.getIssuerName());
-    //    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
-    //        yieldConvention, isEOM, security.getIssuerName()); // TODO: use first coupon date and long/short first coupon.
   }
 
   @Override
@@ -116,7 +116,7 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     throw new NotImplementedException();
   }
 
-  private Period getTenor(final Frequency freq) {
+  private static Period getTenor(final Frequency freq) {
     if (freq instanceof PeriodFrequency) {
       return ((PeriodFrequency) freq).getPeriod();
     } else if (freq instanceof SimpleFrequency) {

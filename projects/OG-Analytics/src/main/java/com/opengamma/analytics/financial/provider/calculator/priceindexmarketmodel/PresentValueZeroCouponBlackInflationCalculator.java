@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.priceindexmarketmodel;
@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.provider.description.inflation.BlackSmi
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ *
  */
 public final class PresentValueZeroCouponBlackInflationCalculator extends InstrumentDerivativeVisitorDelegate<BlackSmileCapInflationZeroCouponProviderInterface, MultipleCurrencyAmount> {
 
@@ -28,7 +28,7 @@ public final class PresentValueZeroCouponBlackInflationCalculator extends Instru
    * Constructor.
    */
   private PresentValueZeroCouponBlackInflationCalculator() {
-    super(new BlackSmileCapInflationZeroCouponProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new BlackSmileCapInflationZeroCouponProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

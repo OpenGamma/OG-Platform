@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.returns;
@@ -43,7 +43,7 @@ public abstract class TimeSeriesReturnCalculator implements Function<LocalDateDo
     return _mode;
   }
 
-  protected LocalDateDoubleTimeSeries getSeries(final LocalDateDoubleTimeSeries x, final int[] filteredDates, final double[] filteredData, final int i) {
+  protected LocalDateDoubleTimeSeries getSeries(final int[] filteredDates, final double[] filteredData, final int i) {
     return ImmutableLocalDateDoubleTimeSeries.of(Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i));
   }
 

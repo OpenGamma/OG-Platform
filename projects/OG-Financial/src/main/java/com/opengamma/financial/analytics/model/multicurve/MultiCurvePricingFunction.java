@@ -198,6 +198,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
           return null;
         }
         requirements.addAll(timeSeriesRequirements);
+        final int i = 0;
         return requirements;
       } catch (final Exception e) {
         s_logger.error(e.getMessage());

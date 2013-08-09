@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.returns;
@@ -63,17 +63,17 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
     final int[] resultDates = new int[ts.size() - 1];
     final double[] resultValues = new double[ts.size() - 1];
     int resultIndex = 0;
-    
+
     final LocalDateDoubleEntryIterator it = ts.iterator();
     it.nextTimeFast();
     double previousValue = it.currentValue();
-    
+
     double dividend;
     Double dividendTSData;
     while (it.hasNext()) {
-      int date = it.nextTimeFast();
-      double value = it.currentValue();
-      
+      final int date = it.nextTimeFast();
+      final double value = it.currentValue();
+
       if (isValueNonZero(previousValue) && isValueNonZero(value)) {
         resultDates[resultIndex] = date;
         if (d == null) {
@@ -86,7 +86,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
       }
       previousValue = value;
     }
-    return getSeries(x[0], resultDates, resultValues, resultIndex);
+    return getSeries(resultDates, resultValues, resultIndex);
   }
 
 }

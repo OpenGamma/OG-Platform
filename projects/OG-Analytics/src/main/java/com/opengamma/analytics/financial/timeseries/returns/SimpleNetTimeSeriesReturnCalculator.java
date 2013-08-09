@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.returns;
@@ -19,7 +19,7 @@ import com.opengamma.util.CalculationMode;
  * where <i>P<sub>t</sub></i> is the price at time <i>t</i>,
  * <i>D<sub>t</sub></i> is the dividend at time <i>t</i> and
  * <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
- * 
+ *
  */
 public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
@@ -40,7 +40,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
    * @throws IllegalArgumentException
    *           If: the array is null; it has no elements;
    * @throws TimeSeriesException
-   *           Throws an exception if: 
+   *           Throws an exception if:
    *           the time series has less than two entries; the calculation
    *           mode is strict and there are zeroes in the price series.
    * @return A DoubleTimeSeries containing the return series. This will always
@@ -60,21 +60,21 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
         d = x[1];
       }
     }
-    
+
     final int[] resultDates = new int[ts.size() - 1];
     final double[] resultValues = new double[ts.size() - 1];
     int resultIndex = 0;
-    
+
     final LocalDateDoubleEntryIterator it = ts.iterator();
     it.nextTimeFast();
     double previousValue = it.currentValue();
-    
+
     double dividend;
     Double dividendTSData;
     while (it.hasNext()) {
-      int date = it.nextTimeFast();
-      double value = it.currentValue();
-      
+      final int date = it.nextTimeFast();
+      final double value = it.currentValue();
+
       if (isValueNonZero(previousValue) && isValueNonZero(value)) {
         resultDates[resultIndex] = date;
         if (d == null) {
@@ -87,7 +87,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
       }
       previousValue = value;
     }
-    return getSeries(x[0], resultDates, resultValues, resultIndex);
+    return getSeries(resultDates, resultValues, resultIndex);
   }
 
 }
