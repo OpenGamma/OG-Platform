@@ -243,6 +243,96 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
+  /**
+   * Compare tree with time-varying volatility to BS formula with root-mean-square volatility
+   */
+  @Test
+  public void timeVaryingVolEuropeanTest() {
+    final LatticeSpecification lattice1 = new TimeVaryingLatticeSpecification();
+    final double[] time_set = new double[] {0.5, 1., 2. };
+    final int steps = 301;
+
+    final double[] vol = new double[steps];
+    final double[] rate = new double[steps];
+    final double constA = 0.01;
+    final double constB = 0.001;
+    final double constC = 0.1;
+    final double constD = 0.05;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double time : time_set) {
+          for (int i = 0; i < steps; ++i) {
+            rate[i] = constA + constB * i * time / steps;
+            vol[i] = constC + constD * Math.sin(i * time / steps);
+          }
+          final double rateRef = constA + 0.5 * constB * time;
+          final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
+
+          final double res1 = _model.getEuropeanPrice(lattice1, SPOT, strike, time, vol, rate, steps, isCall);
+          final double res3 = BlackScholesFormulaRepository.price(SPOT, strike, time, volRef, rateRef, rateRef, isCall);
+          //          System.out.println(res1);
+          //          System.out.println(res3);
+          assertEquals(res1, res3, Math.max(res3, 1.) * Math.pow(0.1, 1. / time));
+        }
+      }
+    }
+  }
+
+  @Test(enabled = false)
+  public void barrierEuropeanTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification() };
+    //    , new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+    //        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+
+    //    new LogEqualProbabiliesLatticeSpecification()  //removed
+
+    //    long startTime = System.currentTimeMillis();
+    //    int i = 0;
+    //    while (i < 100) {
+    //      ++i;
+    //    System.out.println(_model.getEuropeanPrice(lattice, 120., 100., 1., 1., 1., 100));
+    //    }
+    //    long finishTime = System.currentTimeMillis();
+    //    System.out.println("That took: " + (finishTime - startTime) + " ms");
+
+    final double[] barrierSet = new double[] {90 };
+    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final double barrier : barrierSet) {
+      for (final String type : typeSet) {
+        final BinomialTreeOptionPricingModel modelB = new BinomialTreeOptionPricingModel(barrier, type);
+        for (final LatticeSpecification lattice : lattices) {
+          for (final boolean isCall : tfSet) {
+            for (final double strike : STRIKES) {
+              for (final double interest : INTERESTS) {
+                for (final double vol : VOLS) {
+                  final int[] choicesSteps = new int[] {2011 };
+                  for (final int nSteps : choicesSteps) {
+                    if (isCall && type == "DownAndOut" && strike > barrier) {
+                      double exact = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest, isCall) - Math.pow(SPOT / barrier, 1. - 2. * interest / vol / vol) *
+                          BlackScholesFormulaRepository.price(barrier * barrier / SPOT, strike, TIME, vol, interest, interest, isCall);
+                      exact = exact < 0. ? 0. : exact;
+                      final double res = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
+                      System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
+                      //                    final double ref = Math.max(exact, 1.) / Math.sqrt(nSteps);
+                      //                    assertEquals(res, exact, ref);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  //  private double getA(final double  SPOT, final double strike, final double TIME, final double vol, final double interest,final double barrier) {
+  //    return 
+  //  }
+
   @Test
   public void EuropeanGreekLatticesTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
@@ -357,8 +447,9 @@ public class BinomialTreeOptionPricingModelTest {
   @Test
   public void americanPutLatticesTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
-        new LogEqualProbabiliesLatticeSpecification(), new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(),
         new LeisenReimerLatticeSpecification() };
+    //    new LogEqualProbabiliesLatticeSpecification(),
     final int nLattices = lattices.length;
     final int nStrikes = STRIKES.length;
     final int nInterests = INTERESTS.length;
@@ -393,12 +484,12 @@ public class BinomialTreeOptionPricingModelTest {
                * As the price by LogEqualProbabiliesLatticeSpecification tends to converge to the "true" value from above, 
                * this lattice specification must be tested separately. 
                */
-              if (lattice instanceof LogEqualProbabiliesLatticeSpecification) {
-                final double ref = expected[j][k][l] * (steps + 1.) / (steps - 1.);
-                assertEquals(priceP, ref, Math.max(ref, 1.) / Math.sqrt(steps));
-              } else {
-                assertEquals(priceP, expected[j][k][l], Math.max(expected[j][k][l], 1.) / Math.sqrt(steps));
-              }
+              //              if (lattice instanceof LogEqualProbabiliesLatticeSpecification) {
+              //                final double ref = expected[j][k][l] * (steps + 1.) / (steps - 1.);
+              //                assertEquals(priceP, ref, Math.max(ref, 1.) / Math.sqrt(steps));
+              //              } else {
+              assertEquals(priceP, expected[j][k][l], Math.max(expected[j][k][l], 1.) / Math.sqrt(steps));
+              //              }
             }
           }
         }
@@ -524,10 +615,52 @@ public class BinomialTreeOptionPricingModelTest {
   }
 
   @Test
+  public void timeVaryingVolAmericanTest() {
+    final LatticeSpecification lattice1 = new TimeVaryingLatticeSpecification();
+    final LatticeSpecification lattice2 = new TimeVaryingLatticeSpecification();
+    final double[] time_set = new double[] {0.5, 1., 2. };
+    final int steps = 301;
+
+    final double[] vol = new double[steps];
+    final double[] rate = new double[steps];
+    final double constA = 0.01;
+    final double constB = 0.001;
+    final double constC = 0.1;
+    final double constD = 0.05;
+
+    for (final double strike : STRIKES) {
+      for (final double time : time_set) {
+        for (int i = 0; i < steps; ++i) {
+          rate[i] = constA + constB * i * time / steps;
+          vol[i] = constC + constD * Math.sin(i * time / steps);
+        }
+        final double rateRef = constA + 0.5 * constB * time;
+        final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
+
+        final boolean[] tfSet = new boolean[] {true, false };
+        for (final boolean isCall : tfSet) {
+          final double res1 = _model.getAmericanPrice(lattice1, SPOT, strike, time, vol, rate, steps, isCall);
+          //          System.out.println(res1);
+          if (!isCall) {
+            final double res2 = _model.getAmericanPrice(lattice2, SPOT, strike, time, volRef, rateRef, steps, isCall);
+            assertEquals(res1, res2, Math.max(res2, 1.) * Math.pow(0.1, 1. / time));
+            //          System.out.println(res2);
+          } else {
+            final double res3 = _model.getEuropeanPrice(lattice1, SPOT, strike, time, vol, rate, steps, isCall);
+            assertEquals(res1, res3, 1.e-12);
+            //          System.out.println(res3);
+          }
+        }
+      }
+    }
+  }
+
+  @Test
   public void americanPutGreeksTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
-        new LogEqualProbabiliesLatticeSpecification(), new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(),
         new LeisenReimerLatticeSpecification() };
+    //new LogEqualProbabiliesLatticeSpecification(),
     final int nLattices = lattices.length;
     final int nStrikes = STRIKES.length;
     final int nInterests = INTERESTS.length;
@@ -631,24 +764,25 @@ public class BinomialTreeOptionPricingModelTest {
                * As the price by LogEqualProbabiliesLatticeSpecification tends to converge to the "true" value from above, 
                * this lattice specification must be tested separately. 
                */
-              if (lattice instanceof LogEqualProbabiliesLatticeSpecification) {
-                final double refDelta = exDelta[j][k][l] * (steps + 1.) / (steps - 1.);
-                assertEquals(greeks[1], refDelta, Math.max(Math.abs(refDelta), 1.) / Math.sqrt(steps));
-                final double refGamma = exGamma[j][k][l] * (steps + 1.) / (steps - 1.);
-                assertEquals(greeks[2], refGamma, Math.max(Math.abs(refGamma), 1.) / Math.sqrt(steps));
-                /*
-                 * Because theta is poorly approximated in binomial models, the output is not tested here
-                 */
-                //                final double refTheta = exTheta[j][k][l] * (steps + 1.) / (steps - 1.);
-                //                assertEquals(greeks[3], refTheta, Math.max(Math.abs(refTheta), 1.) / Math.sqrt(steps));
-              } else {
-                assertEquals(greeks[1], exDelta[j][k][l], Math.max(Math.abs(exDelta[j][k][l]), 1.) / Math.sqrt(steps));
-                assertEquals(greeks[2], exGamma[j][k][l], Math.max(Math.abs(exGamma[j][k][l]), 1.) / Math.sqrt(steps));
-                /*
-                 * Because theta is poorly approximated in binomial models, the output is not tested here
-                 */
-                //                assertEquals(greeks[3], exTheta[j][k][l], Math.max(Math.abs(exTheta[j][k][l]), 1.) / Math.sqrt(steps));
-              }
+              //              if (lattice instanceof LogEqualProbabiliesLatticeSpecification) {
+              //                final double refDelta = exDelta[j][k][l] * (steps + 1.) / (steps - 1.);
+              //                assertEquals(greeks[1], refDelta, Math.max(Math.abs(refDelta), 1.) / Math.sqrt(steps));
+              //                final double refGamma = exGamma[j][k][l] * (steps + 1.) / (steps - 1.);
+              //                assertEquals(greeks[2], refGamma, Math.max(Math.abs(refGamma), 1.) / Math.sqrt(steps));
+
+              /*
+               * Because theta is poorly approximated in binomial models, the output is not tested here
+               */
+              //                final double refTheta = exTheta[j][k][l] * (steps + 1.) / (steps - 1.);
+              //                assertEquals(greeks[3], refTheta, Math.max(Math.abs(refTheta), 1.) / Math.sqrt(steps));
+              //              } else {
+              assertEquals(greeks[1], exDelta[j][k][l], Math.max(Math.abs(exDelta[j][k][l]), 1.) / Math.sqrt(steps));
+              assertEquals(greeks[2], exGamma[j][k][l], Math.max(Math.abs(exGamma[j][k][l]), 1.) / Math.sqrt(steps));
+              /*
+               * Because theta is poorly approximated in binomial models, the output is not tested here
+               */
+              //                assertEquals(greeks[3], exTheta[j][k][l], Math.max(Math.abs(exTheta[j][k][l]), 1.) / Math.sqrt(steps));
+              //              }
             }
           }
         }
