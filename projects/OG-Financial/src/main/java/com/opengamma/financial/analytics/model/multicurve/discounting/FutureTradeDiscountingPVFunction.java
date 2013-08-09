@@ -54,7 +54,7 @@ public class FutureTradeDiscountingPVFunction extends FutureTradeDiscountingFunc
         final MulticurveProviderInterface data = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+        final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
         final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, data);
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));

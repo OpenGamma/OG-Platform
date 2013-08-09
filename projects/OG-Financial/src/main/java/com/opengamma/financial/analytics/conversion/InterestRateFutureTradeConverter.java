@@ -22,9 +22,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
  */
 @Deprecated
 public class InterestRateFutureTradeConverter {
-  private final InterestRateFutureSecurityConverter _securityConverter;
+  private final InterestRateFutureSecurityConverterDeprecated _securityConverter;
 
-  public InterestRateFutureTradeConverter(final InterestRateFutureSecurityConverter securityConverter) {
+  public InterestRateFutureTradeConverter(final InterestRateFutureSecurityConverterDeprecated securityConverter) {
     Validate.notNull(securityConverter, "security converter");
     _securityConverter = securityConverter;
   }

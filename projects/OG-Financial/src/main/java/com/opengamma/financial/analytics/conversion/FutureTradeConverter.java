@@ -33,15 +33,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Visits a Trade containing a {@link FutureSecurity} (OG-Financial)
  * Converts it to an {@link InstrumentDefinitionWithData} (OG-Analytics)
- * @deprecated Use the version that takes a {@link ConventionSource}
  */
-@Deprecated
-public class FutureTradeConverterDeprecated {
-
+public class FutureTradeConverter {
   /**
    * The security converter (to convert the trade underlying).
    */
-  private final FutureSecurityConverterDeprecated _futureSecurityConverter;
+  private final FutureSecurityConverter _futureSecurityConverter;
 
   /**
    * Constructor.
@@ -50,12 +47,12 @@ public class FutureTradeConverterDeprecated {
    * @param conventionSource The convention source.
    * @param regionSource The region source.
    */
-  public FutureTradeConverterDeprecated(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
-      final RegionSource regionSource) {
-    final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
-    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+  public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,
+      final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _futureSecurityConverter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
+    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
   }
 
   /**

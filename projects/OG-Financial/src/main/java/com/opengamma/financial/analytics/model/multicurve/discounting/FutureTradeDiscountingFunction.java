@@ -43,6 +43,7 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -64,6 +65,9 @@ public abstract class FutureTradeDiscountingFunction extends MultiCurvePricingFu
   //TODO this should not be hard-coded
   private static final String RESOLUTION_KEY = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
+  /**
+   * @param valueRequirements The value requirement names, not null
+   */
   public FutureTradeDiscountingFunction(final String... valueRequirements) {
     super(valueRequirements);
   }
@@ -76,9 +80,10 @@ public abstract class FutureTradeDiscountingFunction extends MultiCurvePricingFu
   protected FutureTradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    return new FutureTradeConverter(securitySource, holidaySource, conventionBundleSource, regionSource);
+    return new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
   }
 
   /**
@@ -126,7 +131,7 @@ public abstract class FutureTradeDiscountingFunction extends MultiCurvePricingFu
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
           .withAny(CURVE_EXPOSURES);
       if (_withCurrency) {
-        properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+        properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
       }
       return properties;
     }

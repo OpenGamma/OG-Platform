@@ -43,7 +43,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Base function for all pricing and risk functions that use the Hull-White one-factor curve
+ * Base function for all pricing and risk functions that use the discounting
  * construction method.
  */
 public abstract class DiscountingFunction extends MultiCurvePricingFunction {

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.EURODOLLAR_FUTURE;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
+
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -13,11 +16,10 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.convention.ConventionBundle;
-import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -27,14 +29,12 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Converts interest rate future securities into the definition form used by the analytics library
- * @deprecated Use the converter that does not reference a {@link ConventionBundleSource}
  */
-@Deprecated
-public class InterestRateFutureSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+public class InterestRateFutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** The holiday source */
   private final HolidaySource _holidaySource;
   /** The convention bundle source */
-  private final ConventionBundleSource _conventionSource;
+  private final ConventionSource _conventionSource;
   /** The region source */
   private final RegionSource _regionSource;
 
@@ -43,7 +43,7 @@ public class InterestRateFutureSecurityConverterDeprecated extends FinancialSecu
    * @param conventionSource The convention source, not null
    * @param regionSource The region source, not null
    */
-  public InterestRateFutureSecurityConverterDeprecated(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource) {
+  public InterestRateFutureSecurityConverter(final HolidaySource holidaySource, final ConventionSource conventionSource, final RegionSource regionSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(regionSource, "region source");
@@ -57,17 +57,17 @@ public class InterestRateFutureSecurityConverterDeprecated extends FinancialSecu
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    ConventionBundle iborConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
-    if (iborConvention == null) {
-      iborConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IR_FUTURE"));
-      if (iborConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
-      }
+    final InterestRateFutureConvention convention = _conventionSource.getConvention(InterestRateFutureConvention.class, ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE));
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE));
     }
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency));
-    final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
-    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), iborConvention.getDayCount(),
-        iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
+    final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
+    final Period period = Period.ofMonths(3); //TODO
+    final double paymentAccrualFactor = getAccrualFactor(period);
+    final int spotLag = 0; //TODO
+    final IborIndex iborIndex = new IborIndex(currency, period, spotLag, iborIndexConvention.getDayCount(),
+        iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     final double notional = security.getUnitAmount() / paymentAccrualFactor;
     return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor, security.getName(), calendar);
   }

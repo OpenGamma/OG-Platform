@@ -40,7 +40,7 @@ public class CommodityFutureOptionConverter extends FinancialSecurityVisitorAdap
   /** security source */
   private final SecuritySource _securitySource;
   /** Converter to get underlying future */
-  private final FutureSecurityConverter _futureSecurityConverter;
+  private final FutureSecurityConverterDeprecated _futureSecurityConverter;
 
   /**
    * @param securitySource security source
@@ -49,10 +49,10 @@ public class CommodityFutureOptionConverter extends FinancialSecurityVisitorAdap
       final RegionSource regionSource) {
     ArgumentChecker.notNull(securitySource, "security source");
     _securitySource = securitySource;
-    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    _futureSecurityConverter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
   }
 
   @Override

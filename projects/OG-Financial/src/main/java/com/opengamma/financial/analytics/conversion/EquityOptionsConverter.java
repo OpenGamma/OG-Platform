@@ -38,14 +38,14 @@ import com.opengamma.util.money.Currency;
  * Converts equity index options, equity options and equity index future options into something that OG-Analytics can use.
  */
 public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
-  private final FutureSecurityConverter _futureSecurityConverter;
+  private final FutureSecurityConverterDeprecated _futureSecurityConverter;
   private final SecuritySource _securitySource;
 
   public EquityOptionsConverter() {
     this(null, null);
   }
 
-  public EquityOptionsConverter(final FutureSecurityConverter futureSecurityConverter, final SecuritySource securitySource) {
+  public EquityOptionsConverter(final FutureSecurityConverterDeprecated futureSecurityConverter, final SecuritySource securitySource) {
     _futureSecurityConverter = futureSecurityConverter;
     _securitySource = securitySource;
   }

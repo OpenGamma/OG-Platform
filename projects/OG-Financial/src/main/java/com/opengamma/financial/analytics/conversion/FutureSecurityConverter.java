@@ -35,15 +35,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * @deprecated Use {@link FutureSecurityConverter}
+ *
  */
-@Deprecated
-public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>
+public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>
     implements FinancialSecurityVisitorWithData<Double, InstrumentDefinitionWithData<?, Double>> {
-  private final InterestRateFutureSecurityConverterDeprecated _irFutureConverter;
+  private final InterestRateFutureSecurityConverter _irFutureConverter;
   private final BondFutureSecurityConverter _bondFutureConverter;
 
-  public FutureSecurityConverterDeprecated(final InterestRateFutureSecurityConverterDeprecated irFutureConverter, final BondFutureSecurityConverter bondFutureConverter) {
+  public FutureSecurityConverter(final InterestRateFutureSecurityConverter irFutureConverter, final BondFutureSecurityConverter bondFutureConverter) {
     _irFutureConverter = irFutureConverter;
     _bondFutureConverter = bondFutureConverter;
   }
@@ -105,7 +104,6 @@ public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorA
       @Override
       public InstrumentDefinitionWithData<?, Double> visitIndexFutureSecurity(final IndexFutureSecurity security) {
         final ZonedDateTime expiry = security.getExpiry().getExpiry();
-        final String type = security.getSecurityType();
         return new IndexFutureDefinition(expiry, expiry, referencePrice, security.getCurrency(), security.getUnitAmount(), security.getUnderlyingId());
       }
 
@@ -114,9 +112,6 @@ public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorA
       public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
         final InterestRateFutureTransactionDefinition securityDefinition = (InterestRateFutureTransactionDefinition) security.accept(_irFutureConverter);
         return securityDefinition;
-        //      new InterestRateFutureTransactionDefinition(securityDefinition.getLastTradingDate(), referencePrice,
-        //      securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
-        //      securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
       }
 
       @SuppressWarnings("synthetic-access")
