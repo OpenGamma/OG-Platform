@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -148,6 +149,25 @@ public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
     double durationInSec = ((double) (end - start)) / 1000000000.0;
     System.out.println("Adding " + NUM_POSITIONS + " took " + durationInSec + " sec");
     
+  }
+  
+  public void portfolioNames() {
+    NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
+    
+    SimplePortfolio portfolio1 = new SimplePortfolio("Fibble-1");
+    UniqueId id1 = source.storePortfolio(portfolio1);
+    SimplePortfolio portfolio2 = new SimplePortfolio("Fibble-2");
+    UniqueId id2 = source.storePortfolio(portfolio2);
+    SimplePortfolio portfolio3 = new SimplePortfolio("Fibble-3");
+    UniqueId id3 = source.storePortfolio(portfolio3);
+    
+    Map<String, UniqueId> result = source.getAllPortfolioNames();
+    assertNotNull(result);
+    assertEquals(3, result.size());
+    
+    assertEquals(id1, result.get(portfolio1.getName()));
+    assertEquals(id2, result.get(portfolio2.getName()));
+    assertEquals(id3, result.get(portfolio3.getName()));
   }
 
 }
