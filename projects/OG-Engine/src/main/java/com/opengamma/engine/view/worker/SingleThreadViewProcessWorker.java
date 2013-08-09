@@ -595,22 +595,25 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
             return;
           }
         }
-
         // Don't push the results through if we've been terminated, since another computation job could be running already
         // and the fact that we've been terminated means the view is no longer interested in the result. Just die quietly.
         if (isTerminated()) {
           cycleReference.release();
           return;
         }
-
         if (_executeCycles) {
           cycleCompleted(cycleReference.get());
+          // Any clients only expecting a single result may have disconnected, implicitly terminating us, or we may have
+          // been explicitly terminated as a result of completing the cycle. Terminate gracefully.
+          if (isTerminated()) {
+            cycleReference.release();
+            return;
+          }
         }
 
         if (getExecutionOptions().getExecutionSequence().isEmpty()) {
           jobCompleted();
         }
-
         if (_executeCycles) {
           if (_previousCycleReference != null) {
             _previousCycleReference.release();
