@@ -23,6 +23,7 @@ import redis.clients.jedis.JedisPool;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
@@ -443,6 +444,10 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       
     }
     
+    if (portfolio == null) {
+      throw new DataNotFoundException("Unable to locate portfolio with UniqueId " + uniqueId);
+    }
+    
     return portfolio;
   }
   
@@ -509,6 +514,10 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
         throw new OpenGammaRuntimeException("Unable to get position " + uniqueId, e);
       }
       
+    }
+    
+    if (position == null) {
+      throw new DataNotFoundException("Unable to find position with UniqueId " + uniqueId);
     }
     
     return position;
