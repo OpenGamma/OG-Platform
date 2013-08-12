@@ -7,19 +7,20 @@ package com.opengamma.financial.analytics.model.multicurve.discounting;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
-import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -50,6 +51,7 @@ import com.opengamma.util.tuple.Pair;
  * curves constructed using the discounting method.
  */
 public class DiscountingYCNSFunction extends DiscountingFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingYCNSFunction.class);
   /** The curve sensitivity calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -72,9 +74,10 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative) {
-        final MulticurveProviderInterface curves = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
-        final CurveBuildingBlockBundle blocks = (CurveBuildingBlockBundle) inputs.getValue(JACOBIAN_BUNDLE);
+      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
+          final FXMatrix fxMatrix) {
+        final MulticurveProviderInterface curves = getMergedProviders(inputs, fxMatrix);
+        final CurveBuildingBlockBundle blocks = getMergedCurveBuildingBlocks(inputs);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
@@ -100,7 +103,8 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
           results.add(new ComputedValue(ycnsSpec, ycns));
         }
         if (!curveNameFound) {
-          throw new OpenGammaRuntimeException("Could not get yield curve node sensitivities for curve named " + desiredCurveName);
+          s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
+          return Collections.emptySet();
         }
         return results;
       }
