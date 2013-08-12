@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.multicurve.discounting;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
 import java.util.HashSet;
@@ -16,7 +15,7 @@ import java.util.Set;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
@@ -56,8 +55,9 @@ public class DiscountingPV01Function extends DiscountingFunction {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative) {
-        final MulticurveProviderInterface data = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
+      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
+          final FXMatrix fxMatrix) {
+        final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints();
@@ -77,7 +77,12 @@ public class DiscountingPV01Function extends DiscountingFunction {
           results.add(new ComputedValue(spec, entry.getValue()));
         }
         if (!curveNameFound) {
-          throw new OpenGammaRuntimeException("Could not get PV01 for curve named " + desiredCurveName);
+          final ValueProperties curveSpecificProperties = properties.copy()
+              .withoutAny(CURVE)
+              .with(CURVE, desiredCurveName)
+              .get();
+          final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
+          results.add(new ComputedValue(spec, Double.NaN));
         }
         return results;
       }
