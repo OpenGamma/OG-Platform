@@ -66,7 +66,7 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     }
     final double notional = security.getAmount();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency)); //TODO exchange region?
-    final int spotLag = 0; //TODO
+    final int spotLag = iborIndexConvention.getSettlementDays();
     final Period indexTenor = Period.ofMonths((int) months);
     final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, iborIndexConvention.getDayCount(), iborIndexConvention.getBusinessDayConvention(),
         iborIndexConvention.isIsEOM(), iborIndexConvention.getName());

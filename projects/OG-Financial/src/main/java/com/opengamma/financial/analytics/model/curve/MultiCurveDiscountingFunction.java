@@ -182,7 +182,7 @@ public class MultiCurveDiscountingFunction extends
               if (iborIndexConvention == null) {
                 throw new OpenGammaRuntimeException("Ibor index convention called " + ibor.getConvention() + " was null");
               }
-              final int spotLag = 0; //TODO
+              final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {

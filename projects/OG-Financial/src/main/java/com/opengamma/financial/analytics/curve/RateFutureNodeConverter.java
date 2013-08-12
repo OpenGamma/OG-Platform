@@ -34,7 +34,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Convert a STIR futures node into an Instrument definition.
+ * The dates of the futures are computed in the following way: 
+ * - The start date is the valuation date plus the "StartTenor" without convention.
+ * - The last trade date is computed from the expiry calculator from the start date, plus the number of futures.
+ * - The delivery date is computed from the last trade date adding the "Settlement Days" (i.e. the number of business days) of the swap convention.
+ * The futures notional is 1.
  */
 public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
   /** The convention source */
@@ -77,8 +82,8 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   @Override
   public InstrumentDefinition<?> visitRateFutureNode(final RateFutureNode rateFuture) {
     final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
-    final Double rate = _marketData.getDataPoint(_dataId);
-    if (rate == null) {
+    final Double price = _marketData.getDataPoint(_dataId);
+    if (price == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
     final String expiryCalculatorName;
@@ -108,14 +113,16 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
     final DayCount dayCount = indexConvention.getDayCount();
     final boolean eom = indexConvention.isIsEOM();
-    final IborIndex iborIndex = new IborIndex(currency, indexTenor, 0, dayCount, businessDayConvention, eom, indexConvention.getName());
+    final int spotLag = indexConvention.getSettlementDays();
+    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
     final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
     final ZonedDateTime startDate = _valuationTime.plus(rateFuture.getStartTenor().getPeriod());
     final LocalTime time = startDate.toLocalTime();
     final ZoneId timeZone = startDate.getZone();
-    final ZonedDateTime lastTradeDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), regionCalendar), time, timeZone);
-    final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, 1, paymentAccrualFactor, "", fixingCalendar);
-    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, _valuationTime, rate, 1);
-    return transactionDefinition.withNewNotionalAndTransactionPrice(1, rate);
+    final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), regionCalendar), time, timeZone);
+    final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(expiryDate, iborIndex, 1, paymentAccrualFactor, "", fixingCalendar);
+    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, _valuationTime, price, 1);
+    return transactionDefinition;
   }
+  
 }

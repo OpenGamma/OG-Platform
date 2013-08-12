@@ -105,7 +105,7 @@ public class FXForwardNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return _maturityTenor;
+    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); // _maturityTenor;
   }
 
   @Override

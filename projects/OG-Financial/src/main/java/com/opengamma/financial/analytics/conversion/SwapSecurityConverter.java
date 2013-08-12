@@ -118,7 +118,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     }
     final Frequency freqIbor = iborLeg.getFrequency();
     final Period tenorIbor = getTenor(freqIbor);
-    final int spotLag = 0; //TODO
+    final int spotLag = iborIndexConvention.getSettlementDays();
     final IborIndex indexIbor = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     final Frequency freqFixed = fixedLeg.getFrequency();
@@ -200,7 +200,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     }
     final Frequency freqIbor = iborLeg.getFrequency();
     final Period tenorIbor = getTenor(freqIbor);
-    final int spotLag = 0;
+    final int spotLag = iborIndexConvention.getSettlementDays();
     final IborIndex iborIndex = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
@@ -218,7 +218,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     }
     final Frequency freqIbor = iborLeg.getFrequency();
     final Period tenorIbor = getTenor(freqIbor);
-    final int spotLag = 0;
+    final int spotLag = iborIndexConvention.getSettlementDays();
     final IborIndex iborIndex = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();

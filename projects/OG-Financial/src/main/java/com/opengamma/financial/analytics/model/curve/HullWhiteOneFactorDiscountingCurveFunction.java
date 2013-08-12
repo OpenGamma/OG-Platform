@@ -73,6 +73,7 @@ import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
@@ -169,7 +170,11 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
             marketDataForCurve[k] = marketData;
-            parameterGuessForCurves.add(marketData);
+            if (node.getCurveNode() instanceof RateFutureNode) {
+              parameterGuessForCurves.add(1.0 - marketData);
+            } else {
+              parameterGuessForCurves.add(marketData); 
+            }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
             derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);
@@ -194,7 +199,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
                 throw new OpenGammaRuntimeException("Expecting convention of type IborIndexConvention; have " + convention.getClass());
               }
               final IborIndexConvention iborIndexConvention = (IborIndexConvention) convention;
-              final int spotLag = 0; //TODO
+              final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
