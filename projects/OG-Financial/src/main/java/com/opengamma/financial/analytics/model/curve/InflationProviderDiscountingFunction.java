@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
+import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveAddSeasonality;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolated;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -36,6 +38,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundi
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -44,8 +47,10 @@ import com.opengamma.analytics.financial.provider.description.inflation.Inflatio
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -133,6 +138,12 @@ public class InflationProviderDiscountingFunction extends
       final String[][] curves = new String[nGroups][];
       final double[][] parameterGuess = new double[nGroups][];
       final LinkedHashMap<String, IndexPrice[]> inflationMap = new LinkedHashMap<>();
+      // seasonal time step construction 
+      final ZonedDateTime[] seasonalityDate = ScheduleCalculator.getUnadjustedDateSchedule(now.withDayOfMonth(1), now.withDayOfMonth(1).plusYears(50), Period.ofMonths(1), true, false);
+      final double[] seasonalStep = new double[seasonalityDate.length];
+      for (int loopins = 0; loopins < seasonalityDate.length; loopins++) {
+        seasonalStep[loopins] = TimeCalculator.getTimeBetween(now, seasonalityDate[loopins]);
+      }
       //TODO comparator to sort groups by order
       int i = 0; // Implementation Note: loop on the groups
       for (final CurveGroupConfiguration group : _curveConstructionConfiguration.getCurveGroups()) { // Group - start
@@ -172,12 +183,10 @@ public class InflationProviderDiscountingFunction extends
             final CouponFixedCompoundingDefinition couponFix = (CouponFixedCompoundingDefinition) swap.getFirstLeg().getNthPayment(swap.getFirstLeg().getNumberOfPayments() - 1);
             if (couponInflation instanceof CouponInflationZeroCouponInterpolationDefinition) {
               final CouponInflationZeroCouponInterpolationDefinition coupon = (CouponInflationZeroCouponInterpolationDefinition) couponInflation;
-              /* parameterGuessForCurves.add(coupon.getIndexStartValue() * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));*/
-              parameterGuessForCurves.add(coupon.getIndexStartValue());
+              parameterGuessForCurves.add(coupon.getIndexStartValue() * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
             } else {
               final CouponInflationZeroCouponMonthlyDefinition coupon = (CouponInflationZeroCouponMonthlyDefinition) couponInflation;
-              /* parameterGuessForCurves.add(coupon.getIndexStartValue() * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));*/
-              parameterGuessForCurves.add(coupon.getIndexStartValue());
+              parameterGuessForCurves.add(coupon.getIndexStartValue() * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
             }
 
             derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);
@@ -206,7 +215,15 @@ public class InflationProviderDiscountingFunction extends
             inflationMap.put(curveName, inflation.toArray(new IndexPrice[inflation.size()]));
           }
           definitions[i][j] = derivativesForCurve;
-          curveGenerators[i][j] = getGenerator(definition);
+          // seasonal curve construction 
+          final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+          final SeasonalCurve seasonalCurve = new SeasonalCurve(seasonalStep, seasonalFactors, false);
+
+          // TODO : inputs () should be retrieve from historical data, for this we need two things : 
+          // 1) histrical value of the price index (this can be retrieve from bloomberg using the appropriate ticker)
+          // 2) A statistical treatment on this data should be done, usually am kind of specific ARIMA.
+
+          curveGenerators[i][j] = new GeneratorPriceIndexCurveAddSeasonality(getGenerator(definition), seasonalCurve);
           curves[i][j] = curveName;
           parameterGuess[i] = parameterGuessForCurves.toDoubleArray();
           j++;

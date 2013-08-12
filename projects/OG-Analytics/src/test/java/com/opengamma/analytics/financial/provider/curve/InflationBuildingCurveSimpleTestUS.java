@@ -256,7 +256,7 @@ public class InflationBuildingCurveSimpleTestUS {
           ird = new Swap(ird1, ird2);
         }
         else {
-          ird = instrument.toDerivative(NOW, NOT_USED_2);
+          ird = instrument.toDerivative(NOW);
         }
         instruments[loopcurve][loopins++] = ird;
       }

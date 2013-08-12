@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -65,9 +65,10 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Build of curve in several blocks with relevant Jacobian matrices.
+ *  Build of curve in several blocks with relevant Jacobian matrices.
+ *  Here we build 
  */
-public class MulticurveBuildingDiscountingBillBondUSDTest {
+public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 8, 22);
 
@@ -303,7 +304,7 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
         if (instrument instanceof SwapFixedONDefinition) {
           ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday, unit), NOT_USED_2);
         } else {
-          ird = instrument.toDerivative(NOW);
+          ird = instrument.toDerivative(NOW, NOT_USED_2);
         }
         instruments[loopcurve][loopins++] = ird;
       }
