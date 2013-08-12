@@ -19,15 +19,18 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * Data model for a compute node.
+ */
 @BeanDefinition
 public class ComputeNode extends DirectBean {
-  
+
   @PropertyDefinition
   private long _id;
-  
+
   @PropertyDefinition
   private ComputeHost _computeHost;
-  
+
   @PropertyDefinition
   private String _nodeName;
 

@@ -20,7 +20,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.redis.AbstractRedisTestCase;
+import com.opengamma.util.test.AbstractRedisTestCase;
 
 /**
  * 

@@ -20,7 +20,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * An in-memory, statically initialized master for convention bundles and their meta-data.
@@ -46,7 +45,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   /**
    * Data store for the conventions.
    */
-  private final ExternalIdBundleMapper<ConventionBundle> _mapper = new ExternalIdBundleMapper<ConventionBundle>(IN_MEMORY_UNIQUE_SCHEME.getName());
+  private final ExternalIdBundleMapper<ConventionBundle> _mapper = new ExternalIdBundleMapper<>(IN_MEMORY_UNIQUE_SCHEME.getName());
   private ConventionBundleMasterUtils _utils;
 
   /**
@@ -146,7 +145,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private Collection<ConventionBundleDocument> wrapReferenceRatesWithDocuments(final Collection<ConventionBundle> referenceRates) {
-    final Collection<ConventionBundleDocument> results = new ArrayList<ConventionBundleDocument>(referenceRates.size());
+    final Collection<ConventionBundleDocument> results = new ArrayList<>(referenceRates.size());
     for (final ConventionBundle referenceRate : referenceRates) {
       results.add(new ConventionBundleDocument(referenceRate));
     }

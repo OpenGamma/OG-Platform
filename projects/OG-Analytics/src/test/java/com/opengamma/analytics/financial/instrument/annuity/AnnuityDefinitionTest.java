@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -25,7 +25,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFloating;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
@@ -34,9 +36,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class AnnuityDefinitionTest {
+  private static final Calendar CALENDAR = new NoHolidayCalendar();
   private static final PaymentFixedDefinition[] FIXED_PAYMENTS;
   private static final PaymentDefinition[] FIXED_FLOAT_PAYMENTS;
   private static final Currency CCY = Currency.AUD;
@@ -64,33 +67,33 @@ public class AnnuityDefinitionTest {
       }
       date = date.plusMonths(1);
     }
-    FIXED_DEFINITION = new AnnuityDefinition<>(FIXED_PAYMENTS);
-    FIXED_FLOAT_DEFINITION = new AnnuityDefinition<>(FIXED_FLOAT_PAYMENTS);
+    FIXED_DEFINITION = new AnnuityDefinition<>(FIXED_PAYMENTS, CALENDAR);
+    FIXED_FLOAT_DEFINITION = new AnnuityDefinition<>(FIXED_FLOAT_PAYMENTS, CALENDAR);
     FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FIXING_RATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPayments() {
-    new AnnuityDefinition<>((PaymentFixedDefinition[]) null);
+    new AnnuityDefinition<>((PaymentFixedDefinition[]) null, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWithNullPayment() {
     final PaymentFixedDefinition[] payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
     payments[0] = null;
-    new AnnuityDefinition<>(payments);
+    new AnnuityDefinition<>(payments, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPayments() {
-    new AnnuityDefinition<>(new PaymentFixedDefinition[0]);
+    new AnnuityDefinition<>(new PaymentFixedDefinition[0], null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDifferentCurrencyPayments() {
     final PaymentFixedDefinition[] payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
     payments[0] = new PaymentFixedDefinition(Currency.CAD, DateUtils.getUTCDate(2011, 1, 1), 1000);
-    new AnnuityDefinition<>(payments);
+    new AnnuityDefinition<>(payments, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -121,12 +124,12 @@ public class AnnuityDefinitionTest {
     }
     assertEquals(CCY, FIXED_DEFINITION.getCurrency());
     assertEquals(FIXED_PAYMENTS.length, FIXED_DEFINITION.getNumberOfPayments());
-    AnnuityDefinition<PaymentFixedDefinition> other = new AnnuityDefinition<>(FIXED_PAYMENTS);
+    AnnuityDefinition<PaymentFixedDefinition> other = new AnnuityDefinition<>(FIXED_PAYMENTS, CALENDAR);
     assertEquals(FIXED_DEFINITION, other);
     assertEquals(FIXED_DEFINITION.hashCode(), other.hashCode());
     final PaymentFixedDefinition[] payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
     payments[0] = new PaymentFixedDefinition(CCY, DateUtils.getUTCDate(2011, 1, 1), 10000);
-    other = new AnnuityDefinition<>(payments);
+    other = new AnnuityDefinition<>(payments, CALENDAR);
     assertFalse(other.equals(FIXED_DEFINITION));
   }
 
@@ -137,7 +140,7 @@ public class AnnuityDefinitionTest {
     for (int i = 0; i < FIXED_PAYMENTS.length; i++) {
       payments[i] = new PaymentFixedDefinition(CCY, DateUtils.getUTCDate(2011, 1, 1), -1000);
     }
-    assertTrue(new AnnuityDefinition<>(payments).isPayer());
+    assertTrue(new AnnuityDefinition<>(payments, CALENDAR).isPayer());
     payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
     payments[0] = new PaymentFixedDefinition(CCY, DateUtils.getUTCDate(2011, 1, 1), 0);
     assertFalse(FIXED_DEFINITION.isPayer());

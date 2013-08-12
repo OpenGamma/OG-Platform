@@ -21,7 +21,7 @@ public class CreditBootstrapFailTest extends ISDABaseTest {
   //yield curve
   private static final LocalDate SPOT_DATE = LocalDate.of(2013, Month.APRIL, 12);
   private static final String[] YIELD_CURVE_POINTS = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "30Y" };
-  private static final String[] YIELD_CURVE_INSTRUMENTS = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+  private static final String[] YIELD_CURVE_INSTRUMENTS = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
   private static final double[] YIELD_CURVE_RATES = new double[] {0.00117, 0.00163, 0.00201, 0.00326, 0.00436, 0.00542, 0.00453, 0.00593, 0.00762, 0.00952, 0.01141, 0.0132, 0.01486, 0.01635, 0.01768,
     0.01992, 0.02221, 0.02376, 0.02443 };
   private static final ISDACompliantYieldCurve YIELD_CURVE = makeYieldCurve(TRADE_DATE, SPOT_DATE, YIELD_CURVE_POINTS, YIELD_CURVE_INSTRUMENTS, YIELD_CURVE_RATES);

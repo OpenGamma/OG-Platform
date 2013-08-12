@@ -97,6 +97,11 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     return visitor.visitSwapXCcyIborIborDefinition(this);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
@@ -107,6 +112,11 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     return new Swap<>(firstLeg, secondLeg);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");

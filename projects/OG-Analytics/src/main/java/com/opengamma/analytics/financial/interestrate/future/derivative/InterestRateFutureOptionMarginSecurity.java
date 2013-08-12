@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -37,11 +36,11 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
   /**
    * The discounting curve name.
    */
-  private final String _discountingCurveName;
+  private String _discountingCurveName;
   /**
    * The forward curve name used in to estimate the fixing index.
    */
-  private final String _forwardCurveName;
+  private String _forwardCurveName;
 
   /**
    * Constructor of the option future from the details.
@@ -51,13 +50,18 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
    * @param isCall The cap (true) / floor (false) flag.
    */
   public InterestRateFutureOptionMarginSecurity(final InterestRateFutureSecurity underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
-    Validate.notNull(underlyingFuture, "underlying future");
-    this._underlyingFuture = underlyingFuture;
-    this._expirationTime = expirationTime;
-    this._strike = strike;
+    ArgumentChecker.notNull(underlyingFuture, "underlying future");
+    _underlyingFuture = underlyingFuture;
+    _expirationTime = expirationTime;
+    _strike = strike;
     _isCall = isCall;
-    _discountingCurveName = underlyingFuture.getDiscountingCurveName();
-    _forwardCurveName = underlyingFuture.getForwardCurveName();
+    try {
+      _discountingCurveName = underlyingFuture.getDiscountingCurveName();
+      _forwardCurveName = underlyingFuture.getForwardCurveName();
+    } catch (final IllegalStateException e) {
+      _discountingCurveName = null;
+      _forwardCurveName = null;
+    }
   }
 
   /**
@@ -103,16 +107,26 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
   /**
    * Gets the discounting curve name.
    * @return The discounting curve name.
+   * @deprecated Curve names should not be set in derivatives
    */
+  @Deprecated
   public String getDiscountingCurveName() {
+    if (_discountingCurveName == null) {
+      throw new IllegalStateException("Curve names should not be set in derivatives");
+    }
     return _discountingCurveName;
   }
 
   /**
    * Gets the forward curve name.
    * @return The forward curve name.
+   * @deprecated Curve names should not be set in derivatives
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_forwardCurveName == null) {
+      throw new IllegalStateException("Curve names should not be set in derivatives");
+    }
     return _forwardCurveName;
   }
 

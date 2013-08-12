@@ -25,32 +25,32 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Visits a Trade containing a FutureSecurity (OG-Financial)
- * Converts it to an InstrumentDefinitionWithData (OG-Analytics)
+ * Visits a Trade containing a {@link FutureSecurity} (OG-Financial)
+ * Converts it to an {@link InstrumentDefinitionWithData} (OG-Analytics)
  */
 public class FutureTradeConverter {
-
   /**
    * The security converter (to convert the trade underlying).
    */
   private final FutureSecurityConverter _futureSecurityConverter;
 
   /**
-   * Constructor.
    * @param securitySource The security source.
    * @param holidaySource The holiday source.
    * @param conventionSource The convention source.
+   * @param conventionBundleSource The convention bundle source.
    * @param regionSource The region source.
    */
-  public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
-      final RegionSource regionSource) {
+  public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,
+      final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
-    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
   }
@@ -70,7 +70,7 @@ public class FutureTradeConverter {
         tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
       }
       ZonedDateTime tradeDate = DateUtils.getUTCDate(1900, 1, 1);
-      if ((trade.getTradeDate() != null) && (trade.getTradeTime().toLocalTime() != null)) {
+      if ((trade.getTradeDate() != null) && trade.getTradeTime() != null && (trade.getTradeTime().toLocalTime() != null)) {
         tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
       }
       final int quantity = trade.getQuantity().intValue();

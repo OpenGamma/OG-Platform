@@ -141,7 +141,8 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     try {
-      final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
+      _helper.init(context, this);
+      final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant, this);
       return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird()));
     } catch (final OpenGammaRuntimeException ogre) {
       s_logger.error("Function {} calculating {} on {} couldn't compile, rethrowing...", new Object[] {getShortName(), _helper.getCurveName(), _helper.getCurrency() });

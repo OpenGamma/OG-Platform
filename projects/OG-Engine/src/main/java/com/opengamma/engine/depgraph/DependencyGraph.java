@@ -229,10 +229,7 @@ public class DependencyGraph {
       throw new IllegalStateException("Node " + node + " already in the graph");
     }
     node.gatherTerminalOutputValues(_terminalOutputs);
-    final ValueSpecification marketData = node.getRequiredMarketData();
-    if (marketData != null) {
-      _allRequiredMarketData.add(marketData);
-    }
+    node.addMarketDataRequirementsInto(_allRequiredMarketData);
     _allComputationTargets.add(node.getComputationTarget());
     for (final ValueSpecification output : node.getOutputValues()) {
       final DependencyNode previous = _outputValues.put(output, node);
@@ -267,10 +264,7 @@ public class DependencyGraph {
     if (!_dependencyNodes.remove(node)) {
       return;
     }
-    final ValueSpecification marketData = node.getRequiredMarketData();
-    if (marketData != null) {
-      _allRequiredMarketData.remove(marketData);
-    }
+    node.removeMarketDataRequirementsFrom(_allRequiredMarketData);
     for (final ValueSpecification output : node.getOutputValues()) {
       _outputValues.remove(output);
       _terminalOutputs.remove(output);

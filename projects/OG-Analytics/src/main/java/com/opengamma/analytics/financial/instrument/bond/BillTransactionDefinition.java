@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -64,12 +65,14 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
    * @param quantity The bill quantity.
    * @param settlementDate The date at which the bill transaction is settled.
    * @param yield The transaction yield. The yield should be in the bill convention.
+   * @param calendar The holiday calendar
    * @return The bill transaction.
    */
-  public static BillTransactionDefinition fromYield(final BillSecurityDefinition underlying, final double quantity, final ZonedDateTime settlementDate, final double yield) {
+  public static BillTransactionDefinition fromYield(final BillSecurityDefinition underlying, final double quantity, final ZonedDateTime settlementDate, final double yield,
+      final Calendar calendar) {
     ArgumentChecker.notNull(underlying, "Underlying");
     ArgumentChecker.notNull(settlementDate, "Settlement date");
-    final double accrualFactor = underlying.getDayCount().getDayCountFraction(settlementDate, underlying.getEndDate());
+    final double accrualFactor = underlying.getDayCount().getDayCountFraction(settlementDate, underlying.getEndDate(), calendar);
     final double settlementAmount = -quantity * underlying.getNotional() * METHOD_BILL_SECURITY.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
     return new BillTransactionDefinition(underlying, quantity, settlementDate, settlementAmount);
   }
@@ -111,6 +114,11 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
     return "Transaction: " + _quantity + " of " + _underlying.toString();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BillTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Reference date");

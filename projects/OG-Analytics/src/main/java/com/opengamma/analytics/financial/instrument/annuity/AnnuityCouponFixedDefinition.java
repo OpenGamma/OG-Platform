@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -33,9 +33,10 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   /**
    * Constructor from a list of fixed coupons.
    * @param payments The fixed coupons.
+   * @param calendar The calendar.
    */
-  public AnnuityCouponFixedDefinition(final CouponFixedDefinition[] payments) {
-    super(payments);
+  public AnnuityCouponFixedDefinition(final CouponFixedDefinition[] payments, final Calendar calendar) {
+    super(payments, calendar);
   }
 
   /**
@@ -89,12 +90,13 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, true, false, businessDay, calendar, isEOM);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, fixedRate);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
+        sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
-          paymentDates[loopcpn]), sign * notional, fixedRate);
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons);
+    return new AnnuityCouponFixedDefinition(coupons, calendar);
   }
 
   /**
@@ -125,12 +127,13 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, frequency, true, false, businessDay, calendar, isEOM);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, fixedRate);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
+        sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
-          paymentDates[loopcpn]), sign * notional, fixedRate);
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons);
+    return new AnnuityCouponFixedDefinition(coupons, calendar);
   }
 
   /**
@@ -162,12 +165,13 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, fixedRate);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
+        sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
-          paymentDates[loopcpn]), sign * notional, fixedRate);
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons);
+    return new AnnuityCouponFixedDefinition(coupons, calendar);
   }
 
   /**
@@ -220,14 +224,14 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDatesUnadjusted[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional,
-        fixedRate);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDatesUnadjusted[0],
+        dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar), sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], dayCount.getDayCountFraction(
-          paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn]), sign * notional, fixedRate);
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn],
+          dayCount.getDayCountFraction(paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], calendar), sign * notional, fixedRate);
     }
 
-    return new AnnuityCouponFixedDefinition(coupons);
+    return new AnnuityCouponFixedDefinition(coupons, calendar);
   }
 
   /**
@@ -270,7 +274,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], dayCount.getAccruedInterest(
           paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], paymentDatesUnadjusted[loopcpn], 1.0, nbPaymentPerYear), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons);
+    return new AnnuityCouponFixedDefinition(coupons, calendar);
   }
 
   /**
@@ -286,7 +290,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]));
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]), getCalendar());
   }
 
   /**
@@ -301,9 +305,14 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]));
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]), getCalendar());
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public AnnuityCouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<CouponFixed> resultList = new ArrayList<>();

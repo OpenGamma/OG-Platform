@@ -46,6 +46,8 @@ public class ISDABaseTest {
       final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval) {
     final DayCount curveDCC = ACT365;
     final int nInstruments = maturities.length;
+    ArgumentChecker.isTrue(nInstruments == type.length, "type length {} does not match maturities length {}", type.length, nInstruments);
+    ArgumentChecker.isTrue(nInstruments == rates.length, "rates length {} does not match  maturities length {}", rates.length, nInstruments);
     final Period[] tenors = new Period[nInstruments];
     final ISDAInstrumentTypes[] types = new ISDAInstrumentTypes[nInstruments];
     for (int i = 0; i < nInstruments; i++) {

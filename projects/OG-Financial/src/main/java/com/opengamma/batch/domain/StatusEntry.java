@@ -5,13 +5,8 @@
  */
 package com.opengamma.batch.domain;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.springframework.jdbc.core.RowMapper;
-
 /**
- * 
+ * Data model for a status entry.
  */
 public class StatusEntry {
   
@@ -44,6 +39,7 @@ public class StatusEntry {
   
   
   private long _id = -1;
+  private long _runId = -1;
   private long _calculationConfigurationId;
   private long _computationTargetId;
   private Status _status;
@@ -55,7 +51,15 @@ public class StatusEntry {
   public void setId(long id) {
     _id = id;
   }
-  
+
+  public long getRunId() {
+    return _runId;
+  }
+
+  public void setRunId(long runId) {
+    _runId = runId;
+  }
+
   public long getCalculationConfigurationId() {
     return _calculationConfigurationId;
   }
@@ -89,20 +93,4 @@ public class StatusEntry {
     }
     throw new IllegalArgumentException(statusInt + " is not a valid status");
   }
-  
-  /**
-   * Spring ParameterizedRowMapper 
-   */
-  public static final RowMapper<StatusEntry> ROW_MAPPER = new RowMapper<StatusEntry>() {
-    @Override
-    public StatusEntry mapRow(ResultSet rs, int rowNum) throws SQLException {
-      StatusEntry statusEntry = new StatusEntry();
-      statusEntry.setId(rs.getLong("id"));
-      statusEntry.setCalculationConfigurationId(rs.getInt("calculation_configuration_id"));
-      statusEntry.setComputationTargetId(rs.getInt("computation_target_id"));
-      statusEntry.setStatus(rs.getInt("status"));
-      return statusEntry;
-    }
-  };
-  
 }

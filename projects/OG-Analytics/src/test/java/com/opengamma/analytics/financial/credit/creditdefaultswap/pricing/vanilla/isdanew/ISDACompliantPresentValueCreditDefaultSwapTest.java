@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
@@ -38,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
@@ -132,13 +132,13 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
       System.out.println("ISDACompliantPremiumLegCalculatorAgaintISDATest2.testISDA_Results DO NOT PUSH WITH DEBUG ON\n");
     }
     int failCount = 0;
-    int constructionFailCount = 0;
+    final int constructionFailCount = 0;
 
     final int nEx = data.length;
     final int[] failedList = new int[nEx];
     for (int count = 0; count < nEx; count++) {
 
-      ISDA_Results res = data[count];
+      final ISDA_Results res = data[count];
 
       // // want to move off ZoneDateTime, but for now need to convert LocalDate back
       // ZonedDateTime ztoday = ZonedDateTime.of(res.today, LOCAL_TIME, TIME_ZONE);
@@ -175,32 +175,32 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
       if (!today.isAfter(endDate)) {
         final boolean payAccOnDefault = true;
         try {
-          CDSAnalytic cds = new CDSAnalytic(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectionStart, RECOVERY_RATE);
-          AnalyticCDSPricer analPricer = new AnalyticCDSPricer();
+          final CDSAnalytic cds = new CDSAnalytic(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectionStart, RECOVERY_RATE);
+          final AnalyticCDSPricer analPricer = new AnalyticCDSPricer();
           protectionLeg_new = NOTIONAL * analPricer.protectionLeg(cds, yieldCurve, res.creditCurve);
-          double rpv01_clean_new = NOTIONAL * analPricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, res.creditCurve, PriceType.CLEAN);
+          final double rpv01_clean_new = NOTIONAL * analPricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, res.creditCurve, PriceType.CLEAN);
           premLeg_clean_new = res.fracSpread * rpv01_clean_new;
-        } catch (Exception e) {
+        } catch (final Exception e) {
         }
 
       }
 
       // price with code written to mimic ISDA c - i.e. date logic in the analytics
-      double rpv01_clean_ISDA = NOTIONAL
+      final double rpv01_clean_ISDA = NOTIONAL
           * PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, true, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.CLEAN);
-      double rpv01_clean_ISDA_noAccOnDefault = NOTIONAL
+      final double rpv01_clean_ISDA_noAccOnDefault = NOTIONAL
           * PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, false, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.CLEAN);
-      double rpv01_dirty_ISDA = NOTIONAL
+      final double rpv01_dirty_ISDA = NOTIONAL
           * PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, true, tenor, stubType, yieldCurve, res.creditCurve, protectionStart, PriceType.DIRTY);
-      double contLeg_ISDA = NOTIONAL * PRICER.calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, yieldCurve, res.creditCurve, RECOVERY_RATE, protectionStart);
+      final double contLeg_ISDA = NOTIONAL * PRICER.calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, yieldCurve, res.creditCurve, RECOVERY_RATE, protectionStart);
 
-      double premLeg_clean_ISDA = res.fracSpread * rpv01_clean_ISDA;
-      double defaultAcc = res.fracSpread * (rpv01_clean_ISDA - rpv01_clean_ISDA_noAccOnDefault);
-      double rpv01_accrued = rpv01_dirty_ISDA - rpv01_clean_ISDA;
-      double accruedPrem = rpv01_accrued * res.fracSpread;
+      final double premLeg_clean_ISDA = res.fracSpread * rpv01_clean_ISDA;
+      final double defaultAcc = res.fracSpread * (rpv01_clean_ISDA - rpv01_clean_ISDA_noAccOnDefault);
+      final double rpv01_accrued = rpv01_dirty_ISDA - rpv01_clean_ISDA;
+      final double accruedPrem = rpv01_accrued * res.fracSpread;
 
       // back out the accrued-days by inverting the accrued premium formula (which is ACT/360) - this matched the formula on the ISDA spread sheet
-      int accruedDays = (int) Math.round(360 * rpv01_accrued / NOTIONAL);
+      final int accruedDays = (int) Math.round(360 * rpv01_accrued / NOTIONAL);
 
       if (debug) {
         System.out.println(count + "\t" + res.premiumLeg + "\t" + premLeg_clean_ISDA + "\t" + premLeg_clean_new + "\t\t" + res.protectionLeg + "\t" + contLeg_ISDA + "\t" + protectionLeg_new + "\t\t"
@@ -216,7 +216,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
           // tests date free vs date-full code
           assertEquals("Premium Leg:", premLeg_clean_ISDA, premLeg_clean_new, 1e-13 * NOTIONAL);
           assertEquals("Protection Leg:", contLeg_ISDA, protectionLeg_new, 1e-16 * NOTIONAL);
-        } catch (AssertionError e) {
+        } catch (final AssertionError e) {
           failedList[failCount++] = count;
         }
       } else {
@@ -279,8 +279,8 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
   public void yieldCurveTest() {
     final int n = YC_TIMES.length;
     for (int i = 0; i < n; i++) {
-      double t = YC_TIMES[i];
-      double df = YIELD_CURVE_ZERO_FLAT.getDiscountFactor(t);
+      final double t = YC_TIMES[i];
+      final double df = YIELD_CURVE_ZERO_FLAT.getDiscountFactor(t);
       assertEquals(DISCOUNT_FACT[i], df, 1e-10);
     }
   }
@@ -296,7 +296,6 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
   // }
   // }
 
-  // @SuppressWarnings("deprecation")
   // @Test(enabled = false)
   // public void presentValueTest() {
   // System.out.println("ISDACompliantPremiumLegCalculatorAgaintISDATest2.presentValueTest: THIS TEST SHOULD NOT BE ANABLED FOR PUSH");
@@ -378,12 +377,12 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
     // private final HazardRateCurve _hazardRateCurve;
 
-    public DummyCDSPricer(ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve) {
-      ZonedDateTime[][] temp = PREMIUM_LEG_SCHEDULE_BUILDER.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
+    public DummyCDSPricer(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve) {
+      final ZonedDateTime[][] temp = PREMIUM_LEG_SCHEDULE_BUILDER.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
       final int n = temp.length;
       _rr = cds.getRecoveryRate();
 
-      ZonedDateTime[] dates = new ZonedDateTime[n];
+      final ZonedDateTime[] dates = new ZonedDateTime[n];
       for (int i = 0; i < n; i++) {
         dates[i] = temp[i][0];
       }
@@ -408,9 +407,9 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
     /**
      * Value per unit of spread on a notional of 1 of the premium leg when valuation date is on a payment date (so there is no accrued
-     *  premium) - from pp 103 of O'Kane - Modelling Single-name and multi-name Credit Derivatives  
+     *  premium) - from pp 103 of O'Kane - Modelling Single-name and multi-name Credit Derivatives
      * @return RPV01 This should be multiplied by the notional and the spread (i.e. spread in basis points divided by 10,000) to give
-     * PV of the premium leg 
+     * PV of the premium leg
      */
     public double rpv01(final HazardRateCurve hazardRateCurve) {
       final double[] q = new double[_nPayments + 1];
@@ -427,22 +426,22 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
     /**
      * PV of protection leg for a notional of 1 - adapted from pp 106 of O'Kane - Modelling Single-name and multi-name Credit Derivatives
-     * @return This should be multiplied by the notional to give PV of protection leg 
+     * @return This should be multiplied by the notional to give PV of protection leg
      */
     public double protectionLeg(final HazardRateCurve hazardRateCurve) {
       final int m = 10; // internal steps between payments of the premium leg
       double sum = 0;
       for (int i = 0; i < _nPayments; i++) {
 
-        double[] df = new double[m + 1];
-        double[] q = new double[m + 1];
+        final double[] df = new double[m + 1];
+        final double[] q = new double[m + 1];
         df[0] = _df[i];
         q[0] = hazardRateCurve.getSurvivalProbability(_t[i]);
 
-        double t0 = _t[i];
-        double step = (_t[i + 1] - _t[i]) / m;
+        final double t0 = _t[i];
+        final double step = (_t[i + 1] - _t[i]) / m;
         for (int jj = 1; jj < m; jj++) {
-          double t = t0 + (jj) * step;
+          final double t = t0 + (jj) * step;
           df[jj] = _yieldCurve.getDiscountFactor(t);
           q[jj] = hazardRateCurve.getSurvivalProbability(t);
         }
@@ -458,7 +457,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
     }
 
     /**
-     * The PV (on a unit notional) for a payer of protection (i.e. short the credit risk) 
+     * The PV (on a unit notional) for a payer of protection (i.e. short the credit risk)
      * @param basisPointsSpread Spread <b>in basis points</b>
      * @return
      */
@@ -468,19 +467,19 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
   }
 
-  private HazardRateCurve fitHazardRateCurve(ZonedDateTime valuationDate, final CreditDefaultSwapDefinition[] cds, final double[] parSpreads, final ISDADateCurve yieldCurve,
+  private HazardRateCurve fitHazardRateCurve(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition[] cds, final double[] parSpreads, final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder();
     final HazardCurveFunc func = new HazardCurveFunc(valuationDate, cds, parSpreads, yieldCurve, hazardRateCurve);
 
     // fist rate is at t = 0, remove it
-    double[] rates = hazardRateCurve.getRates();
+    final double[] rates = hazardRateCurve.getRates();
     final int n = rates.length - 1;
     ArgumentChecker.isTrue(n == cds.length, "cds length inconsistent with knots in curve ");
-    double[] temp = new double[n];
+    final double[] temp = new double[n];
     System.arraycopy(rates, 1, temp, 0, n);
     final DoubleMatrix1D start = new DoubleMatrix1D(temp);
-    DoubleMatrix1D res = rootFinder.getRoot(func, start);
+    final DoubleMatrix1D res = rootFinder.getRoot(func, start);
     return hazardRateCurve.withRates(res.getData());
   }
 
@@ -490,7 +489,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
     private final double[] _spreads;
     private final HazardRateCurve _hazardRateCurve;
 
-    public HazardCurveFunc(ZonedDateTime valuationDate, final CreditDefaultSwapDefinition[] cds, final double[] parSpreads, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
+    public HazardCurveFunc(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition[] cds, final double[] parSpreads, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
       _n = cds.length;
       ArgumentChecker.isTrue(_n == parSpreads.length, "There are {} CDSs and {} par spreads", _n, parSpreads.length);
       ArgumentChecker.isTrue(_n == hazardRateCurve.getNumberOfCurvePoints(), "There are {} CDSs and {} knot points on curve", _n, hazardRateCurve.getNumberOfCurvePoints());
@@ -506,9 +505,9 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
     }
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D r) {
-      double[] pv = new double[_n];
-      HazardRateCurve curve = _hazardRateCurve.withRates(r.getData());
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D r) {
+      final double[] pv = new double[_n];
+      final HazardRateCurve curve = _hazardRateCurve.withRates(r.getData());
       for (int i = 0; i < _n; i++) {
         pv[i] = _pricers[i].pv(curve, _spreads[i]);
       }

@@ -94,9 +94,9 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
     ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(lastKnownFixingDate, "Last known fixing date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
-    this._lastKnownFixingDate = lastKnownFixingDate;
-    this._indexStartValue = indexStartValue;
-    this._referenceEndDate = referenceEndDate;
+    _lastKnownFixingDate = lastKnownFixingDate;
+    _indexStartValue = indexStartValue;
+    _referenceEndDate = referenceEndDate;
     _conventionalMonthLag = conventionalMonthLag;
     _monthLag = monthLag;
     _maturity = maturity;
@@ -252,6 +252,11 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
     return Math.max(omega * (fixing - Math.pow(1 + _strike, _maturity)), 0);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CapFloorInflationZeroCouponMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -268,6 +273,11 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
         naturalPaymentEndTime, _maturity, _strike, _isCap);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

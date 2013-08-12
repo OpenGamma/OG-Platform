@@ -19,8 +19,18 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PointsUpFrontConverter {
 
-  private static final ISDACompliantCreditCurveBuilder BUILDER = new FastCreditCurveBuilder();
-  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
+  private final ISDACompliantCreditCurveBuilder _builder;
+  private final AnalyticCDSPricer _pricer;
+
+  public PointsUpFrontConverter() {
+    _builder = new FastCreditCurveBuilder();
+    _pricer = new AnalyticCDSPricer();
+  }
+
+  public PointsUpFrontConverter(final boolean useCorrectACCOnDefaultFormula) {
+    _builder = new FastCreditCurveBuilder(useCorrectACCOnDefaultFormula);
+    _pricer = new AnalyticCDSPricer(useCorrectACCOnDefaultFormula);
+  }
 
   /**
    * The clean price as a fraction of notional (it is often expressed as a percentage of notional) 
@@ -55,7 +65,7 @@ public class PointsUpFrontConverter {
    * @return The principle 
    */
   public double principal(final double notional, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double coupon) {
-    return notional * PRICER.pv(cds, yieldCurve, creditCurve, coupon, PriceType.CLEAN);
+    return notional * _pricer.pv(cds, yieldCurve, creditCurve, coupon, PriceType.CLEAN);
   }
 
   /**
@@ -68,7 +78,7 @@ public class PointsUpFrontConverter {
    *  so 0.01 is 1(%) points up-front  
    */
   public double pointsUpFront(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
-    return PRICER.pv(cds, yieldCurve, creditCurve, premium, PriceType.CLEAN);
+    return _pricer.pv(cds, yieldCurve, creditCurve, premium, PriceType.CLEAN);
   }
 
   /**
@@ -129,7 +139,7 @@ public class PointsUpFrontConverter {
    *  so 0.01 is 1(%) points up-front  
    */
   public double quotedSpreadToPUF(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double quotedSpread) {
-    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, quotedSpread, yieldCurve);
+    final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, quotedSpread, yieldCurve);
     return pointsUpFront(cds, premium, yieldCurve, creditCurve);
   }
 
@@ -205,7 +215,7 @@ public class PointsUpFrontConverter {
    * @return points up-front (expressed as fractions) 
    */
   public double[] parSpreadsToPUF(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
-    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, parSpreads, yieldCurve);
+    final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, parSpreads, yieldCurve);
     return pointsUpFront(cds, premium, yieldCurve, creditCurve);
   }
 
@@ -221,7 +231,7 @@ public class PointsUpFrontConverter {
    * @return points up-front (expressed as fractions) 
    */
   public double[] parSpreadsToPUF(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
-    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, parSpreads, yieldCurve);
+    final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, parSpreads, yieldCurve);
     return pointsUpFront(cds, premiums, yieldCurve, creditCurve);
   }
 
@@ -235,8 +245,8 @@ public class PointsUpFrontConverter {
    * @return the par spread <b>expressed as a fraction</b>
    */
   public double pufToQuotedSpread(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double pointsUpfront) {
-    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, premium, yieldCurve, pointsUpfront);
-    return PRICER.parSpread(cds, yieldCurve, creditCurve);
+    final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, premium, yieldCurve, pointsUpfront);
+    return _pricer.parSpread(cds, yieldCurve, creditCurve);
   }
 
   /**
@@ -313,7 +323,7 @@ public class PointsUpFrontConverter {
    * @return equivalent par spreads
    */
   public double[] pufToParSpreads(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
-    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(cds, premiums, yieldCurve, pointsUpfront);
+    final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, premiums, yieldCurve, pointsUpfront);
     return parSpreads(cds, yieldCurve, creditCurve);
   }
 
@@ -383,7 +393,7 @@ public class PointsUpFrontConverter {
     final int n = cds.length;
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = PRICER.parSpread(cds[i], yieldCurve, creditCurve);
+      res[i] = _pricer.parSpread(cds[i], yieldCurve, creditCurve);
     }
     return res;
   }

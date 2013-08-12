@@ -1080,7 +1080,7 @@
       <id>dist-src</id>
       <activation>
         <property>
-          <name>dist</name>
+          <name>dist-src</name>
         </property>
       </activation>
       <build>

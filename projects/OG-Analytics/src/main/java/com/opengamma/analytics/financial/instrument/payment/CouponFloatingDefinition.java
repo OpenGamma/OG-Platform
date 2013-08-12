@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -39,7 +39,7 @@ public abstract class CouponFloatingDefinition extends CouponDefinition implemen
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional);
     ArgumentChecker.notNull(fixingDate, "fixing date");
     ArgumentChecker.isTrue(!fixingDate.isAfter(paymentDate), "payment date strictly before fixing");
-    this._fixingDate = fixingDate;
+    _fixingDate = fixingDate;
   }
 
   /**

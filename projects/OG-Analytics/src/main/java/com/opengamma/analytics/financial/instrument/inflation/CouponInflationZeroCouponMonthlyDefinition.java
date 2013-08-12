@@ -205,6 +205,11 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
         getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), getIndexStartValue(), referenceEndDate, payNotional());
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponInflationZeroCouponMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -220,6 +225,11 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
         _payNotional);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

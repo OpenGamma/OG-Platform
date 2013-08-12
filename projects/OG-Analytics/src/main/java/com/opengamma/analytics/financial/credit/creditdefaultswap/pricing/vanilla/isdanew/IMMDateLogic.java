@@ -19,6 +19,8 @@ public abstract class IMMDateLogic {
 
   private static final int IMM_DAY = 20;
   private static final int[] IMM_MONTHS = new int[] {3, 6, 9, 12 };
+  private static final int[] INDEX_ROLL_MONTHS = new int[] {3, 9 };
+  private static final int[] INDEX_MATURITY_MONTHS = new int[] {6, 12 };
 
   /**
    * IMM dates are 20th March, June, September and December 
@@ -33,6 +35,19 @@ public abstract class IMMDateLogic {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Index roll dates are 20th March and September
+   * @param date the date
+   * @return true is date is an IMM date
+   */
+  public static boolean isIndexRollDate(final LocalDate date) {
+    if (date.getDayOfMonth() != IMM_DAY) {
+      return false;
+    }
+    final int month = date.getMonthValue();
+    return month == INDEX_ROLL_MONTHS[0] || month == INDEX_ROLL_MONTHS[1];
   }
 
   /**
@@ -147,6 +162,46 @@ public abstract class IMMDateLogic {
         } else {
           return LocalDate.of(year, IMM_MONTHS[i - 1], IMM_DAY);
         }
+      }
+    }
+  }
+
+  /**
+   * Index roll dates  are 20th March and September. This returns the next roll date from the given date - if the date
+   * is a roll date the next roll date (i.e. 6 months on) is returned.  
+   * @param date a given date
+   * @return the next Index roll date
+   */
+  public static LocalDate getNextIndexRollDate(final LocalDate date) {
+
+    final int day = date.getDayOfMonth();
+    final int month = date.getMonthValue();
+    final int year = date.getYear();
+    if (isIndexRollDate(date)) { //on an index roll 
+      if (month == INDEX_ROLL_MONTHS[0]) {
+        return LocalDate.of(year, INDEX_ROLL_MONTHS[1], IMM_DAY);
+      } else {
+        return LocalDate.of(year + 1, INDEX_ROLL_MONTHS[0], IMM_DAY);
+      }
+    } else {
+      if (month < INDEX_ROLL_MONTHS[0]) {
+        return LocalDate.of(year, INDEX_ROLL_MONTHS[0], IMM_DAY);
+      } else if (month == INDEX_ROLL_MONTHS[0]) {
+        if (day < IMM_DAY) {
+          return LocalDate.of(year, month, IMM_DAY);
+        } else {
+          return LocalDate.of(year, INDEX_ROLL_MONTHS[1], IMM_DAY);
+        }
+      } else if (month < INDEX_ROLL_MONTHS[1]) {
+        return LocalDate.of(year, INDEX_ROLL_MONTHS[1], IMM_DAY);
+      } else if (month == INDEX_ROLL_MONTHS[1]) {
+        if (day < IMM_DAY) {
+          return LocalDate.of(year, month, IMM_DAY);
+        } else {
+          return LocalDate.of(year + 1, INDEX_ROLL_MONTHS[0], IMM_DAY);
+        }
+      } else {
+        return LocalDate.of(year + 1, INDEX_ROLL_MONTHS[0], IMM_DAY);
       }
     }
   }

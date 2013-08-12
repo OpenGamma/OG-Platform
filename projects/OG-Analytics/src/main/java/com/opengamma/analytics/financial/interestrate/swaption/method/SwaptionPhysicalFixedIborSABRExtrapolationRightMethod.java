@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
@@ -21,6 +19,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.S
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -65,8 +64,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
    * @return The present value.
    */
   public double presentValue(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
-    Validate.notNull(swaption);
-    Validate.notNull(sabrData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(sabrData, "sabr data");
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
@@ -98,8 +97,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
-    Validate.notNull(swaption);
-    Validate.notNull(sabrData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(sabrData, "sabr data");
     final DayCount dayCountModification = sabrData.getSABRParameter().getDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
@@ -133,8 +132,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
    * @return The present value SABR sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
-    Validate.notNull(swaption);
-    Validate.notNull(sabrData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(sabrData, "sabr data");
     final DayCount dayCountModification = sabrData.getSABRParameter().getDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, sabrData);
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData);

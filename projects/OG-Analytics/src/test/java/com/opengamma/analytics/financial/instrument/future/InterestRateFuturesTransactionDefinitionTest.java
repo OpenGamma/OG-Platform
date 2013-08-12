@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -42,7 +42,7 @@ public class InterestRateFuturesTransactionDefinitionTest {
   private static final double TRADE_PRICE = 0.9925;
 
   private static final InterestRateFutureTransactionDefinition ERU2_DEFINITION = new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE,
-      SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+      SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
 
@@ -52,17 +52,17 @@ public class InterestRateFuturesTransactionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullLastTradeDate() {
-    new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, null, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, null, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, null, NOTIONAL, FUTURE_FACTOR, NAME);
+    new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, null, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullName() {
-    new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, null);
+    new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, null, CALENDAR);
   }
 
   @Test
@@ -81,26 +81,26 @@ public class InterestRateFuturesTransactionDefinitionTest {
   @Test
   public void equalHash() {
     final InterestRateFutureTransactionDefinition other = new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE,
-        IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+        IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
     assertTrue(ERU2_DEFINITION.equals(other));
     assertTrue(ERU2_DEFINITION.hashCode() == other.hashCode());
     InterestRateFutureTransactionDefinition modifiedFuture;
     modifiedFuture = new InterestRateFutureTransactionDefinition(TRADE_DATE.plusDays(1), TRADE_PRICE, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL,
-        FUTURE_FACTOR, NAME);
+        FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE + 0.1, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL,
-        FUTURE_FACTOR, NAME);
+        FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY + 1, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL,
-        FUTURE_FACTOR, NAME);
+        FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE.plusDays(1), SPOT_LAST_TRADING_DATE, FIXING_END_DATE, IBOR_INDEX, NOTIONAL,
-        FUTURE_FACTOR, NAME);
+        FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     final IborIndex otherIndex = new IborIndex(IBOR_INDEX.getCurrency(), IBOR_INDEX.getTenor(), IBOR_INDEX.getSpotLag(), IBOR_INDEX.getDayCount(), IBOR_INDEX.getBusinessDayConvention(),
         !IBOR_INDEX.isEndOfMonth());
     modifiedFuture = new InterestRateFutureTransactionDefinition(TRADE_DATE, TRADE_PRICE, QUANTITY, LAST_TRADING_DATE, SPOT_LAST_TRADING_DATE, FIXING_END_DATE, otherIndex, NOTIONAL, FUTURE_FACTOR,
-        NAME);
+        NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     assertFalse(ERU2_DEFINITION.equals(IBOR_INDEX));
     assertFalse(ERU2_DEFINITION.equals(null));

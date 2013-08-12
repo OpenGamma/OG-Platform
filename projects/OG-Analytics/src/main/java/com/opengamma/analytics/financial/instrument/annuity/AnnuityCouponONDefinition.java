@@ -39,9 +39,10 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
   /**
    * Constructor from a list of OIS coupons.
    * @param payments The coupons.
+   * @param calendar The holiday calendar
    */
-  public AnnuityCouponONDefinition(final CouponONDefinition[] payments) {
-    super(payments);
+  public AnnuityCouponONDefinition(final CouponONDefinition[] payments, final Calendar calendar) {
+    super(payments, calendar);
   }
 
   /**
@@ -155,7 +156,7 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
       coupons[loopcpn] = CouponONDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
           indexCalendar);
     }
-    return new AnnuityCouponONDefinition(coupons);
+    return new AnnuityCouponONDefinition(coupons, indexCalendar);
   }
 
   private static AnnuityCouponONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
@@ -168,7 +169,7 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
       coupons[loopcpn] = CouponONDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
           generator.getOvernightCalendar());
     }
-    return new AnnuityCouponONDefinition(coupons);
+    return new AnnuityCouponONDefinition(coupons, generator.getOvernightCalendar());
   }
 
   private static AnnuityCouponONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapIborON generator,
@@ -181,9 +182,14 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
       coupons[loopcpn] = CouponONDefinition.from(generator.getIndexON(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
           generator.getOvernightCalendar());
     }
-    return new AnnuityCouponONDefinition(coupons);
+    return new AnnuityCouponONDefinition(coupons, generator.getOvernightCalendar());
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(valZdt, "date");

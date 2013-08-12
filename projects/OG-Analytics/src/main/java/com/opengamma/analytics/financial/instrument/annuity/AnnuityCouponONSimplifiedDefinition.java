@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -27,9 +27,10 @@ public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<Coupo
    * Constructor from a list of OIS coupons.
    * @param payments The coupons.
    * @param index The underlying overnight index.
+   * @param calendar The calendar.
    */
-  public AnnuityCouponONSimplifiedDefinition(final CouponONSimplifiedDefinition[] payments, final IndexON index) {
-    super(payments);
+  public AnnuityCouponONSimplifiedDefinition(final CouponONSimplifiedDefinition[] payments, final IndexON index, final Calendar calendar) {
+    super(payments, calendar);
     _index = index;
   }
 
@@ -135,7 +136,7 @@ public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<Coupo
       coupons[loopcpn] = CouponONSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
           generator.getOvernightCalendar());
     }
-    return new AnnuityCouponONSimplifiedDefinition(coupons, generator.getIndex());
+    return new AnnuityCouponONSimplifiedDefinition(coupons, generator.getIndex(), generator.getOvernightCalendar());
   }
 
   private static AnnuityCouponONSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final boolean isPayer,
@@ -148,7 +149,7 @@ public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<Coupo
       coupons[loopcpn] = CouponONSimplifiedDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
           indexCalendar);
     }
-    return new AnnuityCouponONSimplifiedDefinition(coupons, indexON);
+    return new AnnuityCouponONSimplifiedDefinition(coupons, indexON, indexCalendar);
   }
 
   public IndexON getIndex() {

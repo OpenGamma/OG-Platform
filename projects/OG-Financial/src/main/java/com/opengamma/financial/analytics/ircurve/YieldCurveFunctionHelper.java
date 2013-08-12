@@ -14,17 +14,20 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionReinitializer;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.id.ObjectId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -60,7 +63,11 @@ public class YieldCurveFunctionHelper {
         // REVIEW 2012-10-23 Andrew -- The initialisation state is no longer appropriate for tasks such as this as job version/correction will never be available at
         // this point. Most init methods are examples of premature optimisation to avoid work during the other calls. Additional target dependencies should be used
         // which easily replaces the function reinitialiser mechanism and will result in a proper implementation of version/correction handling.
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());
+        FunctionReinitializer functionReinitializer = context.getFunctionReinitializer(); 
+        if (functionReinitializer != null) { // this step won't happen during a compile.
+          ObjectId objectId = _definition.getUniqueId().getObjectId();
+          functionReinitializer.reinitializeFunction(defnToReInit, objectId);
+        }
       } else {
         s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
       }
@@ -69,7 +76,9 @@ public class YieldCurveFunctionHelper {
   }
 
   public Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile(
-      final FunctionCompilationContext context, final Instant atInstant) {
+      final FunctionCompilationContext context, final Instant atInstant, final FunctionDefinition functionDefinition) {
+    init(context, functionDefinition);
+
     //TODO: avoid doing this compile twice all the time
     final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final LocalDate curveDate = atInstantZDT.toLocalDate();
@@ -79,9 +88,9 @@ public class YieldCurveFunctionHelper {
   }
 
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {
-    final InterpolatedYieldCurveDefinitionSource curveDefinitionSource = OpenGammaCompilationContext
-        .getInterpolatedYieldCurveDefinitionSource(context);
-    return curveDefinitionSource.getDefinition(_currency, _curveName);
+    final ConfigSource configSource = OpenGammaCompilationContext
+        .getConfigSource(context);
+    return configSource.getLatestByName(YieldCurveDefinition.class, _curveName + "_" + _currency.getCode());
   }
 
   private Instant findCurveExpiryDate(final SecuritySource securitySource, final Instant curveDate, final InterpolatedYieldCurveSpecification specification, final Instant eod) {

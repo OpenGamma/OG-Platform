@@ -21,9 +21,9 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
 public class ISDAApproxCDSPricingMethodTestData {
-  
+
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
-  
+
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
 
     final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
@@ -32,23 +32,21 @@ public class ISDAApproxCDSPricingMethodTestData {
     if (!timeIsNegative) {
       return s_act365.getDayCountFraction(date1, rebasedDate2);
     }
-    else {
-      return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
-    }
-  }  
-  
+    return -1.0 * s_act365.getDayCountFraction(rebasedDate2, date1);
+  }
+
   /*
    * -------------------------------------------------------------------------------
    * Data for the ISDA examples provided in main.c as test driver for reference code
    * -------------------------------------------------------------------------------
    */
-  
+
   protected ISDACDSDefinition loadCDS_ISDAExampleMainC(final double spreadBasisPoints) {
-    
+
     final ZonedDateTime startDate = zdt(2008, 2, 8, 0, 0, 0, 0, ZoneOffset.UTC);
     final ZonedDateTime maturity = zdt(2008, 2, 12, 0, 0, 0, 0, ZoneOffset.UTC);
     final int settlementDays = 0; // Overridden in test case
-    
+
     final double notional = 1.0e7;
     final double spread = spreadBasisPoints/10000.0;
     final double recoveryRate = 0.4;
@@ -60,16 +58,16 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, premiumFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR, calendar);
 
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, premiumFrequency, convention, stubType);
   }
-  
+
   protected ISDACurve loadDiscountCurve_ISDAExampleMainC() {
-    
+
     final ZonedDateTime baseDate = zdt(2008, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-    
-    double[] times = {
+
+    final double[] times = {
         getTimeBetween(baseDate, zdt(2008, 2, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
         getTimeBetween(baseDate, zdt(2008, 3, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
         getTimeBetween(baseDate, zdt(2008, 4, 3, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -93,8 +91,8 @@ public class ISDAApproxCDSPricingMethodTestData {
         getTimeBetween(baseDate, zdt(2016, 7, 4, 0, 0, 0, 0, ZoneOffset.UTC)),
         getTimeBetween(baseDate, zdt(2017, 1, 3, 0, 0, 0, 0, ZoneOffset.UTC))
       };
-  
-      double[] rates = {
+
+      final double[] rates = {
         0.000000001013888972778431700000,
         0.000000001013888972778431700000,
         0.000000001013888972778431700000,
@@ -118,22 +116,22 @@ public class ISDAApproxCDSPricingMethodTestData {
         0.000000000998365168314307990000,
         0.000000000997973248135311370000
       };
-      
+
       return new ISDACurve("IR_CURVE", times, rates, 0.0);
   }
-  
+
   protected ISDACurve loadHazardRateCurve_ISDAExampleMainC() {
-    
+
     final ZonedDateTime baseDate = zdt(2008, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
-    double[] times = {
+    final double[] times = {
       s_act365.getDayCountFraction(baseDate, zdt(2008, 2, 12, 0, 0, 0, 0, ZoneOffset.UTC))
     };
-    
-    double[] rates = {
+
+    final double[] rates = {
         (new PeriodicInterestRate(0.81582707425206369, 1)).toContinuous().getRate()
     };
-    
+
     return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
   }
 
@@ -143,14 +141,14 @@ public class ISDAApproxCDSPricingMethodTestData {
    * Data for the ISDA examples provided in the example Excel file, CDS calculator tab
    * ---------------------------------------------------------------------------------
    */
-  
+
   protected ISDACDSDefinition loadCDS_ISDAExampleCDSCalcualtor() {
-    
+
     final ZonedDateTime startDate = zdt(2008, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC);
     final ZonedDateTime maturity = zdt(2013, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC);
     final int settlementDays = 3;
     final double notional = 10000000, spread = 0.01 /* 100bp */, recoveryRate = 0.4;
-    
+
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final DayCount dayCount = new ActualThreeSixty();
@@ -158,18 +156,18 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
-    
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR, calendar);
+
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }
-  
+
   protected ISDACDSDefinition loadCDS_ISDAExampleUpfrontConverter() {
-    
+
     final ZonedDateTime startDate = zdt(2007, 3, 20, 0, 0, 0, 0, ZoneOffset.UTC);
     final ZonedDateTime maturity = zdt(2013, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC);
     final int settlementDays = 3;
     final double notional = 10000000, spread = 0.05 /* 500bp */, recoveryRate = 0.4;
-    
+
     final Frequency couponFrequency = SimpleFrequency.QUARTERLY;
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final DayCount dayCount = new ActualThreeSixty();
@@ -177,57 +175,57 @@ public class ISDAApproxCDSPricingMethodTestData {
     final Convention convention = new Convention(settlementDays, dayCount, businessDays, calendar, "");
     final StubType stubType = StubType.SHORT_START;
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR);
-    
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, /* protectStart */ true, notional, spread, Currency.EUR, calendar);
+
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, /* accrualOnDefault */ true, /* payOnDefault */ true, /* protectStart */ true, couponFrequency, convention, stubType);
   }
-  
+
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator() {
-    
+
     final ZonedDateTime baseDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
-    
-    double[] times = {
+
+    final double[] times = {
       0.0,
       s_act365.getDayCountFraction(baseDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
     };
-    
-    double[] rates = {
+
+    final double[] rates = {
       (new PeriodicInterestRate(0.09709857471184660000,1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.09709857471184660000,1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.09705141266558010000,1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.09701141671498870000,1)).toContinuous().getRate()
     };
-    
+
     return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
   }
-  
+
   protected ISDACurve loadHazardRateCurve_ISDAExampleCDSCalculator_FlatIRCurve() {
-    
+
     final ZonedDateTime baseDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
-    
+
     final double[] times = {
       0.0,
       s_act365.getDayCountFraction(baseDate, zdt(2013, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2015, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2018, 6, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
     };
-    
+
     final double ccRate = (new PeriodicInterestRate(0.09740867310916100000, 1)).toContinuous().getRate();
-    double[] rates = {
+    final double[] rates = {
       ccRate, ccRate, ccRate, ccRate
     };
-    
+
     return new ISDACurve("HAZARD_RATE_CURVE", times, rates, 0.0);
   }
-  
+
   protected ISDACurve loadDiscountCurve_ISDAExampleExcel() {
-    
+
     final ZonedDateTime pricingDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
     final ZonedDateTime baseDate = zdt(2008, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC);
-  
-    double[] times = { 
+
+    final double[] times = {
       s_act365.getDayCountFraction(baseDate, zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -293,8 +291,8 @@ public class ISDAApproxCDSPricingMethodTestData {
       s_act365.getDayCountFraction(baseDate, zdt(2038, 3, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
       s_act365.getDayCountFraction(baseDate, zdt(2038, 9, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
     };
-    
-    double[] rates = {
+
+    final double[] rates = {
         (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.01256719569422680000, 1)).toContinuous().getRate(),
@@ -360,15 +358,15 @@ public class ISDAApproxCDSPricingMethodTestData {
         (new PeriodicInterestRate(0.03502458863645770000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.03501550511625420000, 1)).toContinuous().getRate()
     };
-    
+
     return new ISDACurve("IR_CURVE", times, rates, s_act365.getDayCountFraction(pricingDate, baseDate));
   }
-  
+
   protected ISDACurve loadDiscountCurve_ISDAExampleCDSExcelFlat() {
-    
+
     final ZonedDateTime baseDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
-    
-    double[] times = {
+
+    final double[] times = {
         0.0,
         s_act365.getDayCountFraction(baseDate, zdt(2008, 11, 28, 0, 0, 0, 0, ZoneOffset.UTC)),
         s_act365.getDayCountFraction(baseDate, zdt(2009, 2, 27, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -389,14 +387,14 @@ public class ISDAApproxCDSPricingMethodTestData {
         s_act365.getDayCountFraction(baseDate, zdt(2033, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
         s_act365.getDayCountFraction(baseDate, zdt(2038, 5, 29, 0, 0, 0, 0, ZoneOffset.UTC)),
     };
-    
-    double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    
+
+    final double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
     return new ISDACurve("IR_CURVE", times, rates, 0.0);
   }
 
   //-------------------------------------------------------------------------
-  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneOffset offset) {
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneOffset offset) {
     return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(offset);
   }
 

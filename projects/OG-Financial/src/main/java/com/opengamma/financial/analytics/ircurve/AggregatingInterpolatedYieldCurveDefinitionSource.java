@@ -5,9 +5,14 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
@@ -20,6 +25,11 @@ public class AggregatingInterpolatedYieldCurveDefinitionSource implements Interp
    * The sources being aggregated.
    */
   private final Collection<InterpolatedYieldCurveDefinitionSource> _sources;
+  
+  /**
+   * The aggregating change manager
+   */
+  private final AggregatingChangeManager _changeManager;
 
   /**
    * Creates an instance specifying the sources.
@@ -28,6 +38,11 @@ public class AggregatingInterpolatedYieldCurveDefinitionSource implements Interp
    */
   public AggregatingInterpolatedYieldCurveDefinitionSource(final Iterable<InterpolatedYieldCurveDefinitionSource> sources) {
     _sources = ImmutableList.copyOf(sources);
+    List<ChangeProvider> underlyingChangeProviders = new ArrayList<>();
+    for (InterpolatedYieldCurveDefinitionSource source : _sources) {
+      underlyingChangeProviders.add(source);
+    }
+    _changeManager = new AggregatingChangeManager(underlyingChangeProviders);;
   }
 
   //-------------------------------------------------------------------------
@@ -51,6 +66,11 @@ public class AggregatingInterpolatedYieldCurveDefinitionSource implements Interp
       }
     }
     return null;
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -54,12 +54,13 @@ public class AnnuityDefinitionBuilder {
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, true, false, businessDay, calendar, isEOM);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, fixedRate);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
+        sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
-          paymentDates[loopcpn]), sign * notional, fixedRate);
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
+          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
     }
-    return new AnnuityDefinition<>(coupons);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -113,7 +114,7 @@ public class AnnuityDefinitionBuilder {
       legWithNotional[loopp + 1] = annuityNoNotional.getNthPayment(loopp);
     }
     legWithNotional[nbPay + 1] = new PaymentFixedDefinition(annuityNoNotional.getCurrency(), annuityNoNotional.getNthPayment(nbPay - 1).getPaymentDate(), notional * sign);
-    return new AnnuityDefinition<>(legWithNotional);
+    return new AnnuityDefinition<>(legWithNotional, calendar);
   }
 
   /**
@@ -159,7 +160,7 @@ public class AnnuityDefinitionBuilder {
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), spread);
     }
-    return new AnnuityDefinition<>(coupons);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -206,7 +207,7 @@ public class AnnuityDefinitionBuilder {
       legWithNotional[loopp + 1] = legNoNotional.getNthPayment(loopp);
     }
     legWithNotional[nbPay + 1] = new PaymentFixedDefinition(legNoNotional.getCurrency(), legNoNotional.getNthPayment(nbPay - 1).getPaymentDate(), notional * sign);
-    return new AnnuityDefinition<>(legWithNotional);
+    return new AnnuityDefinition<>(legWithNotional, calendar);
   }
 
   /**

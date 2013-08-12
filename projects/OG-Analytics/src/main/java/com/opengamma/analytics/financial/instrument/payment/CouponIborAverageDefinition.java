@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -104,11 +104,11 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
     _fixingPeriodStartDate1 = ScheduleCalculator.getAdjustedDate(fixingDate, _index1.getSpotLag(), iborCalendar1);
     _fixingPeriodEndDate1 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate1, index1.getTenor(), index1.getBusinessDayConvention(), iborCalendar1,
         index1.isEndOfMonth());
-    _fixingPeriodAccrualFactor1 = index1.getDayCount().getDayCountFraction(_fixingPeriodStartDate1, _fixingPeriodEndDate1);
+    _fixingPeriodAccrualFactor1 = index1.getDayCount().getDayCountFraction(_fixingPeriodStartDate1, _fixingPeriodEndDate1, iborCalendar1);
     _fixingPeriodStartDate2 = ScheduleCalculator.getAdjustedDate(fixingDate, _index2.getSpotLag(), iborCalendar2);
     _fixingPeriodEndDate2 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate2, index2.getTenor(), index2.getBusinessDayConvention(), iborCalendar2,
         index2.isEndOfMonth());
-    _fixingPeriodAccrualFactor2 = index2.getDayCount().getDayCountFraction(_fixingPeriodStartDate2, _fixingPeriodEndDate2);
+    _fixingPeriodAccrualFactor2 = index2.getDayCount().getDayCountFraction(_fixingPeriodStartDate2, _fixingPeriodEndDate2, iborCalendar2);
   }
 
   /**
@@ -294,6 +294,11 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
         _fixingPeriodAccrualFactor2, _index1, _index2, _weight1, _weight2);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     return toDerivative(dateTime);
@@ -305,7 +310,9 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with spread is returned.
    * If the fixing date is strictly after the conversion date, a coupon Ibor is returned.
    * All the comparisons are between dates without time.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     return toDerivative(dateTime, indexFixingTimeSeries);
@@ -329,13 +336,14 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
         getWeight2());
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned.
    * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with spread is returned.
    * If the fixing date is strictly after the conversion date, a coupon Ibor is returned.
    * All the comparisons are between dates without time.
    */
+  @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
@@ -346,7 +354,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
     if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
       final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate != null) {
-        return new CouponFixed(getCurrency(), paymentTime, "", getPaymentYearFraction(), getNotional(), fixedRate);
+        return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
       }
     }
     if (dayConversion.isAfter(dayFixing)) { // The fixing is required
@@ -355,7 +363,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
       }
-      return new CouponFixed(getCurrency(), paymentTime, "", getPaymentYearFraction(), getNotional(), fixedRate);
+      return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
     }
     final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
     final double fixingPeriodStartTime1 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate1());
@@ -366,7 +374,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
         fixingPeriodEndTime1, getFixingPeriodAccrualFactor1(), getIndex2(), fixingPeriodStartTime2, fixingPeriodEndTime2, getFixingPeriodAccrualFactor2(), getWeight1(),
         getWeight2());
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

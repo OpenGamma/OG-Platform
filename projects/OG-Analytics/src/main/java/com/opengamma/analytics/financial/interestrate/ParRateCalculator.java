@@ -225,7 +225,7 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
     for (int i = 0; i < n; i++) {
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
-    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<CouponFixed>(unitCoupons);
+    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<>(unitCoupons);
     final double pvann = unitCouponAnnuity.accept(PVC, curves);
     final double matPV = bond.getNominal().accept(PVC, curves);
     return (1 - matPV) / pvann;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -68,7 +68,7 @@ public class AnnuityCouponONSpreadSimplifiedDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupons() {
-    new AnnuityCouponONSimplifiedDefinition(null, GENERATOR.getIndex());
+    new AnnuityCouponONSimplifiedDefinition(null, GENERATOR.getIndex(), null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -123,7 +123,7 @@ public class AnnuityCouponONSpreadSimplifiedDefinitionTest {
 
   @Test
   public void from() {
-    AnnuityCouponONSpreadSimplifiedDefinition annuity = AnnuityCouponONSpreadSimplifiedDefinition.from(SETTLEMENT_DATE, END_FIXING_DATE, NOTIONAL, SPREAD, IS_PAYER, EONIA, 2, CALENDAR, BUSINESS_DAY,
+    final AnnuityCouponONSpreadSimplifiedDefinition annuity = AnnuityCouponONSpreadSimplifiedDefinition.from(SETTLEMENT_DATE, END_FIXING_DATE, NOTIONAL, SPREAD, IS_PAYER, EONIA, 2, CALENDAR, BUSINESS_DAY,
         PAYMENT_PERIOD, IS_EOM);
     final int nbCouponComputed = annuity.getNumberOfPayments();
     final int nbCouponExpected = 20; // 10 year * semi-annual

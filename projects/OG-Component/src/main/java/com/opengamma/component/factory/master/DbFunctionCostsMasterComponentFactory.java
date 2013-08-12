@@ -24,7 +24,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.calcnode.stats.DataFunctionCostsMasterResource;
 import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
-import com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster;
+import com.opengamma.enginedb.stats.DbFunctionCostsMaster;
 
 /**
  * Component factory for the database function costs master.

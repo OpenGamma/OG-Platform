@@ -7,7 +7,9 @@ package com.opengamma.batch.domain;
 
 import com.opengamma.engine.value.ValueProperties;
 
-
+/**
+ * Data model for a risk value specification.
+ */
 public class RiskValueSpecification extends RiskValueProperties {
 
   public RiskValueSpecification() {

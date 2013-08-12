@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -321,7 +321,7 @@ public class AnnuityCouponIborDefinitionTest {
       spreadCoupons[i] = new CouponIborSpreadDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(),
           coupon.getNotional(), coupon.getFixingDate(), coupon.getIndex(), spread, coupon.getCalendar());
     }
-    assertEquals(definition, AnnuityCouponIborDefinition.from(new AnnuityCouponIborSpreadDefinition(spreadCoupons)));
+    assertEquals(definition, AnnuityCouponIborDefinition.from(new AnnuityCouponIborSpreadDefinition(spreadCoupons, CALENDAR)));
   }
 
 }

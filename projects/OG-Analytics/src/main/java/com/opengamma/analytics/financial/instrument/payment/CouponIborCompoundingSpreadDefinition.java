@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -176,7 +176,7 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
       paymentAccrualFactor += paymentAccrualFactors[loopsub];
       fixingDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], -index.getSpotLag(), calendar);
       fixingPeriodEndDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], index, calendar);
-      fixingPeriodAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], fixingPeriodEndDates[loopsub]);
+      fixingPeriodAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], fixingPeriodEndDates[loopsub], calendar);
     }
     return new CouponIborCompoundingSpreadDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index,
         accrualStartDates, accrualEndDates, paymentAccrualFactors, fixingDates, accrualStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors, spread);
@@ -202,7 +202,7 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
     System.arraycopy(accrualEndDates, 0, accrualStartDates, 1, nbSubPeriod - 1);
     final double[] paymentAccrualFactors = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      paymentAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], accrualEndDates[loopsub]);
+      paymentAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], accrualEndDates[loopsub], calendar);
     }
     return from(accrualEndDates[nbSubPeriod - 1], notional, index, accrualStartDates, accrualEndDates, paymentAccrualFactors, spread, calendar);
   }
@@ -279,6 +279,11 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
     return _spread;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     return toDerivative(dateTime, indexFixingTimeSeries);
@@ -286,7 +291,14 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
 
   @Override
   public CouponIborCompoundingSpread toDerivative(final ZonedDateTime dateTime) {
-    return toDerivative(dateTime);
+    final LocalDate dateConversion = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].toLocalDate()), "toDerivative without time series should have a date before the first fixing date.");
+    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
+    final double[] fixingTimes = TimeCalculator.getTimeBetween(dateTime, _fixingDates);
+    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodStartDates);
+    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodEndDates);
+    return new CouponIborCompoundingSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getNotional(), _index, _paymentAccrualFactors,
+        fixingTimes, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _spread);
   }
 
   @Override
@@ -337,16 +349,14 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
         fixingTimesLeft, fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, _spread);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponIborCompoundingSpread toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].toLocalDate()), "toDerivative without time series should have a date before the first fixing date.");
-    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    final double[] fixingTimes = TimeCalculator.getTimeBetween(dateTime, _fixingDates);
-    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodStartDates);
-    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodEndDates);
-    return new CouponIborCompoundingSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getNotional(), _index, _paymentAccrualFactors,
-        fixingTimes, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _spread);
+    return toDerivative(dateTime);
   }
 
   @Override

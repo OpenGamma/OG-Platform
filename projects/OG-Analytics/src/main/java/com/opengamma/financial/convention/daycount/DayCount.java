@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -21,7 +21,7 @@ public abstract class DayCount {
    * <p>
    * Given two dates, this method returns the fraction of a year between these dates
    * according to the convention.
-   * 
+   *
    * @param firstDate  the earlier date, not null
    * @param secondDate  the later date, not null
    * @return the day count fraction
@@ -33,7 +33,7 @@ public abstract class DayCount {
    * <p>
    * Given two dates, this method returns the fraction of a year between these dates
    * according to the convention.
-   * 
+   *
    * @param firstDate  the earlier date, not null
    * @param secondDate  the later date, not null
    * @param calendar  a calendar
@@ -48,7 +48,7 @@ public abstract class DayCount {
    * <p>
    * Given two dates, this method returns the fraction of a year between these dates
    * according to the convention.
-   * 
+   *
    * @param firstDate  the earlier date, not null
    * @param secondDate  the later date, not null
    * @return the day count fraction
@@ -64,7 +64,7 @@ public abstract class DayCount {
    * <p>
    * Given two dates, this method returns the fraction of a year between these dates
    * according to the convention.
-   * 
+   *
    * @param firstDate  the earlier date, not null
    * @param secondDate  the later date, not null
    * @param calendar  a calendar
@@ -78,7 +78,7 @@ public abstract class DayCount {
 
   /**
    * Calculates the accrued interest for the coupon according to the convention.
-   * 
+   *
    * @param previousCouponDate  the previous coupon date, not null
    * @param date  the evaluated coupon date, not null
    * @param nextCouponDate  the next coupon date, not null
@@ -90,7 +90,7 @@ public abstract class DayCount {
 
   /**
    * Calculates the accrued interest for the coupon according to the convention.
-   * 
+   *
    * @param previousCouponDate  the previous coupon date, not null
    * @param date  the evaluated coupon date, not null
    * @param nextCouponDate  the next coupon date, not null
@@ -107,7 +107,7 @@ public abstract class DayCount {
 
   /**
    * Gets the name of the convention.
-   * 
+   *
    * @return the name, not null
    */
   public abstract String getConventionName();

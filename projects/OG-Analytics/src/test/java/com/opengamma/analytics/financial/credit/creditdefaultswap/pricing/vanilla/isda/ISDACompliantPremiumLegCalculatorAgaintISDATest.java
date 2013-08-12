@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda;
@@ -18,15 +18,13 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.van
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
-import com.opengamma.analytics.financial.credit.schedulegeneration.isda.ISDAPremiumLegScheduleGenerator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class ISDACompliantPremiumLegCalculatorAgaintISDATest {
 
@@ -94,8 +92,8 @@ public class ISDACompliantPremiumLegCalculatorAgaintISDATest {
   public void yieldCurveTest() {
     final int n = YC_TIMES.length;
     for (int i = 0; i < n; i++) {
-      double t = YC_TIMES[i];
-      double df = YIELD_CURVE.getDiscountFactor(t);
+      final double t = YC_TIMES[i];
+      final double df = YIELD_CURVE.getDiscountFactor(t);
       assertEquals(DISCOUNT_FACT[i], df, 1e-10);
     }
   }
@@ -104,15 +102,15 @@ public class ISDACompliantPremiumLegCalculatorAgaintISDATest {
   public void hazardCurveTest() {
     final int n = HR_TIMES.length;
     for (int i = 0; i < n; i++) {
-      double t = HR_TIMES[i];
-      double q = HAZARD_RATE_CURVE.getSurvivalProbability(t);
+      final double t = HR_TIMES[i];
+      final double q = HAZARD_RATE_CURVE.getSurvivalProbability(t);
       assertEquals(SURVIVAL_PROB[i], q, 1e-10);
     }
   }
 
   /**
    * Check the future payment dates (i.e. after valuation date) on the payment leg agree with ISDA/Excel
-   * For now we do not check the other information (accrual start and end)   
+   * For now we do not check the other information (accrual start and end)
    */
   @Test
   public void feeLegPaymentTimesTest() {
@@ -120,7 +118,7 @@ public class ISDACompliantPremiumLegCalculatorAgaintISDATest {
     final int n = premiumLegSchedule.length;
     int jj = 0;
     for (int i = 0; i < n; i++) {
-      ZonedDateTime temp = premiumLegSchedule[i][0];
+      final ZonedDateTime temp = premiumLegSchedule[i][0];
       if (temp.isAfter(VALUATION_DATE)) {
         assertTrue(temp.equals(FEE_LEG_PAYMENT_DATES[jj++]));
       }
@@ -131,7 +129,7 @@ public class ISDACompliantPremiumLegCalculatorAgaintISDATest {
   public void pvTest() {
     final double result = DEPRICATED_CALCULATOR.calculatePremiumLeg(VALUATION_DATE, CDS, YIELD_CURVE, HAZARD_RATE_CURVE, PriceType.CLEAN);
 
-    System.out.println(result);
+    //System.out.println(result);
   }
 
 }

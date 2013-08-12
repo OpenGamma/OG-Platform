@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -40,10 +39,10 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
   * @param premium The transaction premium.
   */
   public BondFutureOptionPremiumTransaction(final BondFutureOptionPremiumSecurity underlyingOption, final int quantity, final PaymentFixed premium) {
-    Validate.notNull(underlyingOption, "Underlying option");
-    Validate.notNull(premium, "Premium");
-    this._underlyingOption = underlyingOption;
-    this._quantity = quantity;
+    ArgumentChecker.notNull(underlyingOption, "Underlying option");
+    ArgumentChecker.notNull(premium, "Premium");
+    _underlyingOption = underlyingOption;
+    _quantity = quantity;
     _premium = premium;
   }
 

@@ -36,7 +36,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.FutureTradeConverterDeprecated;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -64,7 +64,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
   /** The calculator */
   private final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> _calculator;
   /** The trade converter */
-  private FutureTradeConverter _tradeConverter;
+  private FutureTradeConverterDeprecated _tradeConverter;
   /** The field name of the historical time series for price, e.g. "PX_LAST", "Close" */
   private final String _closingPriceField;
   /** The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY" */
@@ -99,7 +99,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _tradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, regionSource);
+    _tradeConverter = new FutureTradeConverterDeprecated(securitySource, holidaySource, conventionSource, regionSource);
   }
 
   @Override

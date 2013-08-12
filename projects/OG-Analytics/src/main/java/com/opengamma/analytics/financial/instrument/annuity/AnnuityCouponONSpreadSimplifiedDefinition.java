@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -27,9 +27,10 @@ public class AnnuityCouponONSpreadSimplifiedDefinition extends AnnuityDefinition
    * Constructor from a list of OIS coupons.
    * @param payments The coupons.
    * @param index The underlying overnight index.
+   * @param calendar The holiday calendar
    */
-  public AnnuityCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition[] payments, final IndexON index) {
-    super(payments);
+  public AnnuityCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition[] payments, final IndexON index, final Calendar calendar) {
+    super(payments, calendar);
     _index = index;
   }
 
@@ -143,7 +144,7 @@ public class AnnuityCouponONSpreadSimplifiedDefinition extends AnnuityDefinition
       coupons[loopcpn] = CouponONSpreadSimplifiedDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, spread, paymentLag,
           indexCalendar);
     }
-    return new AnnuityCouponONSpreadSimplifiedDefinition(coupons, indexON);
+    return new AnnuityCouponONSpreadSimplifiedDefinition(coupons, indexON, indexCalendar);
   }
 
   public IndexON getIndex() {

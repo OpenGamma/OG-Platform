@@ -23,6 +23,9 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 
+/**
+ * Data model for the computation target specification.
+ */
 @BeanDefinition
 public class HbComputationTargetSpecification extends DirectBean {
 
@@ -70,7 +73,6 @@ public class HbComputationTargetSpecification extends DirectBean {
     setUidValue(baseUid.getValue());
     setUidVersion(baseUid.getVersion());
   }
-
 
   public HbComputationTargetSpecification() {
   }

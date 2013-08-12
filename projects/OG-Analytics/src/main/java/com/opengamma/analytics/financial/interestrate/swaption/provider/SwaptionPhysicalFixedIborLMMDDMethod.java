@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -76,12 +76,12 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod {
    * @param lmmData The LMM and multi-curves provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
+  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(lmmData, "LMM provider");
-    Currency ccy = swaption.getCurrency();
-    MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
-    LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
+    final Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
+    final LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
     // 1. Swaption CFE preparation
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, multicurves);
     final int nbCFInit = cfe.getNumberOfPayments();
@@ -240,12 +240,12 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod {
    * @param lmmData The LMM and multi-curves provider.
    * @return The sensitivity.
    */
-  public double[][] presentValueLMMSensitivity(final SwaptionPhysicalFixedIbor swaption, LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
+  public double[][] presentValueLMMSensitivity(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(lmmData, "LMM provider");
-    Currency ccy = swaption.getCurrency();
-    MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
-    LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
+    final Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
+    final LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
     // 1. Swaption CFE preparation
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, multicurves);
     final int nbCFInit = cfe.getNumberOfPayments();
@@ -509,12 +509,12 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod {
    * @param lmmData The LMM and multi-curves provider.
    * @return The sensitivity.
    */
-  public double[] presentValueDDSensitivity(final SwaptionPhysicalFixedIbor swaption, LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
+  public double[] presentValueDDSensitivity(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(lmmData, "LMM provider");
-    Currency ccy = swaption.getCurrency();
-    MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
-    LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
+    final Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
+    final LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
     // 1. Swaption CFE preparation
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, multicurves);
     final int nbCFInit = cfe.getNumberOfPayments();
@@ -772,12 +772,13 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod {
    * @param lmmData The LMM and multi-curves provider.
    * @return The present value.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption,
+      final LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(lmmData, "LMM provider");
-    Currency ccy = swaption.getCurrency();
-    MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
-    LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
+    final Currency ccy = swaption.getCurrency();
+    final MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
+    final LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
     // 1. Swaption CFE preparation
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, multicurves);
     final int nbCFInit = cfe.getNumberOfPayments();
@@ -1055,12 +1056,12 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod {
       cfaInitBar[loopcf] = cfaBar[indCFDate[loopcf] - indStart];
     }
 
-    final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       final DoublesPair dfSensi = new DoublesPair(cft[loopcf], -cft[loopcf] * dfLMM[loopcf] * dfLMMBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(multicurves.getName(ccy), listDfSensi);
     MulticurveSensitivity sensitivity = MulticurveSensitivity.ofYieldDiscounting(pvsDF);
 

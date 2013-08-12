@@ -97,6 +97,11 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
     return _expiryDate;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public SwaptionBermudaFixedIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

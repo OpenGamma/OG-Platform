@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -173,7 +173,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     double settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     settlementTime = Math.max(settlementTime, 0.0);
     final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
-    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate);
+    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
     return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer, yieldCurveNames[1], yieldCurveNames[0]);
   }
 
@@ -190,10 +190,15 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     double settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     settlementTime = Math.max(settlementTime, 0.0);
     final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
-    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate);
+    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
     return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer);
   }
-  
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BillSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Reference date");
@@ -203,7 +208,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     settlementDate = (settlementDate.isAfter(_endDate)) ? _endDate : settlementDate;
     return toDerivative(date, settlementDate, yieldCurveNames);
   }
-  
+
   @Override
   public BillSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "Reference date");

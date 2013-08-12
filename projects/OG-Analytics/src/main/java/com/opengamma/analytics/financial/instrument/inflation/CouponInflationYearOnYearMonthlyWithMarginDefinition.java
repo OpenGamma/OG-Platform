@@ -182,6 +182,11 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
         getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), referenceEndDate, payNotional());
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponInflationYearOnYearMonthlyWithMargin toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -200,6 +205,11 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
         referenceEndTime, naturalPaymentEndTime, _payNotional);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * This converts and stores all the date logic as doubles for CDS pricing on a particular date 
+ * This converts and stores all the date logic as doubles for CDS pricing on a particular date
  */
 public class CDSAnalytic {
   // private static final Calendar DEFAULT_CALENDAR = new NoHolidayCalendar();
@@ -51,7 +51,7 @@ public class CDSAnalytic {
   /**
    * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer.<br>
    * This using a weekend only calendar with a following convention. ACT/360 is used for accrual and  ACT/365 to convert
-   * payment dates to year-fractions (doubles) 
+   * payment dates to year-fractions (doubles)
    * @param today The 'current' date
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
@@ -63,7 +63,7 @@ public class CDSAnalytic {
    * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    *  - <b>Note</b> in this code NONE is not allowed
    * @param protectStart Does protection start at the beginning of the day
-   * @param recoveryRate The recovery rate 
+   * @param recoveryRate The recovery rate
    */
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
       final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate) {
@@ -100,7 +100,7 @@ public class CDSAnalytic {
   }
 
   /**
-   * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer 
+   * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer
    * @param today The 'current' date
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
@@ -112,10 +112,10 @@ public class CDSAnalytic {
    * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    *  - <b>Note</b> in this code NONE is not allowed
    * @param protectStart Does protection start at the beginning of the day
-   * @param recoveryRate The recovery rate 
-   * @param businessdayAdjustmentConvention How are adjustments for non-business days made 
+   * @param recoveryRate The recovery rate
+   * @param businessdayAdjustmentConvention How are adjustments for non-business days made
    * @param calendar Calendar defining what is a non-business day
-   * @param accrualDayCount Day count used for accrual 
+   * @param accrualDayCount Day count used for accrual
    * @param curveDayCount Day count used on curve (NOTE ISDA uses ACT/365 and it is not recommended to change this)
    */
   public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
@@ -141,10 +141,10 @@ public class CDSAnalytic {
     final LocalDate temp = stepinDate.isAfter(startDate) ? stepinDate : startDate;
     final LocalDate effectiveStartDate = protectStart ? temp.minusDays(1) : temp;
 
-    _stepin = curveDayCount.getDayCountFraction(today, stepinDate);
-    _valuationTime = curveDayCount.getDayCountFraction(today, valueDate);
-    _protectionStart = curveDayCount.getDayCountFraction(today, effectiveStartDate);
-    _protectionEnd = curveDayCount.getDayCountFraction(today, endDate);
+    _stepin = curveDayCount.getDayCountFraction(today, stepinDate, calendar);
+    _valuationTime = curveDayCount.getDayCountFraction(today, valueDate, calendar);
+    _protectionStart = curveDayCount.getDayCountFraction(today, effectiveStartDate, calendar);
+    _protectionEnd = curveDayCount.getDayCountFraction(today, endDate, calendar);
 
     _lgd = 1 - recoveryRate;
 
@@ -160,21 +160,21 @@ public class CDSAnalytic {
 
     for (int i = 0; i < _nPayments; i++) {
       final LocalDate paymentDate = paymentSchedule.getPaymentDate(i);
-      _paymentTimes[i] = curveDayCount.getDayCountFraction(today, paymentDate);
+      _paymentTimes[i] = curveDayCount.getDayCountFraction(today, paymentDate, calendar);
       final LocalDate accStart = paymentSchedule.getAccStartDate(i);
       final LocalDate accEnd = paymentSchedule.getAccEndDate(i);
       final LocalDate obsEnd = protectStart ? accEnd.minusDays(1) : accEnd;
-      _accFractions[i] = accrualDayCount.getDayCountFraction(accStart, accEnd);
-      _accStart[i] = accStart.isBefore(today) ? -curveDayCount.getDayCountFraction(accStart, today) : curveDayCount.getDayCountFraction(today, accStart);
-      _accEnd[i] = curveDayCount.getDayCountFraction(today, accEnd);
-      _creditObsTimes[i] = curveDayCount.getDayCountFraction(today, obsEnd); // TODO this looks odd - check again with ISDA c code
+      _accFractions[i] = accrualDayCount.getDayCountFraction(accStart, accEnd, calendar);
+      _accStart[i] = accStart.isBefore(today) ? -curveDayCount.getDayCountFraction(accStart, today, calendar) : curveDayCount.getDayCountFraction(today, accStart, calendar);
+      _accEnd[i] = curveDayCount.getDayCountFraction(today, accEnd, calendar);
+      _creditObsTimes[i] = curveDayCount.getDayCountFraction(today, obsEnd, calendar); // TODO this looks odd - check again with ISDA c code
     }
     final LocalDate accStart = paymentSchedule.getAccStartDate(0);
 
     final long firstJulianDate = accStart.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     final long secondJulianDate = stepinDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     _accruedDays = secondJulianDate > firstJulianDate ? (int) (secondJulianDate - firstJulianDate) : 0;
-    _accrued = accStart.isBefore(stepinDate) ? accrualDayCount.getDayCountFraction(accStart, stepinDate) : 0.0;
+    _accrued = accStart.isBefore(stepinDate) ? accrualDayCount.getDayCountFraction(accStart, stepinDate, calendar) : 0.0;
   }
 
   public int getNumPayments() {
@@ -198,7 +198,7 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the year fraction value of one day for the day count used for curves (i.e. discounting) 
+   * Gets the year fraction value of one day for the day count used for curves (i.e. discounting)
    * @return the curveOneDay
    */
   public double getCurveOneDay() {
@@ -242,7 +242,7 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the accStart for a particular payment period 
+   * Gets the accStart for a particular payment period
    * @param index the index of the payment period
    * @return the accStart
    */
@@ -251,7 +251,7 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the accEnd for a particular payment period 
+   * Gets the accEnd for a particular payment period
    * @param index the index of the payment period
    * @return the accEnd
    */
@@ -260,7 +260,7 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the payment time for a particular payment period 
+   * Gets the payment time for a particular payment period
    * @param index the index of the payment period
    * @return the paymentTime
    */
@@ -273,7 +273,7 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the accrual fraction for a particular payment period 
+   * Gets the accrual fraction for a particular payment period
    * @param index the index of the payment period
    * @return the accFraction
    */
@@ -291,9 +291,9 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the accrued premium per unit of notional 
-   * @param fractionalSpread The <b>fraction</b> spread 
-   * @return the accrued premium 
+   * Gets the accrued premium per unit of notional
+   * @param fractionalSpread The <b>fraction</b> spread
+   * @return the accrued premium
    */
   public double getAccruedPremium(final double fractionalSpread) {
     return _accrued * fractionalSpread;
@@ -301,7 +301,7 @@ public class CDSAnalytic {
 
   /**
    * Get the number of days of accrued premium.
-   * @return Accrued days 
+   * @return Accrued days
    */
   public int getAccuredDays() {
     return _accruedDays;

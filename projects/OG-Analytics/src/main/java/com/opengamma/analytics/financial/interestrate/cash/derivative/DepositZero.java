@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.cash.derivative;
@@ -52,8 +52,8 @@ public class DepositZero implements InstrumentDerivative {
    * The interest amount to be paid at end date.
    */
   private final double _interestAmount;
-  /** 
-   * The discounting curve name 
+  /**
+   * The discounting curve name
    */
   private final String _discountingCurveName;
 
@@ -182,6 +182,7 @@ public class DepositZero implements InstrumentDerivative {
    * @return The name.
    * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getDiscountingCurveName() {
     if (_discountingCurveName == null) {
       throw new IllegalStateException("Discounting curve name was not set");

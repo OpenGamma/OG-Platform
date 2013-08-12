@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -34,7 +33,7 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
    * The premium payment. If the payment is in the past, the paymentTime is 0 and the amount 0.
    * If the payment is today or in the future, the premium amount is given by the the transaction price * future notional * future accrual factor.
    */
-  private final PaymentFixed _premium;
+  private PaymentFixed _premium;
 
   /**
   * Constructor of the future option transaction from details.
@@ -44,12 +43,16 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
   * @param tradePrice The transaction price.
   */
   public InterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumSecurity underlyingOption, final int quantity, final double premiumTime, final double tradePrice) {
-    Validate.notNull(underlyingOption, "underlying option");
-    this._underlyingOption = underlyingOption;
-    this._quantity = quantity;
-    this._tradePrice = tradePrice;
+    ArgumentChecker.notNull(underlyingOption, "underlying option");
+    _underlyingOption = underlyingOption;
+    _quantity = quantity;
+    _tradePrice = tradePrice;
     final double premiumAmount = -_tradePrice * _quantity * _underlyingOption.getUnderlyingFuture().getNotional() * _underlyingOption.getUnderlyingFuture().getPaymentAccrualFactor();
-    _premium = new PaymentFixed(underlyingOption.getCurrency(), premiumTime, premiumAmount, underlyingOption.getDiscountingCurveName());
+    try {
+      _premium = new PaymentFixed(underlyingOption.getCurrency(), premiumTime, premiumAmount, underlyingOption.getDiscountingCurveName());
+    } catch (final IllegalStateException e) {
+      _premium = new PaymentFixed(underlyingOption.getCurrency(), premiumTime, premiumAmount);
+    }
   }
 
   /**

@@ -255,7 +255,7 @@
 -- ==========================================================================
 @NAME(SelectFromRunStatus)    
   SELECT 
-    id, calculation_configuration_id, computation_target_id, status 
+    id, run_id, calculation_configuration_id, computation_target_id, status
   FROM 
     rsk_run_status 
   WHERE 
@@ -272,9 +272,9 @@
   
 @NAME(InsertFromRunStatus)  
   INSERT INTO rsk_run_status 
-    (id, calculation_configuration_id, computation_target_id, status) 
+    (id, run_id, calculation_configuration_id, computation_target_id, status)
   VALUES 
-    (:id, :calculation_configuration_id, :computation_target_id, :status)      
+    (:id, :run_id, :calculation_configuration_id, :computation_target_id, :status)
     
     
 -- ==========================================================================
@@ -324,7 +324,7 @@
 -- ==========================================================================
 @NAME(SelectStatusEntry)
   SELECT 
-    id, calculation_configuration_id, computation_target_id, status 
+    id, run_id, calculation_configuration_id, computation_target_id, status
   FROM 
     rsk_run_status 
   WHERE 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -173,12 +173,22 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
     return _deliveryBasket[0].getCurrency();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of " + getClass().getSimpleName()
         + " does not support the two argument method (without margin price data).");
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFuture toDerivative(final ZonedDateTime valDate, final Double referencePrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(valDate, "valDate must always be provided to form a Derivative from a Definition");
@@ -228,7 +238,7 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
         _conversionFactor, referencePrice);
     return futureDeriv;
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

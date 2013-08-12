@@ -102,7 +102,7 @@ public class SwapIborONDefinition extends SwapDefinition {
       cpnIbor[loopcpn] = new CouponIborSpreadDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg
           .getNthPayment(loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), notionalSigned, fixingDate, indexIbor, spread, calendar);
     }
-    return new SwapIborONDefinition(new AnnuityCouponIborSpreadDefinition(cpnIbor), oisLeg);
+    return new SwapIborONDefinition(new AnnuityCouponIborSpreadDefinition(cpnIbor, calendar), oisLeg);
   }
 
   /**
@@ -121,6 +121,11 @@ public class SwapIborONDefinition extends SwapDefinition {
     return (AnnuityCouponONDefinition) getSecondLeg();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @SuppressWarnings("unchecked")
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
@@ -130,6 +135,11 @@ public class SwapIborONDefinition extends SwapDefinition {
     return new Swap<>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @SuppressWarnings("unchecked")
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
@@ -144,7 +154,6 @@ public class SwapIborONDefinition extends SwapDefinition {
   @SuppressWarnings("unchecked")
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date) {
-    // Curves should be: discounting, ibor, ois
     final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date);
     final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date);
     return new Swap<>((Annuity<Coupon>) iborLeg, (Annuity<Coupon>) oisLeg);
@@ -153,7 +162,6 @@ public class SwapIborONDefinition extends SwapDefinition {
   @SuppressWarnings("unchecked")
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS) {
-    // Curves should be: discounting, ibor, ois
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
     ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     final Annuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, indexDataTS[0]);

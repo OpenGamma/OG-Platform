@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * A wrapper class for a AnnuityDefinition containing PaymentFixedDefinition.
@@ -22,9 +23,10 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
   /**
    * Constructor from a list of fixed payments.
    * @param payments The fixed coupons.
+   * @param calendar The calendar
    */
-  public AnnuityPaymentFixedDefinition(final PaymentFixedDefinition[] payments) {
-    super(payments);
+  public AnnuityPaymentFixedDefinition(final PaymentFixedDefinition[] payments, final Calendar calendar) {
+    super(payments, calendar);
   }
 
   /**
@@ -40,9 +42,14 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
         list.add(payment);
       }
     }
-    return new AnnuityPaymentFixedDefinition(list.toArray(new PaymentFixedDefinition[list.size()]));
+    return new AnnuityPaymentFixedDefinition(list.toArray(new PaymentFixedDefinition[list.size()]), getCalendar());
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public AnnuityPaymentFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<PaymentFixed> resultList = new ArrayList<>();

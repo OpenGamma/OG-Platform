@@ -108,6 +108,11 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     return _notional;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);

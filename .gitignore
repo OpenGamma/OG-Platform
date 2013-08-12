@@ -20,6 +20,7 @@ common/deploy.properties
 !/projects/OG-Core
 !/projects/OG-Client
 !/projects/OG-Engine
+!/projects/OG-EngineDB
 !/projects/OG-Examples
 !/projects/OG-Financial
 !/projects/OG-FinancialTypes
@@ -76,7 +77,6 @@ docs.sqlite3
 .idea/dictionaries
 .idea/inspectionProfiles
 .idea/validation.xml
-.idea/sqldialects.xml
 .idea/dataSources.xml
 .idea/scopes/scope_settings.xml
 .idea/inspectionProfiles/profiles_settings.xml

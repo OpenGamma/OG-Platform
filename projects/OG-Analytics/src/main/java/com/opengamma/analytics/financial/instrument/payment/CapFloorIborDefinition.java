@@ -76,7 +76,7 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
     _index = index;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), calendar);
     _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
-    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
+    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate, calendar);
     _strike = strike;
     _isCap = isCap;
     _calendar = calendar;
@@ -187,6 +187,11 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
     return Math.max(omega * (fixing - _strike), 0);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -206,6 +211,11 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
         getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -285,7 +295,6 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
         }
         if (fixedRate == null) {
           fixedRate = indexFixingTS.getLatestValue(); //TODO remove me as soon as possible
-          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), payOff(fixedRate));

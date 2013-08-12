@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ *
  */
 public final class NettedProjectedCashFlowFromDateCalculator {
   private static final NettedProjectedCashFlowFromDateCalculator INSTANCE = new NettedProjectedCashFlowFromDateCalculator();
@@ -41,6 +41,15 @@ public final class NettedProjectedCashFlowFromDateCalculator {
   private NettedProjectedCashFlowFromDateCalculator() {
   }
 
+  /**
+   * Gets the netted projected cash-flows as of a particular date.
+   * @param instrument The instrument, not null
+   * @param yieldCurveNames The yield curve names, not null
+   * @param date The date, not null
+   * @param data The yield curves, not null
+   * @return The projected netted cash flows as of a particular date
+   * @Deprecated Use the method that does not take yield curve names
+   */
   public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final String[] yieldCurveNames, final ZonedDateTime date, final YieldCurveBundle data) {
     ArgumentChecker.notNull(instrument, "instrument");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -48,8 +57,8 @@ public final class NettedProjectedCashFlowFromDateCalculator {
     ArgumentChecker.notNull(data, "data");
     final List<ZonedDateTime> payDates = instrument.accept(PAY_DATES, date);
     final List<ZonedDateTime> receiveDates = instrument.accept(RECEIVE_DATES, date);
-    final List<MultipleCurrencyAmount> payCashFlows = new ArrayList<MultipleCurrencyAmount>();
-    final List<MultipleCurrencyAmount> receiveCashFlows = new ArrayList<MultipleCurrencyAmount>();
+    final List<MultipleCurrencyAmount> payCashFlows = new ArrayList<>();
+    final List<MultipleCurrencyAmount> receiveCashFlows = new ArrayList<>();
     final InstrumentDerivative derivative = instrument.toDerivative(date, yieldCurveNames);
     if (payDates != null) {
       payCashFlows.addAll(derivative.accept(ProjectedPayCashFlowVisitor.getInstance(), data));
@@ -66,9 +75,40 @@ public final class NettedProjectedCashFlowFromDateCalculator {
     return add(payCashFlows, payDates, receiveCashFlows, receiveDates);
   }
 
-  private Map<LocalDate, MultipleCurrencyAmount> add(final List<MultipleCurrencyAmount> payAmounts, final List<ZonedDateTime> payDates, final List<MultipleCurrencyAmount> receiveAmounts,
-      final List<ZonedDateTime> receiveDates) {
-    final TreeMap<LocalDate, MultipleCurrencyAmount> result = new TreeMap<LocalDate, MultipleCurrencyAmount>();
+  /**
+   * Gets the netted projected cash-flows as of a particular date.
+   * @param instrument The instrument, not null
+   * @param date The date, not null
+   * @param data The yield curves, not null
+   * @return The projected netted cash flows as of a particular date
+   */
+  public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final ZonedDateTime date, final YieldCurveBundle data) {
+    ArgumentChecker.notNull(instrument, "instrument");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(data, "data");
+    final List<ZonedDateTime> payDates = instrument.accept(PAY_DATES, date);
+    final List<ZonedDateTime> receiveDates = instrument.accept(RECEIVE_DATES, date);
+    final List<MultipleCurrencyAmount> payCashFlows = new ArrayList<>();
+    final List<MultipleCurrencyAmount> receiveCashFlows = new ArrayList<>();
+    final InstrumentDerivative derivative = instrument.toDerivative(date);
+    if (payDates != null) {
+      payCashFlows.addAll(derivative.accept(ProjectedPayCashFlowVisitor.getInstance(), data));
+      if (payCashFlows.size() != payDates.size()) {
+        throw new IllegalStateException("Did not have same number of payments as dates");
+      }
+    }
+    if (receiveDates != null) {
+      receiveCashFlows.addAll(derivative.accept(ProjectedReceiveCashFlowVisitor.getInstance(), data));
+      if (receiveCashFlows.size() != receiveDates.size()) {
+        throw new IllegalStateException("Did not have same number of receive payments as dates");
+      }
+    }
+    return add(payCashFlows, payDates, receiveCashFlows, receiveDates);
+  }
+
+  private static Map<LocalDate, MultipleCurrencyAmount> add(final List<MultipleCurrencyAmount> payAmounts, final List<ZonedDateTime> payDates,
+      final List<MultipleCurrencyAmount> receiveAmounts, final List<ZonedDateTime> receiveDates) {
+    final TreeMap<LocalDate, MultipleCurrencyAmount> result = new TreeMap<>();
     for (int i = 0; i < payAmounts.size(); i++) {
       result.put(payDates.get(i).toLocalDate(), payAmounts.get(i).multipliedBy(-1));
     }

@@ -90,7 +90,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     ArgumentChecker.notNull(tenor, "Tenor");
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -106,7 +106,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     ArgumentChecker.notNull(startDate, "Start date");
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -125,7 +125,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, generator.getSpotLag(), generator.getCalendar());
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -143,7 +143,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, start, generator.getCalendar());
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new CashDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor);
   }
 
@@ -208,7 +208,11 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     return "Deposit " + _currency + " [" + _startDate + " - " + _endDate + "] - notional: " + _notional + " - rate: " + _rate;
   }
 
-  @SuppressWarnings("deprecation")
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Cash toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_endDate), "date {} is after end date {}", date, _endDate);

@@ -86,7 +86,7 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
     while (currentDate.isBefore(fixingPeriodEndDate)) {
       nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, calendar);
       fixingDateList.add(nextDate);
-      final double af = index.getDayCount().getDayCountFraction(currentDate, nextDate);
+      final double af = index.getDayCount().getDayCountFraction(currentDate, nextDate, calendar);
       fixingAccrualFactorList.add(af);
       currentDate = nextDate;
     }
@@ -131,7 +131,7 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
   public static CouponArithmeticAverageONSpreadDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
       final int paymentLag, final double spread, final Calendar calendar) {
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, calendar);
-    final double paymentYearFraction = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate);
+    final double paymentYearFraction = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate, calendar);
     return new CouponArithmeticAverageONSpreadDefinition(index.getCurrency(), paymentDate, fixingPeriodStartDate, fixingPeriodEndDate, paymentYearFraction, notional, index, fixingPeriodStartDate,
         fixingPeriodEndDate, spread, calendar);
   }
@@ -176,12 +176,22 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
     return _spreadAmount;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponArithmeticAverageON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!_fixingPeriodDate[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
     return null; //FIXME
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     return null; // TODO

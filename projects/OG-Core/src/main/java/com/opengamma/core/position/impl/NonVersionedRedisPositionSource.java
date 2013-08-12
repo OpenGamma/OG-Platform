@@ -9,10 +9,9 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ import redis.clients.jedis.JedisPool;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
@@ -44,6 +44,9 @@ import com.opengamma.util.metric.MetricProducer;
 
 /*
  * REDIS DATA STRUCTURES:
+ * Portfolio Names:
+ *     Key["PORTFOLIOS"] -> Hash
+ *        Hash[Name] -> UniqueId for the portfolio
  * Portfolio Unique ID Lookups:
  *     Key["NAME-"Name] -> Hash
  *        Hash[UNIQUE_ID] -> UniqueId for the portfolio
@@ -75,8 +78,11 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "RedisPos";
   
+  private static final String PORTFOLIOS_HASH_KEY_NAME = "PORTFOLIOS";
+  
   private final JedisPool _jedisPool;
   private final String _redisPrefix;
+  private final String _portfoliosHashKeyName;
   private Timer _getPortfolioTimer = new Timer();
   private Timer _getPositionTimer = new Timer();
   private Timer _portfolioStoreTimer = new Timer();
@@ -94,6 +100,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
     
     _jedisPool = jedisPool;
     _redisPrefix = redisPrefix.intern();
+    _portfoliosHashKeyName = constructallPortfoliosRedisKey();
   }
   
   /**
@@ -131,16 +138,20 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
   // REDIS KEY MANAGEMENT
   // ---------------------------------------------------------------------------------------
   
-  protected final String toRedisKey(UniqueId uniqueId, String intermediate) {
+  protected final String toRedisKey(String id, String intermediate) {
     StringBuilder sb = new StringBuilder();
     if (!getRedisPrefix().isEmpty()) {
       sb.append(getRedisPrefix());
       sb.append("-");
     }
     sb.append(intermediate);
-    sb.append(uniqueId);
+    sb.append(id);
     String keyText = sb.toString();
     return keyText;
+  }
+  
+  protected final String toRedisKey(UniqueId uniqueId, String intermediate) {
+    return toRedisKey(uniqueId.toString(), intermediate);
   }
   
   protected final String toPortfolioRedisKey(UniqueId uniqueId) {
@@ -155,8 +166,13 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
     return toRedisKey(uniqueId, "POS-");
   }
   
-  // TODO kirk 2013-07-08 -- NAME-* needs toRedisKey as well.
-  // http://jira.opengamma.com/browse/PLAT-3858
+  protected final String constructallPortfoliosRedisKey() {
+    return toRedisKey(PORTFOLIOS_HASH_KEY_NAME, "");
+  }
+  
+  protected final String toPortfolioNameRedisKey(String portfolioName) {
+    return toRedisKey(portfolioName, "NAME-");
+  }
   
   // ---------------------------------------------------------------------------------------
   // DATA MANIPULATION
@@ -304,13 +320,16 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       uniqueId = generateUniqueId();
     }
     
-    String redisKey = toPortfolioRedisKey(uniqueId);
-    jedis.hset("NAME-" + portfolio.getName(), "UNIQUE_ID", uniqueId.toString());
+    String uniqueIdKey = toPortfolioRedisKey(uniqueId);
+    String portfolioNameKey = toPortfolioNameRedisKey(portfolio.getName());
+    jedis.hset(portfolioNameKey, "UNIQUE_ID", uniqueId.toString());
     
-    jedis.hset(redisKey, "NAME", portfolio.getName());
+    jedis.hset(_portfoliosHashKeyName, portfolio.getName(), uniqueId.toString());
+    
+    jedis.hset(uniqueIdKey, "NAME", portfolio.getName());
     
     for (Map.Entry<String, String> attribute : portfolio.getAttributes().entrySet()) {
-      jedis.hset(redisKey, "ATT-" + attribute.getKey(), attribute.getValue());
+      jedis.hset(uniqueIdKey, "ATT-" + attribute.getKey(), attribute.getValue());
     }
     
     return uniqueId;
@@ -376,7 +395,8 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
       
       Jedis jedis = getJedisPool().getResource();
       try {
-        String uniqueIdString = jedis.hget("NAME-" + portfolioName, "UNIQUE_ID");
+        String nameKey = toPortfolioNameRedisKey(portfolioName);
+        String uniqueIdString = jedis.hget(nameKey, "UNIQUE_ID");
         
         if (uniqueIdString != null) {
           UniqueId uniqueId = UniqueId.parse(uniqueIdString);
@@ -394,14 +414,13 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
     return portfolio;
   }
   
-  public List<String> getAllPortfolioNames() {
-    List<String> result = new LinkedList<String>();
+  public Map<String, UniqueId> getAllPortfolioNames() {
+    Map<String, UniqueId> result = new TreeMap<String, UniqueId>();
     Jedis jedis = getJedisPool().getResource();
     try {
-      Set<String> keyNames = jedis.keys("NAME-*");
-      for (String keyName : keyNames) {
-        String portfolioName = keyName.substring(5);
-        result.add(portfolioName);
+      Map<String, String> portfolioNames = jedis.hgetAll(_portfoliosHashKeyName);
+      for (Map.Entry<String, String> entry : portfolioNames.entrySet()) {
+        result.put(entry.getKey(), UniqueId.parse(entry.getValue()));
       }
 
       getJedisPool().returnResource(jedis);
@@ -441,6 +460,10 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
         throw new OpenGammaRuntimeException("Unable to get portfolio " + uniqueId, e);
       }
       
+    }
+    
+    if (portfolio == null) {
+      throw new DataNotFoundException("Unable to locate portfolio with UniqueId " + uniqueId);
     }
     
     return portfolio;
@@ -509,6 +532,10 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
         throw new OpenGammaRuntimeException("Unable to get position " + uniqueId, e);
       }
       
+    }
+    
+    if (position == null) {
+      throw new DataNotFoundException("Unable to find position with UniqueId " + uniqueId);
     }
     
     return position;

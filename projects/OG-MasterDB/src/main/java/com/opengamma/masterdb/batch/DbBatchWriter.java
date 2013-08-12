@@ -698,7 +698,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     return riskRun;
   }
 
-  public RiskRun startBatchInTransaction(ViewCycleMetadata cycleMetadata, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
+  public synchronized RiskRun startBatchInTransaction(ViewCycleMetadata cycleMetadata, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
     s_logger.info("Starting batch ... {}", cycleMetadata);
 
     RiskRun run;
@@ -879,7 +879,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
-  public void addJobResultsInTransaction(TransactionStatus transactionStatus, ObjectId runId, ViewComputationResultModel resultModel) {
+  public synchronized void addJobResultsInTransaction(TransactionStatus transactionStatus, ObjectId runId, ViewComputationResultModel resultModel) {
     ArgumentChecker.notNull(runId, "runId");
     ArgumentChecker.notNull(resultModel, "resultModel");
     
@@ -933,6 +933,7 @@ public class DbBatchWriter extends AbstractDbMaster {
           final long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
           
           if (resultConverter != null && computedValue.getInvocationResult() == InvocationResult.SUCCESS) {
+            s_logger.debug("Writing value {} for value spec {}", computedValue.getValue(), specification);
             Map<String, Double> valueAsDoublesMap = resultConverter.convert(computedValue.getSpecification().getValueName(), computedValue.getValue());
             for (Map.Entry<String, Double> valueEntry : valueAsDoublesMap.entrySet()) {
               final String valueName = valueEntry.getKey();
@@ -1013,8 +1014,8 @@ public class DbBatchWriter extends AbstractDbMaster {
         transactionStatus.rollbackToSavepoint(preFailureSavepoint);
       }
 
-      updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
-      updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
+      updateStatusEntries(riskRunId, statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
+      updateStatusEntries(riskRunId, statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
     }
   }
 
@@ -1096,11 +1097,11 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   @SuppressWarnings("unchecked")
-  protected void updateStatusEntries(
-    Map<Pair<Long, Long>, StatusEntry> statusCache,
-    String calcConfName,
-    StatusEntry.Status status,
-    Collection<ComputationTargetSpecification> targets) {
+  protected void updateStatusEntries(long runId,
+                                     Map<Pair<Long, Long>, StatusEntry> statusCache,
+                                     String calcConfName,
+                                     StatusEntry.Status status,
+                                     Collection<ComputationTargetSpecification> targets) {
 
     Long calcConfId = _calculationConfigurations.get(calcConfName);
 
@@ -1119,6 +1120,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       if (statusEntry != null) {
         statusEntry.setStatus(status);
         params.addValue("id", statusEntry.getId());
+        params.addValue("run_id", runId);
         params.addValue("status", statusEntry.getStatus().ordinal());
         updates.add(params);
       } else {
@@ -1128,12 +1130,14 @@ public class DbBatchWriter extends AbstractDbMaster {
         insertArgs.addValue("ID", statusId);
         statusEntry = new StatusEntry();
         statusEntry.setId(statusId);
+        statusEntry.setRunId(runId);
         statusEntry.setStatus(status);
         statusEntry.setCalculationConfigurationId(calcConfId);
         statusEntry.setComputationTargetId(computationTargetId);
         statusCache.put(key, statusEntry);
 
         params.addValue("id", statusId);
+        params.addValue("run_id", runId);
         params.addValue("calculation_configuration_id", calcConfId);
         params.addValue("computation_target_id", computationTargetId);
         params.addValue("status", statusEntry.getStatus().ordinal());
@@ -1221,7 +1225,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       StatusEntry statusEntry = getJdbcTemplate().queryForObject(
         getElSqlBundle().getSql("SelectStatusEntry"),
         args,
-        StatusEntry.ROW_MAPPER);
+        DbBatchUtils.ROW_MAPPER);
 
       // status entry in db found.
       statusCache.put(key, statusEntry);
@@ -1306,7 +1310,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       return computeFailure;
     }
     try {
-      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource(), Integer.class);
+      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), DbBatchUtils.toSqlParameterSource(computeFailureKey), Integer.class);
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
       computeFailure.setFunctionId(computeFailureKey.getFunctionId());
@@ -1337,7 +1341,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
     computeFailure.setStackTrace(computeFailureKey.getStackTrace());
 
-    int rowCount = getJdbcTemplate().update(getElSqlBundle().getSql("InsertComputeFailure"), computeFailure.toSqlParameterSource());
+    int rowCount = getJdbcTemplate().update(getElSqlBundle().getSql("InsertComputeFailure"), DbBatchUtils.toSqlParameterSource(computeFailure));
     if (rowCount == 1) {
       computeFailureCache.put(computeFailureKey, computeFailure);
       return computeFailure;

@@ -64,6 +64,11 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperti
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.integration.swing.JPortfolioTree;
+import com.opengamma.integration.swing.PortfolioTreeModel;
+import com.opengamma.integration.swing.ViewEntry;
+import com.opengamma.integration.swing.ViewListCellRenderer;
+import com.opengamma.integration.swing.ViewListModel;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.scripts.Scriptable;
 
@@ -90,7 +95,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(EngineDebugger.class);
 
-  private static final String DEFAULT_VALUE_REQUIREMENT = "PresentValue";
+  private static final String DEFAULT_VALUE_REQUIREMENT = "Present Value";
 
   private JFrame _frame;
 

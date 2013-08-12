@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -93,7 +93,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
   }
 
   /**
-   * Builds an fixed compounded coupon from the accrual and payment details. 
+   * Builds an fixed compounded coupon from the accrual and payment details.
    * @param currency The coupon currency.
    * @param paymentDate The coupon payment date.
    * @param notional The coupon notional.
@@ -104,8 +104,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    * @return The compounded coupon.
    */
   public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime[] accrualStartDates,
-      final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors, final double notional, final double rate)
-  {
+      final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors, final double notional, final double rate) {
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime accrualStartDate = accrualStartDates[0];
     final ZonedDateTime accrualEndDate = accrualEndDates[nbSubPeriod - 1];
@@ -118,10 +117,10 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
   }
 
   /**
-   * Builds a fixed compounded coupon from a total period. 
+   * Builds a fixed compounded coupon from a total period.
    * If required the stub of the sub-periods will be short and last. The payment date is the start accrual date plus the tenor in the index conventions.
    * @param currency The currency.
-   * @param accrualStartDate The first accrual date. 
+   * @param accrualStartDate The first accrual date.
    * @param accrualEndDate The last accrual date.
    * @param notional The coupon notional.
    * @param tenorPeriod Perriod between two consecutive accrual dates(usually 1 year).
@@ -143,7 +142,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
   }
 
   /**
-   * Builds a fixed compounded coupon from a tenor in years. This constructor is needed for inflation ZC swap. 
+   * Builds a fixed compounded coupon from a tenor in years. This constructor is needed for inflation ZC swap.
    * If required the stub of the sub-periods will be short and last. The payment date is the start accrual date plus the tenor in the index conventions.
    * @param currency The currency.
    * @param accrualStartDate The first accrual date.
@@ -189,13 +188,18 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
     return "CouponFixedCompoundingDefinition [_rate=" + _rate + "]";
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
-  public CouponFixedCompounding toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public CouponFixedCompounding toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return toDerivative(date);
   }
 
   @Override
-  public CouponFixedCompounding toDerivative(ZonedDateTime date) {
+  public CouponFixedCompounding toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate dayConversion = date.toLocalDate();
     ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
@@ -203,15 +207,15 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
     return new CouponFixedCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(),
         getPaymentAccrualFactors(), getRate());
   }
-  
+
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponFixedCompoundingDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponFixedCompoundingDefinition(this);
   }
@@ -227,7 +231,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -237,7 +241,7 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponFixedCompoundingDefinition other = (CouponFixedCompoundingDefinition) obj;
+    final CouponFixedCompoundingDefinition other = (CouponFixedCompoundingDefinition) obj;
     if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
       return false;
     }

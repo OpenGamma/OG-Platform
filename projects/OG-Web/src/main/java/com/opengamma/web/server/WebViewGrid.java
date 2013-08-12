@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -211,29 +213,31 @@ public abstract class WebViewGrid {
     }
     return displayValue;
   }
-  
+
   //-------------------------------------------------------------------------
-  
-  /*package*/ String dumpContentsToCsv(ViewComputationResultModel result) {
+  String dumpContentsToCsv(ViewComputationResultModel result) {
     StringWriter stringWriter = new StringWriter();
-    CSVWriter csvWriter = new CSVWriter(stringWriter);
-    String[][] columnHeaders = getCsvColumnHeaders();
-    if (columnHeaders != null) {
-      for (String[] header : columnHeaders) {
-        csvWriter.writeNext(header);
+    try (CSVWriter csvWriter = new CSVWriter(stringWriter)) {
+      String[][] columnHeaders = getCsvColumnHeaders();
+      if (columnHeaders != null) {
+        for (String[] header : columnHeaders) {
+          csvWriter.writeNext(header);
+        }
       }
-    }
-    String[][] rows = getCsvRows(result);
-    if (rows != null) {
-      for (String[] row : rows) {
-        csvWriter.writeNext(row);
+      String[][] rows = getCsvRows(result);
+      if (rows != null) {
+        for (String[] row : rows) {
+          csvWriter.writeNext(row);
+        }
       }
+      return stringWriter.toString();
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
     }
-    return stringWriter.toString();
   }
-  
+
   protected abstract String[][] getCsvColumnHeaders();
 
   protected abstract String[][] getCsvRows(ViewComputationResultModel result);
-  
+
 }

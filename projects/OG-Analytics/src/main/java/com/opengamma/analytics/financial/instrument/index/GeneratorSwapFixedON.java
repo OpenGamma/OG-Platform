@@ -203,10 +203,11 @@ public class GeneratorSwapFixedON extends GeneratorInstrument<GeneratorAttribute
     return _calendar;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The effective date is date+_spotLag. The end of fixing period is effective date+tenor.
    */
+  @Override
   public SwapFixedONDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

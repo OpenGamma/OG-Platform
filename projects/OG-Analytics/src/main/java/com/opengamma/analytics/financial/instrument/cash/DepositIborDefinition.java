@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cash;
@@ -56,7 +56,7 @@ public class DepositIborDefinition extends CashDefinition {
    */
   public static DepositIborDefinition fromStart(final ZonedDateTime startDate, final double notional, final double rate, final IborIndex index, final Calendar calendar) {
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index, calendar);
-    final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate, calendar);
     return new DepositIborDefinition(index.getCurrency(), startDate, endDate, notional, rate, accrualFactor, index);
   }
 
@@ -72,7 +72,7 @@ public class DepositIborDefinition extends CashDefinition {
   public static DepositIborDefinition fromTrade(final ZonedDateTime tradeDate, final double notional, final double rate, final IborIndex index, final Calendar calendar) {
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, index.getSpotLag(), calendar);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index, calendar);
-    final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate, calendar);
     return new DepositIborDefinition(index.getCurrency(), startDate, endDate, notional, rate, accrualFactor, index);
   }
 
@@ -84,6 +84,11 @@ public class DepositIborDefinition extends CashDefinition {
     return _index;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public DepositIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");

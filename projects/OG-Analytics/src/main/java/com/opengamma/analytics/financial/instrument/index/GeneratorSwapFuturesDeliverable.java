@@ -27,7 +27,7 @@ public class GeneratorSwapFuturesDeliverable extends GeneratorInstrument<Generat
    * @param name The generator name.
    * @param security The underlying deliverable swap futures security.
    */
-  public GeneratorSwapFuturesDeliverable(String name, final SwapFuturesPriceDeliverableSecurityDefinition security) {
+  public GeneratorSwapFuturesDeliverable(final String name, final SwapFuturesPriceDeliverableSecurityDefinition security) {
     super(name);
     ArgumentChecker.notNull(security, "STIR futures security");
     _security = security;
@@ -41,12 +41,13 @@ public class GeneratorSwapFuturesDeliverable extends GeneratorInstrument<Generat
     return _security;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The quantity is selected to be in line with the required nominal.
    */
-  public SwapFuturesPriceDeliverableTransactionDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
-    int quantity = (int) Math.ceil(notional / _security.getNotional());
+  @Override
+  public SwapFuturesPriceDeliverableTransactionDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
+    final int quantity = (int) Math.ceil(notional / _security.getNotional());
     return new SwapFuturesPriceDeliverableTransactionDefinition(_security, date, marketQuote, quantity);
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -163,7 +163,7 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
       paymentAccrualFactor += paymentAccrualFactors[loopsub];
       fixingDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], -index.getSpotLag(), calendar);
       fixingPeriodEndDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], index, calendar);
-      fixingPeriodAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], fixingPeriodEndDates[loopsub]);
+      fixingPeriodAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], fixingPeriodEndDates[loopsub], calendar);
     }
     return new CouponIborCompoundingDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index,
         accrualStartDates, accrualEndDates, paymentAccrualFactors, fixingDates, accrualStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors);
@@ -188,7 +188,7 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
     System.arraycopy(accrualEndDates, 0, accrualStartDates, 1, nbSubPeriod - 1);
     final double[] paymentAccrualFactors = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      paymentAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], accrualEndDates[loopsub]);
+      paymentAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], accrualEndDates[loopsub], calendar);
     }
     return from(accrualEndDates[nbSubPeriod - 1], notional, index, accrualStartDates, accrualEndDates, paymentAccrualFactors, calendar);
   }
@@ -257,6 +257,11 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
     return _fixingPeriodAccrualFactors;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponIborCompounding toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     final LocalDate dateConversion = dateTime.toLocalDate();
@@ -270,7 +275,12 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
     return new CouponIborCompounding(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getNotional(), _index,
         _paymentAccrualFactors, fixingTimes, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, forwardCurveName);
   }
-  
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     final LocalDate dateConversion = dateTime.toLocalDate();

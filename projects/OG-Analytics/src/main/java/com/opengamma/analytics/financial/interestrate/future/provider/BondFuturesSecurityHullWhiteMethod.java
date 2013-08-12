@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -148,8 +148,8 @@ public final class BondFuturesSecurityHullWhiteMethod {
         }
       }
     }
-    final ArrayList<Double> refx = new ArrayList<Double>();
-    final ArrayList<Integer> ctd = new ArrayList<Integer>();
+    final ArrayList<Double> refx = new ArrayList<>();
+    final ArrayList<Integer> ctd = new ArrayList<>();
     int lastInd = indMin[0];
     ctd.add(indMin[0]);
     for (int looppt = 1; looppt < nbPoint; looppt++) {
@@ -290,8 +290,8 @@ public final class BondFuturesSecurityHullWhiteMethod {
         }
       }
     }
-    final ArrayList<Double> refx = new ArrayList<Double>();
-    final ArrayList<Integer> ctd = new ArrayList<Integer>();
+    final ArrayList<Double> refx = new ArrayList<>();
+    final ArrayList<Integer> ctd = new ArrayList<>();
     int lastInd = indMin[0];
     ctd.add(indMin[0]);
     for (int looppt = 1; looppt < nbPoint; looppt++) {

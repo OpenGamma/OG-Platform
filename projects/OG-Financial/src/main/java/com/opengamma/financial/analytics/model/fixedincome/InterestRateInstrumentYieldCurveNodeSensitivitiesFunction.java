@@ -50,7 +50,7 @@ import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.financial.analytics.model.multicurve.discounting.LinearFIDiscountingYCNSFunction;
+import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingYCNSFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -59,7 +59,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates the yield curve node sensitivities of an interest rate instrument
- * @deprecated Use {@link LinearFIDiscountingYCNSFunction}
+ * @deprecated Use {@link DiscountingYCNSFunction}
  */
 @Deprecated
 public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends InterestRateInstrumentCurveSpecificFunction {

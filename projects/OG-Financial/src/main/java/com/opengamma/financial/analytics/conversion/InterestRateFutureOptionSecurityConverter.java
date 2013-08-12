@@ -32,7 +32,7 @@ public class InterestRateFutureOptionSecurityConverter extends FinancialSecurity
   /** The security source */
   private final SecuritySource _securitySource;
   /** Converter for the underlying future */
-  private final InterestRateFutureSecurityConverter _underlyingConverter;
+  private final InterestRateFutureSecurityConverterDeprecated _underlyingConverter;
 
   /**
    * @param holidaySource The holiday source, not null
@@ -43,7 +43,7 @@ public class InterestRateFutureOptionSecurityConverter extends FinancialSecurity
   public InterestRateFutureOptionSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
       final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "security source");
-    _underlyingConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    _underlyingConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     _securitySource = securitySource;
   }
 

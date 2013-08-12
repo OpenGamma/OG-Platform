@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.minimization;
@@ -29,7 +29,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   private final int _nFP;
 
   /**
-   * 
+   *
    * @param startValues fixed parameter values (if no parameters are fixed this is completely ignored)
    * @param transforms Array of ParameterLimitsTransform (which can be the NullTransform which does NOT transform the parameter) which transform
    * a constrained function parameter (e.g. must be between -1 and 1) to a unconstrained fit parameter.
@@ -57,7 +57,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * 
+   *
    * @return The number of function parameters
    */
   @Override
@@ -66,7 +66,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * 
+   *
    * @return The number of fitting parameters (equals the number of model parameters minus the number of fixed parameters)
    */
   @Override
@@ -157,7 +157,6 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   //    return DoubleMatrix2D.noCopy(jac);
   //  }
 
-  @SuppressWarnings("deprecation")
   @Override
   public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
     ArgumentChecker.notNull(fittingParameters, "fitting parameters");

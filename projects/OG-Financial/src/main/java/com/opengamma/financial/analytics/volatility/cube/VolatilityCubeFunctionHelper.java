@@ -13,6 +13,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
@@ -83,9 +84,8 @@ public class VolatilityCubeFunctionHelper {
   }
 
   private VolatilityCubeDefinition getDefinition(FunctionCompilationContext context) {
-    final VolatilityCubeDefinitionSource defnSource = OpenGammaCompilationContext
-      .getVolatilityCubeDefinitionSource(context);
-    return defnSource.getDefinition(_currency, _definitionName);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    return configSource.getLatestByName(VolatilityCubeDefinition.class, _definitionName + "_" + _currency);
   }
 
   private VolatilityCubeSpecification buildSpecification(LocalDate curveDate) {

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -48,6 +49,11 @@ public class ConfigDBInterpolatedYieldCurveDefinitionSource implements Interpola
   @Override
   public YieldCurveDefinition getDefinition(final Currency ccy, final String name, final VersionCorrection versionCorrection) {
     return _configSource.getSingle(YieldCurveDefinition.class, name + "_" + ccy.getCode(), versionCorrection);
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _configSource.changeManager();
   }
 
 }

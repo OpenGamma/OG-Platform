@@ -17,7 +17,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.redis.AbstractRedisTestCase;
+import com.opengamma.util.test.AbstractRedisTestCase;
 import com.opengamma.util.tuple.Pair;
 
 /**

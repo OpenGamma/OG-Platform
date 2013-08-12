@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.local;
@@ -43,7 +43,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadr
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 
 /**
- * 
+ *
  */
 public class DupireLocalVolatilityTest {
 
@@ -72,7 +72,7 @@ public class DupireLocalVolatilityTest {
   private static AbsoluteLocalVolatilitySurface ABS_LOCAL_VOL;
   private static LocalVolatilitySurfaceStrike LOCAL_VOL;
   /**
-   * 
+   *
    */
   static {
     ALPHA = ATM_VOL * Math.pow(SPOT, 1 - BETA);
@@ -241,7 +241,6 @@ public class DupireLocalVolatilityTest {
   @Test(enabled = false)
   public void volTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    @SuppressWarnings("deprecation")
     final LocalVolatilitySurfaceStrike locVol = cal.getLocalVolatility(SABR_SURFACE, SPOT, RATE);
     double t;
     double f;

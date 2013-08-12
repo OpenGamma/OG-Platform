@@ -22,7 +22,6 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests of Deprecated Hazard Rate Curve Calibrator
  */
-@SuppressWarnings("deprecation")
 public class CalibrateHazardRateTermStructureISDAMethodTest {
 
   private static final CalibrateHazardRateTermStructureISDAMethod DEPRECATED_CALCULATOR = new CalibrateHazardRateTermStructureISDAMethod();
@@ -32,10 +31,10 @@ public class CalibrateHazardRateTermStructureISDAMethodTest {
       DateUtils.getUTCDate(2023, 3, 15) };
   private static final double[] MARKET_TIMES = new double[MARKET_TENORS.length + 1];
   private static final double[] MARKET_SPREADS = new double[] {315, 350, 390, 400, 420, 410, 404, 402 };
-  
+
   private static final double[] ZERO_SPREADS = new double[MARKET_TENORS.length];
   private static final double[] ZERO_HAZARD_RATES = new double[MARKET_TENORS.length + 1];
-  
+
   private static final ZonedDateTime[] YIELD_TENORS = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 1), DateUtils.getUTCDate(2013, 5, 1), DateUtils.getUTCDate(2013, 6, 1),
       DateUtils.getUTCDate(2013, 12, 1), DateUtils.getUTCDate(2014, 3, 1), DateUtils.getUTCDate(2015, 3, 1), DateUtils.getUTCDate(2016, 3, 1), DateUtils.getUTCDate(2018, 3, 1),
       DateUtils.getUTCDate(2023, 3, 1) };
@@ -46,58 +45,58 @@ public class CalibrateHazardRateTermStructureISDAMethodTest {
   private static final LegacyVanillaCreditDefaultSwapDefinition CDS =
       CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  
+
   static {
     Arrays.fill(ZERO_SPREADS, 0.0);
     Arrays.fill(ZERO_HAZARD_RATES, 0.0);
-    
+
     MARKET_TIMES[0] = 0.0;
     for (int i = 0; i < MARKET_TENORS.length; i++) {
       MARKET_TIMES[i+1] = ACT_365.getDayCountFraction(VALUATION_DATE, MARKET_TENORS[i]);
     }
-    
+
     for (int i = 0; i < YIELD_TENORS.length; i++) {
       YIELD_TIMES[i] = TimeCalculator.getTimeBetween(VALUATION_DATE, YIELD_TENORS[i]);
     }
     YIELD_CURVE = new ISDADateCurve("ISDA", YIELD_TENORS, YIELD_TIMES, YIELDS, OFFSET);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValuationDate() {
     DEPRECATED_CALCULATOR.isdaCalibrateHazardRateCurve(null, CDS, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCDS() {
     DEPRECATED_CALCULATOR.isdaCalibrateHazardRateCurve(VALUATION_DATE, null, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSpreadDates() {
     DEPRECATED_CALCULATOR.isdaCalibrateHazardRateCurve(VALUATION_DATE, CDS, null, MARKET_SPREADS, YIELD_CURVE);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSpreads() {
     DEPRECATED_CALCULATOR.isdaCalibrateHazardRateCurve(VALUATION_DATE, CDS, MARKET_TENORS, null, YIELD_CURVE);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYieldCurve() {
     final HazardRateCurve result = DEPRECATED_CALCULATOR.isdaCalibrateHazardRateCurve(VALUATION_DATE, CDS, MARKET_TENORS, MARKET_SPREADS, null);
     assertNotNull(result);
   }
-  
+
   /**
    * Tests trivial example in which there is no credit risk, i.e. par spreads for all CDS are zero
    */
   @Test
   public void testCalibrationToZeroSpreadsSucceeds() {
-    
+
     final HazardRateCurve result = DEPRECATED_CALCULATOR.isdaCalibrateHazardRateCurve(VALUATION_DATE, CDS, MARKET_TENORS, ZERO_SPREADS, YIELD_CURVE);
     assertNotNull(result);
   }
-  
+
   /**
    * Regression test to highlight any changes made to the calibrator. <p>
    * Tests trivial example in which there is no credit risk, i.e. par spreads for all CDS are zero,
@@ -112,7 +111,7 @@ public class CalibrateHazardRateTermStructureISDAMethodTest {
     assertTrue("Calibrated ZeroDiscountFactor has changed.", curve.getZeroDiscountFactor() == curveExpected.getZeroDiscountFactor());
     assertTrue("Calibrated hazard rate curve has changed.", curve.equals(curveExpected));
   }
-  
+
   /**
    * Test that calibration succeeds with realistic inputs
    * This regression test fails because CalibrateHazardRateTermStructureISDAMethod fails to calibrate to market spreads.
@@ -123,7 +122,7 @@ public class CalibrateHazardRateTermStructureISDAMethodTest {
     final HazardRateCurve result = DEPRECATED_CALCULATOR.isdaCalibrateHazardRateCurve(VALUATION_DATE, CDS, MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
     assertNotNull(result);
   }
-  
 
-  
+
+
 }

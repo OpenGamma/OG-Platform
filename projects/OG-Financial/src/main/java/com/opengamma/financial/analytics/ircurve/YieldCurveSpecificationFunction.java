@@ -119,7 +119,8 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
   @SuppressWarnings("synthetic-access")
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = getHelper().compile(context, atInstant);
+    getHelper().init(context, this);
+    final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = getHelper().compile(context, atInstant, this);
     return new CompiledImpl(compile.getFirst(), compile.getSecond(), compile.getThird());
   }
 

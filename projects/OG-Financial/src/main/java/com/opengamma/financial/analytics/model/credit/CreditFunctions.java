@@ -26,6 +26,7 @@ import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantBucke
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCleanPresentValueCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantParallelCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantPointsUpfrontCDSFunction;
+import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantQuotedSpreadCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantUpfrontAmountCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
@@ -468,6 +469,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACompliantBucketedCS01CDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantUpfrontAmountCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantPointsUpfrontCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantQuotedSpreadCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantAccruedDaysCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantAccruedPremiumCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantCleanPriceCDSFunction.class));

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -82,7 +82,7 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
     while (currentDate.isBefore(fixingPeriodEndDate)) {
       nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, calendar);
       fixingDateList.add(nextDate);
-      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate));
+      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate, calendar));
       currentDate = nextDate;
     }
     _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[fixingDateList.size()]);
@@ -122,7 +122,7 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
   public static CouponONDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
       final int settlementDays, final Calendar calendar) {
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + settlementDays, calendar);
-    final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, fixingPeriodEndDate);
+    final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, fixingPeriodEndDate, calendar);
     return new CouponONDefinition(index.getCurrency(), paymentDate, settlementDate, fixingPeriodEndDate, paymentYearFraction, notional, index, settlementDate,
         fixingPeriodEndDate, calendar);
   }
@@ -151,6 +151,11 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
     return _fixingPeriodAccrualFactor;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -170,6 +175,11 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
     return cpn;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
@@ -335,7 +345,7 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
         / getPaymentYearFraction());
   }
 
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

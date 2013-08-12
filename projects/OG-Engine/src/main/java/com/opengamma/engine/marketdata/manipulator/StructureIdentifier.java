@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.io.Serializable;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -23,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @param <T> the underlying type of the key used
  */
-public class StructureIdentifier<T> {
+public final class StructureIdentifier<T extends Serializable> {
 
   private static final String STRUCTURE_TYPE = "structureType";
   private static final String VALUE = "value";
@@ -121,7 +123,7 @@ public class StructureIdentifier<T> {
 
   public static StructureIdentifier<?> fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
     StructureType structureType = deserializer.fieldValueToObject(StructureType.class, msg.getByName(STRUCTURE_TYPE));
-    Object value = deserializer.fieldValueToObject(Object.class, msg.getByName(VALUE));
+    Serializable value = deserializer.fieldValueToObject(Serializable.class, msg.getByName(VALUE));
     return new StructureIdentifier<>(structureType, value);
   }
 }
