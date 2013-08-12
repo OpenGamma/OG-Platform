@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIMMDate;
+import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIndexRollDate;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getPrevIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
@@ -106,4 +107,65 @@ public class IndexCDSTest extends ISDABaseTest {
     assertEquals("Credit DV01 (Trans)", mCreditDV01Transformed, cs01Trans, 1e-15 * NOTIONAL);
   }
 
+  @Test(enabled = false)
+  public void rollingTest() {
+
+    final PointsUpFrontConverter pufConverter = new PointsUpFrontConverter(false);
+    final FastCreditCurveBuilder builder = new FastCreditCurveBuilder(false);
+
+    final double notional = 1e12;
+    final LocalDate today = LocalDate.of(2011, Month.JUNE, 13);
+    final Period tenor = Period.ofYears(3);
+    final double tradeLevel = 99.785 * ONE_BP;
+    //final double tradeLevel = 99.78471 * ONE_BP;
+    final int nDays = 6;
+
+    final LocalDate tradeDate = today;
+    final LocalDate stepinDate = tradeDate.plusDays(1); // AKA stepin date
+    final LocalDate cashSettleDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR); // AKA valuation date
+    final LocalDate startDate = getPrevIMMDate(tradeDate).plusDays(1);
+    final LocalDate nextRolldate = getNextIndexRollDate(today);
+    final LocalDate maturity = nextRolldate.plus(tenor).minusMonths(3);
+
+    //yield curve
+    final LocalDate spotDate = addWorkDays(today.minusDays(1), 3, DEFAULT_CALENDAR);
+    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "30Y" };
+    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    final double[] rates = new double[] {0.01262, 0.01344, 0.01469, 0.01739, 0.01947, 0.02145, 0.02114, 0.02308, 0.02511, 0.02695, 0.02857, 0.02989, 0.03104, 0.03204, 0.03292, 0.0345, 0.03619,
+      0.03712, 0.03602 };
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
+    //    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
+    //    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    //    final double[] rates = new double[] {0.001886, 0.002203, 0.002485, 0.003968, 0.005568, 0.007225, 0.005935, 0.00967, 0.013855, 0.017995, 0.021615, 0.024565, 0.02701, 0.029025, 0.03073, 0.03333,
+    //      0.035815, 0.03782, 0.038725, 0.039235 };
+    //    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
+
+    final CDSAnalytic pointCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturity, PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+    final QuotedSpread qSpread = new QuotedSpread(COUPON, tradeLevel);
+    final double puf = pufConverter.toPointsUpFront(pointCDS, qSpread, yieldCurve).getPointsUpFront();
+    final double accAmt = notional * pointCDS.getAccruedPremium(COUPON);
+    final double cashAmount = notional * puf - accAmt;
+    System.out.println(startDate + "\t" + maturity + "\t" + puf + "\t" + (1 - puf) * 100 + "%\t" + cashAmount + "\t" + pointCDS.getAccuredDays() + "\t" + accAmt);
+
+    final double impSpread = pufConverter.pufToQuotedSpread(pointCDS, COUPON, yieldCurve, puf);
+    System.out.println("imp Spread: " + impSpread);
+
+    //flat spread calculations 
+    final Period[] standardTenors = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(7),
+      Period.ofYears(10) };
+    final int nMat = standardTenors.length;
+    final LocalDate[] maturities = new LocalDate[nMat];
+    final CDSAnalytic[] pillarCDS = new CDSAnalytic[nMat];
+    for (int i = 0; i < nMat; i++) {
+      maturities[i] = nextRolldate.plus(standardTenors[i]).minusMonths(3);
+      pillarCDS[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+    }
+    final double[] flatSpreads = new double[nMat];
+    Arrays.fill(flatSpreads, tradeLevel);
+    final ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(pillarCDS, flatSpreads, yieldCurve);
+    final double pufTrans = PRICER_CORRECT.pv(pointCDS, yieldCurve, creditCurve, COUPON);
+    final double cashAmountTrans = notional * pufTrans - accAmt;
+    System.out.println(pufTrans + "\t" + cashAmountTrans);
+
+  }
 }

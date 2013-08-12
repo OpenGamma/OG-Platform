@@ -378,6 +378,71 @@ public class SpreadSensitivityCalculator {
   }
 
   /**
+   * The bucked CS01 (or credit DV01) by shifting each implied par-spread in turn. This takes an extraneous yield curve,
+   *  a set of pillar CDSs and their corresponding par-spread, and  a set of bucket CDSs (CDSs with maturities equal to the bucket
+   *  points). A credit curve is bootstrapped from the pillar CDSs - this is then used to imply spreads at the bucket maturities. 
+   *  These spreads form pseudo market spreads to bootstraps a new credit (hazard) curve - 
+   * the target CDS is then priced with this credit curve. This is then repeated with each  spreads bumped in turn. 
+   * The result is the vector of differences (bumped minus base price) divided by the bump amount.
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param cdsCoupon The <b>fraction</b> spread of the CDS
+   * @param bucketCDSs these are the reference instruments that correspond to maturity buckets  
+   * @param yieldCurve The yield (or discount) curve  
+   * @param pillarCDSs  These are the market CDSs used to build the credit curve
+   * @param pillarSpreads These are the par-spreads of the market (pillar) CDSs
+   * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
+   * @return The credit DV01
+   */
+  public double[] bucketedCS01FromParSpreads(final CDSAnalytic cds, final double cdsCoupon, final CDSAnalytic[] bucketCDSs, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] pillarCDSs,
+      final double[] pillarSpreads, final double fracBumpAmount) {
+    ArgumentChecker.noNulls(pillarCDSs, "pillarCDSs");
+    ArgumentChecker.notEmpty(pillarSpreads, "pillarSpreads");
+    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(pillarCDSs, pillarSpreads, yieldCurve);
+    return bucketedCS01FromCreditCurve(cds, cdsCoupon, bucketCDSs, yieldCurve, creditCurve, fracBumpAmount);
+  }
+
+  /**
+   * The bucked CS01 (or credit DV01) by shifting each  implied par-spread in turn. This takes an extraneous yield curve and a credit
+   *  curve and a set of bucket CDSs (CDSs with maturities equal to the bucket points). Par-spreads at the bucket maturities are
+   *  implied from the credit curve. These spreads form pseudo market spreads to bootstraps a new credit (hazard) curve - 
+   * the target CDS is then priced with this credit curve. This is then repeated with each  spreads bumped in turn. 
+   * The result is the vector of differences (bumped minus base price) divided by the bump amount.
+   * @param cds analytic description of a CDS traded at a certain time 
+   * @param cdsCoupon The <b>fraction</b> spread of the CDS
+   * @param bucketCDSs  these are the reference instruments that correspond to maturity buckets  
+   * @param yieldCurve The yield (or discount) curve  
+   * @param creditCurve the credit curve 
+   * @param fracBumpAmount The fraction bump amount, so a 1pb bump is 1e-4 
+   * @return The credit DV01
+   */
+  public double[] bucketedCS01FromCreditCurve(final CDSAnalytic cds, final double cdsCoupon, final CDSAnalytic[] bucketCDSs, final ISDACompliantYieldCurve yieldCurve,
+      final ISDACompliantCreditCurve creditCurve, final double fracBumpAmount) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.noNulls(bucketCDSs, "bucketCDSs");
+    ArgumentChecker.notNull(creditCurve, "creditCurve");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
+    final int n = bucketCDSs.length;
+
+    final double[] impSpreads = new double[n];
+    for (int i = 0; i < n; i++) {
+      impSpreads[i] = PRICER.parSpread(bucketCDSs[i], yieldCurve, creditCurve);
+    }
+
+    //build a new curve from the implied spreads 
+    final ISDACompliantCreditCurve baseCurve = BUILDER.calibrateCreditCurve(bucketCDSs, impSpreads, yieldCurve);
+    final double basePrice = PRICER.pv(cds, yieldCurve, baseCurve, cdsCoupon);
+    final double[] res = new double[n];
+    for (int i = 0; i < n; i++) {
+      final double[] bumpedSpreads = makeBumpedSpreads(impSpreads, fracBumpAmount, BumpType.ADDITIVE, i);
+      final ISDACompliantCreditCurve bumpedCurve = BUILDER.calibrateCreditCurve(bucketCDSs, bumpedSpreads, yieldCurve);
+      final double price = PRICER.pv(cds, yieldCurve, bumpedCurve, cdsCoupon);
+      res[i] = (price - basePrice) / fracBumpAmount;
+    }
+    return res;
+  }
+
+  /**
    * The difference in PV between two market spread 
    * @param cds analytic description of a CDS traded at a certain time 
    * @param cdsFracSpread The <b>fraction</b> spread of the CDS

@@ -37,6 +37,8 @@ public class RopemakerTest extends ISDABaseTest {
   private static final double COUPON = 0.01;
   private static final double RECOVERY = 0.25;
   private static final Period NON_IMM_TENOR = Period.ofMonths(6);
+  private static final CDSAnalyticFactory IMM_CDS_FACTORY = new CDSAnalyticFactory(RECOVERY);
+  private static final CDSAnalyticFactory NON_IMM_CDS_FACTORY = IMM_CDS_FACTORY.with(NON_IMM_TENOR);
 
   @Test(enabled = false)
   public void russiaTest() {
@@ -134,25 +136,11 @@ public class RopemakerTest extends ISDABaseTest {
     final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final LocalDate[] pillarDates = getIMMDateSet(nextIMM, PILLARS);
 
-    final int nPillars = pillarDates.length;
     final double[] pillarSpreads = getSpreadsAtDates(maturities, spreads, pillarDates);
-
-    final CDSAnalytic[] pillarCDSs_IMM = new CDSAnalytic[nPillars];
-    final CDSAnalytic[] pillarCDSs_nonIMM = new CDSAnalytic[nPillars];
-    for (int i = 0; i < nPillars; i++) {
-      pillarCDSs_IMM[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, pillarDates[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
-      pillarCDSs_nonIMM[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, pillarDates[i], PAY_ACC_ON_DEFAULT, NON_IMM_TENOR, STUB, PROCTECTION_START, RECOVERY);
-    }
-
+    final CDSAnalytic[] pillarCDSs_nonIMM = NON_IMM_CDS_FACTORY.makeCDS(tradeDate, startDate, pillarDates); //TODO check this start date
     final LocalDate[] bucketDates = getIMMDateSet(nextIMM, BUCKETS);
-    final int nBuckets = BUCKETS.length;
-    //final double[] bucketSpreads = getSpreadsAtDates(maturities, spreads, bucketDates);
-    final CDSAnalytic[] bucketCDSs_IMM = new CDSAnalytic[nBuckets];
-    final CDSAnalytic[] bucketCDSs_nonIMM = new CDSAnalytic[nBuckets];
-    for (int i = 0; i < nBuckets; i++) {
-      bucketCDSs_IMM[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, bucketDates[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
-      bucketCDSs_nonIMM[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, bucketDates[i], PAY_ACC_ON_DEFAULT, NON_IMM_TENOR, STUB, PROCTECTION_START, RECOVERY);
-    }
+    final CDSAnalytic[] bucketCDSs_IMM = IMM_CDS_FACTORY.makeCDS(tradeDate, startDate, bucketDates);
+    final CDSAnalytic[] bucketCDSs_nonIMM = NON_IMM_CDS_FACTORY.makeCDS(tradeDate, startDate, bucketDates);
 
     final double[] puf = new double[nMat];
     final double[] upfrontAmount = new double[nMat];
@@ -166,30 +154,17 @@ public class RopemakerTest extends ISDABaseTest {
         puf[i] = PUF_CONVERTER.toPointsUpFront(pricingCDS, quote, yieldCurve).getPointsUpFront();
         upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(COUPON)) * NOTIONAL;
         parellelCS01[i] = CS01_CAL.parallelCS01(pricingCDS, quote, yieldCurve, ONE_BP);
-
         //a flat (constant) hazard rate does not give a completely flat spread term structure 
-        //TODO repeat calculation (already done fro PUF 
+        //TODO repeat calculation (already done fro PUF) and parallelCS01
         final ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pricingCDS, quote.getQuotedSpread(), yieldCurve);
-        final double[] flatSpreads = new double[nBuckets];
-        for (int k = 0; k < nBuckets; k++) {
-          flatSpreads[k] = PRICER.parSpread(bucketCDSs_IMM[k], yieldCurve, creditCurve);
-        }
-        bucketedCS01[i] = CS01_CAL.bucketedCS01FromParSpreads(pricingCDS, COUPON, yieldCurve, bucketCDSs_IMM, flatSpreads, ONE_BP, BumpType.ADDITIVE);
-
+        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(pricingCDS, COUPON, bucketCDSs_IMM, yieldCurve, creditCurve, ONE_BP);
       } else {
         final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, NON_IMM_TENOR, STUB, PROCTECTION_START, RECOVERY);
         final ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pillarCDSs_nonIMM, pillarSpreads, yieldCurve);
         puf[i] = PRICER.pv(pricingCDS, yieldCurve, creditCurve, spreads[i]);
-
         upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(spreads[i])) * NOTIONAL;
         parellelCS01[i] = CS01_CAL.parallelCS01FromParSpreads(pricingCDS, spreads[i], yieldCurve, pillarCDSs_nonIMM, pillarSpreads, ONE_BP, BumpType.ADDITIVE);
-
-        final double[] impliedSpreads = new double[nBuckets];
-        for (int k = 0; k < nBuckets; k++) {
-          impliedSpreads[k] = PRICER.parSpread(bucketCDSs_nonIMM[k], yieldCurve, creditCurve);
-        }
-        bucketedCS01[i] = CS01_CAL.bucketedCS01FromParSpreads(pricingCDS, spreads[i], yieldCurve, bucketCDSs_nonIMM, impliedSpreads, ONE_BP, BumpType.ADDITIVE);
-        //  bucketedCS01[i] = CS01_CAL.bucketedCS01FromParSpreads(pricingCDS, spreads[i], yieldCurve, bucketCDSs_nonIMM, pillarSpreads, ONE_BP, BumpType.ADDITIVE);
+        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(pricingCDS, spreads[i], bucketCDSs_nonIMM, yieldCurve, creditCurve, ONE_BP);
       }
     }
 

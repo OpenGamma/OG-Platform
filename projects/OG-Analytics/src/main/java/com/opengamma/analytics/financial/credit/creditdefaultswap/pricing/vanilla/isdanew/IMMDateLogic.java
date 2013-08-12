@@ -167,7 +167,7 @@ public abstract class IMMDateLogic {
   }
 
   /**
-   * Index roll dates  are 20th March and Septemberr. This returns the next roll date from the given date - if the date
+   * Index roll dates  are 20th March and September. This returns the next roll date from the given date - if the date
    * is a roll date the next roll date (i.e. 6 months on) is returned.  
    * @param date a given date
    * @return the next Index roll date
