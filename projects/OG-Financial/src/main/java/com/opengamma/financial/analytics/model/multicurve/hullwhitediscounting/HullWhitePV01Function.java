@@ -17,6 +17,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
@@ -56,7 +57,8 @@ public class HullWhitePV01Function extends HullWhiteFunction {
     return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context)) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative) {
+      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
+          final FXMatrix matrix) {
         final HullWhiteOneFactorProviderInterface data = (HullWhiteOneFactorProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);

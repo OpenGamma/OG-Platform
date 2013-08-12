@@ -17,9 +17,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a generic Cross currency swap. The two legs should be in different currencies.
- * TODO: This class was created only to deal with curve name of XCcy swaps. It should be deleted as soon as the curve names are removed from instrument description.
  * @deprecated Remove the class when the curve names are removed from instruments (provider in production).
  */
+// TODO: This class was created only to deal with curve name of XCcy swaps. It should be deleted as soon as the curve names are removed from instrument description.
 @Deprecated
 public class SwapXCcyDefinition extends SwapDefinition {
 
