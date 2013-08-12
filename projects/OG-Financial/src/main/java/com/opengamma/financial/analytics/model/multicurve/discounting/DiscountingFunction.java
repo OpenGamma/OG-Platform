@@ -7,19 +7,38 @@ package com.opengamma.financial.analytics.model.multicurve.discounting;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
+import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
  * Base function for all pricing and risk functions that use the discounting
@@ -59,7 +78,20 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
           .withAny(CURVE_EXPOSURES);
       if (_withCurrency) {
-        properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
+        final Security security = target.getTrade().getSecurity();
+        if (security instanceof SwapSecurity && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+          final SwapSecurity swapSecurity = (SwapSecurity) security;
+          if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
+            final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();
+            properties.with(CURRENCY, currency);
+            return properties;
+          }
+        }
+        if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
+          properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
+        } else {
+          properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
+        }
       }
       return properties;
     }
@@ -78,5 +110,27 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
       return ValueProperties.builder();
     }
 
+    protected MulticurveProviderInterface getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
+      final Collection<MulticurveProviderDiscount> providers = new HashSet<>();
+      for (final ComputedValue input : inputs.getAllValues()) {
+        final String valueName = input.getSpecification().getValueName();
+        if (CURVE_BUNDLE.equals(valueName)) {
+          providers.add((MulticurveProviderDiscount) input.getValue());
+        }
+      }
+      final MulticurveProviderDiscount result = ProviderUtils.merge(providers);
+      return ProviderUtils.merge(result, matrix);
+    }
+
+    protected CurveBuildingBlockBundle getMergedCurveBuildingBlocks(final FunctionInputs inputs) {
+      final CurveBuildingBlockBundle result = new CurveBuildingBlockBundle();
+      for (final ComputedValue input : inputs.getAllValues()) {
+        final String valueName = input.getSpecification().getValueName();
+        if (valueName.equals(JACOBIAN_BUNDLE)) {
+          result.addAll((CurveBuildingBlockBundle) input.getValue());
+        }
+      }
+      return result;
+    }
   }
 }
