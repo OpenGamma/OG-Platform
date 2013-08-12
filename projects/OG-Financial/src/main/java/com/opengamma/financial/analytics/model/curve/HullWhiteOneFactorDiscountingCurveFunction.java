@@ -52,7 +52,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -173,7 +172,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             if (node.getCurveNode() instanceof RateFutureNode) {
               parameterGuessForCurves.add(1.0 - marketData);
             } else {
-              parameterGuessForCurves.add(marketData); 
+              parameterGuessForCurves.add(marketData);
             }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
@@ -298,7 +297,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       Currency currency = null;
       for (final ComputedValue input : inputs.getAllValues()) {
         if (input.getSpecification().getValueName().equals(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS)) {
-          currency = Currency.of(input.getSpecification().getProperty(ValuePropertyNames.CURRENCY));
+          currency = Currency.of(input.getSpecification().getProperty(PROPERTY_HULL_WHITE_CURRENCY));
           break;
         }
       }

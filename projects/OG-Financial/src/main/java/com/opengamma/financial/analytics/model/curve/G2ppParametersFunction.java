@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.curve;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.G2PP_PARAMETERS;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_G2PP_PARAMETERS;
 
@@ -51,7 +50,6 @@ public class G2ppParametersFunction extends AbstractFunction.NonCompiledInvoker 
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .withAny(PROPERTY_G2PP_PARAMETERS)
-        .withAny(CURRENCY)
         .get();
     return Collections.singleton(new ValueSpecification(G2PP_PARAMETERS, ComputationTargetSpecification.NULL, properties));
   }
@@ -61,10 +59,6 @@ public class G2ppParametersFunction extends AbstractFunction.NonCompiledInvoker 
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> names = constraints.getValues(PROPERTY_G2PP_PARAMETERS);
     if (names == null || names.size() != 1) {
-      return null;
-    }
-    final Set<String> currencies = constraints.getValues(CURRENCY);
-    if (currencies == null || currencies.size() != 1) {
       return null;
     }
     return Collections.emptySet(); //TODO - just putting in dummy values for now
