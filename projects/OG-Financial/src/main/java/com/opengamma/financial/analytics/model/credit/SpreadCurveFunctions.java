@@ -62,7 +62,7 @@ public class SpreadCurveFunctions {
     BUCKET_TENORS.add(Tenor.of(Period.ofYears(30)));
   }
 
-  public static final ZonedDateTime[] getIMMDates(final ZonedDateTime now, final String inputs) {
+  public static final ZonedDateTime[] getPillarDates(final ZonedDateTime now, final String inputs) {
     if (inputs == null || inputs.isEmpty()) {
       return getDefaultBuckets(now);
     }

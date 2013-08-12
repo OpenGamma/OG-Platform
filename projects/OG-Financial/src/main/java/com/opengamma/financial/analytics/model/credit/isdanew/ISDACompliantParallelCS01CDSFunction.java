@@ -10,6 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
@@ -29,9 +30,18 @@ public class ISDACompliantParallelCS01CDSFunction extends AbstractISDACompliantW
   }
 
   @Override
-  protected Object compute(final ZonedDateTime maturity, PointsUpFront puf, CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection,
-      final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, final CDSAnalytic[] curveAnalytics, final
-      CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
+  protected Object compute(final ZonedDateTime maturity,
+                           PointsUpFront puf,
+                           CDSQuoteConvention quote,
+                           final double notional,
+                           final BuySellProtection buySellProtection,
+                           final ISDACompliantYieldCurve yieldCurve,
+                           final CDSAnalytic analytic,
+                           final CDSAnalytic[] curveAnalytics,
+                           final
+                           CDSQuoteConvention[] quotes,
+                           final ZonedDateTime[] bucketDates,
+                           ISDACompliantCreditCurve creditCurve) {
     double cs01;
     if (quote instanceof ParSpread) {
       // use a slightly different methodology on non IMM dates (signaled by a ParSpread)

@@ -10,6 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
@@ -28,7 +29,17 @@ public class ISDACompliantQuotedSpreadCDSFunction extends AbstractISDACompliantW
   }
 
   @Override
-  protected Object compute(final ZonedDateTime maturiy, final PointsUpFront puf, final CDSQuoteConvention quote, final double notional, final BuySellProtection buySellProtection, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic analytic, CDSAnalytic[] creditAnalytics, CDSQuoteConvention[] quotes, final ZonedDateTime[] bucketDates) {
+  protected Object compute(final ZonedDateTime maturiy,
+                           final PointsUpFront puf,
+                           final CDSQuoteConvention quote,
+                           final double notional,
+                           final BuySellProtection buySellProtection,
+                           final ISDACompliantYieldCurve yieldCurve,
+                           final CDSAnalytic analytic,
+                           CDSAnalytic[] creditAnalytics,
+                           CDSQuoteConvention[] quotes,
+                           final ZonedDateTime[] bucketDates,
+                           ISDACompliantCreditCurve creditCurve) {
     if (quote instanceof QuotedSpread) {
       return Double.valueOf(((QuotedSpread) quote).getQuotedSpread());
     }
