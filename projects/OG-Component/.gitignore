@@ -21,3 +21,4 @@ tests/output/
 build.number
 .settings/
 *.iml
+/target
