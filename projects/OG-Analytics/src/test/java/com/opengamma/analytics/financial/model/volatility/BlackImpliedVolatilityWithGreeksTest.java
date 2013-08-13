@@ -112,10 +112,13 @@ public class BlackImpliedVolatilityWithGreeksTest {
   }
 
   /**
-   * Sample data with assumption r = 0.02 due to missing forward values
+   * Sample data with assumption r = 0.02 due to missing forward values and evaluation date = 2013/8/1
+   * Assumption on the interest rate is encoded to discount factor by exp(-r*t) and forward by spot*exp(r*t), 
+   * which are inputs of getImpliedVolatilityAndGreeksDiscountFactor (or getPriceAndGreeksDiscountFactor) and getImpliedVolatilityAndGreeksForward (or getPriceAndGreeksForward), respectively.
    */
   @Test
   public void sampleTest() {
+    //    boolean print = true;
     boolean print = false;
 
     final LocalDate evaluationDate = LocalDate.of(2013, 8, 1);
@@ -129,25 +132,45 @@ public class BlackImpliedVolatilityWithGreeksTest {
       timeToExpiry[i] = TimeCalculator.getTimeBetween(evaluationDate, expiryDate[i]);
     }
 
-    if (print == true) {
-      System.out.println("\t\t\t" + "(Implied Volatility," + "\t" + "Delta," + "\t" + "Gamma," + "\t" + "Vega)");
-    }
     final boolean isCall = true;
     final double[] optionPrice = new double[] {21.82, 18.64, 19.50, 16.00, 14.00, 12.00, 12.00, 12.00, 12.00, 12.00, 12.00 };
     final double[] strike = new double[] {1675., 1680., 1685., 1690., 1695., 1700., 1680., 1685., 1690., 1695., 1700. };
     final double spot = 1685.96;
-    //    final double interestRate = 0.02; //This value is used to compute discountFactor, forward and forwardOption
+
+    final double[] lognormalVol = new double[] {0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.20, 0.21, 0.22 };
 
     /*
-     * These forward prices are exp(r*t)
+     * If discount factors are known, use getImpliedVolatilityAndGreeksDiscountFactor for implied volatility and getPriceAndGreeksDiscountFactor for price
      */
+    if (print == true) {
+      System.out.println("If discount factors are known,");
+      System.out.print("\n");
+    }
+
+    if (print == true) {
+      System.out.println("\t\t\t\t\t" + "(Implied Volatility," + "\t" + "Delta," + "\t" + "Gamma," + "\t" + "Vega)");
+    }
     final double[] discountFactor = new double[] {0.9991236718712008, 0.9991236718712008, 0.9991236718712008, 0.9991236718712008, 0.9991236718712008, 0.9991236718712008, 0.9972093804899117,
         0.9972093804899117, 0.9972093804899117, 0.9972093804899117, 0.9972093804899117 };
     for (int i = 0; i < nOptions; ++i) {
       final double[] volAndGreeks = calculator.getImpliedVolatilityAndGreeksDiscountFactor(optionPrice[i], discountFactor[i], spot, strike[i], timeToExpiry[i], isCall);
       if (print == true) {
-        System.out.print(expiryDate[i] + "; K=" + strike[i] + ": ");
+        System.out.print(expiryDate[i] + "; strike=" + strike[i] + "; price=" + optionPrice[i] + ": ");
         System.out.println(new DoubleMatrix1D(volAndGreeks));
+      }
+    }
+
+    if (print == true) {
+      System.out.println("\n");
+    }
+    if (print == true) {
+      System.out.println("\t\t\t\t\t" + "(Option Price," + "\t" + "Delta," + "\t" + "Gamma," + "\t" + "Vega)");
+    }
+    for (int i = 0; i < nOptions; ++i) {
+      final double[] priceAndGreeks = calculator.getPriceAndGreeksDiscountFactor(discountFactor[i], spot, strike[i], timeToExpiry[i], lognormalVol[i], isCall);
+      if (print == true) {
+        System.out.print(expiryDate[i] + "; strike=" + strike[i] + "; vol=" + lognormalVol[i] + ": ");
+        System.out.println(new DoubleMatrix1D(priceAndGreeks));
       }
     }
 
@@ -156,14 +179,23 @@ public class BlackImpliedVolatilityWithGreeksTest {
     }
 
     /*
-     * These forward prices are spot*exp(r*t)
+     * If forward prices are known, use getImpliedVolatilityAndGreeksForward for implied volatility and getPriceAndGreeksForward for price
      */
+    if (print == true) {
+      System.out.println("\n");
+      System.out.println("If forward prices are known,");
+      System.out.print("\n");
+    }
+
     final double[] forward = new double[] {1687.4387500422877, 1687.4387500422877, 1687.4387500422877, 1687.4387500422877, 1687.4387500422877, 1687.4387500422877, 1690.6780391212496,
         1690.6780391212496, 1690.6780391212496, 1690.6780391212496, 1690.6780391212496 };
+    if (print == true) {
+      System.out.println("\t\t\t\t\t" + "(Implied Volatility," + "\t" + "Delta," + "\t" + "Gamma," + "\t" + "Vega)");
+    }
     for (int i = 0; i < nOptions; ++i) {
       final double[] volAndGreeks = calculator.getImpliedVolatilityAndGreeksForward(optionPrice[i], forward[i], spot, strike[i], timeToExpiry[i], isCall);
       if (print == true) {
-        System.out.print(expiryDate[i] + "; K=" + strike[i] + ": ");
+        System.out.print(expiryDate[i] + "; strike=" + strike[i] + "; price=" + optionPrice[i] + ": ");
         System.out.println(new DoubleMatrix1D(volAndGreeks));
       }
     }
@@ -172,16 +204,14 @@ public class BlackImpliedVolatilityWithGreeksTest {
       System.out.println("\n");
     }
 
-    /*
-     * These forward option values are (spot option value)*exp(r*t)
-     */
-    final double[] forwardOption = new double[] {21.839138251158225, 18.656349083482553, 19.517103386690437, 16.014033548053693, 14.012279354546981, 12.01052516104027, 12.033581146323161,
-        12.033581146323161, 12.033581146323161, 12.033581146323161, 12.033581146323161 };
+    if (print == true) {
+      System.out.println("\t\t\t\t\t" + "(Option Price," + "\t" + "Delta," + "\t" + "Gamma," + "\t" + "Vega)");
+    }
     for (int i = 0; i < nOptions; ++i) {
-      final double[] volAndGreeks = calculator.getImpliedVolatilityAndGreeksForwardOption(optionPrice[i], forwardOption[i], spot, strike[i], timeToExpiry[i], isCall);
+      final double[] priceAndGreeks = calculator.getPriceAndGreeksForward(forward[i], spot, strike[i], timeToExpiry[i], lognormalVol[i], isCall);
       if (print == true) {
-        System.out.print(expiryDate[i] + "; K=" + strike[i] + ": ");
-        System.out.println(new DoubleMatrix1D(volAndGreeks));
+        System.out.print(expiryDate[i] + "; strike=" + strike[i] + "; vol=" + lognormalVol[i] + ": ");
+        System.out.println(new DoubleMatrix1D(priceAndGreeks));
       }
     }
 
