@@ -32,9 +32,12 @@ public class DependencyGraphResource extends AbstractGridResource {
    * @return The initial row and column structure of the grid
    * subsequent requests will need to be made to the viewport
    */
-  @Override
-  public GridStructure getGridStructure() {
-    return getView().getGridStructure(getGridType(), _graphId);
+  public GridStructure getInitialGridStructure() {
+    return getView().getInitialGridStructure(getGridType(), _graphId);
+  }
+
+  public GridStructure getGridStructure(int viewportId) {
+    return getViewport(viewportId).getGridStructure();
   }
 
   @Override

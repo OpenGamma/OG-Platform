@@ -23,7 +23,6 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * REST resource superclass for grid viewports. A viewport represents the part of the grid that is visible.
- * todo this or its subclasses need a getGridStructure() method
  */
 public abstract class AbstractViewportResource {
 

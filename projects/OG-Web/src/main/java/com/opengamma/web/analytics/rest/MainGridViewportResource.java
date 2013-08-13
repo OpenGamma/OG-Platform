@@ -35,8 +35,7 @@ public class MainGridViewportResource extends AbstractViewportResource {
     return getView().getData(getGridType(), getViewportId());
   }
 
-  // todo move this to the viewport resource
   public GridStructure getGridStructure() {
-    return getView().getGridStructure(getGridType());
+    return getView().getGridStructure(getGridType(), getViewportId());
   }
 }

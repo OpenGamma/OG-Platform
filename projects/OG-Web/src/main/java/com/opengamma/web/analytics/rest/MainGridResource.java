@@ -45,8 +45,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
    * subsequent requests will need to be made to the viewport
    */
   @Override
-  public GridStructure getGridStructure() {
-    return getView().getGridStructure(getGridType());
+  public GridStructure getInitialGridStructure() {
+    return getView().getInitialGridStructure(getGridType());
   }
 
   @Override

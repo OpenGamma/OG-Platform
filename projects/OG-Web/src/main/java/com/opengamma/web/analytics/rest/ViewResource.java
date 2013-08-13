@@ -48,7 +48,7 @@ public class ViewResource {
 
   @Path("portfolio")
   public MainGridResource getPortfolioGrid() {
-    return new MainGridResource(AnalyticsView.GridType.PORTFORLIO, _view);
+    return new MainGridResource(AnalyticsView.GridType.PORTFOLIO, _view);
   }
 
   @Path("primitives")

@@ -79,7 +79,7 @@ public abstract class AbstractGridResource {
    * subsequent requests will need to be made to the viewport
    */
   @GET
-  public abstract GridStructure getGridStructure();
+  public abstract GridStructure getInitialGridStructure();
 
   /**
    * Creates a new viewport which represents a part of a grid that the user is viewing.

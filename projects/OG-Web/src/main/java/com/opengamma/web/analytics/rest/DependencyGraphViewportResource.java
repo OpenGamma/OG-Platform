@@ -37,8 +37,7 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
     return getView().getData(getGridType(), _graphId, getViewportId());
   }
 
-  // todo move this to the viewport resource
   public GridStructure getGridStructure() {
-    return getView().getGridStructure(getGridType());
+    return getView().getGridStructure(getGridType(), getViewportId());
   }
 }
