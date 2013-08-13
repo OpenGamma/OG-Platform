@@ -197,7 +197,7 @@ $.register_module({
                 },
                 viewports: {
                     structure: {
-                        root: 'views/{{view_id}}/{{grid_type}}/viewports',
+                        root: 'views/{{view_id}}/{{grid_type}}/viewports/{{viewport_id}}/structure',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;
@@ -207,7 +207,8 @@ $.register_module({
                              });
                             method[1] = config.view_id;
                             method[2] = config.grid_type;
-                            method.push(config.viewport_id);
+                            method[4] = config.viewport_id;
+                            //console.log(method, config);
                             return api.request(method, {data: data, meta: meta});
                         },
                         put: common.not_available_put,
@@ -215,7 +216,7 @@ $.register_module({
                     },
                     root: 'views/{{view_id}}/{{grid_type}}/viewports',
                     get: function (config) {
-                        console.log('get', config);
+                        //console.log('get', config);
                         config = config || {};
                         var root = this.root, method = root.split('/'), data = {}, meta;
                         meta = check({
@@ -228,7 +229,7 @@ $.register_module({
                         return api.request(method, {data: data, meta: meta});
                     },
                     put: function (config) {
-                        console.log('put', config);
+                        //console.log('put', config);
                         config = config || {};
                         var promise = new common.Promise, root = this.root, method = root.split('/'),
                             data = {}, meta, fields = ['cells', 'rows', 'cols', 'format', 'log'],
@@ -258,7 +259,7 @@ $.register_module({
                         return api.request(method, {data: data, meta: meta}, promise);
                     },
                     del: function (config) {
-                        console.log('del', config);
+                        //console.log('del', config);
                         config = config || {};
                         var root = this.root, method = root.split('/'), data = {}, meta;
                         meta = check({
