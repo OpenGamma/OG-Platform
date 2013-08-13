@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.Set;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 public class PortfolioGridViewport extends MainGridViewport {
 
@@ -37,7 +39,7 @@ public class PortfolioGridViewport extends MainGridViewport {
     super(callbackId, viewportDefinition);
     _gridStructure = gridStructure;
     _nodeStructure = new ViewportNodeStructure(getGridStructure().getRootNode(), getGridStructure().getTargetLookup());
-    _currentExpandedPaths = new HashSet<>(_nodeStructure.getPaths());
+    _currentExpandedPaths = new HashSet<>(_nodeStructure.getInitialPaths());
     update(viewportDefinition, cycle, cache);
   }
 
@@ -50,9 +52,8 @@ public class PortfolioGridViewport extends MainGridViewport {
    * Updates the structure of the tree nodes in the viewport.
    * called when the first set of results arrives after a view def recompilation
    * @param gridStructure The latest structure of the grid
-   * @param cache Cache of calculation results
    */
-  public void updateResultsAndStructure(PortfolioGridStructure gridStructure, ResultsCache cache) {
+  public void updateResultsAndStructure(PortfolioGridStructure gridStructure) {
     ViewportNodeStructure node = new ViewportNodeStructure(gridStructure.getRootNode(),
                                                            gridStructure.getTargetLookup(),
                                                            _currentExpandedPaths);

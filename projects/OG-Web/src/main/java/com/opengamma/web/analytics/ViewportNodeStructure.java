@@ -57,6 +57,7 @@ import com.opengamma.util.ArgumentChecker;
       viewportStructureChildNodes.add(viewportStructureChildNode);
     }
     _rowToPath.put(gridStructureNode.getStartRow(), Collections.unmodifiableList(path));
+
     return new AnalyticsNode(gridStructureNode.getStartRow(),
                              gridStructureNode.getEndRow(),
                              viewportStructureChildNodes,
@@ -67,8 +68,11 @@ import com.opengamma.util.ArgumentChecker;
     return _rowToPath.get(rowIndex);
   }
 
-  /* package */ Collection<List<String>> getPaths() {
-    return _rowToPath.values();
+  /**
+   * The initial state of the tree is only the root expanded
+   */
+  /* package */ Collection<List<String>> getInitialPaths() {
+    return ImmutableList.of(_rowToPath.get(0));
 
   }
 
