@@ -96,7 +96,7 @@ import com.opengamma.util.tuple.Pair;
     return _columnGroups.getColumnCount();
   }
 
-  /* package */ TargetLookup getTargetLookup() {
+  public TargetLookup getTargetLookup() {
     return _targetLookup;
   }
 
@@ -112,7 +112,7 @@ import com.opengamma.util.tuple.Pair;
     return "MainGridStructure [_columnGroups=" + _columnGroups + "]";
   }
 
-  /* package */ Pair<ViewportResults, Viewport.State> createResults(ViewportDefinition viewportDefinition,
+  public Pair<ViewportResults, Viewport.State> createResults(ViewportDefinition viewportDefinition,
                                                                     ResultsCache cache) {
     boolean updated = false;
     boolean hasData = false;
