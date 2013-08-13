@@ -44,7 +44,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param portfolio The portfolio
    * @return The root node of the portfolio's node structure, null if the portfolio is null
    */
-  /* package */ static AnalyticsNode portoflioRoot(Portfolio portfolio) {
+  /* package */ static AnalyticsNode portfolioRoot(Portfolio portfolio) {
     if (portfolio == null) {
       return null;
     }
