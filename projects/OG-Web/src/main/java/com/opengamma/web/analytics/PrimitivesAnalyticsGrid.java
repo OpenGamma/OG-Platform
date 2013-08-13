@@ -13,6 +13,8 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  */
 /* package */ class PrimitivesAnalyticsGrid extends MainAnalyticsGrid {
 
+  private final PrimitivesGridStructure _gridStructure;
+
   /* package */ PrimitivesAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                         String gridId,
                                         ComputationTargetResolver targetResolver,
@@ -20,16 +22,15 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
     this(PrimitivesGridStructure.create(compiledViewDef), gridId, targetResolver, viewportListener);
   }
 
-  /* package */ PrimitivesAnalyticsGrid(MainGridStructure gridStructure,
+  /* package */ PrimitivesAnalyticsGrid(PrimitivesGridStructure gridStructure,
                                         String gridId,
                                         ComputationTargetResolver targetResolver,
                                         ViewportListener viewportListener) {
-    super(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId, targetResolver, viewportListener);
+    super(AnalyticsView.GridType.PRIMITIVES, gridId, targetResolver, viewportListener);
+    _gridStructure = gridStructure;
   }
 
   /**
-   *
-   *
    * @param viewportDefinition Defines the extent and properties of the viewport
    * @param callbackId ID that will be passed to listeners when the grid's data changes
    * @param cache
@@ -39,7 +40,12 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   protected MainGridViewport createViewport(ViewportDefinition viewportDefinition,
                                             String callbackId,
                                             ResultsCache cache) {
-    return new PrimitivesGridViewport((MainGridStructure) getGridStructure(), callbackId, viewportDefinition, getViewCycle(), cache);
+    return new PrimitivesGridViewport(getGridStructure(), callbackId, viewportDefinition, getViewCycle(), cache);
+  }
+
+  @Override
+  MainGridStructure getGridStructure() {
+    return _gridStructure;
   }
 
   /**
