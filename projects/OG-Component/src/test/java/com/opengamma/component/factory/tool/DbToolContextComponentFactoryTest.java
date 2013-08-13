@@ -27,6 +27,7 @@ public class DbToolContextComponentFactoryTest {
   final static String HSQL_DB = "og-fin";
   final static String POSTGRES_DB = "og_financial";
 
+  final static String MSSQL_BAD_INVALID_SLASH = "jdbc:sqlserver://someserver:1433;/databaseName=someDatabase";
   final static String MSSQL_BAD_NO_DB_NAME = "jdbc:sqlserver://someserver:1433;integratedSecurity=true;databaseName=";
   final static String MSSQL_BAD_NO_DB_ATALL = "jdbc:sqlserver://someserver:1433;integratedSecurity=true";
 
@@ -38,6 +39,11 @@ public class DbToolContextComponentFactoryTest {
     Validate.isTrue(getMSSQLCatalog(MSSQL_URL_1).equals(MSSQL_DB), "url1 did not work");
     Validate.isTrue(getMSSQLCatalog(MSSQL_URL_2).equals(MSSQL_DB), "url2 did not work");
     Validate.isTrue(getMSSQLCatalog(MSSQL_URL_3).equals(MSSQL_DB), "url3 did not work");
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void test_noInvalidSlash() {
+    getMSSQLCatalog(MSSQL_BAD_INVALID_SLASH);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
