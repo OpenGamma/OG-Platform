@@ -17,6 +17,7 @@ public interface Calendar {
 
   /**
    * Checks if the specified date is a working date.
+   * 
    * @param date  the date to check, not null
    * @return true if working date, false if non-working
    */
@@ -24,6 +25,7 @@ public interface Calendar {
 
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
    */
   String getConventionName();

@@ -98,6 +98,7 @@ public interface Frequency {
 
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
    */
   String getConventionName();

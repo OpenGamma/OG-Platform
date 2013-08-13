@@ -68,6 +68,7 @@ public final class DayCountFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
+   * 
    * @param name  the name, not null
    * @return the convention, null if not found
    */

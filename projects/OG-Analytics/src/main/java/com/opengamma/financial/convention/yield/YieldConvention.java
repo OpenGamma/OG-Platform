@@ -13,6 +13,7 @@ public interface YieldConvention {
 
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
    */
   String getConventionName();

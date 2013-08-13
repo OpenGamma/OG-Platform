@@ -145,7 +145,8 @@ public final class PeriodFrequency implements Frequency, Serializable {
   }
 
   /**
-   * Constructs a frequency from a period
+   * Constructs a frequency from a period.
+   * 
    * @param period The period, not null
    * @return a period frequency, not null
    */
@@ -162,6 +163,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /**
    * Given a {@link PeriodFrequency} or {@link SimpleFrequency}, returns a {@link PeriodFrequency}.
    * If the input is already a {@link PeriodFrequency}, then the original object is returned.
+   * 
    * @param frequency The frequency, not null
    * @return A frequency based on {@link Period}
    * @throws IllegalArgumentException if the input is not a {@link PeriodFrequency} or {@link SimpleFrequency}
@@ -175,6 +177,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
     }
     throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
   }
+
   /**
    * Creates an instance.
    * 

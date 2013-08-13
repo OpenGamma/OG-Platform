@@ -118,6 +118,7 @@ public final class CalendarFactory {
   /**
    * Gets a working day calendar by name.
    * Matching is case insensitive.
+   * 
    * @param name  the name, not null
    * @return the convention, null if not found
    */
@@ -127,6 +128,7 @@ public final class CalendarFactory {
 
   /**
    * Gets a working day calendar by 3-letter country code.
+   * 
    * @param country  the country code, not null
    * @return the convention, null if not found
    */

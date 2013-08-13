@@ -25,13 +25,21 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates an empty instance.
+   * Creates an instance.
    */
   protected ExerciseType() {
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the exercise type.
+   * 
+   * @return the exercise type, not null
+   */
   public abstract String getName();
+
   //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
