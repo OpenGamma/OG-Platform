@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.lambdava.functions.Function1;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -85,6 +86,9 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   @PropertyDefinition
   private SnapshotMode _snapshotMode;
+
+  @PropertyDefinition
+  private ComputationTargetResolver _computationTargetResolver;
 
   /**
    * Gets the viewDefinitionUid.
@@ -221,6 +225,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
         return getViewDefinitionUidVersion();
       case -931724921:  // snapshotMode
         return getSnapshotMode();
+      case 1562222174:  // computationTargetResolver
+        return getComputationTargetResolver();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -274,6 +280,9 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
       case -931724921:  // snapshotMode
         setSnapshotMode((SnapshotMode) newValue);
         return;
+      case 1562222174:  // computationTargetResolver
+        setComputationTargetResolver((ComputationTargetResolver) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -299,7 +308,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
           JodaBeanUtils.equal(getViewDefinitionUidScheme(), other.getViewDefinitionUidScheme()) &&
           JodaBeanUtils.equal(getViewDefinitionUidValue(), other.getViewDefinitionUidValue()) &&
           JodaBeanUtils.equal(getViewDefinitionUidVersion(), other.getViewDefinitionUidVersion()) &&
-          JodaBeanUtils.equal(getSnapshotMode(), other.getSnapshotMode());
+          JodaBeanUtils.equal(getSnapshotMode(), other.getSnapshotMode()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver());
     }
     return false;
   }
@@ -322,6 +332,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidVersion());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     return hash;
   }
 
@@ -702,6 +713,31 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the computationTargetResolver.
+   * @return the value of the property
+   */
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
+  /**
+   * Sets the computationTargetResolver.
+   * @param computationTargetResolver  the new value of the property
+   */
+  public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
+    this._computationTargetResolver = computationTargetResolver;
+  }
+
+  /**
+   * Gets the the {@code computationTargetResolver} property.
+   * @return the property, not null
+   */
+  public final Property<ComputationTargetResolver> computationTargetResolver() {
+    return metaBean().computationTargetResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code RiskRun}.
    */
   public static class Meta extends DirectMetaBean {
@@ -788,6 +824,11 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     private final MetaProperty<SnapshotMode> _snapshotMode = DirectMetaProperty.ofReadWrite(
         this, "snapshotMode", RiskRun.class, SnapshotMode.class);
     /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     */
+    private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
+        this, "computationTargetResolver", RiskRun.class, ComputationTargetResolver.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -806,7 +847,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
         "viewDefinitionUidScheme",
         "viewDefinitionUidValue",
         "viewDefinitionUidVersion",
-        "snapshotMode");
+        "snapshotMode",
+        "computationTargetResolver");
 
     /**
      * Restricted constructor.
@@ -847,6 +889,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
           return _viewDefinitionUidVersion;
         case -931724921:  // snapshotMode
           return _snapshotMode;
+        case 1562222174:  // computationTargetResolver
+          return _computationTargetResolver;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -985,6 +1029,14 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
      */
     public final MetaProperty<SnapshotMode> snapshotMode() {
       return _snapshotMode;
+    }
+
+    /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
+      return _computationTargetResolver;
     }
 
   }

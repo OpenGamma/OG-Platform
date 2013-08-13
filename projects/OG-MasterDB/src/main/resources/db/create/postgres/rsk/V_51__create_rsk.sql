@@ -6,12 +6,12 @@ CREATE TABLE rsk_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '49');
+INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '50');
 
-CREATE SEQUENCE rsk_hibernate_sequence AS bigint
+CREATE SEQUENCE rsk_hibernate_sequence
     START WITH 1 INCREMENT BY 1;
 
-CREATE SEQUENCE rsk_batch_seq AS bigint
+CREATE SEQUENCE rsk_batch_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 
 
@@ -41,12 +41,24 @@ create table rsk_compute_node (
 create table rsk_computation_target (
 	id bigint not null,
 	type varchar(255) not null,	
-  id_scheme varchar(255),
-  id_value varchar(255),
-  id_version varchar(255),
+    
+    id_scheme varchar(255),
+    id_value varchar(255),
+    id_version varchar(255),
 	primary key (id),
 		    
 	constraint rsk_chk_uq_computation_target unique (type, id_scheme, id_value, id_version)
+);
+
+create table rsk_target_property (
+	id bigint not null,
+	target_id bigint not null,
+  property_key varchar(255),
+  property_value varchar(255),
+	primary key (id),
+
+	constraint rsk_fk_trg_prop2target
+	    foreign key (target_id) references rsk_computation_target (id)
 );
 
 create table rsk_function_unique_id (
@@ -125,7 +137,7 @@ create table rsk_run (
     constraint rsk_fk_run2live_data_snapshot
             foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),    
 
-    constraint rsk_chk_uq_run unique (version_correction, viewdef_scheme, viewdef_value, viewdef_version, live_data_snapshot_id)
+    constraint rsk_chk_uq_run unique (id, version_correction, viewdef_scheme, viewdef_value, viewdef_version, live_data_snapshot_id)
 );
 
 create table rsk_calculation_configuration (
@@ -160,8 +172,8 @@ create table rsk_run_property (
 
 
 create table rsk_run_status (
-    id bigint not null,
-    run_id bigint DEFAULT 0 not null,
+    id bigint not null, 
+    run_id bigint not null,
     calculation_configuration_id bigint not null,
     computation_target_id bigint not null,
     status varchar(255) not null,
@@ -269,7 +281,7 @@ create table rsk_failure (
     constraint rsk_fk_failure2node
        foreign key (compute_node_id) references rsk_compute_node (id),
         
-    constraint rsk_chk_uq_failure unique (calculation_configuration_id, name, value_specification_id, computation_target_id)
+    constraint rsk_chk_uq_failure unique (run_id, calculation_configuration_id, name, value_specification_id, computation_target_id)
 );    
 
 create table rsk_failure_reason (

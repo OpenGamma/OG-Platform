@@ -40,6 +40,7 @@ import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueProperties;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
@@ -85,9 +86,9 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
    *
    * @param dbConnector  the database connector, not null
    */
-  public DbBatchMaster(final DbConnector dbConnector) {
+  public DbBatchMaster(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, BATCH_IDENTIFIER_SCHEME);
-    _dbBatchWriter = new DbBatchWriter(dbConnector);
+    _dbBatchWriter = new DbBatchWriter(dbConnector, computationTargetResolver);
     setElSqlBundle(_dbBatchWriter.getElSqlBundle());
   }
 
