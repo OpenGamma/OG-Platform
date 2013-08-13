@@ -34,7 +34,7 @@ public interface AnalyticsView {
     /**
      * Portfolio grid.
      */
-    PORTFORLIO,
+    PORTFOLIO,
     /**
      * Primitives grid.
      */
@@ -42,7 +42,7 @@ public interface AnalyticsView {
   }
 
   /**
-   * Updates the grid structures when the view definition compliles and its struture is available.
+   * Updates the grid structures when the view definition compiles and its structure is available.
    * 
    * @param compiledViewDefinition  the compiled view definition whose data will be displayed in the grids
    * @param resolvedPortfolio  the view's portfolio with all securities resolved
@@ -65,9 +65,37 @@ public interface AnalyticsView {
    * Returns the row and column structure of one of the top level grids.
    * 
    * @param gridType  the required grid structure, not null
+   * @param viewportId  the ID of the viewport
    * @return the row and column structure of the specified grid
    */
-  GridStructure getGridStructure(GridType gridType);
+  GridStructure getGridStructure(GridType gridType, int viewportId);
+
+  /**
+   * Returns the grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @param viewportId  the ID of the viewport
+   * @return the row and column structure of the grid
+   */
+  GridStructure getGridStructure(GridType gridType, int graphId, int viewportId);
+
+  /**
+   * Returns the initial row and column structure of one of the top level grids.
+   *
+   * @param gridType  the required grid structure, not null
+   * @return the row and column structure of the specified grid
+   */
+  GridStructure getInitialGridStructure(GridType gridType);
+
+  /**
+   * Returns the initial grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @return the row and column structure of the grid
+   */
+  GridStructure getInitialGridStructure(GridType gridType, int graphId);
 
   /**
    * Creates a viewport for one of the top level grids. A viewport represents the visible portion of the grid. Any
@@ -146,15 +174,6 @@ public interface AnalyticsView {
    * @param graphId  the ID of the dependency graph
    */
   void closeDependencyGraph(GridType gridType, int graphId);
-
-  /**
-   * Returns the grid structure for a dependency graph grid.
-   * 
-   * @param gridType  the grid that the dependency graph grid belongs to
-   * @param graphId  the ID of the dependency graph
-   * @return the row and column structure of the grid
-   */
-  GridStructure getGridStructure(GridType gridType, int graphId);
 
   /**
    * Creates a viewport for a dependency graph grid. A viewport represents the visible portion of the grid. Any
