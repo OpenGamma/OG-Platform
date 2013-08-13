@@ -53,10 +53,19 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getGridStructure");
-    GridStructure retVal = _delegate.getGridStructure(gridType);
+    GridStructure retVal = _delegate.getGridStructure(gridType, viewportId);
+    s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getGridStructure");
+    GridStructure retVal = _delegate.getInitialGridStructure(gridType);
     s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
@@ -121,10 +130,19 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getGridStructure");
-    GridStructure retVal = _delegate.getGridStructure(gridType, graphId);
+    GridStructure retVal = _delegate.getGridStructure(gridType, graphId, viewportId);
+    s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getGridStructure");
+    GridStructure retVal = _delegate.getInitialGridStructure(gridType, graphId);
     s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }

@@ -51,8 +51,13 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
-    return _delegate.getGridStructure(gridType);
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
+    return _delegate.getGridStructure(gridType, viewportId);
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType) {
+    return _delegate.getInitialGridStructure(gridType);
   }
 
   @Override
@@ -103,8 +108,13 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
-    return _delegate.getGridStructure(gridType, graphId);
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
+    return _delegate.getGridStructure(gridType, graphId, viewportId);
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
+    return _delegate.getInitialGridStructure(gridType, graphId);
   }
 
   @Override

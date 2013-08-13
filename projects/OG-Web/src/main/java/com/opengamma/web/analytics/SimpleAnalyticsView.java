@@ -193,7 +193,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   private MainAnalyticsGrid getGrid(GridType gridType) {
     switch (gridType) {
-      case PORTFORLIO:
+      case PORTFOLIO:
         return _portfolioGrid;
       case PRIMITIVES:
         return _primitivesGrid;
@@ -203,7 +203,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
+    GridStructure gridStructure = getGrid(gridType).getViewport(viewportId).getGridStructure();
+    s_logger.debug("Viewport {} and view {} returning grid structure for the {} grid: {}",
+                   viewportId, _viewId, gridType, gridStructure);
+    return gridStructure;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType) {
     GridStructure gridStructure = getGrid(gridType).getGridStructure();
     s_logger.debug("View {} returning grid structure for the {} grid: {}", _viewId, gridType, gridStructure);
     return gridStructure;
@@ -253,7 +261,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
+    DependencyGraphGridStructure gridStructure = getGrid(gridType).getGridStructure(graphId);
+    s_logger.debug("Viewport {} and view {} returning grid structure for dependency graph {} of the {} grid: {}",
+                   viewportId, _viewId, graphId, gridType, gridStructure);
+    return gridStructure;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
     DependencyGraphGridStructure gridStructure = getGrid(gridType).getGridStructure(graphId);
     s_logger.debug("View {} returning grid structure for dependency graph {} of the {} grid: {}",
                    _viewId, graphId, gridType, gridStructure);

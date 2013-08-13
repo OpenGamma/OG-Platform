@@ -71,31 +71,12 @@ public interface AnalyticsView {
   GridStructure getGridStructure(GridType gridType, int viewportId);
 
   /**
-   * Returns the grid structure for a dependency graph grid.
-   *
-   * @param gridType  the grid that the dependency graph grid belongs to
-   * @param graphId  the ID of the dependency graph
-   * @param viewportId  the ID of the viewport
-   * @return the row and column structure of the grid
-   */
-  GridStructure getGridStructure(GridType gridType, int graphId, int viewportId);
-
-  /**
    * Returns the initial row and column structure of one of the top level grids.
    *
    * @param gridType  the required grid structure, not null
    * @return the row and column structure of the specified grid
    */
   GridStructure getInitialGridStructure(GridType gridType);
-
-  /**
-   * Returns the initial grid structure for a dependency graph grid.
-   *
-   * @param gridType  the grid that the dependency graph grid belongs to
-   * @param graphId  the ID of the dependency graph
-   * @return the row and column structure of the grid
-   */
-  GridStructure getInitialGridStructure(GridType gridType, int graphId);
 
   /**
    * Creates a viewport for one of the top level grids. A viewport represents the visible portion of the grid. Any
@@ -153,6 +134,26 @@ public interface AnalyticsView {
   // i.e. specify the target spec
   // for now send a version ID to the client so it can tell the data is stale? or have the client supply the ID of the
   // structure and perform that logic on the server?
+
+  /**
+   * Returns the grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @param viewportId  the ID of the viewport
+   * @return the row and column structure of the grid
+   */
+  GridStructure getGridStructure(GridType gridType, int graphId, int viewportId);
+
+  /**
+   * Returns the initial grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @return the row and column structure of the grid
+   */
+  GridStructure getInitialGridStructure(GridType gridType, int graphId);
+
 
   /**
    * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids.
