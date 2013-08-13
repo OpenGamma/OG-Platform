@@ -31,7 +31,7 @@ public class PrimitivesGridViewport extends MainGridViewport {
   }
 
   @Override
-  MainGridStructure getGridStructure() {
+  public MainGridStructure getGridStructure() {
     return _gridStructure;
   }
 

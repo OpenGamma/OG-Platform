@@ -95,6 +95,11 @@ public class DependencyGraphViewport implements Viewport {
   }
 
   @Override
+  public GridStructure getGridStructure() {
+    return _gridStructure;
+  }
+
+  @Override
   public ViewportResults getData() {
     return _latestResults;
   }

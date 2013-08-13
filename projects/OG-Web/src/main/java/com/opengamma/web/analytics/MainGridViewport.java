@@ -15,7 +15,6 @@ import com.opengamma.util.tuple.Pair;
 
   /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
   private final String _callbackId;
-
   /** Defines the extent of the viewport. */
   private ViewportDefinition _viewportDefinition;
   /** The current viewport data. */
@@ -44,7 +43,7 @@ import com.opengamma.util.tuple.Pair;
     _state = resultsAndState.getSecond();
   }
 
-  abstract MainGridStructure getGridStructure();
+  public abstract MainGridStructure getGridStructure();
 
   @Override
   public ViewportResults getData() {
