@@ -26,7 +26,7 @@ import com.opengamma.id.ObjectId;
                                        String gridId,
                                        ComputationTargetResolver targetResolver,
                                        ViewportListener viewportListener) {
-    super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener);
+    super(AnalyticsView.GridType.PORTFOLIO, gridId, targetResolver, viewportListener);
     _gridStructure = gridStructure;
   }
 
@@ -35,7 +35,7 @@ import com.opengamma.id.ObjectId;
                                        ComputationTargetResolver targetResolver,
                                        ViewportListener viewportListener,
                                        Map<Integer, PortfolioGridViewport> viewports) {
-    super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener, viewports);
+    super(AnalyticsView.GridType.PORTFOLIO, gridId, targetResolver, viewportListener, viewports);
     _gridStructure = gridStructure;
   }
 
@@ -56,6 +56,7 @@ import com.opengamma.id.ObjectId;
     for (PortfolioGridViewport viewport : getViewports().values()) {
       viewport.updateResultsAndStructure(updatedStructure, cache);
     }
+
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener(), getViewports());
   }
 
@@ -103,5 +104,10 @@ import com.opengamma.id.ObjectId;
   @Override
   PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
     return new PortfolioGridViewport(_gridStructure, callbackId, viewportDefinition, getViewCycle(), cache);
+  }
+
+  @Override
+  MainGridStructure getGridStructure() {
+    return _gridStructure;
   }
 }
