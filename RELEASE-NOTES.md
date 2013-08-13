@@ -13,3 +13,8 @@ v2.1.0-M1p01
 v2.1.0-M1p02
 ------------
 - Relax batch database constraints
+
+
+v2.1.0-M1p03
+------------
+- PLAT-4231 - Add currency conversion for YIELD_CURVE_PNL_SERIES
