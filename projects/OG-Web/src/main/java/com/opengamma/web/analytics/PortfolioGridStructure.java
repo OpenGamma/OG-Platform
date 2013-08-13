@@ -86,7 +86,7 @@ public class PortfolioGridStructure extends MainGridStructure {
     // TODO these can be empty, not used any more
     List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     return new PortfolioGridStructure(rows,
                                       GridColumnGroup.empty(),
                                       GridColumnGroups.empty(),
@@ -97,7 +97,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ PortfolioGridStructure withUpdatedRows(Portfolio portfolio) {
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
     TargetLookup targetLookup = new TargetLookup(_valueMappings, rows);
@@ -107,7 +107,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ PortfolioGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
     ValueMappings valueMappings = new ValueMappings(compiledViewDef);
