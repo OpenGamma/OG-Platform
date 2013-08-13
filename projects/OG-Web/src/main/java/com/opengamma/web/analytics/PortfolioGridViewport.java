@@ -57,6 +57,8 @@ public class PortfolioGridViewport extends MainGridViewport {
     ViewportNodeStructure node = new ViewportNodeStructure(gridStructure.getRootNode(),
                                                            gridStructure.getTargetLookup(),
                                                            _currentExpandedPaths);
+    List<Integer> emptyList = Collections.emptyList();
+    setViewportDefinition(ViewportDefinition.create(0, emptyList, emptyList, null, TypeFormatter.Format.CELL, false));
     _gridStructure = gridStructure.withNode(node.getRootNode());
   }
 
