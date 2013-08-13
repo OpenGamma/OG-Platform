@@ -34,8 +34,6 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */abstract class MainAnalyticsGrid<T extends MainGridViewport> extends AnalyticsGrid<T> {
 
-  /** Row and column structure of the grid. */
-  private final MainGridStructure _gridStructure;
   /** Type of data in the grid, portfolio or primitives. */
   private final AnalyticsView.GridType _gridType;
   /** Dependency graph grids for cells in this grid, keyed by grid ID. */
@@ -46,32 +44,26 @@ import com.opengamma.util.tuple.Pair;
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
   /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                 MainGridStructure gridStructure,
                                  String gridId,
                                  ComputationTargetResolver targetResolver,
                                  ViewportListener viewportListener) {
     super(viewportListener, gridId);
     ArgumentChecker.notNull(gridType, "gridType");
-    ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _gridType = gridType;
-    _gridStructure = gridStructure;
     _targetResolver = targetResolver;
   }
 
   /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                 MainGridStructure gridStructure,
                                  String gridId,
                                  ComputationTargetResolver targetResolver,
                                  ViewportListener viewportListener,
                                  Map<Integer, T> viewports) {
     super(viewportListener, gridId, viewports);
     ArgumentChecker.notNull(gridType, "gridType");
-    ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(viewports, "viewports");
     _gridType = gridType;
-    _gridStructure = gridStructure;
     _targetResolver = targetResolver;
   }
 
@@ -118,13 +110,13 @@ import com.opengamma.util.tuple.Pair;
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    Pair<String, ValueSpecification> targetForCell = _gridStructure.getTargetForCell(row, col);
+    Pair<String, ValueSpecification> targetForCell = getGridStructure().getTargetForCell(row, col);
     if (targetForCell == null) {
       throw new DataNotFoundException("No dependency graph is available for row " + row + ", col " + col);
     }
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
-    MainGridStructure.Row gridRow = _gridStructure.getTargetLookup().getRow(row);
+    MainGridStructure.Row gridRow = getGridStructure().getTargetLookup().getRow(row);
     DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId,
                                                           _targetResolver, viewportListener, gridRow.getName());
     _depGraphs.put(graphId, grid);
@@ -187,7 +179,7 @@ import com.opengamma.util.tuple.Pair;
     return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition, cache);
   }
 
-  @Override
+   @Override
   abstract T createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache);
 
   /**
@@ -245,9 +237,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The row and column structure of the main grid
    */
   @Override
-  public GridStructure getGridStructure() {
-    return _gridStructure;
-  }
+  abstract MainGridStructure getGridStructure();
 
   @Override
   protected ViewCycle getViewCycle() {
