@@ -145,7 +145,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
       List<UniqueIdentifiable> entities = PortfolioMapper.flatMap(portfolio.getRootNode(), _portfolioEntityExtractor);
       _cache.put(entities);
     }
-    _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition, portfolio, _cache);
+    _portfolioGrid = _portfolioGrid.withUpdatedStructure(_compiledViewDefinition, portfolio);
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,

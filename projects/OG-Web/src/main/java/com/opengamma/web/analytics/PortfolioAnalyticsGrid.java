@@ -51,10 +51,10 @@ import com.opengamma.id.ObjectId;
    * @returns new PortfolioAnalyticsGrid
    */
   /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef,
-                                                            Portfolio portfolio, ResultsCache cache) {
+                                                            Portfolio portfolio) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef, portfolio);
     for (PortfolioGridViewport viewport : getViewports().values()) {
-      viewport.updateResultsAndStructure(updatedStructure, cache);
+      viewport.updateResultsAndStructure(updatedStructure);
     }
 
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener(), getViewports());
