@@ -29,11 +29,11 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
 
   /**
    * Gets the discount factor for one currency at a given time to maturity.
-   * TODO: extend it to a more general unique reference to include issuer/currency curves? UniqueIdentifiable?
    * @param ccy The currency.
    * @param time The time.
    * @return The discount factor.
    */
+  // TODO: extend it to a more general unique reference to include issuer/currency curves? UniqueIdentifiable?
   double getDiscountFactor(Currency ccy, Double time);
 
   /**
@@ -48,13 +48,13 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
 
   /**
    * Gets the forward for one Ibor index between start and end times.
-   * TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.
    * @param accrualFactor The Ibor accrual factor.
    * @return The forward rate.
    */
+  // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
   double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor);
 
   /**

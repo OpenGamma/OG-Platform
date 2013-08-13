@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.inflation.derivative.Coupo
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -77,6 +78,11 @@ public final class LastFixingEndTimeCalculator extends InstrumentDerivativeVisit
     return payment.getFixingPeriodEndTime();
   }
 
+  @Override
+  public Double visitCouponFixedCompounding(final CouponFixedCompounding payment) {
+    return payment.getPaymentTime();
+  }
+
   // -----     Annuity     ------
 
   @Override
@@ -121,12 +127,12 @@ public final class LastFixingEndTimeCalculator extends InstrumentDerivativeVisit
 
   @Override
   public Double visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon) {
-    return coupon.getWeight() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeight()) * coupon.getReferenceEndTime()[1];
+    return coupon.getReferenceEndTime()[1];
   }
 
   @Override
   public Double visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon) {
-    return coupon.getWeight() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeight()) * coupon.getReferenceEndTime()[1];
+    return coupon.getReferenceEndTime()[1];
   }
 
   @Override
@@ -136,7 +142,7 @@ public final class LastFixingEndTimeCalculator extends InstrumentDerivativeVisit
 
   @Override
   public Double visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
-    return coupon.getReferenceEndTime()[0];
+    return coupon.getReferenceEndTime()[1];
   }
 
 }

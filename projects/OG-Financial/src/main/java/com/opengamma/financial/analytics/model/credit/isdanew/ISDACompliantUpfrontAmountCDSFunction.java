@@ -22,9 +22,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
  */
 public class ISDACompliantUpfrontAmountCDSFunction extends AbstractISDACompliantWithSpreadsCDSFunction {
 
-  private AnalyticCDSPricer _pricer = new AnalyticCDSPricer();
-  private PointsUpFrontConverter _pufConverter = new PointsUpFrontConverter();
-
   public ISDACompliantUpfrontAmountCDSFunction() {
     super(ValueRequirementNames.UPFRONT_AMOUNT);
   }

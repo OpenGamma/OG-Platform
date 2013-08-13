@@ -44,6 +44,11 @@ public class CurveCalculationPropertyNamesAndValues {
   public static final String PROPERTY_HULL_WHITE_PARAMETERS = "HullWhiteOneFactorParameters";
 
   /**
+   * The property indicating the currency for which the Hull-White parameters apply.
+   */
+  public static final String PROPERTY_HULL_WHITE_CURRENCY = "HullWhiteCurrency";
+
+  /**
    * The property indicating the name of a set of G2++ parameters
    */
   public static final String PROPERTY_G2PP_PARAMETERS = "G2ppParameters";

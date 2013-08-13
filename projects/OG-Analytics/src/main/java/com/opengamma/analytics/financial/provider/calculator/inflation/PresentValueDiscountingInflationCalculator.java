@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
@@ -54,7 +54,7 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
    * Constructor.
    */
   private PresentValueDiscountingInflationCalculator() {
-    super(new InflationProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new InflationProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

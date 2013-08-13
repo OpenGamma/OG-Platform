@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
@@ -9,8 +9,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.priceindexmarketmodel.BlackSmileCapInflationYearOnYearProviderAdapter;
@@ -32,7 +32,7 @@ public final class PresentValueBlackSmileInflationYearOnYearCalculator extends I
    * Constructor.
    */
   private PresentValueBlackSmileInflationYearOnYearCalculator() {
-    super(new BlackSmileCapInflationYearOnYearProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new BlackSmileCapInflationYearOnYearProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
@@ -38,7 +38,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
    * Constructor.
    */
   private PresentValueHullWhiteCalculator() {
-    super(new HullWhiteProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new HullWhiteProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

@@ -68,7 +68,7 @@ public class RopemakerTest extends ISDABaseTest {
     runGrid(name, tradeDate, maturities, spreads, yieldCurve);
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void gazpromTest() {
     final String name = "Gazprom";
 

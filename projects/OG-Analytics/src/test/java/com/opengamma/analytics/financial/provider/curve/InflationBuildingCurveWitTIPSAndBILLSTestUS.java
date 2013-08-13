@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -65,9 +65,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Build of curve in several blocks with relevant Jacobian matrices.
+ * 
  */
-public class MulticurveBuildingDiscountingBillBondUSDTest {
+public class InflationBuildingCurveWitTIPSAndBILLSTestUS {
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 8, 22);
 
@@ -344,6 +344,7 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
       return ((CashDefinition) instrument).getRate();
     }
     return 0.01;
+
   }
 
 }

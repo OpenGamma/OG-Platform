@@ -60,16 +60,22 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
     for (final Pair<String, Currency> nameCcy : parameterSensitivity.getAllNamesCurrency()) {
       final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> oneCurveSensiMap = new LinkedHashMap<>();
       final Pair<CurveBuildingBlock, DoubleMatrix2D> unitPair = units.getBlock(nameCcy.getFirst());
-      final double[] oneCurveSensiArray = ((DoubleMatrix1D) MATRIX_ALGEBRA.multiply(parameterSensitivity.getSensitivity(nameCcy), unitPair.getSecond())).getData();
-      for (final String name2 : unitPair.getFirst().getAllNames()) {
-        final int nbParameters = unitPair.getFirst().getNbParameters(name2);
-        final int start = unitPair.getFirst().getStart(name2);
-        final double[] sensiName2 = new double[nbParameters];
-        System.arraycopy(oneCurveSensiArray, start, sensiName2, 0, nbParameters);
-        oneCurveSensiMap.put(new ObjectsPair<>(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
+      ArgumentChecker.notNull(parameterSensitivity.getSensitivity(nameCcy), "sensitivity for " + nameCcy);
+      ArgumentChecker.notNull(unitPair, "curve building block / Jacobian pair for " + nameCcy);
+      ArgumentChecker.notNull(unitPair.getSecond(), "Jacobian");
+      final DoubleMatrix1D matrix = (DoubleMatrix1D) MATRIX_ALGEBRA.multiply(parameterSensitivity.getSensitivity(nameCcy), unitPair.getSecond());
+      if (matrix != null) {
+        final double[] oneCurveSensiArray = ((DoubleMatrix1D) MATRIX_ALGEBRA.multiply(parameterSensitivity.getSensitivity(nameCcy), unitPair.getSecond())).getData();
+        for (final String name2 : unitPair.getFirst().getAllNames()) {
+          final int nbParameters = unitPair.getFirst().getNbParameters(name2);
+          final int start = unitPair.getFirst().getStart(name2);
+          final double[] sensiName2 = new double[nbParameters];
+          System.arraycopy(oneCurveSensiArray, start, sensiName2, 0, nbParameters);
+          oneCurveSensiMap.put(new ObjectsPair<>(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
+        }
+        final MultipleCurrencyParameterSensitivity sensiName = new MultipleCurrencyParameterSensitivity(oneCurveSensiMap);
+        result = result.plus(sensiName);
       }
-      final MultipleCurrencyParameterSensitivity sensiName = new MultipleCurrencyParameterSensitivity(oneCurveSensiMap);
-      result = result.plus(sensiName);
     }
     return result;
   }

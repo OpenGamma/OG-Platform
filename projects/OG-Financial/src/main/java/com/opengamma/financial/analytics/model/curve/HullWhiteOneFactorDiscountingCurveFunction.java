@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.curve;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.HULL_WHITE_DISCOUNTING;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -52,7 +52,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -173,7 +172,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             if (node.getCurveNode() instanceof RateFutureNode) {
               parameterGuessForCurves.add(1.0 - marketData);
             } else {
-              parameterGuessForCurves.add(marketData); 
+              parameterGuessForCurves.add(marketData);
             }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
@@ -249,13 +248,13 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       if (hwPropertyNames == null || hwPropertyNames.size() != 1) {
         return null;
       }
-      final Set<String> hwCurrencies = constraints.getValues(CURRENCY);
+      final Set<String> hwCurrencies = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
       if (hwCurrencies == null || hwCurrencies.size() != 1) {
         return null;
       }
       final ValueProperties hwProperties = ValueProperties.builder()
           .with(PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
-          .with(CURRENCY, hwCurrencies)
+          .with(PROPERTY_HULL_WHITE_CURRENCY, hwCurrencies)
           .get();
       requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.NULL, hwProperties));
       return requirements;
@@ -280,7 +279,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     protected ValueProperties getCurveProperties(final String curveName) {
       return super.getCurveProperties(curveName).copy()
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-          .withAny(CURRENCY)
+          .withAny(PROPERTY_HULL_WHITE_CURRENCY)
           .get();
     }
 
@@ -288,7 +287,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     protected ValueProperties getBundleProperties() {
       return super.getBundleProperties().copy()
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-          .withAny(CURRENCY)
+          .withAny(PROPERTY_HULL_WHITE_CURRENCY)
           .get();
     }
 
@@ -298,7 +297,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       Currency currency = null;
       for (final ComputedValue input : inputs.getAllValues()) {
         if (input.getSpecification().getValueName().equals(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS)) {
-          currency = Currency.of(input.getSpecification().getProperty(ValuePropertyNames.CURRENCY));
+          currency = Currency.of(input.getSpecification().getProperty(PROPERTY_HULL_WHITE_CURRENCY));
           break;
         }
       }

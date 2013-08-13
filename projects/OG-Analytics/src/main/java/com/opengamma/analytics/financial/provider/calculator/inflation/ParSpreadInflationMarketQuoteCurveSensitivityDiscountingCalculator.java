@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
@@ -102,18 +102,17 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
       final InflationSensitivity modifiedpvcis = pvcis.multipliedBy(intermediateVariable);
 
       return InflationSensitivity.of(modifiedpvcs.plus(modifiedpvcis.getMulticurveSensitivity()), modifiedpvcis.getPriceCurveSensitivities());
-    } else {
-      final Currency ccy1 = swap.getFirstLeg().getCurrency();
-      final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, inflation.getMulticurveProvider());
-      final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, inflation.getFxRates()).getSensitivity(ccy1);
-      final MulticurveSensitivity pvmqscs = swap.getFirstLeg().accept(PVMQSCSMC, inflation.getMulticurveProvider());
-      final double pvmqs = swap.getFirstLeg().accept(PVMQSMC, inflation.getMulticurveProvider());
-      final double pv = inflation.getFxRates().convert(swap.accept(PVMC, inflation.getMulticurveProvider()), ccy1).getAmount();
-      // Implementation note: Total pv in currency 1.
-
-      final Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
-      return InflationSensitivity.of(pvcs1.multipliedBy(-1.0 / pvmqs).plus(pvmqscs.multipliedBy(pv / (pvmqs * pvmqs))), sensitivityPriceCurve);
     }
+    final Currency ccy1 = swap.getFirstLeg().getCurrency();
+    final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, inflation.getMulticurveProvider());
+    final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, inflation.getFxRates()).getSensitivity(ccy1);
+    final MulticurveSensitivity pvmqscs = swap.getFirstLeg().accept(PVMQSCSMC, inflation.getMulticurveProvider());
+    final double pvmqs = swap.getFirstLeg().accept(PVMQSMC, inflation.getMulticurveProvider());
+    final double pv = inflation.getFxRates().convert(swap.accept(PVMC, inflation.getMulticurveProvider()), ccy1).getAmount();
+    // Implementation note: Total pv in currency 1.
+
+    final Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();
+    return InflationSensitivity.of(pvcs1.multipliedBy(-1.0 / pvmqs).plus(pvmqscs.multipliedBy(pv / (pvmqs * pvmqs))), sensitivityPriceCurve);
   }
 
   @Override

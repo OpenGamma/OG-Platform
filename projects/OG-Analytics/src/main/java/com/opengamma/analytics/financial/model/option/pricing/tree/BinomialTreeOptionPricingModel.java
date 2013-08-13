@@ -7,6 +7,10 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.model.option.definition.OptionPayoffFunction;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,11 +29,15 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
   /*
    * TODO error must be returned if dt > (dividend interval)
-   * TODO check 0<p<1, which is not necessarily satisfied with non-zero dividend
+   * TODO check 0<p<1, which is not necessarily satisfied with non-zero dividend, ]
+   *                   this must be checked for spread options
    * TODO Other types, such as Binary-type payoff, can be done with OptionDefinition
    * TODO Greeks with discrete dividends
    * TODO discrete dividends for other types of option(barrier, bermudan, asian, look back)
+   * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
    * TODO Argument checker for barrier such as strike v.s. barrier, spot v.s. barrier, etc... which must give 0
+   * TODO barrier American needs more tests
+   * TODO spread options need more tests
    * 
    * 
    * <<Slight modification of American>>
@@ -63,6 +71,119 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     //        _function = new UpAndOutPayoff();
     //        break;
     }
+  }
+
+  //  @Override
+  //  protected double getPrice(final LatticeSpecification lattice, final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction, final StandardOptionDataBundle data, final double strike,
+  //      final double timeToExpiry, final int nSteps, final boolean isCall) {
+  //    final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
+  //
+  //    final double spot = data.getSpot();
+  //    final double costOfCarry = data.getCostOfCarry();
+  //    final double interestRate = data.getInterestRate(timeToExpiry);
+  //    final double dividend = interestRate - costOfCarry;
+  //    final double volatility = data.getVolatility(timeToExpiry, strike);
+  //
+  //    final double dt = timeToExpiry / nSteps;
+  //    final double discount = Math.exp(-interestRate * dt);
+  //    final double[] params = modLattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate - dividend, nSteps, dt);
+  //    final double upFactor = params[0];
+  //    final double downFactor = params[1];
+  //    final double upProbability = params[2];
+  //    final double downProbability = params[3];
+  //    final double upOverDown = upFactor / downFactor;
+  //    final double sig = isCall ? 1. : -1.;
+  //
+  //    double assetPrice = spot * Math.pow(downFactor, nSteps);
+  //    double[] values = _function.getPayoffAtExpiry(data, payoffFunction, assetPrice, strike, nSteps, sig, upOverDown);
+  //    for (int i = nSteps - 1; i > -1; --i) {
+  //      values = _function.getNextOptionValues(discount, upProbability, downProbability, values, spot, downFactor, upOverDown, i);
+  //    }
+  //
+  //    return values[0];
+  //  }
+  //
+  //  @Override
+  //  protected double getPrice(final LatticeSpecification lattice, final StandardOptionDataBundle data, final double strike, final double timeToExpiry, final int nSteps,
+  //      final boolean isCall) {
+  //    final double spot = data.getSpot();
+  //    final double costOfCarry = data.getCostOfCarry();
+  //    final double interestRate = data.getInterestRate(timeToExpiry);
+  //    final double dividend = interestRate - costOfCarry;
+  //    final double volatility = data.getVolatility(timeToExpiry, strike);
+  //
+  //    return getAmericanPrice(lattice, spot, strike, timeToExpiry, volatility, interestRate, dividend, nSteps, isCall);
+  //  }
+
+  public double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider function, final double spot, final double timeToExpiry, final double volatility,
+      final double interestRate, final double dividend) {
+    final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
+
+    final int nSteps = function.getNumberOfSteps();
+    final double strike = function.getStrike();
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double[] params = modLattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate - dividend, nSteps, dt);
+    final double upFactor = params[0];
+    final double downFactor = params[1];
+    final double upProbability = params[2];
+    final double downProbability = params[3];
+    final double upOverDown = upFactor / downFactor;
+
+    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, downFactor, upOverDown, i);
+    }
+
+    return values[0];
+  }
+
+  @Override
+  public GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider function, final double spot, final double timeToExpiry, final double volatility,
+      final double interestRate, final double dividend) {
+    final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
+
+    final int nSteps = function.getNumberOfSteps();
+    final double strike = function.getStrike();
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double[] params = modLattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate - dividend, nSteps, dt);
+    final double upFactor = params[0];
+    final double downFactor = params[1];
+    final double upProbability = params[2];
+    final double downProbability = params[3];
+    final double upOverDown = upFactor / downFactor;
+
+    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
+    final double[] res = new double[4];
+
+    double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
+    double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
+
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, downFactor, upOverDown, i);
+      if (i == 2) {
+        res[2] = 2. * ((values[2] - values[1]) / (pForGamma[2] - pForGamma[1]) - (values[1] - values[0]) / (pForGamma[1] - pForGamma[0])) / (pForGamma[2] - pForGamma[0]);
+        res[3] = values[1];
+      }
+      if (i == 1) {
+        res[1] = (values[1] - values[0]) / (pForDelta[1] - pForDelta[0]);
+      }
+    }
+    res[0] = values[0];
+    res[3] = modLattice.getTheta(spot, volatility, interestRate, dividend, dt, res);
+
+    final GreekResultCollection collection = new GreekResultCollection();
+    collection.put(Greek.FAIR_PRICE, res[0]);
+    collection.put(Greek.DELTA, res[1]);
+    collection.put(Greek.GAMMA, res[2]);
+    collection.put(Greek.THETA, res[3]);
+
+    return collection;
   }
 
   public double getEuropeanPrice(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate,
@@ -244,7 +365,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
   public double getAmericanPrice(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate,
       final double dividend, final int nSteps, final boolean isCall) {
-    if (isCall) {
+    if (isCall && dividend == 0.) {
       return getEuropeanPrice(lattice, spot, strike, timeToExpiry, volatility, interestRate, dividend, nSteps, true);
     } else {
       final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
@@ -257,7 +378,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       final double upProbability = params[2];
       final double downProbability = params[3];
       final double upOverDown = upFactor / downFactor;
-      final double sig = -1.;
+      final double sig = isCall ? 1. : -1.;
 
       double assetPrice = spot * Math.pow(downFactor, nSteps);
       double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
@@ -462,8 +583,97 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     return res;
   }
 
+  public double getEuropeanSpreadPrice(final double spot1, final double spot2, final double strike, final double timeToExpiry, final double volatility1, final double volatility2,
+      final double correlation, final double interestRate, final double dividend1, final double dividend2, final int nSteps, final boolean isCall) {
+    ArgumentChecker.isTrue(_function instanceof VanillaPayoff, "Barrier option is not supported");
+    final VanillaPayoff function = (VanillaPayoff) _function;
+
+    final double vol12 = volatility1 * volatility2;
+    final double vol11 = volatility1 * volatility1;
+    final double vol22 = volatility2 * volatility2;
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double rootDt = Math.sqrt(dt);
+    final double dx1 = volatility1 * rootDt;
+    final double dx2 = volatility2 * rootDt;
+
+    final double dx12 = dx1 * dx2;
+    final double nu1Factored = (interestRate - dividend1 - 0.5 * vol11) * dx2 * dt;
+    final double nu2Factored = (interestRate - dividend2 - 0.5 * vol22) * dx1 * dt;
+    final double vol12Factored = vol12 * correlation * dt;
+
+    final double uuProbability = 0.25 * (dx12 + nu1Factored + nu2Factored + vol12Factored) / dx12;
+    final double udProbability = 0.25 * (dx12 + nu1Factored - nu2Factored - vol12Factored) / dx12;
+    final double duProbability = 0.25 * (dx12 - nu1Factored + nu2Factored - vol12Factored) / dx12;
+    final double ddProbability = 0.25 * (dx12 - nu1Factored - nu2Factored + vol12Factored) / dx12;
+
+    final double downFactor1 = Math.exp(-dx1);
+    final double downFactor2 = Math.exp(-dx2);
+    final double upOverDown1 = Math.exp(2. * dx1);
+    final double upOverDown2 = Math.exp(2. * dx2);
+
+    final double sign = isCall ? 1. : -1.;
+
+    double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    double[][] values = function.getPayoffAtExpiry(assetPrice1, assetPrice2, strike, nSteps, sign, upOverDown1, upOverDown2);
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, uuProbability, udProbability, duProbability, ddProbability, values, i);
+    }
+
+    return values[0][0];
+  }
+
+  public double getAmericanSpreadPrice(final double spot1, final double spot2, final double strike, final double timeToExpiry, final double volatility1, final double volatility2,
+      final double correlation, final double interestRate, final double dividend1, final double dividend2, final int nSteps, final boolean isCall) {
+    ArgumentChecker.isTrue(_function instanceof VanillaPayoff, "Barrier option is not supported");
+    final VanillaPayoff function = (VanillaPayoff) _function;
+
+    final double vol12 = volatility1 * volatility2;
+    final double vol11 = volatility1 * volatility1;
+    final double vol22 = volatility2 * volatility2;
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double rootDt = Math.sqrt(dt);
+    final double dx1 = volatility1 * rootDt;
+    final double dx2 = volatility2 * rootDt;
+
+    final double dx12 = dx1 * dx2;
+    final double nu1Factored = (interestRate - dividend1 - 0.5 * vol11) * dx2 * dt;
+    final double nu2Factored = (interestRate - dividend2 - 0.5 * vol22) * dx1 * dt;
+    final double vol12Factored = vol12 * correlation * dt;
+
+    final double uuProbability = 0.25 * (dx12 + nu1Factored + nu2Factored + vol12Factored) / dx12;
+    final double udProbability = 0.25 * (dx12 + nu1Factored - nu2Factored - vol12Factored) / dx12;
+    final double duProbability = 0.25 * (dx12 - nu1Factored + nu2Factored - vol12Factored) / dx12;
+    final double ddProbability = 0.25 * (dx12 - nu1Factored - nu2Factored + vol12Factored) / dx12;
+
+    final double downFactor1 = Math.exp(-dx1);
+    final double downFactor2 = Math.exp(-dx2);
+    final double upOverDown1 = Math.exp(2. * dx1);
+    final double upOverDown2 = Math.exp(2. * dx2);
+
+    final double sign = isCall ? 1. : -1.;
+
+    double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    double[][] values = function.getPayoffAtExpiry(assetPrice1, assetPrice2, strike, nSteps, sign, upOverDown1, upOverDown2);
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, strike, uuProbability, udProbability, duProbability, ddProbability, values, spot1, spot2, sign, downFactor1, downFactor2, upOverDown1,
+          upOverDown2, i);
+    }
+
+    return values[0][0];
+  }
+
   private abstract class PayoffFunction {
     public abstract double[] getPayoffAtExpiry(final double assetPrice, final double strike, final int nSteps, final double sig, final double upOverDown);
+
+    public abstract double[] getPayoffAtExpiry(final StandardOptionDataBundle data, final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction, final double assetPrice, final double strike,
+        final int nSteps, final double sig,
+        final double upOverDown);
 
     public abstract double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice,
         final double downFactor, final double upOverDown, final int steps);
@@ -479,6 +689,19 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       double priceTmp = assetPrice;
       for (int i = 0; i < nSteps + 1; ++i) {
         values[i] = Math.max(sig * (priceTmp - strike), 0);
+        priceTmp *= upOverDown;
+      }
+      return values;
+    }
+
+    @Override
+    public double[] getPayoffAtExpiry(final StandardOptionDataBundle data, final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction, final double assetPrice, final double strike,
+        final int nSteps, final double sig, final double upOverDown) {
+      final double[] values = new double[nSteps + 1];
+      double priceTmp = assetPrice;
+      for (int i = 0; i < nSteps + 1; ++i) {
+        StandardOptionDataBundle dataAtExpiry = data.withSpot(priceTmp);
+        values[i] = payoffFunction.getPayoff(dataAtExpiry, 0.);
         priceTmp *= upOverDown;
       }
       return values;
@@ -505,6 +728,55 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       }
       return res;
     }
+
+    /*
+     * Functions for two-dimensional case
+     */
+    public double[][] getPayoffAtExpiry(final double assetPrice1, final double assetPrice2, final double strike, final int nSteps, final double sign, final double upOverDown1,
+        final double upOverDown2) {
+      final int nStepsP = nSteps + 1;
+      final double[][] values = new double[nStepsP][nStepsP];
+      double priceTmp1 = assetPrice1;
+      for (int i = 0; i < nStepsP; ++i) {
+        double priceTmp2 = assetPrice2;
+        for (int j = 0; j < nStepsP; ++j) {
+          values[i][j] = Math.max(sign * (priceTmp1 - priceTmp2 - strike), 0);
+          priceTmp2 *= upOverDown2;
+        }
+        priceTmp1 *= upOverDown1;
+      }
+      return values;
+    }
+
+    public double[][] getNextOptionValues(final double discount, final double uuProbability, final double udProbability, final double duProbability, final double ddProbability,
+        final double[][] values, final int steps) {
+      final int stepsP = steps + 1;
+      final double[][] res = new double[stepsP][stepsP];
+      for (int j = 0; j < stepsP; ++j) {
+        for (int i = 0; i < stepsP; ++i) {
+          res[j][i] = discount * (uuProbability * values[j + 1][i + 1] + udProbability * values[j + 1][i] + duProbability * values[j][i + 1] + ddProbability * values[j][i]);
+        }
+      }
+      return res;
+    }
+
+    public double[][] getNextOptionValues(final double discount, final double strike, final double uuProbability, final double udProbability, final double duProbability, final double ddProbability,
+        final double[][] values, final double baseAssetPrice1, final double baseAssetPrice2, final double sign, final double downFactor1, final double downFactor2,
+        final double upOverDown1, final double upOverDown2, final int steps) {
+      final int stepsP = steps + 1;
+      final double[][] res = new double[stepsP][stepsP];
+      double assetPrice1 = baseAssetPrice1 * Math.pow(downFactor1, steps);
+      for (int j = 0; j < stepsP; ++j) {
+        double assetPrice2 = baseAssetPrice2 * Math.pow(downFactor2, steps);
+        for (int i = 0; i < stepsP; ++i) {
+          res[j][i] = discount * (uuProbability * values[j + 1][i + 1] + udProbability * values[j + 1][i] + duProbability * values[j][i + 1] + ddProbability * values[j][i]);
+          res[j][i] = Math.max(res[j][i], sign * (assetPrice1 - assetPrice2 - strike));
+          assetPrice2 *= upOverDown2;
+        }
+        assetPrice1 *= upOverDown1;
+      }
+      return res;
+    }
   }
 
   private class DownAndOutPayoff extends PayoffFunction {
@@ -517,6 +789,14 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
         priceTmp *= upOverDown;
       }
       return values;
+    }
+
+    @Override
+    public double[] getPayoffAtExpiry(final StandardOptionDataBundle data, final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction, final double assetPrice, final double strike,
+        final int nSteps, final double sig,
+        final double upOverDown) {
+
+      return null;
     }
 
     @Override
@@ -554,6 +834,14 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
         priceTmp *= upOverDown;
       }
       return values;
+    }
+
+    @Override
+    public double[] getPayoffAtExpiry(final StandardOptionDataBundle data, final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction, final double assetPrice, final double strike,
+        final int nSteps, final double sig,
+        final double upOverDown) {
+
+      return null;
     }
 
     @Override

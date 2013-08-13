@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.curve;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 
 import java.util.Collections;
@@ -51,7 +51,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction.NonCo
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-        .withAny(CURRENCY)
+        .withAny(PROPERTY_HULL_WHITE_CURRENCY)
         .get();
     return Collections.singleton(new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.NULL, properties));
   }
@@ -63,7 +63,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction.NonCo
     if (names == null || names.size() != 1) {
       return null;
     }
-    final Set<String> currencies = constraints.getValues(CURRENCY);
+    final Set<String> currencies = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
     if (currencies == null || currencies.size() != 1) {
       return null;
     }

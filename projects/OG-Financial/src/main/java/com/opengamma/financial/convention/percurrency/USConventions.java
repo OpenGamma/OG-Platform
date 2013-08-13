@@ -103,6 +103,9 @@ public class USConventions {
     // X-Ccy OIS
     final Convention oisXCcyJPYLegConvention = new OISLegConvention(OIS_USD_JPY_ON_LEG, getIds(OIS_USD_JPY_ON_LEG), overnightConventionId,
         Tenor.THREE_MONTHS, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false, 2);
+    final String irsIbor6MLegConventionName = getConventionName(Currency.USD, "6M", IRS_IBOR_LEG);
+    final Convention irsIbor6MLegConvention = new VanillaIborLegConvention(irsIbor6MLegConventionName, getIds(Currency.USD, "6M", IRS_IBOR_LEG),
+        libor3mConventionId, true, Interpolator1DFactory.LINEAR, Tenor.SIX_MONTHS, 2, true, StubType.NONE, false, 2);
     conventionMaster.add(oisXCcyJPYLegConvention);
     // Convention add
     conventionMaster.add(depositConvention);
@@ -116,6 +119,7 @@ public class USConventions {
     conventionMaster.add(edFutureConvention);
     conventionMaster.add(priceIndexConvention);
     conventionMaster.add(inflationConvention);
+    conventionMaster.add(irsIbor6MLegConvention);
   }
 
 }

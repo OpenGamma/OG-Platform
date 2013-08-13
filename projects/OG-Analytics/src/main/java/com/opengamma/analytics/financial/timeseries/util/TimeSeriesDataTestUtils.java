@@ -41,7 +41,7 @@ public class TimeSeriesDataTestUtils {
    * Tests that the two time series contain the same dates
    * @param ts1 The first time series
    * @param ts2 The second time series
-   * @throws IllegalArgumentException If either time series is: null; empty; contains fewer than two data points; are not the same length; do not contain the same dates 
+   * @throws IllegalArgumentException If either time series is: null; empty; contains fewer than two data points; are not the same length; do not contain the same dates
    */
   public static void testTimeSeriesDates(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2) {
     testNotNullOrEmpty(ts1);
@@ -58,13 +58,14 @@ public class TimeSeriesDataTestUtils {
       }
     }
   }
-  
+
   /**
    * Tests that the two time-series contain approximately-equal values.
    * @param ts1  the first time-series, not null
    * @param ts2  the second time-series, not null
+   * @param maxDifference The difference above which numbers are not equal
    */
-  public static void testCloseEquals(DoubleTimeSeries<?> ts1, DoubleTimeSeries<?> ts2, double maxDifference) {
+  public static void testCloseEquals(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2, final double maxDifference) {
     testNotNullOrEmpty(ts1);
     testNotNullOrEmpty(ts2);
     final int n = ts1.size();
@@ -81,5 +82,5 @@ public class TimeSeriesDataTestUtils {
       }
     }
   }
-  
+
 }

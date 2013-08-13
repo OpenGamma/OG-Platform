@@ -99,6 +99,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final InterestRateFutureTransactionDiscountingMethod METHOD_STIR_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
+
   //     -----     Deposit     -----
 
   @Override

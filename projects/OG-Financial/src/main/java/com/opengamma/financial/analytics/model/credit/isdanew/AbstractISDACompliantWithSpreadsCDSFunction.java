@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
@@ -76,6 +77,7 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
   private HolidaySource _holidaySource; //OpenGammaCompilationContext.getHolidaySource(context);
   private RegionSource _regionSource;
   private static final PointsUpFrontConverter POINTS_UP_FRONT_CONVERTER = new PointsUpFrontConverter();
+  protected static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
 
   public AbstractISDACompliantWithSpreadsCDSFunction(final String valueRequirement) {
     _valueRequirement = valueRequirement;
@@ -162,7 +164,7 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     }
     final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention)[0];
     // TODO: Only do this once
-    final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic);
+    final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
 
     final Object result = compute(security.getMaturityDate(), puf, quote, security.getNotional().getAmount(),
         buySellProtection, yieldCurve, analytic, creditAnalytics, quotes, bucketDates, creditCurve);
@@ -280,7 +282,7 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     return curveIdentifier;
   }
 
-  public PointsUpFront getPointsUpfront(CDSQuoteConvention quote, BuySellProtection buySellProtection, ISDACompliantYieldCurve yieldCurve, CDSAnalytic analytic) {
+  public PointsUpFront getPointsUpfront(CDSQuoteConvention quote, BuySellProtection buySellProtection, ISDACompliantYieldCurve yieldCurve, CDSAnalytic analytic, ISDACompliantCreditCurve creditCurve) {
     double puf = 0.0;
     if (quote instanceof PointsUpFront) {
       return (PointsUpFront) quote;
@@ -292,7 +294,9 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
       // SELL protection reverses directions of legs
       puf = Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
     } else if (quote instanceof ParSpread) {
-      puf = 0.0;
+      puf = PRICER.pv(analytic, yieldCurve, creditCurve, ((ParSpread) quote).getCoupon());
+      // SELL protection reverses directions of legs
+      puf = Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
     } else {
       throw new OpenGammaRuntimeException("Unknown quote type " + quote);
     }

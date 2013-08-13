@@ -14,6 +14,8 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.Bjerksund
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
@@ -21,8 +23,9 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 public class BinomialTreeOptionPricingModelTest {
 
   private static final double EPS = 1.e-7;
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
-  final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {81., 97., 105., 105.1, 114., 138. };
   private static final double TIME = 4.2;
@@ -98,7 +101,7 @@ public class BinomialTreeOptionPricingModelTest {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
-              final int[] choicesSteps = new int[] {91, 312, 601 };
+              final int[] choicesSteps = new int[] {31, 112, 301 };
               for (final int nSteps : choicesSteps) {
                 final double exact = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest, isCall);
                 final double res = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
@@ -118,6 +121,39 @@ public class BinomialTreeOptionPricingModelTest {
       }
     }
   }
+
+  //  @Test
+  //  public void EuropeanPriceLatticeNewMethodTest() {
+  //    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+  //        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+  //
+  //    final boolean[] tfSet = new boolean[] {true, false };
+  //    for (final LatticeSpecification lattice : lattices) {
+  //      for (final boolean isCall : tfSet) {
+  //        for (final double strike : STRIKES) {
+  //          for (final double interest : INTERESTS) {
+  //            for (final double vol : VOLS) {
+  //              for (final double dividend : DIVIDENDS) {
+  //                final ZonedDateTime date = DateUtils.getUTCDate(2010, 7, 1);
+  //                final int secondsInAYear = (int) (365.25 * 24 * 60 * 60);
+  //                final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, new Expiry(date.plusSeconds((int) (secondsInAYear * TIME))), isCall);
+  //                final YieldAndDiscountCurve yCurve = YieldCurve.from(ConstantDoublesCurve.from(interest));
+  //                final VolatilitySurface vSurface = new VolatilitySurface(ConstantDoublesSurface.from(vol));
+  //                final StandardOptionDataBundle data = new StandardOptionDataBundle(yCurve, interest - dividend, vSurface, SPOT, date);
+  //                final int[] choicesSteps = new int[] {11, 105 };
+  //                for (final int nSteps : choicesSteps) {
+  //                  final double resNew = _model.getPrice(lattice, definition, data, nSteps);
+  //                  final double resOld = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+  //                  //                  System.out.println(resNew + "\t" + resOld);
+  //                  assertEquals(resNew, resOld, 1.e-14);
+  //                }
+  //              }
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
 
   /**
    * European option price with discrete dividend
@@ -140,7 +176,7 @@ public class BinomialTreeOptionPricingModelTest {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
-              final int[] choicesSteps = new int[] {91, 312, 601 };
+              final int[] choicesSteps = new int[] {31, 112, 301 };
               for (final int nSteps : choicesSteps) {
                 final double df = Math.exp(-interest * TIME);
                 final double resSpot = SPOT * Math.exp(interest * TIME) * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
@@ -180,7 +216,7 @@ public class BinomialTreeOptionPricingModelTest {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
-              final int[] choicesSteps = new int[] {91, 309, 601 };
+              final int[] choicesSteps = new int[] {31, 109, 301 };
               for (final int nSteps : choicesSteps) {
                 final double exact = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest, isCall);
                 final double res = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
@@ -221,7 +257,7 @@ public class BinomialTreeOptionPricingModelTest {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
-              final int[] choicesSteps = new int[] {91, 309, 601 };
+              final int[] choicesSteps = new int[] {31, 109, 301 };
               for (final int nSteps : choicesSteps) {
                 final double df = Math.exp(-interest * TIME);
                 final double resSpot = SPOT * Math.exp(interest * TIME) * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
@@ -280,24 +316,19 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test
   public void barrierEuropeanTest() {
-    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification() };
-    //    , new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
-    //        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
 
     //    new LogEqualProbabiliesLatticeSpecification()  //removed
 
-    //    long startTime = System.currentTimeMillis();
-    //    int i = 0;
-    //    while (i < 100) {
-    //      ++i;
-    //    System.out.println(_model.getEuropeanPrice(lattice, 120., 100., 1., 1., 1., 100));
-    //    }
-    //    long finishTime = System.currentTimeMillis();
-    //    System.out.println("That took: " + (finishTime - startTime) + " ms");
+    /*
+     *  As expected, large vol and spot \sim barrier leads to poor accuracy since the effect of discreteness becomes large. 
+     */
+    final double[] vols = new double[] {0.02, 0.09 };
 
-    final double[] barrierSet = new double[] {90 };
+    final double[] barrierSet = new double[] {90, 121 };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
     final boolean[] tfSet = new boolean[] {true, false };
     for (final double barrier : barrierSet) {
@@ -307,17 +338,47 @@ public class BinomialTreeOptionPricingModelTest {
           for (final boolean isCall : tfSet) {
             for (final double strike : STRIKES) {
               for (final double interest : INTERESTS) {
-                for (final double vol : VOLS) {
-                  final int[] choicesSteps = new int[] {2011 };
+                for (final double vol : vols) {
+                  final int[] choicesSteps = new int[] {511 };
                   for (final int nSteps : choicesSteps) {
-                    if (isCall && type == "DownAndOut" && strike > barrier) {
-                      double exact = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest, isCall) - Math.pow(SPOT / barrier, 1. - 2. * interest / vol / vol) *
-                          BlackScholesFormulaRepository.price(barrier * barrier / SPOT, strike, TIME, vol, interest, interest, isCall);
-                      exact = exact < 0. ? 0. : exact;
-                      final double res = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
-                      System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
-                      //                    final double ref = Math.max(exact, 1.) / Math.sqrt(nSteps);
-                      //                    assertEquals(res, exact, ref);
+                    if (type == "DownAndOut") {
+                      final double eta = 1.;
+                      if (strike > barrier) {
+                        final double phi = isCall ? 1. : -1.;
+                        final double extra = isCall ? 0. : (SPOT < barrier ? 0. : getB(SPOT, strike, TIME, vol, interest, barrier, phi) + getD(SPOT, strike, TIME, vol, interest, barrier, phi, eta));
+                        double exact = SPOT < barrier ? 0. : BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest, isCall) -
+                            Math.pow(SPOT / barrier, 1. - 2. * interest / vol / vol) *
+                            BlackScholesFormulaRepository.price(barrier * barrier / SPOT, strike, TIME, vol, interest, interest, true) - extra;
+                        final double res = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
+                        //                        System.out.println(barrier + "\t" + strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
+                        assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                      } else {
+                        final double phi = isCall ? 1. : -1.;
+                        double exact = SPOT < barrier ? 0. : (isCall ? getB(SPOT, strike, TIME, vol, interest, barrier, phi) - phi * getD(SPOT, strike, TIME, vol, interest, barrier, phi, eta) : 0.);
+                        final double res = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
+                        //                        System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
+                        assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                      }
+                    } else {
+                      final double eta = -1.;
+                      if (strike < barrier) {
+                        final double phi = isCall ? 1. : -1.;
+                        final double extra = isCall ? (SPOT > barrier ? 0. : getB(SPOT, strike, TIME, vol, interest, barrier, phi) + getD(SPOT, strike, TIME, vol, interest, barrier, phi, eta)) : 0.;
+                        double exact = SPOT > barrier ? 0. : BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest, isCall) -
+                            Math.pow(SPOT / barrier, 1. - 2. * interest / vol / vol) * BlackScholesFormulaRepository.price(barrier * barrier / SPOT, strike, TIME, vol, interest, interest, false) -
+                            extra;
+                        final double res = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
+                        //                        if (isCall) {
+                        //                          System.out.println(barrier + "\t" + strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
+                        //                        }
+                        assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                      } else {
+                        final double phi = isCall ? 1. : -1.;
+                        double exact = SPOT > barrier ? 0. : (isCall ? 0. : getB(SPOT, strike, TIME, vol, interest, barrier, phi) - getD(SPOT, strike, TIME, vol, interest, barrier, phi, eta));
+                        final double res = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
+                        //                        System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
+                        assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                      }
                     }
                   }
                 }
@@ -329,9 +390,61 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  //  private double getA(final double  SPOT, final double strike, final double TIME, final double vol, final double interest,final double barrier) {
-  //    return 
-  //  }
+  private double getB(final double spot, final double strike, final double time, final double vol, final double interest, final double barrier, final double phi) {
+    final double sigmaRootT = vol * Math.sqrt(time);
+    final double x2 = (Math.log(spot / barrier) + interest * time) / sigmaRootT + 0.5 * sigmaRootT;
+    final double x2M = x2 - sigmaRootT;
+    return phi * (spot * NORMAL.getCDF(phi * x2) - strike * Math.exp(-interest * time) * NORMAL.getCDF(phi * x2M));
+  }
+
+  private double getD(final double spot, final double strike, final double time, final double vol, final double interest, final double barrier, final double phi, final double eta) {
+    final double sigmaRootT = vol * Math.sqrt(time);
+    final double y2 = (Math.log(barrier / spot) + interest * time) / sigmaRootT + 0.5 * sigmaRootT;
+    final double y2M = y2 - sigmaRootT;
+    final double mu = interest / vol / vol - 0.5;
+    return phi * (spot * Math.pow(barrier / spot, 2. * mu + 2.) * NORMAL.getCDF(eta * y2) - strike * Math.exp(-interest * time) * Math.pow(barrier / spot, 2. * mu) * NORMAL.getCDF(eta * y2M));
+  }
+
+  @Test
+  public void spreadEuropeanPriceLatticeTest() {
+    final double[] spotSet2 = new double[] {SPOT * 0.9, SPOT * 1.1 };
+    final double[] sigmaSet2 = new double[] {0.05, 0.12 };
+    final double[] rhoSet = new double[] {0.1, 0.6, 0.9 };
+
+    final double strike = 0.;
+    final double div2 = 0.03;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double interest : INTERESTS) {
+        for (final double vol : VOLS) {
+          final int[] choicesSteps = new int[] {29, 113 };
+          for (final int nSteps : choicesSteps) {
+            for (final double spot2 : spotSet2) {
+              for (final double sigma2 : sigmaSet2) {
+                for (final double rho : rhoSet) {
+                  for (final double dividend : DIVIDENDS) {
+                    if (interest > 0. && dividend > 0.) {// this must be a sufficient condition for all probabilities > 0.
+                      double exactDiv = BlackScholesFormulaRepository.price(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend, isCall);
+                      final double resDiv = _model.getEuropeanSpreadPrice(SPOT, spot2, strike, TIME, vol, sigma2, rho, interest, dividend, div2, nSteps, isCall);
+                      final double refDiv = Math.max(exactDiv, 1.) / Math.sqrt(nSteps);
+                      assertEquals(resDiv, exactDiv, refDiv);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void spreadAmericanPriceLatticeTest() {
+    final double resDiv = _model.getAmericanSpreadPrice(100, 100., 1., 1., 0.2, 0.3, 0.50, 0.06, 0.03, 0.04, 3, true);
+    assertEquals(resDiv, 1.e-3, 10.04479);
+  }
 
   @Test
   public void EuropeanGreekLatticesTest() {
@@ -356,7 +469,7 @@ public class BinomialTreeOptionPricingModelTest {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
-              final int[] choicesSteps = new int[] {91, 312, 601 };
+              final int[] choicesSteps = new int[] {31, 112, 301 };
               for (final int nSteps : choicesSteps) {
                 final double delta = BlackScholesFormulaRepository.delta(SPOT, strike, TIME, vol, interest, interest, isCall);
                 final double gamma = BlackScholesFormulaRepository.gamma(SPOT, strike, TIME, vol, interest, interest);
@@ -403,7 +516,7 @@ public class BinomialTreeOptionPricingModelTest {
       for (final double strike : STRIKES) {
         for (final double interest : INTERESTS) {
           for (final double vol : VOLS) {
-            final int[] choicesSteps = new int[] {91, 309, 601 };
+            final int[] choicesSteps = new int[] {31, 109, 301 };
             for (final int nSteps : choicesSteps) {
               //              final double priceSpotUp = _model.getEuropeanPrice(lattice, spotUp, strike, TIME, vol, interest, nSteps, isCall);
               //              final double priceSpotDw = _model.getEuropeanPrice(lattice, spotDw, strike, TIME, vol, interest, nSteps, isCall);
@@ -514,6 +627,39 @@ public class BinomialTreeOptionPricingModelTest {
     final double exactCash = BlackScholesFormulaRepository.price(modSpot, strike, time, vol, interest, interest, true);
     System.out.println(exactCash);
   }
+
+  //  @Test
+  //  public void AmericanPriceLatticeNewMethodTest() {
+  //    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+  //        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+  //
+  //    final boolean[] tfSet = new boolean[] {true, false };
+  //    for (final LatticeSpecification lattice : lattices) {
+  //      for (final boolean isCall : tfSet) {
+  //        for (final double strike : STRIKES) {
+  //          for (final double interest : INTERESTS) {
+  //            for (final double vol : VOLS) {
+  //              for (final double dividend : DIVIDENDS) {
+  //                final ZonedDateTime date = DateUtils.getUTCDate(2010, 7, 1);
+  //                final int secondsInAYear = (int) (365.25 * 24 * 60 * 60);
+  //                final AmericanVanillaOptionDefinition definition = new AmericanVanillaOptionDefinition(strike, new Expiry(date.plusSeconds((int) (secondsInAYear * TIME))), isCall);
+  //                final YieldAndDiscountCurve yCurve = YieldCurve.from(ConstantDoublesCurve.from(interest));
+  //                final VolatilitySurface vSurface = new VolatilitySurface(ConstantDoublesSurface.from(vol));
+  //                final StandardOptionDataBundle data = new StandardOptionDataBundle(yCurve, interest - dividend, vSurface, SPOT, date);
+  //                final int[] choicesSteps = new int[] {11, 105 };
+  //                for (final int nSteps : choicesSteps) {
+  //                  final double resNew = _model.getPrice(lattice, definition, data, nSteps);
+  //                  final double resOld = _model.getAmericanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+  //                  //                  System.out.println(resNew + "\t" + resOld);
+  //                  assertEquals(resNew, resOld, 1.e-14);
+  //                }
+  //              }
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
 
   @Test
   public void americanPriceCashMultipleDividendsTest() {
@@ -652,6 +798,25 @@ public class BinomialTreeOptionPricingModelTest {
           }
         }
       }
+    }
+  }
+
+  @Test
+  public void barrierAmericanTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
+    final double spot = 100.;
+    final double strike = 100.;
+    final double time = 1.;
+    final double sig = 0.2;
+    final double rate = 0.06;
+    final double barrier = 95.;
+    final int steps = 3;
+
+    final BinomialTreeOptionPricingModel modelB = new BinomialTreeOptionPricingModel(barrier, "DownAndOut");
+    for (final LatticeSpecification lattice : lattices) {
+      final double res = modelB.getAmericanPrice(lattice, spot, strike, time, sig, rate, steps, true);
+      assertEquals(res, 9.9958, 9958 * 1.e-1);
     }
   }
 

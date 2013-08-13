@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
@@ -8,12 +8,17 @@ package com.opengamma.analytics.financial.provider.calculator.discounting;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
@@ -43,14 +48,18 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * The methods and calculators.
    */
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
-
+  private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
+  private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
 
   //     -----     Payment/Coupon     ------
 
-  // TODO: add FRA
+  @Override
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurves) {
+    return METHOD_FRA.parRate(fra, multicurves);
+  }
 
   //     -----     Swap     -----
 
@@ -93,11 +102,31 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
     return pvSecond / pvbp;
   }
 
+  /**
+   * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
+   * It is computed as the opposite of the present value of the swap in currency of the first leg divided by the present value of a basis point
+   * of the first leg (as computed by the {@link PresentValueMarketQuoteSensitivityDiscountingCalculator}).
+   * @param swap The swap.
+   * @param multicurves The multi-curves provider.
+   * @return The par spread.
+   */
+  @Override
+  public Double visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
+    ArgumentChecker.notNull(multicurves, "Market");
+    ArgumentChecker.notNull(swap, "Swap");
+    return -multicurves.getFxRates().convert(swap.accept(PVC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVMQSC, multicurves);
+  }
+
   //     -----     Futures     -----
 
   @Override
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     return METHOD_IR_FUT.parRate(futures, multicurves);
+  }
+
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
+    return METHOD_IR_FUT.parRate(futures.getUnderlying(), multicurves);
   }
 
   //     -----     Forex     ------
@@ -106,7 +135,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    * Computes the forward forex rate.
    * @param forex The forex instrument.
    * @param multicurves The multicurves provider.
-   * @return The forward forex rate. 
+   * @return The forward forex rate.
    */
   @Override
   public Double visitForex(final Forex forex, final MulticurveProviderInterface multicurves) {

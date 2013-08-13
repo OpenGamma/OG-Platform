@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.multicurve.discounting;
 
-import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
 
 import java.util.Collections;
 import java.util.Set;
@@ -29,27 +29,24 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of instruments using curves constructed using
+ * Calculates the FX present value of instruments using curves constructed using
  * the discounting method.
  */
-public class DiscountingPVFunction extends DiscountingFunction {
+public class DiscountingCurrencyExposureFunction extends DiscountingFunction {
   /** The present value calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR = PresentValueDiscountingCalculator.getInstance();
 
   /**
-   * Sets the value requirement to {@link ValueRequirementNames#PRESENT_VALUE}
+   * Sets the value requirement to {@link ValueRequirementNames#FX_PRESENT_VALUE}
    */
-  public DiscountingPVFunction() {
-    super(PRESENT_VALUE);
+  public DiscountingCurrencyExposureFunction() {
+    super(FX_CURRENCY_EXPOSURE);
   }
 
   @Override
@@ -60,12 +57,10 @@ public class DiscountingPVFunction extends DiscountingFunction {
       public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity) {
-          return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
+          return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
         }
-        return security instanceof CashSecurity ||
-            security instanceof FRASecurity ||
-            security instanceof SwapSecurity ||
-            security instanceof InterestRateFutureSecurity;
+        return security instanceof FXForwardSecurity ||
+            security instanceof NonDeliverableFXForwardSecurity;
       }
 
       @Override
@@ -74,11 +69,11 @@ public class DiscountingPVFunction extends DiscountingFunction {
         final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
         final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, data);
-        final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
-        return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));
+        final ValueSpecification spec = new ValueSpecification(FX_CURRENCY_EXPOSURE, target.toSpecification(), properties);
+        return Collections.singleton(new ComputedValue(spec, mca));
       }
     };
   }
+
 }

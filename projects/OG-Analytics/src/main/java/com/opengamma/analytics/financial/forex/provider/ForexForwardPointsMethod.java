@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.provider;
@@ -93,7 +93,7 @@ public final class ForexForwardPointsMethod {
   }
 
   /**
-   * Computes the present value curve sensitivity for forex by forward point method. 
+   * Computes the present value curve sensitivity for forex by forward point method.
    * The sensitivity is only to the final discounting, not to the forward points.
    * @param fx The Forex derivative.
    * @param multicurves The multi-curve provider.
@@ -111,9 +111,9 @@ public final class ForexForwardPointsMethod {
     final double pvBar = 1.0;
     final double df2Bar = (amount2 + amount1 * (fxRate + fwdPts)) * pvBar;
     final DoublesPair s = new DoublesPair(payTime, -payTime * df2 * df2Bar);
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(multicurves.getName(fx.getCurrency2()), list);
     return MultipleCurrencyMulticurveSensitivity.of(fx.getCurrency2(), MulticurveSensitivity.ofYieldDiscounting(result));
   }

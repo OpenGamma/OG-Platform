@@ -20,6 +20,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
@@ -72,7 +73,8 @@ public class HullWhiteYCNSFunction extends HullWhiteFunction {
     return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context)) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative) {
+      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
+          final FXMatrix fxMatrix) {
         final HullWhiteOneFactorProviderInterface curves = (HullWhiteOneFactorProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final CurveBuildingBlockBundle blocks = (CurveBuildingBlockBundle) inputs.getValue(JACOBIAN_BUNDLE);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
