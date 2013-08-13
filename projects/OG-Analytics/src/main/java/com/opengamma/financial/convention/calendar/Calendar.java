@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.calendar;
 
+import org.joda.convert.FromStringFactory;
+import org.joda.convert.ToString;
 import org.threeten.bp.LocalDate;
 
 /**
@@ -13,6 +15,7 @@ import org.threeten.bp.LocalDate;
  * Abstraction of a calendar interface for tracking working/non-working days, such as Bank Holidays.
  * This is used in conjunction with DayCount and BusinessDayConvention to calculate settlement dates.
  */
+@FromStringFactory(factory = CalendarFactory.class)
 public interface Calendar {
 
   /**
@@ -28,6 +31,7 @@ public interface Calendar {
    * 
    * @return the name, not null
    */
+  @ToString
   String getConventionName();
 
 }

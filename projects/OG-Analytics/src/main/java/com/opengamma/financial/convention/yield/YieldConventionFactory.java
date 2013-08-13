@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.joda.convert.FromString;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -93,6 +95,7 @@ public final class YieldConventionFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
+  @FromString
   public YieldConvention getYieldConvention(final String name) {
     ArgumentChecker.notNull(name, "name");
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));

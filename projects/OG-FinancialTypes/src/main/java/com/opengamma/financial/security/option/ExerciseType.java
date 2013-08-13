@@ -7,6 +7,8 @@ package com.opengamma.financial.security.option;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -15,6 +17,10 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * The type of exercise in an option.
@@ -24,6 +30,42 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
+  /**
+   * Cache of known types.
+   */
+  private static final ConcurrentMap<String, ExerciseType> CACHE = new ConcurrentHashMap<>(8, 0.75f, 1);
+  static {
+    register(new AmericanExerciseType());
+    register(new AsianExerciseType());
+    register(new BermudanExerciseType());
+    register(new EuropeanExerciseType());
+  }
+
+  /**
+   * Gets an exercise type by name.
+   * 
+   * @param name  the name to find, not null
+   * @return the exercise type, not null
+   */
+  @FromString
+  public static ExerciseType of(String name) {
+    ArgumentChecker.notNull(name, "name");
+    ExerciseType type = CACHE.get(name);
+    if (type == null) {
+      throw new IllegalArgumentException("Unknown ExerciseType name: " + name);
+    }
+    return type;
+  }
+
+  /**
+   * Registers an exercise type.
+   * 
+   * @param type  the exercise type, not null
+   */
+  public static void register(ExerciseType type) {
+    ArgumentChecker.notNull(type, "type");
+    CACHE.putIfAbsent(type.getName(), type);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -38,6 +80,7 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
    * 
    * @return the exercise type, not null
    */
+  @ToString
   public abstract String getName();
 
   //-------------------------------------------------------------------------

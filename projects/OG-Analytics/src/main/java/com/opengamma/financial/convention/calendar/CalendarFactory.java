@@ -13,6 +13,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.joda.convert.FromString;
+
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
@@ -122,6 +124,7 @@ public final class CalendarFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
+  @FromString
   public Calendar getCalendar(final String name) {
     return _calendarMap.get(name.toLowerCase(Locale.ENGLISH));
   }

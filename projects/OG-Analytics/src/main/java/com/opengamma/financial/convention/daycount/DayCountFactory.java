@@ -13,6 +13,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.joda.convert.FromString;
+
 import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -72,6 +74,7 @@ public final class DayCountFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
+  @FromString
   public DayCount getDayCount(final String name) {
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }

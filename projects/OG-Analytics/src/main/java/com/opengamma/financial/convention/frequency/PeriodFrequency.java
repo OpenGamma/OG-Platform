@@ -6,8 +6,10 @@
 package com.opengamma.financial.convention.frequency;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Map;
 
+import org.joda.convert.FromString;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
@@ -128,6 +130,27 @@ public final class PeriodFrequency implements Frequency, Serializable {
    * The length of the period.
    */
   private final Period _period;
+
+  /**
+   * Gets a frequency from a string.
+   * <p>
+   * This parses the known {@code PeriodFrequency} instances by name.
+   * Name matching is case insensitive.
+   * 
+   * @param name  the name of the convention, not null
+   * @return the period frequency matching the name, not null
+   * @throws IllegalArgumentException if the name is unknown
+   */
+  @FromString
+  public static PeriodFrequency of(final String name) {
+    String nameLower = name.toLowerCase(Locale.ENGLISH);
+    for (PeriodFrequency freq : s_cache.keySet()) {
+      if (freq.getConventionName().toLowerCase(Locale.ENGLISH).equals(nameLower)) {
+        return freq;
+      }
+    }
+    throw new IllegalArgumentException("Unknown PeriodFrequency: " + name);
+  }
 
   /**
    * Obtains an instance.

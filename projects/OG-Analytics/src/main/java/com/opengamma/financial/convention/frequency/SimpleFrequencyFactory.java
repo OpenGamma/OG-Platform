@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.joda.convert.FromString;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -119,6 +121,7 @@ public final class SimpleFrequencyFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
+  @FromString
   public SimpleFrequency getFrequency(final String name) {
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }

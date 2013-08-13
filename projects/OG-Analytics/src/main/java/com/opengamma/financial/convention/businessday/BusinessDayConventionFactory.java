@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.joda.convert.FromString;
+
 import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -69,6 +71,7 @@ public final class BusinessDayConventionFactory {
    * @param name name of the convention to load.
    * @return convention with the specified name.
    */
+  @FromString
   public BusinessDayConvention getBusinessDayConvention(final String name) {
     return _conventionMap.get(name.toLowerCase());
   }

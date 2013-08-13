@@ -5,9 +5,13 @@
  */
 package com.opengamma.financial.convention.yield;
 
+import org.joda.convert.FromStringFactory;
+import org.joda.convert.ToString;
+
 /**
  * Convention for yields.
  */
+@FromStringFactory(factory = YieldConventionFactory.class)
 public interface YieldConvention {
   // TODO: supply whatever is needed to do a proper calculation
 
@@ -16,6 +20,7 @@ public interface YieldConvention {
    * 
    * @return the name, not null
    */
+  @ToString
   String getConventionName();
 
 }
