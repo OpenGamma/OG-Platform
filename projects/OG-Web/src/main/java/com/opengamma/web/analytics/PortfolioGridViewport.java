@@ -42,7 +42,7 @@ public class PortfolioGridViewport extends MainGridViewport {
   }
 
   @Override
-  MainGridStructure getGridStructure() {
+  public MainGridStructure getGridStructure() {
     return _gridStructure;
   }
 
@@ -53,11 +53,10 @@ public class PortfolioGridViewport extends MainGridViewport {
    * @param cache Cache of calculation results
    */
   public void updateResultsAndStructure(PortfolioGridStructure gridStructure, ResultsCache cache) {
-    ViewportNodeStructure node = new ViewportNodeStructure(getGridStructure().getRootNode(),
-                                                           getGridStructure().getTargetLookup(),
+    ViewportNodeStructure node = new ViewportNodeStructure(gridStructure.getRootNode(),
+                                                           gridStructure.getTargetLookup(),
                                                            _currentExpandedPaths);
     _gridStructure = gridStructure.withNode(node.getRootNode());
-    updateResults(cache);
   }
 
   /**
