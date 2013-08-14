@@ -21,3 +21,4 @@ docs/
 build.number
 .settings/
 *.iml
+/target

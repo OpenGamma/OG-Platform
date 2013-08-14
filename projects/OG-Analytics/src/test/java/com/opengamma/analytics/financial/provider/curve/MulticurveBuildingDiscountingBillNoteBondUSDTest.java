@@ -22,11 +22,13 @@ import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorY
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorBill;
+import com.opengamma.analytics.financial.instrument.index.GeneratorBondFixed;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositONCounterpart;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
@@ -51,6 +53,8 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -74,8 +78,6 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  //  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-  //      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
   private static final double TOLERANCE_ROOT = 1.0E-10;
@@ -108,6 +110,39 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
       GENERATOR_BILL[loopbill] = new GeneratorBill("GeneratorBill" + loopbill, BILL_SECURITY[loopbill]);
     }
   }
+  // Here we define US NOTES and US BONDS, we are no doing no distinction between notes and bonds because the instrument is exactly the same.
+  // typically US NOTES are short maturity interest rate bonds(ie under 10Y) and US BONDS are long maturity interest rate bonds (ie more than 10y but mostly 30y in practice).
+  // To build the curve we choose six bonds, the most recent 2y, 3y, 5y, 7y, 10yand 30y bond : 
+  // USA, Note 0.125 31jul2014 2Y (ISIN US912828TF73)
+  // USA, Note 0.25 15aug2015 3Y (ISIN US912828TK68)
+  // USA, Note 0.5 31jul2017 5Y (ISIN US912828TG56)
+  // USA, Note 0.875 31jul2019 7Y (ISIN US912828TH30)
+  // USA, Note 1.625 15aug2022 10Y (ISIN US912828TJ95)
+  // USA, Bond 2.75 15aug2042 30Y (ISIN US912810QX90)
+
+  private static final YieldConvention YIELD_BOND_USGOVT = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
+  private static final DayCount DAY_COUNT_BOND_USGOVT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final Period BOND_PAYMENT_TENOR = Period.ofMonths(6);
+  private static final ZonedDateTime[] BOND_START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 07, 31), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 07, 31),
+    DateUtils.getUTCDate(2012, 07, 31), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 8, 15) };
+  private static final ZonedDateTime[] BOND_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 07, 31), DateUtils.getUTCDate(2015, 05, 15), DateUtils.getUTCDate(2017, 07, 31),
+    DateUtils.getUTCDate(2019, 07, 31), DateUtils.getUTCDate(2022, 8, 15), DateUtils.getUTCDate(2042, 8, 15) };
+  private static final double[] RATE_FIXED = new double[] {0.00125, 0.00250, 0.00500, 0.00875, 0.01625, 0.02750 };
+  private static final int NB_BOND = BOND_MATURITY.length;
+  private static final int SETTLEMENT_DAYS_US = 3;
+  private static final boolean IS_EOM_FIXED = false;
+  private static final String REPO_TYPE = "General collateral";
+  private static final BusinessDayConvention BOND_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BondFixedSecurityDefinition[] BOND_SECURITY = new BondFixedSecurityDefinition[NB_BOND];
+  private static final GeneratorBondFixed[] GENERATOR_BOND = new GeneratorBondFixed[NB_BOND];
+  static {
+    for (int loopbill = 0; loopbill < BOND_MATURITY.length; loopbill++) {
+      BOND_SECURITY[loopbill] = BondFixedSecurityDefinition.from(USD, BOND_MATURITY[loopbill], BOND_START_ACCRUAL_DATE[loopbill], BOND_PAYMENT_TENOR, RATE_FIXED[loopbill], SETTLEMENT_DAYS_US,
+          NOTIONAL, NYC,
+          DAY_COUNT_BOND_USGOVT, BOND_BUSINESS_DAY, YIELD_BOND_USGOVT, IS_EOM_FIXED, NAME_COUNTERPART, REPO_TYPE);
+      GENERATOR_BOND[loopbill] = new GeneratorBondFixed("GeneratorBond" + loopbill, BOND_SECURITY[loopbill]);
+    }
+  }
 
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
@@ -122,6 +157,7 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
   /** Market values for the dsc USD curve */
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
+
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
     GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
@@ -135,13 +171,14 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
     }
   }
 
-  /** Market values for the govt USD curve */
-  private static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015 };
+  /** Market values for the govt USD bill curve */
+  private static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015, 0.99642, 0.9981, 0.99587, 0.99466, 0.99496, 0.98489 };
   /** Generators for the govt USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1],
-    GENERATOR_BILL[2] };
+    GENERATOR_BILL[2], GENERATOR_BOND[0], GENERATOR_BOND[1], GENERATOR_BOND[2], GENERATOR_BOND[3], GENERATOR_BOND[4], GENERATOR_BOND[5] };
   /** Tenors for the govt USD curve */
-  private static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0) };
+  private static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0),
+    Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0) };
   private static final GeneratorAttributeIR[] GOVTUS_USD_ATTR = new GeneratorAttributeIR[GOVTUS_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < GOVTUS_USD_TENOR.length; loopins++) {
@@ -187,9 +224,6 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
     DSC_ISS_MAP.put(CURVE_NAME_GOVTUS_USD, US_USD);
   }
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
@@ -302,9 +336,9 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedONDefinition) {
-          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday, unit), NOT_USED_2);
+          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday, unit));
         } else {
-          ird = instrument.toDerivative(NOW, NOT_USED_2);
+          ird = instrument.toDerivative(NOW);
         }
         instruments[loopcurve][loopins++] = ird;
       }

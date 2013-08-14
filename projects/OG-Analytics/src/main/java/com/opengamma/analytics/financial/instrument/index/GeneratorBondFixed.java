@@ -29,7 +29,7 @@ public class GeneratorBondFixed extends GeneratorInstrument<GeneratorAttribute> 
    */
   public GeneratorBondFixed(final String name, final BondFixedSecurityDefinition security) {
     super(name);
-    ArgumentChecker.notNull(security, "Bill security");
+    ArgumentChecker.notNull(security, "Bond security");
     _security = security;
   }
 
