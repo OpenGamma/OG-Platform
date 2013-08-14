@@ -46,22 +46,24 @@ public class EUConventions {
   private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+//  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount THIRTY_U_360 = DayCountFactory.INSTANCE.getDayCount("30U/360");  
   private static final ExternalId EU = ExternalSchemes.financialRegionId("EU");
   /** OIS X-Ccy USD/EUR ON leg convention string **/
   public static final String OIS_USD_EUR_ON_LEG = "EUR Overnight USD/EUR XCcy Leg";
 
   /** The Euribor string **/
   public static final String EURIBOR = "Euribor";
-  /** The Euribor string **/
+  /** The IRS Euribor leg string **/
   public static final String IRS_EURIBOR_LEG = "IRS Euribor Leg";
 
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionMaster conventionMaster) {
-    final String tenorString = "6M";
+    final String tenorString3M = "3M";
+    final String tenorString6M = "6M";
     // Index (Overnight and Ibor-like)
     final String onIndexName = getConventionName(Currency.EUR, OVERNIGHT);
     final ExternalId onIndexId = ExternalId.of(SCHEME_NAME, onIndexName);
-    final Convention onIndex = new OvernightIndexConvention(onIndexName, getIds(Currency.EUR, OVERNIGHT), ACT_365, 1, Currency.EUR, EU);
+    final Convention onIndex = new OvernightIndexConvention(onIndexName, getIds(Currency.EUR, OVERNIGHT), ACT_360, 0, Currency.EUR, EU);
     final String liborConventionName = getConventionName(Currency.EUR, LIBOR);
     final Convention liborIndex = new IborIndexConvention(liborConventionName, getIds(Currency.EUR, LIBOR), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.EUR,
         LocalTime.of(11, 00), "EU", EU, EU, "");
@@ -72,29 +74,32 @@ public class EUConventions {
     final ExternalId euriborConventionId = ExternalId.of(SCHEME_NAME, euriborConventionName);
     // Deposit
     final String depositONConventionName = getConventionName(Currency.EUR, DEPOSIT_ON);
-    final DepositConvention depositONConvention = new DepositConvention(depositONConventionName, getIds(Currency.EUR, DEPOSIT_ON), ACT_365, FOLLOWING, 0, false, Currency.EUR, EU);
+    final DepositConvention depositONConvention = new DepositConvention(depositONConventionName, getIds(Currency.EUR, DEPOSIT_ON), ACT_360, FOLLOWING, 0, false, Currency.EUR, EU);
     final String depositConventionName = getConventionName(Currency.EUR, DEPOSIT);
-    final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(Currency.EUR, DEPOSIT), ACT_365, FOLLOWING, 2, false, Currency.EUR, EU);
+    final DepositConvention depositConvention = new DepositConvention(depositConventionName, getIds(Currency.EUR, DEPOSIT), ACT_360, FOLLOWING, 2, false, Currency.EUR, EU);
     // OIS legs
     final String oisFixedLegConventionName = getConventionName(Currency.EUR, OIS_FIXED_LEG);
     final String oisFloatLegConventionName = getConventionName(Currency.EUR, OIS_ON_LEG);
     final Convention oisFixedLegConvention = new SwapFixedLegConvention(oisFixedLegConventionName, getIds(Currency.EUR, OIS_FIXED_LEG),
-        Tenor.ONE_YEAR, ACT_365, MODIFIED_FOLLOWING, Currency.EUR, EU, 2, true, StubType.SHORT_START, false, 2);
+        Tenor.ONE_YEAR, ACT_360, MODIFIED_FOLLOWING, Currency.EUR, EU, 2, true, StubType.SHORT_START, false, 2);
     final Convention oisFloatLegConvention = new OISLegConvention(oisFloatLegConventionName, getIds(Currency.EUR, OIS_ON_LEG), onIndexId,
-        Tenor.ONE_YEAR, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false, 2);
+        Tenor.ONE_YEAR, MODIFIED_FOLLOWING, 2, true, StubType.SHORT_START, false, 2);
     // Ibor swap legs
     final String irsFixedLegConventionName = getConventionName(Currency.EUR, IRS_FIXED_LEG);
-    final String irsLiborLegConventionName = getConventionName(Currency.EUR, tenorString, IRS_IBOR_LEG);
-    final String irsEuriborLegConventionName = getConventionName(Currency.EUR, tenorString, IRS_EURIBOR_LEG);
-    final String irsEuribor3MLegConventionName = getConventionName(Currency.EUR, "3M", IRS_EURIBOR_LEG);
     final Convention irsFixedLegConvention = new SwapFixedLegConvention(irsFixedLegConventionName, getIds(Currency.EUR, IRS_FIXED_LEG),
-        Tenor.SIX_MONTHS, ACT_365, MODIFIED_FOLLOWING, Currency.EUR, EU, 2, true, StubType.SHORT_START, false, 2);
-    final Convention irsLiborLegConvention = new VanillaIborLegConvention(irsLiborLegConventionName, getIds(Currency.EUR, tenorString, IRS_IBOR_LEG),
-        liborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.SIX_MONTHS, 2, true, StubType.NONE, false, 2);
-    final Convention irsEuriborLegConvention = new VanillaIborLegConvention(irsEuriborLegConventionName, getIds(Currency.EUR, tenorString, IRS_EURIBOR_LEG),
-        euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.SIX_MONTHS, 2, true, StubType.NONE, false, 2);
-    final Convention irsEuribor3MLegConvention = new VanillaIborLegConvention(irsEuribor3MLegConventionName, getIds(Currency.EUR, "3M", IRS_EURIBOR_LEG),
-        euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.NONE, false, 2);
+        Tenor.TWELVE_MONTHS, THIRTY_U_360, MODIFIED_FOLLOWING, Currency.EUR, EU, 2, true, StubType.SHORT_START, false, 0);
+    
+    final String irsLibor6MLegConventionName = getConventionName(Currency.EUR, tenorString6M, IRS_IBOR_LEG);
+    final Convention irsLibor6MLegConvention = new VanillaIborLegConvention(irsLibor6MLegConventionName, getIds(Currency.EUR, tenorString6M, IRS_IBOR_LEG),
+        liborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.SIX_MONTHS, 2, true, StubType.NONE, false, 0);
+    
+    final String irsEuribor6MLegConventionName = getConventionName(Currency.EUR, tenorString6M, IRS_EURIBOR_LEG);
+    final Convention irsEuribor6MLegConvention = new VanillaIborLegConvention(irsEuribor6MLegConventionName, getIds(Currency.EUR, tenorString6M, IRS_EURIBOR_LEG),
+        euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.SIX_MONTHS, 2, true, StubType.SHORT_START, false, 0);
+    
+    final String irsEuribor3MLegConventionName = getConventionName(Currency.EUR, tenorString3M, IRS_EURIBOR_LEG);
+    final Convention irsEuribor3MLegConvention = new VanillaIborLegConvention(irsEuribor3MLegConventionName, getIds(Currency.EUR, tenorString3M, IRS_EURIBOR_LEG),
+        euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.SHORT_START, false, 0);
     // X-Ccy OIS
     final Convention oisXCcyUSDLegConvention = new OISLegConvention(OIS_USD_EUR_ON_LEG, getIds(OIS_USD_EUR_ON_LEG), onIndexId,
         Tenor.THREE_MONTHS, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false, 2);
@@ -108,8 +113,8 @@ public class EUConventions {
     conventionMaster.add(oisFixedLegConvention);
     conventionMaster.add(oisFloatLegConvention);
     conventionMaster.add(irsFixedLegConvention);
-    conventionMaster.add(irsLiborLegConvention);
-    conventionMaster.add(irsEuriborLegConvention);
+    conventionMaster.add(irsLibor6MLegConvention);
+    conventionMaster.add(irsEuribor6MLegConvention);
     conventionMaster.add(irsEuribor3MLegConvention);
   }
 
