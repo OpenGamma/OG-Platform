@@ -184,9 +184,7 @@ public class OpenGammaComponentServer {
    */
   protected boolean displayProperty(String configFile, Map<String, String> properties, String property) {
     try {
-      ComponentManager manager = buildManager(configFile, properties);
-      manager.load(configFile);
-      String value = manager.getProperties().get(property);
+      String value = queryProperty(configFile, properties, property);
       if (value == null) {
         System.out.println("NO-SUCH-PROPERTY");
       } else {
@@ -198,6 +196,21 @@ public class OpenGammaComponentServer {
       return false;
     }
     return false;
+  }
+
+  /**
+   * Queries the value of the property from the config files without starting the server.
+   * 
+   * @param configFile  the config file, not null
+   * @param properties  the properties read from the command line, not null
+   * @param property  the property to display, not null
+   * @return the property value, null if no such property
+   * @throws RuntimeException if an error occurs
+   */
+  protected String queryProperty(String configFile, Map<String, String> properties, String property) {
+    ComponentManager manager = buildManager(configFile, properties);
+    manager.load(configFile);
+    return manager.getProperties().get(property);
   }
 
   //-------------------------------------------------------------------------
