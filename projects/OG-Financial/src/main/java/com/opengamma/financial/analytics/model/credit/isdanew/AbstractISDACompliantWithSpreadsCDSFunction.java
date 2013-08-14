@@ -50,6 +50,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
@@ -99,13 +100,11 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
                                     final PointsUpFront puf,
                                     final CDSQuoteConvention quote,
                                     final double notional,
-                                    final
-                                    BuySellProtection buySellProtection,
+                                    final BuySellProtection buySellProtection,
                                     final ISDACompliantYieldCurve yieldCurve,
                                     final CDSAnalytic analytic,
                                     final CDSAnalytic[] curveAnalytics,
                                     final CDSQuoteConvention[] quotes,
-                                    final ZonedDateTime[] bucketDates,
                                     ISDACompliantCreditCurve creditCurve);
 
   @Override
@@ -166,8 +165,13 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     // TODO: Only do this once
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
 
-    final Object result = compute(security.getMaturityDate(), puf, quote, security.getNotional().getAmount(),
-        buySellProtection, yieldCurve, analytic, creditAnalytics, quotes, bucketDates, creditCurve);
+    Object result = compute(security.getMaturityDate(), puf, quote, security.getNotional().getAmount(),
+        buySellProtection, yieldCurve, analytic, creditAnalytics, quotes, creditCurve);
+
+    // slightly hacky way of avoiding passing down tenors which only bucketed cs01 result needs
+    if (getValueRequirement().equals(ValueRequirementNames.BUCKETED_CS01)) {
+      result = new TenorLabelledMatrix1D(spreadObject.getXData(), (double[]) result);
+    }
 
     final ValueProperties properties = desiredValue.getConstraints().copy().get();
     final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);

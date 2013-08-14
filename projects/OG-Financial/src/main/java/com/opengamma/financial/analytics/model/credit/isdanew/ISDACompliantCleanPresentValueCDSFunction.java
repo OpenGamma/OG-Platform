@@ -37,7 +37,6 @@ public class ISDACompliantCleanPresentValueCDSFunction extends AbstractISDACompl
                            final CDSAnalytic analytic,
                            CDSAnalytic[] creditAnalytics,
                            CDSQuoteConvention[] quotes,
-                           final ZonedDateTime[] bucketDates,
                            ISDACompliantCreditCurve creditCurve) {
     return Double.valueOf(puf.getPointsUpFront() * notional);
   }

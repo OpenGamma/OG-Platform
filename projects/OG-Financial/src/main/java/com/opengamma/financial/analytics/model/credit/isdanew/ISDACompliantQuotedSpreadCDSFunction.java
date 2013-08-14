@@ -38,7 +38,6 @@ public class ISDACompliantQuotedSpreadCDSFunction extends AbstractISDACompliantW
                            final CDSAnalytic analytic,
                            CDSAnalytic[] creditAnalytics,
                            CDSQuoteConvention[] quotes,
-                           final ZonedDateTime[] bucketDates,
                            ISDACompliantCreditCurve creditCurve) {
     if (quote instanceof QuotedSpread) {
       return Double.valueOf(((QuotedSpread) quote).getQuotedSpread());

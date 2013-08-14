@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.SpreadSensitivityCalculator;
-import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -43,7 +42,6 @@ public class ISDACompliantBucketedCS01CDSFunction extends AbstractISDACompliantW
                            final CDSAnalytic analytic,
                            final CDSAnalytic[] curveAnalytics,
                            final CDSQuoteConvention[] quotes,
-                           final ZonedDateTime[] bucketDates,
                            ISDACompliantCreditCurve creditCurve) {
     double[] cs01;
     if (quote instanceof PointsUpFront) {

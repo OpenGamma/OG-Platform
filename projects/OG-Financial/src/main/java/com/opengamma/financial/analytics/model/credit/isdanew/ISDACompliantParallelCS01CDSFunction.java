@@ -40,7 +40,6 @@ public class ISDACompliantParallelCS01CDSFunction extends AbstractISDACompliantW
                            final CDSAnalytic[] curveAnalytics,
                            final
                            CDSQuoteConvention[] quotes,
-                           final ZonedDateTime[] bucketDates,
                            ISDACompliantCreditCurve creditCurve) {
     double cs01;
     if (quote instanceof ParSpread) {
