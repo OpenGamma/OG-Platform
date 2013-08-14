@@ -19,6 +19,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.StartupUtils;
 
 /**
@@ -31,6 +32,9 @@ import com.opengamma.util.StartupUtils;
  * A properties file must be in the standard Java format and contain a key "MANAGER.NEXT.FILE"
  * which is the resource location of the main INI file.
  * The INI file is described in {@link ComponentConfigIniLoader}.
+ * <p>
+ * This class is not thread-safe.
+ * A new instance should be created for each thread.
  */
 public class OpenGammaComponentServer {
 
@@ -88,11 +92,14 @@ public class OpenGammaComponentServer {
   //-------------------------------------------------------------------------
   /**
    * Runs the server.
+   * <p>
+   * This takes the same arguments as the standard main method command line.
    * 
    * @param args  the arguments, not null
    * @return true if the server is started, false if there was a problem
    */
   public boolean run(String[] args) {
+    // parse command line
     CommandLine cmdLine;
     try {
       cmdLine = (new PosixParser()).parse(OPTIONS, args);
@@ -101,12 +108,12 @@ public class OpenGammaComponentServer {
       usage();
       return false;
     }
-    
+    // help option
     if (cmdLine.hasOption(HELP_OPTION)) {
       usage();
       return false;
     }
-    
+    // logger option
     int verbosity = 2;
     if (cmdLine.hasOption(VERBOSE_OPTION)) {
       verbosity = 3;
@@ -114,13 +121,15 @@ public class OpenGammaComponentServer {
       verbosity = 0;
     }
     _logger = createLogger(verbosity);
-    
+    // config file
     args = cmdLine.getArgs();
     if (args.length == 0) {
       _logger.logError("No config file specified");
       usage();
       return false;
     }
+    String configFile = args[0];
+    // properties
     Map<String, String> properties = new HashMap<String, String>();
     if (args.length > 1) {
       for (int i = 1; i < args.length; i++) {
@@ -140,15 +149,64 @@ public class OpenGammaComponentServer {
         properties.put(key, value);
       }
     }
-    String configFile = args[0];
-    
+    // run
     if (cmdLine.hasOption(PROPERTY_DISPLAY_OPTION)) {
       return displayProperty(configFile, properties, cmdLine.getOptionValue(PROPERTY_DISPLAY_OPTION));
     } else if (cmdLine.hasOption(LOAD_ONLY_OPTION)) {
       return loadOnly(configFile, properties);
     } else {
-      return run(configFile, properties);
+      return (run(configFile, properties) != null);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Runs the server from application code.
+   * <p>
+   * This is intended for use by applications that wrap the server startup
+   * in another class with its own main method. This would typically be
+   * done to control the set of override properties using code.
+   * <p>
+   * A variety of loggers are provided in {@link ComponentLogger} nested classes.
+   * The {@code ComponentLogger.Console.VERBOSE} logger is used if null is passed in.
+   * 
+   * @param configFile  the configuration file to use, not null
+   * @param properties  the set of override properties to use, not null
+   * @param logger  the logger to use, null uses verbose
+   * @return the component repository, null if there was an error
+   */
+  public ComponentRepository run(String configFile, Map<String, String> properties, ComponentLogger logger) {
+    ArgumentChecker.notNull(configFile, "configFile");
+    ArgumentChecker.notNull(properties, "properties");
+    _logger = (logger != null ? logger : ComponentLogger.Console.VERBOSE);
+    return run(configFile, properties);
+  }
+
+  /**
+   * Initializes a {@code ComponentManager} using a configuration file and properties.
+   * <p>
+   * This is intended for use by applications that wrap this class.
+   * It allows the caller to initialize a {@link ComponentManager} in a manner
+   * identical to that of a standard system startup.
+   * <p>
+   * The manager will have had the {@code load(String)} method called.
+   * It can be queried to see the configuration loaded. It can also be used
+   * to actually start the system using {@code init()} and {@code start()}.
+   * <p>
+   * This method will throw an exception on errors rather than using a logger.
+   * 
+   * @param configFile  the configuration file to use, not null
+   * @param properties  the set of override properties to use, not null
+   * @return the property value, null if no such property
+   * @throws RuntimeException if an error occurs
+   */
+  public ComponentManager createManager(String configFile, Map<String, String> properties) {
+    ArgumentChecker.notNull(configFile, "configFile");
+    ArgumentChecker.notNull(properties, "properties");
+    _logger = ComponentLogger.Throws.INSTANCE;
+    ComponentManager manager = buildManager(configFile, properties);
+    manager.load(configFile);
+    return manager;
   }
 
   //-------------------------------------------------------------------------
@@ -221,25 +279,26 @@ public class OpenGammaComponentServer {
    * @param properties  the properties read from the command line, not null
    * @return true if the server was started, false if there was a problem
    */
-  protected boolean run(String configFile, Map<String, String> properties) {
+  protected ComponentRepository run(String configFile, Map<String, String> properties) {
     long start = System.nanoTime();
     _logger.logInfo("======== STARTING OPENGAMMA ========");
     _logger.logDebug(" Config locator: " + configFile);
     
+    ComponentRepository repo = null;
     try {
       ComponentManager manager = buildManager(configFile, properties);
       serverStarting(manager);
-      manager.start(configFile);
+      repo = manager.start(configFile);
       
     } catch (Exception ex) {
       _logger.logError(ex);
       _logger.logError("======== OPENGAMMA STARTUP FAILED ========");
-      return false;
+      return null;
     }
     
     long end = System.nanoTime();
     _logger.logInfo("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
-    return true;
+    return repo;
   }
 
   //-------------------------------------------------------------------------
