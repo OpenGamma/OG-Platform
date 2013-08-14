@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting;
+package com.opengamma.financial.analytics.model.hullwhitediscounting;
 
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
@@ -46,7 +46,7 @@ public class HullWhiteParRateFunction extends HullWhiteFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context)) {
+    return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,

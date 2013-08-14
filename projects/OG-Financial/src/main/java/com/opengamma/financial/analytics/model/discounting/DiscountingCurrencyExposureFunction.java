@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.multicurve.discounting;
+package com.opengamma.financial.analytics.model.discounting;
 
 import static com.opengamma.engine.value.ValueRequirementNames.FX_CURRENCY_EXPOSURE;
 
@@ -51,7 +51,7 @@ public class DiscountingCurrencyExposureFunction extends DiscountingFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {

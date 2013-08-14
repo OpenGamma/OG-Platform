@@ -41,7 +41,7 @@ public class ExposureFunctionFactory {
     if ("Security Type".equals(name)) {
       return new SecurityTypeExposureFunction();
     }
-    if ("Underlying Security".equals(name)) {
+    if ("Underlying".equals(name)) {
       return new UnderlyingExposureFunction(securitySource);
     }
     throw new OpenGammaRuntimeException("Could not get exposure function called " + name);

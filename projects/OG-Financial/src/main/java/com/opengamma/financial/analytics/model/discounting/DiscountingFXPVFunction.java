@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.multicurve.discounting;
+package com.opengamma.financial.analytics.model.discounting;
 
 import static com.opengamma.engine.value.ValueRequirementNames.FX_PRESENT_VALUE;
 

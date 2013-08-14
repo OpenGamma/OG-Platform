@@ -10,16 +10,16 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingCurrencyExposureFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingFXPVFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingPV01Function;
-import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingPVFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingParRateFunction;
-import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingYCNSFunction;
-import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhitePV01Function;
-import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhitePVFunction;
-import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhiteParRateFunction;
-import com.opengamma.financial.analytics.model.multicurve.hullwhitediscounting.HullWhiteYCNSFunction;
+import com.opengamma.financial.analytics.model.discounting.DiscountingCurrencyExposureFunction;
+import com.opengamma.financial.analytics.model.discounting.DiscountingFXPVFunction;
+import com.opengamma.financial.analytics.model.discounting.DiscountingPV01Function;
+import com.opengamma.financial.analytics.model.discounting.DiscountingPVFunction;
+import com.opengamma.financial.analytics.model.discounting.DiscountingParRateFunction;
+import com.opengamma.financial.analytics.model.discounting.DiscountingYCNSFunction;
+import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhitePV01Function;
+import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhitePVFunction;
+import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhiteParRateFunction;
+import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhiteYCNSFunction;
 
 /**
  *

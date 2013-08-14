@@ -65,7 +65,7 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final Period period = Period.ofMonths(3); //TODO
     final double paymentAccrualFactor = getAccrualFactor(period);
-    final int spotLag = 0; //TODO
+    final int spotLag = iborIndexConvention.getSettlementDays();
     final IborIndex iborIndex = new IborIndex(currency, period, spotLag, iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     final double notional = security.getUnitAmount() / paymentAccrualFactor;

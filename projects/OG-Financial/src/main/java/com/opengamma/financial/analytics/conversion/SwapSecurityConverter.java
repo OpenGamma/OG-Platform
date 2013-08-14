@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import static com.opengamma.financial.convention.percurrency.EUConventions.EURIBOR;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_FIXED_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_IBOR_LEG;
@@ -128,15 +129,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final ExternalId regionId = payLeg.getRegionId();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
-    String iborConventionName = getConventionName(currency, IBOR);
-    IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-    if (iborIndexConvention == null) {
-      iborConventionName = getConventionName(currency, LIBOR); //TODO shouldn't just use Libor
-      iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-      if (iborIndexConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get Ibor index convention with the identifier " + ExternalId.of(SCHEME_NAME, iborConventionName));
-      }
-    }
+    final IborIndexConvention iborIndexConvention = getIborLegConvention(currency);
     final Frequency freqIbor = iborLeg.getFrequency();
     final Period tenorIbor = getTenor(freqIbor);
     final int spotLag = iborIndexConvention.getSettlementDays();
@@ -154,6 +147,25 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, maturityDate, tenorFixed, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(),
         fixedLegNotional, fixedLeg.getRate(), tenorIbor, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), iborLegNotional, indexIbor, payFixed, calendar);
     return swap;
+  }
+
+  private IborIndexConvention getIborLegConvention(final Currency currency) {
+    String iborConventionName = getConventionName(currency, EURIBOR);
+    IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+    if (iborIndexConvention != null) {
+      return iborIndexConvention;
+    }
+    iborConventionName = getConventionName(currency, LIBOR);
+    iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+    if (iborIndexConvention != null) {
+      return iborIndexConvention;
+    }
+    iborConventionName = getConventionName(currency, IBOR);
+    iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+    if (iborIndexConvention != null) {
+      return iborIndexConvention;
+    }
+    throw new OpenGammaRuntimeException("Could not get ibor index convention with the identifier " + ExternalId.of(SCHEME_NAME, iborConventionName));
   }
 
   private SwapDefinition getFixedOISSwapDefinition(final SwapSecurity swapSecurity, final boolean payFixed, final boolean forCurve) {

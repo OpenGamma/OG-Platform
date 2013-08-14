@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.multicurve.discounting;
+package com.opengamma.financial.analytics.model.discounting;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
@@ -84,7 +84,7 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
         final MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, curves, blocks);
         final Set<ComputedValue> results = new HashSet<>();
         boolean curveNameFound = false;
-        final ValueProperties blockProperties = getResultProperties(target).get();
+        final ValueProperties blockProperties = getResultProperties(target).withoutAny(CURVE).get();
         final ValueSpecification spec = new ValueSpecification(BLOCK_CURVE_SENSITIVITIES, target.toSpecification(), blockProperties);
         results.add(new ComputedValue(spec, sensitivities));
         for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivities.getSensitivities().entrySet()) {

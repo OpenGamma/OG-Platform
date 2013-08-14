@@ -49,20 +49,22 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
     }
     final List<String> exposureFunctionNames = exposures.getExposureFunctions();
     List<ExternalId> ids = null;
+    final Set<String> curveConstructionConfigurationNames = new HashSet<>();
     for (final String exposureFunctionName : exposureFunctionNames) {
       final ExposureFunction exposureFunction = ExposureFunctionFactory.getExposureFunction(_securitySource, exposureFunctionName);
       ids = security.accept(exposureFunction);
       if (ids != null) {
-        final Set<String> curveConstructionConfigurationNames = new HashSet<>();
         final Map<ExternalId, String> idsToNames = exposures.getIdsToNames();
         for (final ExternalId id : ids) {
           final String name = idsToNames.get(id);
           if (name == null) {
-            throw new OpenGammaRuntimeException("Could not get curve construction configuration name for " + id);
+            break;
           }
           curveConstructionConfigurationNames.add(name);
         }
-        return curveConstructionConfigurationNames;
+        if (!curveConstructionConfigurationNames.isEmpty()) {
+          return curveConstructionConfigurationNames;
+        }
       }
     }
     throw new OpenGammaRuntimeException("Could not get ids for " + security + " from " + instrumentExposureConfigurationName);
