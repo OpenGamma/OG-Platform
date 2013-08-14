@@ -5,11 +5,17 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+
 /**
  * 
  */
-public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvider {
+public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvider1D {
 
+  /**
+   * @param strike Strike price
+   * @param steps Number of steps
+   * @param isCall True if call, false if put
+   */
   public AmericanVanillaOptionFunctionProvider(final double strike, final int steps, final boolean isCall) {
     super(strike, steps, isCall);
   }
