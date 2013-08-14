@@ -25,6 +25,8 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -75,6 +77,12 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
   private static final String UNIQUE_ID = "UNIQUE_ID";
   private static final String REGION = "REGION";
   private static final String REGION_SCHEME = "REGION_SCHEME";
+  
+  // REVIEW kirk 2013-08-14 -- This is absolutely the wrong place for this.
+  /**
+   * The identifier scheme that should be used for all ISDA holiday identifiers (like USNY or AUSY).
+   */
+  public static final ExternalScheme ISDA_HOLIDAY_SCHEME = ExternalScheme.of("ISDA_HOLIDAY");
   
   /**
    * The default scheme for unique identifiers.
@@ -176,6 +184,9 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
     ArgumentChecker.notNull(holiday, "holiday");
     
     UniqueId uniqueId = (holiday.getUniqueId() == null) ? generateUniqueId() : holiday.getUniqueId();
+    if (holiday instanceof MutableUniqueIdentifiable) {
+      ((MutableUniqueIdentifiable) holiday).setUniqueId(uniqueId);
+    }
     try (Timer.Context context = _putTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       try {
