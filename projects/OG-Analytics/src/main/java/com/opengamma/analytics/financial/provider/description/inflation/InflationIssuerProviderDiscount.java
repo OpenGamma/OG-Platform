@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
@@ -42,7 +42,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    */
   public InflationIssuerProviderDiscount() {
     _inflationProvider = new InflationProviderDiscount();
-    _issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+    _issuerCurves = new LinkedHashMap<>();
   }
 
   /**
@@ -51,7 +51,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    */
   public InflationIssuerProviderDiscount(final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(fxMatrix);
-    _issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>();
+    _issuerCurves = new LinkedHashMap<>();
   }
 
   /**
@@ -82,8 +82,8 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
 
   @Override
   public InflationIssuerProviderDiscount copy() {
-    InflationProviderDiscount inflationProvider = _inflationProvider.copy();
-    final LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve>(_issuerCurves);
+    final InflationProviderDiscount inflationProvider = _inflationProvider.copy();
+    final LinkedHashMap<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<>(_issuerCurves);
     return new InflationIssuerProviderDiscount(inflationProvider, issuerCurves);
   }
 
@@ -102,11 +102,11 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   }
 
   public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
-    setCurve(new ObjectsPair<String, Currency>(issuer, ccy), curve);
+    setCurve(new ObjectsPair<>(issuer, ccy), curve);
   }
 
   @Override
-  public double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time) {
+  public double getDiscountFactor(final Pair<String, Currency> issuerCcy, final Double time) {
     return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
   }
 
@@ -168,7 +168,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * Replaces the discounting curve for a price index.
    * @param index The price index.
    * @param curve The price curve for the index.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
     _inflationProvider.replaceCurve(index, curve);
@@ -279,7 +279,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     _inflationProvider.replaceCurve(ccy, curve);
@@ -289,7 +289,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * Replaces the forward curve for a given index.
    * @param index The index.
    * @param curve The yield curve used for forward.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _inflationProvider.replaceCurve(index, curve);
@@ -316,7 +316,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * Returns all curves names. The order is the natural order of String.
    */
   public Set<String> getAllNames() {
-    final Set<String> names = new TreeSet<String>();
+    final Set<String> names = new TreeSet<>();
     names.addAll(_inflationProvider.getAllNames());
     final Set<Pair<String, Currency>> issuerSet = _issuerCurves.keySet();
     for (final Pair<String, Currency> issuer : issuerSet) {
@@ -339,7 +339,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   //     =====     Convenience methods     =====
 
   @Override
-  public InflationProviderInterface withDiscountFactor(Currency ccy, Pair<String, Currency> replacement) {
+  public InflationProviderInterface withDiscountFactor(final Currency ccy, final Pair<String, Currency> replacement) {
     return _inflationProvider.withDiscountFactor(ccy, _issuerCurves.get(replacement));
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -36,8 +36,8 @@ public abstract class CalibrationEngineWithPrices<DATA_TYPE extends ParameterPro
    * @param ccy The unique currency in which all present values are converted.
    */
   public CalibrationEngineWithPrices(final FXMatrix fxMatrix, final Currency ccy) {
-    _basket = new ArrayList<InstrumentDerivative>();
-    _calibrationPrices = new ArrayList<Double>();
+    _basket = new ArrayList<>();
+    _calibrationPrices = new ArrayList<>();
   }
 
   /**

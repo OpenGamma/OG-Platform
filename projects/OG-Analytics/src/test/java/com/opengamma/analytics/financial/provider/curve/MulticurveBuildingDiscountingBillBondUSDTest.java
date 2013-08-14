@@ -73,9 +73,6 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
 
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  //  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-  //      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
   private static final double TOLERANCE_ROOT = 1.0E-10;
   private static final int STEP_MAX = 100;

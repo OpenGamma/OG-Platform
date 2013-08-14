@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -29,7 +29,7 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
   /**
    * The list of calibration times.
    */
-  private final List<Double> _calibrationTimes = new ArrayList<Double>();
+  private final List<Double> _calibrationTimes = new ArrayList<>();
 
   /**
    * The calibration objective.
@@ -40,7 +40,7 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveRootFinderG2ppCalibrationEngine(SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
+  public SuccessiveRootFinderG2ppCalibrationEngine(final SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
     super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
     _calibrationObjective = calibrationObjective;
   }
@@ -72,24 +72,24 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
    */
   @Override
   public void addInstrument(final InstrumentDerivative[] instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
-    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      Validate.isTrue(instrument[loopinstrument] instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
-      getBasket().add(instrument[loopinstrument]);
+    for (final InstrumentDerivative element : instrument) {
+      Validate.isTrue(element instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
+      getBasket().add(element);
       getMethod().add(calculator);
       getCalibrationPrices().add(0.0);
-      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
+      _calibrationTimes.add(((CapFloorIbor) element).getFixingTime());
     }
   }
 
   @Override
-  public void calibrate(DATA_TYPE data) {
+  public void calibrate(final DATA_TYPE data) {
     computeCalibrationPrice(data);
     _calibrationObjective.setMulticurves(data.getMulticurveProvider());
-    int nbInstruments = getBasket().size();
+    final int nbInstruments = getBasket().size();
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(_calibrationObjective.getFunctionValueAccuracy(), _calibrationObjective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      InstrumentDerivative instrument = getBasket().get(loopins);
+      final InstrumentDerivative instrument = getBasket().get(loopins);
       _calibrationObjective.setInstrument(instrument);
       _calibrationObjective.setPrice(getCalibrationPrices().get(loopins));
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());

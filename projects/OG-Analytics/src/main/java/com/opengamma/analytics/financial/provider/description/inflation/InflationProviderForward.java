@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
@@ -48,7 +48,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    */
   public InflationProviderForward() {
     _multicurveProvider = new MulticurveProviderForward();
-    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _priceIndexCurves = new LinkedHashMap<>();
     setInflationCurves();
   }
 
@@ -58,7 +58,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    */
   public InflationProviderForward(final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderForward(fxMatrix);
-    _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
+    _priceIndexCurves = new LinkedHashMap<>();
     setInflationCurves();
   }
 
@@ -89,7 +89,7 @@ public class InflationProviderForward implements InflationProviderInterface {
   }
 
   private void setInflationCurves() {
-    _allCurves = new LinkedHashMap<String, PriceIndexCurve>();
+    _allCurves = new LinkedHashMap<>();
 
     final Set<IndexPrice> indexSet = _priceIndexCurves.keySet();
     for (final IndexPrice index : indexSet) {
@@ -102,7 +102,7 @@ public class InflationProviderForward implements InflationProviderInterface {
   @Override
   public InflationProviderForward copy() {
     final MulticurveProviderForward multicurveProvider = _multicurveProvider.copy();
-    final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
+    final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<>(_priceIndexCurves);
     return new InflationProviderForward(multicurveProvider, priceIndexCurves);
   }
 
@@ -248,7 +248,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * Returns all curves names. The order is the natural order of String.
    */
   public Set<String> getAllNames() {
-    final Set<String> names = new TreeSet<String>();
+    final Set<String> names = new TreeSet<>();
     names.addAll(_multicurveProvider.getAllNames());
     final Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
     for (final IndexPrice price : priceSet) {

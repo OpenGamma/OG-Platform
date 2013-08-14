@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -28,17 +28,17 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentExpiryIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentExpiryIndex = new ArrayList<>();
 
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentStrikeIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentStrikeIndex = new ArrayList<>();
 
   /**
    * The list of calibration times.
    */
-  private final List<Double> _calibrationTimes = new ArrayList<Double>();
+  private final List<Double> _calibrationTimes = new ArrayList<>();
 
   /**
    * The calibration objective.
@@ -85,7 +85,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
     }
 
     if (instrument instanceof Annuity) {
-      final Annuity annuity = (Annuity) instrument;
+      final Annuity<?> annuity = (Annuity<?>) instrument;
       ArgumentChecker.isTrue((annuity.getNthPayment(annuity.getNumberOfPayments() - 1) instanceof CapFloorInflationYearOnYearInterpolation) ||
           (annuity.getNthPayment(annuity.getNumberOfPayments() - 1) instanceof CapFloorInflationYearOnYearMonthly),
           "Instrument should be cap inflation year on year.");

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -18,17 +19,63 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing a provider with multi-curves and issuer specific curves.
- * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
+ * The forward rate are computed as the ratio of discount factors stored in {@link YieldAndDiscountCurve}.
  */
 public class IssuerProviderDiscount extends IssuerProvider {
 
   /**
-   * Constructor from exiting multicurveProvider and issuer map. The given provider and map are used for the new provider (the same maps are used, not copied).
+   * Constructs an empty multi-curve provider and issuer curve map.
+   */
+  public IssuerProviderDiscount() {
+    super();
+  }
+
+  /**
+   * Constructs and empty multi-curve provider and issuer curve map.
+   * @param fxMatrix The FX matrix, not null
+   */
+  public IssuerProviderDiscount(final FXMatrix fxMatrix) {
+    super(fxMatrix);
+  }
+
+  /**
+   * @param discountingCurves A map from currency to yield curve, not null
+   * @param forwardIborCurves A map from ibor index to yield curve, not null
+   * @param forwardONCurves A map from overnight index to yield curve, not null
+   * @param fxMatrix The FX matrix, not null
+   */
+  public IssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final FXMatrix fxMatrix) {
+    super(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
+  }
+
+  /**
+   * @param discountingCurves A map from currency to yield curve, not null
+   * @param forwardIborCurves A map from ibor index to yield curve, not null
+   * @param forwardONCurves A map from overnight index to yield curve, not null
+   * @param issuerCurves The issuer curves, not null
+   * @param fxMatrix The FX matrix, not null
+   */
+  public IssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
+    super(discountingCurves, forwardIborCurves, forwardONCurves, issuerCurves, fxMatrix);
+  }
+
+  /**
+   * Constructor from exiting multi-curve provider and issuer map. The given provider and map are used for the new provider (the same maps are used, not copied).
    * @param multicurve The multi-curves provider.
    * @param issuerCurves The issuer specific curves.
    */
   public IssuerProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
     super(multicurve, issuerCurves);
+  }
+
+  /**
+   * Constructs a provider from an existing multi-curve provider. The maps are not copied
+   * @param multicurve The multi-curve provider, notn ull
+   */
+  public IssuerProviderDiscount(final MulticurveProviderDiscount multicurve) {
+    super(multicurve);
   }
 
   @Override
