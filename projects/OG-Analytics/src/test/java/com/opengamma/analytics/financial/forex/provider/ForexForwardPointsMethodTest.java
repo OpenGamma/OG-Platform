@@ -43,7 +43,7 @@ import com.opengamma.util.tuple.ObjectsPair;
  */
 public class ForexForwardPointsMethodTest {
 
-  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
+  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesEURUSD();
 
   private static final String NOT_USED = "Not used";
   private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
@@ -61,8 +61,17 @@ public class ForexForwardPointsMethodTest {
 
   private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
 
+  private static final ForexDefinition FX_INDIRECT_DEFINITION = new ForexDefinition(CUR_2, CUR_1, PAYMENT_DATE, -NOMINAL_1 * FX_RATE, 1.0d / FX_RATE);
+  private static final Forex FX_INDIRECT = FX_INDIRECT_DEFINITION.toDerivative(REFERENCE_DATE);
+
   private static final double[] MARKET_QUOTES_PTS = new double[] {0.000001, 0.000002, 0.0004, 0.0009, 0.0015, 0.0020, 0.0036, 0.0050 };
   private static final int NB_MARKET_QUOTES = MARKET_QUOTES_PTS.length;
+  private static final double[] MARKET_QUOTES_FWD = new double[NB_MARKET_QUOTES];
+  static {
+    for (int loopt = 0; loopt < NB_MARKET_QUOTES; loopt++) {
+      MARKET_QUOTES_FWD[loopt] = MARKET_QUOTES_PTS[loopt] + FX_RATE;
+    }
+  }
   private static final Period[] MARKET_QUOTES_TENOR = new Period[] {Period.ofDays(-2), Period.ofDays(-1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3),
     Period.ofMonths(6), Period.ofMonths(9), Period.ofMonths(12) };
   private static final ZonedDateTime[] MARKET_QUOTES_DATE = new ZonedDateTime[NB_MARKET_QUOTES];
@@ -75,7 +84,7 @@ public class ForexForwardPointsMethodTest {
   }
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final InterpolatedDoublesCurve FWD_PTS = new InterpolatedDoublesCurve(MARKET_QUOTES_TIME, MARKET_QUOTES_PTS, LINEAR_FLAT, true);
+  private static final InterpolatedDoublesCurve FWD_PTS = new InterpolatedDoublesCurve(MARKET_QUOTES_TIME, MARKET_QUOTES_FWD, LINEAR_FLAT, true);
   private static final MulticurveForwardPointsProviderDiscount MULTICURVES_FWD =
       new MulticurveForwardPointsProviderDiscount(MULTICURVES, FWD_PTS, new ObjectsPair<>(CUR_1, CUR_2));
 
@@ -95,19 +104,32 @@ public class ForexForwardPointsMethodTest {
   /**
    * Tests the present value computation.
    */
-  public void presentValue() {
-    final double fxRate = MULTICURVES.getFxRate(CUR_1, CUR_2);
+  public void presentValueDirectOrder() {
+    //    final double fxRate = MULTICURVES.getFxRate(CUR_1, CUR_2);
     final double payTime = FX.getPaymentTime();
-    final double fwdPts = FWD_PTS.getYValue(payTime);
+    final double fwdRate = FWD_PTS.getYValue(payTime);
     final double amount1 = NOMINAL_1;
     final double amount2 = -NOMINAL_1 * FX_RATE;
     final double df2 = MULTICURVES.getDiscountFactor(CUR_2, payTime);
-    final double pvExpected = df2 * (amount2 + amount1 * (fxRate + fwdPts));
+    final double pvExpected = df2 * (amount2 + amount1 * fwdRate);
     final MultipleCurrencyAmount pvComputed = METHOD_FX_PTS.presentValue(FX, MULTICURVES, FWD_PTS);
     assertEquals("ForexForwardPointsMethod: presentValue", 1, pvComputed.size());
     assertEquals("ForexForwardPointsMethod: presentValue", pvExpected, pvComputed.getAmount(CUR_2), TOLERANCE_PV);
     final MultipleCurrencyAmount pvComputed2 = METHOD_FX_PTS.presentValue(FX, MULTICURVES_FWD);
     assertEquals("ForexForwardPointsMethod: presentValue", pvComputed.getAmount(CUR_2), pvComputed2.getAmount(CUR_2), TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+   * Tests the present value computation.
+   */
+  public void presentValueOppositeOrder() {
+    final MultipleCurrencyAmount pvComputedIndirect = METHOD_FX_PTS.presentValue(FX_INDIRECT, MULTICURVES, FWD_PTS);
+    final MultipleCurrencyAmount pvComputedDirect = METHOD_FX_PTS.presentValue(FX, MULTICURVES, FWD_PTS);
+    assertEquals("ForexForwardPointsMethod: presentValue", 1, pvComputedIndirect.size());
+    assertEquals("ForexForwardPointsMethod: presentValue", pvComputedIndirect.getAmount(CUR_2), pvComputedDirect.getAmount(CUR_2), TOLERANCE_PV);
+    final MultipleCurrencyAmount pvComputed2 = METHOD_FX_PTS.presentValue(FX_INDIRECT, MULTICURVES_FWD);
+    assertEquals("ForexForwardPointsMethod: presentValue", pvComputedIndirect.getAmount(CUR_2), pvComputed2.getAmount(CUR_2), TOLERANCE_PV);
   }
 
   @Test
@@ -127,11 +149,11 @@ public class ForexForwardPointsMethodTest {
   public void currencyExposure() {
     final double fxRate = MULTICURVES.getFxRate(CUR_1, CUR_2);
     final double payTime = FX.getPaymentTime();
-    final double fwdPts = FWD_PTS.getYValue(payTime);
+    final double fwdRate = FWD_PTS.getYValue(payTime);
     final double amount1 = NOMINAL_1;
     final double amount2 = -NOMINAL_1 * FX_RATE;
     final double df2 = MULTICURVES.getDiscountFactor(CUR_2, payTime);
-    final double ce1 = amount1 * df2 * (1.0d + fwdPts / fxRate);
+    final double ce1 = amount1 * df2 * (fwdRate / fxRate);
     final double ce2 = amount2 * df2;
     MultipleCurrencyAmount ceExpected = MultipleCurrencyAmount.of(CUR_1, ce1);
     ceExpected = ceExpected.plus(CUR_2, ce2);
@@ -153,7 +175,7 @@ public class ForexForwardPointsMethodTest {
     final double[] fpsExpected = new double[NB_MARKET_QUOTES];
     final double shift = 1.0E-6;
     for (int loopt = 0; loopt < NB_MARKET_QUOTES; loopt++) {
-      final double[] mqpShift = MARKET_QUOTES_PTS.clone();
+      final double[] mqpShift = MARKET_QUOTES_FWD.clone();
       mqpShift[loopt] += shift;
       final InterpolatedDoublesCurve fwdPtsShift = new InterpolatedDoublesCurve(MARKET_QUOTES_TIME, mqpShift, LINEAR_FLAT, true);
       final MultipleCurrencyAmount pvShift = METHOD_FX_PTS.presentValue(FX, MULTICURVES, fwdPtsShift);
@@ -173,6 +195,13 @@ public class ForexForwardPointsMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod1 = METHOD_FX_PTS.presentValueCurveSensitivity(FX, MULTICURVES, FWD_PTS);
     final MultipleCurrencyMulticurveSensitivity pvcsMethod2 = METHOD_FX_PTS.presentValueCurveSensitivity(FX, MULTICURVES_FWD);
+    AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  public void presentValueCurveSensitivityIndirectOrderMethodVsCalculator() {
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod1 = METHOD_FX_PTS.presentValueCurveSensitivity(FX_INDIRECT, MULTICURVES, FWD_PTS);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod2 = METHOD_FX_PTS.presentValueCurveSensitivity(FX_INDIRECT, MULTICURVES_FWD);
     AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
   }
 
