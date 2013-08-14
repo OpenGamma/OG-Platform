@@ -27,11 +27,20 @@ public abstract class TreeOptionPricingModel {
   //    }
   //  }
 
-  public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider function, final double spot, final double timeToExpiry, final double volatility,
+  public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
       final double interestRate, final double dividend);
 
-  public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider function, final double spot, final double timeToExpiry, final double volatility,
+  /*
+   * TODO this time-varying vol model is NOT yet tested PLAT-4289
+   */
+  public abstract double getPrice(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
+      final double[] dividend);
+
+  public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
       final double interestRate, final double dividend);
+
+  public abstract GreekResultCollection getGreeks(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
+      final double[] dividend);
 
   /*
    * TODO Following options are NOT yet supported

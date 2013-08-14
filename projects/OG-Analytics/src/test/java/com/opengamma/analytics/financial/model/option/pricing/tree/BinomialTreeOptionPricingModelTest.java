@@ -18,7 +18,7 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ * TODO Test barrier option with nonzero dividend against analytic formula
  */
 public class BinomialTreeOptionPricingModelTest {
 
@@ -113,6 +113,134 @@ public class BinomialTreeOptionPricingModelTest {
                   final double refDiv = Math.max(exactDiv, 1.) / Math.sqrt(nSteps);
                   //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + "\t" + dividend + "\t" + nSteps + "\t" + isCall);
                   assertEquals(resDiv, exactDiv, refDiv);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void EuropeanPriceLatticeNewMethodTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              for (final double dividend : DIVIDENDS) {
+                final int[] choicesSteps = new int[] {11, 105 };
+                for (final int nSteps : choicesSteps) {
+                  final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, nSteps, isCall);
+                  final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final double resOld = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+                  //                  System.out.println(resNew + "\t" + resOld);
+                  assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void AmericanPriceLatticeNewMethodTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              for (final double dividend : DIVIDENDS) {
+                final int[] choicesSteps = new int[] {11, 105 };
+                for (final int nSteps : choicesSteps) {
+                  final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, nSteps, isCall);
+                  final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final double resOld = _model.getAmericanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
+                  //                    System.out.println(resNew + "\t" + resOld);
+                  assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void barrierEuropeanNewMethodTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+    //    new LogEqualProbabiliesLatticeSpecification()  //removed
+
+    final double[] vols = new double[] {0.02, 0.09 };
+
+    final double[] barrierSet = new double[] {90, 121 };
+    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final double barrier : barrierSet) {
+      for (final String type : typeSet) {
+        final BinomialTreeOptionPricingModel modelB = new BinomialTreeOptionPricingModel(barrier, type);
+        for (final LatticeSpecification lattice : lattices) {
+          for (final boolean isCall : tfSet) {
+            for (final double strike : STRIKES) {
+              for (final double interest : INTERESTS) {
+                for (final double vol : vols) {
+                  final int[] choicesSteps = new int[] {11, 105 };
+                  for (final int nSteps : choicesSteps) {
+                    final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+                        EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                    final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, 0.);
+                    final double resOld = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
+                    assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void barrierAmericanNewMethodTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+    //    new LogEqualProbabiliesLatticeSpecification()  //removed
+
+    final double[] vols = new double[] {0.02, 0.09 };
+
+    final double[] barrierSet = new double[] {90, 121 };
+    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final double barrier : barrierSet) {
+      for (final String type : typeSet) {
+        final BinomialTreeOptionPricingModel modelB = new BinomialTreeOptionPricingModel(barrier, type);
+        for (final LatticeSpecification lattice : lattices) {
+          for (final boolean isCall : tfSet) {
+            for (final double strike : STRIKES) {
+              for (final double interest : INTERESTS) {
+                for (final double vol : vols) {
+                  final int[] choicesSteps = new int[] {11, 105 };
+                  for (final int nSteps : choicesSteps) {
+                    final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+                        AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                    final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, 0.);
+                    final double resOld = modelB.getAmericanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
+                    assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
+                  }
                 }
               }
             }
@@ -500,7 +628,6 @@ public class BinomialTreeOptionPricingModelTest {
         }
       }
     }
-
   }
 
   @Test
