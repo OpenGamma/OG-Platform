@@ -212,7 +212,7 @@ public class CachingExecutionPlanner implements GraphExecutionPlanner {
     final Element element = _cache.get(key);
     if (element != null) {
       s_logger.debug("Cache hit");
-      return (GraphExecutionPlan) element.getObjectValue();
+      return ((GraphExecutionPlan) element.getObjectValue()).withCalculationConfiguration(graph.getCalculationConfigurationName());
     } else {
       s_logger.debug("Cache miss");
       final GraphExecutionPlan plan = _underlying.createPlan(graph, logModeSource, functionInitId);
