@@ -39,6 +39,25 @@ public final class BusinessDayConventionFactory {
    */
   private final Collection<BusinessDayConvention> _conventions;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static BusinessDayConvention of(final String name) {
+    BusinessDayConvention result = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown BusinessDayConvention: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */
@@ -71,7 +90,6 @@ public final class BusinessDayConventionFactory {
    * @param name name of the convention to load.
    * @return convention with the specified name.
    */
-  @FromString
   public BusinessDayConvention getBusinessDayConvention(final String name) {
     return _conventionMap.get(name.toLowerCase());
   }

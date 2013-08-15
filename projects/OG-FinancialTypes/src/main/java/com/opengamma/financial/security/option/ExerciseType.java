@@ -52,7 +52,7 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
     ArgumentChecker.notNull(name, "name");
     ExerciseType type = CACHE.get(name);
     if (type == null) {
-      throw new IllegalArgumentException("Unknown ExerciseType name: " + name);
+      throw new IllegalArgumentException("Unknown ExerciseType: " + name);
     }
     return type;
   }

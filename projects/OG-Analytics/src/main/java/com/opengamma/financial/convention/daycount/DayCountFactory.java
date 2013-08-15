@@ -40,6 +40,25 @@ public final class DayCountFactory {
    */
   private final Collection<DayCount> _conventions;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static DayCount of(final String name) {
+    DayCount result = DayCountFactory.INSTANCE.getDayCount(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown DayCount: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory
    */
@@ -74,7 +93,6 @@ public final class DayCountFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
-  @FromString
   public DayCount getDayCount(final String name) {
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }

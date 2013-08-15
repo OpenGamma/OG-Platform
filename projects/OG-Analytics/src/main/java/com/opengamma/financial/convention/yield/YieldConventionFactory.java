@@ -28,6 +28,25 @@ public final class YieldConventionFactory {
    */
   private final Map<String, YieldConvention> _conventionMap = new HashMap<String, YieldConvention>();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static YieldConvention of(final String name) {
+    YieldConvention result = YieldConventionFactory.INSTANCE.getYieldConvention(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown YieldConvention: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */
@@ -95,7 +114,6 @@ public final class YieldConventionFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
-  @FromString
   public YieldConvention getYieldConvention(final String name) {
     ArgumentChecker.notNull(name, "name");
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));

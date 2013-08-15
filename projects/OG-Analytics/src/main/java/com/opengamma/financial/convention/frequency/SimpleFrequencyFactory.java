@@ -42,6 +42,25 @@ public final class SimpleFrequencyFactory {
    */
   private final List<SimpleFrequency> _frequencies = Lists.newArrayList();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static SimpleFrequency of(final String name) {
+    SimpleFrequency result = SimpleFrequencyFactory.INSTANCE.getFrequency(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown SimpleFrequency: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */
@@ -121,7 +140,6 @@ public final class SimpleFrequencyFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
-  @FromString
   public SimpleFrequency getFrequency(final String name) {
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }

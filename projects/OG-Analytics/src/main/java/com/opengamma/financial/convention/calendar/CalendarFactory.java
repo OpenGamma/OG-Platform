@@ -38,6 +38,25 @@ public final class CalendarFactory {
   private final Map<String, Calendar> _calendarMap = new HashMap<String, Calendar>();
   private final Map<String, Calendar> _countryMap = new HashMap<String, Calendar>();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static Calendar of(final String name) {
+    Calendar result = CalendarFactory.INSTANCE.getCalendar(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown Calendar: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */
