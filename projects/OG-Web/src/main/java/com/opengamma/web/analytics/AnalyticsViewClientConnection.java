@@ -159,7 +159,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * Disconects from the engine and releases all resources. This should only be called once.
+   * Disconnects from the engine and releases all resources. This should only be called once.
    */
   /* package */ void close() {
     try {
