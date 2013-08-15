@@ -127,7 +127,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), spreads, security.getParSpread(), quoteConvention, false);
 
     // spreads
-    NodalTenorDoubleCurve pillarObject = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
+    NodalTenorDoubleCurve pillarObject = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.PILLAR_SPREADS);
     if (pillarObject == null) {
       throw new OpenGammaRuntimeException("Unable to get pillars");
     }
@@ -365,7 +365,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     double cs01;
     if (quote instanceof ParSpread) {
       cs01 = CALCULATOR.parallelCS01FromParSpreads(analytic,
-                                               quote.getCoupon(),
+                                               quote.getCoupon(), // ParSpread
                                                yieldCurve,
                                                pillars,
                                                pillarSpreads,
