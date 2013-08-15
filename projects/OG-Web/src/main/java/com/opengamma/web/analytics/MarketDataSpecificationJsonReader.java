@@ -87,7 +87,7 @@ public class MarketDataSpecificationJsonReader {
     MarketDataSpecification build(JSONObject json) throws JSONException;
   }
 
-  /** Builds intances of {@link LiveMarketDataSpecification}. */
+  /** Builds instances of {@link LiveMarketDataSpecification}. */
   private static class LiveSpecificationBuilder implements SpecificationBuilder {
 
     @Override
@@ -96,7 +96,7 @@ public class MarketDataSpecificationJsonReader {
     }
   }
 
-  /** Builds intances of {@link LatestHistoricalMarketDataSpecification}. */
+  /** Builds instances of {@link LatestHistoricalMarketDataSpecification}. */
   private static class LatestHistoricalSpecificationBuilder implements SpecificationBuilder {
 
     @Override
