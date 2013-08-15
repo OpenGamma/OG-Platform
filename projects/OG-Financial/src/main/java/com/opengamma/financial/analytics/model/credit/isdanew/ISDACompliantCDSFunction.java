@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.credit.isdanew;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -15,7 +16,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
@@ -29,6 +29,8 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.SpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
@@ -52,7 +54,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
-import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
@@ -67,26 +68,24 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+
+//TODO Check bucketed cs01 in desired outputs before calcing as expensive
 
 /**
  * Abstract class for cds functions that require ISDA and spread curves.
  */
-public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCompiledInvoker {
+public class ISDACompliantCDSFunction extends NonCompiledInvoker {
 
-  private final String _valueRequirement;
-  private static double s_tenminus4 = 1e-4; // fractional 1 BPS
+  private final String[] _valueRequirements = new String[] {ValueRequirementNames.ACCRUED_DAYS, ValueRequirementNames.ACCRUED_PREMIUM,
+    ValueRequirementNames.POINTS_UPFRONT, ValueRequirementNames.CLEAN_PRESENT_VALUE, ValueRequirementNames.DIRTY_PRESENT_VALUE, ValueRequirementNames.CLEAN_PRICE,
+    ValueRequirementNames.QUOTED_SPREAD, ValueRequirementNames.UPFRONT_AMOUNT, ValueRequirementNames.BUCKETED_CS01, ValueRequirementNames.PARALLEL_CS01, ValueRequirementNames.PRINCIPAL};
+  public static double ONE_BPS = 1e-4; // fractional 1 BPS
   private HolidaySource _holidaySource; //OpenGammaCompilationContext.getHolidaySource(context);
   private RegionSource _regionSource;
   private static final PointsUpFrontConverter POINTS_UP_FRONT_CONVERTER = new PointsUpFrontConverter();
   protected static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-
-  public AbstractISDACompliantWithSpreadsCDSFunction(final String valueRequirement) {
-    _valueRequirement = valueRequirement;
-  }
-
-  protected static double getTenminus4() {
-    return s_tenminus4;
-  }
+  public static final SpreadSensitivityCalculator CALCULATOR = new SpreadSensitivityCalculator();
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -96,26 +95,16 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     //_converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
   }
 
-  protected abstract Object compute(final ZonedDateTime maturity,
-                                    final PointsUpFront puf,
-                                    final CDSQuoteConvention quote,
-                                    final double notional,
-                                    final BuySellProtection buySellProtection,
-                                    final ISDACompliantYieldCurve yieldCurve,
-                                    final CDSAnalytic analytic,
-                                    final CDSAnalytic[] curveAnalytics,
-                                    final CDSQuoteConvention[] quotes,
-                                    ISDACompliantCreditCurve creditCurve);
-
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
     throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-    ValueRequirement requirement = desiredValues.iterator().next();
+    final ValueRequirement requirement = desiredValues.iterator().next();
+    final ValueProperties properties = requirement.getConstraints().copy().get();
 
     final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
     //LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
-    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+    final ValueRequirement desiredValue = desiredValues.iterator().next(); // all same constraints
 
     final String quoteConventionString = desiredValue.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION);
     final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(quoteConventionString);
@@ -133,19 +122,32 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
       throw new OpenGammaRuntimeException("Unable to get spreads");
     }
     final double[] spreads = ArrayUtils.toPrimitive(spreadObject.getYData());
-    final String pillarString = IMMDateGenerator.isIMMDate(security.getMaturityDate()) ? requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS) : ISDACompliantCreditCurveFunction.NON_IMM_PILLAR_TENORS;
-    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getPillarDates(now, pillarString);
-    final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), spreads, security.getParSpread(), quoteConvention);
+    //final String pillarString = IMMDateGenerator.isIMMDate(security.getMaturityDate()) ? requirement.getConstraint(ISDAFunctionConstants.ISDA_BUCKET_TENORS) : ISDACompliantCreditCurveFunction.NON_IMM_PILLAR_TENORS;
+    final ZonedDateTime[] bucketDates = SpreadCurveFunctions.getPillarDates(now, spreadObject.getXData());
+    final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), spreads, security.getParSpread(), quoteConvention, false);
+
+    // spreads
+    NodalTenorDoubleCurve pillarObject = (NodalTenorDoubleCurve) inputs.getValue(ValueRequirementNames.BUCKETED_SPREADS);
+    if (pillarObject == null) {
+      throw new OpenGammaRuntimeException("Unable to get pillars");
+    }
 
     // CDS analytics for credit curve (possible performance improvement if earlier result obtained)
     //final LegacyVanillaCreditDefaultSwapDefinition curveCDS = cds.withStartDate(now);
     //security.setStartDate(now); // needed for curve instruments
-    final CDSAnalytic[] creditAnalytics = new CDSAnalytic[bucketDates.length];
-    for (int i = 0; i < creditAnalytics.length; i++) {
+    final CDSAnalytic[] bucketCDSs = new CDSAnalytic[bucketDates.length];
+    for (int i = 0; i < bucketCDSs.length; i++) {
       //security.setMaturityDate(bucketDates[i]);
       final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), bucketDates[i].toLocalDate());
-      //creditAnalytics[i] = CDSAnalyticConverter.create(curveCDS, now.toLocalDate(), bucketDates[i].toLocalDate());
-      creditAnalytics[i] = security.accept(visitor);
+      bucketCDSs[i] = security.accept(visitor);
+    }
+
+    final ZonedDateTime[] pillarDates = SpreadCurveFunctions.getPillarDates(now, pillarObject.getXData());
+    final CDSAnalytic[] pillarCDSs = new CDSAnalytic[pillarDates.length];
+    for (int i = 0; i < pillarCDSs.length; i++) {
+      //security.setMaturityDate(bucketDates[i]);
+      final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), pillarDates[i].toLocalDate());
+      pillarCDSs[i] = security.accept(visitor);
     }
 
     final ISDACompliantCreditCurve creditCurve = (ISDACompliantCreditCurve) inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
@@ -161,21 +163,33 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     if (cdsQuoteDouble == null) {
       throw new OpenGammaRuntimeException("Couldn't get spread for " + security);
     }
-    final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention)[0];
-    // TODO: Only do this once
+    final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention, true)[0];
+
+    final double notional = security.getNotional().getAmount();
+    final double coupon = security.getParSpread() * ONE_BPS;
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
+    final double accruedPremium = analytic.getAccruedPremium(coupon) * notional;
+    final int accruedDays = analytic.getAccuredDays();
+    final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
+    final double upfrontAmount = getUpfrontAmount(analytic, puf, notional, buySellProtection);
+    final double cleanPV = puf.getPointsUpFront() * notional;
+    final double cleanPrice = getCleanPrice(puf);
+    final TenorLabelledMatrix1D bucketedCS01 = getBucketedCS01(analytic, bucketCDSs, spreadObject.getXData(), quote, notional, yieldCurve, creditCurve);
+    final double parallelCS01 = getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
 
-    Object result = compute(security.getMaturityDate(), puf, quote, security.getNotional().getAmount(),
-        buySellProtection, yieldCurve, analytic, creditAnalytics, quotes, creditCurve);
-
-    // slightly hacky way of avoiding passing down tenors which only bucketed cs01 result needs
-    if (getValueRequirement().equals(ValueRequirementNames.BUCKETED_CS01)) {
-      result = new TenorLabelledMatrix1D(spreadObject.getXData(), (double[]) result);
-    }
-
-    final ValueProperties properties = desiredValue.getConstraints().copy().get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, result));
+    final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(_valueRequirements.length);
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), properties), accruedPremium));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.ACCRUED_DAYS, target.toSpecification(), properties), accruedDays));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.QUOTED_SPREAD, target.toSpecification(), properties), quotedSpread / ONE_BPS));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.UPFRONT_AMOUNT, target.toSpecification(), properties), upfrontAmount));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.DIRTY_PRESENT_VALUE, target.toSpecification(), properties), upfrontAmount));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CLEAN_PRESENT_VALUE, target.toSpecification(), properties), cleanPV));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRINCIPAL, target.toSpecification(), properties), cleanPV));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CLEAN_PRICE, target.toSpecification(), properties), cleanPrice));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties), bucketedCS01));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PARALLEL_CS01, target.toSpecification(), properties), parallelCS01));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.POINTS_UPFRONT, target.toSpecification(), properties), puf.getPointsUpFront()));
+    return results;
   }
 
   @Override
@@ -185,6 +199,7 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Set<ValueSpecification> specs = new HashSet<>();
     final ValueProperties properties = createValueProperties()
         .withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
         .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
@@ -193,7 +208,10 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
         .withAny(ISDAFunctionConstants.ISDA_BUCKET_TENORS)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .get();
-    return Collections.singleton(new ValueSpecification(getValueRequirement(), target.toSpecification(), properties));
+    for (final String value : _valueRequirements) {
+      specs.add(new ValueSpecification(value, target.toSpecification(), properties));
+    }
+    return specs;
   }
 
   @Override
@@ -248,13 +266,14 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
         .with(ISDAFunctionConstants.ISDA_BUCKET_TENORS, bucketTenors)
         .get();
     final ValueRequirement spreadRequirment = new ValueRequirement(ValueRequirementNames.BUCKETED_SPREADS, target.toSpecification(), spreadProperties);
+    final ValueRequirement pillarRequirment = new ValueRequirement(ValueRequirementNames.PILLAR_SPREADS, target.toSpecification(), spreadProperties);
     final ValueRequirement creditCurveRequirement = new ValueRequirement(ValueRequirementNames.HAZARD_RATE_CURVE, target.toSpecification(), spreadProperties);
 
     // get individual spread for this cds (ignore business day adjustment on either)
     final Period period = Period.between(cds.getStartDate().toLocalDate().withDayOfMonth(20), cds.getMaturityDate().toLocalDate().withDayOfMonth(20));
     final ValueRequirement cdsSpreadRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of("Tenor", period.toString()));
 
-    return Sets.newHashSet(isdaRequirment, spreadRequirment, cdsSpreadRequirement, creditCurveRequirement);
+    return Sets.newHashSet(isdaRequirment, spreadRequirment, cdsSpreadRequirement, creditCurveRequirement, pillarRequirment);
   }
 
   @Override
@@ -295,33 +314,69 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
                                            quote.getCoupon(),
                                            yieldCurve,
                                            ((QuotedSpread) quote).getQuotedSpread());
-      // SELL protection reverses directions of legs
-      puf = Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
     } else if (quote instanceof ParSpread) {
       puf = PRICER.pv(analytic, yieldCurve, creditCurve, ((ParSpread) quote).getCoupon());
-      // SELL protection reverses directions of legs
-      puf = Double.valueOf(buySellProtection == BuySellProtection.SELL ? -puf : puf);
-    } else {
-      throw new OpenGammaRuntimeException("Unknown quote type " + quote);
-    }
-    return new PointsUpFront(quote.getCoupon(), puf);
-  }
-
-  public static  QuotedSpread getQuotedSpread(CDSQuoteConvention quote, BuySellProtection buySellProtection, ISDACompliantYieldCurve yieldCurve, CDSAnalytic analytic, double premium) {
-    double quotedSpread;
-    if (quote instanceof PointsUpFront) {
-      quotedSpread = POINTS_UP_FRONT_CONVERTER.pufToQuotedSpread(analytic, quote.getCoupon(), yieldCurve, ((PointsUpFront) quote).getPointsUpFront());
-    } else if (quote instanceof QuotedSpread) {
-      return (QuotedSpread) quote;
-    } else if (quote instanceof ParSpread) {
-      quotedSpread = POINTS_UP_FRONT_CONVERTER.parSpreadsToQuotedSpreads(new CDSAnalytic[] {analytic}, premium * getTenminus4(), yieldCurve, new double[] {quote.getCoupon()})[0];
     } else {
       throw new OpenGammaRuntimeException("Unknown quote type " + quote);
     }
     // SELL protection reverses directions of legs
-    quotedSpread = Double.valueOf(buySellProtection == BuySellProtection.SELL ? -quotedSpread : quotedSpread);
+    puf = (buySellProtection == BuySellProtection.SELL) ? -puf : puf;
+    return new PointsUpFront(quote.getCoupon(), puf);
+  }
+
+  public static  QuotedSpread getQuotedSpread(CDSQuoteConvention quote, PointsUpFront puf, BuySellProtection buySellProtection, ISDACompliantYieldCurve yieldCurve, CDSAnalytic analytic) {
+    double quotedSpread;
+    if (quote instanceof QuotedSpread) {
+      return (QuotedSpread) quote;
+    } else {
+      quotedSpread = POINTS_UP_FRONT_CONVERTER.pufToQuotedSpread(analytic, puf.getCoupon(), yieldCurve, puf.getPointsUpFront());
+    }
+    // SELL protection reverses directions of legs
+    quotedSpread = (buySellProtection == BuySellProtection.SELL) ? -quotedSpread : quotedSpread;
     return new QuotedSpread(quote.getCoupon(), quotedSpread);
   }
+
+  public double getUpfrontAmount(final CDSAnalytic analytic, final PointsUpFront puf, final double notional, final BuySellProtection buySellProtection) {
+    // upfront amount is defined as dirty PV
+    double cash = (puf.getPointsUpFront() - analytic.getAccruedPremium(puf.getCoupon())) * notional;
+    // SELL protection reverses directions of legs
+    return (buySellProtection == BuySellProtection.SELL) ? -cash : cash;
+  }
+
+  public double getCleanPrice(final PointsUpFront puf) {
+    return 100.0 * (1 - puf.getPointsUpFront());
+  }
+
+  public TenorLabelledMatrix1D getBucketedCS01(CDSAnalytic analytic, CDSAnalytic[] buckets, Tenor[] tenors, CDSQuoteConvention quote, double notional, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve creditCurve) {
+    //TODO: Check quote.getCoupon() is spread value for IMM & 0.01 (or 0.05) for non IMM
+    double[] cs01Values;
+    if (quote instanceof ParSpread) {
+      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon(), buckets, yieldCurve, creditCurve, ONE_BPS);
+    } else {
+      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon()/*coupon * ONE_BPS*/, buckets, yieldCurve, creditCurve, ONE_BPS);
+    }
+    for (int i = 0; i < cs01Values.length; i++) {
+      cs01Values[i] *= notional * ONE_BPS;
+    }
+    return new TenorLabelledMatrix1D(tenors, cs01Values);
+  }
+
+  public double getParallelCS01(CDSQuoteConvention quote, CDSAnalytic analytic, ISDACompliantYieldCurve yieldCurve, double notional, CDSAnalytic[] pillars, double[] pillarSpreads) {
+    double cs01;
+    if (quote instanceof ParSpread) {
+      cs01 = CALCULATOR.parallelCS01FromParSpreads(analytic,
+                                               quote.getCoupon(),
+                                               yieldCurve,
+                                               pillars,
+                                               pillarSpreads,
+                                               ONE_BPS,
+                                               BumpType.ADDITIVE);
+    } else {
+      cs01 = CALCULATOR.parallelCS01(analytic, quote, yieldCurve, ONE_BPS);
+    }
+    return Double.valueOf(cs01 * notional * ONE_BPS);
+  }
+
 
   public static ManageableRegion getTestRegion() {
     final ManageableRegion region = new ManageableRegion();
@@ -332,10 +387,6 @@ public abstract class AbstractISDACompliantWithSpreadsCDSFunction extends NonCom
     region.setTimeZone(ZoneId.of("America/New_York"));
     region.setExternalIdBundle(ExternalIdBundle.of(ExternalId.parse("dummy~region")));
     return region;
-  }
-
-  protected String getValueRequirement() {
-    return _valueRequirement;
   }
 
   /** test region */

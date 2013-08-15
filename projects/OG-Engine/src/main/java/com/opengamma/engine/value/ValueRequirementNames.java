@@ -486,6 +486,11 @@ public final class ValueRequirementNames {
   public static final String BUCKETED_SPREADS = "Bucketed Spreads";
 
   /**
+   * The pillar spreads used for pricing a credit default swap.
+   */
+  public static final String PILLAR_SPREADS = "Pillar Spreads";
+
+  /**
    * The dividend yield of an equity or equity index.
    */
   public static final String DIVIDEND_YIELD = "Dividend Yield";
