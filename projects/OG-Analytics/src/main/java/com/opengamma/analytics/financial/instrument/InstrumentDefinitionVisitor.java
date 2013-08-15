@@ -81,6 +81,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAver
 import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
@@ -90,6 +91,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
@@ -239,6 +241,10 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment);
 
+  RESULT_TYPE visitCouponFixedAccruedCompoundingDefinition(CouponFixedAccruedCompoundingDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponFixedAccruedCompoundingDefinition(CouponFixedAccruedCompoundingDefinition payment);
+
   RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment);
@@ -274,6 +280,10 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitCouponOISDefinition(CouponONDefinition payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponOISDefinition(CouponONDefinition payment);
+
+  RESULT_TYPE visitCouponONCompoundedDefinition(CouponONCompoundedDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponONCompoundedDefinition(CouponONCompoundedDefinition payment);
 
   RESULT_TYPE visitCouponOISSimplifiedDefinition(CouponONSimplifiedDefinition payment, DATA_TYPE data);
 

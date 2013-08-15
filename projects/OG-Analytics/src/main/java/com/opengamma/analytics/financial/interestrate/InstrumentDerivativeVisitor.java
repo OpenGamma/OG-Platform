@@ -86,6 +86,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
@@ -94,6 +95,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -234,6 +236,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponFixedCompounding(CouponFixedCompounding payment);
 
+  RESULT_TYPE visitCouponFixedAccruedCompounding(CouponFixedAccruedCompounding payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponFixedAccruedCompounding(CouponFixedAccruedCompounding payment);
+
   RESULT_TYPE visitCouponIbor(CouponIbor payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponIbor(CouponIbor payment);
@@ -261,6 +267,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitCouponOIS(CouponON payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponOIS(CouponON payment);
+
+  RESULT_TYPE visitCouponONCompounded(CouponONCompounded payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponONCompounded(CouponONCompounded payment);
 
   RESULT_TYPE visitCouponONSpread(CouponONSpread payment, DATA_TYPE data);
 

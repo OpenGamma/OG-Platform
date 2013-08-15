@@ -63,7 +63,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponON, "Coupon OIS");
     return presentValue((CouponON) instrument, curves);
   }
