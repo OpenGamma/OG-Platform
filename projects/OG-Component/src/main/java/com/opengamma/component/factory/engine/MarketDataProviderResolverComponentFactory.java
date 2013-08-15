@@ -29,6 +29,7 @@ import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.HistoricalShockMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.LatestHistoricalMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.random.RandomizingMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.CachingMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.TypeBasedMarketDataProviderResolver;
@@ -38,6 +39,7 @@ import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecificati
 import com.opengamma.engine.marketdata.spec.HistoricalShockMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.RandomizingMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
@@ -91,8 +93,10 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     providerResolver.addProvider(UserMarketDataSpecification.class, userMarketDataProviderFactory);
     final MarketDataProviderFactory combinedMarketDataProviderFactory = initCombinedMarketDataProviderFactory(providerResolver);
     providerResolver.addProvider(CombinedMarketDataSpecification.class, combinedMarketDataProviderFactory);
-    MarketDataProviderFactory historicalShockMarketDataProviderFactory = initHistoricalShockMarketDataProviderFactory(providerResolver);
+    final MarketDataProviderFactory historicalShockMarketDataProviderFactory = initHistoricalShockMarketDataProviderFactory(providerResolver);
     providerResolver.addProvider(HistoricalShockMarketDataSpecification.class, historicalShockMarketDataProviderFactory);
+    final MarketDataProviderFactory randomizingMarketDataProviderFactory = initRandomizingMarketDataProviderFactory(providerResolver);
+    providerResolver.addProvider(RandomizingMarketDataSpecification.class, randomizingMarketDataProviderFactory);
     return providerResolver;
   }
 
@@ -100,6 +104,10 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     final MarketDataProviderResolver resolver = new CachingMarketDataProviderResolver(createMarketDataProviderResolver());
     final ComponentInfo info = new ComponentInfo(MarketDataProviderResolver.class, getClassifier());
     repo.registerComponent(info, resolver);
+  }
+
+  private MarketDataProviderFactory initRandomizingMarketDataProviderFactory(MarketDataProviderResolver resolver) {
+    return new RandomizingMarketDataProviderFactory(resolver);
   }
 
   protected MarketDataProviderFactory initFixedHistoricalMarketDataProviderFactory() {
