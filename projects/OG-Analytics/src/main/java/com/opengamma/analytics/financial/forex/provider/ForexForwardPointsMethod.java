@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Pricing method for Forex transactions (spot or forward) by forward points.
@@ -47,21 +48,22 @@ public final class ForexForwardPointsMethod {
   }
 
   /**
-   * Compute the present value by estimating the forward points. The present value is computed in the second currency in the FXMatrix order.
+   * Compute the present value by estimating the forward points. The present value is computed in the second currency in the ccyPair.
    * No coherence check is done between the interest curves and the forward points curves.
    * @param fx The Forex derivative.
    * @param multicurves The multi-curves provider.
-   * @param forwardRates The curve with the forward points. The order of the currencies is the order of ccy0 and ccy1 in the FXMatrix of the multicurves provider.
+   * @param forwardRates The curve with the forward points.
+   * @param ccyPair The ordered currency pair for which the forwardRates are valid.
    * @return The multi-currency present value (in currency 2).
    */
-  public MultipleCurrencyAmount presentValue(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates) {
+  public MultipleCurrencyAmount presentValue(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates, final Pair<Currency, Currency> ccyPair) {
     final double payTime = fx.getPaymentTime();
     final double fwdRate = forwardRates.getYValue(payTime);
     final Currency ccy2;
     final double amount1;
     final double amount2;
     // Implementation note: The "if" is used to check in which order the fx is given with respect to the order of the forward rates.
-    if (multicurves.getFxRates().getCurrencies().get(fx.getCurrency1()) == 0) { // Currency1 of fx is currency with order 0 in FXMatrix
+    if (checkCurrency(fx, ccyPair)) { // Currency1 of fx is first currency in ccyPair
       ccy2 = fx.getCurrency2();
       amount1 = fx.getPaymentCurrency1().getAmount();
       amount2 = fx.getPaymentCurrency2().getAmount();
@@ -75,9 +77,15 @@ public final class ForexForwardPointsMethod {
     return MultipleCurrencyAmount.of(ccy2, pv);
   }
 
+  /**
+   * Returns the present value for data stored in a unique Provider.
+   * @param fx The Forex derivative.
+   * @param multicurvesForward The multi-curve provider with forward rates for a currency pair.
+   * @return The present value.
+   */
   public MultipleCurrencyAmount presentValue(final Forex fx, final MulticurveForwardPointsProviderInterface multicurvesForward) {
     ArgumentChecker.notNull(multicurvesForward, "multi-curve provider");
-    return presentValue(fx, multicurvesForward.getMulticurveProvider(), multicurvesForward.getForwardPointsCurve());
+    return presentValue(fx, multicurvesForward.getMulticurveProvider(), multicurvesForward.getForwardPointsCurve(), multicurvesForward.getCurrencyPair());
   }
 
   /**
@@ -85,9 +93,10 @@ public final class ForexForwardPointsMethod {
    * @param fx The Forex derivative.
    * @param multicurves The multi-curves provider.
    * @param forwardRates The curve with the forward points. The order of the currencies is the order of ccy0 and ccy1 in the FXMatrix of the multicurves provider.
+   * @param ccyPair The ordered currency pair for which the forwardRates are valid.
    * @return The currency exposure.
    */
-  public MultipleCurrencyAmount currencyExposure(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates) {
+  public MultipleCurrencyAmount currencyExposure(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates, final Pair<Currency, Currency> ccyPair) {
     final double payTime = fx.getPaymentTime();
     final double fwdRate = forwardRates.getYValue(payTime);
     final Currency ccy1;
@@ -95,7 +104,7 @@ public final class ForexForwardPointsMethod {
     final double amount1;
     final double amount2;
     // Implementation note: The "if" is used to check in which order the fx is given with respect to the order of the forward rates.
-    if (multicurves.getFxRates().getCurrencies().get(fx.getCurrency1()) == 0) { // Currency1 of fx is currency with order 0 in FXMatrix
+    if (checkCurrency(fx, ccyPair)) { // Currency1 of fx is first currency in ccyPair
       ccy1 = fx.getCurrency1();
       ccy2 = fx.getCurrency2();
       amount1 = fx.getPaymentCurrency1().getAmount();
@@ -121,16 +130,18 @@ public final class ForexForwardPointsMethod {
    * @param fx The Forex derivative.
    * @param multicurves The multi-curve provider.
    * @param forwardRates The curve with the forward points. The order of the currencies is the order of ccy0 and ccy1 in the FXMatrix of the multicurves provider.
+   * @param ccyPair The ordered currency pair for which the forwardRates are valid.
    * @return The sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates,
+      final Pair<Currency, Currency> ccyPair) {
     final double payTime = fx.getPaymentTime();
     final double fwdRate = forwardRates.getYValue(payTime);
     final Currency ccy2;
     final double amount1;
     final double amount2;
     // Implementation note: The "if" is used to check in which order the fx is given with respect to the order of the forward rates.
-    if (multicurves.getFxRates().getCurrencies().get(fx.getCurrency1()) == 0) { // Currency1 of fx is currency with order 0 in FXMatrix
+    if (checkCurrency(fx, ccyPair)) { // Currency1 of fx is first currency in ccyPair
       ccy2 = fx.getCurrency2();
       amount1 = fx.getPaymentCurrency1().getAmount();
       amount2 = fx.getPaymentCurrency2().getAmount();
@@ -154,7 +165,7 @@ public final class ForexForwardPointsMethod {
 
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final Forex fx, final MulticurveForwardPointsProviderInterface multicurvesForward) {
     ArgumentChecker.notNull(multicurvesForward, "multi-curve provider");
-    return presentValueCurveSensitivity(fx, multicurvesForward.getMulticurveProvider(), multicurvesForward.getForwardPointsCurve());
+    return presentValueCurveSensitivity(fx, multicurvesForward.getMulticurveProvider(), multicurvesForward.getForwardPointsCurve(), multicurvesForward.getCurrencyPair());
   }
 
   /**
@@ -162,26 +173,22 @@ public final class ForexForwardPointsMethod {
    * @param fx The Forex derivative.
    * @param multicurves The multi-curve provider.
    * @param forwardRates The curve with the forward points. The order of the currencies is the order of ccy0 and ccy1 in the FXMatrix of the multicurves provider.
+   * @param ccyPair The ordered currency pair for which the forwardRates are valid.
    * @return The sensitivity.
    */
-  public double[] presentValueForwardPointsSensitivity(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates) {
+  public double[] presentValueForwardPointsSensitivity(final Forex fx, final MulticurveProviderInterface multicurves, final DoublesCurve forwardRates, final Pair<Currency, Currency> ccyPair) {
     final double payTime = fx.getPaymentTime();
-    //    final double fwdRate = forwardRates.getYValue(payTime);
     final Currency ccy2;
     final double amount1;
-    //    final double amount2;
     // Implementation note: The "if" is used to check in which order the fx is given with respect to the order of the forward rates.
-    if (multicurves.getFxRates().getCurrencies().get(fx.getCurrency1()) == 0) { // Currency1 of fx is currency with order 0 in FXMatrix
+    if (checkCurrency(fx, ccyPair)) { // Currency1 of fx is first currency in ccyPair
       ccy2 = fx.getCurrency2();
       amount1 = fx.getPaymentCurrency1().getAmount();
-      //      amount2 = fx.getPaymentCurrency2().getAmount();
     } else {
       ccy2 = fx.getCurrency1();
       amount1 = fx.getPaymentCurrency2().getAmount();
-      //      amount2 = fx.getPaymentCurrency1().getAmount();
     }
     final double df2 = multicurves.getDiscountFactor(ccy2, payTime);
-    //    final double pv = df2 * (amount2 + amount1 * fwdRate);
     // Backward sweep
     final double pvBar = 1.0;
     final double fwdRateBar = df2 * amount1 * pvBar;
@@ -191,6 +198,18 @@ public final class ForexForwardPointsMethod {
       sensitivity[loops] = fwdRateDp[loops] * fwdRateBar;
     }
     return sensitivity;
+  }
+
+  /**
+   * Check that the Forex currencies are compatible with the currency pair. Returns a flag indicating if the first currency in the Forex is the first currency in the pair.
+   * @param fx The Forex derivative.
+   * @param ccyPair The ordered currency pair.
+   * @return The first currency flag.
+   */
+  private boolean checkCurrency(final Forex fx, final Pair<Currency, Currency> ccyPair) {
+    ArgumentChecker.isTrue(fx.getCurrency1().equals(ccyPair.getFirst()) || fx.getCurrency1().equals(ccyPair.getSecond()), fx.getCurrency1() + "not in currency pair for forward point method");
+    ArgumentChecker.isTrue(fx.getCurrency2().equals(ccyPair.getFirst()) || fx.getCurrency2().equals(ccyPair.getSecond()), fx.getCurrency2() + "not in currency pair for forward point method");
+    return fx.getCurrency1().equals(ccyPair.getFirst());
   }
 
 }

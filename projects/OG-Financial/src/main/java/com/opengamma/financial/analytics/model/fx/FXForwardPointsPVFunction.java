@@ -31,8 +31,11 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -56,7 +59,9 @@ public class FXForwardPointsPVFunction extends FXForwardPointsFunction {
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
         final String fxForwardCurveName = desiredValue.getConstraint(FORWARD_CURVE_NAME);
         final DoublesCurve forwardPoints = getForwardPoints(inputs, target, fxForwardCurveName, now);
-        final MultipleCurrencyAmount mca = CALCULATOR.presentValue((Forex) derivative, data, forwardPoints);
+        //TODO: Review this line
+        final Pair<Currency, Currency> ccyPair = new ObjectsPair<>(Currency.USD, Currency.JPY);
+        final MultipleCurrencyAmount mca = CALCULATOR.presentValue((Forex) derivative, data, forwardPoints, ccyPair);
         if (mca.size() != 1) {
           throw new OpenGammaRuntimeException("Expecting a single value for present value");
         }

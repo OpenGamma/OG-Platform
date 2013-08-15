@@ -36,6 +36,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -59,7 +62,9 @@ public class FXForwardPointsFCNSFunction extends FXForwardPointsFunction {
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
         final String fxForwardCurveName = desiredValue.getConstraint(FORWARD_CURVE_NAME);
         final DoublesCurve forwardPoints = getForwardPoints(inputs, target, fxForwardCurveName, now);
-        final double[] sensitivities = CALCULATOR.presentValueForwardPointsSensitivity((Forex) derivative, data, forwardPoints);
+        //TODO: Review this line
+        final Pair<Currency, Currency> ccyPair = new ObjectsPair<>(Currency.USD, Currency.JPY);
+        final double[] sensitivities = CALCULATOR.presentValueForwardPointsSensitivity((Forex) derivative, data, forwardPoints, ccyPair);
         final CurveDefinition definition = (CurveDefinition) inputs.getValue(
             new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, ValueProperties.with(CURVE, fxForwardCurveName).get()));
         final DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(new DoubleMatrix1D(sensitivities), definition);

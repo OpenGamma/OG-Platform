@@ -84,6 +84,7 @@ public class FXForwardPointsYCNSFunction extends FXForwardPointsFunction {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
         final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+        // FIXME: Should be the currency pair of the forward rate curve, not of the instrument
         final Pair<Currency, Currency> ccyPair = Pair.of(payCurrency, receiveCurrency);
         final MulticurveForwardPointsProviderInterface curves = new MulticurveForwardPointsProvider(getMergedProviders(inputs, fxMatrix), forwardPoints, ccyPair);
         final CurveBuildingBlockBundle blocks = getMergedCurveBuildingBlocks(inputs);
