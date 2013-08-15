@@ -8,10 +8,13 @@ package com.opengamma.financial.analytics.model.discounting;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
@@ -39,6 +42,8 @@ import com.opengamma.util.tuple.Pair;
  * the discounting method.
  */
 public class DiscountingPV01Function extends DiscountingFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingPV01Function.class);
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
@@ -77,12 +82,8 @@ public class DiscountingPV01Function extends DiscountingFunction {
           results.add(new ComputedValue(spec, entry.getValue()));
         }
         if (!curveNameFound) {
-          final ValueProperties curveSpecificProperties = properties.copy()
-              .withoutAny(CURVE)
-              .with(CURVE, desiredCurveName)
-              .get();
-          final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
-          results.add(new ComputedValue(spec, Double.NaN));
+          s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
+          return Collections.emptySet();
         }
         return results;
       }

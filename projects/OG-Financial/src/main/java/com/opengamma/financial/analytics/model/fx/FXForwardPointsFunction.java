@@ -10,6 +10,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.FORWARD_CURVE_NAME;
+import static com.opengamma.engine.value.ValueRequirementNames.CURRENCY_PAIRS;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_MARKET_DATA;
@@ -32,6 +33,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -64,7 +66,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
@@ -86,6 +87,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -181,19 +183,21 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
       final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
-      final InstrumentDerivative derivative = getDerivative(target, now, timeSeries, definition);
+      final Forex forex = getForex(target, now, timeSeries, definition);
       final FXMatrix fxMatrix = new FXMatrix();
-      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(target.getTrade().getSecurity(), securitySource);
-      final Iterator<Currency> iter = currencies.iterator();
-      final Currency initialCurrency = iter.next();
-      while (iter.hasNext()) {
-        final Currency otherCurrency = iter.next();
+      final CurrencyPairs pairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
+      final Currency currency1 = forex.getCurrency1();
+      final Currency currency2 = forex.getCurrency2();
+      if (pairs.getCurrencyPair(currency1, currency2).getBase().equals(currency1)) {
         final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-            CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
-        fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+            CurrencyPair.TYPE.specification(CurrencyPair.of(currency2, currency1))));
+        fxMatrix.addCurrency(currency1, currency2, spotRate);
+      } else {
+        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
+            CurrencyPair.TYPE.specification(CurrencyPair.of(currency2, currency1))));
+        fxMatrix.addCurrency(currency2, currency1, 1 / spotRate);
       }
-      return getValues(inputs, target, desiredValues, derivative, fxMatrix, now);
+      return getValues(inputs, target, desiredValues, forex, fxMatrix, now);
     }
 
     @Override
@@ -275,9 +279,11 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
             fxForwardCurveProperties);
         final ValueRequirement fxForwardCurveDataRequirement = new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL,
             fxForwardCurveProperties);
+        final ValueRequirement currencyPairsRequirement = new ValueRequirement(CURRENCY_PAIRS, ComputationTargetSpecification.NULL, ValueProperties.none());
         requirements.add(fxForwardCurveDataRequirement);
         requirements.add(fxForwardCurveDefinition);
         requirements.add(fxForwardCurveSpecification);
+        requirements.add(currencyPairsRequirement);
         return requirements;
       } catch (final Exception e) {
         s_logger.error(e.getMessage());
@@ -326,9 +332,9 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
      * @param definition The definition, not null
      * @return The instrument derivative
      */
-    protected InstrumentDerivative getDerivative(final ComputationTarget target, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries,
+    protected Forex getForex(final ComputationTarget target, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries,
         final InstrumentDefinition<?> definition) {
-      return _definitionToDerivativeConverter.convert(target.getTrade().getSecurity(), definition, now, timeSeries);
+      return (Forex) _definitionToDerivativeConverter.convert(target.getTrade().getSecurity(), definition, now, timeSeries);
     }
 
     /**
@@ -336,13 +342,13 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
      * @param inputs The inputs, not null
      * @param target The target, not null
      * @param desiredValues The desired values for this function, not null
-     * @param derivative The derivative, not null
+     * @param forex The forex trade, not null
      * @param fxMatrix The FX matrix, not null
      * @param now The valuation time, not null
      * @return The results
      */
     protected abstract Set<ComputedValue> getValues(FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
-        InstrumentDerivative derivative, FXMatrix fxMatrix, ZonedDateTime now);
+        Forex forex, FXMatrix fxMatrix, ZonedDateTime now);
 
     protected MulticurveProviderInterface getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
       final Collection<MulticurveProviderDiscount> providers = new HashSet<>();
@@ -367,7 +373,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
       return result;
     }
 
-    protected DoublesCurve getForwardPoints(final FunctionInputs inputs, final ComputationTarget target, final String fxForwardCurveName,
+    protected DoublesCurve getForwardPoints(final FunctionInputs inputs, final String fxForwardCurveName,
         final ZonedDateTime now) {
       final ValueProperties curveProperties = ValueProperties.with(CURVE, fxForwardCurveName).get();
       final ValueRequirement definitionRequirement = new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, curveProperties);

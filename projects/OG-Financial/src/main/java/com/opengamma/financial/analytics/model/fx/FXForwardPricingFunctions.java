@@ -22,9 +22,13 @@ public class FXForwardPricingFunctions extends AbstractFunctionConfigurationBean
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(FXForwardPointsBCSFunction.class));
     functions.add(functionConfiguration(FXForwardPointsCurrencyExposureFunction.class));
     functions.add(functionConfiguration(FXForwardPointsFCNSFunction.class));
     functions.add(functionConfiguration(FXForwardPointsPVFunction.class));
     functions.add(functionConfiguration(FXForwardPointsYCNSFunction.class));
+    functions.add(functionConfiguration(FXForwardPointsCurrencyExposurePnLFunction.class));
+    functions.add(functionConfiguration(FXForwardPointsFCNSPnLFunction.class));
+    functions.add(functionConfiguration(FXForwardPointsYCNSPnLFunction.class));
   }
 }
