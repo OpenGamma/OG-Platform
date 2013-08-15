@@ -110,13 +110,8 @@
     <property name="jobDispatchStatistics" ref="jobDispatchStatistics" />
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
   </bean>
-  
-  <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
-    <constructor-arg ref="batDbConnector"/>
-  </bean>
 
   <bean id="viewResultListenerFactory" class="com.opengamma.masterdb.batch.BatchDbViewResultListenerFactory">
-    <property name="batchRunMaster" ref="dbBatchMaster" />
   </bean>
   
   <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
