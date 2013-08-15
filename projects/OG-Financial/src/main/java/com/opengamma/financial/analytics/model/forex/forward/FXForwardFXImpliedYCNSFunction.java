@@ -54,6 +54,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.discounting.DiscountingYCNSFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -64,8 +65,12 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Calculates yield curve node sensitivities for yield curves constructed using
+ * the FX implied method.
+ * @deprecated There is no longer any need to treat FX-implied curves differently;
+ * see {@link DiscountingYCNSFunction}
  */
+@Deprecated
 public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunction {
   /** Property for the currency that underlies the FX-implied curve */
   private static final String UNDERLYING_CURRENCY = "UnderlyingCurrency";
@@ -219,7 +224,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
       }
     }
     final ValueSpecification result = new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(
-        target, payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig, currency,
+        payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig, currency,
         underlyingCurrency).get());
     return Collections.singleton(result);
   }
@@ -246,7 +251,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
     throw new UnsupportedOperationException();
   }
 
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurve, final String receiveCurve,
+  protected ValueProperties.Builder getResultProperties(final String payCurve, final String receiveCurve,
       final String payCurveCalculationConfig, final String receiveCurveCalculationConfig, final String currency,
       final String underlyingCurrency) {
     final ValueProperties.Builder properties = createValueProperties()
