@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -81,7 +81,7 @@ public abstract class SABRRightExtrapolationFunctionDeprecated extends SABRFunct
       final DayCount dayCount, final ValueRequirement desiredValue) {
     final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
@@ -105,8 +105,8 @@ public abstract class SABRRightExtrapolationFunctionDeprecated extends SABRFunct
         .withAny(ValuePropertyNames.CUBE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
-        .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .withAny(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
         .withAny(PROPERTY_CUTOFF_STRIKE)
         .withAny(PROPERTY_TAIL_THICKNESS_PARAMETER).get();
   }
@@ -117,7 +117,7 @@ public abstract class SABRRightExtrapolationFunctionDeprecated extends SABRFunct
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     final String cutoff = desiredValue.getConstraint(PROPERTY_CUTOFF_STRIKE);
     final String mu = desiredValue.getConstraint(PROPERTY_TAIL_THICKNESS_PARAMETER);
     return properties.copy()
@@ -127,8 +127,8 @@ public abstract class SABRRightExtrapolationFunctionDeprecated extends SABRFunct
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
         .with(PROPERTY_CUTOFF_STRIKE, cutoff)
         .with(PROPERTY_TAIL_THICKNESS_PARAMETER, mu).get();
   }

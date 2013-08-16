@@ -18,7 +18,7 @@ import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -89,7 +89,7 @@ public class SABRNoExtrapolationDefaultsDeprecated extends DefaultPropertyFuncti
       defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);
-      defaults.addValuePropertyName(valueRequirement, SmileFittingProperties.PROPERTY_FITTING_METHOD);
+      defaults.addValuePropertyName(valueRequirement, SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
@@ -105,7 +105,7 @@ public class SABRNoExtrapolationDefaultsDeprecated extends DefaultPropertyFuncti
     if (ValuePropertyNames.CUBE.equals(propertyName)) {
       return Collections.singleton(_cubeName);
     }
-    if (SmileFittingProperties.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {

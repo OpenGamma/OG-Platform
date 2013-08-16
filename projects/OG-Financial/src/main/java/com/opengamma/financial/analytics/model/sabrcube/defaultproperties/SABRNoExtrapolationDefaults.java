@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -80,13 +80,13 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);
-      defaults.addValuePropertyName(valueRequirement, SmileFittingProperties.PROPERTY_FITTING_METHOD);
+      defaults.addValuePropertyName(valueRequirement, SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (SmileFittingProperties.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
     final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();

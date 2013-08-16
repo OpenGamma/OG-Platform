@@ -52,7 +52,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRFittingPropertyUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -185,7 +185,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
     if (calculationMethod != null && calculationMethod.size() == 1) {
-      if (!Iterables.getOnlyElement(calculationMethod).equals(SmileFittingProperties.SABR)) {
+      if (!Iterables.getOnlyElement(calculationMethod).equals(SmileFittingPropertyNamesAndValues.SABR)) {
         return null;
       }
     }
@@ -197,7 +197,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final Set<String> fittingMethods = constraints.getValues(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
@@ -235,7 +235,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     boolean curvePropertiesSet = false;
     boolean surfacePropertiesSet = false;
     ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingProperties.SABR)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingPropertyNamesAndValues.SABR)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification value = entry.getKey();
@@ -255,7 +255,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
         surfaceName = fullSurfaceName.substring(0, fullSurfaceName.length() - 3);
         final ValueProperties surfaceFittingProperties = value.getProperties().copy()
             .withoutAny(ValuePropertyNames.FUNCTION)
-            .withoutAny(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL)
+            .withoutAny(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL)
             .withoutAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
             .withoutAny(ValuePropertyNames.CURRENCY)
             .withoutAny(ValuePropertyNames.SURFACE)

@@ -13,7 +13,6 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.swaption.basicblack.BasicBlackFunctions;
 import com.opengamma.financial.analytics.model.swaption.black.BlackFunctions;
-import com.opengamma.financial.analytics.model.swaption.deprecated.DeprecatedFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -29,15 +28,17 @@ public class SwaptionFunctions extends AbstractFunctionConfigurationBean {
     return new SwaptionFunctions().getObjectCreating();
   }
 
-  public static FunctionConfigurationSource deprecated() {
-    return new DeprecatedFunctions().getObjectCreating();
-  }
-
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     // Nothing in this package, just the sub-packages
   }
 
+  /**
+   * Adds all swaption Black pricing functions
+   * @return The configuration source populated with swaption Black pricing functions
+   * @deprecated The functions that are added are deprecated
+   */
+  @Deprecated
   protected FunctionConfigurationSource blackFunctionConfiguration() {
     return BlackFunctions.instance();
   }

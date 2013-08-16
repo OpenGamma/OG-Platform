@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.black;
@@ -14,11 +14,13 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingImpliedVolatilityFunction;
 
 /**
  * Function to compute the implied volatility for physical delivery swaptions in the Black model.
- * 
+ * @deprecated Use {@link BlackDiscountingImpliedVolatilityFunction}
  */
+@Deprecated
 public class SwaptionBlackImpliedVolatilityFunction extends SwaptionBlackFunction {
 
   /**
