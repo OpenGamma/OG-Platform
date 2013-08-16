@@ -91,6 +91,9 @@ public interface AnalyticsView {
    * @param callbackId  the value that is sent to the client with notification that new data is available for the
    *  viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    *  viewport in a view.
+   * @param structureCallbackId  the value that is sent to the client with notification that new structure is available
+   *  for the viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
+   *  viewport in a view.
    * @param viewportDefinition  defines the rows and columns in the viewport and whether the viewport's data should be
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport
@@ -190,6 +193,9 @@ public interface AnalyticsView {
    * @param callbackId  the value that is sent to the client with notification that new data is available for the
    *  viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    *  viewport in a view.
+   * @param structureCallbackId  the value that is sent to the client with notification that new structure is available
+   *  for the viewport. The server makes no assumptions about its format other than the fact that it must be unique for
+   *  each viewport in a view.
    * @param viewportDefinition  defines the rows and columns in the viewport and whether the viewport's data should be
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport

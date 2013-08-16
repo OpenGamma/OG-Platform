@@ -106,6 +106,8 @@ import com.opengamma.util.ArgumentChecker;
    * @param viewportId  the ID of the viewport, must be unique
    * @param callbackId  the ID that will be passed to listeners when the grid's data changes,
    *  can be any unique value, the grid makes no assumptions about its form
+   * @param structureCallbackId  the ID that will be passed to listeners when the grid's structure changes,
+   *  can be any unique value, the grid makes no assumptions about its form
    * @param viewportDefinition  defines the extent and properties of the viewport
    * @param cache  the result cache
    * @return true if the viewport has data
@@ -130,11 +132,14 @@ import com.opengamma.util.ArgumentChecker;
    *
    * @param viewportDefinition  defines the extent and properties of the viewport
    * @param callbackId  the ID that will be passed to listeners when the grid's data changes
+   * @param structureCallbackId  the ID that will be passed to listeners when the grid's structure changes
    * @param cache  the result cache
    * @return the new viewport and a flag indicating whether there is data available for it
    */
-  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId, String structureCallbackId, ResultsCache cache);
-
+  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition,
+                                          String callbackId,
+                                          String structureCallbackId,
+                                          ResultsCache cache);
   /**
    * Deletes a viewport.
    * 

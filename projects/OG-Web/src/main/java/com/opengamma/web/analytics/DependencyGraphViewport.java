@@ -36,6 +36,8 @@ public class DependencyGraphViewport implements Viewport {
    * @param calcConfigName  the calculation configuration used to calculate the dependency graph
    * @param gridStructure  the row and column structure of the grid
    * @param callbackId  the ID that's passed to listeners when the viewport's data changes
+   * @param structureCallbackId  the ID that's passed to listeners when the viewport's structure changes
+   *  TODO not used currently
    * @param viewportDefinition  the viewport definition
    * @param cycle  the view cycle from the previous calculation cycle
    * @param cache  the current results TODO should this be a new cache?

@@ -33,6 +33,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   /**
    * @param viewportDefinition Defines the extent and properties of the viewport
    * @param callbackId ID that will be passed to listeners when the grid's data changes
+   * @param structureCallbackId ID that will be passed to listeners when the grid's structure changes
    * @param cache
    * @return The viewport
    */

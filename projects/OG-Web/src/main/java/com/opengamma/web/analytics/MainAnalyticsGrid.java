@@ -167,6 +167,7 @@ import com.opengamma.util.tuple.Pair;
    * @param graphId  the ID of the dependency graph
    * @param viewportId  the ID of the viewport, can be any unique value
    * @param callbackId  the ID passed to listeners when the viewport's data changes, can be any unique value
+   * @param structureCallbackId  the ID passed to listeners when the viewport's structure changes, can be any unique value
    * @param viewportDefinition  the definition of the viewport
    * @param cache  the cache
    * @return true if there is data available for the new viewport
