@@ -33,7 +33,7 @@ import com.opengamma.util.time.Tenor;
  * maps are then used to generate market data requests in curve construction.
  */
 @Config
-public class CurveNodeIdMapper {
+public final class CurveNodeIdMapper {
   /**
    * The names of the curve instrument providers.
    */
@@ -59,30 +59,128 @@ public class CurveNodeIdMapper {
   /** Curve instrument providers for zero coupon inflation nodes */
   private final Map<Tenor, CurveInstrumentProvider> _zeroCouponInflationNodeIds;
 
+  
   /**
-   * @param cashNodeIds The cash node ids
-   * @param continuouslyCompoundedRateIds The continuously-compounded rate ids
-   * @param creditSpreadNodeIds The credit spread node ids
-   * @param discountFactorNodeIds The discount factor node ids
-   * @param fraNodeIds The FRA node ids
-   * @param fxForwardNodeIds The FX forward node ids
-   * @param rateFutureNodeIds The rate future node ids
-   * @param swapNodeIds The swap node ids
-   * @param zeroCouponInflationNodeIds The zero coupon inflation node ids
+   * Builder class for CurveNodeIdMapper
    */
-  public CurveNodeIdMapper(final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
-      final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> swapNodeIds,
-      final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
-    this(null, cashNodeIds, continuouslyCompoundedRateIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds, fxForwardNodeIds,
-        rateFutureNodeIds, swapNodeIds, zeroCouponInflationNodeIds);
+  public static final class Builder {
+    /** The name of this configuration */
+    private String _name;
+    /** Curve instrument providers for cash nodes */
+    private Map<Tenor, CurveInstrumentProvider> _cashNodeIds;
+    /** Curve instrument providers for continuously-compounded rate nodes */
+    private Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
+    /** Curve instrument providers for credit spread nodes */
+    private Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
+    /** Curve instrument providers for discount factor nodes */
+    private Map<Tenor, CurveInstrumentProvider> _discountFactorNodeIds;
+    /** Curve instrument providers for FRA nodes */
+    private Map<Tenor, CurveInstrumentProvider> _fraNodeIds;
+    /** Curve instrument providers for FX forward nodes */
+    private Map<Tenor, CurveInstrumentProvider> _fxForwardNodeIds;
+    /** Curve instrument providers for rate future nodes */
+    private Map<Tenor, CurveInstrumentProvider> _rateFutureNodeIds;
+    /** Curve instrument providers for swap nodes */
+    private Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
+    /** Curve instrument providers for zero coupon inflation nodes */
+    private Map<Tenor, CurveInstrumentProvider> _zeroCouponInflationNodeIds;
+    
+    private Builder() {}
+    
+    /**
+     * The name of this configuration 
+     * @param name the name
+     * @return this
+     */
+    public Builder name(String name) {
+      _name = name; return this;
+    }
+    /**
+     * Curve instrument providers for cash nodes
+     * @param cashNodeIds the cashNodeIds
+     * @return this
+     */
+    public Builder cashNodeIds(Map<Tenor, CurveInstrumentProvider> cashNodeIds) {
+      _cashNodeIds = cashNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for continuously-compounded rate nodes 
+     * @param continuouslyCompoundedRateNodeIds the continuouslyCompoundedRateNodeIds 
+     * @return this
+     */
+    public Builder continuouslyCompoundedRateNodeIds(Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds) {
+      _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for credit spread nodes 
+     * @param creditSpreadNodeIds the creditSpreadNodeIds
+     * @return this 
+     */
+    public Builder creditSpreadNodeIds(Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds) {
+      _creditSpreadNodeIds = creditSpreadNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for discount factor nodes 
+     * @param discountFactorNodeIds the discountFactorNodeIds
+     * @return this
+     */
+    public Builder discountFactorNodeIds(Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds) {
+      _discountFactorNodeIds = discountFactorNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for FRA nodes 
+     * @param fraNodeIds the fraNodeIds
+     * @return this
+     */
+    public Builder fraNodeIds(Map<Tenor, CurveInstrumentProvider> fraNodeIds) {
+      _fraNodeIds = fraNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for FX forward nodes 
+     * @param fxForwardNodeIds the fxForwardNodeIds
+     * @return this
+     */
+    public Builder fxForwardNodeIds(Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds) {
+      _fxForwardNodeIds = fxForwardNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for rate future nodes 
+     * @param rateFutureNodeIds the rateFutureNodeIds 
+     * @return this 
+     */
+    public Builder rateFutureNodeIds(Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds) {
+      _rateFutureNodeIds = rateFutureNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for swap nodes
+     * @param swapNodeIds the swapNodeIds
+     * @return this
+     */
+    public Builder swapNodeIds(Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
+      _swapNodeIds = swapNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for zero coupon inflation nodes 
+     * @param zeroCouponInflationNodeIds the zeroCouponInflationNodeIds
+     * @return this
+     */
+    public Builder zeroCouponInflationNodeIds(Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
+      _zeroCouponInflationNodeIds = zeroCouponInflationNodeIds; return this;
+    }
+    /**
+     * @return a new {@link CurveNodeIdMapper} instance.
+     */
+    public CurveNodeIdMapper build() {
+      return new CurveNodeIdMapper(_name, _cashNodeIds, 
+          _continuouslyCompoundedRateNodeIds, _creditSpreadNodeIds, 
+          _discountFactorNodeIds, _fraNodeIds, _fxForwardNodeIds, 
+          _rateFutureNodeIds, _swapNodeIds, _zeroCouponInflationNodeIds);
+    }
+    
   }
 
+  public static Builder builder() { return new Builder(); }
+  
   /**
    * @param name The name of this configuration
    * @param cashNodeIds The cash node ids
@@ -95,7 +193,7 @@ public class CurveNodeIdMapper {
    * @param swapNodeIds The swap node ids
    * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
-  public CurveNodeIdMapper(final String name,
+  private CurveNodeIdMapper(final String name,
       final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
       final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
       final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,

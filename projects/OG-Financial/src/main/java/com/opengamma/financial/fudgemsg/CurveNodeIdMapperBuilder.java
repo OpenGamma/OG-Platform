@@ -99,8 +99,19 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = getMapForField(RATE_FUTURE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = getMapForField(SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = getMapForField(ZERO_COUPON_INFLATION_NODE_FIELD, deserializer, message);
-    return new CurveNodeIdMapper(name, cashNodeIds, continuouslyCompoundedRateNodeIds, creditSpreadNodeIds, discountFactorNodeIds, fraNodeIds,
-        fxForwardNodeIds, rateFutureNodeIds, swapNodeIds, zeroCouponInflationNodeIds);
+    CurveNodeIdMapper idMapper = CurveNodeIdMapper.builder().
+        cashNodeIds(cashNodeIds).
+        continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateNodeIds).
+        creditSpreadNodeIds(creditSpreadNodeIds).
+        discountFactorNodeIds(discountFactorNodeIds).
+        fraNodeIds(fraNodeIds).
+        fxForwardNodeIds(fxForwardNodeIds).
+        rateFutureNodeIds(rateFutureNodeIds).
+        name(name).
+        swapNodeIds(swapNodeIds).
+        zeroCouponInflationNodeIds(zeroCouponInflationNodeIds).
+        build();
+    return idMapper;
   }
 
   public static FudgeMsg getMessageForField(final FudgeSerializer serializer, final Map<Tenor, CurveInstrumentProvider> idMap) {
@@ -122,4 +133,6 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     }
     return null;
   }
+   
+  
 }
