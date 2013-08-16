@@ -38,6 +38,7 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.DefaultMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.live.LiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -110,7 +111,6 @@ public class DependencyGraphTraceBuilderTest {
 
       @Override
       public void addListener(final MarketDataListener listener) {
-        fail();
       }
 
       @Override
@@ -146,7 +146,6 @@ public class DependencyGraphTraceBuilderTest {
 
       @Override
       public MarketDataPermissionProvider getPermissionProvider() {
-        fail();
         return null;
       }
 
