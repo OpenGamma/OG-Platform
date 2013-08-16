@@ -50,8 +50,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   }
 
   @Override
-  /* package */ void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    getView().createViewport(requestId, getGridType(), viewportId, callbackId, viewportDefinition);
+  /* package */ void createViewport(int requestId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
+    getView().createViewport(requestId, getGridType(), viewportId, callbackId, structureCallbackId, viewportDefinition);
   }
 
   @Override

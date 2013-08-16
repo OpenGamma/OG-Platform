@@ -95,7 +95,7 @@ public interface AnalyticsView {
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport
    */
-  boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport. A viewport will be updated when the user scrolls the grid.
@@ -194,7 +194,7 @@ public interface AnalyticsView {
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport
    */
-  boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport of a dependency graph grid. A viewport will be updated when the user scrolls the grid.

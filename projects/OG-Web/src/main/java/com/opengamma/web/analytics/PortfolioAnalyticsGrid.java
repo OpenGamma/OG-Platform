@@ -102,8 +102,8 @@ import com.opengamma.id.ObjectId;
   }
 
   @Override
-  PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
-    return new PortfolioGridViewport(_gridStructure, callbackId, viewportDefinition, getViewCycle(), cache);
+  PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, String structureCallbackId, ResultsCache cache) {
+    return new PortfolioGridViewport(_gridStructure, callbackId, structureCallbackId, viewportDefinition, getViewCycle(), cache);
   }
 
   @Override

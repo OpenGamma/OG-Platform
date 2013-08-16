@@ -112,12 +112,13 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ boolean createViewport(int viewportId,
                                        String callbackId,
+                                       String structureCallbackId,
                                        ViewportDefinition viewportDefinition,
                                        ResultsCache cache) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    V viewport = createViewport(viewportDefinition, callbackId, cache);
+    V viewport = createViewport(viewportDefinition, callbackId, structureCallbackId, cache);
     _viewportListener.viewportCreated(viewportDefinition, getGridStructure());
     boolean hasData = (viewport.getState() != Viewport.State.EMPTY);
     _viewports.put(viewportId, viewport);
@@ -132,7 +133,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param cache  the result cache
    * @return the new viewport and a flag indicating whether there is data available for it
    */
-  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache);
+  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId, String structureCallbackId, ResultsCache cache);
 
   /**
    * Deletes a viewport.

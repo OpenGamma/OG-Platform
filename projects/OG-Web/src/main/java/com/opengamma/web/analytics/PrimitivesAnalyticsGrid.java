@@ -39,8 +39,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   @Override
   protected MainGridViewport createViewport(ViewportDefinition viewportDefinition,
                                             String callbackId,
+                                            String structureCallbackId,
                                             ResultsCache cache) {
-    return new PrimitivesGridViewport(getGridStructure(), callbackId, viewportDefinition, getViewCycle(), cache);
+    return new PrimitivesGridViewport(getGridStructure(), callbackId, structureCallbackId, viewportDefinition, getViewCycle(), cache);
   }
 
   @Override

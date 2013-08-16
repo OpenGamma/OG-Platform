@@ -15,6 +15,8 @@ import com.opengamma.util.tuple.Pair;
 
   /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
   private final String _callbackId;
+  /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
+  private final String _structureCallbackId;
   /** Defines the extent of the viewport. */
   private ViewportDefinition _viewportDefinition;
   /** The current viewport data. */
@@ -27,10 +29,12 @@ import com.opengamma.util.tuple.Pair;
    * @param viewportDefinition The viewport definition
    */
   /* package */ MainGridViewport(String callbackId,
+                                 String structureCallbackId,
                                  ViewportDefinition viewportDefinition) {
     ArgumentChecker.notEmpty(callbackId, "callbackId");
     _callbackId = callbackId;
     _viewportDefinition = viewportDefinition;
+    _structureCallbackId = structureCallbackId;
   }
 
   /**
@@ -64,7 +68,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public String getStructureCallbackId() {
-    return _callbackId + "/structure";
+    return _structureCallbackId;
   }
 
   @Override

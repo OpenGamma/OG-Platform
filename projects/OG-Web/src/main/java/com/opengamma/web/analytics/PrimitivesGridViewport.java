@@ -22,10 +22,11 @@ public class PrimitivesGridViewport extends MainGridViewport {
    */
   PrimitivesGridViewport(MainGridStructure gridStructure,
                          String callbackId,
+                         String structureCallbackId,
                          ViewportDefinition viewportDefinition,
                          ViewCycle cycle,
                          ResultsCache cache) {
-    super(callbackId, viewportDefinition);
+    super(callbackId, structureCallbackId, viewportDefinition);
     _gridStructure = gridStructure;
     update(viewportDefinition, cycle, cache);
   }

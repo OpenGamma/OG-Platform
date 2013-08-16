@@ -75,10 +75,11 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                 GridType gridType,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.createViewport");
-    boolean retVal = _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+    boolean retVal = _delegate.createViewport(requestId, gridType, viewportId, callbackId, structureCallbackId, viewportDefinition);
     s_logger.trace("createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
@@ -153,6 +154,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                 int graphId,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.createViewport");
@@ -161,6 +163,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                               graphId,
                                               viewportId,
                                               callbackId,
+                                              structureCallbackId,
                                               viewportDefinition);
     s_logger.trace("createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;

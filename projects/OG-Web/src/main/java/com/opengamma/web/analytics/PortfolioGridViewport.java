@@ -31,10 +31,11 @@ public class PortfolioGridViewport extends MainGridViewport {
    */
   PortfolioGridViewport(MainGridStructure gridStructure,
                         String callbackId,
+                        String structureCallbackId,
                         ViewportDefinition viewportDefinition,
                         ViewCycle cycle,
                         ResultsCache cache) {
-    super(callbackId, viewportDefinition);
+    super(callbackId, structureCallbackId, viewportDefinition);
     _gridStructure = gridStructure;
     _nodeStructure = new ViewportNodeStructure(getGridStructure().getRootNode(), getGridStructure().getTargetLookup());
     _currentExpandedPaths = new HashSet<>(_nodeStructure.getInitialPaths());

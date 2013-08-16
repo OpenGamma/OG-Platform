@@ -174,13 +174,14 @@ import com.opengamma.util.tuple.Pair;
   /* package */boolean createViewport(int graphId,
                                       int viewportId,
                                       String callbackId,
+                                      String structureCallbackId,
                                       ViewportDefinition viewportDefinition,
                                       ResultsCache cache) {
-    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition, cache);
+    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, structureCallbackId, viewportDefinition, cache);
   }
 
    @Override
-  abstract T createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache);
+  abstract T createViewport(ViewportDefinition viewportDefinition, String callbackId, String structureCallbackId, ResultsCache cache);
 
   /**
    * Updates an existing viewport on a dependency graph grid

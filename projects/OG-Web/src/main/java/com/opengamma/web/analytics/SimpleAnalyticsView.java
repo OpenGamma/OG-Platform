@@ -226,8 +226,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                 GridType gridType,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
-    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition, _cache);
+    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, structureCallbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
                    _viewId, viewportId, gridType, viewportDefinition);
     return hasData;
@@ -286,8 +287,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                 int graphId,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
-    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition, _cache);
+    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, structureCallbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for dependency graph {} of the {} grid using {}",
                    _viewId, viewportId, graphId, gridType, viewportDefinition);
     return hasData;
@@ -416,7 +418,8 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     ViewportDefinition viewportDefinition = ViewportDefinition.create(Integer.MIN_VALUE, rows, cols, Lists.<GridCell>newArrayList(), format, false);
     
     String callbackId = GUIDGenerator.generate().toString();
-    MainGridViewport viewport = getGrid(gridType).createViewport(viewportDefinition, callbackId, _cache);
+    String structureCallbackId = GUIDGenerator.generate().toString();
+    MainGridViewport viewport = getGrid(gridType).createViewport(viewportDefinition, callbackId, structureCallbackId, _cache);
     return viewport.getData();
   }
 

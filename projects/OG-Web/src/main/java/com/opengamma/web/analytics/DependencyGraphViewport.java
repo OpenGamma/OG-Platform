@@ -45,6 +45,7 @@ public class DependencyGraphViewport implements Viewport {
   /* package */ DependencyGraphViewport(String calcConfigName,
                                         DependencyGraphGridStructure gridStructure,
                                         String callbackId,
+                                        String structureCallbackId,
                                         ViewportDefinition viewportDefinition,
                                         ViewCycle cycle,
                                         ResultsCache cache) {

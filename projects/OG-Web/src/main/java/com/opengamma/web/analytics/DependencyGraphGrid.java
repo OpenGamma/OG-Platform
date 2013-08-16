@@ -96,8 +96,8 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
 
   @Override
   protected DependencyGraphViewport createViewport(
-      ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
-    return new DependencyGraphViewport(_calcConfigName, _gridStructure, callbackId, viewportDefinition, _latestCycle, cache);
+      ViewportDefinition viewportDefinition, String callbackId, String  structureCallbackId, ResultsCache cache) {
+    return new DependencyGraphViewport(_calcConfigName, _gridStructure, callbackId, structureCallbackId, viewportDefinition, _latestCycle, cache);
   }
 
   /* package */ List<String> updateResults(ViewCycle cycle, ResultsCache cache) {
