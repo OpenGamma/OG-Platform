@@ -19,7 +19,6 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -116,7 +115,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
      * @param matrix The FX matrix, not null
      * @return The merged providers
      */
-    protected MulticurveProviderInterface getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
+    protected MulticurveProviderDiscount getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
       ArgumentChecker.notNull(inputs, "inputs");
       ArgumentChecker.notNull(matrix, "matrix");
       final Collection<MulticurveProviderDiscount> providers = new HashSet<>();
@@ -126,7 +125,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
           providers.add((MulticurveProviderDiscount) input.getValue());
         }
       }
-      final MulticurveProviderInterface result = ProviderUtils.mergeDiscountingProviders(providers);
+      final MulticurveProviderDiscount result = ProviderUtils.mergeDiscountingProviders(providers);
       return ProviderUtils.mergeDiscountingProviders(result, matrix);
     }
 

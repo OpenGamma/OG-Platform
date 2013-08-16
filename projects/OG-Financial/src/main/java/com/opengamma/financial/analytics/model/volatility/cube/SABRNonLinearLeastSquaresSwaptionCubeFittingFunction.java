@@ -193,13 +193,13 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     return Sets.newHashSet(sabrSurfacesSpecification, smileIdsSpecification);
   }
 
-  private double getTime(final Tenor tenor) {
+  private static double getTime(final Tenor tenor) {
     final Period period = tenor.getPeriod();
     final double months = period.toTotalMonths();
     return months / 12.;
   }
 
-  private ValueRequirement getCubeDataRequirement(final ComputationTarget target, final String cubeName) {
+  private static ValueRequirement getCubeDataRequirement(final ComputationTarget target, final String cubeName) {
     final ValueProperties cubeProperties = ValueProperties.with(ValuePropertyNames.CUBE, cubeName).get();
     return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA, target.toSpecification(), cubeProperties);
   }

@@ -33,6 +33,7 @@ import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhitePri
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
@@ -106,7 +107,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
    * the discounting method.
    * @return A configuration source containing these functions
    */
-  protected FunctionConfigurationSource discountingBlackFunctionConfiguration() {
+  protected FunctionConfigurationSource blackDiscountingFunctionConfiguration() {
     return BlackDiscountingPricingFunctions.instance();
   }
 
@@ -150,7 +151,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Adds interest rate future-specific functions.
    * @return A configuration source containing the deprecated interest rate future functions.
-   * @deprecated The current versions of these functions are added in {@link #multiCurvePricingFunctionConfiguration()}
+   * @deprecated The current versions of these functions are added in {@link ModelFunctions#blackDiscountingFunctionConfiguration}
    */
   @Deprecated
   protected FunctionConfigurationSource interestRateFutureFunctionConfiguration() {
@@ -180,8 +181,18 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
+  /**
+   * Adds SABR pricing functions for swaptions, cap/floors, CMS and cap/floor CMS spreads
+   * @return A configuration source containing the deprecated functions
+   * @deprecated The current versions of these functions are added in {@link ModelFunctions#sabrDiscountingFunctionConfiguration()}
+   */
+  @Deprecated
   protected FunctionConfigurationSource sabrCubeFunctionConfiguration() {
     return SABRCubeFunctions.instance();
+  }
+
+  protected FunctionConfigurationSource sabrDiscountingFunctionConfiguration() {
+    return SABRDiscountingPricingFunctions.instance();
   }
 
   protected FunctionConfigurationSource sensitivitiesFunctionConfiguration() {
@@ -210,13 +221,37 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctionConfiguration(), bondFutureOptionFunctionConfiguration(), cdsFunctionConfiguration(),
-        creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(),
-        futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
-        pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
-        swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration(), yieldCurveFunctionConfiguration(), forwardFunctionConfiguration(),
-        futureCurveFunctionConfiguration(), discountingFunctionConfiguration(), hullWhitePricingFunctionConfiguration(),
-        interestRateFutureFunctionConfiguration(), fxPricingFunctionConfiguration(), discountingBlackFunctionConfiguration());
+    return CombiningFunctionConfigurationSource.of(super.createObject(),
+        bondFunctionConfiguration(),
+        bondFutureOptionFunctionConfiguration(),
+        cdsFunctionConfiguration(),
+        creditFunctionConfiguration(),
+        curveFunctionConfiguration(),
+        equityFunctionConfiguration(),
+        fixedIncomeFunctionConfiguration(),
+        forexFunctionConfiguration(),
+        futureFunctionConfiguration(),
+        futureOptionFunctionConfiguration(),
+        horizonFunctionConfiguration(),
+        irFutureOptionFunctionConfiguration(),
+        optionFunctionConfiguration(),
+        pnlFunctionConfiguration(),
+        riskFactorFunctionConfiguration(),
+        sabrCubeFunctionConfiguration(),
+        sensitivitiesFunctionConfiguration(),
+        simpleInstrumentFunctionConfiguration(),
+        swaptionFunctionConfiguration(),
+        varFunctionConfiguration(),
+        volatilityFunctionConfiguration(),
+        yieldCurveFunctionConfiguration(),
+        forwardFunctionConfiguration(),
+        futureCurveFunctionConfiguration(),
+        discountingFunctionConfiguration(),
+        hullWhitePricingFunctionConfiguration(),
+        interestRateFutureFunctionConfiguration(),
+        fxPricingFunctionConfiguration(),
+        blackDiscountingFunctionConfiguration(),
+        sabrDiscountingFunctionConfiguration());
   }
 
 }

@@ -39,7 +39,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -350,7 +349,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
     protected abstract Set<ComputedValue> getValues(FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
         Forex forex, FXMatrix fxMatrix, ZonedDateTime now);
 
-    protected MulticurveProviderInterface getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
+    protected MulticurveProviderDiscount getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
       final Collection<MulticurveProviderDiscount> providers = new HashSet<>();
       for (final ComputedValue input : inputs.getAllValues()) {
         final String valueName = input.getSpecification().getValueName();
@@ -358,7 +357,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
           providers.add((MulticurveProviderDiscount) input.getValue());
         }
       }
-      final MulticurveProviderInterface result = ProviderUtils.mergeDiscountingProviders(providers);
+      final MulticurveProviderDiscount result = ProviderUtils.mergeDiscountingProviders(providers);
       return ProviderUtils.mergeDiscountingProviders(result, matrix);
     }
 
