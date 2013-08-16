@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -49,7 +50,8 @@ public class HullWhiteParRateFunction extends HullWhiteFunction {
     return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final MulticurveProviderInterface data = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

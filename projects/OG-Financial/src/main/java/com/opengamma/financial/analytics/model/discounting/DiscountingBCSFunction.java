@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -58,7 +59,8 @@ public class DiscountingBCSFunction extends DiscountingFunction {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final MulticurveProviderInterface curves = getMergedProviders(inputs, fxMatrix);

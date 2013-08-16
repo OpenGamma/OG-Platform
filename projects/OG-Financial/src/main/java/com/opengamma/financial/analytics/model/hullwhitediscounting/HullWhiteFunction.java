@@ -90,8 +90,7 @@ public abstract class HullWhiteFunction extends MultiCurvePricingFunction {
             properties.with(CURRENCY, currency);
             return properties;
           }
-        }
-        if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
+        } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());

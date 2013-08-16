@@ -39,6 +39,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Base function for all pricing and risk functions that use the discounting
@@ -86,8 +87,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
             properties.with(CURRENCY, currency);
             return properties;
           }
-        }
-        if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
+        } else if (security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity) {
           properties.with(CURRENCY, ((FinancialSecurity) security).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
         } else {
           properties.with(CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
@@ -110,7 +110,15 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
       return ValueProperties.builder();
     }
 
+    /**
+     * Merges the multi-curve providers.
+     * @param inputs The function inputs, not null
+     * @param matrix The FX matrix, not null
+     * @return The merged providers
+     */
     protected MulticurveProviderInterface getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
+      ArgumentChecker.notNull(inputs, "inputs");
+      ArgumentChecker.notNull(matrix, "matrix");
       final Collection<MulticurveProviderDiscount> providers = new HashSet<>();
       for (final ComputedValue input : inputs.getAllValues()) {
         final String valueName = input.getSpecification().getValueName();
@@ -122,7 +130,13 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
       return ProviderUtils.mergeDiscountingProviders(result, matrix);
     }
 
+    /**
+     * Merges the multi-curve blocks.
+     * @param inputs The function inputs, not null
+     * @return The merged blocks
+     */
     protected CurveBuildingBlockBundle getMergedCurveBuildingBlocks(final FunctionInputs inputs) {
+      ArgumentChecker.notNull(inputs, "inputs");
       final CurveBuildingBlockBundle result = new CurveBuildingBlockBundle();
       for (final ComputedValue input : inputs.getAllValues()) {
         final String valueName = input.getSpecification().getValueName();
@@ -131,6 +145,14 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
         }
       }
       return result;
+    }
+
+    /**
+     * Gets the flag indicating whether or not the currency property is set.
+     * @return True if the currency property is set
+     */
+    protected boolean isWithCurrency() {
+      return _withCurrency;
     }
   }
 }

@@ -175,7 +175,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
             CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
         fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
       }
-      return getValues(inputs, target, desiredValues, derivative, fxMatrix);
+      return getValues(executionContext, inputs, target, desiredValues, derivative, fxMatrix);
     }
 
     @Override
@@ -350,6 +350,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Calculates the result.
+     * @param executionContext The execution context, not null
      * @param inputs The inputs, not null
      * @param target The target, not null
      * @param desiredValues The desired values for this function, not null
@@ -357,7 +358,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      * @param fxMatrix The FX matrix, not null
      * @return The results
      */
-    protected abstract Set<ComputedValue> getValues(FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
-        InstrumentDerivative derivative, FXMatrix fxMatrix);
+    protected abstract Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs,
+        ComputationTarget target, Set<ValueRequirement> desiredValues, InstrumentDerivative derivative, FXMatrix fxMatrix);
   }
 }

@@ -1,0 +1,31 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.analytics.model.hullwhitediscounting;
+
+import java.util.List;
+
+import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.FunctionConfiguration;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
+
+/**
+ *
+ */
+public class HullWhitePricingFunctions extends AbstractFunctionConfigurationBean {
+
+  public static FunctionConfigurationSource instance() {
+    return new HullWhitePricingFunctions().getObjectCreating();
+  }
+
+  @Override
+  protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(HullWhiteBCSFunction.class));
+    functions.add(functionConfiguration(HullWhiteParRateFunction.class));
+    functions.add(functionConfiguration(HullWhitePVFunction.class));
+    functions.add(functionConfiguration(HullWhitePV01Function.class));
+    functions.add(functionConfiguration(HullWhiteYCNSFunction.class));
+  }
+}

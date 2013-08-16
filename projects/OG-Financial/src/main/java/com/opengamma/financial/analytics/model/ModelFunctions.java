@@ -14,6 +14,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
@@ -21,14 +22,15 @@ import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
+import com.opengamma.financial.analytics.model.discounting.DiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.fx.FXForwardPricingFunctions;
 import com.opengamma.financial.analytics.model.horizon.HorizonFunctions;
+import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhitePricingFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
-import com.opengamma.financial.analytics.model.multicurve.MulticurvePricingFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
@@ -91,8 +93,30 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.instance();
   }
 
-  protected FunctionConfigurationSource multiCurvePricingFunctionConfiguration() {
-    return MulticurvePricingFunctions.instance();
+  /**
+   * Adds pricing functions that use curves constructed with the discounting method.
+   * @return A configuration source containing these functions.
+   */
+  protected FunctionConfigurationSource discountingFunctionConfiguration() {
+    return DiscountingPricingFunctions.instance();
+  }
+
+  /**
+   * Adds pricing functions that use Black surfaces and curve constructed with
+   * the discounting method.
+   * @return A configuration source containing these functions
+   */
+  protected FunctionConfigurationSource discountingBlackFunctionConfiguration() {
+    return BlackDiscountingPricingFunctions.instance();
+  }
+
+  /**
+   * Adds pricing functions that use curves constructed using the Hull-White
+   * one factor discounting method.
+   * @return A configuration source containing these functions
+   */
+  protected FunctionConfigurationSource hullWhitePricingFunctionConfiguration() {
+    return HullWhitePricingFunctions.instance();
   }
 
   protected FunctionConfigurationSource fxPricingFunctionConfiguration() {
@@ -191,7 +215,8 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
         pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
         swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration(), yieldCurveFunctionConfiguration(), forwardFunctionConfiguration(),
-        futureCurveFunctionConfiguration(), multiCurvePricingFunctionConfiguration(), interestRateFutureFunctionConfiguration(), fxPricingFunctionConfiguration());
+        futureCurveFunctionConfiguration(), discountingFunctionConfiguration(), hullWhitePricingFunctionConfiguration(),
+        interestRateFutureFunctionConfiguration(), fxPricingFunctionConfiguration(), discountingBlackFunctionConfiguration());
   }
 
 }

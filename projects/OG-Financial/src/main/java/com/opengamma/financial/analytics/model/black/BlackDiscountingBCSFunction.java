@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.hullwhitediscounting;
+package com.opengamma.financial.analytics.model.black;
 
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
 
@@ -16,10 +16,11 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueCurveSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
-import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -36,36 +37,36 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class HullWhiteBCSFunction extends HullWhiteFunction {
+public class BlackDiscountingBCSFunction extends BlackDiscountingFunction {
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
-      PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+      PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<BlackSwaptionFlatProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteSensitivityBlockCalculator<HullWhiteOneFactorProviderInterface> CALCULATOR =
+  private static final MarketQuoteSensitivityBlockCalculator<BlackSwaptionFlatProviderInterface> CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#BLOCK_CURVE_SENSITIVITIES}
    */
-  public HullWhiteBCSFunction() {
+  public BlackDiscountingBCSFunction() {
     super(BLOCK_CURVE_SENSITIVITIES);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
+    return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-        final HullWhiteOneFactorProviderInterface curves = getMergedProviders(inputs, fxMatrix);
+        final BlackSwaptionFlatProvider blackData = getSwaptionBlackSurface(executionContext, inputs, target, fxMatrix);
         final CurveBuildingBlockBundle blocks = getMergedCurveBuildingBlocks(inputs);
-        final MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, curves, blocks);
+        final MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, blackData, blocks);
         final ValueSpecification spec = new ValueSpecification(BLOCK_CURVE_SENSITIVITIES, target.toSpecification(), desiredValue.getConstraints().copy().get());
         return Collections.singleton(new ComputedValue(spec, sensitivities));
       }

@@ -3,15 +3,18 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.discounting;
+package com.opengamma.financial.analytics.model.black;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
+import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.BLACK;
+import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -51,20 +54,20 @@ import com.opengamma.util.tuple.Pair;
  * Calculates the yield curve node sensitivities of instruments using
  * curves constructed using the discounting method.
  */
-public class DiscountingYCNSFunction extends DiscountingFunction {
+public class BlackDiscountingYCNSFunction extends BlackDiscountingFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingYCNSFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackDiscountingYCNSFunction.class);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
    */
-  public DiscountingYCNSFunction() {
+  public BlackDiscountingYCNSFunction() {
     super(YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
@@ -101,9 +104,15 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
         if (curveExposureConfigs == null) {
           return null;
         }
+        final Set<String> surfaces = constraints.getValues(SURFACE);
+        if (surfaces == null) {
+          return null;
+        }
         final ValueProperties properties = ValueProperties
             .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .with(CURVE_EXPOSURES, curveExposureConfigs)
+            .with(SURFACE, surfaces)
+            .with(PROPERTY_VOLATILITY_MODEL, BLACK)
             .get();
         final ValueProperties curveProperties = ValueProperties
             .with(CURVE, curveNames)
