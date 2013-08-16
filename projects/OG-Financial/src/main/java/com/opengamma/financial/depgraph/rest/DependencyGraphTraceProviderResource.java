@@ -6,6 +6,7 @@
 package com.opengamma.financial.depgraph.rest;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,10 +21,14 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
@@ -129,9 +134,31 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
   }
 
   @Path("marketDataSnapshot/{snapshotId}")
-  public DependencyGraphTraceProviderResource setMarketData(@PathParam("snapshotId") final String snapshotId) {
+  public DependencyGraphTraceProviderResource setMarketDataSnapshot(@PathParam("snapshotId") final String snapshotId) {
     UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
-    DependencyGraphTraceBuilderProperties properties = _properties.marketData(marketData);
+    DependencyGraphTraceBuilderProperties properties = _properties.addMarketData(marketData);
+    return new DependencyGraphTraceProviderResource(_provider, _fudgeContext, properties);
+  }
+  
+  @Path("marketDataLiveDefault")
+  public DependencyGraphTraceProviderResource setMarketDataLiveDefault() {
+    MarketDataSpecification marketData = MarketData.live();
+    DependencyGraphTraceBuilderProperties properties = _properties.addMarketData(marketData);
+    return new DependencyGraphTraceProviderResource(_provider, _fudgeContext, properties);
+  }
+  
+  @Path("marketDataLive/{dataSource}")
+  public DependencyGraphTraceProviderResource setMarketDataLive(@PathParam("dataSource") final String dataSource) {
+    MarketDataSpecification marketData = MarketData.live(dataSource);
+    DependencyGraphTraceBuilderProperties properties = _properties.addMarketData(marketData);
+    return new DependencyGraphTraceProviderResource(_provider, _fudgeContext, properties);
+  }
+
+  @Path("marketDataHistorical/{localDate}/{timeSeriesResolverKey}")
+  public DependencyGraphTraceProviderResource setMarketDataHistorical(@PathParam("localDate") final String localDateStr, @PathParam("timeSeriesResolverKey") final String timeSeriesResolverKey) {
+    LocalDate localDate = LocalDate.parse(localDateStr);
+    MarketDataSpecification marketData = MarketData.historical(localDate, timeSeriesResolverKey);
+    DependencyGraphTraceBuilderProperties properties = _properties.addMarketData(marketData);
     return new DependencyGraphTraceProviderResource(_provider, _fudgeContext, properties);
   }
 
@@ -212,10 +239,30 @@ public final class DependencyGraphTraceProviderResource extends AbstractDataReso
    * @param marketData the market data
    * @return the URI
    */
-  public static URI uriMarketData(URI baseUri, UserMarketDataSpecification marketData) {
-    String snapshotId = marketData.getUserSnapshotId().toString();
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("marketDataSnapshot/{snapshotId}");
-    return bld.build(snapshotId);
+  public static URI uriMarketData(URI baseUri, List<MarketDataSpecification> marketData) {
+    for (MarketDataSpecification mdSpec : marketData) {
+      if (mdSpec instanceof UserMarketDataSpecification) {
+        String snapshotId = ((UserMarketDataSpecification) mdSpec).getUserSnapshotId().toString();
+        UriBuilder bld = UriBuilder.fromUri(baseUri).path("marketDataSnapshot/{snapshotId}");
+        baseUri = bld.build(snapshotId);
+      } else if (mdSpec instanceof LiveMarketDataSpecification) {
+        String dataSource = ((LiveMarketDataSpecification) mdSpec).getDataSource();
+        if (dataSource == null) {
+          UriBuilder bld = UriBuilder.fromUri(baseUri).path("marketDataLiveDefault");
+          baseUri = bld.build();
+        } else {
+          UriBuilder bld = UriBuilder.fromUri(baseUri).path("marketDataLive/{dataSource}");
+          baseUri = bld.build(dataSource);
+        }
+      } else if (mdSpec instanceof FixedHistoricalMarketDataSpecification) {
+        String snapshotDate = ((FixedHistoricalMarketDataSpecification) mdSpec).getSnapshotDate().toString();
+        String timeSeriesResolverKey = ((FixedHistoricalMarketDataSpecification) mdSpec).getTimeSeriesResolverKey();
+        UriBuilder bld = UriBuilder.fromUri(baseUri).path("marketDataHistorical/{localDate}/{timeSeriesResolverKey}");
+        baseUri = bld.build(snapshotDate, timeSeriesResolverKey);
+      }
+      
+    }
+    return baseUri;
   }
 
   /**
