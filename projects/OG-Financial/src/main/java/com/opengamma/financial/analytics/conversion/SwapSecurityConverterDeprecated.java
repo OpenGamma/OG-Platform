@@ -54,7 +54,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Convert the swaps from their Security version to the Definition version.
+ * Converts swaps from {@link SwapSecurity} to the {@link InstrumentDefinition}s.
  * @deprecated Replaced by {@link SwapSecurityConverter}, which does not use curve name information
  */
 @Deprecated
