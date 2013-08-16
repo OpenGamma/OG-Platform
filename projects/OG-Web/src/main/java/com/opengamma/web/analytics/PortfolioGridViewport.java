@@ -16,7 +16,7 @@ import com.opengamma.util.tuple.Pair;
 public class PortfolioGridViewport extends MainGridViewport {
 
   /** The node structure. */
-  private final ViewportNodeStructure _nodeStructure;
+  private  ViewportNodeStructure _nodeStructure;
   /** The current expanded paths. */
   private Set<List<String>> _currentExpandedPaths;
   /** Row and column structure of the grid. */
@@ -59,6 +59,7 @@ public class PortfolioGridViewport extends MainGridViewport {
                                                            _currentExpandedPaths);
     setViewportDefinition(ViewportDefinition.createEmpty(0));
     _gridStructure = gridStructure.withNode(node.getRootNode());
+    _nodeStructure = new ViewportNodeStructure(getGridStructure().getRootNode(), getGridStructure().getTargetLookup());
   }
 
   /**
