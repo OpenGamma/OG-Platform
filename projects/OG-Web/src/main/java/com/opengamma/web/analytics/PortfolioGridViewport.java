@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +12,6 @@ import java.util.Set;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 public class PortfolioGridViewport extends MainGridViewport {
 
@@ -57,8 +55,7 @@ public class PortfolioGridViewport extends MainGridViewport {
     ViewportNodeStructure node = new ViewportNodeStructure(gridStructure.getRootNode(),
                                                            gridStructure.getTargetLookup(),
                                                            _currentExpandedPaths);
-    List<Integer> emptyList = Collections.emptyList();
-    setViewportDefinition(ViewportDefinition.create(0, emptyList, emptyList, null, TypeFormatter.Format.CELL, false));
+    setViewportDefinition(ViewportDefinition.createEmpty(0));
     _gridStructure = gridStructure.withNode(node.getRootNode());
   }
 
@@ -77,7 +74,7 @@ public class PortfolioGridViewport extends MainGridViewport {
                                              viewportDefinition + ", grid: " + getGridStructure());
     }
     if (getDefinition()  != null) {
-      Pair<Integer, Boolean> changedNode = getDefinition() .getChangedNode(viewportDefinition);
+      Pair<Integer, Boolean> changedNode = getDefinition().getChangedNode(viewportDefinition);
       // if this is null then the user scrolled the viewport and didn't expand or collapse a node
       if (changedNode != null) {
         Integer rowIndex = changedNode.getFirst();

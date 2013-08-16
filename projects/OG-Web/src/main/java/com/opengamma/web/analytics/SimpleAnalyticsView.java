@@ -154,6 +154,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   private List<String> getGridIds() {
     List<String> gridIds = Lists.newArrayList();
+    for (PortfolioGridViewport viewport : _portfolioGrid.getViewports().values()) {
+      gridIds.add(viewport.getStructureCallbackId());
+      gridIds.add(viewport.getCallbackId());
+    }
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());
     gridIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());

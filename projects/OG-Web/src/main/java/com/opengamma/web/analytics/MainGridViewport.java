@@ -63,6 +63,10 @@ import com.opengamma.util.tuple.Pair;
     return _callbackId;
   }
 
+  public String getStructureCallbackId() {
+    return _callbackId + "/structure";
+  }
+
   @Override
   public State getState() {
     return _state;

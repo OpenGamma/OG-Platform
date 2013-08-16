@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -76,6 +77,11 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
       }
       return new RectangularViewportDefinition(version, rows, columns, format, logging);
     }
+  }
+
+  public static ViewportDefinition createEmpty(int version) {
+    List<Integer> emptyList = Collections.emptyList();
+    return new RectangularViewportDefinition(version, emptyList, emptyList, TypeFormatter.Format.CELL, false);
   }
 
   /* package */ int getVersion() {

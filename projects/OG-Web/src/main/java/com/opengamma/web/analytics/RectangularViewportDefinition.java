@@ -42,8 +42,6 @@ public class RectangularViewportDefinition extends ViewportDefinition {
                                               TypeFormatter.Format format,
                                               Boolean enableLogging) {
     super(version, enableLogging);
-    ArgumentChecker.notEmpty(rows, "rows");
-    ArgumentChecker.notEmpty(columns, "columns");
     ArgumentChecker.notNull(format, "format");
     _format = format;
     // TODO bounds checking
@@ -82,8 +80,8 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     }
     List<Integer> newRows = ((RectangularViewportDefinition) viewportDefinition).getRows();
 
-    //if the first rows aren't equal the user has scrolled, return null
-    if (_rows.get(0) != newRows.get(0)) {
+    //if the first rows aren't equal the user has scrolled, of if there are no rows, return null
+    if (_rows.isEmpty() || (_rows.get(0) != newRows.get(0))) {
       return null;
     }
     // if the first rows are equal and the viewport has changed then the user has either expanded or collapsed a node
@@ -149,7 +147,9 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     }
 
     private void initRow() {
-      _rowIndex = _rowIterator.next();
+      if(_rowIterator.hasNext()) {
+        _rowIndex = _rowIterator.next();
+      }
       _colIterator = _columns.iterator();
     }
 
