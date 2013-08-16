@@ -34,15 +34,18 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   private static final Function1D<double[], Double> MOMENT_CALCULATOR = new SampleMomentCalculator(2);
 
   /*
-   * TODO error must be returned if dt > (dividend interval)
-   * TODO check 0<p<1, which is not necessarily satisfied with non-zero dividend, ]
+   * TODO error must be returned if dt > (dividend interval) (PLAT-4314)
+   * TODO check 0<p<1, which is not necessarily satisfied with non-zero dividend, (PLAT-4314)
    *                   this must be checked for spread options
-   * TODO Other types, such as Binary-type payoff, can be done with OptionDefinition
-   * TODO Greeks with discrete dividends
-   * TODO discrete dividends for other types of option(barrier, bermudan, asian, look back)
+   * TODO Greeks with discrete dividends (PLAT-4290)
+   * TODO discrete dividends for other types of option(barrier) (PLAT-4290)
    * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
-   * TODO Argument checker for barrier such as strike v.s. barrier, spot v.s. barrier, etc... which must give 0
-   * TODO barrier American needs more tests
+   * TODO Argument checker for barrier such as strike v.s. barrier, spot v.s. barrier, etc... which must give 0 (PLAT-4314)
+   * TODO barrier American needs more tests (PLAT-4297)
+   *       Test barrier option with nonzero dividend against analytic formula
+   *       
+   *       
+   * TODO Other types, such as Binary-type payoff, can be done with OptionDefinition
    * TODO spread options need more tests
    * 
    * 
@@ -101,8 +104,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
    * Array is used for dividend to realize constant cost of carry given by b = r - q
    */
   @Override
-  public double getPrice(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility,
-      final double[] interestRate, final double[] dividend) {
+  public double getPrice(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate, final double[] dividend) {
     final TimeVaryingLatticeSpecification vLattice = new TimeVaryingLatticeSpecification();
 
     final int nSteps = function.getNumberOfSteps();
@@ -151,9 +153,11 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final double upProbability = params[2];
     final double downProbability = params[3];
     final double upOverDown = upFactor / downFactor;
+    //    System.out.println(upProbability + "\t" + downProbability + "\t" + upFactor + "\t" + downFactor);
 
     double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
+    //    System.out.println(new DoubleMatrix1D(values));
     final double[] res = new double[4];
 
     double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
