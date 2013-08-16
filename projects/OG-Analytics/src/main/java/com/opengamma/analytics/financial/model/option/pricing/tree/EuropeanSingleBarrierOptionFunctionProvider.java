@@ -5,12 +5,15 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import org.apache.commons.lang.NotImplementedException;
+
 /**
  * 
  */
 public class EuropeanSingleBarrierOptionFunctionProvider extends OptionFunctionProvider1D {
   /**
-   * Use these strings to specify barrier option type. DownAndIn and UpAndIn MUST be computed via in-out parity
+   * Use these strings to specify barrier option type. 
+   * DownAndIn and UpAndIn MUST be computed via in-out parity if the option is European
    */
   public static enum BarrierTypes {
     /**
@@ -20,7 +23,15 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends OptionFunctionP
     /**
      * Up-and-out option
      */
-    UpAndOut
+    UpAndOut,
+    /**
+     * Down-and-in option, not implemented
+     */
+    DownAndIn,
+    /**
+     * Up-and-in option, not implemented
+     */
+    UpAndIn
   }
 
   private double _barrier;
@@ -44,6 +55,10 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends OptionFunctionP
       case UpAndOut:
         _checker = new CrossUpperBarrier();
         break;
+      case DownAndIn:
+        throw new NotImplementedException("Down-and-in should be computed by using down-and-out and in-out parity");
+      case UpAndIn:
+        throw new NotImplementedException("Up-and-in should be computed by using up-and-out and in-out parity");
     }
 
   }

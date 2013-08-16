@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import org.apache.commons.lang.NotImplementedException;
+
 /**
  * 
  */
@@ -20,7 +22,15 @@ public class AmericanSingleBarrierOptionFunctionProvider extends OptionFunctionP
     /**
      * Up-and-out option
      */
-    UpAndOut
+    UpAndOut,
+    /**
+     * Down-and-in option, not implemented
+     */
+    DownAndIn,
+    /**
+     * Up-and-in option, not implemented
+     */
+    UpAndIn
   }
 
   private double _barrier;
@@ -44,6 +54,10 @@ public class AmericanSingleBarrierOptionFunctionProvider extends OptionFunctionP
       case UpAndOut:
         _checker = new CrossUpperBarrier();
         break;
+      case DownAndIn:
+        throw new NotImplementedException("Down-and-in should be computed by using down-and-out and in-out parity");
+      case UpAndIn:
+        throw new NotImplementedException("Up-and-in should be computed by using up-and-out and in-out parity");
     }
 
   }
