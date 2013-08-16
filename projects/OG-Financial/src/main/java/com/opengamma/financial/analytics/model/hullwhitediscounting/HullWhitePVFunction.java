@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.hullwhitediscounting;
 
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
 import java.util.Collections;
@@ -33,6 +32,7 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
@@ -67,13 +67,14 @@ public class HullWhitePVFunction extends HullWhiteFunction {
         return security instanceof CashSecurity ||
             security instanceof FRASecurity ||
             security instanceof SwapSecurity ||
-            security instanceof InterestRateFutureSecurity;
+            security instanceof InterestRateFutureSecurity ||
+            security instanceof DeliverableSwapFutureSecurity;
       }
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final HullWhiteOneFactorProviderInterface data = (HullWhiteOneFactorProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final HullWhiteOneFactorProviderInterface data = getMergedProviders(inputs, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
         final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());

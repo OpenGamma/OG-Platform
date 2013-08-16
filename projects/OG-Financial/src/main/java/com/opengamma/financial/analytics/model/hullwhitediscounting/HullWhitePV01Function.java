@@ -6,17 +6,18 @@
 package com.opengamma.financial.analytics.model.hullwhitediscounting;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -41,6 +42,8 @@ import com.opengamma.util.tuple.Pair;
  * the Hull-White one factor discounting method.
  */
 public class HullWhitePV01Function extends HullWhiteFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(HullWhitePV01Function.class);
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityHullWhiteCalculator.getInstance());
@@ -59,7 +62,7 @@ public class HullWhitePV01Function extends HullWhiteFunction {
       @Override
       protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix matrix) {
-        final HullWhiteOneFactorProviderInterface data = (HullWhiteOneFactorProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        final HullWhiteOneFactorProviderInterface data = getMergedProviders(inputs, matrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints();
@@ -79,7 +82,8 @@ public class HullWhitePV01Function extends HullWhiteFunction {
           results.add(new ComputedValue(spec, entry.getValue()));
         }
         if (!curveNameFound) {
-          throw new OpenGammaRuntimeException("Could not get PV01 for curve named " + desiredCurveName);
+          s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
+          return Collections.emptySet();
         }
         return results;
       }

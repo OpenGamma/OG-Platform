@@ -358,8 +358,8 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
           providers.add((MulticurveProviderDiscount) input.getValue());
         }
       }
-      final MulticurveProviderDiscount result = ProviderUtils.merge(providers);
-      return ProviderUtils.merge(result, matrix);
+      final MulticurveProviderInterface result = ProviderUtils.mergeDiscountingProviders(providers);
+      return ProviderUtils.mergeDiscountingProviders(result, matrix);
     }
 
     protected CurveBuildingBlockBundle getMergedCurveBuildingBlocks(final FunctionInputs inputs) {

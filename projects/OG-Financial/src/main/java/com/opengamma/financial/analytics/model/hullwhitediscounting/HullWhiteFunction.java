@@ -20,8 +20,9 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
@@ -126,14 +127,15 @@ public abstract class HullWhiteFunction extends MultiCurvePricingFunction {
     }
 
     protected HullWhiteOneFactorProviderInterface getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
-      final Collection<MulticurveProviderDiscount> providers = new HashSet<>();
+      final Collection<HullWhiteOneFactorProviderDiscount> providers = new HashSet<>();
       for (final ComputedValue input : inputs.getAllValues()) {
         final String valueName = input.getSpecification().getValueName();
         if (CURVE_BUNDLE.equals(valueName)) {
-          providers.add((MulticurveProviderDiscount) input.getValue());
+          providers.add((HullWhiteOneFactorProviderDiscount) input.getValue());
         }
       }
-      return null;
+      final HullWhiteOneFactorProviderInterface result = ProviderUtils.mergeHullWhiteProviders(providers);
+      return ProviderUtils.mergeHullWhiteProviders(result, matrix);
     }
 
     protected CurveBuildingBlockBundle getMergedCurveBuildingBlocks(final FunctionInputs inputs) {
