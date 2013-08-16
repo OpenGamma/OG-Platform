@@ -20,7 +20,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
+ * @deprecated The functions in this package are deprecated
  */
+@Deprecated
 public class DefaultPropertiesFunctions extends AbstractFunctionConfigurationBean {
 
   /**
@@ -55,7 +57,7 @@ public class DefaultPropertiesFunctions extends AbstractFunctionConfigurationBea
 
   }
 
-  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
+  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
   private String _fittingMethod = SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES;
   private String _xInterpolator = Interpolator1DFactory.LINEAR;
   private String _xLeftExtrapolator = Interpolator1DFactory.FLAT_EXTRAPOLATOR;

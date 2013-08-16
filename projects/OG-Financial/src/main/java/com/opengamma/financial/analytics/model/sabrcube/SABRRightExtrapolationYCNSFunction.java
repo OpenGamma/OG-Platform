@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -33,8 +34,11 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for the calculation of yield curve node sensitivities of instruments
+ * priced using the SABR model.
+ * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
+@Deprecated
 public class SABRRightExtrapolationYCNSFunction extends SABRYCNSFunction {
 
   @Override

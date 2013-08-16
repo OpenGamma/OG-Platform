@@ -20,6 +20,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -27,8 +28,9 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
+@Deprecated
 public abstract class SABRCMSSpreadRightExtrapolationFunction extends SABRFunction {
 
   @Override
@@ -104,7 +106,7 @@ public abstract class SABRCMSSpreadRightExtrapolationFunction extends SABRFuncti
         .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu).get();
   }
 
-  private DoubleFunction1D getCorrelationFunction() {
+  private static DoubleFunction1D getCorrelationFunction() {
     return new DoubleFunction1D() {
 
       @Override

@@ -23,6 +23,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.sabr.NoExtrapolationSABRDiscountingYCNSFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -32,8 +33,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Calculates the yield curve node sensitivities for instruments priced using the SABR model.
+ * @deprecated Use {@link NoExtrapolationSABRDiscountingYCNSFunction}
  */
+@Deprecated
 public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
 

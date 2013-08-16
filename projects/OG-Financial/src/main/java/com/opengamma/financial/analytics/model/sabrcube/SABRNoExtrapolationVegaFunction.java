@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube;
@@ -31,8 +31,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Calculates the vega quote matrix.
+ * @deprecated Use {@link NoExtrapolationSABRDiscountingVegaQuoteMatrixFunction}
  */
+@Deprecated
 public class SABRNoExtrapolationVegaFunction extends SABRVegaFunction {
 
   @Override

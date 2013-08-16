@@ -31,8 +31,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Default properties for SABR functions.
+ * @deprecated The functions to which these defaults apply are deprecated.
  */
+@Deprecated
 public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRNoExtrapolationDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
@@ -55,7 +57,7 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
     _fittingMethod = fittingMethod;
     final int nPairs = currencyCurveConfigAndCubeNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
-    _currencyCurveConfigAndCubeNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndCubeNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndCubeNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndCubeNames[i + 1], currencyCurveConfigAndCubeNames[i + 2]);
       _currencyCurveConfigAndCubeNames.put(currencyCurveConfigAndCubeNames[i], pair);

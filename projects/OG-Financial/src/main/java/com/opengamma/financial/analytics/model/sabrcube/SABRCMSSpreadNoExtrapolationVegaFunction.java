@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube;
@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -26,8 +27,9 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
+@Deprecated
 public class SABRCMSSpreadNoExtrapolationVegaFunction extends SABRVegaFunction {
 
   @Override
@@ -114,7 +116,7 @@ public class SABRCMSSpreadNoExtrapolationVegaFunction extends SABRVegaFunction {
         .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
   }
 
-  private DoubleFunction1D getCorrelationFunction() {
+  private static DoubleFunction1D getCorrelationFunction() {
     return new DoubleFunction1D() {
 
       @Override

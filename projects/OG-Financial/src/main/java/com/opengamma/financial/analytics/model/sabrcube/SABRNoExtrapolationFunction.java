@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -29,8 +30,11 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for functions that calculate risk for swaptions, CMS and cap/floors
+ * using SABR with no right extrapolation.
+ * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
+@Deprecated
 public abstract class SABRNoExtrapolationFunction extends SABRFunction {
 
   @Override

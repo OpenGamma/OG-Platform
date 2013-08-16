@@ -16,8 +16,10 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Defaults functions for SABR vega calculations.
+ * @deprecated The functions to which these default apply are deprecated
  */
+@Deprecated
 public class SABRNoExtrapolationVegaDefaults extends SABRNoExtrapolationDefaults {
   private final String _xInterpolator;
   private final String _xLeftExtrapolator;
