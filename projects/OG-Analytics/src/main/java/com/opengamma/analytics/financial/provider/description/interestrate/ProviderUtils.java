@@ -27,7 +27,7 @@ public class ProviderUtils {
    * @param providers The providers to merge, not null or empty
    * @return The merged providers
    */
-  public static MulticurveProviderInterface mergeDiscountingProviders(final Collection<MulticurveProviderDiscount> providers) {
+  public static MulticurveProviderDiscount mergeDiscountingProviders(final Collection<MulticurveProviderDiscount> providers) {
     ArgumentChecker.notNull(providers, "providers");
     ArgumentChecker.notEmpty(providers, "providers");
     final MulticurveProviderDiscount result = new MulticurveProviderDiscount();
@@ -60,7 +60,7 @@ public class ProviderUtils {
    * @param providers The providers to merge, not null or empty
    * @return The merged providers
    */
-  public static HullWhiteOneFactorProviderInterface mergeHullWhiteProviders(final Collection<HullWhiteOneFactorProviderDiscount> providers) {
+  public static HullWhiteOneFactorProviderDiscount mergeHullWhiteProviders(final Collection<HullWhiteOneFactorProviderDiscount> providers) {
     ArgumentChecker.notNull(providers, "providers");
     ArgumentChecker.notEmpty(providers, "providers");
     final Iterator<HullWhiteOneFactorProviderDiscount> iter = providers.iterator();
@@ -98,10 +98,10 @@ public class ProviderUtils {
    * @param matrix The FX matrix, not null
    * @return The merged provider
    */
-  public static MulticurveProviderInterface mergeDiscountingProviders(final MulticurveProviderInterface provider, final FXMatrix matrix) {
+  public static MulticurveProviderDiscount mergeDiscountingProviders(final MulticurveProviderDiscount provider, final FXMatrix matrix) {
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(matrix, "matrix");
-    final MulticurveProviderInterface result = provider.copy();
+    final MulticurveProviderDiscount result = provider.copy();
     final Collection<Currency> currencies = matrix.getCurrencies().keySet();
     final Iterator<Currency> iterator = currencies.iterator();
     if (currencies.size() > 0) {
@@ -120,10 +120,10 @@ public class ProviderUtils {
    * @param matrix The FX matrix, not null
    * @return The merged provider
    */
-  public static HullWhiteOneFactorProviderInterface mergeHullWhiteProviders(final HullWhiteOneFactorProviderInterface provider, final FXMatrix matrix) {
+  public static HullWhiteOneFactorProviderDiscount mergeHullWhiteProviders(final HullWhiteOneFactorProviderDiscount provider, final FXMatrix matrix) {
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(matrix, "matrix");
-    final HullWhiteOneFactorProviderInterface result = provider.copy();
+    final HullWhiteOneFactorProviderDiscount result = provider.copy();
     final Collection<Currency> currencies = matrix.getCurrencies().keySet();
     final Iterator<Currency> iterator = currencies.iterator();
     if (currencies.size() > 0) {
