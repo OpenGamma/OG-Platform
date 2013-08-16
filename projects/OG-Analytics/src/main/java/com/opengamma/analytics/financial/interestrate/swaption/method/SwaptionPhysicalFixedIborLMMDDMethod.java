@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
@@ -27,13 +25,16 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to computes the present value and sensitivities of physical delivery European swaptions with the Libor Market Model with displaced diffusion.
  * Reference: Henrard, M. (2010). Swaptions in Libor Market Model with local volatility. Wilmott Journal, 2010, 2, 135-154
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborLMMDDMethod}
  */
+@Deprecated
 public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
 
   /**
@@ -76,6 +77,8 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle) {
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(lmmBundle, "LMM bundle");
     // 1. Swaption CFE preparation
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, lmmBundle);
     final YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
@@ -106,7 +109,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
           if (cftInit[loopcf] - timeLMM[-indCFDate[loopcf] - 2] < TIME_TOLERANCE) {
             indCFDate[loopcf] = -indCFDate[loopcf] - 2;
           } else {
-            Validate.isTrue(true, "Instrument time incompatible with LMM parametrisation"); //TODO really?
+            ArgumentChecker.isTrue(true, "Instrument time incompatible with LMM parametrisation"); //TODO really?
           }
         }
       }
@@ -231,8 +234,8 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
-    Validate.isTrue(curves instanceof LiborMarketModelDisplacedDiffusionDataBundle, "Bundle should contain LMM data");
+    ArgumentChecker.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    ArgumentChecker.isTrue(curves instanceof LiborMarketModelDisplacedDiffusionDataBundle, "Bundle should contain LMM data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (LiborMarketModelDisplacedDiffusionDataBundle) curves);
   }
 
@@ -273,7 +276,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
           if (cftInit[loopcf] - timeLMM[-indCFDate[loopcf] - 2] < TIME_TOLERANCE) {
             indCFDate[loopcf] = -indCFDate[loopcf] - 2;
           } else {
-            Validate.isTrue(true, "Instrument time incompatible with LMM");
+            ArgumentChecker.isTrue(true, "Instrument time incompatible with LMM");
           }
         }
       }
@@ -538,7 +541,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
           if (cftInit[loopcf] - timeLMM[-indCFDate[loopcf] - 2] < TIME_TOLERANCE) {
             indCFDate[loopcf] = -indCFDate[loopcf] - 2;
           } else {
-            Validate.isTrue(true, "Instrument time incompatible with LMM");
+            ArgumentChecker.isTrue(true, "Instrument time incompatible with LMM");
           }
         }
       }
@@ -797,7 +800,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
           if (cftInit[loopcf] - timeLMM[-indCFDate[loopcf] - 2] < TIME_TOLERANCE) {
             indCFDate[loopcf] = -indCFDate[loopcf] - 2;
           } else {
-            Validate.isTrue(true, "Instrument time incompatible with LMM");
+            ArgumentChecker.isTrue(true, "Instrument time incompatible with LMM");
           }
         }
       }
@@ -1045,12 +1048,12 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod
       cfaInitBar[loopcf] = cfaBar[indCFDate[loopcf] - indStart];
     }
 
-    final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < nbCF; loopcf++) {
       final DoublesPair dfSensi = new DoublesPair(cft[loopcf], -cft[loopcf] * dfLMM[loopcf] * dfLMMBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(cfe.getDiscountCurve(), listDfSensi);
     InterestRateCurveSensitivity sensitivity = new InterestRateCurveSensitivity(pvsDF);
     final Map<Double, InterestRateCurveSensitivity> cfeCurveSensi = swaption.getUnderlyingSwap().accept(CFECSC, lmmBundle);

@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.SABRExtrapolationRightFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
@@ -24,9 +25,11 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class used to compute the price and sensitivity of a physical delivery swaption with SABR model and extrapolation to the right.
- * Implemented only for the SABRHaganVolatilityFunction.
+ * Implemented only for the {@link SABRHaganVolatilityFunction}.
  * OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSABRExtrapolationRightMethod}
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
 
   /**

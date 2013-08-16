@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -14,7 +14,9 @@ import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPh
 
 /**
  * Interpolates, for interest rate instruments using Black model, and returns the implied volatility required.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
@@ -52,7 +54,7 @@ public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivative
   public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
     return METHOD_SWAPTION_CASH.impliedVolatility(swaption, curves);
   }
-  
+
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
     return METHOD_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);

@@ -772,7 +772,7 @@ public final class SwaptionPhysicalFixedIborLMMDDMethod {
    * @param lmmData The LMM and multi-curves provider.
    * @return The present value.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption,
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, //CSIGNORE
       final LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(lmmData, "LMM provider");

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -17,13 +17,16 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Method to computes the present value and sensitivities of physical delivery European swaptions with the Hull-White one factor model through efficient approximation. 
+ * Method to computes the present value and sensitivities of physical delivery European swaptions with the Hull-White one factor model through efficient approximation.
  * The method does not require the solution of a non-linear equation.
  * Reference: Henrard, M. Efficient swaptions price in Hull-White one factor model. arXiv, 2009. http://arxiv.org/abs/0901.1776
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborHullWhiteApproximationMethod}
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements PricingMethod {
 
   /**
@@ -38,6 +41,8 @@ public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements Pr
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(hwData, "Hull-White data");
     final YieldAndDiscountCurve dsc = hwData.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
     final double expiry = swaption.getTimeToExpiry();
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hwData);

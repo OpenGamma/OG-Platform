@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import java.util.Arrays;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -20,12 +18,15 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the present value of Bermuda swaptions with the Hull-White one factor model by numerical integration.
  * Reference: Henrard, M. Bermudan Swaptions in Gaussian HJM One-Factor Model: Analytical and Numerical Approaches. SSRN, October 2008. Available at SSRN: http://ssrn.com/abstract=1287982
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod}
  */
+@Deprecated
 public final class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod implements PricingMethod {
 
   /**
@@ -72,10 +73,10 @@ public final class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod i
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionBermudaFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    Validate.notNull(swaption);
-    Validate.notNull(hwData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(hwData, "Hull-White data");
     final int nbExpiry = swaption.getExpiryTime().length;
-    Validate.isTrue(nbExpiry > 1, "At least two expiry dates required for this method");
+    ArgumentChecker.isTrue(nbExpiry > 1, "At least two expiry dates required for this method");
 
     double tmpdb;
     final YieldAndDiscountCurve discountingCurve = hwData.getCurve(swaption.getUnderlyingSwap()[0].getFirstLeg().getDiscountCurve());
@@ -355,8 +356,8 @@ public final class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod i
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionBermudaFixedIbor, "Physical delivery swaption");
-    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    ArgumentChecker.isTrue(instrument instanceof SwaptionBermudaFixedIbor, "Physical delivery swaption");
+    ArgumentChecker.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     return presentValue((SwaptionBermudaFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 

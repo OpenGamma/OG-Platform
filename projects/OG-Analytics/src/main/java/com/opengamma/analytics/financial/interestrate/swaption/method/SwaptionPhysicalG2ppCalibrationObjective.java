@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -15,10 +15,13 @@ import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinde
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Specific objective function for G2++ model calibration with swaptions (both volatilities are calibrated to the same swaption by imposing a ratio between the volatilities).
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class SwaptionPhysicalG2ppCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
 
   private final double _ratio;
@@ -44,12 +47,13 @@ public class SwaptionPhysicalG2ppCalibrationObjective extends SuccessiveRootFind
   private static final CashFlowEquivalentCalculator CASH_FLOW_EQUIVALENT_CALCULATOR = CashFlowEquivalentCalculator.getInstance();
 
   /**
-   * Constructor of the objective function with the G2++ parameters. The parameters range and accuracy are set at some default value 
+   * Constructor of the objective function with the G2++ parameters. The parameters range and accuracy are set at some default value
    * (minimum: 1.0E-6; maximum: 1.0, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
    * @param parameters The G2++ parameters.
    * @param ratio The ratio between the first factor volatility and the second factor volatility.
    */
   public SwaptionPhysicalG2ppCalibrationObjective(final G2ppPiecewiseConstantParameters parameters, final double ratio) {
+    ArgumentChecker.notNull(parameters, "parameters");
     _g2Parameters = parameters;
     _ratio = ratio;
     setMinimumParameter(1.0E-6);

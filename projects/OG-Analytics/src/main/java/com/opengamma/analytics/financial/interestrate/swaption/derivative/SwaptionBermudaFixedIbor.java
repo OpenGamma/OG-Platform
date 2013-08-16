@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.derivative;
 
 import java.util.Arrays;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -47,19 +45,19 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
    * @param settlementTime The times (in year) to the swaps settlement.
    */
   public SwaptionBermudaFixedIbor(final SwapFixedCoupon<? extends Coupon>[] underlyingSwap, final boolean isLong, final double[] expiryTime, final double[] settlementTime) {
-    Validate.notNull(expiryTime, "Expiry time");
-    Validate.notNull(underlyingSwap, "Underlying swap");
-    Validate.notNull(settlementTime, "Settlement time");
-    Validate.isTrue(underlyingSwap.length == expiryTime.length, "Number of swaps not in line with number of expiry times");
-    Validate.isTrue(underlyingSwap.length == settlementTime.length, "Number of swaps not in line with number of settlement times");
-    this._underlyingSwap = underlyingSwap;
-    this._isLong = isLong;
-    this._expiryTime = expiryTime;
-    this._settlementTime = settlementTime;
+    ArgumentChecker.notNull(expiryTime, "Expiry time");
+    ArgumentChecker.notNull(underlyingSwap, "Underlying swap");
+    ArgumentChecker.notNull(settlementTime, "Settlement time");
+    ArgumentChecker.isTrue(underlyingSwap.length == expiryTime.length, "Number of swaps not in line with number of expiry times");
+    ArgumentChecker.isTrue(underlyingSwap.length == settlementTime.length, "Number of swaps not in line with number of settlement times");
+    _underlyingSwap = underlyingSwap;
+    _isLong = isLong;
+    _expiryTime = expiryTime;
+    _settlementTime = settlementTime;
   }
 
   /**
-   * Gets the swaps underlying the swaption. There is one swap for each expiration date. 
+   * Gets the swaps underlying the swaption. There is one swap for each expiration date.
    * @return The underlying swaps.
    */
   public SwapFixedCoupon<? extends Coupon>[] getUnderlyingSwap() {

@@ -23,7 +23,9 @@ import com.opengamma.util.money.CurrencyAmount;
  *  Class used to compute the price and sensitivity of a physical delivery swaption on a swap with spread in the Black model.
  *  The implied Black volatilities are expiry and underlying maturity dependent.
  *  The swap underlying the swaption should be a Fixed for Ibor with spread swap.
+ *  @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSpreadBlackMethod}
  */
+@Deprecated
 public final class SwaptionPhysicalFixedIborSpreadBlackMethod implements PricingMethod {
 
   /**
