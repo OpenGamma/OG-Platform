@@ -76,8 +76,8 @@ public class MulticurveProviderDiscountForexDataSets {
   }
 
   public static MulticurveProviderDiscount createMulticurvesEURUSD() {
-    FXMatrix FX_MATRIX = new FXMatrix(USD, EUR, 1.0d / EUR_USD);
-    final MulticurveProviderDiscount multicurves = new MulticurveProviderDiscount(FX_MATRIX);
+    FXMatrix fxMatrix = new FXMatrix(USD, EUR, 1.0d / EUR_USD);
+    final MulticurveProviderDiscount multicurves = new MulticurveProviderDiscount(fxMatrix);
     multicurves.setCurve(EUR, EUR_DSC);
     multicurves.setCurve(USD, USD_DSC);
     return multicurves;

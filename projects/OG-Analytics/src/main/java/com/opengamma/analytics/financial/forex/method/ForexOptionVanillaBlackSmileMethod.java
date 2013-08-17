@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -34,7 +34,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
  * OG-Implementation: Vanilla Forex options: Garman-Kohlhagen and risk reversal/strangle, version 1.5, May 2012.
+ * @deprecated Use {@link com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackSmileMethod}
  */
+@Deprecated
 public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMethod {
 
   /**
@@ -427,7 +429,7 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
 
   /**
    * Computes the Vanna (2nd order cross-sensitivity of the option present value to the spot fx and implied vol),
-   * 
+   *
    * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.

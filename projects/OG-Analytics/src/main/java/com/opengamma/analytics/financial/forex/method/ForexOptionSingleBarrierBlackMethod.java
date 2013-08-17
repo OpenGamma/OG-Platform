@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -30,7 +30,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for single barrier Forex option transactions in the Black world.
+ * @deprecated Use {@link com.opengamma.analytics.financial.forex.provider.ForexOptionSingleBarrierBlackMethod}
  */
+@Deprecated
 public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMethod {
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -10,9 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -24,6 +23,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.analytics.util.amount.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -31,7 +31,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for digital Forex option transactions with Black function and a volatility provider.
+ * @deprecated Use {@link ForexOptionDigitalBlackSmileMethod}
  */
+@Deprecated
 public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
 
   /**
@@ -62,9 +64,9 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    * @return The present value. The value is in the domestic currency (currency 2).
    */
   public MultipleCurrencyAmount presentValue(final ForexOptionDigital optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double expiry = optionForex.getExpirationTime();
     final Currency domesticCcy;
     final Currency foreignCcy;
@@ -92,7 +94,6 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
-    //TODO:    final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), forward, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
@@ -103,8 +104,8 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
 
   @Override
   public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValue((ForexOptionDigital) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -115,9 +116,9 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    * @return The currency exposure
    */
   public MultipleCurrencyAmount currencyExposure(final ForexOptionDigital optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double expiry = optionForex.getExpirationTime();
     final Currency domesticCcy;
     final Currency foreignCcy;
@@ -145,7 +146,6 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
-    //TODO:    final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), forward, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
@@ -161,8 +161,8 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
 
   @Override
   public MultipleCurrencyAmount currencyExposure(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return currencyExposure((ForexOptionDigital) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -174,9 +174,9 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    * @return The curve sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexOptionDigital optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final double expiry = optionForex.getExpirationTime();
     // Forward sweep
@@ -208,7 +208,6 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
-    //TODO:    final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), forward, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
@@ -243,8 +242,8 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    */
   @Override
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexOptionDigital) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -256,9 +255,9 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionDigital optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final double expiry = optionForex.getExpirationTime();
     // Forward sweep
@@ -290,7 +289,6 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
-    //TODO:    final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), strike, forward);
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), forward, forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
@@ -313,8 +311,8 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueBlackVolatilitySensitivity((ForexOptionDigital) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -326,9 +324,9 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    * @return The volatility node sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionDigital optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smile); // In dom ccy
     final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smile.getVolatilityModel();
 
@@ -357,7 +355,6 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
-    //TODO    final VolatilityAndBucketedSensitivities volAndSensitivities = FXVolatilityUtils.getVolatilityAndSensitivities(smile, foreignCcy, domesticCcy, expiry, strike, forward);
     final VolatilityAndBucketedSensitivities volAndSensitivities = FXVolatilityUtils.getVolatilityAndSensitivities(smile, foreignCcy, domesticCcy, expiry, forward, forward);
     final double[][] nodeWeight = volAndSensitivities.getBucketedSensitivities();
     final DoublesPair point = DoublesPair.of(optionForex.getExpirationTime(), (foreignCcy == smile.getCurrencyPair().getFirst()) ? strike : 1.0 / strike);

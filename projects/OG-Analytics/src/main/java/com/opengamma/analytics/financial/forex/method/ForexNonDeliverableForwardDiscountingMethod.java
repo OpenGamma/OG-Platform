@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -22,7 +22,10 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for Forex non-deliverable forward transactions by discounting.
+ * @deprecated {@link YieldCurveBundle} is deprecated.
+ * Use {@link com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod}
  */
+@Deprecated
 public final class ForexNonDeliverableForwardDiscountingMethod implements ForexPricingMethod {
 
   /**

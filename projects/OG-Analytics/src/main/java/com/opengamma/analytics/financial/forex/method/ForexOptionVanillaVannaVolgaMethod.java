@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -30,7 +30,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * <p>Reference: The vanna-volga method for implied volatilities (2007), A. Castagna and F. Mercurio, Risk, 106-111, January 2007.
  * <p>OG implementation: Vanna-volga method for Forex options, version 1.0, June 2012.
  * <p>The reference volatility used for Black computation is the second volatility (usually corresponding to the ATM strike).
+ * @deprecated Use {@link com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaVannaVolgaMethod}
  */
+@Deprecated
 public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMethod {
 
   /**

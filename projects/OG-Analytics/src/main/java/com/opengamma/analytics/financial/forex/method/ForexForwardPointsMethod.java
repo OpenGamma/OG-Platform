@@ -18,7 +18,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Pricing method for Forex transactions (spot or forward) by forward points.
  * <p>Documentation: Forex Swaps and Cross-currency Swaps. OpenGamma Documentation n. 21
- * @deprecated Use the version that does not refer to {@link YieldCurveBundles}
+ * @deprecated {@link YieldCurveBundles} is deprecated. Use {@link com.opengamma.analytics.financial.forex.provider.ForexForwardPointsMethod}
  */
 @Deprecated
 public final class ForexForwardPointsMethod {
