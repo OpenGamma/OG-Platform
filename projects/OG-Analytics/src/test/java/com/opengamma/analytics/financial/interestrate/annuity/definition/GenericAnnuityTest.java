@@ -23,10 +23,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.util.money.Currency;
 
 /**
- * @deprecated This class tests deprecated functionality
+ *
  */
-@Deprecated
-public class DeprecatedGenericAnnuityTest {
+public class GenericAnnuityTest {
   private static final CouponFixed[] PAYMENTS;
   private static final List<CouponFixed> LIST_PAYMENTS;
   private static final Payment[] MIXED_PAYMENTS;
@@ -42,11 +41,11 @@ public class DeprecatedGenericAnnuityTest {
     MIXED_PAYMENTS = new Payment[n];
     LIST_MIXED_PAYMENTS = new ArrayList<>();
     for (int i = 0; i < n; i++) {
-      final CouponFixed temp = new CouponFixed(CUR, (i + 1) * tau, "fg", tau, coupon);
+      final CouponFixed temp = new CouponFixed(CUR, (i + 1) * tau, tau, coupon);
       PAYMENTS[i] = temp;
       LIST_PAYMENTS.add(temp);
       if (i % 2 == 0) {
-        final PaymentFixed temp2 = new PaymentFixed(CUR, (i + 1) * tau, 23.2, "fg");
+        final PaymentFixed temp2 = new PaymentFixed(CUR, (i + 1) * tau, 23.2);
         MIXED_PAYMENTS[i] = temp2;
         LIST_MIXED_PAYMENTS.add(temp2);
       } else {
@@ -58,7 +57,7 @@ public class DeprecatedGenericAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
-    new Annuity<CouponFixed>(null);
+    new Annuity<>(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -95,7 +94,7 @@ public class DeprecatedGenericAnnuityTest {
 
   @Test
   public void testArrayConstruction() {
-    final Annuity<Payment> temp1 = new Annuity<Payment>(PAYMENTS);
+    final Annuity<? extends Payment> temp1 = new Annuity<>(PAYMENTS);
     final Annuity<CouponFixed> temp3 = new Annuity<>(PAYMENTS);
     assertTrue(Arrays.equals(PAYMENTS, temp1.getPayments()));
     assertTrue(Arrays.equals(PAYMENTS, temp3.getPayments()));

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -44,9 +44,6 @@ public class CouponFixedAccruedCompoundingDefinition extends CouponDefinition {
    * @param paymentYearFraction The accrual factor of the accrual period.
    * @param notional The coupon notional.
    * @param rate Fixed rate.
-   * @param accrualStartDates The start dates of the accrual sub-periods.
-   * @param accrualEndDates The end dates of the accrual sub-periods.
-   * @param paymentAccrualFactors The accrual factors (or year fraction) associated to the sub-periods.
    */
   public CouponFixedAccruedCompoundingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentYearFraction, final double notional, final double rate) {
