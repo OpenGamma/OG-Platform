@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -166,6 +166,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     return result;
   }
 
+  //REVIEW emcleod 17-08-2013 why is the settlement time and issuer not used?
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -175,6 +176,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     return result;
   }
 
+  //REVIEW emcleod 17-08-2013 why is the settlement time and issuer not used?
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {

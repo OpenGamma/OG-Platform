@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity;
@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
@@ -21,10 +19,11 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public final class ZSpreadCalculator {
   private static final PresentValueCalculator PRESENT_VALUE_CALCULATOR = PresentValueCalculator.getInstance();
@@ -41,8 +40,8 @@ public final class ZSpreadCalculator {
   }
 
   public double calculateZSpread(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double price) {
-    Validate.notNull(annuity, "annuity");
-    Validate.notNull(curves, "curves");
+    ArgumentChecker.notNull(annuity, "annuity");
+    ArgumentChecker.notNull(curves, "curves");
 
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
       @Override
@@ -56,8 +55,8 @@ public final class ZSpreadCalculator {
   }
 
   public double calculatePriceForZSpread(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
-    Validate.notNull(annuity, "annuity");
-    Validate.notNull(curves, "curves");
+    ArgumentChecker.notNull(annuity, "annuity");
+    ArgumentChecker.notNull(curves, "curves");
 
     double sum = 0;
 
@@ -72,8 +71,8 @@ public final class ZSpreadCalculator {
   }
 
   public double calculatePriceSensitivityToZSpread(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
-    Validate.notNull(annuity, "annuity");
-    Validate.notNull(curves, "curves");
+    ArgumentChecker.notNull(annuity, "annuity");
+    ArgumentChecker.notNull(curves, "curves");
 
     double sum = 0;
 
@@ -89,8 +88,8 @@ public final class ZSpreadCalculator {
   }
 
   public Map<String, List<DoublesPair>> calculatePriceSensitivityToCurve(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
-    Validate.notNull(annuity, "annuity");
-    Validate.notNull(curves, "curves");
+    ArgumentChecker.notNull(annuity, "annuity");
+    ArgumentChecker.notNull(curves, "curves");
 
     final Map<String, List<DoublesPair>> temp = annuity.accept(PV_SENSITIVITY_CALCULATOR, curves);
     if (Double.doubleToLongBits(zSpread) == 0) {
@@ -110,11 +109,11 @@ public final class ZSpreadCalculator {
   }
 
   public Map<String, List<DoublesPair>> calculateZSpreadSensitivityToCurve(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
-    Validate.notNull(annuity, "annuity");
-    Validate.notNull(curves, "curves");
+    ArgumentChecker.notNull(annuity, "annuity");
+    ArgumentChecker.notNull(curves, "curves");
 
     final double dPricedZ = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
-    Validate.isTrue(Double.doubleToLongBits(dPricedZ) != 0, "Price Sensitivity To ZSpread is zero");
+    ArgumentChecker.isTrue(Double.doubleToLongBits(dPricedZ) != 0, "Price Sensitivity To ZSpread is zero");
 
     final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : result.entrySet()) {

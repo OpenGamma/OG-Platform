@@ -34,7 +34,11 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
-public class BondIborSecurityTest {
+/**
+ * @deprecated This class tests deprecated functionality
+ */
+@Deprecated
+public class DeprecatedBondIborSecurityTest {
 
   //Quarterly Libor6m 2Y
   private static final Currency CUR = Currency.EUR;
@@ -59,8 +63,12 @@ public class BondIborSecurityTest {
   private static final ZonedDateTime STANDARD_SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final double STANDARD_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, STANDARD_SETTLEMENT_DATE);
   private static final double FIRST_FIXING = 0.02;
+  private static final String CREDIT_CURVE_NAME = "Credit";
+  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
+  private static final String FORWARD_CURVE_NAME = "Forward";
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
-  private static final AnnuityPaymentFixed NOMINAL = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final AnnuityPaymentFixed NOMINAL = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
   private static final Annuity<Coupon> COUPON;
   private static final BondIborSecurity BOND_DESCRIPTION;
@@ -75,24 +83,23 @@ public class BondIborSecurityTest {
       }
     }
     FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(fixingDates, fixingRates);
-    COUPON = (Annuity<Coupon>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS);
-    BOND_DESCRIPTION = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME);
+    COUPON = (Annuity<Coupon>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME);
+    BOND_DESCRIPTION = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominal() {
-    new BondIborSecurity(null, COUPON, STANDARD_SETTLEMENT_TIME);
+    new BondIborSecurity(null, COUPON, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupon() {
-    new BondIborSecurity(NOMINAL, null, STANDARD_SETTLEMENT_TIME);
+    new BondIborSecurity(NOMINAL, null, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalStateException.class)
-  public void testGetDiscounting() {
-    BOND_DESCRIPTION.getDiscountingCurveName();
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDiscounting() {
+    new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME, null);
   }
 
   @Test
@@ -103,13 +110,13 @@ public class BondIborSecurityTest {
 
   @Test
   public void testHashCodeEquals() {
-    final BondIborSecurity bond = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME);
-    BondIborSecurity other = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME);
+    final BondIborSecurity bond = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
+    BondIborSecurity other = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
     assertEquals(bond, other);
     assertEquals(bond.hashCode(), other.hashCode());
-    other = new BondIborSecurity(NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1)), COUPON, STANDARD_SETTLEMENT_TIME);
+    other = new BondIborSecurity(NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1), CURVES_NAME), COUPON, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
     assertFalse(other.equals(bond));
-    other = new BondIborSecurity(NOMINAL, (Annuity<Coupon>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1), FIXING_TS), STANDARD_SETTLEMENT_TIME);
+    other = new BondIborSecurity(NOMINAL, (Annuity<Coupon>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1), FIXING_TS, CURVES_NAME), STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
     assertFalse(other.equals(bond));
   }
 }

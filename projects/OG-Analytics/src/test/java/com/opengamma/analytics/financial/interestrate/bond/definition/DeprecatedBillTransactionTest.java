@@ -24,8 +24,10 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of bills transaction.
+ * @deprecated This class tests deprecated functionality
  */
-public class BillTransactionTest {
+@Deprecated
+public class DeprecatedBillTransactionTest {
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
@@ -44,8 +46,11 @@ public class BillTransactionTest {
   private final static ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 3, CALENDAR);
   private final static double SETTLE_AMOUT = -NOTIONAL * QUANTITY * 99.95;
 
-  private final static BillSecurity BILL_PURCHASE = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
-  private final static BillSecurity BILL_STANDARD = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
+  private final static String DSC_NAME = "EUR Discounting";
+  private final static String CREDIT_NAME = "EUR BELGIUM GOVT";
+
+  private final static BillSecurity BILL_PURCHASE = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
+  private final static BillSecurity BILL_STANDARD = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, DSC_NAME, CREDIT_NAME);
   private final static BillTransaction BILL_TRA = new BillTransaction(BILL_PURCHASE, QUANTITY, SETTLE_AMOUT, BILL_STANDARD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

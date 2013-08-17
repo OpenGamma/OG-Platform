@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -134,7 +134,7 @@ public class CouponFixed extends Coupon {
   public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double rate) {
     this(currency, paymentTime, paymentYearFraction, 1.0, rate);
   }
-  
+
   /**
    * Gets the coupon fixed rate.
    * @return The fixed rate.
@@ -203,7 +203,11 @@ public class CouponFixed extends Coupon {
    * @return A fixed payment.
    */
   public PaymentFixed toPaymentFixed() {
-    return new PaymentFixed(getCurrency(), getPaymentTime(), _amount, getFundingCurveName());
+    try {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), _amount, getFundingCurveName());
+    } catch (final IllegalStateException e) {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), _amount);
+    }
   }
 
   @Override

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -72,7 +72,7 @@ public class BillSecurity implements InstrumentDerivative {
    * @deprecated Use the constructor that does not take curve names
    */
   @Deprecated
-  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, final double notional, final YieldConvention yieldConvention, 
+  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, final double notional, final YieldConvention yieldConvention,
       final double accrualFactor, final String issuer, final String creditCurveName, final String discountingCurveName) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
@@ -121,7 +121,7 @@ public class BillSecurity implements InstrumentDerivative {
     _creditCurveName = null;
     _discountingCurveName = null;
   }
-  
+
   /**
    * Get the bill currency.
    * @return The currency.
@@ -236,9 +236,9 @@ public class BillSecurity implements InstrumentDerivative {
     long temp;
     temp = Double.doubleToLongBits(_accrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _creditCurveName.hashCode();
+    result = prime * result + (_creditCurveName == null ? 0 : _creditCurveName.hashCode());
     result = prime * result + _currency.hashCode();
-    result = prime * result + _discountingCurveName.hashCode();
+    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
     temp = Double.doubleToLongBits(_endTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _issuer.hashCode();
