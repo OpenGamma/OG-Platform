@@ -31,9 +31,6 @@ public class ForexNonDeliverableForwardDefinitionTest {
   private static final ForexNonDeliverableForwardDefinition NDF_DEFINITION = new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, FX_RATE, FIXING_DATE, PAYMENT_DATE);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 10);
-  private static final String KRW_DSC = "Discounting KRW";
-  private static final String USD_DSC = "Discounting USD";
-  private static final String[] CURVE_NAMES = new String[] {KRW_DSC, USD_DSC};
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency1() {
@@ -60,14 +57,21 @@ public class ForexNonDeliverableForwardDefinitionTest {
     new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, FX_RATE, PAYMENT_DATE, FIXING_DATE);
   }
 
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toDerivative1Curve() {
-    NDF_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES[0]);
+    NDF_DEFINITION.toDerivative(REFERENCE_DATE, "A");
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivativeDeprecatedDateAfter() {
+    NDF_DEFINITION.toDerivative(PAYMENT_DATE.plusDays(1), "A", "B");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toDerivativeDateAfter() {
-    NDF_DEFINITION.toDerivative(PAYMENT_DATE.plusDays(1), CURVE_NAMES);
+    NDF_DEFINITION.toDerivative(PAYMENT_DATE.plusDays(1));
   }
 
   @Test
@@ -83,14 +87,29 @@ public class ForexNonDeliverableForwardDefinitionTest {
     assertEquals("Forex NDF getter", FX_RATE, NDF_DEFINITION.getExchangeRate());
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the class toDerivative method.
+   */
+  public void toDerivativeDeprecated() {
+    final String krw = "Discounting KRW";
+    final String dsc = "Discounting USD";
+    final String[] curveNames = new String[] {krw, dsc};
+    final ForexNonDeliverableForward ndfConverted = NDF_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
+    final ForexNonDeliverableForward ndfExpected = new ForexNonDeliverableForward(KRW, USD, NOMINAL_USD, FX_RATE, TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE), TimeCalculator.getTimeBetween(
+        REFERENCE_DATE, PAYMENT_DATE), krw, dsc);
+    assertEquals("Forex NDF - toDerivatives", ndfExpected, ndfConverted);
+  }
+
   @Test
   /**
    * Tests the class toDerivative method.
    */
   public void toDerivative() {
-    ForexNonDeliverableForward ndfConverted = NDF_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
-    ForexNonDeliverableForward ndfExpected = new ForexNonDeliverableForward(KRW, USD, NOMINAL_USD, FX_RATE, TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE), TimeCalculator.getTimeBetween(
-        REFERENCE_DATE, PAYMENT_DATE), KRW_DSC, USD_DSC);
+    final ForexNonDeliverableForward ndfConverted = NDF_DEFINITION.toDerivative(REFERENCE_DATE);
+    final ForexNonDeliverableForward ndfExpected = new ForexNonDeliverableForward(KRW, USD, NOMINAL_USD, FX_RATE, TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE), TimeCalculator.getTimeBetween(
+        REFERENCE_DATE, PAYMENT_DATE));
     assertEquals("Forex NDF - toDerivatives", ndfExpected, ndfConverted);
   }
 
