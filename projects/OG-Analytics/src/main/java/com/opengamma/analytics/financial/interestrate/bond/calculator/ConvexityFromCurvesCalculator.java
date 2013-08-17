@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
@@ -14,7 +14,9 @@ import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDi
 
 /**
  * Calculate convexity for bonds.
+ * @deprecated Use {@link com.opengamma.analytics.financial.provider.calculator.issuer.ConvexityFromCurvesCalculator}
  */
+@Deprecated
 public final class ConvexityFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

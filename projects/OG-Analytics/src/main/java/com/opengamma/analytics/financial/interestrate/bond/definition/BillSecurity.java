@@ -166,7 +166,7 @@ public class BillSecurity implements InstrumentDerivative {
    * Gets the accrual factor in the bill day count between settlement and maturity.
    * @return The accrual factor.
    */
-  public double getAccralFactor() {
+  public double getAccrualFactor() {
     return _accrualFactor;
   }
 

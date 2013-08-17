@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class ZSpreadCalculatorTest {
   private static final ZSpreadCalculator CALCULATOR = ZSpreadCalculator.getInstance();
@@ -42,7 +42,7 @@ public class ZSpreadCalculatorTest {
     for (int i = 0; i < n; i++) {
       rateAtYield[i] = new CouponFixed(CUR, 0.5 * (i + 1), CURVE_NAME, 0.5, YIELD);
     }
-    PAYMENTS = new Annuity<CouponFixed>(rateAtYield);
+    PAYMENTS = new Annuity<>(rateAtYield);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

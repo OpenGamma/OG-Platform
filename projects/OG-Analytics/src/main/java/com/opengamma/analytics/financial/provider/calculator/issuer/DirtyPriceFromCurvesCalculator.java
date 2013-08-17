@@ -6,53 +6,42 @@
 package com.opengamma.analytics.financial.provider.calculator.issuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculate bond yield from curves.
+ * Calculate dirty price from the curves.
  */
-public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, Double> {
+public final class DirtyPriceFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final YieldFromCurvesCalculator s_instance = new YieldFromCurvesCalculator();
+  private static final DirtyPriceFromCurvesCalculator s_instance = new DirtyPriceFromCurvesCalculator();
 
   /**
    * Return the calculator instance.
    * @return The instance.
    */
-  public static YieldFromCurvesCalculator getInstance() {
+  public static DirtyPriceFromCurvesCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private YieldFromCurvesCalculator() {
+  private DirtyPriceFromCurvesCalculator() {
   }
 
-  /** The method used for bills */
-  private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
   /** The method used for bonds */
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
-
-  @Override
-  public Double visitBillSecurity(final BillSecurity bill, final IssuerProviderInterface issuer) {
-    ArgumentChecker.notNull(bill, "Bill");
-    ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BILL_SECURITY.yieldFromCurves(bill, issuer);
-  }
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.yieldFromCurves(bond, issuer);
+    return METHOD_BOND_SECURITY.dirtyPriceFromCurves(bond, issuer);
   }
 }

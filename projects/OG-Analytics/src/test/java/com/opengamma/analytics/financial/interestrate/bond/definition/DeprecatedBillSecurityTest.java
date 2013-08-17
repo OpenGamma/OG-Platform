@@ -90,7 +90,7 @@ public class DeprecatedBillSecurityTest {
     assertEquals("Bill Security: getter", END_TIME, BILL_SEC.getEndTime());
     assertEquals("Bill Security: getter", NOTIONAL, BILL_SEC.getNotional());
     assertEquals("Bill Security: getter", YIELD_CONVENTION, BILL_SEC.getYieldConvention());
-    assertEquals("Bill Security: getter", ACCRUAL_FACTOR, BILL_SEC.getAccralFactor());
+    assertEquals("Bill Security: getter", ACCRUAL_FACTOR, BILL_SEC.getAccrualFactor());
     assertEquals("Bill Security: getter", ISSUER_BEL, BILL_SEC.getIssuer());
     assertEquals("Bill Security: getter", DSC_NAME, BILL_SEC.getDiscountingCurveName());
   }
