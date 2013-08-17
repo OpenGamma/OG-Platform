@@ -19,7 +19,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public final class PresentValueBlackSmileForexCalculator extends PresentValueMCACalculator {
 
   /**

@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.schedule;
 
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +16,7 @@ import org.threeten.bp.temporal.TemporalAdjusters;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class EndOfMonthScheduleCalculator extends Schedule {
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.calculator;
@@ -118,21 +118,22 @@ import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 /**
  * Tests the visitor of Forex derivatives.
  */
+@SuppressWarnings("deprecation")
 public class ForexDerivativeVisitorTest {
 
-  private static final Forex FX = ForexInstrumentsDescriptionDataSet.createForex();
-  private static final ForexSwap FX_SWAP = ForexInstrumentsDescriptionDataSet.createForexSwap();
-  private static final ForexOptionVanilla FX_OPTION = ForexInstrumentsDescriptionDataSet.createForexOptionVanilla();
-  private static final ForexOptionSingleBarrier FX_OPTION_SINGLE_BARRIER = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrier();
-  private static final ForexNonDeliverableForward NDF = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableForward();
-  private static final ForexNonDeliverableOption NDO = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOption();
-  private static final ForexOptionDigital FX_OPTION_DIGITAL = ForexInstrumentsDescriptionDataSet.createForexOptionDigital();
+  private static final Forex FX = ForexInstrumentsDescriptionDataSet.createForexDeprecated();
+  private static final ForexSwap FX_SWAP = ForexInstrumentsDescriptionDataSet.createForexSwapDeprecated();
+  private static final ForexOptionVanilla FX_OPTION = ForexInstrumentsDescriptionDataSet.createForexOptionVanillaDeprecated();
+  private static final ForexOptionSingleBarrier FX_OPTION_SINGLE_BARRIER = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrierDeprecated();
+  private static final ForexNonDeliverableForward NDF = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableForwardDeprecated();
+  private static final ForexNonDeliverableOption NDO = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOptionDeprecated();
+  private static final ForexOptionDigital FX_OPTION_DIGITAL = ForexInstrumentsDescriptionDataSet.createForexOptionDigitalDeprecated();
 
   @SuppressWarnings("synthetic-access")
-  private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
+  private static final MyVisitor<Object> VISITOR = new MyVisitor<>();
 
   @SuppressWarnings("synthetic-access")
-  private static final MyAbstractVisitor<Object, String> VISITOR_ABSTRACT = new MyAbstractVisitor<Object, String>();
+  private static final MyAbstractVisitor<Object> VISITOR_ABSTRACT = new MyAbstractVisitor<>();
 
   @Test
   public void testVisitor() {
@@ -203,7 +204,7 @@ public class ForexDerivativeVisitorTest {
     }
   }
 
-  private static class MyVisitor<T, U> implements InstrumentDerivativeVisitor<T, String> {
+  private static class MyVisitor<T> implements InstrumentDerivativeVisitor<T, String> {
 
     @Override
     public String visitForex(final Forex derivative, final T data) {
@@ -1207,7 +1208,7 @@ public class ForexDerivativeVisitorTest {
 
   }
 
-  private static class MyAbstractVisitor<T, U> extends InstrumentDerivativeVisitorAdapter<T, String> {
+  private static class MyAbstractVisitor<T> extends InstrumentDerivativeVisitorAdapter<T, String> {
 
   }
 

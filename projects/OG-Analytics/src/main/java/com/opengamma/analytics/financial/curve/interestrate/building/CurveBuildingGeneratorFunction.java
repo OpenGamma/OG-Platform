@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.building;
@@ -13,12 +13,16 @@ import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorY
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundleBuildingFunction;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Yield curve bundle building function based on an map of curve generators.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated. Use classes such as
+ * {@link MulticurveDiscountBuildingRepository}.
  */
+@Deprecated
 public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunction {
 
   /**
@@ -34,7 +38,7 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
    * Constructor
    * @param curveGenerators The curve constructor. The order is important.
    */
-  public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorYDCurve> curveGenerators) {
+  public CurveBuildingGeneratorFunction(final LinkedHashMap<String, GeneratorYDCurve> curveGenerators) {
     ArgumentChecker.notNull(curveGenerators, "Curve generator map");
     _curveGenerators = curveGenerators;
     _knownData = new YieldCurveBundle();
@@ -45,7 +49,7 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
    * @param curveGenerators The curve constructor. The order is important.
    * @param knownData The yield curve bundle with known data (curves).
    */
-  public CurveBuildingGeneratorFunction(LinkedHashMap<String, GeneratorYDCurve> curveGenerators, final YieldCurveBundle knownData) {
+  public CurveBuildingGeneratorFunction(final LinkedHashMap<String, GeneratorYDCurve> curveGenerators, final YieldCurveBundle knownData) {
     ArgumentChecker.notNull(curveGenerators, "Curve generator map");
     _curveGenerators = curveGenerators;
     _knownData = knownData;
@@ -60,15 +64,15 @@ public class CurveBuildingGeneratorFunction extends YieldCurveBundleBuildingFunc
   }
 
   @Override
-  public YieldCurveBundle evaluate(DoubleMatrix1D x) {
-    YieldCurveBundle bundle = _knownData.copy();
-    Set<String> names = _curveGenerators.keySet();
+  public YieldCurveBundle evaluate(final DoubleMatrix1D x) {
+    final YieldCurveBundle bundle = _knownData.copy();
+    final Set<String> names = _curveGenerators.keySet();
     int index = 0;
-    for (String name : names) {
-      GeneratorYDCurve gen = _curveGenerators.get(name);
-      double[] paramCurve = Arrays.copyOfRange(x.getData(), index, index + gen.getNumberOfParameter());
+    for (final String name : names) {
+      final GeneratorYDCurve gen = _curveGenerators.get(name);
+      final double[] paramCurve = Arrays.copyOfRange(x.getData(), index, index + gen.getNumberOfParameter());
       index += gen.getNumberOfParameter();
-      YieldAndDiscountCurve newCurve = gen.generateCurve(name, bundle, paramCurve);
+      final YieldAndDiscountCurve newCurve = gen.generateCurve(name, bundle, paramCurve);
       bundle.setCurve(name, newCurve);
     }
     return bundle;

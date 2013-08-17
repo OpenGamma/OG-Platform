@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.sensitivity;
@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -25,7 +24,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * For an instrument, computes the sensitivity of a value to the parameters used in the curve.
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.) and also on the way
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public abstract class AbstractParameterSensitivityBlockCalculator {
 
   /**
@@ -52,9 +53,9 @@ public abstract class AbstractParameterSensitivityBlockCalculator {
    * @return The sensitivity (as a DoubleMatrix1D).
    */
   public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
-    Validate.notNull(instrument, "null InterestRateDerivative");
-    Validate.notNull(fixedCurves, "null set of fixed curves.");
-    Validate.notNull(bundle, "null bundle");
+    ArgumentChecker.notNull(instrument, "null InterestRateDerivative");
+    ArgumentChecker.notNull(fixedCurves, "null set of fixed curves.");
+    ArgumentChecker.notNull(bundle, "null bundle");
     final MultipleCurrencyInterestRateCurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, bundle);
     return pointToParameterSensitivity(sensitivity, fixedCurves, bundle);
   }

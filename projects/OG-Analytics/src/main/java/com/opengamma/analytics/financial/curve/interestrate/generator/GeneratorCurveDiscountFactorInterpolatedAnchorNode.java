@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -39,7 +39,7 @@ public class GeneratorCurveDiscountFactorInterpolatedAnchorNode extends Generato
 
   /**
    * Constructor.
-   * @param nodePoints The node points (X) used to define the interpolated curve. 
+   * @param nodePoints The node points (X) used to define the interpolated curve.
    * @param anchor The anchor with zero value.
    * @param interpolator The interpolator.
    */
@@ -58,25 +58,30 @@ public class GeneratorCurveDiscountFactorInterpolatedAnchorNode extends Generato
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] x) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] x) {
     ArgumentChecker.isTrue(x.length == _nbPoints, "Incorrect dimension for the rates");
     return new DiscountCurve(name, DoublesCurveInterpolatedAnchor.from(_nodePoints, x, _anchor, 1.0, _interpolator, name));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public double[] initialGuess(double[] rates) {
+  public double[] initialGuess(final double[] rates) {
     ArgumentChecker.isTrue(rates.length == _nbPoints, "Rates of incorrect length.");
-    double[] spread = new double[_nbPoints];
+    final double[] spread = new double[_nbPoints];
     for (int loopg = 0; loopg < _nbPoints; loopg++) {
       spread[loopg] = 1.0;
     }

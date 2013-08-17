@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -29,7 +29,9 @@ public abstract class GeneratorYDCurve extends GeneratorCurve {
    * @param bundle The bundle of existing curves.
    * @param parameters The parameters.
    * @return The curve.
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
    */
+  @Deprecated
   public abstract YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters);
 
   /**
@@ -53,14 +55,14 @@ public abstract class GeneratorYDCurve extends GeneratorCurve {
   }
 
   /**
-   * Some generators require a two stage process. The generator with the general description (like interpolated) and 
-   * a specific one with all the details (like the node times for the interpolated). 
+   * Some generators require a two stage process. The generator with the general description (like interpolated) and
+   * a specific one with all the details (like the node times for the interpolated).
    * The method create the specific generator from the generic one.
    * @param data The additional data.
    * @return The final generator.
    */
   @Override
-  public GeneratorYDCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(final Object data) {
     return this;
   }
 
