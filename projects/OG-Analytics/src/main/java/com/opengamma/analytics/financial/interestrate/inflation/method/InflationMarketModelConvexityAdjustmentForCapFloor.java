@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.inflation.method;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
@@ -18,7 +16,7 @@ import com.opengamma.analytics.financial.provider.description.inflation.Inflatio
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Compute the convexity adjustment between two times for year on year coupons and for zero coupons (this adjustment is also used for the computation of the forward in optional inflation instruments) 
+ * Compute the convexity adjustment between two times for year on year coupons and for zero coupons (this adjustment is also used for the computation of the forward in optional inflation instruments)
  */
 public class InflationMarketModelConvexityAdjustmentForCapFloor {
   /**
@@ -28,8 +26,8 @@ public class InflationMarketModelConvexityAdjustmentForCapFloor {
    * @return The convexity adjustment.
    */
   public double getYearOnYearConvexityAdjustment(final CapFloorInflationYearOnYearMonthly coupon, final BlackSmileCapInflationYearOnYearWithConvexityProviderInterface inflationConvexity) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflationConvexity, "Inflation");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflationConvexity, "Inflation");
 
     final double firstFixingTime = coupon.getReferenceStartTime();
     final double secondFixingTime = coupon.getReferenceEndTime();
@@ -56,8 +54,8 @@ public class InflationMarketModelConvexityAdjustmentForCapFloor {
    * @return The convexity adjustment.
    */
   public double getYearOnYearConvexityAdjustment(final CapFloorInflationYearOnYearInterpolation cap, final BlackSmileCapInflationYearOnYearWithConvexityProviderInterface inflationConvexity) {
-    Validate.notNull(cap, "Coupon");
-    Validate.notNull(inflationConvexity, "Inflation");
+    ArgumentChecker.notNull(cap, "Coupon");
+    ArgumentChecker.notNull(inflationConvexity, "Inflation");
 
     final double firstFixingTime = cap.getWeightStart() * cap.getReferenceStartTime()[0] + (1 - cap.getWeightStart()) * cap.getReferenceStartTime()[1];
     final double secondFixingTime = cap.getWeightEnd() * cap.getReferenceEndTime()[0] + (1 - cap.getWeightEnd()) * cap.getReferenceEndTime()[1];
@@ -84,8 +82,8 @@ public class InflationMarketModelConvexityAdjustmentForCapFloor {
    * @return The convexity adjustment.
    */
   public double getZeroCouponConvexityAdjustment(final CapFloorInflationZeroCouponMonthly coupon, final BlackSmileCapInflationZeroCouponWithConvexityProviderInterface inflationConvexity) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflationConvexity, "Inflation");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflationConvexity, "Inflation");
 
     final double fixingTime = coupon.getReferenceEndTime();
     final double naturalPaymentTime = coupon.getNaturalPaymentTime();
@@ -105,8 +103,8 @@ public class InflationMarketModelConvexityAdjustmentForCapFloor {
    * @return The convexity adjustment.
    */
   public double getZeroCouponConvexityAdjustment(final CapFloorInflationZeroCouponInterpolation coupon, final BlackSmileCapInflationZeroCouponWithConvexityProviderInterface inflationConvexity) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflationConvexity, "Inflation");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflationConvexity, "Inflation");
 
     final double fixingTime = coupon.getWeight() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeight()) * coupon.getReferenceEndTime()[1];
     final double naturalPaymentTime = coupon.getNaturalPaymentTime();
@@ -121,7 +119,7 @@ public class InflationMarketModelConvexityAdjustmentForCapFloor {
 
   /**
    * Computes the volatility of a bond forward, a bond forward is defined by his start time and his end time.
-   * @param startTime The 
+   * @param startTime The
    * @param endTime The
    * @param inflationConvexity The
    * @return The convexity adjustment.
@@ -136,13 +134,13 @@ public class InflationMarketModelConvexityAdjustmentForCapFloor {
       return 0.0;
     }
     // generate the schedule
-    double[] scheduleTimes = new double[numberOfperiod + 1];
+    final double[] scheduleTimes = new double[numberOfperiod + 1];
     scheduleTimes[numberOfperiod] = endTime;
     for (int i = 0; i < numberOfperiod; i++) {
       scheduleTimes[i] = startTime + i * liborTenorInMonth / 12;
     }
 
-    double[] volatilityComponents = new double[numberOfperiod];
+    final double[] volatilityComponents = new double[numberOfperiod];
     volatilityComponents[0] = inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, scheduleTimes[0], scheduleTimes[1], 1.0);
     volatilityComponents[0] = volatilityComponents[0] / (1 + volatilityComponents[0]) * inflationConvexity.getBlackSmileIborCapParameters().getVolatility(scheduleTimes[1]);
     double varBondForward = volatilityComponents[0] * volatilityComponents[0] * scheduleTimes[1];

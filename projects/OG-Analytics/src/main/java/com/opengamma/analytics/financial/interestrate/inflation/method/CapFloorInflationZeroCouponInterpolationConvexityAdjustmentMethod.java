@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.inflation.method;
@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -28,7 +26,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class used to compute the price and sensitivity of a Inflation Zero-Coupon cap/floor with Black model.
- * Black model for inflation assume a lognormal diffusion of the forward price index. 
+ * Black model for inflation assume a lognormal diffusion of the forward price index.
  * A convexity adjustment is done for payment at non-standard dates.
  */
 public final class CapFloorInflationZeroCouponInterpolationConvexityAdjustmentMethod {
@@ -104,7 +102,7 @@ public final class CapFloorInflationZeroCouponInterpolationConvexityAdjustmentMe
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final BlackSmileCapInflationZeroCouponWithConvexityProviderInterface black) {
-    Validate.isTrue(instrument instanceof CapFloorInflationZeroCouponInterpolation, "Inflation Zero Coupon  Cap/floor");
+    ArgumentChecker.isTrue(instrument instanceof CapFloorInflationZeroCouponInterpolation, "Inflation Zero Coupon  Cap/floor");
     return presentValue((CapFloorInflationZeroCouponInterpolation) instrument, black);
   }
 
@@ -126,8 +124,8 @@ public final class CapFloorInflationZeroCouponInterpolationConvexityAdjustmentMe
     final double convexityAdjustment = CONVEXITY_ADJUSTMENT_FUNCTION.getZeroCouponConvexityAdjustment(cap, black);
     final double forward = black.getInflationProvider().getPriceIndex(cap.getPriceIndex(), referenceEndTime) / cap.getIndexStartValue() * convexityAdjustment;
     final double df = black.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
-    final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<>();
+    final List<DoublesPair> listPrice = new ArrayList<>();
     listPrice.add(new DoublesPair(referenceEndTime, 1 / cap.getIndexStartValue() * convexityAdjustment));
     resultMapPrice.put(inflation.getName(cap.getPriceIndex()), listPrice);
     final InflationSensitivity forwardDi = InflationSensitivity.ofPriceIndex(resultMapPrice);
@@ -135,9 +133,9 @@ public final class CapFloorInflationZeroCouponInterpolationConvexityAdjustmentMe
     final double volatility = black.getBlackParameters().getVolatility(cap.getReferenceEndTime()[1], cap.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(inflation.getName(cap.getCurrency()), list);
     InflationSensitivity result = InflationSensitivity.ofYieldDiscounting(resultMap);
     result = result.multipliedBy(bsAdjoint[0]);

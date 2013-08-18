@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White one factor model.
- * <p> Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005. 
+ * <p> Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
  */
 public final class InterestRateFutureSecurityHullWhiteMethod { // extends InterestRateFutureSecurityMethod {
@@ -57,11 +57,11 @@ public final class InterestRateFutureSecurityHullWhiteMethod { // extends Intere
   public double price(final InterestRateFutureSecurity future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
-    double forward = hwMulticurves.getMulticurveProvider().getForwardRate(future.getIborIndex(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(),
+    final double forward = hwMulticurves.getMulticurveProvider().getForwardRate(future.getIborIndex(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(),
         future.getFixingPeriodAccrualFactor());
-    double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(),
+    final double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(),
         future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
-    double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
+    final double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
     return price;
   }
 
@@ -74,13 +74,13 @@ public final class InterestRateFutureSecurityHullWhiteMethod { // extends Intere
   public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
-    double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), futures.getLastTradingTime(), futures.getFixingPeriodStartTime(),
+    final double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), futures.getLastTradingTime(), futures.getFixingPeriodStartTime(),
         futures.getFixingPeriodEndTime());
     // Backward sweep
-    double priceBar = 1.0;
-    double forwardBar = -futureConvexityFactor * priceBar;
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final double priceBar = 1.0;
+    final double forwardBar = -futureConvexityFactor * priceBar;
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(hwMulticurves.getMulticurveProvider().getName(futures.getIborIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);

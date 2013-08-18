@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -17,7 +17,9 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionDiscountingMethod}
  */
+@Deprecated
 public final class InterestRateFutureTransactionDiscountingMethod extends InterestRateFutureTransactionMethod {
 
   /**
@@ -71,7 +73,7 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
   }
 
   @Override
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(InterestRateFutureTransaction future, YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     return presentValueCurveSensitivity(future, METHOD_SECURITY.priceCurveSensitivity(future.getUnderlying(), curves));
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -32,7 +32,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the price of bond future using the Hull-White one factor model to estimate the delivery option.
  * <P> Reference: Henrard, M. Bonds futures and their options: more than the cheapest-to-deliver; quality option and margining. Journal of Fixed Income, 2006, 16, 62-75
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.BondFutureHullWhiteMethod}
  */
+@Deprecated
 public final class BondFutureHullWhiteMethod extends BondFutureMethod {
 
   /**

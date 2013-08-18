@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.inflation.method;
@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -43,8 +42,8 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflation, "Inflation");
     final double estimatedIndex = indexEstimation(coupon, inflation);
     final double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
@@ -60,9 +59,9 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
    * @return The present value.
    */
   public double parSpread(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation, final int tenor, final double fixedRate) {
-    Validate.notNull(tenor, "Tenor");
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflation, "Inflation");
     final double estimatedIndex = indexEstimation(coupon, inflation);
     return Math.pow((estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)), 1 / tenor) - 1 - fixedRate;
   }
@@ -74,8 +73,8 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
    * @return The net amount.
    */
   public MultipleCurrencyAmount netAmount(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflation, "Inflation");
     final double estimatedIndex = indexEstimation(coupon, inflation);
     final double netAmount = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), netAmount);
@@ -88,8 +87,8 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
    * @return The present value sensitivity.
    */
   public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflation, "Inflation");
     final double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
     final double estimatedIndexMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
     final double estimatedIndex = coupon.getWeight() * estimatedIndexMonth0 + (1 - coupon.getWeight()) * estimatedIndexMonth1;
@@ -100,12 +99,12 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
     final double estimatedIndexBar = 1.0 / coupon.getIndexStartValue() * discountFactor * coupon.getNotional() * pvBar;
     final double estimatedIndexMonth1Bar = (1 - coupon.getWeight()) * estimatedIndexBar;
     final double estimatedIndexMonth0Bar = coupon.getWeight() * estimatedIndexBar;
-    final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
     resultMapDisc.put(inflation.getName(coupon.getCurrency()), listDiscounting);
-    final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<>();
+    final List<DoublesPair> listPrice = new ArrayList<>();
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[0], estimatedIndexMonth0Bar));
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[1], estimatedIndexMonth1Bar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);

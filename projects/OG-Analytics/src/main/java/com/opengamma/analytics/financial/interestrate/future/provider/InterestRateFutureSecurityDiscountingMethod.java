@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -79,8 +79,8 @@ public final class InterestRateFutureSecurityDiscountingMethod { //extends Inter
     // Partials - XBar => d(price)/dX
     final double priceBar = 1.0;
     final double forwardBar = -priceBar;
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(futures.getIborIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -126,12 +126,12 @@ public final class SwapFuturesPriceDeliverableSecurityHullWhiteMethod {
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
       cfeAmountBar[loopcf] = (df[loopcf] * adjustments[loopcf]) / df[0] * priceBar;
     }
-    final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(multicurves.getName(ccy), listDfSensi);
     MulticurveSensitivity sensitivity = MulticurveSensitivity.ofYieldDiscounting(pvsDF);
     final Map<Double, MulticurveSensitivity> cfeCurveSensi = futures.getUnderlyingSwap().accept(CFECSC, multicurves);

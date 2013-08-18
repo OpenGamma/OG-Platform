@@ -52,9 +52,6 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
   private static final ZonedDateTime REFERENCE_END_DATE = PAYMENT_DATE.minusMonths(MONTH_LAG + 1).with(TemporalAdjusters.lastDayOfMonth());
   private static final CouponInflationZeroCouponMonthlyDefinition ZERO_COUPON_DEFINITION = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0,
       NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_APRIL_2008, REFERENCE_END_DATE, false);
-  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final String PRICE_INDEX_CURVE_NAME = "Price index";
-  private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME };
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -190,7 +187,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
   @Test
   public void toDerivativesNoData() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 7, 29);
-    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
+    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate);
     final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
     final double naturalPaymentPaymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
@@ -205,7 +202,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2008, 4, 30), DateUtils.getUTCDate(2008, 5, 31) },
         new double[] {
             128.23, 128.43 });
-    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
+    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS);
     final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
     final double naturalPaymentPaymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
@@ -220,9 +217,9 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 4, 30), DateUtils.getUTCDate(2018, 5, 31) },
         new double[] {
             128.23, 128.43 });
-    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
+    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS);
     final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
-    final CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, 128.23 / INDEX_APRIL_2008 - 1.0);
+    final CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, 1.0, NOTIONAL, 128.23 / INDEX_APRIL_2008 - 1.0);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

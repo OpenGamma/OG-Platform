@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.method;
@@ -17,7 +17,9 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
  * Class used to compute interest rate instrument sensitivity by finite difference.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class SensitivityFiniteDifference {
 
   /**
@@ -30,18 +32,19 @@ public class SensitivityFiniteDifference {
    * @param nodeTimes The node times to be bumped.
    * @param deltaShift The bump size.
    * @param method The method to compute the present value sensitivity.
-   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. 
+   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}.
    * Indicates how the finite difference is computed. Not null
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
-      double deltaShift, PricingMethod method, final FiniteDifferenceType differenceType) {
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, final double pv,
+      final String curveToBumpName, final String curveBumpedName, final double[] nodeTimes,
+      final double deltaShift, final PricingMethod method, final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(curves, "Curves");
     Validate.notNull(method, "Method");
     Validate.notNull(differenceType, "Difference type");
-    int nbNode = nodeTimes.length;
-    double[] result = new double[nbNode];
+    final int nbNode = nodeTimes.length;
+    final double[] result = new double[nbNode];
     final YieldAndDiscountCurve curveToBump = curves.getCurve(curveToBumpName);
     final double[] yields = new double[nbNode + 1];
     final double[] nodeTimesExtended = new double[nbNode + 1];
@@ -82,9 +85,9 @@ public class SensitivityFiniteDifference {
           result[loopnode] = (pv - bumpedpv) / deltaShift;
         }
         return result;
+      default:
+        throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
     }
-    throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
-
   }
 
   /**
@@ -99,8 +102,9 @@ public class SensitivityFiniteDifference {
    * @param method The method to compute the present value sensitivity.
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
-      double deltaShift, PricingMethod method) {
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, final double pv,
+      final String curveToBumpName, final String curveBumpedName, final double[] nodeTimes,
+      final double deltaShift, final PricingMethod method) {
     return curveSensitivity(instrument, curves, pv, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, FiniteDifferenceType.FORWARD);
   }
 
@@ -115,8 +119,9 @@ public class SensitivityFiniteDifference {
    * @param method The method to compute the present value sensitivity.
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, String curveToBumpName, String curveBumpedName, double[] nodeTimes, double deltaShift,
-      PricingMethod method) {
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, final String curveToBumpName,
+      final String curveBumpedName, final double[] nodeTimes, final double deltaShift,
+      final PricingMethod method) {
     return curveSensitivity(instrument, curves, 0.0, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, FiniteDifferenceType.CENTRAL);
   }
 

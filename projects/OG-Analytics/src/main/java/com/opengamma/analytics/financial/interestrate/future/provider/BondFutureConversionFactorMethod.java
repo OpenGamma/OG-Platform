@@ -10,7 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 
 /**
  * Methods for the computation of conversion factors of bonds in bond futures basket.
