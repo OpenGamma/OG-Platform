@@ -33,7 +33,7 @@ import com.opengamma.util.time.Tenor;
  * maps are then used to generate market data requests in curve construction.
  */
 @Config
-public final class CurveNodeIdMapper {
+public class CurveNodeIdMapper {
   /**
    * The names of the curve instrument providers.
    */
@@ -182,7 +182,6 @@ public final class CurveNodeIdMapper {
     /**
      * @return a new {@link CurveNodeIdMapper} instance.
      */
-    @SuppressWarnings("synthetic-access")
     public CurveNodeIdMapper build() {
       return new CurveNodeIdMapper(_name, _cashNodeIds,
           _continuouslyCompoundedRateNodeIds, _creditSpreadNodeIds,
@@ -208,7 +207,7 @@ public final class CurveNodeIdMapper {
    * @param swapNodeIds The swap node ids
    * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
-  private CurveNodeIdMapper(final String name,
+  protected CurveNodeIdMapper(final String name,
       final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
       final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
       final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
