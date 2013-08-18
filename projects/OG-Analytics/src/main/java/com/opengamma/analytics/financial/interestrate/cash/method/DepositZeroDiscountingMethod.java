@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.cash.method;
@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
@@ -20,12 +18,15 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * The methods associated to the pricing of deposit by discounting.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class DepositZeroDiscountingMethod implements PricingMethod {
 
   /**
@@ -54,8 +55,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final DepositZero deposit, final YieldCurveBundle curves) {
-    Validate.notNull(deposit);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(deposit, "deposit");
+    ArgumentChecker.notNull(curves, "curves");
     final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
     final double pv = (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd - deposit.getInitialAmount() * dfStart;
@@ -64,7 +65,7 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof DepositZero, "Cash");
+    ArgumentChecker.isTrue(instrument instanceof DepositZero, "Cash");
     return presentValue((DepositZero) instrument, curves);
   }
 
@@ -75,8 +76,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
    * @return The present value.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final DepositZero deposit, final YieldCurveBundle curves) {
-    Validate.notNull(deposit);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(deposit, "deposit");
+    ArgumentChecker.notNull(curves, "curves");
     final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
     // Backward sweep
@@ -139,8 +140,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
    * @return The spread.
    */
   public double parSpread(final DepositZero deposit, final YieldCurveBundle curves) {
-    Validate.notNull(deposit);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(deposit, "deposit");
+    ArgumentChecker.notNull(curves, "curves");
     final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
     final double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();
@@ -155,8 +156,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
    * @return The spread curve sensitivity.
    */
   public InterestRateCurveSensitivity parSpreadCurveSensitivity(final DepositZero deposit, final YieldCurveBundle curves) {
-    Validate.notNull(deposit);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(deposit, "deposit");
+    ArgumentChecker.notNull(curves, "curves");
     final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
     final double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();

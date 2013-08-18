@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -33,7 +33,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class BondInterestIndexedTransactionDefinitionTest {
 
@@ -45,11 +45,9 @@ public class BondInterestIndexedTransactionDefinitionTest {
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final boolean IS_EOM_GILT_1 = false;
   private static final ZonedDateTime START_DATE_GILT_1 = DateUtils.getUTCDate(2002, 7, 11);
-  private static final ZonedDateTime FIRST_COUPON_DATE_GILT_1 = DateUtils.getUTCDate(2003, 1, 26);
   private static final ZonedDateTime MATURITY_DATE_GILT_1 = DateUtils.getUTCDate(2035, 1, 26);
   private static final YieldConvention YIELD_CONVENTION_GILT_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_GILT_1 = 8;
-  private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
   private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
@@ -62,7 +60,7 @@ public class BondInterestIndexedTransactionDefinitionTest {
   private static final double QUANTITY = 654321;
   private static final ZonedDateTime SETTLE_DATE_GILT_1 = DateUtils.getUTCDate(2011, 8, 10);
   private static final double PRICE_GILT_1 = 1.80;
-  private static final BondInterestIndexedTransactionDefinition<PaymentFixedDefinition, CouponInflationYearOnYearMonthlyWithMarginDefinition> BOND_GILT_1_TRANSACTION_DEFINITION = new BondInterestIndexedTransactionDefinition<PaymentFixedDefinition, CouponInflationYearOnYearMonthlyWithMarginDefinition>(
+  private static final BondInterestIndexedTransactionDefinition<PaymentFixedDefinition, CouponInflationYearOnYearMonthlyWithMarginDefinition> BOND_GILT_1_TRANSACTION_DEFINITION = new BondInterestIndexedTransactionDefinition<>(
       BOND_GILT_1_SECURITY_DEFINITION, QUANTITY, SETTLE_DATE_GILT_1, PRICE_GILT_1);
 
   @Test
@@ -70,8 +68,9 @@ public class BondInterestIndexedTransactionDefinitionTest {
     assertEquals("Capital Index Bond", QUANTITY, BOND_GILT_1_TRANSACTION_DEFINITION.getQuantity());
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void toDerivative() {
+  public void toDerivativeDeprecated() {
     final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
     final BondInterestIndexedTransaction<PaymentFixed, Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi, "Not used");
@@ -80,8 +79,21 @@ public class BondInterestIndexedTransactionDefinitionTest {
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
     final BondInterestIndexedSecurity<PaymentFixed, Coupon> standard = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, spot, ukRpi);
     assertEquals("Capital Index Bond: toDerivative", standard, bondTransactionConverted.getBondStandard());
-    final BondInterestIndexedTransaction<PaymentFixed, Coupon> expected = new BondInterestIndexedTransaction<PaymentFixed, Coupon>(purchase, QUANTITY, PRICE_GILT_1, standard, NOTIONAL_GILT_1);
+    final BondInterestIndexedTransaction<PaymentFixed, Coupon> expected = new BondInterestIndexedTransaction<>(purchase, QUANTITY, PRICE_GILT_1, standard, NOTIONAL_GILT_1);
     assertEquals("Capital Index Bond: toDerivative", expected, bondTransactionConverted);
   }
 
+  @Test
+  public void toDerivative() {
+    final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
+    final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
+    final BondInterestIndexedTransaction<PaymentFixed, Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi);
+    final BondInterestIndexedSecurity<PaymentFixed, Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);
+    assertEquals("Capital Index Bond: toDerivative", purchase, bondTransactionConverted.getBondTransaction());
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
+    final BondInterestIndexedSecurity<PaymentFixed, Coupon> standard = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, spot, ukRpi);
+    assertEquals("Capital Index Bond: toDerivative", standard, bondTransactionConverted.getBondStandard());
+    final BondInterestIndexedTransaction<PaymentFixed, Coupon> expected = new BondInterestIndexedTransaction<>(purchase, QUANTITY, PRICE_GILT_1, standard, NOTIONAL_GILT_1);
+    assertEquals("Capital Index Bond: toDerivative", expected, bondTransactionConverted);
+  }
 }

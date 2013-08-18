@@ -28,8 +28,10 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of DepositZero.
+ * @deprecated This class tests deprecated functionality
  */
-public class DepositZeroTest {
+@Deprecated
+public class DeprecatedDepositZeroTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final GeneratorDeposit GENERATOR = new EURDeposit(TARGET);
@@ -48,23 +50,23 @@ public class DepositZeroTest {
   private static final double END_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, END_DATE);
   private static final double DEPOSIT_AF = DAY_COUNT.getDayCountFraction(SPOT_DATE, END_DATE);
   private static final double INTEREST_AMOUNT = 1.0 / RATE.getDiscountFactor(DEPOSIT_AF) * NOTIONAL;
+  private static final String CURVE_NAME = "Curve";
 
-  private static final DepositZero DEPOSIT = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+  private static final DepositZero DEPOSIT = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency() {
-    new DepositZero(null, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+    new DepositZero(null, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullRate() {
-    new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, null, INTEREST_AMOUNT);
+    new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, null, INTEREST_AMOUNT, CURVE_NAME);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalStateException.class)
-  public void testGetCurveName() {
-    DEPOSIT.getDiscountingCurveName();
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCurve() {
+    new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, null);
   }
 
   @Test
@@ -80,6 +82,7 @@ public class DepositZeroTest {
     assertEquals("DepositZero: getter", EUR, DEPOSIT.getCurrency());
     assertEquals("DepositZero: getter", DEPOSIT_AF, DEPOSIT.getPaymentAccrualFactor());
     assertEquals("DepositZero: getter", INTEREST_AMOUNT, DEPOSIT.getInterestAmount());
+    assertEquals("DepositZero: getter", CURVE_NAME, DEPOSIT.getDiscountingCurveName());
   }
 
   @Test
@@ -88,25 +91,27 @@ public class DepositZeroTest {
    */
   public void equalHash() {
     assertEquals("DepositZero: equal-hash code", DEPOSIT, DEPOSIT);
-    final DepositZero other = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+    final DepositZero other = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertEquals("DepositZero: equal-hash code", other, DEPOSIT);
     assertEquals("DepositZero: equal-hash code", other.hashCode(), DEPOSIT.hashCode());
     DepositZero modified;
-    modified = new DepositZero(Currency.USD, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+    modified = new DepositZero(Currency.USD, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME + 0.01, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+    modified = new DepositZero(EUR, START_TIME + 0.01, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME, END_TIME + 0.01, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+    modified = new DepositZero(EUR, START_TIME, END_TIME + 0.01, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL + 10, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL + 10, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL + 10, DEPOSIT_AF, RATE, INTEREST_AMOUNT);
+    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL + 10, DEPOSIT_AF, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF + 0.01, RATE, INTEREST_AMOUNT);
+    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF + 0.01, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE, 1), INTEREST_AMOUNT);
+    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE, 1), INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT + 10);
+    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT + 10, CURVE_NAME);
+    assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
+    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT, "Wrong");
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
   }
 

@@ -24,8 +24,10 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the DepositCounterpart instruments construction.
+ * @deprecated This class tests deprecated functionality
  */
-public class DepositCounterpartTest {
+@Deprecated
+public class DeprecatedDepositCounterpartTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final GeneratorDeposit GENERATOR = new EURDeposit(TARGET);
@@ -44,17 +46,13 @@ public class DepositCounterpartTest {
   private static final double SPOT_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, SPOT_DATE);
   private static final double END_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, END_DATE);
 
-  private static final DepositCounterpart DEPOSIT_CTP = new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART_NAME);
+  private static final String CURVE_NAME = "Curve";
+
+  private static final DepositCounterpart DEPOSIT_CTP = new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART_NAME, CURVE_NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullName() {
-    new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalStateException.class)
-  public void testGetCurveName() {
-    DEPOSIT_CTP.getYieldCurveName();
+    new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, null, CURVE_NAME);
   }
 
   @Test
@@ -78,11 +76,11 @@ public class DepositCounterpartTest {
    */
   public void equalHash() {
     assertTrue("DepositCounterpart: equal hash", DEPOSIT_CTP.equals(DEPOSIT_CTP));
-    final DepositCounterpart depositCtp2 = new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART_NAME);
+    final DepositCounterpart depositCtp2 = new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART_NAME, CURVE_NAME);
     assertTrue("DepositCounterpart: equal hash", DEPOSIT_CTP.equals(depositCtp2));
     assertEquals("DepositCounterpart: equal hash", DEPOSIT_CTP.hashCode(), depositCtp2.hashCode());
     DepositCounterpart other;
-    other = new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, "Different name");
+    other = new DepositCounterpart(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, "Different name", CURVE_NAME);
     assertFalse("DepositIbor: equal hash", DEPOSIT_CTP.equals(other));
   }
 }
