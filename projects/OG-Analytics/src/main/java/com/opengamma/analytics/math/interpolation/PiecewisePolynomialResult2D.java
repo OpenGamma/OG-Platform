@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -14,24 +14,24 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * Result of 2D interpolation by piecewise polynomial f(x0,x1) containing
  * _knots0: Positions of knots in x0 direction
  * _knots1: Positions of knots in x1 direction
- * _coefMatrix: Coefficient matrix whose (i,j) element is a DoubleMatrix2D containing coefficients for the square, _knots0_i < x0 < _knots0_{i+1}, _knots1_j < x1 < _knots1_{j+1}, 
- * Each DoubleMatrix2D is c_ij where f(x0,x1) = sum_{i=0}^{order0-1} sum_{j=0}^{order1-1} coefMat_{ij} (x0-knots0_i)^{order0-1-i} (x1-knots1_j)^{order0-1-j} 
+ * _coefMatrix: Coefficient matrix whose (i,j) element is a DoubleMatrix2D containing coefficients for the square, _knots0_i < x0 < _knots0_{i+1}, _knots1_j < x1 < _knots1_{j+1},
+ * Each DoubleMatrix2D is c_ij where f(x0,x1) = sum_{i=0}^{order0-1} sum_{j=0}^{order1-1} coefMat_{ij} (x0-knots0_i)^{order0-1-i} (x1-knots1_j)^{order0-1-j}
  * _nIntervals: Number of intervals in x0 direction and x1 direction, respectively, which should be (Number of knots) - 1
  * _order: Number of coefficients in polynomial in terms of x0 and x1, respectively, which is equal to (polynomial degree) + 1
  */
 public class PiecewisePolynomialResult2D {
 
-  private DoubleMatrix1D _knots0;
-  private DoubleMatrix1D _knots1;
-  private DoubleMatrix2D[][] _coefMatrix;
-  private int[] _nIntervals;
-  private int[] _order;
+  private final DoubleMatrix1D _knots0;
+  private final DoubleMatrix1D _knots1;
+  private final DoubleMatrix2D[][] _coefMatrix;
+  private final int[] _nIntervals;
+  private final int[] _order;
 
   /**
-   * @param knots0 
-   * @param knots1 
-   * @param coefMatrix 
-   * @param order 
+   * @param knots0 The knots in the x0 direction
+   * @param knots1 The knots in the x1 direction
+   * @param coefMatrix The coefficient matrix
+   * @param order The order of the polynomial
    */
   public PiecewisePolynomialResult2D(final DoubleMatrix1D knots0, final DoubleMatrix1D knots1, final DoubleMatrix2D[][] coefMatrix, final int[] order) {
 
@@ -49,7 +49,7 @@ public class PiecewisePolynomialResult2D {
    * @return _knots0 and _knots1 contained in a ArrayList
    */
   public ArrayList<DoubleMatrix1D> getKnots2D() {
-    ArrayList<DoubleMatrix1D> res = new ArrayList<DoubleMatrix1D>();
+    final ArrayList<DoubleMatrix1D> res = new ArrayList<>();
     res.add(_knots0);
     res.add(_knots1);
 

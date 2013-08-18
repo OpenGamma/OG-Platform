@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class InvokedSerializedForm implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
@@ -35,7 +35,7 @@ public final class InvokedSerializedForm implements Serializable {
   private static final Map<Class<?>, Class<?>> s_primitives = createPrimitiveMap();
 
   private static Map<Class<?>, Class<?>> createPrimitiveMap() {
-    final Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
+    final Map<Class<?>, Class<?>> map = new HashMap<>();
     map.put(Boolean.TYPE, Boolean.class);
     map.put(Byte.TYPE, Byte.class);
     map.put(Character.TYPE, Character.class);

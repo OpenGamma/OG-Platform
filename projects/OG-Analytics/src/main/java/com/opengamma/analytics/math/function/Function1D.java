@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.function;
@@ -19,6 +19,7 @@ public abstract class Function1D<S, T> implements Function<S, T> {
    * @param x The list of inputs into the function, not null and no null elements
    * @return The value of the function
    */
+  @SuppressWarnings("unchecked")
   @Override
   public T evaluate(final S... x) {
     ArgumentChecker.noNulls(x, "parameter list");

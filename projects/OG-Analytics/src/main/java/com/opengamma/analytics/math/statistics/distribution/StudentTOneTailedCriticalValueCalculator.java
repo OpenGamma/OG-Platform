@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.statistics.distribution;
-
-import org.apache.commons.lang.Validate;
 
 import cern.jet.random.engine.RandomEngine;
 
@@ -14,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ *
  */
 public class StudentTOneTailedCriticalValueCalculator extends Function1D<Double, Double> {
   private final ProbabilityDistribution<Double> _dist;
@@ -26,13 +24,13 @@ public class StudentTOneTailedCriticalValueCalculator extends Function1D<Double,
 
   public StudentTOneTailedCriticalValueCalculator(final double nu, final RandomEngine engine) {
     ArgumentChecker.notNegative(nu, "nu");
-    Validate.notNull(null);
+    ArgumentChecker.notNull(engine, "engine");
     _dist = new StudentTDistribution(nu, engine);
   }
 
   @Override
   public Double evaluate(final Double x) {
-    Validate.notNull(x, "x");
+    ArgumentChecker.notNull(x, "x");
     ArgumentChecker.notNegative(x, "x");
     if (CompareUtils.closeEquals(x, 0.5, 1e-14)) {
       return 0.5;

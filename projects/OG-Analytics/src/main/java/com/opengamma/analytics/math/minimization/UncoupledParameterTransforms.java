@@ -157,6 +157,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   //    return DoubleMatrix2D.noCopy(jac);
   //  }
 
+  @SuppressWarnings("deprecation")
   @Override
   public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
     ArgumentChecker.notNull(fittingParameters, "fitting parameters");

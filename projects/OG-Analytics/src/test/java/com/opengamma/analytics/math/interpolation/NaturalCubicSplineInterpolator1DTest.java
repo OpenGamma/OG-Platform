@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -21,7 +21,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DCubicSpline
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ *
  */
 public class NaturalCubicSplineInterpolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
@@ -34,7 +34,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   private static final Interpolator1DDataBundle MODEL;
 
   static {
-    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<>();
     for (int i = 0; i < 12; i++) {
       final double x = i / 10.;
       data.put(x, CUBIC.evaluate(x));
@@ -83,12 +83,12 @@ public class NaturalCubicSplineInterpolator1DTest {
   @SuppressWarnings("unused")
   @Test
   public void matlabTest() {
-    double[] x = new double[] {0.0, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0 };
-    double[] y = new double[] {0, 0.145000000000000, 0.190000000000000, 0.200000000000000, 0.250000000000000, 0.700000000000000, 1.000000000000000 };
+    final double[] x = new double[] {0.0, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0 };
+    final double[] y = new double[] {0, 0.145000000000000, 0.190000000000000, 0.200000000000000, 0.250000000000000, 0.700000000000000, 1.000000000000000 };
 
     final double grad = 1. / 12;
-    Interpolator1DDataBundle nat = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
-    Interpolator1DCubicSplineDataBundle cub = new Interpolator1DCubicSplineDataBundle(nat, grad, grad);
+    final Interpolator1DDataBundle nat = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
+    final Interpolator1DCubicSplineDataBundle cub = new Interpolator1DCubicSplineDataBundle(nat, grad, grad);
 
     final double mlNat = 1.041605684280713;
     final double mlCub = 0.931260400907716;
@@ -102,16 +102,16 @@ public class NaturalCubicSplineInterpolator1DTest {
 
   @Test(enabled = false)
   public void debugTest() {
-    double[] x = new double[] {0.0, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0 };
-    double[] y = new double[] {0, 0.145000000000000, 0.190000000000000, 0.200000000000000, 0.250000000000000, 0.700000000000000, 1.000000000000000 };
+    final double[] x = new double[] {0.0, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0 };
+    final double[] y = new double[] {0, 0.145000000000000, 0.190000000000000, 0.200000000000000, 0.250000000000000, 0.700000000000000, 1.000000000000000 };
     final double grad = 1. / 12;
-    Interpolator1DDataBundle nat = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
-    Interpolator1DCubicSplineDataBundle cub = new Interpolator1DCubicSplineDataBundle(nat, grad, grad);
+    final Interpolator1DDataBundle nat = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
+    final Interpolator1DCubicSplineDataBundle cub = new Interpolator1DCubicSplineDataBundle(nat, grad, grad);
 
     for (int i = 0; i < 121; i++) {
-      double xx = i / 10.0;
-      double yy1 = INTERPOLATOR.interpolate(nat, xx);
-      double yy2 = INTERPOLATOR.interpolate(cub, xx);
+      final double xx = i / 10.0;
+      final double yy1 = INTERPOLATOR.interpolate(nat, xx);
+      final double yy2 = INTERPOLATOR.interpolate(cub, xx);
       System.out.println(xx + "\t" + yy1 + "\t" + yy2);
     }
 

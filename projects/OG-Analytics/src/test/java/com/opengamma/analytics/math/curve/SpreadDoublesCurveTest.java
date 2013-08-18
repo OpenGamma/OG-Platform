@@ -18,9 +18,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
- * 
+ *
  */
-@SuppressWarnings("unchecked")
 public class SpreadDoublesCurveTest {
   private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
@@ -39,7 +38,6 @@ public class SpreadDoublesCurveTest {
   private static final DoublesCurve[] CURVES3 = new DoublesCurve[] {INTERPOLATED1, INTERPOLATED1, INTERPOLATED1};
   private static final SpreadDoublesCurve SPREAD3 = SpreadDoublesCurve.from(ADD, NAME3, CURVES3);
 
-  @SuppressWarnings("rawtypes")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves1() {
     new SpreadDoublesCurve(ADD, (DoublesCurve) null);
