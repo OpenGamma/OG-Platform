@@ -33,6 +33,13 @@ public interface CurveNodeVisitor<T> {
   T visitCreditSpreadNode(CreditSpreadNode node);
 
   /**
+   * Visits a {@link DeliverableSwapFutureNode}
+   * @param node A deliverable swap future node
+   * @return The return value
+   */
+  T visitDeliverableSwapFutureNode(DeliverableSwapFutureNode node);
+
+  /**
    * Visits a {@link DiscountFactorNode}
    * @param node A discount factor node
    * @return The return value

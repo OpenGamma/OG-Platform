@@ -46,6 +46,8 @@ public final class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
   /** Curve instrument providers for credit spread nodes */
   private final Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
+  /** Curve instrument providers for deliverable swap future nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _deliverableSwapFutureNodeIds;
   /** Curve instrument providers for discount factor nodes */
   private final Map<Tenor, CurveInstrumentProvider> _discountFactorNodeIds;
   /** Curve instrument providers for FRA nodes */
@@ -59,7 +61,7 @@ public final class CurveNodeIdMapper {
   /** Curve instrument providers for zero coupon inflation nodes */
   private final Map<Tenor, CurveInstrumentProvider> _zeroCouponInflationNodeIds;
 
-  
+
   /**
    * Builder class for CurveNodeIdMapper
    */
@@ -72,6 +74,8 @@ public final class CurveNodeIdMapper {
     private Map<Tenor, CurveInstrumentProvider> _continuouslyCompoundedRateNodeIds;
     /** Curve instrument providers for credit spread nodes */
     private Map<Tenor, CurveInstrumentProvider> _creditSpreadNodeIds;
+    /** Curve instrument providers for deliverable swap future nodes */
+    private Map<Tenor, CurveInstrumentProvider> _deliverableSwapFutureNodeIds;
     /** Curve instrument providers for discount factor nodes */
     private Map<Tenor, CurveInstrumentProvider> _discountFactorNodeIds;
     /** Curve instrument providers for FRA nodes */
@@ -84,15 +88,15 @@ public final class CurveNodeIdMapper {
     private Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
     /** Curve instrument providers for zero coupon inflation nodes */
     private Map<Tenor, CurveInstrumentProvider> _zeroCouponInflationNodeIds;
-    
+
     private Builder() {}
-    
+
     /**
-     * The name of this configuration 
+     * The name of this configuration
      * @param name the name
      * @return this
      */
-    public Builder name(String name) {
+    public Builder name(final String name) {
       _name = name; return this;
     }
     /**
@@ -100,55 +104,63 @@ public final class CurveNodeIdMapper {
      * @param cashNodeIds the cashNodeIds
      * @return this
      */
-    public Builder cashNodeIds(Map<Tenor, CurveInstrumentProvider> cashNodeIds) {
+    public Builder cashNodeIds(final Map<Tenor, CurveInstrumentProvider> cashNodeIds) {
       _cashNodeIds = cashNodeIds; return this;
     }
     /**
-     * Curve instrument providers for continuously-compounded rate nodes 
-     * @param continuouslyCompoundedRateNodeIds the continuouslyCompoundedRateNodeIds 
+     * Curve instrument providers for continuously-compounded rate nodes
+     * @param continuouslyCompoundedRateNodeIds the continuouslyCompoundedRateNodeIds
      * @return this
      */
-    public Builder continuouslyCompoundedRateNodeIds(Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds) {
+    public Builder continuouslyCompoundedRateNodeIds(final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds) {
       _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateNodeIds; return this;
     }
     /**
-     * Curve instrument providers for credit spread nodes 
+     * Curve instrument providers for credit spread nodes
      * @param creditSpreadNodeIds the creditSpreadNodeIds
-     * @return this 
+     * @return this
      */
-    public Builder creditSpreadNodeIds(Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds) {
+    public Builder creditSpreadNodeIds(final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds) {
       _creditSpreadNodeIds = creditSpreadNodeIds; return this;
     }
     /**
-     * Curve instrument providers for discount factor nodes 
+     * Curve instrument providers for deliverable swap future nodes
+     * @param deliverableSwapFutureNodeIds the deliverableSwapFutureNodeIds
+     * @return this
+     */
+    public Builder deliverableSwapFutureNodeIds(final Map<Tenor, CurveInstrumentProvider> deliverableSwapFutureNodeIds) {
+      _deliverableSwapFutureNodeIds = deliverableSwapFutureNodeIds; return this;
+    }
+    /**
+     * Curve instrument providers for discount factor nodes
      * @param discountFactorNodeIds the discountFactorNodeIds
      * @return this
      */
-    public Builder discountFactorNodeIds(Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds) {
+    public Builder discountFactorNodeIds(final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds) {
       _discountFactorNodeIds = discountFactorNodeIds; return this;
     }
     /**
-     * Curve instrument providers for FRA nodes 
+     * Curve instrument providers for FRA nodes
      * @param fraNodeIds the fraNodeIds
      * @return this
      */
-    public Builder fraNodeIds(Map<Tenor, CurveInstrumentProvider> fraNodeIds) {
+    public Builder fraNodeIds(final Map<Tenor, CurveInstrumentProvider> fraNodeIds) {
       _fraNodeIds = fraNodeIds; return this;
     }
     /**
-     * Curve instrument providers for FX forward nodes 
+     * Curve instrument providers for FX forward nodes
      * @param fxForwardNodeIds the fxForwardNodeIds
      * @return this
      */
-    public Builder fxForwardNodeIds(Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds) {
+    public Builder fxForwardNodeIds(final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds) {
       _fxForwardNodeIds = fxForwardNodeIds; return this;
     }
     /**
-     * Curve instrument providers for rate future nodes 
-     * @param rateFutureNodeIds the rateFutureNodeIds 
-     * @return this 
+     * Curve instrument providers for rate future nodes
+     * @param rateFutureNodeIds the rateFutureNodeIds
+     * @return this
      */
-    public Builder rateFutureNodeIds(Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds) {
+    public Builder rateFutureNodeIds(final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds) {
       _rateFutureNodeIds = rateFutureNodeIds; return this;
     }
     /**
@@ -156,36 +168,39 @@ public final class CurveNodeIdMapper {
      * @param swapNodeIds the swapNodeIds
      * @return this
      */
-    public Builder swapNodeIds(Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
+    public Builder swapNodeIds(final Map<Tenor, CurveInstrumentProvider> swapNodeIds) {
       _swapNodeIds = swapNodeIds; return this;
     }
     /**
-     * Curve instrument providers for zero coupon inflation nodes 
+     * Curve instrument providers for zero coupon inflation nodes
      * @param zeroCouponInflationNodeIds the zeroCouponInflationNodeIds
      * @return this
      */
-    public Builder zeroCouponInflationNodeIds(Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
+    public Builder zeroCouponInflationNodeIds(final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
       _zeroCouponInflationNodeIds = zeroCouponInflationNodeIds; return this;
     }
     /**
      * @return a new {@link CurveNodeIdMapper} instance.
      */
+    @SuppressWarnings("synthetic-access")
     public CurveNodeIdMapper build() {
-      return new CurveNodeIdMapper(_name, _cashNodeIds, 
-          _continuouslyCompoundedRateNodeIds, _creditSpreadNodeIds, 
-          _discountFactorNodeIds, _fraNodeIds, _fxForwardNodeIds, 
+      return new CurveNodeIdMapper(_name, _cashNodeIds,
+          _continuouslyCompoundedRateNodeIds, _creditSpreadNodeIds,
+          _deliverableSwapFutureNodeIds, _discountFactorNodeIds, _fraNodeIds, _fxForwardNodeIds,
           _rateFutureNodeIds, _swapNodeIds, _zeroCouponInflationNodeIds);
     }
-    
+
   }
 
+  @SuppressWarnings("synthetic-access")
   public static Builder builder() { return new Builder(); }
-  
+
   /**
    * @param name The name of this configuration
    * @param cashNodeIds The cash node ids
    * @param continuouslyCompoundedRateIds The continuously-compounded rate ids
    * @param creditSpreadNodeIds The credit spread node ids
+   * @param deliverableSwapFutureNodeIds The deliverable swap future node ids
    * @param discountFactorNodeIds The discount factor node ids
    * @param fraNodeIds The FRA node ids
    * @param fxForwardNodeIds The FX forward node ids
@@ -197,6 +212,7 @@ public final class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> cashNodeIds,
       final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateIds,
       final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> deliverableSwapFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
@@ -207,6 +223,7 @@ public final class CurveNodeIdMapper {
     _cashNodeIds = cashNodeIds;
     _continuouslyCompoundedRateNodeIds = continuouslyCompoundedRateIds;
     _creditSpreadNodeIds = creditSpreadNodeIds;
+    _deliverableSwapFutureNodeIds = deliverableSwapFutureNodeIds;
     _discountFactorNodeIds = discountFactorNodeIds;
     _fraNodeIds = fraNodeIds;
     _fxForwardNodeIds = fxForwardNodeIds;
@@ -272,6 +289,17 @@ public final class CurveNodeIdMapper {
   public Map<Tenor, CurveInstrumentProvider> getCreditSpreadNodeIds() {
     if (_creditSpreadNodeIds != null) {
       return Collections.unmodifiableMap(_creditSpreadNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the deliverable swap future node ids.
+   * @return The deliverable swap future node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getDeliverableSwapFutureNodeIds() {
+    if (_deliverableSwapFutureNodeIds != null) {
+      return Collections.unmodifiableMap(_deliverableSwapFutureNodeIds);
     }
     return null;
   }
@@ -460,6 +488,53 @@ public final class CurveNodeIdMapper {
       throw new OpenGammaRuntimeException("Cannot get credit spread node id provider for curve node id mapper called " + _name);
     }
     return getDataFieldType(_creditSpreadNodeIds, tenor);
+  }
+
+  /**
+   * Gets the external id of the deliverable swap future node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The start tenor
+   * @param swapTenor The tenor of the future
+   * @param numberFuturesFromTenor The number of futures from the start tenor
+   * @return The external id of the security
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getDeliverableSwapFutureNodeId(final LocalDate curveDate, final Tenor tenor, final Tenor swapTenor, final int numberFuturesFromTenor) {
+    if (_deliverableSwapFutureNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get deliverable swap future node id provider for curve node id mapper called " + _name);
+    }
+    final CurveInstrumentProvider mapper = _deliverableSwapFutureNodeIds.get(tenor);
+    if (mapper != null) {
+      return mapper.getInstrument(curveDate, tenor, swapTenor, numberFuturesFromTenor);
+    }
+    throw new OpenGammaRuntimeException("Can't get instrument mapper definition for deliverable swap future number " + numberFuturesFromTenor +
+        " with time to start " + tenor + " and swap tenor " + swapTenor);
+  }
+
+  /**
+   * Gets the market data field of the deliverable swap future node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getDeliverableSwapFutureNodeDataField(final Tenor tenor) {
+    if (_deliverableSwapFutureNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get deliverable swap future node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_deliverableSwapFutureNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the deliverable swap future node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getDeliverableSwapFutureNodeDataFieldType(final Tenor tenor) {
+    if (_deliverableSwapFutureNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get deliverable swap future node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_deliverableSwapFutureNodeIds, tenor);
   }
 
   /**
@@ -724,6 +799,9 @@ public final class CurveNodeIdMapper {
     if (_creditSpreadNodeIds != null) {
       allTenors.addAll(_creditSpreadNodeIds.keySet());
     }
+    if (_deliverableSwapFutureNodeIds != null) {
+      allTenors.addAll(_deliverableSwapFutureNodeIds.keySet());
+    }
     if (_discountFactorNodeIds != null) {
       allTenors.addAll(_discountFactorNodeIds.keySet());
     }
@@ -782,6 +860,7 @@ public final class CurveNodeIdMapper {
         ObjectUtils.equals(_cashNodeIds, other._cashNodeIds) &&
         ObjectUtils.equals(_continuouslyCompoundedRateNodeIds, other._continuouslyCompoundedRateNodeIds) &&
         ObjectUtils.equals(_creditSpreadNodeIds, other._creditSpreadNodeIds) &&
+        ObjectUtils.equals(_deliverableSwapFutureNodeIds, other._deliverableSwapFutureNodeIds) &&
         ObjectUtils.equals(_discountFactorNodeIds, other._discountFactorNodeIds) &&
         ObjectUtils.equals(_fraNodeIds, other._fraNodeIds) &&
         ObjectUtils.equals(_fxForwardNodeIds, other._fxForwardNodeIds) &&
@@ -798,6 +877,7 @@ public final class CurveNodeIdMapper {
     result = prime * result + ((_cashNodeIds == null) ? 0 : _cashNodeIds.hashCode());
     result = prime * result + ((_continuouslyCompoundedRateNodeIds == null) ? 0 : _continuouslyCompoundedRateNodeIds.hashCode());
     result = prime * result + ((_creditSpreadNodeIds == null) ? 0 : _creditSpreadNodeIds.hashCode());
+    result = prime * result + ((_deliverableSwapFutureNodeIds == null) ? 0 : _deliverableSwapFutureNodeIds.hashCode());
     result = prime * result + ((_discountFactorNodeIds == null) ? 0 : _discountFactorNodeIds.hashCode());
     result = prime * result + ((_fraNodeIds == null) ? 0 : _fraNodeIds.hashCode());
     result = prime * result + ((_fxForwardNodeIds == null) ? 0 : _fxForwardNodeIds.hashCode());

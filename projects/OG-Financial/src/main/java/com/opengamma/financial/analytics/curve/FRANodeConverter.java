@@ -30,7 +30,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Convert a FRA node into an Instrument definition.
- * The dates of the FRA are computed in the following way: 
+ * The dates of the FRA are computed in the following way:
  * - The spot date is computed from the valuation date adding the "Settlement Days" (i.e. the number of business days) of the convention.
  * - The accrual start date is computed from the spot date adding the "FixingStart" of the node and using the business-day-convention, calendar and EOM of the convention.
  * - The accrual end date is computed from the spot date adding the "FixingEnd" of the node and using the business-day-convention, calendar and EOM of the convention.
@@ -75,7 +75,6 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
   }
 
   //TODO check calendars
-  @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitFRANode(final FRANode fraNode) {
     final Convention convention = _conventionSource.getConvention(fraNode.getConvention());

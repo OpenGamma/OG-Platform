@@ -85,7 +85,6 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     _valuationTime = valuationTime;
   }
 
-  @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitSwapNode(final SwapNode swapNode) {
     final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
@@ -128,7 +127,6 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   }
 
 
-  @SuppressWarnings("synthetic-access")
   private AnnuityCouponFixedDefinition getFixedLeg(final SwapFixedLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getRegionCalendar());
     final Double rate = _marketData.getDataPoint(_dataId);
@@ -148,7 +146,6 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   }
 
   //TODO do we actually need the settlement days for the swap, not the index?
-  @SuppressWarnings("synthetic-access")
   private AnnuityDefinition<? extends PaymentDefinition> getIborLeg(final VanillaIborLegConvention convention, final SwapNode swapNode, final boolean isPayer,
        final boolean isIborIbor) {
     final Convention underlyingConvention = _conventionSource.getConvention(convention.getIborIndexConvention());
@@ -182,7 +179,6 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     return AnnuityCouponIborDefinition.from(startDate, maturityTenor, 1, iborIndex, isPayer, calendar);
   }
 
-  @SuppressWarnings("synthetic-access")
   private AnnuityCouponONSimplifiedDefinition getOISLeg(final OISLegConvention convention, final SwapNode swapNode, final boolean isPayer) {
     final OvernightIndexConvention indexConvention = (OvernightIndexConvention) _conventionSource.getConvention(convention.getOvernightIndexConvention());
     final Currency currency = indexConvention.getCurrency();

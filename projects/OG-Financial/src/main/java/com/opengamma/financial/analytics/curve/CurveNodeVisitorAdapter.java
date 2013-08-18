@@ -10,6 +10,7 @@ import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRa
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
@@ -58,6 +59,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
 
   @Override
   public T visitCreditSpreadNode(final CreditSpreadNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
+  public T visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
@@ -157,6 +163,17 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
         @Override
         public T visitCreditSpreadNode(final CreditSpreadNode node) {
           return visitor.visitCreditSpreadNode(node);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> deliverableSwapFutureNode(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
+          return visitor.visitDeliverableSwapFutureNode(node);
         }
       };
       return this;

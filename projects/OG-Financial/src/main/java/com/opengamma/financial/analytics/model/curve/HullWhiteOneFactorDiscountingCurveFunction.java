@@ -62,6 +62,7 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.DeliverableSwapFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
@@ -341,6 +342,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
         final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime) {
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))

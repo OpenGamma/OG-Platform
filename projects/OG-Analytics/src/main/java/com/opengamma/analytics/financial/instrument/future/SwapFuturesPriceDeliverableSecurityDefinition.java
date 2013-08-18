@@ -157,6 +157,14 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
   }
 
   @Override
+  public String toString() {
+    String result = "Swap : \n";
+    result += "First leg: \n" + _underlyingSwap.getFirstLeg().toString();
+    result += "\nSecond leg: \n" + _underlyingSwap.getSecondLeg().toString();
+    return result;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

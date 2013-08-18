@@ -16,6 +16,7 @@ import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRa
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
@@ -26,7 +27,9 @@ import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.DeliverablePriceQuotedSwapFutureConvention;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -80,6 +83,15 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   @Override
   public Set<Currency> visitCreditSpreadNode(final CreditSpreadNode node) {
     return null;
+  }
+
+  @Override
+  public Set<Currency> visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
+    final Convention convention = _conventionSource.getConvention(node.getFutureConvention());
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("Could not get convention with id " + node.getFutureConvention());
+    }
+    return getCurrencies(convention);
   }
 
   @Override
@@ -168,6 +180,18 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     }
     if (convention instanceof IborIndexConvention) {
       return Collections.singleton(((IborIndexConvention) convention).getCurrency());
+    }
+    if (convention instanceof InterestRateFutureConvention) {
+      final Convention underlyingConvention = _conventionSource.getConvention(((InterestRateFutureConvention) convention).getIndexConvention());
+      return getCurrencies(underlyingConvention);
+    }
+    if (convention instanceof DeliverablePriceQuotedSwapFutureConvention) {
+      final Convention underlyingConvention = _conventionSource.getConvention(((DeliverablePriceQuotedSwapFutureConvention) convention).getSwapConvention());
+      return getCurrencies(underlyingConvention);
+    }
+    if (convention instanceof FederalFundsFutureConvention) {
+      final Convention underlyingConvention = _conventionSource.getConvention(((FederalFundsFutureConvention) convention).getIndexConvention());
+      return getCurrencies(underlyingConvention);
     }
     if (convention instanceof InterestRateFutureConvention) {
       final Convention underlyingConvention = _conventionSource.getConvention(((InterestRateFutureConvention) convention).getIndexConvention());
