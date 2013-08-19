@@ -5,11 +5,14 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
@@ -19,6 +22,11 @@ import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -74,6 +82,11 @@ public class CurveNodeConverter {
         if (length == 0) {
           throw new OpenGammaRuntimeException("Price time series for " + id + " was empty");
         }
+        if (definition instanceof FederalFundsFutureTransactionDefinition) {
+          final DoubleTimeSeries<ZonedDateTime>[] tsArray = new DoubleTimeSeries[2];
+          tsArray[0] = convertTimeSeries(now.getZone(), historicalTimeSeries.getTimeSeries());
+          return ((InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]>) definition).toDerivative(now, tsArray); //CSIGNORE
+        }
         final double lastMarginPrice = ts.getLatestValue();
         return ((InstrumentDefinitionWithData<?, Double>) definition).toDerivative(now, lastMarginPrice);
       }
@@ -84,5 +97,16 @@ public class CurveNodeConverter {
 
   private static boolean requiresFixingSeries(final CurveNode node) {
     return node instanceof RateFutureNode; // || (node instanceof SwapNode && ((SwapNode) node).isUseFixings());
+  }
+
+  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
+    // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
+    final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
+    for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext();) {
+      final LocalDate date = it.nextTime();
+      final ZonedDateTime zdt = date.atStartOfDay(timeZone);
+      bld.put(zdt, it.currentValueFast());
+    }
+    return bld.build();
   }
 }

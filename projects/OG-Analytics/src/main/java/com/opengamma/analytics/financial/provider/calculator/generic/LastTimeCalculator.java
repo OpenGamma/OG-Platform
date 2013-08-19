@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZer
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
@@ -98,6 +99,12 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
     return future.getFixingPeriodEndTime();
+  }
+
+  @Override
+  public Double visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
+    final double[] fixingPeriods = future.getUnderlyingFuture().getFixingPeriodTime();
+    return fixingPeriods[fixingPeriods.length - 1];
   }
 
   @Override

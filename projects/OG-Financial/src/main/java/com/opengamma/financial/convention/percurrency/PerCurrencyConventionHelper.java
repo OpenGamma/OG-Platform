@@ -39,6 +39,10 @@ public class PerCurrencyConventionHelper {
   public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
   /** Quarterly Eurodollar futures string */
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
+  /** Fed fund futures string */
+  public static final String FED_FUNDS_FUTURE = "Fed Funds Future";
+  /** CME deliverable swap future string */
+  public static final String CME_DELIVERABLE_SWAP_FUTURE = "CME Deliverable Swap Future";
   /** Inflation swap leg string */
   public static final String INFLATION_LEG = "Inflation Swap Leg";
   /** Price index string */

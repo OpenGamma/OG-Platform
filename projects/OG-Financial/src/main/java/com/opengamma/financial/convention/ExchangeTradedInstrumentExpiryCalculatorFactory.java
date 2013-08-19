@@ -22,6 +22,7 @@ public class ExchangeTradedInstrumentExpiryCalculatorFactory {
     s_instances.put(IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.getInstance());
     s_instances.put(SoybeanFutureExpiryCalculator.NAME, SoybeanFutureExpiryCalculator.getInstance());
     s_instances.put(SoybeanFutureOptionExpiryCalculator.NAME, SoybeanFutureOptionExpiryCalculator.getInstance());
+    s_instances.put(FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME, FedFundFutureAndFutureOptionMonthlyExpiryCalculator.getInstance());
   }
 
   /**

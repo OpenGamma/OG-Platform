@@ -171,7 +171,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             }
             marketDataForCurve[k] = marketData;
             if (node.getCurveNode() instanceof RateFutureNode) {
-              parameterGuessForCurves.add(1.0 - marketData);
+              parameterGuessForCurves.add(1 - marketData);
             } else {
               parameterGuessForCurves.add(marketData);
             }
