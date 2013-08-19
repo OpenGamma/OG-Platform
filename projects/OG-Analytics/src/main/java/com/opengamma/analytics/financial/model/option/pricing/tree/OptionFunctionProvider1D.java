@@ -39,13 +39,14 @@ public abstract class OptionFunctionProvider1D {
    * @param downProbability Down probability
    * @param values Option values in the (steps)-th layer
    * @param baseAssetPrice Asset price at (0,0), i.e., the starting point
+   * @param sumCashDiv Sum of discounted discrete cash dividends payed after i-th layer
    * @param downFactor Down factor 
    * @param upOverDown  (up factor)/(down factor)
    * @param steps  
    * @return Given a set of option values in the (steps)-th layer, derive option values in the (steps-1)-th layer
    */
   public abstract double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice,
-      final double downFactor, final double upOverDown, final int steps);
+      final double sumCashDiv, final double downFactor, final double upOverDown, final int steps);
 
   /**
    * Access strike price

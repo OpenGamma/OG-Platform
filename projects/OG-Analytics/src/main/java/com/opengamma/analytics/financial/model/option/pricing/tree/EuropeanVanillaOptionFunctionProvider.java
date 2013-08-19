@@ -35,8 +35,8 @@ public class EuropeanVanillaOptionFunctionProvider extends OptionFunctionProvide
   }
 
   @Override
-  public double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice, final double downFactor,
-      final double upOverDown, final int steps) {
+  public double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice, final double sumCashDiv,
+      final double downFactor, final double upOverDown, final int steps) {
     final int nStepsP = steps + 1;
 
     final double[] res = new double[nStepsP];
