@@ -90,6 +90,10 @@ public class ExternalSchemes {
    * Identification scheme for GMI contracts.
    */
   public static final ExternalScheme GMI = ExternalScheme.of("GMI");
+  /**
+   * Identification scheme conventions specified for ISDA.
+   */
+  public static final ExternalScheme ISDA = ExternalScheme.of("ISDA");
   // --------------------- SCHEMES FOR EXCHANGES ---------------------------
 
 /**
@@ -403,6 +407,17 @@ public class ExternalSchemes {
     ArgumentChecker.notNull(redcode, "redcode");
     ArgumentChecker.isFalse(redcode.isEmpty(), "Empty redcode is invalid");
     return ExternalId.of(MARKIT_RED_CODE, redcode);
+  }
+  
+  /**
+   * Creates an ISDA identifier
+   * <p>
+   * @param isdaName the isda name, not null or empty
+   * @return the isda identifier, not null
+   */
+  public static ExternalId isda(String isdaName) {
+    ArgumentChecker.notEmpty(isdaName, "isdaname");
+    return ExternalId.of(ISDA, isdaName);
   }
   
   // -------------------------- METHODS FOR REGIONS ---------------------------
