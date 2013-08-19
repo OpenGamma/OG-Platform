@@ -12,6 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Specifies a source of market data that decorates an underlying source and ticks at random intervals with random
  * perturbations.
+ * TODO fudge builders or Joda beans?
  */
 public class RandomizingMarketDataSpecification extends MarketDataSpecification {
 
@@ -41,14 +42,32 @@ public class RandomizingMarketDataSpecification extends MarketDataSpecification 
     _averageCyclePeriod = averageCycleInterval;
   }
 
+  /**
+   * Creates a specification with an update probability of 0.2, maximum change of 5% and average cycle interval
+   * of 1000ms.
+   * @param underlying Specification of the underlying source of market data
+   */
+  public RandomizingMarketDataSpecification(MarketDataSpecification underlying) {
+    this(underlying, 0.2, 5, 1000);
+  }
+
+  /**
+   * @return Specification of the underlying source of market data.
+   */
   public MarketDataSpecification getUnderlying() {
     return _underlying;
   }
 
+  /**
+   * @return The probability of a particular piece of data being randomized in a cycle.
+   */
   public double getUpdateProbability() {
     return _updateProbability;
   }
 
+  /**
+   * @return The maximum random change applied to a value.
+   */
   public int getMaxPercentageChange() {
     return _maxPercentageChange;
   }

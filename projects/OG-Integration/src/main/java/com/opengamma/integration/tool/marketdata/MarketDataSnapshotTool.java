@@ -130,7 +130,7 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
     
     for (final ConfigMaster configMaster : configMasters) {
-      final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
+      final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<>(ViewDefinition.class);
       request.setName(viewDefinitionName);
       Iterables.addAll(viewDefinitions, ConfigSearchIterator.iterable(configMaster, request));
     }
@@ -151,8 +151,9 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
   }
 
   private void endWithError(String message, Object... messageArgs) {
-    System.err.println(format(message, messageArgs));
-    s_logger.error(message, messageArgs);
+    String formattedMessage = format(message, messageArgs);
+    System.err.println(formattedMessage);
+    s_logger.error(formattedMessage);
     System.exit(1);
   }
 
@@ -180,8 +181,7 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
   }
 
   private static Option createHistoricalOption() {
-    final Option option = new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
-    return option;
+    return new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
   }
 
   //-------------------------------------------------------------------------
