@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -21,6 +24,7 @@ public class PortfolioGridViewport extends MainGridViewport {
   private Set<List<String>> _currentExpandedPaths;
   /** Row and column structure of the grid. */
   private MainGridStructure _gridStructure;
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioGridViewport.class);
 
   /**
    * @param gridStructure Row and column structure of the grid
@@ -84,13 +88,15 @@ public class PortfolioGridViewport extends MainGridViewport {
         // was it expanded or collapsed
         Boolean expanded = changedNode.getSecond();
         List<String> path = _nodeStructure.getPathForRow(rowIndex);
-        System.out.println("Row: " + rowIndex.toString() + " Expanded: " + expanded.toString() + " Path: " + path);
+        s_logger.debug("Node at row {} {}", rowIndex.toString(), expanded ? "expanded" : "collapsed");
+        //System.out.println("Row: " + rowIndex.toString() + " Expanded: " + expanded.toString() + " Path: " + path);
         if (expanded) {
           _currentExpandedPaths.add(path);
         } else {
           _currentExpandedPaths.remove(path);
         }
-        System.out.println("Current: " + _currentExpandedPaths);
+        s_logger.debug("Current expanded set of nodes {}", _currentExpandedPaths);
+        //System.out.println("Current: " + _currentExpandedPaths);
       }
     }
     setViewportDefinition(viewportDefinition);

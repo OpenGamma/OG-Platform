@@ -109,9 +109,7 @@ public class RectangularViewportDefinition extends ViewportDefinition {
         return Pair.of(_rows.get(i-1), false);
       }
     }
-
     // or resized the window - if the window has resized the row lists will be different lengths
-
     return null;
   }
 
