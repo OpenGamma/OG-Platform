@@ -193,16 +193,24 @@ public class CDSAnalyticFactory {
   }
 
   public CDSAnalytic makeIMMCDS(final LocalDate tradeDate, final Period tenor) {
+    return makeIMMCDS(tradeDate, tenor, true);
+  }
+
+  public CDSAnalytic makeIMMCDS(final LocalDate tradeDate, final Period tenor, final boolean makeEffBusDay) {
     ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notNull(tenor, "tenor");
-    final LocalDate effectiveDate = getPrevIMMDate(tradeDate);
+    final LocalDate effectiveDate = makeEffBusDay ? _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate)) : getPrevIMMDate(tradeDate);
     final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final LocalDate maturity = nextIMM.plus(tenor);
     return makeCDS(tradeDate, effectiveDate, maturity);
   }
 
   public CDSAnalytic[] makeIMMCDS(final LocalDate tradeDate, final Period[] tenors) {
-    final LocalDate effectiveDate = getPrevIMMDate(tradeDate); //TODO check if this should be holiday adjusted 
+    return makeIMMCDS(tradeDate, tenors, true);
+  }
+
+  public CDSAnalytic[] makeIMMCDS(final LocalDate tradeDate, final Period[] tenors, final boolean makeEffBusDay) {
+    final LocalDate effectiveDate = makeEffBusDay ? _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate)) : getPrevIMMDate(tradeDate);
     return makeIMMCDS(tradeDate, effectiveDate, tenors);
   }
 
