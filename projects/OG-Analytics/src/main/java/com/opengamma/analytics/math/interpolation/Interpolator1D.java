@@ -26,8 +26,20 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
   public abstract Double interpolate(Interpolator1DDataBundle data, Double value);
 
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    final double vm = value - EPS;
+    final double vp = value + EPS;
+
+    if (vm < data.firstKey()) {
+      final double up = interpolate(data, value + EPS);
+      final double mid = interpolate(data, value);
+      return (up - mid) / EPS;
+    } else if (vp > data.lastKey()) {
+      final double down = interpolate(data, vm);
+      final double mid = interpolate(data, value);
+      return (mid - down) / EPS;
+    }
     final double up = interpolate(data, value + EPS);
-    final double down = interpolate(data, value - EPS);
+    final double down = interpolate(data, vm);
     return (up - down) / 2 / EPS;
   }
 
