@@ -31,6 +31,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_INCREMENT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_PIECE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PAR_AMT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_REDEMP_VAL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LINKED_INDICATOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
@@ -66,6 +67,7 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -109,6 +111,7 @@ public class BondLoader extends SecurityLoader {
       FIELD_PAR_AMT,
       FIELD_REDEMP_VAL,
       FIELD_FLOATER,
+      FIELD_INFLATION_LINKED_INDICATOR,
       FIELD_ID_BBG_UNIQUE,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
@@ -160,6 +163,13 @@ public class BondLoader extends SecurityLoader {
     }
     return fieldData.getString(fieldName);
   }
+  
+  private String validateAndGetNullableStringField(FudgeMsg fieldData, String fieldName) {
+    if (!isValidField(fieldData.getString(fieldName))) {
+      return null;
+    }
+    return fieldData.getString(fieldName);
+  }
 
   private Double validateAndGetDoubleField(FudgeMsg fieldData, String fieldName) {
     if (!isValidField(fieldData.getString(fieldName))) {
@@ -201,6 +211,7 @@ public class BondLoader extends SecurityLoader {
     try {
       String issuerName = validateAndGetStringField(fieldData, FIELD_ISSUER);
       String issuerType = validateAndGetStringField(fieldData, FIELD_INDUSTRY_GROUP);
+      String inflationIndicator = validateAndGetNullableStringField(fieldData, FIELD_INFLATION_LINKED_INDICATOR);
       String issuerDomicile = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
       String market = validateAndGetStringField(fieldData, FIELD_SECURITY_TYP);
       String currencyStr = validateAndGetStringField(fieldData, FIELD_CRNCY);
@@ -263,7 +274,15 @@ public class BondLoader extends SecurityLoader {
       String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
       
       ManageableSecurity bondSecurity;
-      if (issuerType.trim().equals(SOVEREIGN)) {
+      if ((inflationIndicator != null) && (inflationIndicator.trim().toUpperCase().startsWith("Y"))) {
+        bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
+            yieldConvention, maturity, couponType, couponRate,
+            couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
+            totalAmountIssued, minimumAmount, minimumIncrement, parAmount,
+            redemptionValue);
+        ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
+        ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+      } else if (issuerType.trim().equals(SOVEREIGN)) {
         bondSecurity = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
             couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,

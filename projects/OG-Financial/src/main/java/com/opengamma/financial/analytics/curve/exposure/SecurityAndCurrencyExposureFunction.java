@@ -15,6 +15,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -282,6 +283,11 @@ public class SecurityAndCurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+    return getExternalIds(security);
+  }
+  
+  @Override
+  public List<ExternalId> visitInflationBondSecurity(final InflationBondSecurity security) {
     return getExternalIds(security);
   }
 

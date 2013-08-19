@@ -7,6 +7,7 @@ package com.opengamma.financial.security;
 
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -101,6 +102,11 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
 
   @Override
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+    return _value.visit(security);
+  }
+  
+  @Override
+  public T visitInflationBondSecurity(final InflationBondSecurity security) {
     return _value.visit(security);
   }
 

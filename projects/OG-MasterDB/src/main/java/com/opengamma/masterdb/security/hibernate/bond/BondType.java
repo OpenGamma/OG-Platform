@@ -11,6 +11,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 
 /**
@@ -28,7 +29,11 @@ public enum BondType {
   /**
    * 
    */
-  GOVERNMENT;
+  GOVERNMENT,
+  /**
+   * 
+   */
+  INFLATION;
   
   public static BondType identify(final BondSecurity object) {
     return object.accept(new FinancialSecurityVisitorAdapter<BondType>() {
@@ -49,6 +54,11 @@ public enum BondType {
         return MUNICIPAL;
       }
       
+      @Override
+      public BondType visitInflationBondSecurity(InflationBondSecurity security) {
+        return INFLATION;
+      }
+      
     });
   }
   
@@ -60,6 +70,8 @@ public enum BondType {
         return visitor.visitGovernmentBondSecurity(null);
       case MUNICIPAL:
         return visitor.visitMunicipalBondSecurity(null);
+      case INFLATION:
+        return visitor.visitInflationBondSecurity(null);
       default:
         throw new OpenGammaRuntimeException("unexpected BondType: " + this);
     } 
