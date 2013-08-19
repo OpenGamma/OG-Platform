@@ -36,7 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class HullWhiteBCSFunction extends HullWhiteFunction {
+public class HullWhiteDiscountingBCSFunction extends HullWhiteDiscountingFunction {
   /** The curve sensitivity calculator */
   private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
@@ -50,7 +50,7 @@ public class HullWhiteBCSFunction extends HullWhiteFunction {
   /**
    * Sets the value requirements to {@link ValueRequirementNames#BLOCK_CURVE_SENSITIVITIES}
    */
-  public HullWhiteBCSFunction() {
+  public HullWhiteDiscountingBCSFunction() {
     super(BLOCK_CURVE_SENSITIVITIES);
   }
 

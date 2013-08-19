@@ -28,6 +28,7 @@ import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.fx.FXForwardPricingFunctions;
+import com.opengamma.financial.analytics.model.g2ppdiscounting.G2ppPricingFunctions;
 import com.opengamma.financial.analytics.model.horizon.HorizonFunctions;
 import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhitePricingFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
@@ -118,6 +119,15 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
    */
   protected FunctionConfigurationSource hullWhitePricingFunctionConfiguration() {
     return HullWhitePricingFunctions.instance();
+  }
+
+  /**
+   * Adds pricing functions that use curves constructed using the G2++
+   * discounting method
+   * @return A configuration source containing these functions
+   */
+  protected FunctionConfigurationSource g2ppPricingFunctionConfiguration() {
+    return G2ppPricingFunctions.instance();
   }
 
   protected FunctionConfigurationSource fxPricingFunctionConfiguration() {
@@ -251,7 +261,8 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         interestRateFutureFunctionConfiguration(),
         fxPricingFunctionConfiguration(),
         blackDiscountingFunctionConfiguration(),
-        sabrDiscountingFunctionConfiguration());
+        sabrDiscountingFunctionConfiguration(),
+        g2ppPricingFunctionConfiguration());
   }
 
 }
