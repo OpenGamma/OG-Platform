@@ -56,7 +56,6 @@ $.register_module({
                 ROWS = 'rowCount', grid_type = null, depgraph = !!source.depgraph, loading_viewport_id = false,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'}, bypass_types = config.bypass;
             data.viewport_id = null;
-            console.log('Initialize data', data.viewport_id);
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta;
                 var handler = function (result) {
@@ -96,10 +95,12 @@ $.register_module({
                                 console.log('error');
                                 data.prefix = module.name + ' (' + label + view_id + '-dead):\n';
                                 data.connection = view_id = graph_id = data.viewport_id = subscribed = null;
+                                console.log('VIEWPORT ID: ', data.viewport_id);
                                 return result;
                             }
 
                             data.viewport_id = result.meta.id;
+                            console.log('VIEWPORT ID: ', data.viewport_id);
                             console.log('data setup, id from meta ', data.viewport_id);
                             viewport_version = promise.id;
                             //return a dry run, which returns the promise
@@ -246,6 +247,7 @@ $.register_module({
                                 console.log('error');
                                 data.prefix = module.name + ' (' + label + view_id + '-dead):\n';
                                 data.connection = view_id = graph_id = data.viewport_id = subscribed = null;
+                                console.log('VIEWPORT ID: ', data.viewport_id);
                                 return result;
                             }
                             console.log('structure_setup, results ', result);
@@ -323,7 +325,7 @@ $.register_module({
                 }
                 data.prefix = module.name + ' (' + label + view_id + '-dead' + '):\n';
                 data.connection = view_id = graph_id = data.viewport_id = subscribed = null;
-                console.log('disconnect viewport is now null');
+                console.log('VIEWPORT ID: ', data.viewport_id);
             };
             data.id = og.common.id('data');
             data.kill = function () {
@@ -357,6 +359,7 @@ $.register_module({
                         meta.viewport.rows = [];
                     }
                     data.viewport_id = data.parent.viewport_id;
+                    console.log('VIEWPORT ID: ', data.viewport_id);
                     return data;
                 }
                 if (nonsensical_viewport(new_viewport)) {
@@ -365,7 +368,8 @@ $.register_module({
                     return data;
                 }
                 if (Object.equals(viewport_cache, new_viewport)) { // duplicate viewport, do nothing
-                    data.viewport_id = data.parent.viewport_id;
+                    //data.viewport_id = data.parent.viewport_id;
+                    //console.log('VIEWPORT ID: ', data.viewport_id);
                     return data;
                 }
                 viewport_cache = Object.clone(data.meta.viewport = viewport = new_viewport);
