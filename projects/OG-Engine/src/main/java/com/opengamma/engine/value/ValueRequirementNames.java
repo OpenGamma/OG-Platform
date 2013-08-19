@@ -153,6 +153,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Curve containing (time, rate) pairs.
+   */
+  public static final String INSTANTANEOUS_FORWARD_CURVE = "InstantaneousForwardCurve";
+  /**
    * Curve containing (time, price index) pairs.
    */
   public static final String PRICE_INDEX_CURVE = "PriceIndexCurve";
