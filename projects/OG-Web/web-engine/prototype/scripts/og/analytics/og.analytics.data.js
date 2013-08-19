@@ -77,18 +77,18 @@ $.register_module({
                 if (!view_id || !viewport) return;
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 subscribed = true;
-                var temp = data;
-                console.log('setup - viewport_id: ', temp);
                 // if we have a viewport id already just get the data
                 if (data.viewport_id) {
-                    viewports.get({view_id: view_id, grid_type: grid_type, graph_id: graph_id,update: data_setup,
+                    viewports.get({view_id: view_id, grid_type: grid_type, graph_id: graph_id, update: data_setup,
                         viewport_id: data.viewport_id })
                     .pipe(data_handler);
                 } else {
                     //put the structure of the viewport, returns the viewport id and set the version as the promise id
-                    (promise = viewports.put({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
+                    var blog = {view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;},rows: viewport.rows, cols: viewport.cols,
-                        cells: viewport.cells, format: viewport.format, log: viewport.log})
+                        cells: viewport.cells, format: viewport.format, log: viewport.log}
+                    console.log(blog);
+                    (promise = viewports.put(blog)
                     ).pipe(function (result) {
                         loading_viewport_id = false;
                             if (result.error) {
@@ -208,6 +208,22 @@ $.register_module({
                     return data_setup();
                 }
             };
+            var missing_viewport = function () {
+                //viewport no longer exists, null it at get a new one
+                data.viewport_id = null;
+                if (depgraph && !graph_id) { //for depgraphs make sure that a grid id exists before setting up data
+                    api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type, row: source.row, col: source.col})
+                    .pipe(function (result) {
+                        if (result.error) {
+                            return fire('fatal', data.prefix + result.message);
+                        }
+                        graph_id = result.meta.id;
+                        data_setup();
+                    });
+                } else {
+                    data_setup();
+                }
+            };
             var structure_setup = function () {
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports, promise;
                 //console.log('init: ' + init, data.viewport_id, update, data);
@@ -219,17 +235,16 @@ $.register_module({
                 //    //console.log('Structure setup viewport is now null');
                 //}
                 console.log('Im here', data);
-                if (data.viewport_id === null) { // this will result in a new viewport ID
+                // If there is no viewport ID or no graph ID for a depgraph this will result in a new ones
+                if (data.viewport_id === null) {
                     api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
                         .pipe(structure_setup_impl);
                 } else {
                     api.grid.viewports.structure.get({view_id: view_id, grid_type: grid_type,
                         update: structure_setup, viewport_id: data.viewport_id})
                     .pipe(function (result) {
-                        if (result.error === 404) { //viewport no longer exists, null it at get a new one
-                            console.log(result);
-                            data.viewport_id = null;
-                            data_setup();
+                        if (result.error === 404) { // server restart logic caught in 404
+                            missing_viewport();
                         } else {
                             structure_setup_impl(result);
                         }
@@ -301,7 +316,6 @@ $.register_module({
             var view_handler = function (result) {
                 if (result.error) return fire('fatal', data.prefix + result.message);
                 data.prefix = module.name + ' (' + label + (view_id = result.meta.id) + '):\n';
-                console.log('view handler - grid:', grid_type);
                 return grid_type ? structure_setup() : type_setup();
             };
             data.disconnect = function () {
@@ -385,7 +399,9 @@ $.register_module({
                             return og.dev.warn(data.prefix + 'viewport: ' + (result.message || 'race condition'));
                         }
                         if (result.error) {
-                            console.log('error');
+                            console.log('error', result);
+                            data.connection = view_id = graph_id = data.viewport_id = subscribed = null;
+                            initialize();
                             fire('fatal', data.prefix + result.message);
                         }
                     });
