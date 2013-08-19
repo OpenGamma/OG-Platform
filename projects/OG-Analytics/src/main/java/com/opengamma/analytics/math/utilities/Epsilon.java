@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
+package com.opengamma.analytics.math.utilities;
 
 /**
  * 

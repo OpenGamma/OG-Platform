@@ -55,6 +55,11 @@ public class YieldAndDiscountAddZeroFixedCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public double getForwardRate(final double t) {
+    return _curve.getForwardRate(t) + _sign * _curveFixed.getForwardRate(t);
+  }
+
+  @Override
   public double[] getInterestRateParameterSensitivity(final double time) {
     return _curve.getInterestRateParameterSensitivity(time);
   }

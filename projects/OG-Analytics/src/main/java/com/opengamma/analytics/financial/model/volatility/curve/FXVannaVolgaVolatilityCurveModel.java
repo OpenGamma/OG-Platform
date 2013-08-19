@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.option.definition.FXOptionDataBundle;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.time.DateUtils;
@@ -45,14 +45,14 @@ public class FXVannaVolgaVolatilityCurveModel implements VolatilityCurveModel<FX
     final double lnk31 = Math.log(k3 / k1);
     final double lnk32 = Math.log(k3 / k2);
     final double sigma = sigmaATM;
-    return new VolatilityCurve(FunctionalDoublesCurve.from(new Function<Double, Double>() {
+    return new VolatilityCurve(FunctionalDoublesCurve.from(new Function1D<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(final Double... x) {
+      public Double evaluate(final Double x) {
         Validate.notNull(x);
-        Validate.notEmpty(x);
-        final double k = x[0];
+
+        final double k = x;
         final double a1 = Math.log(k2 / k) * Math.log(k3 / k) / lnk21 / lnk31;
         final double a2 = Math.log(k / k1) * Math.log(k3 / k) / lnk21 / lnk32;
         final double a3 = Math.log(k / k1) * Math.log(k / k2) / lnk31 / lnk32;

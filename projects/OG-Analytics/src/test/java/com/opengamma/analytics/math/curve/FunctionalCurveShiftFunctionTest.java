@@ -9,17 +9,17 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * 
  */
 public class FunctionalCurveShiftFunctionTest {
-  private static final Function<Double, Double> F = new Function<Double, Double>() {
+  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double... x) {
-      return x[0] * x[0];
+    public Double evaluate(final Double x) {
+      return x * x;
     }
 
   };
@@ -38,12 +38,12 @@ public class FunctionalCurveShiftFunctionTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test3() {
-    SHIFT.evaluate(CURVE, new double[] {2}, new double[] {1});
+    SHIFT.evaluate(CURVE, new double[] {2 }, new double[] {1 });
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test4() {
-    SHIFT.evaluate(CURVE, new double[] {2}, new double[] {1}, "A");
+    SHIFT.evaluate(CURVE, new double[] {2 }, new double[] {1 }, "A");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -453,6 +455,11 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
   @Override
   public Double[] getYValueParameterSensitivity(Double x) {
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for NodalDoublesCurve");
+  }
+
+  @Override
+  public double getDyDx(double x) {
+    throw new NotImplementedException();
   }
 
 }

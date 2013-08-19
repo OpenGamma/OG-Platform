@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.function.Function;
@@ -189,6 +190,11 @@ public class SpreadDoublesCurve extends DoublesCurve {
       return false;
     }
     return ObjectUtils.equals(_spreadFunction, other._spreadFunction);
+  }
+
+  @Override
+  public double getDyDx(final double x) {
+    throw new NotImplementedException();
   }
 
 }

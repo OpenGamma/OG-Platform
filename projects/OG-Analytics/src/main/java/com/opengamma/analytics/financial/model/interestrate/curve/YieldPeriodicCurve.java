@@ -85,6 +85,11 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public double getForwardRate(final double t) {
+    return _curve.getYValue(t) + t * _curve.getDyDx(t);
+  }
+
+  @Override
   public double getDiscountFactor(final double t) {
     final double rate = _curve.getYValue(t);
     return Math.pow(1 + rate / _compoundingPeriodsPerYear, -_compoundingPeriodsPerYear * t);

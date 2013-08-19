@@ -29,7 +29,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * Constructor.
    * @param name The curve name.
    */
-  public YieldAndDiscountCurve(String name) {
+  public YieldAndDiscountCurve(final String name) {
     ArgumentChecker.notNull(name, "Name");
     _name = name;
   }
@@ -53,6 +53,8 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
     }
     return Math.exp(-t * getInterestRate(t));
   }
+
+  public abstract double getForwardRate(final double t);
 
   /**
    * Returns the interest rate in a given compounding per year at a given time.
@@ -102,7 +104,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * @return The new curve.
    */
   public YieldAndDiscountCurve withSingleShift(final double t, final double shift) {
-    double defaultRange = 1.0E-3; // 1 day ~ 3E-3
+    final double defaultRange = 1.0E-3; // 1 day ~ 3E-3
     return new YieldAndDiscountAddZeroSpreadCurve(this._name + "WithSingleShift", false, this,
         YieldCurve.from(new FunctionalDoublesCurve(new TopHatFunction(t - defaultRange, t + defaultRange, shift))));
   }
