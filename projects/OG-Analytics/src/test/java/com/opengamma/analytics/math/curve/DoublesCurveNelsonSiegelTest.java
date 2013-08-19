@@ -11,6 +11,9 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
+import com.opengamma.analytics.math.function.Function1D;
+
 public class DoublesCurveNelsonSiegelTest {
 
   private static final String CURVE_NAME = "NS curve";
@@ -19,7 +22,7 @@ public class DoublesCurveNelsonSiegelTest {
   private static final double BETA1 = -0.02;
   private static final double BETA2 = 0.06;
   private static final double LAMBDA = 2.0;
-  private static final double[] PARAMETERS = new double[] {BETA0, BETA1, BETA2, LAMBDA};
+  private static final double[] PARAMETERS = new double[] {BETA0, BETA1, BETA2, LAMBDA };
 
   private static final DoublesCurveNelsonSiegel CURVE_NS = new DoublesCurveNelsonSiegel(CURVE_NAME, BETA0, BETA1, BETA2, LAMBDA);
 
@@ -68,7 +71,7 @@ public class DoublesCurveNelsonSiegelTest {
     final double timeMax = 9.0;
     final double bump = 0.00001;
     final Double[] sensitivityComputed0 = CURVE_NS.getYValueParameterSensitivity(0.0);
-    final double[] sensitivityExpected0 = new double[] {1.0, 1.0, 0.0, 0.0};
+    final double[] sensitivityExpected0 = new double[] {1.0, 1.0, 0.0, 0.0 };
     assertArrayEquals("DoublesCurveNelsonSiegel: parameter sensitivity", sensitivityExpected0, ArrayUtils.toPrimitive(sensitivityComputed0), TOLERANCE_SENSITIVITY);
     final double[][] parametersBumped = new double[4][];
     final DoublesCurveNelsonSiegel[] curveBumped = new DoublesCurveNelsonSiegel[4];
@@ -101,6 +104,21 @@ public class DoublesCurveNelsonSiegelTest {
       t[loopt] = loopt * timeMax / nbPoint;
       value[loopt] = CURVE_NS.getYValue(t[loopt]);
     }
+  }
+
+  @Test
+  public void testDerivative() {
+    final Function1D<Double, Double> func = CURVE_NS.toFunction1D();
+    final ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator();
+    final Function1D<Double, Double> grad = diff.differentiate(func);
+
+    for (int i = 0; i < 50; i++) {
+      final double t = 0 + 10.0 * i / 99.;
+      final double fd = grad.evaluate(t);
+      final double anal = CURVE_NS.getDyDx(t);
+      assertEquals("t=" + t, fd, anal, 1e-12);
+    }
+
   }
 
 }
