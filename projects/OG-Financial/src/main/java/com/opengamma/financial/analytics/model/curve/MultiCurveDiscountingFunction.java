@@ -292,15 +292,5 @@ public class MultiCurveDiscountingFunction extends
       }
       return result;
     }
-
-    @Override
-    public boolean canHandleMissingRequirements() {
-      return true;
-    }
-
-    @Override
-    public boolean canHandleMissingInputs() {
-      return true;
-    }
   }
 }

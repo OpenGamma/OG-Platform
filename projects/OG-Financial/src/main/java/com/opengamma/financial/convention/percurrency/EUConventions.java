@@ -46,7 +46,6 @@ public class EUConventions {
   private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-//  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final DayCount THIRTY_U_360 = DayCountFactory.INSTANCE.getDayCount("30U/360");  
   private static final ExternalId EU = ExternalSchemes.financialRegionId("EU");
   /** OIS X-Ccy USD/EUR ON leg convention string **/
@@ -55,7 +54,7 @@ public class EUConventions {
   /** The Euribor string **/
   public static final String EURIBOR = "Euribor";
   /** The IRS Euribor leg string **/
-  public static final String IRS_EURIBOR_LEG = "IRS Euribor Leg";
+  public static final String IRS_EURIBOR_LEG = "Euribor Leg";
 
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionMaster conventionMaster) {
     final String tenorString3M = "3M";

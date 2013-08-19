@@ -183,7 +183,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     for (final Tenor tenor : definition.getTenors()) {
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
-        final double paymentTime = TimeCalculator.getTimeBetween(now, now.plus(tenor.getPeriod())); //TODO
+        final double paymentTime = TimeCalculator.getTimeBetween(now, now.plus(tenor.getPeriod())); //FIXME: Date need to be adjusted [PLAT-4373]
         final double forwardFX = invertFXQuotes ? 1 / fxForwardData.get(identifier) : fxForwardData.get(identifier);
         derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
         marketValues.add(forwardFX);
