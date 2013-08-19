@@ -165,9 +165,10 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           final double[] marketDataForCurve = new double[nNodes];
           int k = 0;
           for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
-            final Double marketData = snapshot.getDataPoint(node.getIdentifier());
+            Double marketData = snapshot.getDataPoint(node.getIdentifier());
             if (marketData == null) {
-              throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
+              marketData = 0.99;
+//              throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
             marketDataForCurve[k] = marketData;
             if (node.getCurveNode() instanceof RateFutureNode) {

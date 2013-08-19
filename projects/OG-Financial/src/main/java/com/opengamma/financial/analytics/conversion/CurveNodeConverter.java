@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -67,11 +68,15 @@ public class CurveNodeConverter {
         }
         return ((InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>>) definition).toDerivative(now, (DoubleTimeSeries<ZonedDateTime>) ts.multiply(100));
       }
-      if (node.getCurveNode() instanceof RateFutureNode) {
+      if (node.getCurveNode() instanceof RateFutureNode || node.getCurveNode() instanceof DeliverableSwapFutureNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
         final ExternalId id = node.getIdentifier();
         final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), id);
         if (historicalTimeSeries == null) {
+          if (node.getCurveNode() instanceof DeliverableSwapFutureNode) {
+            final double lastMarginPrice = 0.99;
+            return ((InstrumentDefinitionWithData<?, Double>) definition).toDerivative(now, lastMarginPrice);
+          }
           throw new OpenGammaRuntimeException("Could not get price time series for " + id);
         }
         final DoubleTimeSeries<?> ts = historicalTimeSeries.getTimeSeries();
@@ -96,7 +101,7 @@ public class CurveNodeConverter {
   }
 
   private static boolean requiresFixingSeries(final CurveNode node) {
-    return node instanceof RateFutureNode; // || (node instanceof SwapNode && ((SwapNode) node).isUseFixings());
+    return node instanceof RateFutureNode || node instanceof DeliverableSwapFutureNode; // || (node instanceof SwapNode && ((SwapNode) node).isUseFixings());
   }
 
   private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
