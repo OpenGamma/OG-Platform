@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -19,10 +19,10 @@ import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * Piecewise Cubic Hermite Interpolating Polynomial (PCHIP) for use in yield curves. The yield curve r(t) is such that P(0,t) = exp(-t*r(t)) is the
- * discount factor for time t. Here we actually interpolate on the quantity f(t) = t*r(t) (which must be monotonically increasing) rather than r(t) itself. 
+ * discount factor for time t. Here we actually interpolate on the quantity f(t) = t*r(t) (which must be monotonically increasing) rather than r(t) itself.
  * However the inputs are still the set {t_i,r_i}, and the interpolate method returns r(t) rather than f(t). If t_0 != 0 an extra data point at zero is inserted
- * such that t_0 = 0 (the value of r_0 is irrelevant)  
- * 
+ * such that t_0 = 0 (the value of r_0 is irrelevant)
+ *
  */
 public class PCHIPYieldCurveInterpolator1D extends Interpolator1D {
 
@@ -30,7 +30,6 @@ public class PCHIPYieldCurveInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   // TODO have options on method
-  private static final PiecewisePolynomialInterpolator BASE = new PiecewiseCubicHermiteSplineInterpolator();
   private static final PiecewisePolynomialFunction1D FUNC = new PiecewisePolynomialWithSensitivityFunction1D();
 
   @Override
@@ -62,8 +61,8 @@ public class PCHIPYieldCurveInterpolator1D extends Interpolator1D {
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     final int n = x.length;
     ArgumentChecker.isTrue(n == y.length, "x and y different lengths");
-    double[] xSrt = new double[n];
-    double[] ySrt = new double[n];
+    final double[] xSrt = new double[n];
+    final double[] ySrt = new double[n];
     System.arraycopy(x, 0, xSrt, 0, n);
     System.arraycopy(y, 0, ySrt, 0, n);
     ParallelArrayBinarySort.parallelBinarySort(xSrt, ySrt);
@@ -82,7 +81,7 @@ public class PCHIPYieldCurveInterpolator1D extends Interpolator1D {
 
     double[] xy;
     if (xx[0] > 0) {
-      double[] temp = new double[n + 1];
+      final double[] temp = new double[n + 1];
       System.arraycopy(xx, 0, temp, 1, n);
       xx = temp;
       xy = new double[n + 1];

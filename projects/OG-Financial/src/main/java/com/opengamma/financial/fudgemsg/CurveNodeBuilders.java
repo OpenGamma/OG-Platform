@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
@@ -184,6 +185,58 @@ import com.opengamma.util.time.Tenor;
     }
   }
 
+  /**
+   * Fudge builder for {@link DeliverableSwapFutureNode}
+   */
+  @FudgeBuilderFor(DeliverableSwapFutureNode.class)
+  public static class DeliverableSwapFutureNodeBuilder implements FudgeBuilder<DeliverableSwapFutureNode> {
+    /** The number of the future from the start tenor field */
+    private static final String FUTURE_NUMBER_FIELD = "futureNumber";
+    /** The start tenor field */
+    private static final String START_TENOR_FIELD = "startTenor";
+    /** The future tenor field */
+    private static final String FUTURE_TENOR_FIELD = "futureTenor";
+    /** The tenor of the underlying rate field */
+    private static final String UNDERLYING_TENOR_FIELD = "underlyingTenor";
+    /** The future convention field */
+    private static final String FUTURE_CONVENTION_FIELD = "futureConvention";
+    /** The underlying convention field */
+    private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final DeliverableSwapFutureNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(FUTURE_NUMBER_FIELD, object.getFutureNumber());
+      message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
+      message.add(FUTURE_TENOR_FIELD, object.getFutureTenor().getPeriod().toString());
+      message.add(UNDERLYING_TENOR_FIELD, object.getUnderlyingTenor().getPeriod().toString());
+      message.add(FUTURE_CONVENTION_FIELD, object.getFutureConvention());
+      message.add(UNDERLYING_CONVENTION_FIELD, object.getSwapConvention());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
+      return message;
+    }
+
+    @Override
+    public DeliverableSwapFutureNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final int futureNumber = message.getInt(FUTURE_NUMBER_FIELD);
+      final Tenor startTenor = Tenor.of(Period.parse(message.getString(START_TENOR_FIELD)));
+      final Tenor futureTenor = Tenor.of(Period.parse(message.getString(FUTURE_TENOR_FIELD)));
+      final Tenor underlyingTenor = Tenor.of(Period.parse(message.getString(UNDERLYING_TENOR_FIELD)));
+      final ExternalId futureConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FUTURE_CONVENTION_FIELD));
+      final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        return new DeliverableSwapFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, swapConvention, curveNodeIdMapperName, name);
+      }
+      return new DeliverableSwapFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, swapConvention, curveNodeIdMapperName);
+    }
+
+  }
   /**
    * Fudge builder for {@link DiscountFactorNode}
    */

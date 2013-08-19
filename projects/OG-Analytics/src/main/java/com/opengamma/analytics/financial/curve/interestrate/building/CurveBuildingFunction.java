@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.building;
@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
@@ -32,8 +33,10 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Functions to build curves.
- * TODO: REVIEW: Change the static methods, embed then in an object.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated. Use classes such as
+ * {@link MulticurveDiscountBuildingRepository}.
  */
+@Deprecated
 public class CurveBuildingFunction {
 
   /**

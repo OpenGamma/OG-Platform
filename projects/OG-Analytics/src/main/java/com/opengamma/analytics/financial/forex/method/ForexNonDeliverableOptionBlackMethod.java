@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableOptionBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -32,7 +33,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for Forex non-deliverable option transactions with Black function and a smile.
+ * @deprecated Use {@link ForexNonDeliverableOptionBlackSmileMethod}
  */
+@Deprecated
 public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingMethod {
 
   /**

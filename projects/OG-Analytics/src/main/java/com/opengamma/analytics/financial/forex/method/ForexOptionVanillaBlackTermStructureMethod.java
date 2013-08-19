@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackFlatMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -30,7 +31,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
  * OG-Implementation: Vanilla Forex options: Garman-Kohlhagen and risk reversal/strangle, version 1.5, May 2012.
+ * @deprecated Use {@link ForexOptionVanillaBlackFlatMethod}
  */
+@Deprecated
 public final class ForexOptionVanillaBlackTermStructureMethod implements ForexPricingMethod {
 
   /**

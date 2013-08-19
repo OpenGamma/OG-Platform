@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.curve;
@@ -43,18 +43,18 @@ public class DoublesCurveNelsonSiegelTest {
 
   @Test
   public void yValue() {
-    int nbPoint = 10;
-    double timeMax = 9.0;
-    double valueComputed0 = CURVE_NS.getYValue(0.0);
-    double valueExpected0 = BETA0 + BETA1;
+    final int nbPoint = 10;
+    final double timeMax = 9.0;
+    final double valueComputed0 = CURVE_NS.getYValue(0.0);
+    final double valueExpected0 = BETA0 + BETA1;
     assertEquals("DoublesCurveNelsonSiegel: value", valueExpected0, valueComputed0, TOLERANCE_YIELD);
     for (int loopt = 1; loopt <= nbPoint; loopt++) {
       // Implementation note: start at 1 to avoid 0 (treated tested separately)
-      double t = loopt * timeMax / nbPoint;
-      double valueComputed = CURVE_NS.getYValue(t);
-      double tl = t / LAMBDA;
-      double exptl = Math.exp(-tl);
-      double valueExpected = BETA0 + BETA1 * (1 - exptl) / tl + BETA2 * ((1 - exptl) / tl - exptl);
+      final double t = loopt * timeMax / nbPoint;
+      final double valueComputed = CURVE_NS.getYValue(t);
+      final double tl = t / LAMBDA;
+      final double exptl = Math.exp(-tl);
+      final double valueExpected = BETA0 + BETA1 * (1 - exptl) / tl + BETA2 * ((1 - exptl) / tl - exptl);
       assertEquals("DoublesCurveNelsonSiegel: value", valueExpected, valueComputed, TOLERANCE_YIELD);
     }
   }
@@ -64,14 +64,14 @@ public class DoublesCurveNelsonSiegelTest {
    * Tests the parameters sensitivity with a finite difference comparison.
    */
   public void yValueParameterSensitivity() {
-    int nbPoint = 10;
-    double timeMax = 9.0;
-    double bump = 0.00001;
-    Double[] sensitivityComputed0 = CURVE_NS.getYValueParameterSensitivity(0.0);
-    double[] sensitivityExpected0 = new double[] {1.0, 1.0, 0.0, 0.0};
+    final int nbPoint = 10;
+    final double timeMax = 9.0;
+    final double bump = 0.00001;
+    final Double[] sensitivityComputed0 = CURVE_NS.getYValueParameterSensitivity(0.0);
+    final double[] sensitivityExpected0 = new double[] {1.0, 1.0, 0.0, 0.0};
     assertArrayEquals("DoublesCurveNelsonSiegel: parameter sensitivity", sensitivityExpected0, ArrayUtils.toPrimitive(sensitivityComputed0), TOLERANCE_SENSITIVITY);
-    double[][] parametersBumped = new double[4][];
-    DoublesCurveNelsonSiegel[] curveBumped = new DoublesCurveNelsonSiegel[4];
+    final double[][] parametersBumped = new double[4][];
+    final DoublesCurveNelsonSiegel[] curveBumped = new DoublesCurveNelsonSiegel[4];
     for (int loopp = 0; loopp < 4; loopp++) {
       parametersBumped[loopp] = PARAMETERS.clone();
       parametersBumped[loopp][loopp] += bump;
@@ -79,12 +79,12 @@ public class DoublesCurveNelsonSiegelTest {
     }
     for (int loopt = 1; loopt <= nbPoint; loopt++) {
       // Implementation note: start at 1 to avoid 0 (treated tested separately)
-      double t = loopt * timeMax / nbPoint;
-      double valueComputed = CURVE_NS.getYValue(t);
-      Double[] sensitivityComputed = CURVE_NS.getYValueParameterSensitivity(t);
-      double[] sensitivityExpected = new double[4];
+      final double t = loopt * timeMax / nbPoint;
+      final double valueComputed = CURVE_NS.getYValue(t);
+      final Double[] sensitivityComputed = CURVE_NS.getYValueParameterSensitivity(t);
+      final double[] sensitivityExpected = new double[4];
       for (int loopp = 0; loopp < 4; loopp++) {
-        double valueBumped = curveBumped[loopp].getYValue(t);
+        final double valueBumped = curveBumped[loopp].getYValue(t);
         sensitivityExpected[loopp] = (valueBumped - valueComputed) / bump;
       }
       assertArrayEquals("DoublesCurveNelsonSiegel: parameter sensitivity " + loopt, sensitivityExpected, ArrayUtils.toPrimitive(sensitivityComputed), TOLERANCE_SENSITIVITY);
@@ -93,16 +93,14 @@ public class DoublesCurveNelsonSiegelTest {
 
   @Test(enabled = false)
   public void analysis() {
-    int nbPoint = 50;
-    double timeMax = 20.0;
-    double[] value = new double[nbPoint + 1];
-    double[] t = new double[nbPoint + 1];
+    final int nbPoint = 50;
+    final double timeMax = 20.0;
+    final double[] value = new double[nbPoint + 1];
+    final double[] t = new double[nbPoint + 1];
     for (int loopt = 0; loopt <= nbPoint; loopt++) {
       t[loopt] = loopt * timeMax / nbPoint;
       value[loopt] = CURVE_NS.getYValue(t[loopt]);
     }
-    int test = 0;
-    test++;
   }
 
 }

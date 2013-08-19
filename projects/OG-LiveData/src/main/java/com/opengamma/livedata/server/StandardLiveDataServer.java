@@ -356,6 +356,8 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   public void reestablishSubscriptions() {
     _subscriptionLock.lock();
     try {
+      s_logger.warn("Attempting to re-establish subscriptions for {} securities", _securityUniqueId2Subscription.size());
+
       Set<String> securities = _securityUniqueId2Subscription.keySet();
       try {
         Map<String, Object> subscriptions = doSubscribe(securities);

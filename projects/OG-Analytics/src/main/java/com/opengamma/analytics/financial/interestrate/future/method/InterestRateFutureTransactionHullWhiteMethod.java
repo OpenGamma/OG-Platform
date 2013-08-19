@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -15,9 +15,11 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White one factor model.
- * <p> Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005. 
+ * <p> Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionHullWhiteMethod}
  */
+@Deprecated
 public final class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFutureTransactionMethod {
 
   /**
@@ -59,7 +61,7 @@ public final class InterestRateFutureTransactionHullWhiteMethod extends Interest
   }
 
   @Override
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(InterestRateFutureTransaction future, YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     return presentValueCurveSensitivity(future, METHOD_SECURITY.priceCurveSensitivity(future.getUnderlying(), curves));
   }
 

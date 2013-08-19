@@ -32,7 +32,9 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Class used to compute the price and sensitivity of a physical delivery swaption with Black model.
  *  The implied Black volatilities are expiry and underlying maturity dependent.
  *  The swap underlying the swaption should be a Fixed for Ibor (without spread) swap.
+ *  @deprecated Use {@link SwaptionPhysicalFixedIborBlackMethod}
  */
+@Deprecated
 public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod {
 
   /**

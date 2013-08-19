@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Computes the expiration dates for IMM futures with two days spot lag.
  */
 public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
@@ -68,7 +68,7 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
     return NAME;
   }
 
-  private LocalDate adjustForSettlement(final LocalDate date, final Calendar holidayCalendar) {
+  private LocalDate adjustForSettlement(final LocalDate date, final Calendar holidayCalendar) { // Use ScheduleCalculator
     int days = 0;
     LocalDate result = date;
     while (days < WORKING_DAYS_TO_SETTLE) {

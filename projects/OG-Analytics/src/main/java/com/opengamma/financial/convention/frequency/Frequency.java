@@ -5,12 +5,16 @@
  */
 package com.opengamma.financial.convention.frequency;
 
+import org.joda.convert.FromStringFactory;
+import org.joda.convert.ToString;
+
 /**
  * Convention for frequency.
  * <p>
  * Some financial products have a specific event every so often.
  * This convention defines the frequency of those events relative to a year.
  */
+@FromStringFactory(factory = SimpleFrequencyFactory.class)
 public interface Frequency {
 
   //TODO: Improve frequency to have a "toPeriod" and a "paymentPerYear".
@@ -98,8 +102,10 @@ public interface Frequency {
 
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
    */
+  @ToString
   String getConventionName();
 
 }

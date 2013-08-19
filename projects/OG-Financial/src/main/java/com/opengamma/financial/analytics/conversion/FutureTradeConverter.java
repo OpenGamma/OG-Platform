@@ -19,6 +19,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -50,9 +52,11 @@ public class FutureTradeConverter {
   public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,
       final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter, dsfConverter);
   }
 
   /**
@@ -129,6 +133,11 @@ public class FutureTradeConverter {
           @Override
           public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
             return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, quantity);
+          }
+
+          @Override
+          public InstrumentDefinitionWithData<?, Double> visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesPriceDeliverableSecurityDefinition future) {
+            return new SwapFuturesPriceDeliverableTransactionDefinition(future, tradeDate, tradePrice, quantity);
           }
 
           @Override

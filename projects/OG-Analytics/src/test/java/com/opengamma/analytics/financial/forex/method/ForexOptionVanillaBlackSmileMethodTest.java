@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -61,7 +61,9 @@ import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests related to the pricing method for vanilla Forex option transactions with Black function and a volatility provider.
+ * @deprecated This class tests deprecated code
  */
+@Deprecated
 public class ForexOptionVanillaBlackSmileMethodTest {
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -137,7 +139,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, PAY_DATE[indexPay]));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, PAY_DATE[indexPay])) / df;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(TIME_TO_EXPIRY[indexPay + 1], strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(TIME_TO_EXPIRY[indexPay + 1], strike, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(forexOption);
     final double priceExpected = func.evaluate(dataBlack) * notional;
@@ -162,7 +164,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)) / df;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, strike, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(forexOption);
     final double priceExpected = func.evaluate(dataBlack) * notional;
@@ -247,7 +249,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // USD
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // EUR
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)) / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, strike, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, dfDomestic, volatility);
     final double[] priceAdjointCall = BLACK_FUNCTION.getPriceAdjoint(forexOptionCall, dataBlack);
     final double[] priceAdjointPut = BLACK_FUNCTION.getPriceAdjoint(forexOptionPut, dataBlack);
@@ -732,7 +734,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(forexForward.getPaymentTime());
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(forexForward.getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(forexOptionCall.getTimeToExpiry(), strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(forexOptionCall.getTimeToExpiry(), strike, forward));
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(forexOptionCall);
     // Finite difference
     final YieldAndDiscountCurve curveDomestic = CURVES.getCurve(forexOptionCall.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName());
@@ -818,7 +820,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final double timeToExpiry = TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_EXP_DATE);
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, STRIKE, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(FOREX_CALL_OPTION, dataBlack);
     assertEquals("Forex vanilla option: vega", priceAdjoint[2] * NOTIONAL, sensi.getVega().getMap().get(point));

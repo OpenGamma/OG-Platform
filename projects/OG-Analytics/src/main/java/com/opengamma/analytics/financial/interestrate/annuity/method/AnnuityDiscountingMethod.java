@@ -15,7 +15,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Class used to compute values related to annuities.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.annuity.provider.AnnuityDiscountingMethod}
  */
+@Deprecated
 public final class AnnuityDiscountingMethod {
 
   /**

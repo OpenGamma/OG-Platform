@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -29,24 +29,29 @@ public class GeneratorCurveYieldNelsonSiegel extends GeneratorYDCurve {
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] parameters) {
     ArgumentChecker.isTrue(parameters.length == NB_PARAMETERS, "Nelson-Siegel should have 4 parameters");
     return new YieldCurve(name, new DoublesCurveNelsonSiegel(name, parameters));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public double[] initialGuess(double[] rates) {
-    double[] guess = rates.clone();
+  public double[] initialGuess(final double[] rates) {
+    final double[] guess = rates.clone();
     guess[3] = 2.0; //TODO: get a better guess?
     return guess;
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
@@ -36,7 +36,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
    * Constructor.
    */
   private ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator() {
-    super(new HullWhiteProviderAdapter<MulticurveSensitivity>(ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
+    super(new HullWhiteProviderAdapter<>(ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
   /**

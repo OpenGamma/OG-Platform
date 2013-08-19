@@ -54,7 +54,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Convert the swaps from their Security version to the Definition version.
+ * Converts swaps from {@link SwapSecurity} to the {@link InstrumentDefinition}s.
+ * @deprecated Replaced by {@link SwapSecurityConverter}, which does not use curve name information
  */
 @Deprecated
 public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
@@ -259,8 +260,8 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
     // Implementation note: In the converter, the pay leg is expected to be first.
   }
 
-  private AnnuityCouponFixedDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
-      final boolean isPayer) {
+  private static AnnuityCouponFixedDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg,
+      final Calendar calendar, final boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final BusinessDayConvention businessDay = fixedLeg.getBusinessDayConvention();
     if (businessDay == null) {
@@ -343,7 +344,7 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
       regionId[loopleg] = swapLeg[loopleg].getRegionId();
       calendar[loopleg] = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId[0]);
     }
-    final ArrayList<AnnuityDefinition<PaymentDefinition>> legDefinition = new ArrayList<AnnuityDefinition<PaymentDefinition>>();
+    final ArrayList<AnnuityDefinition<PaymentDefinition>> legDefinition = new ArrayList<>();
     for (int loopleg = 0; loopleg < 2; loopleg++) {
       if (swapLeg[loopleg] instanceof FloatingInterestRateLeg) { // Leg is Ibor
         double spread = 0.0;
@@ -379,7 +380,7 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
     return new SwapXCcyDefinition(legDefinition.get(0), legDefinition.get(1));
   }
 
-  private Period getTenor(final Frequency freq) {
+  private static Period getTenor(final Frequency freq) {
     if (freq instanceof PeriodFrequency) {
       return ((PeriodFrequency) freq).getPeriod();
     } else if (freq instanceof SimpleFrequency) {

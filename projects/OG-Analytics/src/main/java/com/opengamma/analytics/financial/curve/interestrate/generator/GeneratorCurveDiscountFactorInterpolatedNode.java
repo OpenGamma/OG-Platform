@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -33,10 +33,10 @@ public class GeneratorCurveDiscountFactorInterpolatedNode extends GeneratorYDCur
 
   /**
    * Constructor.
-   * @param nodePoints The node points (X) used to define the interpolated curve. 
+   * @param nodePoints The node points (X) used to define the interpolated curve.
    * @param interpolator The interpolator.
    */
-  public GeneratorCurveDiscountFactorInterpolatedNode(double[] nodePoints, Interpolator1D interpolator) {
+  public GeneratorCurveDiscountFactorInterpolatedNode(final double[] nodePoints, final Interpolator1D interpolator) {
     ArgumentChecker.notNull(nodePoints, "Node points");
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nodePoints = nodePoints;
@@ -50,25 +50,30 @@ public class GeneratorCurveDiscountFactorInterpolatedNode extends GeneratorYDCur
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] x) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] x) {
     ArgumentChecker.isTrue(x.length == _nbPoints, "Incorrect dimension for the rates");
     return new DiscountCurve(name, new InterpolatedDoublesCurve(_nodePoints, x, _interpolator, true, name));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public double[] initialGuess(double[] rates) {
+  public double[] initialGuess(final double[] rates) {
     ArgumentChecker.isTrue(rates.length == _nbPoints, "Rates of incorrect length.");
-    double[] discountFactor = new double[_nbPoints];
+    final double[] discountFactor = new double[_nbPoints];
     for (int loopnode = 0; loopnode < _nbPoints; loopnode++) {
       discountFactor[loopnode] = Math.exp(-_nodePoints[loopnode] * rates[loopnode]);
     }

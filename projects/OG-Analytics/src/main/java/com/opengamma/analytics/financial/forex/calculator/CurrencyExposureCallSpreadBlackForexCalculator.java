@@ -13,7 +13,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value for Forex digital options using vanilla call spread with Black formula for underlying vanilla.
  * To compute the currency exposure, the Black volatility is kept constant; the volatility is not recomputed for spot and forward changes.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public final class CurrencyExposureCallSpreadBlackForexCalculator extends CurrencyExposureForexCalculator {
 
   /**

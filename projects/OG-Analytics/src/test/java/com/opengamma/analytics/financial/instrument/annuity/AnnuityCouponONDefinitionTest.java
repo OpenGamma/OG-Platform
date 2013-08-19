@@ -26,7 +26,9 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -38,6 +40,7 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -61,9 +64,6 @@ public class AnnuityCouponONDefinitionTest {
   private static final int NUM_PAYMENTS = DEFINITION.getNumberOfPayments();
   private static final ZonedDateTime FINAL_PAYMENT_DATE = DEFINITION.getNthPayment(NUM_PAYMENTS - 1).getPaymentDate();
 
-  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
-
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2012, 3, 15);
 
   // Utility to create a time series of fixings
@@ -84,21 +84,36 @@ public class AnnuityCouponONDefinitionTest {
 
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = createFixingSeries(SETTLEMENT_DATE, FINAL_PAYMENT_DATE);
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the toDerivative method on the payment date. valuation is at noon, payment set at midnight...
+   */
+  public void toDerivativeOnDateOfFinalPaymentDeprecated() {
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final String[] curveNames = curves.getAllNames().toArray(new String[curves.size()]);
+    final ZonedDateTime valuationTimeIsNoon = FINAL_PAYMENT_DATE.with(LocalTime.NOON);
+    assertTrue("valuationTimeIsNoon to be after paymentDate, which was midnight. Confirm behaviour", valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
+    final Annuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, curveNames);
+    assertEquals("On the payment date, we expect the derivative to have the same number of payments as its definition", 1, derivative.getNumberOfPayments());
+    assertTrue("CouponOIS should be of type CouponFixed on the payment date", derivative.getNthPayment(0) instanceof CouponFixed);
+    final CurrencyAmount pv = com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) derivative.getNthPayment(0), curves);
+    assertEquals("CouponOIS definition: toDerivative", pv, CurrencyAmount.of(CCY, -2571693.2212814568));
+  }
+
   @Test
   /**
    * Tests the toDerivative method on the payment date. valuation is at noon, payment set at midnight...
    */
   public void toDerivativeOnDateOfFinalPayment() {
-
+    final MulticurveProviderDiscount provider = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
     final ZonedDateTime valuationTimeIsNoon = FINAL_PAYMENT_DATE.with(LocalTime.NOON);
-    assertTrue("valuationTimeIsNoon usedn        to be after paymentDate, which was midnight. Confirm behaviour", valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
-    final Annuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, CURVES_NAMES);
+    assertTrue("valuationTimeIsNoon to be after paymentDate, which was midnight. Confirm behaviour", valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
+    final Annuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS);
     assertEquals("On the payment date, we expect the derivative to have the same number of payments as its definition", 1, derivative.getNumberOfPayments());
     assertTrue("CouponOIS should be of type CouponFixed on the payment date", derivative.getNthPayment(0) instanceof CouponFixed);
-
-    final CurrencyAmount pv = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) derivative.getNthPayment(0), CURVES);
-    assertEquals("CouponOIS definition: toDerivative", pv, CurrencyAmount.of(CCY, -2571693.2212814568));
-
+    final MultipleCurrencyAmount pv = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) derivative.getNthPayment(0), provider);
+    assertEquals("CouponOIS definition: toDerivative", pv, MultipleCurrencyAmount.of(CCY, -2571693.2212814568));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -136,21 +151,40 @@ public class AnnuityCouponONDefinitionTest {
     AnnuityCouponONDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, (GeneratorSwapFixedON) null, IS_PAYER);
   }
 
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNoIndexTS() {
+  public void testNoIndexTSDeprecated() {
     DEFINITION.toDerivative(DATE, "A", "B");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDate() {
+  public void testNoIndexTS() {
+    DEFINITION.toDerivative(DATE);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDateDeprecated() {
     DEFINITION.toDerivative(null, FIXING_TS, "A", "B");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullIndexTS() {
+  public void testNullDate() {
+    DEFINITION.toDerivative(null, FIXING_TS);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexTSDeprecated() {
     DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null, "A", "B");
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexTS() {
+    DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null);
+  }
+
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNames() {
     DEFINITION.toDerivative(DATE, FIXING_TS, (String[]) null);

@@ -26,9 +26,9 @@ public class DeliverableSwapFutureSecurityConverter extends FinancialSecurityVis
   /** The security source */
   private final SecuritySource _securitySource;
   /** The swap converter */
-  private final SwapSecurityConverterDeprecated _swapConverter;
+  private final SwapSecurityConverter _swapConverter;
 
-  public DeliverableSwapFutureSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverterDeprecated swapConverter) {
+  public DeliverableSwapFutureSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverter swapConverter) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(swapConverter, "swap converter");
     _securitySource = securitySource;

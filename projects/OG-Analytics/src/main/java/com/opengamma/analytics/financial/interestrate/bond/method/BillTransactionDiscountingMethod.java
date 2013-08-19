@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -22,7 +22,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class with methods related to bill transaction valued by discounting.
  * <P> Reference: Bill pricing, version 1.0. OpenGamma documentation, January 2012.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod}
  */
+@Deprecated
 public final class BillTransactionDiscountingMethod implements PricingMethod {
 
   /**

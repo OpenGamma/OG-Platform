@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalCallSpreadBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -22,7 +23,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for digital Forex option transactions as a call or put spread option with the underlying vanilla price by a Black formula with implied volatility.
+ * @deprecated Use {@link ForexOptionDigitalCallSpreadBlackSmileMethod}
  */
+@Deprecated
 public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalCallSpreadMethod {
 
   /**

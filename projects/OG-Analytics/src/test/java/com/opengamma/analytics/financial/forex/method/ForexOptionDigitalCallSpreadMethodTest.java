@@ -1,13 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -53,7 +52,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the pricing method for digital Forex option transactions with Black function and a volatility provider.
+ * @deprecated This class tests deprecated code
  */
+@Deprecated
 public class ForexOptionDigitalCallSpreadMethodTest {
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

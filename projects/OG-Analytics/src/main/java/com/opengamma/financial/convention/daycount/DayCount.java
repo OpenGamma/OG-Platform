@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.daycount;
 
+import org.joda.convert.FromStringFactory;
+import org.joda.convert.ToString;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -14,6 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Convention for calculating the day count.
  */
+@FromStringFactory(factory = DayCountFactory.class)
 public abstract class DayCount {
 
   /**
@@ -110,6 +113,7 @@ public abstract class DayCount {
    *
    * @return the name, not null
    */
+  @ToString
   public abstract String getConventionName();
 
 }

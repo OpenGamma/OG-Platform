@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -33,7 +33,7 @@ public class AnnuityCapFloorIborDefinitionTest {
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   // Annuity
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final Period ANNUITY_TENOR = Period.ofYears(5);
@@ -81,7 +81,7 @@ public class AnnuityCapFloorIborDefinitionTest {
 
   @Test
   public void datesCustom() {
-    final IborIndex fakeIborIndex12 = new IborIndex(CUR, LEG_PAYMENT_PERIOD, IBOR_SETTLEMENT_DAYS, LEG_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    final IborIndex fakeIborIndex12 = new IborIndex(CUR, LEG_PAYMENT_PERIOD, IBOR_SETTLEMENT_DAYS, LEG_DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
     final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(START_DATE, MATURITY_DATE, NOTIONAL, fakeIborIndex12, IS_PAYER, CALENDAR);
     for (int loopcpn = 0; loopcpn < iborLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals(iborLeg.getNthPayment(loopcpn).getAccrualStartDate(), CAP_12.getNthPayment(loopcpn).getAccrualStartDate());

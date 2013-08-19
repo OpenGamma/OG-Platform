@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.multicurve.discounting.DiscountingParRateFunction;
+import com.opengamma.financial.analytics.model.discounting.DiscountingParRateFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**

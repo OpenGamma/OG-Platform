@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.cash.method;
@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
@@ -24,7 +23,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * The methods associated to the pricing of cash deposit by discounting.
+ * @deprecated Use {@link CashDiscountingProviderMethod}
  */
+@Deprecated
 public final class CashDiscountingMethod implements PricingMethod {
 
   /**
@@ -53,8 +54,8 @@ public final class CashDiscountingMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final Cash deposit, final YieldCurveBundle curves) {
-    Validate.notNull(deposit);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(deposit, "deposit");
+    ArgumentChecker.notNull(curves, "curves");
     final double dfStart = curves.getCurve(deposit.getYieldCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getYieldCurveName()).getDiscountFactor(deposit.getEndTime());
     final double pv = (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd - deposit.getInitialAmount() * dfStart;
@@ -63,7 +64,7 @@ public final class CashDiscountingMethod implements PricingMethod {
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof Cash, "Cash");
+    ArgumentChecker.isTrue(instrument instanceof Cash, "Cash");
     return presentValue((Cash) instrument, curves);
   }
 
@@ -74,8 +75,8 @@ public final class CashDiscountingMethod implements PricingMethod {
    * @return The present value.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final Cash deposit, final YieldCurveBundle curves) {
-    Validate.notNull(deposit);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(deposit, "deposit");
+    ArgumentChecker.notNull(curves, "curves");
     final double dfStart = curves.getCurve(deposit.getYieldCurveName()).getDiscountFactor(deposit.getStartTime());
     final double dfEnd = curves.getCurve(deposit.getYieldCurveName()).getDiscountFactor(deposit.getEndTime());
     // Backward sweep

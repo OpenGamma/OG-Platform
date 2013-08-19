@@ -25,7 +25,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Returns all of the projected pay floating cash-flows of an instrument.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class ProjectedPayCashFlowVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, List<MultipleCurrencyAmount>> {
   private static final ProjectedPayCashFlowVisitor INSTANCE = new ProjectedPayCashFlowVisitor();
 

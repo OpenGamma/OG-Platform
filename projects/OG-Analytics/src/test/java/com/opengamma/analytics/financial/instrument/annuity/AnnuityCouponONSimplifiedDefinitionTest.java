@@ -34,7 +34,6 @@ import com.opengamma.util.time.DateUtils;
  *
  */
 public class AnnuityCouponONSimplifiedDefinitionTest {
-
   private static final Currency CCY = Currency.EUR;
   private static final Period PAYMENT_PERIOD = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("Weekend");
@@ -102,24 +101,43 @@ public class AnnuityCouponONSimplifiedDefinitionTest {
     AnnuityCouponONSimplifiedDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, null, IS_PAYER);
   }
 
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNoIndexTSDeprecated() {
+    DEFINITION.toDerivative(DATE, "A", "B");
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDateDeprecated() {
+    DEFINITION.toDerivative(null, FIXING_TS, "A", "B");
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIndexTSDeprecated() {
+    DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null, "A", "B");
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullNamesDeprecated() {
+    DEFINITION.toDerivative(DATE, FIXING_TS, (String[]) null);
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoIndexTS() {
-    DEFINITION.toDerivative(DATE, "A", "B");
+    DEFINITION.toDerivative(DATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
-    DEFINITION.toDerivative(null, FIXING_TS, "A", "B");
+    DEFINITION.toDerivative(null, FIXING_TS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexTS() {
-    DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null, "A", "B");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNames() {
-    DEFINITION.toDerivative(DATE, FIXING_TS, (String[]) null);
+    DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null);
   }
 
   @Test

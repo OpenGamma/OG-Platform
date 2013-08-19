@@ -9,6 +9,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
@@ -47,6 +48,11 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   @Override
   public T visitCreditSpreadNode(final CreditSpreadNode node) {
     return _delegate.visitCreditSpreadNode(node);
+  }
+
+  @Override
+  public T visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
+    return _delegate.visitDeliverableSwapFutureNode(node);
   }
 
   @Override

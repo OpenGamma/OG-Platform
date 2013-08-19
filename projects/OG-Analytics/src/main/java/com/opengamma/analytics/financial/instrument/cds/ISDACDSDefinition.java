@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cds;
@@ -22,9 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * ISDA definition for CDS securities
- * 
+ *
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
- * 
+ *
  * @see ISDACDSDerivative
  * @see InstrumentDefinition
  */
@@ -49,7 +49,7 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
 
   /** Should accrued interest be paid in the event of a default */
   private final boolean _accrualOnDefault;
-  /** Is the protection payment made on default or at maturity */ 
+  /** Is the protection payment made on default or at maturity */
   private final boolean _payOnDefault;
   /** Is the start date protected */
   private final boolean _protectStart;
@@ -102,11 +102,13 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
 
   /**
    * Create a {@link ISDACDSDerivative} object for pricing relative to the given pricing date
-   * 
+   *
    * @param pricingDate Pricing point for offsetting t values
    * @param yieldCurveNames Curve names: 0 = discount, 1 = credit spread (optional)
    * @return CDS derivative object ready for pricing
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public ISDACDSDerivative toDerivative(final ZonedDateTime pricingDate, final String... yieldCurveNames) {
 
@@ -122,7 +124,9 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
    * @param settlementDate The settlement date
    * @param yieldCurveNames The yield curve names, not null
    * @return The derivative form of a CDS
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   public ISDACDSDerivative toDerivative(final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate, final String... yieldCurveNames) {
 
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -145,7 +149,7 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
 
   /**
    * Create a {@link ISDACDSDerivative} object for pricing relative to the given pricing date
-   * 
+   *
    * @param pricingDate Pricing point for offsetting t values
    * @return CDS derivative object ready for pricing
    */
@@ -176,7 +180,7 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
         _accrualOnDefault, _payOnDefault, _protectStart,
         _couponFrequency, _convention, _stubType);
   }
-  
+
   private ZonedDateTime findSettlementDate(final ZonedDateTime startDate, final Convention convention) {
 
     final TemporalAdjuster adjuster = convention.getBusinessDayConvention().getTemporalAdjuster(convention.getWorkingDayCalendar());

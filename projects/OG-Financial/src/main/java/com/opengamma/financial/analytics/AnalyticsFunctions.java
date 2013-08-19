@@ -289,6 +289,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PRINCIPAL);
     addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
+    addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
   }
 
   protected FunctionConfigurationSource cashFlowFunctionConfiguration() {

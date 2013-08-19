@@ -44,11 +44,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A collection of {@link Scenario}s, each of which modifies the market data in a single calculation cycle.
- * TODO builder for setting valuationTime, resolveVC & calcConfigs? or make the fields mutable and add mutators?
- * TODO ordering - ATM if a property of the simulation is set after the scenario is created it isn't used properly
- * options:
- *   1) scenario uses values from simulation if its own are null (what if there's no simulation?)
- *   2)
  */
 public class Simulation {
 
@@ -70,7 +65,7 @@ public class Simulation {
   private String _baseScenarioName;
 
   /**
-   * Creates a new simulation with a calcuation configuration name of "Default", valuation time of {@code Instant.now()}
+   * Creates a new simulation with a calculation configuration name of "Default", valuation time of {@code Instant.now()}
    * and resolver version correction of {@link VersionCorrection#LATEST}.
    * @param name The simulation name
    */
@@ -123,7 +118,7 @@ public class Simulation {
       Map<DistinctMarketDataSelector, FunctionParameters> scenarioParams = definition.getDefinitionMap();
       Map<DistinctMarketDataSelector, FunctionParameters> params = Maps.newHashMap();
       params.putAll(scenarioParams);
-      // if a selector isn't used by a particular scenario then it needs to have a no-op manipulatior. if it didn't
+      // if a selector isn't used by a particular scenario then it needs to have a no-op manipulator. if it didn't
       // then the manipulator from the previous scenario would be used
       Set<DistinctMarketDataSelector> unusedSelectors = Sets.difference(allSelectors, params.keySet());
       for (DistinctMarketDataSelector unusedSelector : unusedSelectors) {
@@ -273,10 +268,10 @@ public class Simulation {
       } else if (listener != null) {
         executionOptions = ExecutionOptions.of(sequence, executionFlags);
       } else {
-        s_logger.warn("Not running in batch mode and no listener specifed, the results would be ignored. Exiting.");
+        s_logger.warn("Not running in batch mode and no listener specified, the results would be ignored. Exiting.");
         return;
       }
-      s_logger.info("Attaching to view process, view def ID {}, exectution options {}", viewDefId, executionOptions);
+      s_logger.info("Attaching to view process, view def ID {}, execution options {}", viewDefId, executionOptions);
       viewClient.attachToViewProcess(viewDefId, executionOptions, true);
       try {
         viewClient.waitForCompletion();

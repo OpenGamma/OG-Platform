@@ -41,7 +41,11 @@ import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.core.security.impl.SimpleSecurity;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.calcnode.InvocationResult;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -53,9 +57,11 @@ import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -81,13 +87,18 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
   //-------------------------------------------------------------------------
   @Override
   protected void doSetUp() {
-    _batchMaster = new DbBatchMaster(getDbConnector());
-    _batchWriter = new DbBatchWriter(_batchMaster.getDbConnector());
+    MapComputationTargetResolver computationTargetResolver = new MapComputationTargetResolver();
+    _batchMaster = new DbBatchMaster(getDbConnector(), computationTargetResolver);
+    _batchWriter = new DbBatchWriter(_batchMaster.getDbConnector(), computationTargetResolver);
 
     final String calculationConfigName = "config_1";
 
-    _compTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
+    EquitySecurity aapl = new EquitySecurity("EXCH", "EXCH_CODE", "APPLE", Currency.USD);
+    aapl.setUniqueId(UniqueId.of("Sec", "APPL"));
+    ComputationTarget target = new ComputationTarget(ComputationTargetType.SECURITY, aapl);
+    computationTargetResolver.addTarget(target);
 
+    _compTargetSpec = target.getLeafSpecification();
     _requirement = new ValueRequirement("FAIR_VALUE", _compTargetSpec);
     _specification = new ValueSpecification("FAIR_VALUE", _compTargetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "IDENTITY_FUNCTION").get());
 

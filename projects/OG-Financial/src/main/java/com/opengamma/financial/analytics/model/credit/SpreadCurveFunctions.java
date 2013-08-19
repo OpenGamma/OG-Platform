@@ -62,7 +62,7 @@ public class SpreadCurveFunctions {
     BUCKET_TENORS.add(Tenor.of(Period.ofYears(30)));
   }
 
-  public static final ZonedDateTime[] getIMMDates(final ZonedDateTime now, final String inputs) {
+  public static final ZonedDateTime[] getPillarDates(final ZonedDateTime now, final String inputs) {
     if (inputs == null || inputs.isEmpty()) {
       return getDefaultBuckets(now);
     }
@@ -77,6 +77,14 @@ public class SpreadCurveFunctions {
       }
     }
     return dates.toArray(new ZonedDateTime[dates.size()]);
+  }
+
+  public static final ZonedDateTime[] getPillarDates(final ZonedDateTime now, final Tenor[] tenors) {
+    ZonedDateTime[] dates = new ZonedDateTime[tenors.length];
+    for (int i = 0; i < tenors.length; i++) {
+      dates[i] = IMMDateGenerator.getNextIMMDate(now, tenors[i]);
+    }
+    return dates;
   }
 
   public static final ZonedDateTime[] getDefaultBuckets(final ZonedDateTime now) {
@@ -261,6 +269,8 @@ public class SpreadCurveFunctions {
     ArgumentChecker.notNull(bucketDates, "bucket dates");
     ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
     final double[] spreads = new double[bucketDates.length];
+    // PUF normalised to 1%, spreads to 1 BP
+    final double multiplier = StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention) ? s_tenminus2 : s_tenminus4;
 
     // take spreads from subset of dates that we want
     int i = 0;
@@ -268,12 +278,12 @@ public class SpreadCurveFunctions {
       final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
       final int index = Arrays.binarySearch(bucketDates, bucketDate);
       if (index >= 0) {
-        spreads[i++] = spreadCurve.getYValue(tenor);
+        spreads[i++] = spreadCurve.getYValue(tenor) * multiplier;
       }
     }
     // if spread curve ends before required buckets take last spread entry
     for (int j = spreads.length - 1; j >= 0; j--) {
-      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1];
+      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1] * multiplier;
       if (spreads[j] == 0) {
         spreads[j] = lastspread;
       } else {
@@ -292,12 +302,16 @@ public class SpreadCurveFunctions {
    * @param pricedCDSMaturity the maturity of the priced cds
    * @param values the quotes
    * @param quoteConvention the quote convention e.g. SPREAD or PUF
+   * @parm normalise control whether to normalise spreads to fractional vlaues
    * @return the cds quote conventions
    */
-  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime pricedCDSMaturity, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention) {
+  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime pricedCDSMaturity, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention, final boolean normalise) {
     final CDSQuoteConvention[] result = new CDSQuoteConvention[values.length];
     // PUF normalised to 1%, spreads to 1 BP
-    final double multiplier = StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention) ? s_tenminus2 : s_tenminus4;
+    double multiplier = 1;
+    if (normalise) {
+      multiplier = StandardCDSQuotingConvention.POINTS_UPFRONT.equals(quoteConvention) ? s_tenminus2 : s_tenminus4;
+    }
     for (int i = 0; i < values.length; i++) {
       if (StandardCDSQuotingConvention.SPREAD.equals(quoteConvention)) {
         result[i] = IMMDateGenerator.isIMMDate(pricedCDSMaturity) ? new QuotedSpread(coupon * s_tenminus4, values[i] * multiplier) : new ParSpread(values[i] * multiplier);

@@ -48,6 +48,11 @@ public class GeneratorCurveYieldInterpolated extends GeneratorYDCurve {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
   public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");

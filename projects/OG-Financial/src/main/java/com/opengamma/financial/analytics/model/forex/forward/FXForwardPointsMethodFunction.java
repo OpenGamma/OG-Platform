@@ -53,6 +53,7 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrument
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.fx.FXForwardPointsFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -64,8 +65,11 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Base class for functions that calculate risk for FX forwards that use the FX forward rates
+ * directly.
+ * @deprecated Use {@link FXForwardPointsFunction}
  */
+@Deprecated
 public abstract class FXForwardPointsMethodFunction extends AbstractFunction.NonCompiledInvoker {
 
   /** The value requirement produced by this function */

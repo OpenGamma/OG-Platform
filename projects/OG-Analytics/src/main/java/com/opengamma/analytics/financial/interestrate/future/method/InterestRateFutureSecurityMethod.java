@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -14,7 +14,9 @@ import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 
 /**
  * Methods for the pricing of interest rate futures generic to all models.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class InterestRateFutureSecurityMethod implements PricingMethod {
 
   /**

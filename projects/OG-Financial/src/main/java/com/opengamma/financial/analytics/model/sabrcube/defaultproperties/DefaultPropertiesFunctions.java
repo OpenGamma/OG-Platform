@@ -14,13 +14,15 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
+ * @deprecated The functions in this package are deprecated
  */
+@Deprecated
 public class DefaultPropertiesFunctions extends AbstractFunctionConfigurationBean {
 
   /**
@@ -55,8 +57,8 @@ public class DefaultPropertiesFunctions extends AbstractFunctionConfigurationBea
 
   }
 
-  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
-  private String _fittingMethod = SmileFittingProperties.NON_LINEAR_LEAST_SQUARES;
+  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
+  private String _fittingMethod = SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES;
   private String _xInterpolator = Interpolator1DFactory.LINEAR;
   private String _xLeftExtrapolator = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
   private String _xRightExtrapolator = Interpolator1DFactory.FLAT_EXTRAPOLATOR;

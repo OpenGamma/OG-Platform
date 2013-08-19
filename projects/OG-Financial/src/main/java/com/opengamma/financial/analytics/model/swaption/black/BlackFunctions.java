@@ -19,7 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
+ * @deprecated The functions that are added are deprecated
  */
+@Deprecated
 public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   /**

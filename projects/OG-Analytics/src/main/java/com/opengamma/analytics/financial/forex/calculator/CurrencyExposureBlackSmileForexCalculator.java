@@ -14,12 +14,16 @@ import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMet
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.CurrencyExposureForexBlackSmileCalculator;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the currency exposure for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
  * To compute the currency exposure, the Black volatility is kept constant; the volatility is not recomputed for spot and forward changes.
+ * @deprecated Calculators that use and populate {@link YieldCurveBundle}s are deprecated.
+ * Use {@link CurrencyExposureForexBlackSmileCalculator}.
  */
+@Deprecated
 public final class CurrencyExposureBlackSmileForexCalculator extends CurrencyExposureForexCalculator {
 
   /**

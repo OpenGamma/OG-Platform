@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -87,8 +87,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_PAYER_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_RECEIVER_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
 
-  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER = SWAPTION_LONG_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_LONG_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_SHORT_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
@@ -312,6 +312,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final MultipleCurrencyMulticurveSensitivity[] pvcs = new MultipleCurrencyMulticurveSensitivity[nbTest];
     final PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
     @SuppressWarnings("unused")
+    final
     Triple<MultipleCurrencyAmount, MultipleCurrencyMulticurveSensitivity, PresentValueSABRSensitivityDataBundle> pvad;
 
 
@@ -325,7 +326,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 //    endTime = System.currentTimeMillis();
 //    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega separately): " + (endTime - startTime) + " ms");
 //    // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
-//    
+//
 //    // 2. Together compute: Price plus Curve Sensitivity and SABR Parameter Sensitivity
 //    startTime = System.currentTimeMillis();
 //    for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -334,7 +335,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 //    endTime = System.currentTimeMillis();
 //    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega together): " + (endTime - startTime) + " ms");
 //    // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 210 ms for 5000 swaptions.
-    
+
     // 3. Compute only Present Value
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

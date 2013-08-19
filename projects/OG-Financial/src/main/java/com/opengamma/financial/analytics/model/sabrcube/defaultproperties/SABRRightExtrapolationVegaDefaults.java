@@ -18,8 +18,10 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Default function for SABR vega calculations.
+ * @deprecated The functions for which these defaults apply are deprecated
  */
+@Deprecated
 public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDefaults {
   private final String _xInterpolator;
   private final String _xLeftExtrapolator;

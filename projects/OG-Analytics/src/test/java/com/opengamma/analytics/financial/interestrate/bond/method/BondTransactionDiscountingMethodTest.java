@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -41,6 +41,10 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * @deprecated This class tests deprecated functionality
+ */
+@Deprecated
 public class BondTransactionDiscountingMethodTest {
 
   private static final Currency CUR = Currency.EUR;
@@ -169,7 +173,7 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void presentValueFromCleanPriceSettlePast() {
     final double pvComputed = METHOD_TRAN_DSC.presentValueFromCleanPrice(BOND_TRANSACTION_FIXED_1, CURVES, PRICE_FIXED);
-    double pvExpected = (PRICE_FIXED + BOND_TRANSACTION_FIXED_1.getBondStandard().getAccruedInterest()) *
+    final double pvExpected = (PRICE_FIXED + BOND_TRANSACTION_FIXED_1.getBondStandard().getAccruedInterest()) *
         BOND_TRANSACTION_FIXED_1.getQuantity();
     assertEquals("Fixed bond present value", pvExpected, pvComputed, TOLERANCE_PV);
 

@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.curve;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.HULL_WHITE_DISCOUNTING;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -52,7 +52,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -63,6 +62,7 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.DeliverableSwapFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
@@ -73,6 +73,7 @@ import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
@@ -169,7 +170,11 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
             marketDataForCurve[k] = marketData;
-            parameterGuessForCurves.add(marketData);
+            if (node.getCurveNode() instanceof RateFutureNode) {
+              parameterGuessForCurves.add(1.0 - marketData);
+            } else {
+              parameterGuessForCurves.add(marketData);
+            }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
             derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);
@@ -194,7 +199,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
                 throw new OpenGammaRuntimeException("Expecting convention of type IborIndexConvention; have " + convention.getClass());
               }
               final IborIndexConvention iborIndexConvention = (IborIndexConvention) convention;
-              final int spotLag = 0; //TODO
+              final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
@@ -244,13 +249,13 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       if (hwPropertyNames == null || hwPropertyNames.size() != 1) {
         return null;
       }
-      final Set<String> hwCurrencies = constraints.getValues(CURRENCY);
+      final Set<String> hwCurrencies = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
       if (hwCurrencies == null || hwCurrencies.size() != 1) {
         return null;
       }
       final ValueProperties hwProperties = ValueProperties.builder()
           .with(PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
-          .with(CURRENCY, hwCurrencies)
+          .with(PROPERTY_HULL_WHITE_CURRENCY, hwCurrencies)
           .get();
       requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.NULL, hwProperties));
       return requirements;
@@ -275,7 +280,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     protected ValueProperties getCurveProperties(final String curveName) {
       return super.getCurveProperties(curveName).copy()
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-          .withAny(CURRENCY)
+          .withAny(PROPERTY_HULL_WHITE_CURRENCY)
           .get();
     }
 
@@ -283,7 +288,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     protected ValueProperties getBundleProperties() {
       return super.getBundleProperties().copy()
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-          .withAny(CURRENCY)
+          .withAny(PROPERTY_HULL_WHITE_CURRENCY)
           .get();
     }
 
@@ -293,7 +298,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       Currency currency = null;
       for (final ComputedValue input : inputs.getAllValues()) {
         if (input.getSpecification().getValueName().equals(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS)) {
-          currency = Currency.of(input.getSpecification().getProperty(ValuePropertyNames.CURRENCY));
+          currency = Currency.of(input.getSpecification().getProperty(PROPERTY_HULL_WHITE_CURRENCY));
           break;
         }
       }
@@ -337,6 +342,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
         final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime) {
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))

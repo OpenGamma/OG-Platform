@@ -18,7 +18,9 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the forward Forex rate for Forex derivatives.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class ForwardRateForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

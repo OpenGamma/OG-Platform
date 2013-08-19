@@ -23,7 +23,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.sabr.NoExtrapolationSABRDiscountingYCNSFunction;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -32,8 +33,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Calculates the yield curve node sensitivities for instruments priced using the SABR model.
+ * @deprecated Use {@link NoExtrapolationSABRDiscountingYCNSFunction}
  */
+@Deprecated
 public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
 
@@ -58,7 +61,7 @@ public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency, final DayCount dayCount,
       final YieldCurveBundle yieldCurves, final ValueRequirement desiredValue) {
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
@@ -81,8 +84,8 @@ public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CUBE)
-        .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .withAny(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION);
   }
 
@@ -91,7 +94,7 @@ public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
@@ -99,8 +102,8 @@ public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION);
   }
 

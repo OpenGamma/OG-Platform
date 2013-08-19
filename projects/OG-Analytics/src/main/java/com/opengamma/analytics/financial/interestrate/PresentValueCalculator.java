@@ -49,11 +49,13 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISD
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to)
  * @deprecated Use the present values calculators that reference {@link ParameterProviderInterface}
+ * e.g. {@link PresentValueDiscountingCalculator}
  */
 @Deprecated
 public class PresentValueCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {

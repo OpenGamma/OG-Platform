@@ -31,6 +31,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.joda.beans.Bean;
+import org.joda.beans.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -66,6 +68,8 @@ import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.batch.domain.StatusEntry;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.InvocationResult;
 import com.opengamma.engine.calcnode.MissingValue;
@@ -128,6 +132,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchWriter.class);
+  private final ComputationTargetResolver _computationTargetResolver;
 
   /**
    * The Result converter cache.
@@ -139,9 +144,10 @@ public class DbBatchWriter extends AbstractDbMaster {
    *
    * @param dbConnector  the database connector, not null
    */
-  public DbBatchWriter(final DbConnector dbConnector) {
+  public DbBatchWriter(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     _resultConverterCache = new ResultConverterCache();
+    _computationTargetResolver = computationTargetResolver;
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbBatchWriter.class));
   }
 
@@ -902,6 +908,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       final Set<ComputationTargetSpecification> successfulTargets = newHashSet();
       final Set<ComputationTargetSpecification> failedTargets = newHashSet();
 
+      List<SqlParameterSource> targetProperties = newArrayList();
       List<SqlParameterSource> successes = newArrayList();
       List<SqlParameterSource> failures = newArrayList();
       List<SqlParameterSource> failureReasons = newArrayList();
@@ -911,6 +918,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       long calcConfId = _calculationConfigurations.get(calcConfigName);
 
       for (final ComputationTargetSpecification targetSpec : viewCalculationResultModel.getAllTargets()) {
+        final long computationTargetId = _computationTargets.get(targetSpec);
         boolean specFailures = false;
         for (final ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(targetSpec)) {
           ResultConverter<Object> resultConverter  = null;
@@ -921,8 +929,7 @@ public class DbBatchWriter extends AbstractDbMaster {
               s_logger.info("No converter for value of type " + computedValue.getValue().getClass() + " for " + computedValue.getSpecification());
             }            
           }
-          
-          final long computationTargetId = _computationTargets.get(targetSpec);
+
           final ValueSpecification specification = computedValue.getSpecification();
           if (!_riskValueSpecifications.containsKey(specification)) {
             s_logger.error("Unexpected result specification " + specification + ". Result cannot be written. Result value was " + computedValue.getValue());
@@ -966,6 +973,18 @@ public class DbBatchWriter extends AbstractDbMaster {
         } else {
           successfulTargets.add(targetSpec);
         }
+
+        // storing target data
+        ComputationTarget computationTarget = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
+        Object targetValue = computationTarget.getValue();
+        if (targetValue instanceof Bean) {
+          Bean bean = (Bean) targetValue;
+          for (String propertyName : bean.propertyNames()) {
+            Property<Object> property = bean.property(propertyName);
+            final long targetPropertyId = nextId(RSK_SEQUENCE_NAME);
+            targetProperties.add(getTargetPropertyArgs(targetPropertyId, computationTargetId, propertyName, property.get() == null ? "NULL" : property.get().toString()));
+          }
+        }
       }
 
       if (successes.isEmpty()
@@ -1003,7 +1022,15 @@ public class DbBatchWriter extends AbstractDbMaster {
           failedTargets.addAll(successfulTargets);
           successes.clear();
           successfulTargets.clear();
+          targetProperties.clear();
         }
+      }
+      Object preTargetPropertiesFailureSavepoint = transactionStatus.createSavepoint();
+      try {
+        getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertTargetProperties"), targetProperties.toArray(new DbMapSqlParameterSource[targetProperties.size()]));
+      } catch (Exception e) {
+        s_logger.error("Failed to write target properties to batch database", e);
+        transactionStatus.rollbackToSavepoint(preTargetPropertiesFailureSavepoint);
       }
       Object preFailureSavepoint = transactionStatus.createSavepoint();
       try {
@@ -1048,6 +1075,15 @@ public class DbBatchWriter extends AbstractDbMaster {
     args.addValue("value", doubleValue);
     args.addTimestamp("eval_instant", evalInstant);
     args.addValue("compute_node_id", computeNodeId);
+    return args;
+  }
+
+  private SqlParameterSource getTargetPropertyArgs(long targetPropertyId, long computationTargetId, String propertyKey, String propertyValue) {
+    DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    args.addValue("id", targetPropertyId);
+    args.addValue("target_id", computationTargetId);
+    args.addValue("property_key", propertyKey);
+    args.addValue("property_value", propertyValue);
     return args;
   }
 

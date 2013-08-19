@@ -35,6 +35,7 @@ import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.transport.jms.JmsByteArrayRequestDispatcher;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.jms.JmsQueueContainer;
 import com.opengamma.util.jms.JmsTopicContainer;
 
 /**
@@ -58,7 +59,6 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    */
   @PropertyDefinition
   private boolean _publishJms = true;
-
   /**
    * The JMS connector.
    */
@@ -66,6 +66,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   private JmsConnector _jmsConnector;
   /**
    * The name of the subscription topic, null if not used.
+   *
+   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
    */
   @PropertyDefinition
   private String _jmsSubscriptionTopic;
@@ -79,6 +81,28 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    */
   @PropertyDefinition
   private String _jmsHeartbeatTopic;
+
+  /**
+   * The name of the subscription queue, null if not used.
+   */
+  @PropertyDefinition
+  private String _jmsSubscriptionQueue;
+  /**
+   * The initial number of listeners for the subscription queue (if used).
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   */
+  @PropertyDefinition
+  private int _jmsSubscriptionQueueConcurrentConsumers = 1;
+  /**
+   * The maximum number of listeners for the subscription queue (if used). When the
+   * limit is reached, messages will queue up until a listener becomes available to
+   * handle them.
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   */
+  @PropertyDefinition
+  private int _jmsSubscriptionQueueMaxConcurrentConsumers = 1;
 
   //-------------------------------------------------------------------------
   @Override
@@ -126,9 +150,25 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   protected void publishJmsSubscription(ComponentRepository repo, StandardLiveDataServer server) {
     SubscriptionRequestReceiver receiver = new SubscriptionRequestReceiver(server);
     FudgeRequestDispatcher dispatcher = new FudgeRequestDispatcher(receiver);
-    JmsByteArrayRequestDispatcher jmsDispatcher = new JmsByteArrayRequestDispatcher(dispatcher);
-    JmsTopicContainer jmsContainer = getJmsConnector().getTopicContainerFactory().create(getJmsSubscriptionTopic(), jmsDispatcher);
-    repo.registerLifecycle(jmsContainer);
+
+    String topicName = getJmsSubscriptionTopic();
+
+    if (topicName != null) {
+      JmsByteArrayRequestDispatcher topicDispatcher = new JmsByteArrayRequestDispatcher(dispatcher);
+      JmsTopicContainer topicContainer = getJmsConnector().getTopicContainerFactory().create(topicName, topicDispatcher);
+      repo.registerLifecycle(topicContainer);
+    }
+
+    String queueName = getJmsSubscriptionQueue();
+
+    if (queueName != null) {
+      JmsByteArrayRequestDispatcher queueDispatcher = new JmsByteArrayRequestDispatcher(dispatcher);
+      JmsQueueContainer queueContainer = getJmsConnector().getQueueContainerFactory().create(queueName,
+                                                                                             queueDispatcher,
+                                                                                             getJmsSubscriptionQueueConcurrentConsumers(),
+                                                                                             getJmsSubscriptionQueueMaxConcurrentConsumers());
+      repo.registerLifecycle(queueContainer);
+    }
   }
 
   /**
@@ -222,6 +262,12 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
         return getJmsEntitlementTopic();
       case -326199997:  // jmsHeartbeatTopic
         return getJmsHeartbeatTopic();
+      case -105041852:  // jmsSubscriptionQueue
+        return getJmsSubscriptionQueue();
+      case 1827748962:  // jmsSubscriptionQueueConcurrentConsumers
+        return getJmsSubscriptionQueueConcurrentConsumers();
+      case 311428262:  // jmsSubscriptionQueueMaxConcurrentConsumers
+        return getJmsSubscriptionQueueMaxConcurrentConsumers();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -250,6 +296,15 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
       case -326199997:  // jmsHeartbeatTopic
         setJmsHeartbeatTopic((String) newValue);
         return;
+      case -105041852:  // jmsSubscriptionQueue
+        setJmsSubscriptionQueue((String) newValue);
+        return;
+      case 1827748962:  // jmsSubscriptionQueueConcurrentConsumers
+        setJmsSubscriptionQueueConcurrentConsumers((Integer) newValue);
+        return;
+      case 311428262:  // jmsSubscriptionQueueMaxConcurrentConsumers
+        setJmsSubscriptionQueueMaxConcurrentConsumers((Integer) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -275,6 +330,9 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
           JodaBeanUtils.equal(getJmsSubscriptionTopic(), other.getJmsSubscriptionTopic()) &&
           JodaBeanUtils.equal(getJmsEntitlementTopic(), other.getJmsEntitlementTopic()) &&
           JodaBeanUtils.equal(getJmsHeartbeatTopic(), other.getJmsHeartbeatTopic()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionQueue(), other.getJmsSubscriptionQueue()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionQueueConcurrentConsumers(), other.getJmsSubscriptionQueueConcurrentConsumers()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionQueueMaxConcurrentConsumers(), other.getJmsSubscriptionQueueMaxConcurrentConsumers()) &&
           super.equals(obj);
     }
     return false;
@@ -290,6 +348,9 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueConcurrentConsumers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueueMaxConcurrentConsumers());
     return hash ^ super.hashCode();
   }
 
@@ -398,6 +459,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the value of the property
    */
   public String getJmsSubscriptionTopic() {
@@ -406,6 +469,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Sets the name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
    * @param jmsSubscriptionTopic  the new value of the property
    */
   public void setJmsSubscriptionTopic(String jmsSubscriptionTopic) {
@@ -414,6 +479,8 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   /**
    * Gets the the {@code jmsSubscriptionTopic} property.
+   * 
+   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the property, not null
    */
   public final Property<String> jmsSubscriptionTopic() {
@@ -472,6 +539,99 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the name of the subscription queue, null if not used.
+   * @return the value of the property
+   */
+  public String getJmsSubscriptionQueue() {
+    return _jmsSubscriptionQueue;
+  }
+
+  /**
+   * Sets the name of the subscription queue, null if not used.
+   * @param jmsSubscriptionQueue  the new value of the property
+   */
+  public void setJmsSubscriptionQueue(String jmsSubscriptionQueue) {
+    this._jmsSubscriptionQueue = jmsSubscriptionQueue;
+  }
+
+  /**
+   * Gets the the {@code jmsSubscriptionQueue} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsSubscriptionQueue() {
+    return metaBean().jmsSubscriptionQueue().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the initial number of listeners for the subscription queue (if used).
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   * @return the value of the property
+   */
+  public int getJmsSubscriptionQueueConcurrentConsumers() {
+    return _jmsSubscriptionQueueConcurrentConsumers;
+  }
+
+  /**
+   * Sets the initial number of listeners for the subscription queue (if used).
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   * @param jmsSubscriptionQueueConcurrentConsumers  the new value of the property
+   */
+  public void setJmsSubscriptionQueueConcurrentConsumers(int jmsSubscriptionQueueConcurrentConsumers) {
+    this._jmsSubscriptionQueueConcurrentConsumers = jmsSubscriptionQueueConcurrentConsumers;
+  }
+
+  /**
+   * Gets the the {@code jmsSubscriptionQueueConcurrentConsumers} property.
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   * @return the property, not null
+   */
+  public final Property<Integer> jmsSubscriptionQueueConcurrentConsumers() {
+    return metaBean().jmsSubscriptionQueueConcurrentConsumers().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maximum number of listeners for the subscription queue (if used). When the
+   * limit is reached, messages will queue up until a listener becomes available to
+   * handle them.
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   * @return the value of the property
+   */
+  public int getJmsSubscriptionQueueMaxConcurrentConsumers() {
+    return _jmsSubscriptionQueueMaxConcurrentConsumers;
+  }
+
+  /**
+   * Sets the maximum number of listeners for the subscription queue (if used). When the
+   * limit is reached, messages will queue up until a listener becomes available to
+   * handle them.
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   * @param jmsSubscriptionQueueMaxConcurrentConsumers  the new value of the property
+   */
+  public void setJmsSubscriptionQueueMaxConcurrentConsumers(int jmsSubscriptionQueueMaxConcurrentConsumers) {
+    this._jmsSubscriptionQueueMaxConcurrentConsumers = jmsSubscriptionQueueMaxConcurrentConsumers;
+  }
+
+  /**
+   * Gets the the {@code jmsSubscriptionQueueMaxConcurrentConsumers} property.
+   * limit is reached, messages will queue up until a listener becomes available to
+   * handle them.
+   * <p>
+   * Defaults to 1 but can be overridden from config.
+   * @return the property, not null
+   */
+  public final Property<Integer> jmsSubscriptionQueueMaxConcurrentConsumers() {
+    return metaBean().jmsSubscriptionQueueMaxConcurrentConsumers().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code AbstractStandardLiveDataServerComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -516,6 +676,21 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
     private final MetaProperty<String> _jmsHeartbeatTopic = DirectMetaProperty.ofReadWrite(
         this, "jmsHeartbeatTopic", AbstractStandardLiveDataServerComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code jmsSubscriptionQueue} property.
+     */
+    private final MetaProperty<String> _jmsSubscriptionQueue = DirectMetaProperty.ofReadWrite(
+        this, "jmsSubscriptionQueue", AbstractStandardLiveDataServerComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code jmsSubscriptionQueueConcurrentConsumers} property.
+     */
+    private final MetaProperty<Integer> _jmsSubscriptionQueueConcurrentConsumers = DirectMetaProperty.ofReadWrite(
+        this, "jmsSubscriptionQueueConcurrentConsumers", AbstractStandardLiveDataServerComponentFactory.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code jmsSubscriptionQueueMaxConcurrentConsumers} property.
+     */
+    private final MetaProperty<Integer> _jmsSubscriptionQueueMaxConcurrentConsumers = DirectMetaProperty.ofReadWrite(
+        this, "jmsSubscriptionQueueMaxConcurrentConsumers", AbstractStandardLiveDataServerComponentFactory.class, Integer.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -526,7 +701,10 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
         "jmsConnector",
         "jmsSubscriptionTopic",
         "jmsEntitlementTopic",
-        "jmsHeartbeatTopic");
+        "jmsHeartbeatTopic",
+        "jmsSubscriptionQueue",
+        "jmsSubscriptionQueueConcurrentConsumers",
+        "jmsSubscriptionQueueMaxConcurrentConsumers");
 
     /**
      * Restricted constructor.
@@ -551,6 +729,12 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
           return _jmsEntitlementTopic;
         case -326199997:  // jmsHeartbeatTopic
           return _jmsHeartbeatTopic;
+        case -105041852:  // jmsSubscriptionQueue
+          return _jmsSubscriptionQueue;
+        case 1827748962:  // jmsSubscriptionQueueConcurrentConsumers
+          return _jmsSubscriptionQueueConcurrentConsumers;
+        case 311428262:  // jmsSubscriptionQueueMaxConcurrentConsumers
+          return _jmsSubscriptionQueueMaxConcurrentConsumers;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -625,6 +809,30 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
      */
     public final MetaProperty<String> jmsHeartbeatTopic() {
       return _jmsHeartbeatTopic;
+    }
+
+    /**
+     * The meta-property for the {@code jmsSubscriptionQueue} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsSubscriptionQueue() {
+      return _jmsSubscriptionQueue;
+    }
+
+    /**
+     * The meta-property for the {@code jmsSubscriptionQueueConcurrentConsumers} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> jmsSubscriptionQueueConcurrentConsumers() {
+      return _jmsSubscriptionQueueConcurrentConsumers;
+    }
+
+    /**
+     * The meta-property for the {@code jmsSubscriptionQueueMaxConcurrentConsumers} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> jmsSubscriptionQueueMaxConcurrentConsumers() {
+      return _jmsSubscriptionQueueMaxConcurrentConsumers;
     }
 
   }

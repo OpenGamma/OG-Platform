@@ -243,9 +243,17 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
   /**
+   * A vector of P&L series for the nodal points of a curve. 
+   */
+  public static final String CURVE_PNL_SERIES = "Curve P&L Series";
+  /**
    * A vector of return series for the nodal points of a yield curve.
    */
   public static final String YIELD_CURVE_RETURN_SERIES = "Yield Curve Return Series";
+  /**
+   * A vector of return series for the nodal points of a curve.
+   */
+  public static final String CURVE_RETURN_SERIES = "Curve Return Series";
   /**
    * A vector of return series for the nodal points of an FX forward curve.
    */
@@ -484,6 +492,11 @@ public final class ValueRequirementNames {
    * The bucketed (CS01) spreads for a credit default swap.
    */
   public static final String BUCKETED_SPREADS = "Bucketed Spreads";
+
+  /**
+   * The pillar spreads used for pricing a credit default swap.
+   */
+  public static final String PILLAR_SPREADS = "Pillar Spreads";
 
   /**
    * The dividend yield of an equity or equity index.

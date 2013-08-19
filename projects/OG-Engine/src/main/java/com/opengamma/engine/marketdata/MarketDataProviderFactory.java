@@ -22,7 +22,6 @@ public interface MarketDataProviderFactory {
    * @param marketDataSpec the market data specification, not null
    * @return a market data provider, not null
    */
-  MarketDataProvider create(UserPrincipal marketDataUser,
-      MarketDataSpecification marketDataSpec);
+  MarketDataProvider create(UserPrincipal marketDataUser, MarketDataSpecification marketDataSpec);
 
 }

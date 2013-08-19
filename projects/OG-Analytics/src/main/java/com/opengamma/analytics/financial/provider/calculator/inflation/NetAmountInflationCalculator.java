@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -50,7 +50,7 @@ public final class NetAmountInflationCalculator extends InstrumentDerivativeVisi
    * Constructor.
    */
   private NetAmountInflationCalculator() {
-    super(new InflationProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new InflationProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

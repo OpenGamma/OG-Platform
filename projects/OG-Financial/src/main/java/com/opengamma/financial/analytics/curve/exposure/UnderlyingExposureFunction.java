@@ -88,7 +88,7 @@ public class UnderlyingExposureFunction implements ExposureFunction {
 
   @Override
   public String getName() {
-    return "Underlying Security";
+    return "Underlying";
   }
 
   @Override

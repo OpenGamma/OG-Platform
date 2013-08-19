@@ -44,7 +44,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
-import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
@@ -67,7 +67,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
   /** The value requirement that can be produced */
   private final String _valueRequirementName;
   /** Converter from {@link SwaptionSecurity} to an analytics object */
-  private SwaptionSecurityConverter _visitor;
+  private SwaptionSecurityConverterDeprecated _visitor;
 
   /**
    * @param valueRequirementName The value requirement name, not null
@@ -84,7 +84,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
-    _visitor = new SwaptionSecurityConverter(securitySource, swapConverter);
+    _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
   }
 
   @Override
@@ -196,7 +196,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
    * Returns the converter.
    * @return The converter
    */
-  protected SwaptionSecurityConverter getVisitor() {
+  protected SwaptionSecurityConverterDeprecated getVisitor() {
     return _visitor;
   }
 

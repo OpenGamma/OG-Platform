@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -44,7 +44,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * 
+ *
  */
 public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -151,7 +151,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     return requirements;
   }
 
-  private ValueRequirement getYCNSRequirement(final String payCurveName, final String payCurveCalculationConfigName, final String receiveCurveName,
+  private static ValueRequirement getYCNSRequirement(final String payCurveName, final String payCurveCalculationConfigName, final String receiveCurveName,
       final String receiveCurveCalculationConfigName, final String currencyName, final String curveName, final Set<String> curveCalculationMethods, final Security security) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
@@ -167,7 +167,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ComputationTargetType.SECURITY, security.getUniqueId(), properties.get());
   }
 
-  private ValueRequirement getReturnSeriesRequirement(final String curveName, final Currency curveCurrency, final String curveCalculationConfigName, final ValueProperties baseConstraints) {
+  private static ValueRequirement getReturnSeriesRequirement(final String curveName, final Currency curveCurrency, final String curveCalculationConfigName, final ValueProperties baseConstraints) {
     final ComputationTargetSpecification targetSpec = ComputationTargetType.CURRENCY.specification(curveCurrency);
     final ValueProperties constraints = baseConstraints.copy()
         .with(ValuePropertyNames.CURVE, curveName)
@@ -176,7 +176,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_RETURN_SERIES, targetSpec, constraints);
   }
 
-  private ValueRequirement getReturnSeriesRequirement(final String curveName, final Currency payCurrency, final Currency receiveCurrency, final String curveCalculationConfig,
+  private static ValueRequirement getReturnSeriesRequirement(final String curveName, final Currency payCurrency, final Currency receiveCurrency, final String curveCalculationConfig,
       final ValueProperties baseConstraints) {
     final ComputationTargetSpecification targetSpec = ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
     final ValueProperties constraints = baseConstraints.copy()

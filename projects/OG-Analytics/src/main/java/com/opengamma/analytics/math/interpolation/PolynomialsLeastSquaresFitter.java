@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -28,14 +28,14 @@ import com.opengamma.util.ArgumentChecker;
 public class PolynomialsLeastSquaresFitter {
 
   private QRDecompositionResult _qrResult;
-  private double[] _renorm = new double[2];
+  private final double[] _renorm = new double[2];
 
   /**
    * Given a set of data (X_i, Y_i) and degrees of a polynomial, determines optimal coefficients of the polynomial
    * @param xData X values of data
    * @param yData Y values of data
    * @param degree Degree of polynomial which fits the given data
-   * @return LeastSquaresRegressionResult Containing optimal coefficients of the polynomial and difference between yData[i] and f(xData[i]), 
+   * @return LeastSquaresRegressionResult Containing optimal coefficients of the polynomial and difference between yData[i] and f(xData[i]),
    * where f() is the polynomial with the derived coefficients
    */
   public LeastSquaresRegressionResult regress(final double[] xData, final double[] yData, final int degree) {
@@ -63,9 +63,8 @@ public class PolynomialsLeastSquaresFitter {
 
     if (normalize == true) {
       return new PolynomialsLeastSquaresFitterResult(result.getBetas(), rMatriX, nData - degree - 1, resNorm, _renorm);
-    } else {
-      return new PolynomialsLeastSquaresFitterResult(result.getBetas(), rMatriX, nData - degree - 1, resNorm);
     }
+    return new PolynomialsLeastSquaresFitterResult(result.getBetas(), rMatriX, nData - degree - 1, resNorm);
   }
 
   /**
@@ -169,16 +168,16 @@ public class PolynomialsLeastSquaresFitter {
   }
 
   /**
-   * Under the QR decomposition, xDataMatrix = qMatrix * rMatrix, optimal coefficients of the polynomial are computed by back substitution 
-   * @param qMatrix 
+   * Under the QR decomposition, xDataMatrix = qMatrix * rMatrix, optimal coefficients of the polynomial are computed by back substitution
+   * @param qMatrix
    * @param rMatrix
-   * @param yDataVector 
+   * @param yDataVector
    * @param degree
    * @return Coefficients of the polynomial which minimize least square
    */
   private double[] backSubstitution(final DoubleMatrix2D qMatrix, final DoubleMatrix2D rMatrix, final DoubleMatrix1D yDataVector, final int degree) {
 
-    double[] res = new double[degree + 1];
+    final double[] res = new double[degree + 1];
     Arrays.fill(res, 0.);
 
     final DoubleMatrix2D tpMatrix = OG_ALGEBRA.getTranspose(qMatrix);
@@ -199,7 +198,7 @@ public class PolynomialsLeastSquaresFitter {
   }
 
   /**
-   * 
+   *
    * @param xDataMatrix
    * @param betas Optimal coefficients of the polynomial
    * @param yDataVector
@@ -224,12 +223,12 @@ public class PolynomialsLeastSquaresFitter {
   private double[] normaliseData(final double[] xData) {
 
     final int nData = xData.length;
-    double[] res = new double[nData];
+    final double[] res = new double[nData];
 
     Function1D<double[], Double> calculator = new MeanCalculator();
-    _renorm[0] = (double) calculator.evaluate(xData);
+    _renorm[0] = calculator.evaluate(xData);
     calculator = new SampleStandardDeviationCalculator();
-    _renorm[1] = (double) calculator.evaluate(xData);
+    _renorm[1] = calculator.evaluate(xData);
 
     final double tmp = _renorm[0] / _renorm[1];
     for (int i = 0; i < nData; ++i) {

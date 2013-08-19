@@ -414,6 +414,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
+    
+    public Builder<T> deliverableSwapFutureSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
+          return visitor.visitDeliverableSwapFutureSecurity(security);
+        }
+      };
+      return this;
+    }
 
     public Builder<T> equitySecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {

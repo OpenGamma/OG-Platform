@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -36,7 +36,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates Present Value on FX Forward instruments.
+ * @deprecated Deprecated
  */
+@Deprecated
 public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
@@ -62,7 +64,7 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
         if (payCurrency.equals(receiveCurrency)) {
           return false;
         }
-      } catch (UnsupportedOperationException e) {
+      } catch (final UnsupportedOperationException e) {
         return false;
       }
     }

@@ -52,6 +52,7 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -69,6 +70,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for cross-currency swap analytics
+ * @deprecated Use functions descending from {@link DiscountingFunction}
  */
 @Deprecated
 public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonCompiledInvoker {
@@ -217,12 +219,12 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig payCurveCalculationConfig = curveCalculationConfigSource.getConfig(payCurveCalculationConfigName);
     if (payCurveCalculationConfig == null) {
-      s_logger.error("Could not find curve calculation configuration named " + payCurveCalculationConfigName);
+      s_logger.info("Could not find curve calculation configuration named " + payCurveCalculationConfigName);
       return null;
     }
     final MultiCurveCalculationConfig receiveCurveCalculationConfig = curveCalculationConfigSource.getConfig(receiveCurveCalculationConfigName);
     if (receiveCurveCalculationConfig == null) {
-      s_logger.error("Could not find curve calculation configuration named " + receiveCurveCalculationConfigName);
+      s_logger.info("Could not find curve calculation configuration named " + receiveCurveCalculationConfigName);
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
@@ -238,11 +240,11 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
       }
     }
     if (!payCurrencyMatched) {
-      s_logger.error("Pay currency calculation config target {} was not found in {}", payCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
+      s_logger.info("Pay currency calculation config target {} was not found in {}", payCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
       return null;
     }
     if (!receiveCurrencyMatched) {
-      s_logger.error("Receive currency calculation config target {} was not found in {}", receiveCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
+      s_logger.info("Receive currency calculation config target {} was not found in {}", receiveCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube;
@@ -24,7 +24,7 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -32,8 +32,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Calculates the vega quote matrix.
+ * @deprecated Use {@link RightExtrapolationSABRDiscountingVegaQuoteMatrixFunction}
  */
+@Deprecated
 public class SABRRightExtrapolationVegaFunction extends SABRVegaFunction {
 
   @Override
@@ -74,7 +76,7 @@ public class SABRRightExtrapolationVegaFunction extends SABRVegaFunction {
   @Override
   protected ValueProperties getSensitivityProperties(final ComputationTarget target, final String currency, final ValueRequirement desiredValue) {
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String cutoff = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
     final String mu = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
@@ -83,8 +85,8 @@ public class SABRRightExtrapolationVegaFunction extends SABRVegaFunction {
         .with(ValuePropertyNames.CUBE, cubeName).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE, cutoff)
         .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION).get();
   }
 
@@ -92,7 +94,7 @@ public class SABRRightExtrapolationVegaFunction extends SABRVegaFunction {
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency, final DayCount dayCount,
       final YieldCurveBundle yieldCurves, final ValueRequirement desiredValue) {
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
@@ -122,15 +124,15 @@ public class SABRRightExtrapolationVegaFunction extends SABRVegaFunction {
         .withAny(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
-        .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .withAny(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
         .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
   }
 
   @Override
   protected ValueProperties getResultProperties(final ValueProperties properties, final String currency, final ValueRequirement desiredValue) {
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String xInterpolator = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     final String xLeftExtrapolator = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
@@ -153,8 +155,8 @@ public class SABRRightExtrapolationVegaFunction extends SABRVegaFunction {
         .with(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME, yLeftExtrapolator)
         .with(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME, yRightExtrapolator)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
         .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
   }
 }

@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.joda.convert.FromString;
+
 import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -37,6 +39,25 @@ public final class BusinessDayConventionFactory {
    */
   private final Collection<BusinessDayConvention> _conventions;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static BusinessDayConvention of(final String name) {
+    BusinessDayConvention result = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown BusinessDayConvention: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */

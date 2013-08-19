@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.util.amount;
@@ -84,7 +84,7 @@ public class ReferenceAmount<REFERENCE> {
     for (final REFERENCE p : _data.keySet()) {
       multiplied.put(p, _data.get(p) * factor);
     }
-    return new ReferenceAmount<REFERENCE>(multiplied);
+    return new ReferenceAmount<>(multiplied);
   }
 
   @Override
@@ -96,7 +96,7 @@ public class ReferenceAmount<REFERENCE> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -107,6 +107,7 @@ public class ReferenceAmount<REFERENCE> {
       return false;
     }
     @SuppressWarnings("unchecked")
+    final
     ReferenceAmount<REFERENCE> other = (ReferenceAmount<REFERENCE>) obj;
     if (_data == null) {
       if (other._data != null) {

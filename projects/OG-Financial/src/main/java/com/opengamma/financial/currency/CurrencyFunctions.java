@@ -19,7 +19,7 @@ public class CurrencyFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
-   * 
+   *
    * @return the configuration source exposing functions from this package
    */
   public static FunctionConfigurationSource instance() {
@@ -54,6 +54,7 @@ public class CurrencyFunctions extends AbstractFunctionConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.FAIR_VALUE);
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.PNL_SERIES);
     addCurrencySeriesConversionFunction(functions, ValueRequirementNames.YIELD_CURVE_PNL_SERIES);
+    addCurrencySeriesConversionFunction(functions, ValueRequirementNames.CURVE_PNL_SERIES);
     addCurrencyConversionFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY
     addCurrencyConversionFunction(functions, ValueRequirementNames.PV01);

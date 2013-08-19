@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -19,10 +19,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 
 /**
- * 
+ * Calculates the sensitivities of an FX forward to a curve
+ * @deprecated Use {@link DiscountingFunction}
  */
+@Deprecated
 public class FXForwardPresentValueCurveSensitivityFunction extends FXForwardMultiValuedFunction {
   private static final PresentValueCurveSensitivityMCSCalculator CALCULATOR = PresentValueCurveSensitivityMCSCalculator.getInstance();
 

@@ -17,7 +17,9 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the volatility sensitivity for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class PresentValueBlackVolatilitySensitivityBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, PresentValueForexBlackVolatilitySensitivity> {
 
   /**

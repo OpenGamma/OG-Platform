@@ -26,9 +26,6 @@ public class ForexNonDeliverableOptionDefinitionTest {
   private static final ForexNonDeliverableOptionDefinition NDO_DEFINITION = new ForexNonDeliverableOptionDefinition(NDF_DEFINITION, IS_CALL, IS_LONG);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 10);
-  private static final String KRW_DSC = "Discounting KRW";
-  private static final String USD_DSC = "Discounting USD";
-  private static final String[] CURVE_NAMES = new String[] {KRW_DSC, USD_DSC};
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFX() {
@@ -42,13 +39,27 @@ public class ForexNonDeliverableOptionDefinitionTest {
     assertEquals("Forex non-deliverable option - getter", IS_LONG, NDO_DEFINITION.isLong());
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the class toDerivative method.
+   */
+  public void toDerivativeDeprecated() {
+    final String krw = "Discounting KRW";
+    final String usd = "Discounting USD";
+    final String[] curveNames = new String[] {krw, usd};
+    final ForexNonDeliverableOption ndoConverted = NDO_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
+    final ForexNonDeliverableOption ndoExpected = new ForexNonDeliverableOption(NDF_DEFINITION.toDerivative(REFERENCE_DATE, curveNames), IS_CALL, IS_LONG);
+    assertEquals("Forex NDO - toDerivatives", ndoExpected, ndoConverted);
+  }
+
   @Test
   /**
    * Tests the class toDerivative method.
    */
   public void toDerivative() {
-    ForexNonDeliverableOption ndoConverted = NDO_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
-    ForexNonDeliverableOption ndoExpected = new ForexNonDeliverableOption(NDF_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES), IS_CALL, IS_LONG);
+    final ForexNonDeliverableOption ndoConverted = NDO_DEFINITION.toDerivative(REFERENCE_DATE);
+    final ForexNonDeliverableOption ndoExpected = new ForexNonDeliverableOption(NDF_DEFINITION.toDerivative(REFERENCE_DATE), IS_CALL, IS_LONG);
     assertEquals("Forex NDO - toDerivatives", ndoExpected, ndoConverted);
   }
 
@@ -58,7 +69,7 @@ public class ForexNonDeliverableOptionDefinitionTest {
    */
   public void equalHash() {
     assertEquals("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION, NDO_DEFINITION);
-    assertFalse("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.equals(CURVE_NAMES));
+    assertFalse("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.equals("A"));
     assertFalse("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.equals(null));
     final ForexNonDeliverableOptionDefinition newNdo = new ForexNonDeliverableOptionDefinition(NDF_DEFINITION, IS_CALL, IS_LONG);
     assertTrue("ForexNonDeliverableOptionDefinition: equal/hash code", NDO_DEFINITION.equals(newNdo));

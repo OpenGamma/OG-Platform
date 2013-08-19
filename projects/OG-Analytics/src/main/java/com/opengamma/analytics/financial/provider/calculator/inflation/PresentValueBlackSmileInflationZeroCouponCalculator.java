@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
@@ -29,7 +29,7 @@ public final class PresentValueBlackSmileInflationZeroCouponCalculator extends I
    * Constructor.
    */
   private PresentValueBlackSmileInflationZeroCouponCalculator() {
-    super(new BlackSmileCapInflationZeroCouponProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new BlackSmileCapInflationZeroCouponProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

@@ -11,13 +11,13 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 
 /**
- * 
+ *
  */
 public class NavigableMapInterpolator1DDataBundleTest extends Interpolator1DDataBundleTestCase {
 
   @Override
-  protected Interpolator1DDataBundle createDataBundle(double[] keys, double[] values) {
-    NavigableMap<Double, Double> map = new TreeMap<Double, Double>();
+  protected Interpolator1DDataBundle createDataBundle(final double[] keys, final double[] values) {
+    final NavigableMap<Double, Double> map = new TreeMap<>();
     for (int i = 0; i < keys.length; i++) {
       map.put(keys[i], values[i]);
     }

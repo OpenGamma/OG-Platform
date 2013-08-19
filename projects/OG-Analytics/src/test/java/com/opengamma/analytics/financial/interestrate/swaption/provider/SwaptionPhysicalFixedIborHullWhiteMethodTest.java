@@ -62,11 +62,11 @@ import com.opengamma.util.time.DateUtils;
  */
 public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
 
+  private static final String NOT_USED = "Not used";
+  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
+
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final Currency EUR = EURIBOR6M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
@@ -366,7 +366,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     final double ATM = 0.0151; //  1W: 1.52% - 1M: 1.52% - 1Y: 1.51% - 10Y: 1.51%
     final SwapFixedIborDefinition swapExpx5YDefinition = SwapFixedIborDefinition.from(settlementDateExp, SWAP_TENOR, EUR1YEURIBOR6M, NOTIONAL, ATM, !FIXED_IS_PAYER);
     final SwaptionPhysicalFixedIborDefinition swaptionExpx5YDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapExpx5YDefinition, !IS_LONG);
-    final SwaptionPhysicalFixedIbor swaptionExpx5Y = swaptionExpx5YDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final SwaptionPhysicalFixedIbor swaptionExpx5Y = swaptionExpx5YDefinition.toDerivative(REFERENCE_DATE);
     //    final double forward = swaptionExpx5Y.getUnderlyingSwap().accept(PRDC, MULTICURVES);
     final MultipleCurrencyParameterSensitivity pvpsExactExp = PS_HW_C.calculateSensitivity(swaptionExpx5Y, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
     final double derivativeExactExp = pvpsExactExp.totalSensitivity(MULTICURVES.getFxRates(), EUR);

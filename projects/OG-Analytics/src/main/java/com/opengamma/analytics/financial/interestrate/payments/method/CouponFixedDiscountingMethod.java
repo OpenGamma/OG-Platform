@@ -22,7 +22,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Methods related to fixed coupons.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod}
  */
+@Deprecated
 public final class CouponFixedDiscountingMethod {
 
   /**
@@ -50,11 +52,11 @@ public final class CouponFixedDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(CouponFixed cpn, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final CouponFixed cpn, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(cpn);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(cpn.getFundingCurveName());
-    double pv = cpn.getAmount() * fundingCurve.getDiscountFactor(cpn.getPaymentTime());
+    final double pv = cpn.getAmount() * fundingCurve.getDiscountFactor(cpn.getPaymentTime());
     return CurrencyAmount.of(cpn.getCurrency(), pv);
   }
 
@@ -64,11 +66,11 @@ public final class CouponFixedDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value.
    */
-  public CurrencyAmount presentValuePositiveNotional(CouponFixed cpn, YieldCurveBundle curves) {
+  public CurrencyAmount presentValuePositiveNotional(final CouponFixed cpn, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(cpn);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(cpn.getFundingCurveName());
-    double pv = cpn.getPaymentYearFraction() * Math.abs(cpn.getNotional()) * cpn.getFixedRate() * fundingCurve.getDiscountFactor(cpn.getPaymentTime());
+    final double pv = cpn.getPaymentYearFraction() * Math.abs(cpn.getNotional()) * cpn.getFixedRate() * fundingCurve.getDiscountFactor(cpn.getPaymentTime());
     return CurrencyAmount.of(cpn.getCurrency(), pv);
   }
 
@@ -78,14 +80,14 @@ public final class CouponFixedDiscountingMethod {
    * @param curves The curve bundle.
    * @return The sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(CouponFixed cpn, YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponFixed cpn, final YieldCurveBundle curves) {
     final String curveName = cpn.getFundingCurveName();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = cpn.getPaymentTime();
     final DoublesPair s = new DoublesPair(time, -time * cpn.getAmount() * discountingCurve.getDiscountFactor(time));
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, list);
     return new InterestRateCurveSensitivity(result);
   }
@@ -96,11 +98,11 @@ public final class CouponFixedDiscountingMethod {
    * @param curves The curve bundle.
    * @return The sensitivity.
    */
-  public StringAmount presentValueParallelCurveSensitivity(CouponFixed cpn, YieldCurveBundle curves) {
+  public StringAmount presentValueParallelCurveSensitivity(final CouponFixed cpn, final YieldCurveBundle curves) {
     final String curveName = cpn.getFundingCurveName();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = cpn.getPaymentTime();
-    double sensitivity = -time * cpn.getAmount() * discountingCurve.getDiscountFactor(time);
+    final double sensitivity = -time * cpn.getAmount() * discountingCurve.getDiscountFactor(time);
     return StringAmount.from(curveName, sensitivity);
   }
 

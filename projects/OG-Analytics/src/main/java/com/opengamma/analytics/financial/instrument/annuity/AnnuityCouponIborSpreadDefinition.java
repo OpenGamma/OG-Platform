@@ -223,7 +223,6 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _iborIndex.hashCode();
-    result = prime * result + _calendar.hashCode();
     return result;
   }
 
@@ -240,9 +239,6 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     }
     final AnnuityCouponIborSpreadDefinition other = (AnnuityCouponIborSpreadDefinition) obj;
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

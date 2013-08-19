@@ -1,20 +1,24 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.building;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Function computing the error of valuation produce by a array representing the curve parameters. 
+ * Function computing the error of valuation produce by a array representing the curve parameters.
  * The meaning of value is given by a calculator (usually present value or par spread).
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated. Use classes such as
+ * {@link MulticurveDiscountBuildingRepository}.
  */
+@Deprecated
 public class MultipleYieldCurveFinderGeneratorFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
   /**
@@ -27,7 +31,7 @@ public class MultipleYieldCurveFinderGeneratorFunction extends Function1D<Double
   private final MultipleYieldCurveFinderGeneratorDataBundle _data;
 
   /**
-   * Constructor. 
+   * Constructor.
    * @param calculator The instrument value calculator.
    * @param data The data required for curve building.
    */

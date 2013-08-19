@@ -1,13 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.method;
 
 /**
  * Calibration engine calibrating successively the instruments in the basket trough a root-finding process.
+ * @deprecated {@link SuccessiveRootFinderCalibrationObjective} is deprecated
  */
+@Deprecated
 public abstract class SuccessiveRootFinderCalibrationEngine extends CalibrationEngine {
 
   /**

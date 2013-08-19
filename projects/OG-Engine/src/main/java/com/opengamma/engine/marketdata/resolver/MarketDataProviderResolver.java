@@ -17,11 +17,12 @@ import com.opengamma.util.PublicSPI;
 public interface MarketDataProviderResolver {
 
   /**
-   * Resolves a {@link MarketDataSpecification} into a {@link MarketDataProvider} which is able to work with the specification.
+   * Resolves a {@link MarketDataSpecification} into a {@link MarketDataProvider} which is able to work with the
+   * specification.
    * 
    * @param marketDataUser the market data user any subscriptions should be made from
    * @param snapshotSpec the snapshot specification for which a provider is required, not null
-   * @return the resolved snapshot provider
+   * @return the resolved snapshot provider or null if a provider can't be resolved
    */
   MarketDataProvider resolve(UserPrincipal marketDataUser, MarketDataSpecification snapshotSpec);
 

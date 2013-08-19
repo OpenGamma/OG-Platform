@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -27,7 +27,7 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentIndex = new ArrayList<>();
 
   /**
    * The calibration objective.
@@ -38,7 +38,7 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveRootFinderLMMDDCalibrationEngine(SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
+  public SuccessiveRootFinderLMMDDCalibrationEngine(final SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
     super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
     _calibrationObjective = calibrationObjective;
     _instrumentIndex.add(0);
@@ -56,7 +56,7 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
     getMethod().add(calculator);
     getCalibrationPrices().add(0.0);
     if (instrument instanceof SwaptionPhysicalFixedIbor) {
-      SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
+      final SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
       _instrumentIndex.add(Arrays.binarySearch(((SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective).getLMMParameters().getIborTime(), swaption.getUnderlyingSwap()
           .getSecondLeg().getNthPayment(swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments() - 1).getPaymentTime()));
     }
@@ -77,21 +77,21 @@ public class SuccessiveRootFinderLMMDDCalibrationEngine<DATA_TYPE extends Parame
    */
   @Override
   public void addInstrument(final InstrumentDerivative[] instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
-    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      addInstrument(instrument[loopinstrument], calculator);
+    for (final InstrumentDerivative element : instrument) {
+      addInstrument(element, calculator);
     }
   }
 
   @Override
-  public void calibrate(DATA_TYPE data) {
+  public void calibrate(final DATA_TYPE data) {
     computeCalibrationPrice(data);
     _calibrationObjective.setMulticurves(data.getMulticurveProvider());
-    int nbInstruments = getBasket().size();
-    SuccessiveRootFinderLMMDDCalibrationObjective objective = (SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective;
+    final int nbInstruments = getBasket().size();
+    final SuccessiveRootFinderLMMDDCalibrationObjective objective = (SuccessiveRootFinderLMMDDCalibrationObjective) _calibrationObjective;
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(_calibrationObjective.getFunctionValueAccuracy(), _calibrationObjective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      InstrumentDerivative instrument = getBasket().get(loopins);
+      final InstrumentDerivative instrument = getBasket().get(loopins);
       _calibrationObjective.setInstrument(instrument);
       objective.setStartIndex(_instrumentIndex.get(loopins));
       objective.setEndIndex(_instrumentIndex.get(loopins + 1) - 1);

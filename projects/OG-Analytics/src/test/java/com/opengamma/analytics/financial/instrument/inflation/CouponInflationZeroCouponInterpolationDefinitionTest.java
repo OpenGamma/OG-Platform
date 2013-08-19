@@ -56,10 +56,6 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   final static double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1.0) / PAYMENT_DATE.toLocalDate().lengthOfMonth();
   private static final CouponInflationZeroCouponInterpolationDefinition ZERO_COUPON_DEFINITION = new CouponInflationZeroCouponInterpolationDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE,
       1.0, NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_MAY_2008, REFERENCE_END_DATE, WEIGHT, false);
-  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final String PRICE_INDEX_CURVE_NAME = "Price index";
-  private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME };
-  //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final DoubleTimeSeries<ZonedDateTime> HICPX_TS = MulticurveProviderDiscountDataSets.euroHICPXFrom2009();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -215,7 +211,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   @Test
   public void toDerivativesNoData() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 7, 29);
-    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
+    final Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate);
     final double paymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(pricingDate, REFERENCE_END_DATE[0]);
@@ -234,10 +230,10 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
             128.23, 128.43 });
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponInterpolated = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
         INDEX_MAY_2008, MONTH_LAG, MONTH_LAG, false);
-    final Coupon zeroCouponConverted = zeroCouponInterpolated.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
+    final Coupon zeroCouponConverted = zeroCouponInterpolated.toDerivative(pricingDate, priceIndexTS);
     final double paymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
     final double endIndex = 128.23 + (PAYMENT_DATE.getDayOfMonth() - 1.0) / (PAYMENT_DATE.toLocalDate().lengthOfMonth()) * (128.43 - 128.23);
-    final CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, endIndex / INDEX_MAY_2008 - 1.0);
+    final CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, 1.0, NOTIONAL, endIndex / INDEX_MAY_2008 - 1.0);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 
@@ -249,7 +245,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
             128.03, 128.23 });
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponInterpolated = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
         INDEX_MAY_2008, MONTH_LAG, MONTH_LAG, false);
-    final Coupon zeroCouponConverted = zeroCouponInterpolated.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
+    final Coupon zeroCouponConverted = zeroCouponInterpolated.toDerivative(pricingDate, priceIndexTS);
     final double paymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[0], pricingDate);
@@ -268,7 +264,7 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
             128.03, 128.23 });
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponInterpolated = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
         INDEX_MAY_2008, MONTH_LAG, MONTH_LAG, false);
-    final Coupon zeroCouponConverted = zeroCouponInterpolated.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
+    final Coupon zeroCouponConverted = zeroCouponInterpolated.toDerivative(pricingDate, priceIndexTS);
     final double paymentTime = TimeCalculator.getTimeBetween(pricingDate, PAYMENT_DATE);
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = -TimeCalculator.getTimeBetween(REFERENCE_END_DATE[0], pricingDate);

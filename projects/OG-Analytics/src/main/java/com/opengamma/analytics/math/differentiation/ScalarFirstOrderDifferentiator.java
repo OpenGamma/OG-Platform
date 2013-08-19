@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.differentiation;
@@ -92,8 +92,9 @@ public class ScalarFirstOrderDifferentiator implements Differentiator<Double, Do
             return (function.evaluate(x) - function.evaluate(x - _eps)) / _eps;
           }
         };
+      default:
+        throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
     }
-    throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
   }
 
   @Override

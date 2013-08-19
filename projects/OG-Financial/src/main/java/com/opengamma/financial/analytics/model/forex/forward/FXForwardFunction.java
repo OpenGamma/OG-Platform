@@ -39,6 +39,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -48,8 +49,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for FX forward functions
+ * @deprecated Use {@link DiscountingFunction}
  */
+@Deprecated
 public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardFunction.class);
   /**
@@ -120,7 +123,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
   //TODO clumsy. Push the execute() method down into the functions and have getForward() and getData() methods
   /**
    * Performs the calculation.
-   * 
+   *
    * @param fxForward The FX forward
    * @param data The yield curve data
    * @param target The computation target
@@ -217,7 +220,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the general result properties.
-   * 
+   *
    * @param target The target
    * @return The result properties
    */
@@ -225,7 +228,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the result properties with curve information set.
-   * 
+   *
    * @param target The target
    * @param payCurve The name of the pay curve
    * @param payCurveCalculationConfig The name of the pay curve calculation configuration
@@ -239,7 +242,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the result properties.
-   * 
+   *
    * @param target The target
    * @param desiredValue The desired value
    * @return The result properties
@@ -248,7 +251,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the value requirement name.
-   * 
+   *
    * @return The value requirement name
    */
   protected String getValueRequirementName() {
@@ -257,7 +260,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the pay curve.
-   * 
+   *
    * @param inputs The function inputs
    * @param currency The pay currency
    * @param curveName The pay curve name
@@ -275,7 +278,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Gets the receive curve.
-   * 
+   *
    * @param inputs The function inputs
    * @param currency The receive currency
    * @param curveName The receive curve name

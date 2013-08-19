@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.provider.calculator.issuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -43,6 +45,7 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
    */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
+  private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -56,6 +59,11 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
   @Override
   public Double visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.parSpread(bill, issuercurves);
+  }
+
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuercurves) {
+    return METHOD_BOND_TR.parSpread(bond, issuercurves);
   }
 
 }

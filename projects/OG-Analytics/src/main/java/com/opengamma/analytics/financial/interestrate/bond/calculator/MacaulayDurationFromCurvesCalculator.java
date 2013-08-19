@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
@@ -14,7 +14,9 @@ import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDi
 
 /**
  * Calculate Macaulay duration for bonds.
+ * @deprecated Use {@link com.opengamma.analytics.financial.provider.calculator.issuer.MacaulayDurationFromCurvesCalculator}
  */
+@Deprecated
 public final class MacaulayDurationFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

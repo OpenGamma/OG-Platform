@@ -30,6 +30,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
   
   private static final Set<String> TENOR_LABELLED_TIME_SERIES_MATRIX_1D_VALUE_NAMES = ImmutableSet.of(
       ValueRequirementNames.YIELD_CURVE_PNL_SERIES,
+      ValueRequirementNames.CURVE_PNL_SERIES,
       ValueRequirementNames.YIELD_CURVE_RETURN_SERIES);
 
   public static boolean isDisplayableInline(Class<?> type, ColumnSpecification spec) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -56,9 +56,6 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   // Swaption description
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2014, 3, 18);
@@ -80,21 +77,21 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_PAYER_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_RECEIVER_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
   // to derivatives
-  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER = SWAPTION_LONG_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_LONG_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_SHORT_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_SHORT_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER = SWAPTION_LONG_PAYER_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_LONG_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_SHORT_PAYER_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_SHORT_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final double HIGH_STRIKE = 0.10;
   private static final SwapFixedIborDefinition SWAP_PAYER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, HIGH_STRIKE, FIXED_IS_PAYER);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_HIGH_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, HIGH_STRIKE, !FIXED_IS_PAYER);
-  private static final SwapFixedCoupon<Coupon> SWAP_PAYER_HIGH = SWAP_PAYER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFixedCoupon<Coupon> SWAP_PAYER_HIGH = SWAP_PAYER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_LONG_PAYER_HIGH_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_HIGH_DEFINITION, IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_PAYER_HIGH_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_HIGH_DEFINITION, !IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_LONG_RECEIVER_HIGH_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_HIGH_DEFINITION, IS_LONG);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER_HIGH = SWAPTION_LONG_PAYER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER_HIGH = SWAPTION_SHORT_PAYER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER_HIGH = SWAPTION_LONG_RECEIVER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER_HIGH = SWAPTION_LONG_PAYER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER_HIGH = SWAPTION_SHORT_PAYER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER_HIGH = SWAPTION_LONG_RECEIVER_HIGH_DEFINITION.toDerivative(REFERENCE_DATE);
   // Extrapolation
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
   private static final double CUT_OFF_STRIKE = 0.08;
@@ -145,9 +142,9 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final SwaptionPhysicalFixedIborDefinition swaptionDefinitionLongPayerHighStrike = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapPayerHighStrike, IS_LONG);
     final SwaptionPhysicalFixedIborDefinition swaptionDefinitionShortPayerHighStrike = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapPayerHighStrike, !IS_LONG);
     final SwaptionPhysicalFixedIborDefinition swaptionDefinitionLongReceiverHighStrike = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapReceiverHighStrike, IS_LONG);
-    final SwaptionPhysicalFixedIbor swaptionLongPayerHighStrike = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, NOT_USED_A);
-    final SwaptionPhysicalFixedIbor swaptionShortPayerHighStrike = swaptionDefinitionShortPayerHighStrike.toDerivative(REFERENCE_DATE, NOT_USED_A);
-    final SwaptionPhysicalFixedIbor swaptionLongReceiverHighStrike = swaptionDefinitionLongReceiverHighStrike.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final SwaptionPhysicalFixedIbor swaptionLongPayerHighStrike = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE);
+    final SwaptionPhysicalFixedIbor swaptionShortPayerHighStrike = swaptionDefinitionShortPayerHighStrike.toDerivative(REFERENCE_DATE);
+    final SwaptionPhysicalFixedIbor swaptionLongReceiverHighStrike = swaptionDefinitionLongReceiverHighStrike.toDerivative(REFERENCE_DATE);
     final MultipleCurrencyAmount priceLongPayer = METHOD_SABR_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, SABR_MULTICURVES);
     final MultipleCurrencyAmount priceShortPayer = METHOD_SABR_EXTRAPOLATION.presentValue(swaptionShortPayerHighStrike, SABR_MULTICURVES);
     final MultipleCurrencyAmount priceLongReceiver = METHOD_SABR_EXTRAPOLATION.presentValue(swaptionLongReceiverHighStrike, SABR_MULTICURVES);

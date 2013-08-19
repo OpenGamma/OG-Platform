@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.inflation.method;
@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolationWithMargin;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationConvexityAdjustmentProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -37,9 +36,9 @@ public class CouponInflationYearOnYearInterpolationWithMarginConvexityAdjustment
    * @return The net amount.
    */
 
-  public MultipleCurrencyAmount netAmount(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
+  public MultipleCurrencyAmount netAmount(final CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflation, "Inflation");
     final double estimatedIndexStart = indexEstimationStart(coupon, inflation);
     final double estimatedIndexEnd = indexEstimationEnd(coupon, inflation);
     final double convexityAdjustment = CONVEXITY_ADJUSTMENT_FUNCTION.getYearOnYearConvexityAdjustment(coupon, inflation);
@@ -53,9 +52,9 @@ public class CouponInflationYearOnYearInterpolationWithMarginConvexityAdjustment
    * @param inflation The inflation provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
+  public MultipleCurrencyAmount presentValue(final CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflation, "Inflation");
     final double discountFactor = inflation.getInflationProvider().getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     return netAmount(coupon, inflation).multipliedBy(discountFactor);
   }
@@ -66,7 +65,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginConvexityAdjustment
    * @param inflation The inflation provider.
    * @return The estimated index for the reference start date.
    */
-  public double indexEstimationStart(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
+  public double indexEstimationStart(final CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
     final double estimatedIndexMonth0 = inflation.getInflationProvider().getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[0]);
     final double estimatedIndexMonth1 = inflation.getInflationProvider().getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[1]);
     return coupon.getWeightStart() * estimatedIndexMonth0 + (1 - coupon.getWeightStart()) * estimatedIndexMonth1;
@@ -79,7 +78,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginConvexityAdjustment
    * @param inflation The inflation provider.
    * @return The estimated index for the reference end date.
    */
-  public double indexEstimationEnd(CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
+  public double indexEstimationEnd(final CouponInflationYearOnYearInterpolationWithMargin coupon, final InflationConvexityAdjustmentProviderInterface inflation) {
     final double estimatedIndexMonth0 = inflation.getInflationProvider().getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
     final double estimatedIndexMonth1 = inflation.getInflationProvider().getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
     return coupon.getWeightEnd() * estimatedIndexMonth0 + (1 - coupon.getWeightEnd()) * estimatedIndexMonth1;
@@ -93,8 +92,8 @@ public class CouponInflationYearOnYearInterpolationWithMarginConvexityAdjustment
    */
   public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final CouponInflationYearOnYearInterpolationWithMargin coupon,
       final InflationConvexityAdjustmentProviderInterface inflation) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(inflation, "Inflation");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(inflation, "Inflation");
     final double estimatedIndexStartMonth0 = inflation.getInflationProvider().getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[0]);
     final double estimatedIndexStartMonth1 = inflation.getInflationProvider().getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceStartTime()[1]);
     final double estimatedIndexEndMonth0 = inflation.getInflationProvider().getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
@@ -112,12 +111,12 @@ public class CouponInflationYearOnYearInterpolationWithMarginConvexityAdjustment
     final double estimatedIndexEndMonth0bar = coupon.getWeightEnd() * estimatedIndexEndBar;
     final double estimatedIndexStartMonth1bar = (1 - coupon.getWeightStart()) * estimatedIndexStartBar;
     final double estimatedIndexStartMonth0bar = coupon.getWeightStart() * estimatedIndexStartBar;
-    final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
     resultMapDisc.put(inflation.getInflationProvider().getName(coupon.getCurrency()), listDiscounting);
-    final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<>();
+    final List<DoublesPair> listPrice = new ArrayList<>();
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[0], estimatedIndexEndMonth0bar));
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime()[1], estimatedIndexEndMonth1bar));
     listPrice.add(new DoublesPair(coupon.getReferenceStartTime()[0], estimatedIndexStartMonth0bar));

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -25,11 +25,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.FXUtils;
+import com.opengamma.financial.analytics.model.fx.FXForwardPointsCurrencyExposureFunction;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculates the currency exposure of an FX forward using FX forward rates directly.
+ * @deprecated Use {@link FXForwardPointsCurrencyExposureFunction}
  */
+@Deprecated
 public class FXForwardPointsMethodCurrencyExposureFunction extends FXForwardPointsMethodFunction {
   private static final ForexForwardPointsMethod CALCULATOR = ForexForwardPointsMethod.getInstance();
 

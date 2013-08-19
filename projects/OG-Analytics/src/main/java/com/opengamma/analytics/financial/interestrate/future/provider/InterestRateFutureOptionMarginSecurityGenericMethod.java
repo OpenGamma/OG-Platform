@@ -21,7 +21,7 @@ public abstract class InterestRateFutureOptionMarginSecurityGenericMethod<DATA_T
    * @param data The ParameterProviderInterface with the relevant data.
    * @return The security price.
    */
-  abstract double price(final InterestRateFutureOptionMarginSecurity security, final DATA_TYPE data);
+  public abstract double price(final InterestRateFutureOptionMarginSecurity security, final DATA_TYPE data);
 
   /**
    * Computes the option security price curve sensitivity. The future price is computed without convexity adjustment.
@@ -29,6 +29,6 @@ public abstract class InterestRateFutureOptionMarginSecurityGenericMethod<DATA_T
    * @param data The ParameterProviderInterface with the relevant data.
    * @return The security price curve sensitivity.
    */
-  abstract MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final DATA_TYPE data);
+  public abstract MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final DATA_TYPE data);
 
 }

@@ -50,7 +50,9 @@ import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests related to the Black world pricing method for single barrier Forex option.
+ * @deprecated This class tests deprecated code
  */
+@Deprecated
 public class ForexOptionSingleBarrierBlackMethodTest {
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -79,8 +81,6 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final double[] DELTA = new double[] {0.10, 0.25 };
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050 }, {-0.011, -0.0060 }, {-0.012, -0.0070 }, {-0.013, -0.0080 }, {-0.014, -0.0090 } };
   private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100 }, {0.0310, 0.0110 }, {0.0320, 0.0120 }, {0.0330, 0.0130 }, {0.0340, 0.0140 } };
-  //private static final double[][] RISK_REVERSAL = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
-  //private static final double[][] STRANGLE = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
 
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
@@ -211,7 +211,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double rateForeign = CURVES.getCurve(CURVES_NAME[0]).getInterestRate(payTime);
     final double costOfCarry = rateDomestic - rateForeign;
     final double forward = SPOT * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
     final double priceComputed = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER_KI, REBATE / NOTIONAL, SPOT, costOfCarry, rateDomestic, volatility) * NOTIONAL;
     assertEquals("Barriers present value", priceComputed, priceMethod.getAmount(USD), 1.0E-2);
   }
@@ -327,7 +327,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(payTime);
     //    final double costOfCarry = rateDomestic - rateForeign;
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
     final double rebateByForeignUnit = REBATE / Math.abs(NOTIONAL);
     // Finite difference
     final double deltaShift = 0.00001; // 0.1 bp
@@ -395,7 +395,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double forward = SPOT * dfForeign / dfDomestic;
     final double rateDomestic = CURVES.getCurve(CURVES_NAME[1]).getInterestRate(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
     final double rateForeign = CURVES.getCurve(CURVES_NAME[0]).getInterestRate(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
-    final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, STRIKE, forward));
     final double[] derivatives = new double[5];
     BLACK_BARRIER_FUNCTION.getPriceAdjoint(VANILLA_LONG, BARRIER_KI, REBATE / NOTIONAL, SPOT, rateDomestic - rateForeign, rateDomestic, volatility, derivatives);
     assertEquals("Forex vanilla option: vega", derivatives[4] * NOTIONAL, sensi.getVega().getMap().get(point));
@@ -534,17 +534,16 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double d2PdSdsig10 = METHOD_BARRIER.d2PriceDSpotDVolFD(BARRIER_SHORT, SMILE_BUNDLE, tenbp).getAmount();
     final double d2PdSdsig100 = METHOD_BARRIER.d2PriceDSpotDVolFD(BARRIER_SHORT, SMILE_BUNDLE, 0.01).getAmount();
     final double d2PdSdsig1 = METHOD_BARRIER.d2PriceDSpotDVolFD(BARRIER_SHORT, SMILE_BUNDLE, 0.0001).getAmount();
-    assertTrue(true);
   }
 
   @Test
   /**
    * For the three key 2nd order sensitivities: Gamma, Vomma and Vanna, Finite Difference is used.
    * The tests below check the methods. <p>
-   * 
+   *
    * There are tests below that compare computing Gamma and Vomma via 2nd order approximations of price to 1st order approximations of the 1st order greek - delta, vega respectively.
    * This works well for the one-dimensional sensitivities above, but not well at all for the cross-derivative, Vanna. Comparison below, and in test above.
-   * 
+   *
    */
   public void testOfFiniteDifferenceMethods() {
     final ForexOptionSingleBarrier optionForex = OPTION_BARRIER;

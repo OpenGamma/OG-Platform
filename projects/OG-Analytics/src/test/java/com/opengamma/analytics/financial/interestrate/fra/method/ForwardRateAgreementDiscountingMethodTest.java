@@ -43,7 +43,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the ForwardRateAgreement discounting method.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class ForwardRateAgreementDiscountingMethodTest {
   // Index
   private static final Period TENOR = Period.ofMonths(3);

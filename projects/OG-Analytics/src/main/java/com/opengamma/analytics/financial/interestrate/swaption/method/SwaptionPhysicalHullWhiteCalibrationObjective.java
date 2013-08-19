@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -15,10 +15,13 @@ import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinde
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Specific objective function for Hull-White model calibration with swaptions.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class SwaptionPhysicalHullWhiteCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
 
   /**
@@ -43,11 +46,12 @@ public class SwaptionPhysicalHullWhiteCalibrationObjective extends SuccessiveRoo
   private AnnuityPaymentFixed _cfe;
 
   /**
-   * Constructor of the objective function with the Hull-White parameters. The parameters range and accuracy are set at some default value 
+   * Constructor of the objective function with the Hull-White parameters. The parameters range and accuracy are set at some default value
    * (minimum: 1.0E-6; maximum: 1.0, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
    * @param parameters The Hull-White parameters.
    */
   public SwaptionPhysicalHullWhiteCalibrationObjective(final HullWhiteOneFactorPiecewiseConstantParameters parameters) {
+    ArgumentChecker.notNull(parameters, "parameters");
     _hwParameters = parameters;
     setMinimumParameter(1.0E-6);
     setMaximumParameter(1.0);

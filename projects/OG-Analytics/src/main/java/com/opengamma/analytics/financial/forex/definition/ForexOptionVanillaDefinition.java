@@ -93,7 +93,9 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
 
   /**
    * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public ForexOptionVanilla toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -43,6 +43,10 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * @deprecated This class tests deprecated code
+ */
+@Deprecated
 public class ForexOptionVanillaVannaVolgaMethodTest {
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

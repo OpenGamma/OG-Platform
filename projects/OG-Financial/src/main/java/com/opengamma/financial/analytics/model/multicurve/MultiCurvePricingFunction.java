@@ -10,9 +10,12 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_C
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
 import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -20,11 +23,13 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -36,12 +41,17 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
+import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -52,12 +62,21 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.Currency;
 
 /**
  * Base function for all multi-curve pricing and risk functions.
@@ -89,10 +108,17 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
+    final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
+    final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter)
+        .deliverableSwapFutureSecurityVisitor(dsfConverter)
         .fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter).create();
+        .swapSecurityVisitor(swapConverter)
+        .fxForwardVisitor(fxForwardSecurityConverter)
+        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter)
+        .create();
     final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
         regionSource);
     return new TradeConverter(futureTradeConverter, securityConverter);
@@ -138,7 +164,18 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
       final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
       final InstrumentDerivative derivative = getDerivative(target, now, timeSeries, definition);
-      return getValues(inputs, target, desiredValues, derivative);
+      final FXMatrix fxMatrix = new FXMatrix();
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(target.getTrade().getSecurity(), securitySource);
+      final Iterator<Currency> iter = currencies.iterator();
+      final Currency initialCurrency = iter.next();
+      while (iter.hasNext()) {
+        final Currency otherCurrency = iter.next();
+        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
+            CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+        fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+      }
+      return getValues(executionContext, inputs, target, desiredValues, derivative, fxMatrix);
     }
 
     @Override
@@ -148,7 +185,13 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      return target.getTrade().getSecurity() instanceof FinancialSecurity;
+      final Security security = target.getTrade().getSecurity();
+      return security instanceof CashSecurity ||
+          security instanceof FRASecurity ||
+          security instanceof SwapSecurity ||
+          security instanceof FXForwardSecurity ||
+          security instanceof NonDeliverableFXForwardSecurity ||
+          security instanceof InterestRateFutureSecurity;
     }
 
     @Override
@@ -168,32 +211,33 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         return null;
       }
       final Set<String> curveExposureConfigs = constraints.getValues(CURVE_EXPOSURES);
-      final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
-      final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-      final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-      final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource);
-      final ConfigDBCurveConstructionConfigurationSource constructionConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
-      final Set<ValueRequirement> requirements = new HashSet<>();
-      final ValueProperties.Builder commonCurveProperties = getCurveProperties(target, constraints);
-      for (final String curveExposureConfig : curveExposureConfigs) {
-        final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
-        for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
-          final ValueProperties properties = commonCurveProperties.with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationNames).get();
-          requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
-          requirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
-          final CurveConstructionConfiguration curveConstructionConfiguration = constructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
-          final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
-          for (final String curveName : curveNames) {
-            final ValueProperties curveProperties = ValueProperties.builder()
-                .with(CURVE, curveName)
-                .get();
-            requirements.add(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, curveProperties));
+      try {
+        final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
+        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+        final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+        final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource);
+        final ConfigDBCurveConstructionConfigurationSource constructionConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
+        final Set<ValueRequirement> requirements = new HashSet<>();
+        final ValueProperties.Builder commonCurveProperties = getCurveProperties(target, constraints);
+        for (final String curveExposureConfig : curveExposureConfigs) {
+          final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+          for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
+            final ValueProperties properties = commonCurveProperties.get().copy().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
+            requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+            requirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
+            final CurveConstructionConfiguration curveConstructionConfiguration = constructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
+            final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
+            for (final String curveName : curveNames) {
+              final ValueProperties curveProperties = ValueProperties.builder()
+                  .with(CURVE, curveName)
+                  .get();
+              requirements.add(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, curveProperties));
+              requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, ValueProperties.with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationNames).get()));
+            }
           }
         }
-      }
-      try {
-        final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
-        final Set<ValueRequirement> timeSeriesRequirements = getConversionTimeSeriesRequirements(context, target, definition);
+        requirements.addAll(getFXRequirements(security, securitySource));
+        final Set<ValueRequirement> timeSeriesRequirements = getTimeSeriesRequirements(context, target);
         if (timeSeriesRequirements == null) {
           return null;
         }
@@ -203,6 +247,40 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         s_logger.error(e.getMessage());
         return null;
       }
+    }
+
+    /**
+     * Gets the FX spot requirements for a security.
+     * @param security The security, not null
+     * @param securitySource The security source, not null
+     * @return A set of FX spot requirements
+     */
+    protected Set<ValueRequirement> getFXRequirements(final FinancialSecurity security, final SecuritySource securitySource) {
+      final Set<ValueRequirement> requirements = new HashSet<>();
+      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, securitySource);
+      if (currencies.size() > 1) {
+        final Iterator<Currency> iter = currencies.iterator();
+        final Currency initialCurrency = iter.next();
+        while (iter.hasNext()) {
+          requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(iter.next(), initialCurrency))));
+        }
+      }
+      return requirements;
+    }
+
+    /**
+     * Gets the fixing or market close time series requirements for a security.
+     * @param context The compilation context, not null
+     * @param target The target
+     * @return A set of fixing / market close time series requirements
+     */
+    protected Set<ValueRequirement> getTimeSeriesRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
+      final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
+      final Set<ValueRequirement> timeSeriesRequirements = getConversionTimeSeriesRequirements(context, target, definition);
+      if (timeSeriesRequirements == null) {
+        return null;
+      }
+      return timeSeriesRequirements;
     }
 
     /**
@@ -272,13 +350,15 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Calculates the result.
+     * @param executionContext The execution context, not null
      * @param inputs The inputs, not null
      * @param target The target, not null
      * @param desiredValues The desired values for this function, not null
      * @param derivative The derivative, not null
+     * @param fxMatrix The FX matrix, not null
      * @return The results
      */
-    protected abstract Set<ComputedValue> getValues(FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
-        InstrumentDerivative derivative);
+    protected abstract Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs,
+        ComputationTarget target, Set<ValueRequirement> desiredValues, InstrumentDerivative derivative, FXMatrix fxMatrix);
   }
 }

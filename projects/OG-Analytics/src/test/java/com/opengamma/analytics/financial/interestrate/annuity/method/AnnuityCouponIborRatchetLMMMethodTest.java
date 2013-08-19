@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity.method;
@@ -43,7 +43,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the Libor Market Model method for Annuity on Ibor Ratchet.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class AnnuityCouponIborRatchetLMMMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");

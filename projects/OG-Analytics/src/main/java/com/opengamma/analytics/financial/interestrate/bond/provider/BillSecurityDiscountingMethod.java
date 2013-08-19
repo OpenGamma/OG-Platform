@@ -66,7 +66,7 @@ public final class BillSecurityDiscountingMethod {
    * @return The price.
    */
   public double priceFromYield(final BillSecurity bill, final double yield) {
-    return priceFromYield(bill.getYieldConvention(), yield, bill.getAccralFactor());
+    return priceFromYield(bill.getYieldConvention(), yield, bill.getAccrualFactor());
   }
 
   /**
@@ -94,10 +94,10 @@ public final class BillSecurityDiscountingMethod {
    */
   public double yieldFromPrice(final BillSecurity bill, final double price) {
     if (bill.getYieldConvention() == SimpleYieldConvention.DISCOUNT) {
-      return (1.0 - price) / bill.getAccralFactor();
+      return (1.0 - price) / bill.getAccrualFactor();
     }
     if (bill.getYieldConvention() == SimpleYieldConvention.INTERESTATMTY) {
-      return (1.0 / price - 1) / bill.getAccralFactor();
+      return (1.0 / price - 1) / bill.getAccrualFactor();
     }
     throw new UnsupportedOperationException("The convention " + bill.getYieldConvention().getConventionName() + " is not supported.");
   }
@@ -110,10 +110,10 @@ public final class BillSecurityDiscountingMethod {
    */
   public double yieldFromPriceDerivative(final BillSecurity bill, final double price) {
     if (bill.getYieldConvention() == SimpleYieldConvention.DISCOUNT) {
-      return -1.0 / bill.getAccralFactor();
+      return -1.0 / bill.getAccrualFactor();
     }
     if (bill.getYieldConvention() == SimpleYieldConvention.INTERESTATMTY) {
-      return -1.0 / (price * price * bill.getAccralFactor());
+      return -1.0 / (price * price * bill.getAccrualFactor());
     }
     throw new UnsupportedOperationException("The convention " + bill.getYieldConvention().getConventionName() + " is not supported.");
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity.issuer;
@@ -67,7 +67,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
     final MultipleCurrencyAmount pvInit = instrument.accept(_valueCalculator, issuercurves);
     final MultipleCurrencyAmount pvInitMinus = pvInit.multipliedBy(-1.0);
     final int nbCcy = pvInit.size();
-    final List<Currency> ccyList = new ArrayList<Currency>();
+    final List<Currency> ccyList = new ArrayList<>();
     for (int loopccy = 0; loopccy < nbCcy; loopccy++) {
       ccyList.add(pvInit.getCurrencyAmounts()[loopccy].getCurrency());
     }
@@ -94,7 +94,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
       }
       final String name = issuercurves.getMulticurveProvider().getName(ccy);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward ON
@@ -120,7 +120,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
       }
       final String name = issuercurves.getMulticurveProvider().getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward Ibor
@@ -146,7 +146,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
       }
       final String name = issuercurves.getMulticurveProvider().getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Discounting issuer
@@ -172,7 +172,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
       }
       final String name = issuercurves.getName(ic);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(new ObjectsPair<>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     return result;

@@ -127,7 +127,9 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
 
   /**
    * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public ForexOptionDigital toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -149,7 +151,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
     return new ForexOptionDigital(fx, expirationTime, _isCall, _isLong, _payDomestic);
   }
-  
+
   /**
    * {@inheritDoc}
    */

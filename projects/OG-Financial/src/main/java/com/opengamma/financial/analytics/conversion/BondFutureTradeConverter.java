@@ -5,20 +5,19 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Converts a bond future trade to a {@link BondFutureDefinition}
  */
 public class BondFutureTradeConverter {
   private final BondFutureSecurityConverter _securityConverter;
 
   public BondFutureTradeConverter(final BondFutureSecurityConverter securityConverter) {
-    Validate.notNull(securityConverter, "security converter");
+    ArgumentChecker.notNull(securityConverter, "security converter");
     _securityConverter = securityConverter;
   }
 
@@ -30,8 +29,8 @@ public class BondFutureTradeConverter {
    */
   // TODO Consider extending the function arguments to allow dynamic treatment of the reference price of the future.
   public BondFutureDefinition convert(final Trade trade) {
-    Validate.notNull(trade, "trade");
-    Validate.isTrue(trade.getSecurity() instanceof BondFutureSecurity, "Can only handle trades with security type BondFutureSecurity");
+    ArgumentChecker.notNull(trade, "trade");
+    ArgumentChecker.isTrue(trade.getSecurity() instanceof BondFutureSecurity, "Can only handle trades with security type BondFutureSecurity");
     final BondFutureDefinition underlyingFuture = (BondFutureDefinition) ((BondFutureSecurity) trade.getSecurity()).accept(_securityConverter);
     return underlyingFuture;
   }

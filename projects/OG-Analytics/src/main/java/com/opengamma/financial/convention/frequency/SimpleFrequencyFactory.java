@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.joda.convert.FromString;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -40,6 +42,25 @@ public final class SimpleFrequencyFactory {
    */
   private final List<SimpleFrequency> _frequencies = Lists.newArrayList();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static SimpleFrequency of(final String name) {
+    SimpleFrequency result = SimpleFrequencyFactory.INSTANCE.getFrequency(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown SimpleFrequency: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */

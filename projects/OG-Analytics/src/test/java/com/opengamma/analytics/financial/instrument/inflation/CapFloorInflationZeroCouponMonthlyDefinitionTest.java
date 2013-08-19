@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.inflation;
@@ -30,7 +30,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
 
@@ -53,13 +53,8 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
   private static final ZonedDateTime REFERENCE_START_DATE = ACCRUAL_START_DATE.minusMonths(MONTH_LAG).withDayOfMonth(1);
   private static final ZonedDateTime REFERENCE_END_DATE = PAYMENT_DATE.minusMonths(MONTH_LAG).withDayOfMonth(1);
   private static final double INDEX_START_VALUE = 100;
-  private static final double WEIGHT_START = 0.2;
-  private static final double WEIGHT_END = 0.8;
   private static final CapFloorInflationZeroCouponMonthlyDefinition ZERO_COUPON_CAP_DEFINITION = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
       ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
-  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final String PRICE_INDEX_CURVE_NAME = "Price index";
-  private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME };
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -132,7 +127,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
    */
   public void equalHash() {
     assertEquals(ZERO_COUPON_CAP_DEFINITION, ZERO_COUPON_CAP_DEFINITION);
-    CapFloorInflationZeroCouponMonthlyDefinition couponDuplicate = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+    final CapFloorInflationZeroCouponMonthlyDefinition couponDuplicate = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertEquals(ZERO_COUPON_CAP_DEFINITION, couponDuplicate);
     assertEquals(ZERO_COUPON_CAP_DEFINITION.hashCode(), couponDuplicate.hashCode());
@@ -183,26 +178,26 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
    * Tests the first based on indexation lag.
    */
   public void from() {
-    CapFloorInflationZeroCouponMonthlyDefinition constructor = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+    final CapFloorInflationZeroCouponMonthlyDefinition constructor = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, MATURITY, INDEX_START_VALUE, REFERENCE_END_DATE, STRIKE, IS_CAP);
 
-    CouponInflationZeroCouponMonthlyDefinition zeroCoupon = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+    final CouponInflationZeroCouponMonthlyDefinition zeroCoupon = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, INDEX_START_VALUE, REFERENCE_END_DATE, false);
-    CapFloorInflationZeroCouponMonthlyDefinition from = CapFloorInflationZeroCouponMonthlyDefinition.from(zeroCoupon, LAST_KNOWN_FIXING_DATE, MATURITY, STRIKE, IS_CAP);
+    final CapFloorInflationZeroCouponMonthlyDefinition from = CapFloorInflationZeroCouponMonthlyDefinition.from(zeroCoupon, LAST_KNOWN_FIXING_DATE, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon : from", constructor, from);
   }
 
   @Test
   public void toDerivativesNoData() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 7, 29);
-    Coupon zeroCouponConverted = ZERO_COUPON_CAP_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
+    final Coupon zeroCouponConverted = ZERO_COUPON_CAP_DEFINITION.toDerivative(pricingDate);
     //lastKnownFixingTime could be negatif so we don't use the dayfraction
     final double lastKnownFixingTime = TimeCalculator.getTimeBetween(pricingDate, LAST_KNOWN_FIXING_DATE);
     final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
     final double naturalPaymentPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_END_DATE);
 
-    CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
+    final CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
         INDEX_START_VALUE, referenceEndTime, naturalPaymentPaymentTime, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
@@ -214,14 +209,14 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
         DateUtils.getUTCDate(2017, 6, 1), DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1) },
         new double[] {
             127.23, 127.43, 128.23, 128.43 });
-    Coupon zeroCouponConverted = ZERO_COUPON_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
+    final Coupon zeroCouponConverted = ZERO_COUPON_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS);
     // lastKnownFixingTime could be negatif so we don't use the dayfraction
     final double lastKnownFixingTime = TimeCalculator.getTimeBetween(pricingDate, LAST_KNOWN_FIXING_DATE);
-    double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
+    final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
     final double naturalPaymentPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_END_DATE);
 
-    CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
+    final CapFloorInflationZeroCouponMonthly zeroCoupon = new CapFloorInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime,
         INDEX_START_VALUE, referenceEndTime, naturalPaymentPaymentTime, MATURITY, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
@@ -233,9 +228,9 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
         DateUtils.getUTCDate(2017, 6, 1), DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1) },
         new double[] {
             127.23, 127.43, 128.23, 128.43 });
-    Coupon zeroCouponConverted = ZERO_COUPON_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
-    double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
-    CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, Math.max(128.23 /
+    final Coupon zeroCouponConverted = ZERO_COUPON_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS);
+    final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
+    final CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, 1.0, NOTIONAL, Math.max(128.23 /
         INDEX_START_VALUE - 1.0 - Math.pow(1 + STRIKE, MATURITY), 0.0));
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }

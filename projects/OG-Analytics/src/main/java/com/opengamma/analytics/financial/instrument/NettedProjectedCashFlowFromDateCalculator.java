@@ -27,8 +27,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- *
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class NettedProjectedCashFlowFromDateCalculator {
   private static final NettedProjectedCashFlowFromDateCalculator INSTANCE = new NettedProjectedCashFlowFromDateCalculator();
   private static final PaymentsVisitor PAY_DATES = new PaymentsVisitor(true);
@@ -48,9 +49,9 @@ public final class NettedProjectedCashFlowFromDateCalculator {
    * @param date The date, not null
    * @param data The yield curves, not null
    * @return The projected netted cash flows as of a particular date
-   * @Deprecated Use the method that does not take yield curve names
    */
-  public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final String[] yieldCurveNames, final ZonedDateTime date, final YieldCurveBundle data) {
+  public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final String[] yieldCurveNames,
+      final ZonedDateTime date, final YieldCurveBundle data) {
     ArgumentChecker.notNull(instrument, "instrument");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(date, "date");
@@ -142,7 +143,7 @@ public final class NettedProjectedCashFlowFromDateCalculator {
     public List<ZonedDateTime> visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final ZonedDateTime date) {
       if (_isPay && swap.getIborLeg().isPayer() || !_isPay && !swap.getIborLeg().isPayer()) {
         final CouponIborDefinition[] coupons = swap.getIborLeg().getPayments();
-        final List<ZonedDateTime> payments = new ArrayList<ZonedDateTime>();
+        final List<ZonedDateTime> payments = new ArrayList<>();
         for (final CouponIborDefinition coupon : coupons) {
           if (!date.isBefore(coupon.getPaymentDate())) {
             payments.add(coupon.getPaymentDate());
@@ -156,7 +157,7 @@ public final class NettedProjectedCashFlowFromDateCalculator {
     public List<ZonedDateTime> visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final ZonedDateTime date) {
       if (_isPay && swap.getIborLeg().isPayer() || !_isPay && !swap.getIborLeg().isPayer()) {
         final PaymentDefinition[] coupons = swap.getIborLeg().getPayments();
-        final List<ZonedDateTime> payments = new ArrayList<ZonedDateTime>();
+        final List<ZonedDateTime> payments = new ArrayList<>();
         for (final PaymentDefinition coupon : coupons) {
           if (!date.isBefore(coupon.getPaymentDate())) {
             payments.add(coupon.getPaymentDate());
@@ -175,7 +176,7 @@ public final class NettedProjectedCashFlowFromDateCalculator {
       } else {
         payLeg = swap.getFirstLeg().isPayer() ? swap.getSecondLeg() : swap.getFirstLeg();
       }
-      final List<ZonedDateTime> payments = new ArrayList<ZonedDateTime>();
+      final List<ZonedDateTime> payments = new ArrayList<>();
       for (final PaymentDefinition coupon : payLeg.getPayments()) {
         if (!date.isBefore(coupon.getPaymentDate())) {
           payments.add(coupon.getPaymentDate());

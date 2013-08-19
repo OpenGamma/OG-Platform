@@ -17,7 +17,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the currency exposure for Forex derivatives.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class CurrencyExposureForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyAmount> {
 
   /**

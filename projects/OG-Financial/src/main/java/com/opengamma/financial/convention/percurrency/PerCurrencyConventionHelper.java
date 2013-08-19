@@ -17,6 +17,8 @@ public class PerCurrencyConventionHelper {
   public static final String SCHEME_NAME = "CONVENTION";
   /** Overnight Index string **/
   public static final String OVERNIGHT = "Overnight";
+  /** Ibor (interbank offered rate) index string **/
+  public static final String IBOR = "Ibor";
   /** Libor (London interbank offered rate) index string **/
   public static final String LIBOR = "Libor";
   /** Jibar (Johannesburg interbank agreed rate) index string */

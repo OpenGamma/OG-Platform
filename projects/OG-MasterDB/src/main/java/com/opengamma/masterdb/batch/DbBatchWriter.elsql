@@ -251,7 +251,13 @@
     
 @NAME(DeleteRiskFailure)
    DELETE FROM rsk_failure WHERE run_id = :run_id 
-    
+
+@NAME(InsertTargetProperties)
+  INSERT INTO rsk_target_property
+    (id, target_id, property_key, property_value)
+  VALUES
+    (:id, :target_id, :property_key, :property_value)
+
 -- ==========================================================================
 @NAME(SelectFromRunStatus)    
   SELECT 

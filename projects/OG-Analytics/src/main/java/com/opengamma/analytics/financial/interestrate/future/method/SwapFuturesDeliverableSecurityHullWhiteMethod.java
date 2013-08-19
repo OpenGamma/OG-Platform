@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCurveSen
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
+import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
@@ -22,7 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the price for an deliverable swap futures with convexity adjustment from a Hull-White one factor model.
  * <p> Reference: Henrard M., Deliverable Interest Rate Swap Futures: pricing in Gaussian HJM model, September 2012.
- * @deprecated Use the "provider" version
+ * @deprecated Use {@link SwapFuturesPriceDeliverableSecurityHullWhiteMethod}
  */
 @Deprecated
 public final class SwapFuturesDeliverableSecurityHullWhiteMethod {

@@ -60,8 +60,7 @@ public class CurveNodeWithIdentifierBuilderTest {
     rateFutureNodeIds.put(Tenor.TWO_MONTHS, new TestCurveInstrumentProvider(ExternalId.of("Test", "Future"), "Market_Value", DataFieldType.OUTRIGHT));
     swapNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "Swap"), "Swap Data", DataFieldType.POINTS));
     zeroCouponInflationNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "ZCI"), "ZC Data", DataFieldType.OUTRIGHT));
-    MAPPER = new CurveNodeIdMapper(cashNodeIds, continuouslyCompoundedRateIds, creditSpreadNodeIds,
-        discountFactorIds, fraNodeIds, fxForwardNodeIds, rateFutureNodeIds, swapNodeIds, zeroCouponInflationNodeIds);
+    MAPPER = CurveNodeIdMapper.builder().cashNodeIds(cashNodeIds).continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateIds).creditSpreadNodeIds(creditSpreadNodeIds).discountFactorNodeIds(discountFactorIds).fraNodeIds(fraNodeIds).fxForwardNodeIds(fxForwardNodeIds).rateFutureNodeIds(rateFutureNodeIds).swapNodeIds(swapNodeIds).zeroCouponInflationNodeIds(zeroCouponInflationNodeIds).build();
     BUILDER = new CurveNodeWithIdentifierBuilder(LocalDate.of(2013, 1, 1), MAPPER);
   }
 

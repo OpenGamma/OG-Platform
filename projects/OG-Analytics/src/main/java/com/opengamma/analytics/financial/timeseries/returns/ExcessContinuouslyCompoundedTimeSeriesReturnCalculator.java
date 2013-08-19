@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.returns;
@@ -51,6 +51,6 @@ public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends Time
     }
     final LocalDateDoubleTimeSeries assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(x[0], x[1]);
     final LocalDateDoubleTimeSeries referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(x[2], x[3]);
-    return (LocalDateDoubleTimeSeries) assetReturn.subtract(referenceReturn);
+    return assetReturn.subtract(referenceReturn);
   }
 }

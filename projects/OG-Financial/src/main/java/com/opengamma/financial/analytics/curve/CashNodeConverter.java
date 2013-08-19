@@ -31,7 +31,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Convert a cash node into an Instrument definition.
+ * The dates of the deposits are computed in the following way: 
+ * - The spot date is computed from the valuation date adding the "Settlement Days" (i.e. the number of business days) of the convention.
+ * - The start date is computed from the spot date adding the "StartTenor" of the node and using the business-day-convention, calendar and EOM of the convention.
+ * - The end date is computed from the start date adding the "MaturityTenor" of the node and using the business-day-convention, calendar and EOM of the convention.
+ * The deposit notional is 1.
  */
 public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
   /** The convention source */
@@ -92,7 +97,7 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       final DayCount dayCount = depositConvention.getDayCount();
       final int settlementDays = depositConvention.getSettlementDays();
       final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
-      final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar);
+      final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar, isEOM);
       final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityPeriod, businessDayConvention, calendar, isEOM);
       final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
       return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
@@ -104,10 +109,11 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       final boolean isEOM = iborConvention.isIsEOM();
       final DayCount dayCount = iborConvention.getDayCount();
       final int settlementDays = iborConvention.getSettlementDays();
-      final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(_valuationTime, startPeriod.plusDays(settlementDays), businessDayConvention, calendar);
+      final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
+      final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar, isEOM);
       final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityPeriod, businessDayConvention, calendar, isEOM);
       final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
-      final int spotLag = 0; //TODO
+      final int spotLag = iborConvention.getSettlementDays();
       final boolean eom = iborConvention.isIsEOM();
       final long months = maturityPeriod.toTotalMonths() - startPeriod.toTotalMonths();
       final Period indexTenor = Period.ofMonths((int) months);

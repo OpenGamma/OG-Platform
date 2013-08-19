@@ -45,9 +45,6 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
-
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final int SETTLEMENT_DAYS = 2;
@@ -69,8 +66,8 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 10);
 
-  private static final ForexNonDeliverableOption NDO = NDO_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  private static final ForexOptionVanilla FOREX_OPT = FOREX_OPT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
+  private static final ForexNonDeliverableOption NDO = NDO_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final ForexOptionVanilla FOREX_OPT = FOREX_OPT_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final ForexNonDeliverableOptionBlackSmileMethod METHOD_NDO = ForexNonDeliverableOptionBlackSmileMethod.getInstance();
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXO = ForexOptionVanillaBlackSmileMethod.getInstance();

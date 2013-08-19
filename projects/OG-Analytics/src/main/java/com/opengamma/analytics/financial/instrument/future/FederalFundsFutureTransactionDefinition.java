@@ -160,6 +160,12 @@ public class FederalFundsFutureTransactionDefinition implements InstrumentDefini
   }
 
   @Override
+  public String toString() {
+    final String result = "Quantity: " + _quantity + " of " + _underlyingFuture.toString();
+    return result;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
