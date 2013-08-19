@@ -65,7 +65,7 @@ public class FixedMarketDataAvailabilityProviderTest {
         new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("X", "1")))), fooSpec);
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class })
+  @Test()
   public void testAddMissing_byExternalId() {
     final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
     available.addMissingData(ExternalId.of("A", "1"), "Foo");
@@ -73,7 +73,7 @@ public class FixedMarketDataAvailabilityProviderTest {
     available.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "1"), new ValueRequirement("Foo", ComputationTargetSpecification.NULL));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class })
+  @Test()
   public void testAddMissing_byExternalIdBundle() {
     final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
     available.addMissingData(ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1")), "Foo");
@@ -82,7 +82,7 @@ public class FixedMarketDataAvailabilityProviderTest {
         ComputationTargetSpecification.NULL));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class })
+  @Test()
   public void testAddMissing_byUniqueId() {
     final FixedMarketDataAvailabilityProvider available = new FixedMarketDataAvailabilityProvider();
     final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("X", "1"));

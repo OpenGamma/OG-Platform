@@ -52,7 +52,8 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
 
     public ValueSpecification getAvailability(final ValueRequirement desiredValue) {
       if ((_missing != null) && _missing.contains(desiredValue.getValueName())) {
-        throw new MarketDataNotSatisfiableException(desiredValue);
+        return new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetReference().getSpecification(), 
+            ValueProperties.with(ValuePropertyNames.FUNCTION, MarketDataSourcingFunction.UNIQUE_ID).get());
       }
       final Set<ValueSpecification> specs = get(desiredValue.getValueName());
       if (specs != null) {
@@ -264,7 +265,9 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
     removeAvailableData(valueSpecification.getTargetSpecification(), valueSpecification);
   }
-
+  
+  
+  
   protected void addMissingData(final ComputationTargetSpecification target, final String valueName) {
     TargetData data = _strictIndex.get(target);
     if (data == null) {
@@ -279,6 +282,13 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
     }
   }
 
+  public void addMissingData(final ValueSpecification valueSpecification) {
+    ArgumentChecker.notNull(valueSpecification, "value specification");
+    final ComputationTargetSpecification target = valueSpecification.getTargetSpecification();
+    addMissingData(target, valueSpecification.getValueName());
+    // Creating the target specification updated the weak index
+  }
+  
   public void addMissingData(final ExternalId identifier, final String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
