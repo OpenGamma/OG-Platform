@@ -31,12 +31,22 @@ public class PerCurrencyConventionHelper {
   public static final String FRA = "FRA";
   /** OIS fixed leg convention string **/
   public static final String OIS_FIXED_LEG = "OIS Fixed Leg";
-  /** OIS float leg convention string **/
-  public static final String OIS_ON_LEG = "OIS Overnight Leg";
   /** IRS fixed leg convention string **/
   public static final String IRS_FIXED_LEG = "IRS Fixed Leg";
+  /** IRS fixed leg convention string **/
+  public static final String FIXED_LEG = "Fixed Leg";
+  /** OIS float leg convention string **/
+  public static final String OIS_ON_LEG = "OIS Overnight Leg";
+  /** Overnight with composition, i.e. OIS-like **/
+  public static final String ON_CMP_LEG = "ON Comp Leg";
+  /** Overnight with arithmetic average, i.e. FF-like **/
+  public static final String ON_AA_LEG = "ON AA Leg";
+  /** Suffix to indicate that a leg as a unnatural payment lag to match the other leg. **/
+  public static final String PAY_LAG = "Pay Lag ";
   /** IRS Ibor leg convention string **/
   public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
+  /** Ibor leg convention string **/
+  public static final String IBOR_LEG = "Ibor Leg";
   /** Quarterly Eurodollar futures string */
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
   /** Fed fund futures string */
