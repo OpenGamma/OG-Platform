@@ -14,10 +14,12 @@ import java.util.Set;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -53,10 +55,18 @@ public class HullWhiteDiscountingParRateFunction extends HullWhiteDiscountingFun
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final MulticurveProviderInterface data = (MulticurveProviderInterface) inputs.getValue(CURVE_BUNDLE);
+        MulticurveProviderInterface provider;
+        final Object dataObject = inputs.getValue(CURVE_BUNDLE);
+        if (dataObject instanceof HullWhiteOneFactorProviderDiscount) {
+          provider = ((HullWhiteOneFactorProviderDiscount) dataObject).getMulticurveProvider();
+        } else if (dataObject instanceof MulticurveProviderInterface) {
+          provider = (MulticurveProviderInterface) dataObject;
+        } else {
+          throw new OpenGammaRuntimeException("Unexpected data provider " + dataObject.getClass().getSimpleName());
+        }
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final double parRate = derivative.accept(CALCULATOR, data);
+        final double parRate = derivative.accept(CALCULATOR, provider);
         final ValueSpecification spec = new ValueSpecification(PAR_RATE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, parRate));
       }
