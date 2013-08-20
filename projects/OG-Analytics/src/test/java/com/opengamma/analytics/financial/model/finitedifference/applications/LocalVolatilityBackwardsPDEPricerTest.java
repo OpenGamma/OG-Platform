@@ -50,7 +50,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
 
     FWD_CURVE = new ForwardCurve(S0, R);
     RISK_FREE_CURVE = ConstantDoublesCurve.from(R);
-    final Function<Double, Double> df = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> df = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double t) {
         return Math.exp(-t * R);
@@ -183,17 +183,15 @@ public class LocalVolatilityBackwardsPDEPricerTest {
   @Test
   public void mixedLogNormalTest() {
 
-    final double[] w = new double[] {0.7, 0.25, 0.05};
-    final double[] sigma = new double[] {0.3, 0.6, 1.0};
-    final double[] mu = new double[] {0.0, 0.3, -0.5};
+    final double[] w = new double[] {0.7, 0.25, 0.05 };
+    final double[] sigma = new double[] {0.3, 0.6, 1.0 };
+    final double[] mu = new double[] {0.0, 0.3, -0.5 };
     //    double[] w = new double[] {0.99, 0.01, 0.0000};
     //    double[] sigma = new double[] {0.3, 0.5, 0.8};
     //  double[] mu = new double[] {0.0, 0.0, -0.0};
     final MultiHorizonMixedLogNormalModelData data = new MultiHorizonMixedLogNormalModelData(w, sigma, mu);
     final PriceSurface priceSurf = MixedLogNormalVolatilitySurface.getPriceSurface(FWD_CURVE, DIS_CURVE, data);
     final LocalVolatilitySurfaceStrike locVol = MixedLogNormalVolatilitySurface.getLocalVolatilitySurface(FWD_CURVE, data);
-
-
 
     final double k = 14.0;
     final boolean isCall = true;
@@ -203,7 +201,7 @@ public class LocalVolatilityBackwardsPDEPricerTest {
     final int xNodes = nu * tNodes;
 
     final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, isCall);
-    final double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, locVol, isCall, xNodes, tNodes,0.05, 0.0, 8.0);
+    final double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, locVol, isCall, xNodes, tNodes, 0.05, 0.0, 8.0);
     final double mlnPrice = priceSurf.getPrice(T, k);
 
     //    double relErr = Math.abs((pdePrice - mlnPrice) / mlnPrice);

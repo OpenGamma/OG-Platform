@@ -94,7 +94,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
-      values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, downFactor, upOverDown, i);
+      values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, 0., downFactor, upOverDown, i);
     }
 
     return values[0];
@@ -131,7 +131,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
-      values = function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, downFactor, upOverDown, i);
+      values = function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, 0., downFactor, upOverDown, i);
     }
 
     return values[0];
@@ -153,18 +153,16 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final double upProbability = params[2];
     final double downProbability = params[3];
     final double upOverDown = upFactor / downFactor;
-    //    System.out.println(upProbability + "\t" + downProbability + "\t" + upFactor + "\t" + downFactor);
 
     double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
-    //    System.out.println(new DoubleMatrix1D(values));
     final double[] res = new double[4];
 
     double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
     double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
 
     for (int i = nSteps - 1; i > -1; --i) {
-      values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, downFactor, upOverDown, i);
+      values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, 0., downFactor, upOverDown, i);
       if (i == 2) {
         res[2] = 2. * ((values[2] - values[1]) / (pForGamma[2] - pForGamma[1]) - (values[1] - values[0]) / (pForGamma[1] - pForGamma[0])) / (pForGamma[2] - pForGamma[0]);
         res[3] = values[1];
@@ -230,7 +228,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
 
     for (int i = nSteps - 1; i > -1; --i) {
-      values = function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, downFactor, upOverDown, i);
+      values = function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, 0., downFactor, upOverDown, i);
       if (i == 2) {
         res[2] = 2. * ((values[2] - values[1]) / (pForGamma[2] - pForGamma[1]) - (values[1] - values[0]) / (pForGamma[1] - pForGamma[0])) / (pForGamma[2] - pForGamma[0]);
         res[3] = values[1];
@@ -250,6 +248,149 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     return collection;
   }
+
+  @Override
+  public double getPriceWithDiscreteDividends(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
+      final double interestRate, final DividendFunctionProvider dividend) {
+    final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
+
+    final int nSteps = function.getNumberOfSteps();
+    final double strike = function.getStrike();
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double[] params = modLattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate, nSteps, dt);
+    final double upFactor = params[0];
+    final double downFactor = params[1];
+    final double upProbability = params[2];
+    final double downProbability = params[3];
+    final double upOverDown = upFactor / downFactor;
+
+    final int[] divSteps = dividend.getDividendSteps(dt);
+
+    double assetPriceBase = dividend.spotModifier(spot, interestRate);
+    double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(assetPriceTerminal, upOverDown);
+
+    int counter = 0;
+    final int nDivs = dividend.getNumberOfDividends();
+
+    if (dividend instanceof ProportionalDividendFunctionProvider) {
+      for (int i = nSteps - 1; i > -1; --i) {
+        for (int k = nDivs - 1 - counter; k > -1; --k) {
+          if (i == divSteps[k]) {
+            assetPriceBase = dividend.dividendCorrections(assetPriceBase, 0., 0., k);
+            ++counter;
+          }
+        }
+        values = function.getNextOptionValues(discount, upProbability, downProbability, values, assetPriceBase, 0., downFactor, upOverDown, i);
+      }
+    } else {
+      double sumDiscountDiv = 0.;
+      for (int i = nSteps - 1; i > -1; --i) {
+        sumDiscountDiv *= Math.exp(-interestRate * dt);
+        for (int k = nDivs - 1 - counter; k > -1; --k) {
+          if (i == divSteps[k]) {
+            sumDiscountDiv = dividend.dividendCorrections(sumDiscountDiv, interestRate, dt * i, k);
+            ++counter;
+          }
+        }
+        values = function.getNextOptionValues(discount, upProbability, downProbability, values, assetPriceBase, sumDiscountDiv, downFactor, upOverDown, i);
+      }
+    }
+
+    return values[0];
+  }
+
+  @Override
+  public GreekResultCollection getGreeksWithDiscreteDividends(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
+      final double volatility, final double interestRate, final DividendFunctionProvider dividend) {
+    final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
+
+    final int nSteps = function.getNumberOfSteps();
+    final double strike = function.getStrike();
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double[] params = modLattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate, nSteps, dt);
+    final double upFactor = params[0];
+    final double downFactor = params[1];
+    final double upProbability = params[2];
+    final double downProbability = params[3];
+    final double upOverDown = upFactor / downFactor;
+
+    final int[] divSteps = dividend.getDividendSteps(dt);
+
+    double assetPriceBase = dividend.spotModifier(spot, interestRate);
+    double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiry(assetPriceTerminal, upOverDown);
+
+    int counter = 0;
+    final int nDivs = dividend.getNumberOfDividends();
+    final double[] res = new double[4];
+
+    if (dividend instanceof ProportionalDividendFunctionProvider) {
+      for (int i = nSteps - 1; i > -1; --i) {
+        for (int k = nDivs - 1 - counter; k > -1; --k) {
+          if (i == divSteps[k]) {
+            assetPriceBase = dividend.dividendCorrections(assetPriceBase, 0., 0., k);
+            ++counter;
+          }
+        }
+        values = function.getNextOptionValues(discount, upProbability, downProbability, values, assetPriceBase, 0., downFactor, upOverDown, i);
+        if (i == 2) {
+          double[] pForGamma = dividend.getAssetPricesForGamma(spot, interestRate, divSteps, upFactor, downFactor, 0.);
+          res[2] = 2. * ((values[2] - values[1]) / (pForGamma[2] - pForGamma[1]) - (values[1] - values[0]) / (pForGamma[1] - pForGamma[0])) / (pForGamma[2] - pForGamma[0]);
+          res[3] = values[1];
+        }
+        if (i == 1) {
+          double[] pForDelta = dividend.getAssetPricesForDelta(spot, interestRate, divSteps, upFactor, downFactor, 0.);
+          res[1] = (values[1] - values[0]) / (pForDelta[1] - pForDelta[0]);
+        }
+      }
+    } else {
+      double sumDiscountDiv = 0.;
+      for (int i = nSteps - 1; i > -1; --i) {
+        sumDiscountDiv *= Math.exp(-interestRate * dt);
+        for (int k = nDivs - 1 - counter; k > -1; --k) {
+          if (i == divSteps[k]) {
+            sumDiscountDiv = dividend.dividendCorrections(sumDiscountDiv, interestRate, dt * i, k);
+            ++counter;
+          }
+        }
+        values = function.getNextOptionValues(discount, upProbability, downProbability, values, assetPriceBase, sumDiscountDiv, downFactor, upOverDown, i);
+        if (i == 2) {
+          double[] pForGamma = dividend.getAssetPricesForGamma(spot, interestRate, divSteps, upFactor, downFactor, sumDiscountDiv);
+          res[2] = 2. * ((values[2] - values[1]) / (pForGamma[2] - pForGamma[1]) - (values[1] - values[0]) / (pForGamma[1] - pForGamma[0])) / (pForGamma[2] - pForGamma[0]);
+          res[3] = values[1];
+        }
+        if (i == 1) {
+          double[] pForDelta = dividend.getAssetPricesForDelta(spot, interestRate, divSteps, upFactor, downFactor, sumDiscountDiv);
+          res[1] = (values[1] - values[0]) / (pForDelta[1] - pForDelta[0]);
+        }
+      }
+    }
+
+    res[0] = values[0];
+    res[3] = modLattice.getTheta(spot, volatility, interestRate, 0., dt, res);
+    final GreekResultCollection collection = new GreekResultCollection();
+    collection.put(Greek.FAIR_PRICE, res[0]);
+    collection.put(Greek.DELTA, res[1]);
+    collection.put(Greek.GAMMA, res[2]);
+    collection.put(Greek.THETA, res[3]);
+
+    return collection;
+  }
+
+  /*
+   * 
+   * 
+   * *********************************
+   * Old methods below, removed later
+   * *********************************
+   * 
+   * 
+   */
 
   public double getEuropeanPrice(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate,
       final int nSteps, final boolean isCall) {

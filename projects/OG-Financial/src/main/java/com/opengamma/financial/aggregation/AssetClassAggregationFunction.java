@@ -18,6 +18,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -158,6 +159,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
         @Override
         public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+          return BONDS;
+        }
+        
+        @Override
+        public String visitInflationBondSecurity(final InflationBondSecurity security) {
           return BONDS;
         }
 

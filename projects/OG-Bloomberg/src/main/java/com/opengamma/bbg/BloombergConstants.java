@@ -131,6 +131,7 @@ public final class BloombergConstants {
   public static final String FIELD_CNTRY_ISSUE_ISO = "CNTRY_ISSUE_ISO";
   public static final String FIELD_SECURITY_TYP = "SECURITY_TYP";
   public static final String FIELD_CALC_TYP_DES = "CALC_TYP_DES";
+  public static final String FIELD_INFLATION_LINKED_INDICATOR = "INFLATION_LINKED_INDICATOR";
 
   public static final String FIELD_GUARANTOR = "GUARANTOR"; // maybe?
   public static final String FIELD_MATURITY = "MATURITY";

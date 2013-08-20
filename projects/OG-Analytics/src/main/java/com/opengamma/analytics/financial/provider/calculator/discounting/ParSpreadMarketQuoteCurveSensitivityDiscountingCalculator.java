@@ -115,7 +115,8 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
     return METHOD_STIR_FUT.priceCurveSensitivity(futures.getUnderlying(), multicurves);
   }
 
-  public MulticurveSensitivity visitFederalFundFutureTransaction(final FederalFundsFutureTransaction future, final MulticurveProviderInterface multicurves) {
+  @Override
+  public MulticurveSensitivity visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final MulticurveProviderInterface multicurves) {
     return METHOD_FED_FUNDS.priceCurveSensitivity(future.getUnderlyingFuture(), multicurves);
   }
 

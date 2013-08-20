@@ -13,6 +13,7 @@ import com.opengamma.engine.target.digest.SecurityTypeTargetDigests;
 import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -470,6 +471,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitMunicipalBondSecurity(MunicipalBondSecurity security) {
     return _municipalBondSecurity.get(security.getCurrency());
+  }
+  
+  private final Digests _inflationBondSecurity = new Digests("Security");
+
+  @Override
+  public Object visitInflationBondSecurity(InflationBondSecurity security) {
+    return _inflationBondSecurity.get(security.getCurrency());
   }
 
   private final Digests _nonDeliverableFXDigitalOptionSecurity = new Digests("Security");

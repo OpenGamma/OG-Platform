@@ -53,14 +53,14 @@ import com.opengamma.util.tuple.Pair;
  * Calculates the yield curve node sensitivities of instruments using curves
  * constructed using the Hull-White one factor discounting method.
  */
-public class HullWhiteYCNSFunction extends HullWhiteFunction {
+public class HullWhiteDiscountingYCNSFunction extends HullWhiteDiscountingFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(HullWhiteYCNSFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(HullWhiteDiscountingYCNSFunction.class);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
    */
-  public HullWhiteYCNSFunction() {
+  public HullWhiteDiscountingYCNSFunction() {
     super(YIELD_CURVE_NODE_SENSITIVITIES);
   }
 

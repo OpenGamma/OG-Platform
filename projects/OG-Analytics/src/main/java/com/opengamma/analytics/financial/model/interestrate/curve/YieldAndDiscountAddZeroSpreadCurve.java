@@ -51,6 +51,15 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public double getForwardRate(final double t) {
+    double f = _curves[0].getForwardRate(t);
+    for (int loopcurve = 1; loopcurve < _curves.length; loopcurve++) {
+      f += _sign * _curves[loopcurve].getForwardRate(t);
+    }
+    return f;
+  }
+
+  @Override
   public double[] getInterestRateParameterSensitivity(final double time) {
     final DoubleArrayList result = new DoubleArrayList();
     double[] temp;

@@ -21,7 +21,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    * Constructor with a name.
    * @param name The curve name.
    */
-  public DoublesCurve(String name) {
+  public DoublesCurve(final String name) {
     super(name);
   }
 
@@ -31,5 +31,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    * @return The sensitivity.
    */
   public abstract Double[] getYValueParameterSensitivity(Double x);
+
+  /**
+   * Compute the first derivative of the curve, $\frac{dy}{dx}$ 
+   * @param x The value at which the derivative is taken 
+   * @return The first derivative 
+   */
+  public abstract double getDyDx(final double x);
 
 }

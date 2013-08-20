@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -29,13 +28,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -43,7 +36,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Calculates the present value of instruments using curves constructed using
  * the Hull-White one-factor discounting method.
  */
-public class HullWhitePVFunction extends HullWhiteFunction {
+public class HullWhiteDiscountingPVFunction extends HullWhiteDiscountingFunction {
   /** The present value calculator */
   private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MultipleCurrencyAmount> CALCULATOR =
       PresentValueHullWhiteCalculator.getInstance();
@@ -51,26 +44,13 @@ public class HullWhitePVFunction extends HullWhiteFunction {
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PRESENT_VALUE}
    */
-  public HullWhitePVFunction() {
+  public HullWhiteDiscountingPVFunction() {
     super(PRESENT_VALUE);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new HullWhiteCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
-
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity) {
-          return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
-        }
-        return security instanceof CashSecurity ||
-            security instanceof FRASecurity ||
-            security instanceof SwapSecurity ||
-            security instanceof InterestRateFutureSecurity ||
-            security instanceof DeliverableSwapFutureSecurity;
-      }
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,

@@ -34,7 +34,9 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class MarketDataSelectionGraphManipulatorTest {
 
   private final ComputationTargetResolver.AtVersionCorrection _resolver =

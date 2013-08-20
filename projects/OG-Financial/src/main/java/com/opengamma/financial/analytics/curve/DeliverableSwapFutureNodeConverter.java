@@ -88,9 +88,10 @@ public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<
 
   @Override
   public InstrumentDefinition<?> visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode swapFuture) {
-    final Double rate = _marketData.getDataPoint(_dataId);
+    Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
-      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
+      rate = 0.99;
+//      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
     final DeliverablePriceQuotedSwapFutureConvention futureConvention =
         _conventionSource.getConvention(DeliverablePriceQuotedSwapFutureConvention.class, swapFuture.getFutureConvention());

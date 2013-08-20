@@ -11,6 +11,7 @@ import java.util.List;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -260,6 +261,11 @@ public class SecurityExposureFunction implements ExposureFunction {
     return getSecurityUID(security);
   }
 
+  @Override
+  public List<ExternalId> visitInflationBondSecurity(final InflationBondSecurity security) {
+    return getSecurityUID(security);
+  }
+  
   @Override
   public List<ExternalId> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
     return getSecurityUID(security);

@@ -8,8 +8,11 @@ package com.opengamma.util.test;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -18,10 +21,15 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeObjectReader;
 import org.fudgemsg.mapping.FudgeObjectWriter;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
+import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 
+import com.google.common.base.Charsets;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
 
@@ -70,6 +78,9 @@ public abstract class AbstractFudgeBuilderTestCase {
   protected <T> void assertEncodeDecodeCycle(final Class<T> clazz, final T object) {
     assertEquals(object, cycleObjectProxy(clazz, object));
     assertEquals(object, cycleObjectBytes(clazz, object));
+    
+    // Added for PLAT-4380 - can be uncommented once fixed
+    // assertEquals(object, cycleObjectXml(clazz, object));
   }
 
   protected <T> T cycleObject(final Class<T> clazz, final T object) {
@@ -107,11 +118,44 @@ public abstract class AbstractFudgeBuilderTestCase {
     assertTrue(clazz.isAssignableFrom(cycled.getClass()));
     return cycled;
   }
-
+  
   protected FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = getFudgeContext().toByteArray(message);
     getLogger().info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();
+  }
+  
+  private <T> T cycleObjectXml(final Class<T> clazz, final T object) {
+    getLogger().debug("cycle object {} of class by xml {}", object, clazz);
+
+    final MutableFudgeMsg msgOut = getFudgeSerializer().newMessage();
+    getFudgeSerializer().addToMessage(msgOut, "test", null, object);
+    getLogger().debug("message out by xml {}", msgOut);
+
+    final FudgeMsg msgIn = cycleMessageXml(msgOut);
+    getLogger().debug("message in by xml {}", msgIn);
+
+    final T cycled = getFudgeDeserializer().fieldValueToObject(clazz, msgIn.getByName("test"));
+    getLogger().debug("created object by xml {}", cycled);
+    assertTrue(clazz.isAssignableFrom(cycled.getClass()));
+    return cycled;
+  }
+  
+  private FudgeMsg cycleMessageXml(final FudgeMsg message) {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    OutputStreamWriter outputWriter = new OutputStreamWriter(baos, Charsets.UTF_8);
+    try (FudgeMsgWriter fudgeWriter = new FudgeMsgWriter(new FudgeXMLStreamWriter(getFudgeContext(), outputWriter))) {
+      fudgeWriter.writeMessage(message);
+      fudgeWriter.flush();
+    }
+    byte[] data = baos.toByteArray();
+    getLogger().info("{} bytes", data.length);
+    
+    ByteArrayInputStream bais = new ByteArrayInputStream(data);
+    InputStreamReader inputReader = new InputStreamReader(new BufferedInputStream(bais), Charsets.UTF_8);
+    try (FudgeMsgReader fudgeReader = new FudgeMsgReader(new FudgeXMLStreamReader(getFudgeContext(), inputReader))) {
+      return fudgeReader.nextMessage();
+    }
   }
 
   @SuppressWarnings("unchecked")

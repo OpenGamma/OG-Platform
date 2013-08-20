@@ -364,5 +364,10 @@ public class DoublesCurveTestCase {
       return null;
     }
 
+    @Override
+    public double getDyDx(final double x) {
+      return 0;
+    }
+
   }
 }

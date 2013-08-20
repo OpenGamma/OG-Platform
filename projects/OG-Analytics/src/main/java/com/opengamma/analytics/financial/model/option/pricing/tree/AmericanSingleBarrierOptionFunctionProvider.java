@@ -78,8 +78,8 @@ public class AmericanSingleBarrierOptionFunctionProvider extends OptionFunctionP
   }
 
   @Override
-  public double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice, final double downFactor,
-      final double upOverDown, final int steps) {
+  public double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice, final double sumCashDiv,
+      final double downFactor, final double upOverDown, final int steps) {
     final double strike = getStrike();
     final double sign = getSign();
     final int nStepsP = steps + 1;
@@ -87,7 +87,7 @@ public class AmericanSingleBarrierOptionFunctionProvider extends OptionFunctionP
     final double[] res = new double[nStepsP];
     double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
     for (int j = 0; j < nStepsP; ++j) {
-      res[j] = _checker.checkOut(assetPrice) ? 0. : Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (assetPrice - strike));
+      res[j] = _checker.checkOut(assetPrice) ? 0. : Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (assetPrice + sumCashDiv - strike));
       assetPrice *= upOverDown;
     }
     return res;

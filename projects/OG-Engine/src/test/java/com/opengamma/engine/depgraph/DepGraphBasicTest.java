@@ -167,7 +167,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement1());
     final DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    assertEquals(0, graph.getDependencyNodes().size());
+    assertEquals(2, graph.getDependencyNodes().size());
   }
 
   public void incrementalBuild() {

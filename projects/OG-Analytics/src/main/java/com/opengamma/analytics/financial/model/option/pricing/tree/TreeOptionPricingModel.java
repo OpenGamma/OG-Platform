@@ -82,4 +82,13 @@ public abstract class TreeOptionPricingModel {
    */
   public abstract GreekResultCollection getGreeks(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
       final double[] dividend);
+
+  public abstract double getPriceWithDiscreteDividends(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
+      final double volatility,
+      final double interestRate, final DividendFunctionProvider dividend);
+
+  public abstract GreekResultCollection getGreeksWithDiscreteDividends(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
+      final double volatility,
+      final double interestRate, final DividendFunctionProvider dividend);
+
 }

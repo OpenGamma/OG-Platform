@@ -104,7 +104,7 @@ public final class FederalFundsFutureSecurityDiscountingMethod {
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
       listON.add(new ForwardSensitivity(futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1], futures.getFixingPeriodAccrualFactor()[loopfix], ratesBar[loopfix]));
     }
-    resultMap.put(futures.getOISCurveName(), listON);
+    resultMap.put(index.getName(), listON);
     return MulticurveSensitivity.ofForward(resultMap);
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -91,7 +91,7 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
 
   private static final double TOLERANCE_PV = 1.0E-2;
 
-  @Test
+  @Test(enabled = false)
   /**
    * Tests the correctness of G2++ calibration to swaptions with SABR price.
    */

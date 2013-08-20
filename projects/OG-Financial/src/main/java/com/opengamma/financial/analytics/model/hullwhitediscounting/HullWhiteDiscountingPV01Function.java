@@ -42,9 +42,9 @@ import com.opengamma.util.tuple.Pair;
  * Calculates the PV01 of instruments using curves constructed using
  * the Hull-White one factor discounting method.
  */
-public class HullWhitePV01Function extends HullWhiteFunction {
+public class HullWhiteDiscountingPV01Function extends HullWhiteDiscountingFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(HullWhitePV01Function.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(HullWhiteDiscountingPV01Function.class);
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityHullWhiteCalculator.getInstance());
@@ -52,7 +52,7 @@ public class HullWhitePV01Function extends HullWhiteFunction {
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PV01}
    */
-  public HullWhitePV01Function() {
+  public HullWhiteDiscountingPV01Function() {
     super(PV01);
   }
 

@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.math.curve;
 
+import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
+import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
+
 import java.util.Arrays;
 
 import com.opengamma.util.ArgumentChecker;
@@ -31,9 +34,9 @@ public class DoublesCurveNelsonSiegel extends DoublesCurve {
    * @param beta2 The beta2 parameter.
    * @param lambda The lambda parameter.
    */
-  public DoublesCurveNelsonSiegel(final String name, double beta0, double beta1, double beta2, double lambda) {
+  public DoublesCurveNelsonSiegel(final String name, final double beta0, final double beta1, final double beta2, final double lambda) {
     super(name);
-    _parameters = new double[] {beta0, beta1, beta2, lambda};
+    _parameters = new double[] {beta0, beta1, beta2, lambda };
   }
 
   /**
@@ -64,19 +67,21 @@ public class DoublesCurveNelsonSiegel extends DoublesCurve {
   }
 
   @Override
-  public Double getYValue(Double x) {
+  public Double getYValue(final Double x) {
     final double x1 = x / _parameters[3];
-    final double x2;
-    if (x1 < 1.0E-6) {
-      x2 = 1.0 - 0.5 * x1;
-    } else {
-      x2 = (1 - Math.exp(-x1)) / x1;
-    }
+    final double x2 = epsilon(-x1);
     return _parameters[0] + _parameters[1] * x2 + _parameters[2] * (x2 - Math.exp(-x1));
   }
 
   @Override
-  public Double[] getYValueParameterSensitivity(Double x) {
+  public double getDyDx(final double x) {
+    final double x1 = x / _parameters[3]; //TODO untested
+    final double eP = epsilonP(-x1);
+    return -(_parameters[1] * eP + _parameters[2] * (eP - Math.exp(-x1))) / _parameters[3];
+  }
+
+  @Override
+  public Double[] getYValueParameterSensitivity(final Double x) {
     // Forward sweep
     final double x1 = x / _parameters[3];
     final double expx1 = Math.exp(-x1);
@@ -88,8 +93,8 @@ public class DoublesCurveNelsonSiegel extends DoublesCurve {
     }
     //    final double value = _parameters[0] + _parameters[1] * x2 + _parameters[2] * (x2 - expx1);
     // Backward sweep
-    double valueBar = 1.0;
-    double x2Bar = (_parameters[1] + _parameters[2]) * valueBar;
+    final double valueBar = 1.0;
+    final double x2Bar = (_parameters[1] + _parameters[2]) * valueBar;
     double expx1Bar;
     double x1Bar;
     if (x1 < 1.0E-6) {
@@ -99,7 +104,7 @@ public class DoublesCurveNelsonSiegel extends DoublesCurve {
       expx1Bar = -_parameters[2] * valueBar + -1.0 / x1 * x2Bar;
       x1Bar = -(1 - expx1) / (x1 * x1) * x2Bar + -expx1 * expx1Bar;
     }
-    Double[] parametersBar = new Double[4];
+    final Double[] parametersBar = new Double[4];
     parametersBar[0] = valueBar;
     parametersBar[1] = x2 * valueBar;
     parametersBar[2] = (x2 - expx1) * valueBar;
@@ -116,7 +121,7 @@ public class DoublesCurveNelsonSiegel extends DoublesCurve {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -126,7 +131,7 @@ public class DoublesCurveNelsonSiegel extends DoublesCurve {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DoublesCurveNelsonSiegel other = (DoublesCurveNelsonSiegel) obj;
+    final DoublesCurveNelsonSiegel other = (DoublesCurveNelsonSiegel) obj;
     if (!Arrays.equals(_parameters, other._parameters)) {
       return false;
     }

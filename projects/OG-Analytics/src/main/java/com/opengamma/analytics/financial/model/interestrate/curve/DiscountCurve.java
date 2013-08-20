@@ -85,6 +85,11 @@ public class DiscountCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public double getForwardRate(final double t) {
+    return -_curve.getDyDx(t) / _curve.getYValue(t);
+  }
+
+  @Override
   public double[] getInterestRateParameterSensitivity(final double time) {
     final Double[] dfSensitivity = _curve.getYValueParameterSensitivity(time);
     final double[] rSensitivity = new double[dfSensitivity.length];

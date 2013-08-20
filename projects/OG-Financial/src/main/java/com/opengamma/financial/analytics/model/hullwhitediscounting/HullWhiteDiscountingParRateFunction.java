@@ -34,14 +34,14 @@ import com.opengamma.engine.value.ValueSpecification;
  * Calculates the par rate of instruments using curves constructed using
  * the Hull-White one factor discounting method.
  */
-public class HullWhiteParRateFunction extends HullWhiteFunction {
+public class HullWhiteDiscountingParRateFunction extends HullWhiteDiscountingFunction {
   /** The par rate calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> CALCULATOR = ParRateDiscountingCalculator.getInstance();
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PAR_RATE}
    */
-  public HullWhiteParRateFunction() {
+  public HullWhiteDiscountingParRateFunction() {
     super(PAR_RATE);
   }
 

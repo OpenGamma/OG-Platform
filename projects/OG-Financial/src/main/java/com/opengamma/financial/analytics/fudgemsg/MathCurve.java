@@ -23,6 +23,7 @@ import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.time.Tenor;
 
@@ -95,8 +96,8 @@ final class MathCurve {
     public FunctionalDoublesCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = deserializer.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
       final Object function = deserializer.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
-      if (function instanceof Function) {
-        return FunctionalDoublesCurve.from((Function) function, name);
+      if (function instanceof Function1D) {
+        return FunctionalDoublesCurve.from((Function1D) function, name);
       }
       throw new OpenGammaRuntimeException("Expected serialized function, got " + function);
     }

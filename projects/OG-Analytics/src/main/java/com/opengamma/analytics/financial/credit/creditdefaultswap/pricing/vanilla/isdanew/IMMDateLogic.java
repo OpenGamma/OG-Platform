@@ -20,7 +20,6 @@ public abstract class IMMDateLogic {
   private static final int IMM_DAY = 20;
   private static final int[] IMM_MONTHS = new int[] {3, 6, 9, 12 };
   private static final int[] INDEX_ROLL_MONTHS = new int[] {3, 9 };
-  private static final int[] INDEX_MATURITY_MONTHS = new int[] {6, 12 };
 
   /**
    * IMM dates are 20th March, June, September and December 
