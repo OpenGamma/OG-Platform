@@ -44,7 +44,6 @@ import com.opengamma.util.tuple.Pair;
     ArgumentChecker.notNull(targetLookup, "targetLookup");
     ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
     ArgumentChecker.notNull(fixedColumns, "fixedColumns");
-    ArgumentChecker.notNull(rootNode, "rootNode");
     List<GridColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
     columnGroups.addAll(nonFixedColumns.getGroups());
     _rootNode = rootNode;
