@@ -17,6 +17,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.id.UniqueId;
@@ -258,7 +259,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
       switch (_colIndex) {
         case TARGET_COL:
-          return ResultsCell.forStaticValue(getTargetName(valueSpec.getTargetSpecification()), columnType, format);
+          return ResultsCell.forStaticValue(getTargetName(valueSpec), columnType, format);
         case TARGET_TYPE_COL:
           return ResultsCell.forStaticValue(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), columnType, format);
         case VALUE_NAME_COL:
@@ -283,18 +284,35 @@ public class DependencyGraphGridStructure implements GridStructure {
      * @param targetSpec Specification of the target for a grid row
      * @return The name of the target
      */
-    private String getTargetName(final ComputationTargetSpecification targetSpec) {
+    private String getTargetName(ValueSpecification valueSpec) {
+      final ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
       // TODO I don't think LATEST will do long term. resolution time available on the result model
-      ComputationTarget target = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
-      if (target != null) {
-        return target.getName();
+      if (targetSpec.getType() == ComputationTargetType.NULL) {
+        return getNullTargetName(valueSpec);
       } else {
-        UniqueId uid = targetSpec.getUniqueId();
-        if (uid != null) {
-          return uid.toString();
+        ComputationTarget target = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
+        if (target != null) { // doubt this branch ever happens - don't think it will be executed for NULL targets.
+          return target.getName();
         } else {
-          return targetSpec.getType().toString();
+          UniqueId uid = targetSpec.getUniqueId();
+          if (uid != null) {
+            return uid.toString();
+          } else {
+            return getNullTargetName(valueSpec);
+          }
         }
+      }
+    }
+    
+    private String getNullTargetName(ValueSpecification valueSpec) {
+      String curveName = valueSpec.getProperty(ValuePropertyNames.CURVE);
+      String surfaceName = valueSpec.getProperty(ValuePropertyNames.SURFACE);
+      if (curveName != null) {
+        return valueSpec.getValueName() + " [" + curveName + "]";
+      } else if (surfaceName != null) {
+        return valueSpec.getValueName() + " [" + surfaceName + "]";
+      } else {
+        return valueSpec.getValueName();
       }
     }
   }
