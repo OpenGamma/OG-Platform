@@ -22,27 +22,27 @@ public abstract class StandardVanillaCS01CDSFunction extends StandardVanillaCDSF
     super(valueRequirements);
   }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
-    if (requirements == null) {
-      return null;
-    }
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> spreadCurveBumps = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP);
-    if (spreadCurveBumps == null || spreadCurveBumps.size() != 1) {
-      return null;
-    }
-    final Set<String> spreadCurveBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE);
-    if (spreadCurveBumpTypes == null || spreadCurveBumpTypes.size() != 1) {
-      return null;
-    }
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
-    return requirements;
-  }
+  //@Override
+  //public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+  //  final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+  //  if (requirements == null) {
+  //    return null;
+  //  }
+  //  final ValueProperties constraints = desiredValue.getConstraints();
+  //  final Set<String> spreadCurveBumps = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP);
+  //  if (spreadCurveBumps == null || spreadCurveBumps.size() != 1) {
+  //    return null;
+  //  }
+  //  final Set<String> spreadCurveBumpTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE);
+  //  if (spreadCurveBumpTypes == null || spreadCurveBumpTypes.size() != 1) {
+  //    return null;
+  //  }
+  //  final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+  //  if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
+  //    return null;
+  //  }
+  //  return requirements;
+  //}
 
   @Override
   protected ValueProperties.Builder getCommonResultProperties() {

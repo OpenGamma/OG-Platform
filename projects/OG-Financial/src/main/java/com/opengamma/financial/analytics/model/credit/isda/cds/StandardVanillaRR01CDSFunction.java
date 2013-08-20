@@ -5,17 +5,14 @@
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapRR01Calculator;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -23,7 +20,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 
 /**
@@ -37,17 +33,24 @@ public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition, final ISDADateCurve yieldCurve, final ZonedDateTime[] times,
-      final double[] marketSpreads, final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties,
-      final FunctionInputs inputs) {
-    final Double recoveryRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)));
-    final RecoveryRateBumpType recoveryRateBumpType =
-        RecoveryRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)));
-    final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    final double rr01 = CALCULATOR.getRecoveryRate01CreditDefaultSwap(valuationDate, definition, yieldCurve, times, marketSpreads, recoveryRateCurveBump,
-        recoveryRateBumpType, priceType);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, rr01));
+  protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition,
+                                                final ISDACompliantYieldCurve yieldCurve,
+                                                final ZonedDateTime[] times,
+                                                final double[] marketSpreads,
+                                                final ZonedDateTime valuationDate,
+                                                final ComputationTarget target,
+                                                final ValueProperties properties,
+                                                final FunctionInputs inputs,
+                                                ISDACompliantCreditCurve hazardCurve) {
+    throw new UnsupportedOperationException();
+    //final Double recoveryRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)));
+    //final RecoveryRateBumpType recoveryRateBumpType =
+    //    RecoveryRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)));
+    //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
+    //final double rr01 = CALCULATOR.getRecoveryRate01CreditDefaultSwap(valuationDate, definition, yieldCurve, times, marketSpreads, recoveryRateCurveBump,
+    //    recoveryRateBumpType, priceType);
+    //final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
+    //return Collections.singleton(new ComputedValue(spec, rr01));
   }
 
   @Override

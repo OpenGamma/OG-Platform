@@ -10,11 +10,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -43,10 +47,16 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -56,22 +66,13 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final LastTimeCalculator LAST_DATE_CALCULATOR = LastTimeCalculator.getInstance();
-  private FinancialSecurityVisitor<InstrumentDefinition<?>> _securityConverter;
-  private FixedIncomeConverterDataProvider _definitionConverter;
+
+  // ISDA fixes yield curve daycout to Act/365
+  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final ISDACompliantYieldCurveBuild BUILDER = new ISDACompliantYieldCurveBuild();
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, true);
-    final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
-    _securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .swapSecurityVisitor(swapConverter)
-        .cashSecurityVisitor(cashConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
@@ -79,7 +80,6 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final HistoricalTimeSeriesBundle timeSeries = (HistoricalTimeSeriesBundle) inputs.getValue(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
@@ -95,12 +95,18 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
     }
     final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
     final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) specObject;
-    final int n = yieldCurveSpec.getStrips().size();
-    final double[] times = new double[n];
-    final double[] yields = new double[n];
-    final ZonedDateTime[] curveDates = new ZonedDateTime[n];
-    int i = 0;
-    final String[] curveNamesForSecurity = new String[] {curveName, curveName };
+
+    final int nNodes = yieldCurveSpec.getStrips().size();
+    final double[] marketDataForCurve = new double[nNodes];
+    final ISDAInstrumentTypes[] instruments = new ISDAInstrumentTypes[nNodes];
+    final Period[] tenors = new Period[nNodes];
+    int k = 0;
+
+    DayCount cashDCC = null;
+    DayCount fixDCC = null;
+    BusinessDayConvention floatBadDayConv = null;
+    Period paymentTenor = null;
+
     for (final FixedIncomeStripWithSecurity strip : yieldCurveSpec.getStrips()) {
       final String securityType = strip.getSecurity().getSecurityType();
       if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE) || securityType.equals(specObject))) {
@@ -111,16 +117,28 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
         throw new OpenGammaRuntimeException("Could not get market data for " + strip);
       }
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-      final InstrumentDefinition<?> definition = financialSecurity.accept(_securityConverter);
-      final InstrumentDerivative derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNamesForSecurity, timeSeries);
-      if (derivative == null) {
-        throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
+      instruments[k] = securityType.equals(CashSecurity.SECURITY_TYPE) ? ISDAInstrumentTypes.MoneyMarket : ISDAInstrumentTypes.Swap;
+      if (financialSecurity instanceof SwapSecurity) {
+        SwapSecurity swap = (SwapSecurity) financialSecurity;
+        if (swap.getPayLeg() instanceof FixedInterestRateLeg) {
+          fixDCC = swap.getPayLeg().getDayCount();
+          paymentTenor = ((SimpleFrequency) swap.getPayLeg().getFrequency()).toPeriodFrequency().getPeriod();
+          floatBadDayConv = swap.getReceiveLeg().getBusinessDayConvention();
+        } else {
+          fixDCC = swap.getReceiveLeg().getDayCount();
+          paymentTenor = ((SimpleFrequency) swap.getReceiveLeg().getFrequency()).toPeriodFrequency().getPeriod();
+          floatBadDayConv = swap.getPayLeg().getBusinessDayConvention();
+        }
+      } else {
+        cashDCC = ((CashSecurity) financialSecurity).getDayCount();
       }
-      times[i] = derivative.accept(LAST_DATE_CALCULATOR);
-      curveDates[i] = strip.getMaturity().withHour(0).withMinute(0).withSecond(0).withNano(0);
-      yields[i++] = marketValue;
+      marketDataForCurve[k] = marketValue;
+      tenors[k] = strip.getResolvedTenor().getPeriod();
+      k++;
     }
-    final ISDADateCurve curve = new ISDADateCurve(curveName, curveDates, times, yields, offset);
+    //TODO: Check spot date logic
+    final ISDACompliantYieldCurve yieldCurve = BUILDER.build(now.toLocalDate(), now.toLocalDate().minusDays(offset), instruments, tenors, marketDataForCurve, cashDCC,
+                                                             fixDCC, paymentTenor, ACT_365, floatBadDayConv);
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, offsetString)
@@ -128,7 +146,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
         .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_APPROX).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, curve));
+    return Collections.singleton(new ComputedValue(spec, yieldCurve));
   }
 
   @Override

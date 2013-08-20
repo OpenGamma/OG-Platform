@@ -56,4 +56,14 @@ public abstract class ISDACDXAsSingleNameCS01Function extends ISDACDXAsSingleNam
   protected boolean labelResultWithCurrency() {
     return true;
   }
+
+  @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
 }
