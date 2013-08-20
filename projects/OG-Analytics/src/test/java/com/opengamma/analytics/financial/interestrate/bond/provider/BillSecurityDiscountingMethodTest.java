@@ -108,7 +108,7 @@ public class BillSecurityDiscountingMethodTest {
 
   @Test
   public void priceFromYield() {
-    final double[] yields = new double[] {0.0010, 0.0, -0.0010};
+    final double[] yields = new double[] {0.0010, 0.0, -0.0010 };
     for (final double yield2 : yields) {
       final double priceComputed = METHOD_SECURITY.priceFromYield(BILL_BEL_IAM_SEC, yield2);
       final double priceExpected = 1.0 / (1 + BILL_BEL_IAM_SEC.getAccrualFactor() * yield2);
@@ -210,7 +210,7 @@ public class BillSecurityDiscountingMethodTest {
    * Tests present value curve sensitivity when the valuation date is on trade date.
    */
   public void presentValueCurveSensitivity() {
-    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PVI_C.calculateSensitivity(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE, ISSUER_MULTICURVE.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PVI_C.calculateSensitivity(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE, ISSUER_MULTICURVE.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PVI_FDC.calculateSensitivity(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE);
     AssertSensivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
