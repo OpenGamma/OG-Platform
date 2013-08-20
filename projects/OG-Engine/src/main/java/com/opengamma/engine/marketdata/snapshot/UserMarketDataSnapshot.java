@@ -199,12 +199,13 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   public synchronized void init() {
     if (!isInitialized()) {
       _unstructured = new InMemoryLKVMarketDataProvider();
-      UnstructuredMarketDataSnapshot globalValues = _snapshot.getGlobalValues();
+      final UnstructuredMarketDataSnapshot globalValues = _snapshot.getGlobalValues();
       if (globalValues != null) {
-        for (ExternalIdBundle target : globalValues.getTargets()) {
-          ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
-          for (Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
-            _unstructured.addValue(new ValueRequirement(valuePair.getKey(), targetRef), query(valuePair.getValue()));
+        for (final ExternalIdBundle target : globalValues.getTargets()) {
+          final ComputationTargetReference targetRef = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, target);
+          for (final Map.Entry<String, ValueSnapshot> valuePair : globalValues.getTargetValues(target).entrySet()) {
+            ValueRequirement valueRequirement = new ValueRequirement(valuePair.getKey(), targetRef);
+            _unstructured.addValue(valueRequirement, query(valuePair.getValue()));
           }
         }
       }
