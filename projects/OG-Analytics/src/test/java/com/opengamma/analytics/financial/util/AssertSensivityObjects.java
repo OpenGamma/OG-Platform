@@ -222,6 +222,18 @@ public class AssertSensivityObjects {
         }
       }
     }
+    for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : map2.entrySet()) {
+      final Pair<String, Currency> nameCcy = entry.getKey();
+      if (map1.get(nameCcy) == null) {
+        if (algebra.getNormInfinity(entry.getValue()) > tolerance) {
+          cmp = false;
+        }
+      } else {
+        if (algebra.getNormInfinity(algebra.add(entry.getValue(), algebra.scale(map1.get(nameCcy), -1.0))) > tolerance) {
+          cmp = false;
+        }
+      }
+    }
     if (opposite) {
       cmp = !cmp;
     }
