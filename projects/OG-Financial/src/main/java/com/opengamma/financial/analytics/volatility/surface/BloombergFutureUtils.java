@@ -19,6 +19,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.util.OpenGammaClock;
@@ -117,6 +118,9 @@ public class BloombergFutureUtils {
     } else {
       twoDigitYearSwitch = today.minus(Period.ofMonths(11)).minus(Period.ofDays(2));
     }
+    if (futurePrefix.equals("FF")) {
+      return getMonthlyExpiryFFMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
+    }
     return getMonthlyExpiryMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
   }
 
@@ -201,8 +205,6 @@ public class BloombergFutureUtils {
     return futureCode.toString();
   }
 
-
-
   /**
    * Produces the month-year string required to build ExternalId for Bloomberg tickers of IRFutureSecurity and IRFutureOptionSecurity.
    * @param nthQuarter The n'th quarter following valuation date
@@ -228,6 +230,13 @@ public class BloombergFutureUtils {
     final LocalDate expiry = FutureOptionUtils.getIRFutureMonthlyExpiry(nthMonth, valuationDate);
     return getMonthYearCode(expiry, twoDigitYearDate);
   }
+
+  public static final String getMonthlyExpiryFFMonthYearCode(final int nthMonth, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
+    Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
+    final LocalDate expiry = FedFundFutureAndFutureOptionMonthlyExpiryCalculator.getInstance().getExpiryMonth(nthMonth, valuationDate);
+    return getMonthYearCode(expiry, twoDigitYearDate);
+  }
+  
   /**
    * Produces Bloomberg's code for month and year
    * @param expiry Expiry date of instrument
