@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-@Test(enabled=false)
+@Test(enabled=true)
 public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRedisTestCase {
   
   public void basicOperation() {
@@ -116,7 +116,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
   /**
    * Test how fast we can add large historical timeseries using bulk insert.
    */
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void largePerformanceTestBulkInsert() {
     NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
     HistoricalTimeSeries hts = createSampleHts();

@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -25,8 +26,10 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.MetricProducer;
 import com.opengamma.util.tuple.Pair;
@@ -86,12 +89,40 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
     try (Timer.Context context = _putTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       try {
-        String redisKey = toRedisKey(uniqueId);
-        Map<String, String> htsMap = Maps.newHashMap();
-        for (Entry<LocalDate, Double> entry : timeseries) {
-          htsMap.put(entry.getKey().toString(), Double.toString(entry.getValue()));
+        String redisKey = toRedisKey(uniqueId);  
+        HistoricalTimeSeries historicalTimeSeries = getHistoricalTimeSeries(uniqueId);
+        List<LocalDate> times = null;
+        List<Double> values = null;
+        if (historicalTimeSeries != null) {
+          LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
+          for (Entry<LocalDate, Double> entry : historicalTimeSeries.getTimeSeries()) {
+            builder.put(entry.getKey(), entry.getValue());
+          }
+          for (Entry<LocalDate, Double> entry : timeseries) {
+            builder.put(entry.getKey(), entry.getValue());
+          }
+          LocalDateDoubleTimeSeries series = builder.build();
+          times = series.times();
+          values = series.values();
+          jedis.del(redisKey);
+        } else {
+          times = timeseries.times();
+          values = timeseries.values();
         }
-        jedis.hmset(redisKey, htsMap);
+        String[] timesArray = new String[times.size()];
+        int index = 0;
+        for (LocalDate date : times) {
+          timesArray[index++] = date.toString();
+        }
+        jedis.rpush(redisKey + "-TIMES", timesArray);
+        
+        String[] valuesArray = new String[values.size()];
+        index = 0;
+        for (Double value : values) {
+          valuesArray[index++] = Double.toString(value);
+        }
+        jedis.rpush(redisKey + "-VALUES", valuesArray);
+        
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
         s_logger.error("Unable to put timeseries with id: " + uniqueId, e);
