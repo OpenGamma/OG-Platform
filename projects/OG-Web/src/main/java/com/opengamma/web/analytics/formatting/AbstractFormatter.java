@@ -37,9 +37,8 @@ import com.opengamma.util.ArgumentChecker;
     Formatter<T> formatter = _formatters.get(format);
     if (formatter != null) {
       return formatter.format(value, valueSpec, inlineKey);
-    } else {
-      return new MissingValueFormatter(format + " format not supported for " + value.getClass().getSimpleName());
-    }
+    } 
+    return new MissingValueFormatter(format + " format not supported for " + value.getClass().getSimpleName());    
   }
 
   @Override
