@@ -9,6 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+import java.util.Map.Entry;
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
@@ -16,7 +19,9 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.test.AbstractRedisTestCase;
 import com.opengamma.util.tuple.Pair;
 
@@ -85,6 +90,55 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
     assertEquals(16.0, ts.getValue(LocalDate.parse("2013-06-06")), 0.00001);
     assertEquals(17.0, ts.getValue(LocalDate.parse("2013-06-07")), 0.00001);
     assertEquals(18.0, ts.getValue(LocalDate.parse("2013-06-08")), 0.00001);
+  }
+  
+  /**
+   * Test how fast we can add large historical timeseries adding one data point at a time.
+   */
+  @Test(enabled = false)
+  public void largePerformanceTestOneDataPoint() {
+    NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
+    HistoricalTimeSeries hts = createSampleHts();
+    long start = System.nanoTime();
+    LocalDateDoubleTimeSeries timeSeries = hts.getTimeSeries();
+    for (Entry<LocalDate, Double> entry : timeSeries) {
+      source.setTimeSeriesPoint(hts.getUniqueId(), entry.getKey(), entry.getValue());
+    }
+    long end = System.nanoTime();
+    double durationInSec = ((double) (end - start)) / 1e9;
+    System.out.println("Adding " + hts.getTimeSeries().size() + " datapoints took " + durationInSec + " sec");
+    HistoricalTimeSeries storedHts = source.getHistoricalTimeSeries(hts.getUniqueId());
+    assertNotNull(storedHts);
+    assertEquals(hts.getUniqueId(), storedHts.getUniqueId());
+    assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
+  }
+  
+  /**
+   * Test how fast we can add large historical timeseries using bulk insert.
+   */
+  @Test(enabled = false)
+  public void largePerformanceTestBulkInsert() {
+    NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
+    HistoricalTimeSeries hts = createSampleHts();
+    long start = System.nanoTime();
+    source.setTimeSeries(hts.getUniqueId(), hts.getTimeSeries());
+    long end = System.nanoTime();
+    double durationInSec = ((double) (end - start)) / 1e9;
+    System.out.println("Adding " + hts.getTimeSeries().size() + " datapoints took " + durationInSec + " sec");
+    HistoricalTimeSeries storedHts = source.getHistoricalTimeSeries(hts.getUniqueId());
+    assertNotNull(storedHts);
+    assertEquals(hts.getUniqueId(), storedHts.getUniqueId());
+    assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
+  }
+  
+  private HistoricalTimeSeries createSampleHts() {
+    UniqueId id = UniqueId.of("Test", UUID.randomUUID().toString());
+    LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
+    LocalDate start = LocalDate.now();
+    for (int i = 0; i < 50000; i++) {
+      builder.put(start.plusDays(i), Math.random());
+    }
+    return new SimpleHistoricalTimeSeries(id, builder.build());
   }
 
 }
