@@ -6,6 +6,7 @@
 package com.opengamma.core.historicaltimeseries.impl;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -13,14 +14,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.google.common.collect.Maps;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.MetricProducer;
@@ -49,6 +54,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHistoricalTimeSeriesSource.class);
   private Timer _getSeriesTimer = new Timer();
   private Timer _getPointTimer = new Timer();
+  private Timer _putTimer = new Timer();
   
   public NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
@@ -62,6 +68,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getSeriesTimer = summaryRegistry.timer(namePrefix + ".get");
     _getPointTimer = summaryRegistry.timer(namePrefix + ".getPoint");
+    _putTimer = summaryRegistry.timer(namePrefix + ".put");
   }
 
   public void setTimeSeriesPoint(UniqueId uniqueId, LocalDate valueDate, double value) {
@@ -70,6 +77,28 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
     String redisKey = toRedisKey(uniqueId);
     
     setTimeSeriesPoint(redisKey, valueDate, value);
+  }
+  
+  public void setTimeSeries(UniqueId uniqueId, LocalDateDoubleTimeSeries timeseries) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(timeseries, "timeseries");
+    
+    try (Timer.Context context = _putTimer.time()) {
+      Jedis jedis = getJedisPool().getResource();
+      try {
+        String redisKey = toRedisKey(uniqueId);
+        Map<String, String> htsMap = Maps.newHashMap();
+        for (Entry<LocalDate, Double> entry : timeseries) {
+          htsMap.put(entry.getKey().toString(), Double.toString(entry.getValue()));
+        }
+        jedis.hmset(redisKey, htsMap);
+        getJedisPool().returnResource(jedis);
+      } catch (Exception e) {
+        s_logger.error("Unable to put timeseries with id: " + uniqueId, e);
+        getJedisPool().returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + uniqueId, e);
+      }
+    }
   }
 
   @Override
