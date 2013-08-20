@@ -37,6 +37,16 @@ public class PCHIPInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    Validate.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
+    final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
+    final DoubleMatrix1D res = FUNC.differentiate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
+    return res.getEntry(0);
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     throw new NotImplementedException();
   }

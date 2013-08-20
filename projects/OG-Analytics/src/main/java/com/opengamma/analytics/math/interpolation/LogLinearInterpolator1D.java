@@ -41,6 +41,21 @@ public class LogLinearInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle model, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(model, "data bundle");
+    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    final Double x1 = boundedValues.getLowerBoundKey();
+    final Double y1 = boundedValues.getLowerBoundValue();
+    if (model.getLowerBoundIndex(value) == model.size() - 1) {
+      return 0.;
+    }
+    final Double x2 = boundedValues.getHigherBoundKey();
+    final Double y2 = boundedValues.getHigherBoundValue();
+    return Math.pow(y2 / y1, (value - x1) / (x2 - x1)) * y1 * Math.log(y2 / y1) / (x2 - x1);
+  }
+
+  @Override
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y);
   }

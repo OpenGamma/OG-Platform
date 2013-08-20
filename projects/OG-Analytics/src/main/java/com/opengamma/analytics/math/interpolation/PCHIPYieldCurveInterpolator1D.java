@@ -53,6 +53,26 @@ public class PCHIPYieldCurveInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    final double eps = 1e-10;
+
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    Validate.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
+    final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
+
+    ArgumentChecker.isFalse(value < 0, "value must be zero or positive");
+    if (value == 0) {
+      return 0.0;
+    }
+
+    final double t = Math.max(eps, value);
+    final DoubleMatrix1D resValue = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), t);
+    final DoubleMatrix1D resDerivative = FUNC.differentiate(polyData.getPiecewisePolynomialResultsWithSensitivity(), t);
+    return (resDerivative.getEntry(0) - resValue.getEntry(0) / t) / t;
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     throw new NotImplementedException();
   }

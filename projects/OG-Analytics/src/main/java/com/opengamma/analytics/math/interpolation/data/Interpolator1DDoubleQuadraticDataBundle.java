@@ -16,6 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDataBundle {
   private final Interpolator1DDataBundle _underlyingData;
   private RealPolynomialFunction1D[] _quadratics;
+  private RealPolynomialFunction1D[] _quadraticsFirstDerivative;
 
   public Interpolator1DDoubleQuadraticDataBundle(final Interpolator1DDataBundle underlyingData) {
     ArgumentChecker.notNull(underlyingData, "underlying data");
@@ -42,6 +43,24 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
     }
   }
 
+  private RealPolynomialFunction1D[] getQuadraticsFirstDerivative() {
+    final double[] xData = getKeys();
+    final double[] yData = getValues();
+    final int n = xData.length - 1;
+    if (n == 0) {
+      return new RealPolynomialFunction1D[] {new RealPolynomialFunction1D(0.) };
+    } else if (n == 1) {
+      final double b = (yData[1] - yData[0]) / (xData[1] - xData[0]);
+      return new RealPolynomialFunction1D[] {new RealPolynomialFunction1D(b) };
+    } else {
+      final RealPolynomialFunction1D[] quadraticFirstDerivative = new RealPolynomialFunction1D[n - 1];
+      for (int i = 1; i < n; i++) {
+        quadraticFirstDerivative[i - 1] = getQuadraticFirstDerivative(xData, yData, i);
+      }
+      return quadraticFirstDerivative;
+    }
+  }
+
   private RealPolynomialFunction1D getQuadratic(final double[] x, final double[] y, final int index) {
     final double a = y[index];
     final double dx1 = x[index] - x[index - 1];
@@ -53,11 +72,32 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
     return new RealPolynomialFunction1D(new double[] {a, b, c });
   }
 
+  private RealPolynomialFunction1D getQuadraticFirstDerivative(final double[] x, final double[] y, final int index) {
+    final double dx1 = x[index] - x[index - 1];
+    final double dx2 = x[index + 1] - x[index];
+    final double dy1 = y[index] - y[index - 1];
+    final double dy2 = y[index + 1] - y[index];
+    final double b = (dx1 * dy2 / dx2 + dx2 * dy1 / dx1) / (dx1 + dx2);
+    final double c = (dy2 / dx2 - dy1 / dx1) / (dx1 + dx2);
+    return new RealPolynomialFunction1D(new double[] {b, 2. * c });
+  }
+
   public RealPolynomialFunction1D getQuadratic(final int index) {
     if (_quadratics == null) {
       _quadratics = getQuadratics();
     }
     return _quadratics[index];
+  }
+
+  /**
+   * @param index The index of the interval
+   * @return First derivative of the quadratic function at the index
+   */
+  public RealPolynomialFunction1D getQuadraticFirstDerivative(final int index) {
+    if (_quadraticsFirstDerivative == null) {
+      _quadraticsFirstDerivative = getQuadraticsFirstDerivative();
+    }
+    return _quadraticsFirstDerivative[index];
   }
 
   @Override
