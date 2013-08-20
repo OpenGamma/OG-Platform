@@ -89,24 +89,23 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     for (int i = 0; i < Math.max(_rows.size(), newRows.size()); i++) {
       //if final node is expanded/collapsed then index will not be in list
       if (i >= _rows.size()) {
-        return Pair.of(_rows.get(i-1), true);
+        return Pair.of(_rows.get(i - 1), true);
       }
-      if (i >= newRows.size() ) {
-        return Pair.of(newRows.get(i-1), false);
+      if (i >= newRows.size()) {
+        return Pair.of(newRows.get(i - 1), false);
       }
       // if this object's row index is greater then the node has collapsed
       // the the other object's row index is greater then the node has expanded
       // the expanded / collapsed node is the row before the unequal row
       int oldRow = _rows.get(i);
       int newRow = newRows.get(i);
-      if (oldRow == newRow ) {
+      if (oldRow == newRow) {
         continue;
       }
       if (newRow < oldRow) {
-        return Pair.of(newRows.get(i-1), true);
-      }
-      else if (oldRow < newRow) {
-        return Pair.of(_rows.get(i-1), false);
+        return Pair.of(newRows.get(i - 1), true);
+      } else if (oldRow < newRow) {
+        return Pair.of(_rows.get(i - 1), false);
       }
     }
     // or resized the window - if the window has resized the row lists will be different lengths
@@ -145,7 +144,7 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     }
 
     private void initRow() {
-      if(_rowIterator.hasNext()) {
+      if (_rowIterator.hasNext()) {
         _rowIndex = _rowIterator.next();
       }
       _colIterator = _columns.iterator();

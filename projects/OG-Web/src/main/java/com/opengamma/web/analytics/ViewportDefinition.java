@@ -92,5 +92,5 @@ public abstract class ViewportDefinition implements Iterable<GridCell> {
     return _enableLogging;
   }
 
-  /* package */ abstract Pair<Integer,Boolean> getChangedNode(ViewportDefinition viewportDefinition);
+  /* package */ abstract Pair<Integer, Boolean> getChangedNode(ViewportDefinition viewportDefinition);
 }
