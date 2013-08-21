@@ -84,12 +84,12 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
     double pv;
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationDate.toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      pv = PRICER.pv(pricingCDS, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread()) * definition.getNotional();
+      pv = PRICER.pv(pricingCDS, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
       pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(pricingCDS,
                                                        getCoupon(((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon()),
                                                        yieldCurve,
-                                                       ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread()) * definition.getNotional();
+                                                       ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread() * 1e-4) * definition.getNotional();
     } else {
       throw new OpenGammaRuntimeException("Unexpected cds type: " + definition.getClass().getSimpleName());
     }
