@@ -146,11 +146,11 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _discountingCurveName.hashCode();
+    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_expirationTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _forwardCurveName.hashCode();
+    result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
     result = prime * result + (_isCall ? 1231 : 1237);
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ (temp >>> 32));

@@ -259,8 +259,8 @@ public class InterestRateFutureSecurity implements InstrumentDerivative {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_fixingPeriodStartTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _forwardCurveName.hashCode();
-    result = prime * result + _discountingCurveName.hashCode();
+    result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
+    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
     result = prime * result + _iborIndex.hashCode();
     temp = Double.doubleToLongBits(_lastTradingTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
