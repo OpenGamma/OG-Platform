@@ -17,7 +17,8 @@ import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDesc
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.time.DateUtils;
 
-public class BondFutureOptionPremiumSecurityTest {
+@SuppressWarnings("deprecation")
+public class DeprecatedBondFutureOptionPremiumSecurityTest {
 
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final BondFutureDefinition FVU1_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
@@ -27,8 +28,9 @@ public class BondFutureOptionPremiumSecurityTest {
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 8, 26);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 17);
+  private static final String[] CURVE_NAMES = new String[] {"A", "B"};
 
-  private static final BondFuture FVU1 = FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0);
+  private static final BondFuture FVU1 = FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, CURVE_NAMES);
   private static final double EXPIRATION_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
   private static final BondFutureOptionPremiumSecurity FVU1_C125 = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, IS_CALL);
 
@@ -58,7 +60,7 @@ public class BondFutureOptionPremiumSecurityTest {
     assertTrue(FVU1_C125.equals(other));
     assertTrue(FVU1_C125.hashCode() == other.hashCode());
     BondFutureOptionPremiumSecurity modified;
-    final BondFuture modifiedFuture = FVU1_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), 0.0);
+    final BondFuture modifiedFuture = FVU1_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), 0.0, CURVE_NAMES);
     modified = new BondFutureOptionPremiumSecurity(modifiedFuture, EXPIRATION_TIME, STRIKE, IS_CALL);
     assertFalse(FVU1_C125.equals(modified));
     modified = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME + 0.01, STRIKE, IS_CALL);

@@ -30,7 +30,8 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to bond futures transaction Derivative construction.
  */
-public class BondFutureTransactionTest {
+@SuppressWarnings("deprecation")
+public class DeprecatedBondFutureTransactionTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
@@ -63,7 +64,10 @@ public class BondFutureTransactionTest {
   private static final BondFuturesSecurityDefinition BOND_FUTURE_SECURITY_DEFINITION = new BondFuturesSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL,
       BASKET_DEFINITION, CONVERSION_FACTOR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 20);
-  private static final BondFuturesSecurity BOND_FUTURE_SECURITY = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final String CREDIT_CURVE_NAME = "Credit";
+  private static final String REPO_CURVE_NAME = "Repo";
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
+  private static final BondFuturesSecurity BOND_FUTURE_SECURITY = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Transaction
   private static final int QUANTITY = 4321;
   private static final double REFERENCE_PRICE = 1.0987;
@@ -98,7 +102,7 @@ public class BondFutureTransactionTest {
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     modifiedFuture = new BondFuturesTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE + 0.001);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
-    final BondFuturesSecurity otherUnderlying = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 1, CALENDAR));
+    final BondFuturesSecurity otherUnderlying = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 1, CALENDAR), CURVES_NAME);
     modifiedFuture = new BondFuturesTransaction(otherUnderlying, QUANTITY, REFERENCE_PRICE);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     assertFalse(FUTURE_TRANSACTION.equals(CUR));

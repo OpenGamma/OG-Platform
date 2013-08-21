@@ -172,7 +172,11 @@ public class CouponFixed extends Coupon {
    * @return The new coupon.
    */
   public CouponFixed withUnitCoupon() {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), 1);
+    }
   }
 
   /**
@@ -181,7 +185,11 @@ public class CouponFixed extends Coupon {
    * @return The coupon.
    */
   public CouponFixed withRate(final double rate) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    }
   }
 
   /**
@@ -190,12 +198,21 @@ public class CouponFixed extends Coupon {
    * @return The coupon.
    */
   public CouponFixed withRateShifted(final double spread) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    }
   }
 
   @Override
   public CouponFixed withNotional(final double notional) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+
+    }
   }
 
   /**
