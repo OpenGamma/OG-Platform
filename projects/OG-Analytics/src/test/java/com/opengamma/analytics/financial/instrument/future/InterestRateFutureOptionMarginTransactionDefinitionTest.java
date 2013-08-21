@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -38,7 +38,7 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
   // Future option mid-curve 1Y
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -SETTLEMENT_DAYS, CALENDAR);
@@ -101,9 +101,9 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
 
   @Test
   public void toDerivativeTradeInPast() {
-    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(REFERENCE_DATE);
     final double lastMarginPrice = 0.99;
-    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, lastMarginPrice, CURVES_NAMES);
+    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, lastMarginPrice);
     final InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, lastMarginPrice);
     assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
   }
@@ -111,9 +111,9 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
   @Test
   public void toDerivativeTradeToday() {
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(referenceDate, CURVES_NAMES);
+    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(referenceDate);
     final double lastMarginPrice = 0.99;
-    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
+    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice);
     final InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, TRADE_PRICE);
     assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
   }
@@ -122,7 +122,35 @@ public class InterestRateFutureOptionMarginTransactionDefinitionTest {
   public void toDerivativeTradeFuture() {
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, -1, CALENDAR);
     final double lastMarginPrice = 0.99;
-    OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
+    OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice);
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  public void toDerivativeTradeInPastDeprecated() {
+    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    final double lastMarginPrice = 0.99;
+    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, lastMarginPrice, CURVES_NAMES);
+    final InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, lastMarginPrice);
+    assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  public void toDerivativeTradeTodayDeprecated() {
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final InterestRateFutureOptionMarginSecurity securityConverted = OPTION_ERU2.toDerivative(referenceDate, CURVES_NAMES);
+    final double lastMarginPrice = 0.99;
+    final InterestRateFutureOptionMarginTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
+    final InterestRateFutureOptionMarginTransaction transaction = new InterestRateFutureOptionMarginTransaction(securityConverted, QUANTITY, TRADE_PRICE);
+    assertTrue("Conversion with trade date in the past", transactionConverted.equals(transaction));
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivativeTradeFutureDeprecated() {
+    final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, -1, CALENDAR);
+    final double lastMarginPrice = 0.99;
+    OPTION_TRANSACTION.toDerivative(referenceDate, lastMarginPrice, CURVES_NAMES);
+  }
 }

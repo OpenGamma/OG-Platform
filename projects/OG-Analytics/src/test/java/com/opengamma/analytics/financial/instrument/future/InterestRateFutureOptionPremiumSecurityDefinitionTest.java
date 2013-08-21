@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -93,8 +93,8 @@ public class InterestRateFutureOptionPremiumSecurityDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivative() {
-    final InterestRateFutureOptionPremiumSecurity optionEDU2Converted = OPTION_EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-    final InterestRateFutureSecurity future = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    final InterestRateFutureOptionPremiumSecurity optionEDU2Converted = OPTION_EDU2_DEFINITION.toDerivative(REFERENCE_DATE);
+    final InterestRateFutureSecurity future = EDU2_DEFINITION.toDerivative(REFERENCE_DATE);
     final double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
     final InterestRateFutureOptionPremiumSecurity optionEDU2 = new InterestRateFutureOptionPremiumSecurity(future, expirationTime, STRIKE, IS_CALL);
     assertEquals("Option on future: to derivative", optionEDU2, optionEDU2Converted);
@@ -102,7 +102,25 @@ public class InterestRateFutureOptionPremiumSecurityDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void dateAfterExpiration() {
-    OPTION_EDU2_DEFINITION.toDerivative(EXPIRATION_DATE.plusDays(1), CURVES);
+    OPTION_EDU2_DEFINITION.toDerivative(EXPIRATION_DATE.plusDays(1));
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeDeprecated() {
+    final InterestRateFutureOptionPremiumSecurity optionEDU2Converted = OPTION_EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    final InterestRateFutureSecurity future = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    final double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
+    final InterestRateFutureOptionPremiumSecurity optionEDU2 = new InterestRateFutureOptionPremiumSecurity(future, expirationTime, STRIKE, IS_CALL);
+    assertEquals("Option on future: to derivative", optionEDU2, optionEDU2Converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void dateAfterExpirationDeprecated() {
+    OPTION_EDU2_DEFINITION.toDerivative(EXPIRATION_DATE.plusDays(1), CURVES);
+  }
 }

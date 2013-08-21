@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -91,11 +91,24 @@ public class InterestRateFuturesSecurityDefinitionTest {
     modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME + "x", CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     final IborIndex otherIndex = new IborIndex(IBOR_INDEX.getCurrency(), IBOR_INDEX.getTenor(), IBOR_INDEX.getSpotLag(), IBOR_INDEX.getDayCount(), IBOR_INDEX.getBusinessDayConvention(),
-        !IBOR_INDEX.isEndOfMonth());
+        !IBOR_INDEX.isEndOfMonth(), "Ibor");
     modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, otherIndex, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
     assertFalse(ERU2_DEFINITION.equals(modifiedFuture));
     assertFalse(ERU2_DEFINITION.equals(IBOR_INDEX));
     assertFalse(ERU2_DEFINITION.equals(null));
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  public void toDerivativeDeprecated() {
+    final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
+    final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
+    final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
+    final double FIXING_ACCRUAL = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
+    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
+        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    final InterestRateFutureSecurity convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
   }
 
   @Test
@@ -104,9 +117,8 @@ public class InterestRateFuturesSecurityDefinitionTest {
     final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
     final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
     final double FIXING_ACCRUAL = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
-        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    final InterestRateFutureSecurity convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME);
+    final InterestRateFutureSecurity convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE);
     assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
   }
 }
